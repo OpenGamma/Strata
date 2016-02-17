@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,56 +24,28 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 
 /**
- * An adjustment that alters a date by adding a period of days.
+ * An adjuster that alters a date by adding a period of days,
+ * resolved to specific holiday calendars.
  * <p>
- * When processing dates in finance, the rules for adjusting a date by a number of days can be complex.
- * This class represents those rules, which operate in two steps - addition followed by adjustment.
- * There are two main ways to perform the addition:
- * 
- * <h4>Approach 1 - calendar days addition</h4>
- * This approach is triggered by using the {@code ofCalendarDays()} factory methods.
- * When adding a number of days to a date the addition is simple, no holidays or weekends apply.
- * For example, two days after Friday 15th August would be Sunday 17th, even though this is typically a weekend.
- * There are two steps in the calculation:
+ * This is the resolved form of {@link DaysAdjustment} which describes the adjustment in detail.
+ * Applications will typically create a {@code DaysAdjuster} from a {@code DaysAdjustment}
+ * using {@link DaysAdjustment#resolve(ReferenceData)}.
  * <p>
- * In step one, the number of days is added without skipping any dates.
- * <p>
- * In step two, the result of step one is optionally adjusted to be a business day
- * using a {@code BusinessDayAdjustment}.
- * 
- * <h4>Approach 2 - business days addition</h4>
- * With this approach the days to be added are treated as business days.
- * For example, two days after Friday 15th August would be Tuesday 19th, assuming a Saturday/Sunday
- * weekend and no other applicable holidays.
- * <p>
- * This approach is triggered by using the {@code ofBusinessDays()} factory methods.
- * The distinction between business days, holidays and weekends is made using the specified holiday calendar.
- * There are two steps in the calculation:
- * <p>
- * In step one, the number of days is added using {@link HolidayCalendar#shift(LocalDate, int)}.
- * <p>
- * In step two, the result of step one is optionally adjusted to be a business day
- * using a {@code BusinessDayAdjustment}.
- * <p>
- * At first glance, step two may seem pointless, as the result of step one will always be a valid business day.
- * However, the step two adjustment allows the possibility of applying a different holiday calendar.
- * <p>
- * For example, a rule might have two parts: "first add 2 London business days, and then adjust the
- * result to be a valid New York business day using the 'ModifiedFollowing' convention".
- * Note that the holiday calendar differs in the two parts of the rule.
+ * A {@code DaysAdjuster} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
-public final class DaysAdjustment
-    implements Resolvable<DaysAdjuster>, ImmutableBean, Serializable {
+@BeanDefinition(constructorScope = "package")
+public final class DaysAdjuster
+    implements ImmutableBean, DateAdjuster, Serializable {
 
   /**
    * An instance that performs no adjustment.
    */
-  public static final DaysAdjustment NONE =
-      new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+  public static final DaysAdjuster NONE =
+      new DaysAdjuster(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjuster.NONE);
 
   /**
    * The number of days to be added.
@@ -98,18 +70,18 @@ public final class DaysAdjustment
   @PropertyDefinition(validate = "notNull")
   private final HolidayCalendar calendar;
   /**
-   * The business day adjustment that is performed to the result of the addition.
+   * The business day adjuster that is applied to the result of the addition.
    * <p>
-   * This adjustment is applied to the result of the period addition calculation.
+   * This adjuster is applied to the result of the period addition calculation.
    * If the addition is performed using business days then any adjustment here is expected to
    * have a different holiday calendar to that used during addition.
    * <p>
-   * If no adjustment is required, use the 'None' business day adjustment.
+   * If no adjustment is required, use the 'None' business day adjuster.
    * <p>
    * See the class-level documentation for more information.
    */
   @PropertyDefinition(validate = "notNull")
-  private final BusinessDayAdjustment adjustment;
+  private final BusinessDayAdjuster adjuster;
 
   //-------------------------------------------------------------------------
   /**
@@ -118,13 +90,13 @@ public final class DaysAdjustment
    * When adjusting a date, the specified number of calendar days is added.
    * Holidays and weekends are not taken into account in the calculation.
    * <p>
-   * No business day adjustment is applied to the result of the addition.
+   * No business day adjuster is applied to the result of the addition.
    * 
    * @param numberOfDays  the number of days
    * @return the days adjustment
    */
-  public static DaysAdjustment ofCalendarDays(int numberOfDays) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+  public static DaysAdjuster ofCalendarDays(int numberOfDays) {
+    return new DaysAdjuster(numberOfDays, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjuster.NONE);
   }
 
   /**
@@ -133,14 +105,14 @@ public final class DaysAdjustment
    * When adjusting a date, the specified number of calendar days is added.
    * Holidays and weekends are not taken into account in the calculation.
    * <p>
-   * The business day adjustment is applied to the result of the addition.
+   * The business day adjuster is applied to the result of the addition.
    * 
    * @param numberOfDays  the number of days
-   * @param adjustment  the business day adjustment to apply to the result of the addition
+   * @param adjuster  the business day adjuster to apply to the result of the addition
    * @return the days adjustment
    */
-  public static DaysAdjustment ofCalendarDays(int numberOfDays, BusinessDayAdjustment adjustment) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, adjustment);
+  public static DaysAdjuster ofCalendarDays(int numberOfDays, BusinessDayAdjuster adjuster) {
+    return new DaysAdjuster(numberOfDays, HolidayCalendars.NO_HOLIDAYS, adjuster);
   }
 
   /**
@@ -149,14 +121,14 @@ public final class DaysAdjustment
    * When adjusting a date, the specified number of business days is added.
    * This is equivalent to repeatedly finding the next business day.
    * <p>
-   * No business day adjustment is applied to the result of the addition.
+   * No business day adjuster is applied to the result of the addition.
    * 
    * @param numberOfDays  the number of days
    * @param holidayCalendar  the calendar that defines holidays and business days
-   * @return the days adjustment
+   * @return the days adjuster
    */
-  public static DaysAdjustment ofBusinessDays(int numberOfDays, HolidayCalendar holidayCalendar) {
-    return new DaysAdjustment(numberOfDays, holidayCalendar, BusinessDayAdjustment.NONE);
+  public static DaysAdjuster ofBusinessDays(int numberOfDays, HolidayCalendar holidayCalendar) {
+    return new DaysAdjuster(numberOfDays, holidayCalendar, BusinessDayAdjuster.NONE);
   }
 
   /**
@@ -165,24 +137,24 @@ public final class DaysAdjustment
    * When adjusting a date, the specified number of business days is added.
    * This is equivalent to repeatedly finding the next business day.
    * <p>
-   * The business day adjustment is applied to the result of the addition.
+   * The business day adjuster is applied to the result of the addition.
    * 
    * @param numberOfDays  the number of days
    * @param holidayCalendar  the calendar that defines holidays and business days
-   * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the days adjustment
+   * @param adjuster  the business day adjuster to apply to the result of the addition
+   * @return the days adjuster
    */
-  public static DaysAdjustment ofBusinessDays(
+  public static DaysAdjuster ofBusinessDays(
       int numberOfDays,
       HolidayCalendar holidayCalendar,
-      BusinessDayAdjustment adjustment) {
-    return new DaysAdjustment(numberOfDays, holidayCalendar, adjustment);
+      BusinessDayAdjuster adjuster) {
+    return new DaysAdjuster(numberOfDays, holidayCalendar, adjuster);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Adjusts the date, adding the period in days using the holiday calendar
-   * and then applying the business day adjustment.
+   * and then applying the business day adjuster.
    * <p>
    * The calculation is performed in two steps.
    * <p>
@@ -194,60 +166,10 @@ public final class DaysAdjustment
    * @param date  the date to adjust
    * @return the adjusted date
    */
+  @Override
   public LocalDate adjust(LocalDate date) {
     LocalDate added = calendar.shift(date, days);
-    return adjustment.adjust(added);
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning an adjuster.
-   * <p>
-   * This returns a {@link DaysAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * The resulting adjuster will be {@link #normalized() normalized}.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the adjuster, bound to a specific holiday calendar
-   */
-  @Override
-  public DaysAdjuster resolve(ReferenceData refData) {
-    HolidayCalendar cal = days == 0 ? HolidayCalendars.NO_HOLIDAYS : calendar;
-    BusinessDayAdjustment adj = calendar.equals(adjustment.getCalendar()) ? BusinessDayAdjustment.NONE : adjustment;
-    return new DaysAdjuster(days, cal, adj.resolve(refData));
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning a date adjuster.
-   * <p>
-   * This returns a {@link DateAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * See {@link #resolve(ReferenceData)} for an equivalent method that returns a bean.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the date adjuster, bound to a specific holiday calendar
-   */
-  public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
-  }
-
-  /**
-   * Returns an adjustable date instance resulting from applying this adjustment to a date.
-   * <p>
-   * The number of days of this adjustment is added to the specified date using the
-   * {@link HolidayCalendar#shift(LocalDate, int)}.
-   * If the holiday calendar is 'None' this will effectively add calendar days.
-   * The result is then created from the shifted date and the result of {@link #getAdjustment()}.
-   * 
-   * @param date  the date to adjust
-   * @return the adjusted date
-   */
-  public AdjustableDate toAdjustedDate(LocalDate date) {
-    LocalDate added = calendar.shift(date, days);
-    return AdjustableDate.of(added, adjustment);
+    return adjuster.adjust(added);
   }
 
   /**
@@ -260,7 +182,7 @@ public final class DaysAdjustment
    * @return the result holiday calendar
    */
   public HolidayCalendar getResultCalendar() {
-    HolidayCalendar cal = adjustment.getCalendar();
+    HolidayCalendar cal = adjuster.getCalendar();
     if (cal == HolidayCalendars.NO_HOLIDAYS) {
       cal = calendar;
     }
@@ -269,30 +191,7 @@ public final class DaysAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Normalizes the adjustment.
-   * <p>
-   * If the number of days is zero, the calendar is set no 'NoHolidays'.
-   * If the number of days is non-zero and the calendar equals the adjustment calendar,
-   * the adjustment is removed.
-   * 
-   * @return the normalized adjustment
-   */
-  public DaysAdjustment normalized() {
-    if (days == 0) {
-      if (!calendar.equals(HolidayCalendars.NO_HOLIDAYS)) {
-        return DaysAdjustment.ofCalendarDays(days, adjustment);
-      }
-      return this;
-    }
-    if (calendar.equals(adjustment.getCalendar())) {
-      return DaysAdjustment.ofBusinessDays(days, calendar);
-    }
-    return this;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a string describing the adjustment.
+   * Returns a string describing the adjuster.
    * 
    * @return the descriptive string
    */
@@ -310,10 +209,10 @@ public final class DaysAdjustment
       if (days != 1) {
         buf.append("s");
       }
-      buf.append(" using calendar ").append(calendar.getName());
+      buf.append(" using calendar ").append(calendar);
     }
-    if (adjustment.equals(BusinessDayAdjustment.NONE) == false) {
-      buf.append(" then apply ").append(adjustment);
+    if (adjuster.equals(BusinessDayAdjuster.NONE) == false) {
+      buf.append(" then apply ").append(adjuster);
     }
     return buf.toString();
   }
@@ -321,15 +220,15 @@ public final class DaysAdjustment
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code DaysAdjustment}.
+   * The meta-bean for {@code DaysAdjuster}.
    * @return the meta-bean, not null
    */
-  public static DaysAdjustment.Meta meta() {
-    return DaysAdjustment.Meta.INSTANCE;
+  public static DaysAdjuster.Meta meta() {
+    return DaysAdjuster.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(DaysAdjustment.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DaysAdjuster.Meta.INSTANCE);
   }
 
   /**
@@ -341,25 +240,31 @@ public final class DaysAdjustment
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static DaysAdjustment.Builder builder() {
-    return new DaysAdjustment.Builder();
+  public static DaysAdjuster.Builder builder() {
+    return new DaysAdjuster.Builder();
   }
 
-  private DaysAdjustment(
+  /**
+   * Creates an instance.
+   * @param days  the value of the property, not null
+   * @param calendar  the value of the property, not null
+   * @param adjuster  the value of the property, not null
+   */
+  DaysAdjuster(
       int days,
       HolidayCalendar calendar,
-      BusinessDayAdjustment adjustment) {
+      BusinessDayAdjuster adjuster) {
     JodaBeanUtils.notNull(days, "days");
     JodaBeanUtils.notNull(calendar, "calendar");
-    JodaBeanUtils.notNull(adjustment, "adjustment");
+    JodaBeanUtils.notNull(adjuster, "adjuster");
     this.days = days;
     this.calendar = calendar;
-    this.adjustment = adjustment;
+    this.adjuster = adjuster;
   }
 
   @Override
-  public DaysAdjustment.Meta metaBean() {
-    return DaysAdjustment.Meta.INSTANCE;
+  public DaysAdjuster.Meta metaBean() {
+    return DaysAdjuster.Meta.INSTANCE;
   }
 
   @Override
@@ -404,19 +309,19 @@ public final class DaysAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjustment that is performed to the result of the addition.
+   * Gets the business day adjuster that is applied to the result of the addition.
    * <p>
-   * This adjustment is applied to the result of the period addition calculation.
+   * This adjuster is applied to the result of the period addition calculation.
    * If the addition is performed using business days then any adjustment here is expected to
    * have a different holiday calendar to that used during addition.
    * <p>
-   * If no adjustment is required, use the 'None' business day adjustment.
+   * If no adjustment is required, use the 'None' business day adjuster.
    * <p>
    * See the class-level documentation for more information.
    * @return the value of the property, not null
    */
-  public BusinessDayAdjustment getAdjustment() {
-    return adjustment;
+  public BusinessDayAdjuster getAdjuster() {
+    return adjuster;
   }
 
   //-----------------------------------------------------------------------
@@ -434,10 +339,10 @@ public final class DaysAdjustment
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      DaysAdjustment other = (DaysAdjustment) obj;
+      DaysAdjuster other = (DaysAdjuster) obj;
       return (days == other.days) &&
           JodaBeanUtils.equal(calendar, other.calendar) &&
-          JodaBeanUtils.equal(adjustment, other.adjustment);
+          JodaBeanUtils.equal(adjuster, other.adjuster);
     }
     return false;
   }
@@ -447,13 +352,13 @@ public final class DaysAdjustment
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(days);
     hash = hash * 31 + JodaBeanUtils.hashCode(calendar);
-    hash = hash * 31 + JodaBeanUtils.hashCode(adjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(adjuster);
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code DaysAdjustment}.
+   * The meta-bean for {@code DaysAdjuster}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -465,17 +370,17 @@ public final class DaysAdjustment
      * The meta-property for the {@code days} property.
      */
     private final MetaProperty<Integer> days = DirectMetaProperty.ofImmutable(
-        this, "days", DaysAdjustment.class, Integer.TYPE);
+        this, "days", DaysAdjuster.class, Integer.TYPE);
     /**
      * The meta-property for the {@code calendar} property.
      */
     private final MetaProperty<HolidayCalendar> calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", DaysAdjustment.class, HolidayCalendar.class);
+        this, "calendar", DaysAdjuster.class, HolidayCalendar.class);
     /**
-     * The meta-property for the {@code adjustment} property.
+     * The meta-property for the {@code adjuster} property.
      */
-    private final MetaProperty<BusinessDayAdjustment> adjustment = DirectMetaProperty.ofImmutable(
-        this, "adjustment", DaysAdjustment.class, BusinessDayAdjustment.class);
+    private final MetaProperty<BusinessDayAdjuster> adjuster = DirectMetaProperty.ofImmutable(
+        this, "adjuster", DaysAdjuster.class, BusinessDayAdjuster.class);
     /**
      * The meta-properties.
      */
@@ -483,7 +388,7 @@ public final class DaysAdjustment
         this, null,
         "days",
         "calendar",
-        "adjustment");
+        "adjuster");
 
     /**
      * Restricted constructor.
@@ -498,20 +403,20 @@ public final class DaysAdjustment
           return days;
         case -178324674:  // calendar
           return calendar;
-        case 1977085293:  // adjustment
-          return adjustment;
+        case -1043751812:  // adjuster
+          return adjuster;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public DaysAdjustment.Builder builder() {
-      return new DaysAdjustment.Builder();
+    public DaysAdjuster.Builder builder() {
+      return new DaysAdjuster.Builder();
     }
 
     @Override
-    public Class<? extends DaysAdjustment> beanType() {
-      return DaysAdjustment.class;
+    public Class<? extends DaysAdjuster> beanType() {
+      return DaysAdjuster.class;
     }
 
     @Override
@@ -537,11 +442,11 @@ public final class DaysAdjustment
     }
 
     /**
-     * The meta-property for the {@code adjustment} property.
+     * The meta-property for the {@code adjuster} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BusinessDayAdjustment> adjustment() {
-      return adjustment;
+    public MetaProperty<BusinessDayAdjuster> adjuster() {
+      return adjuster;
     }
 
     //-----------------------------------------------------------------------
@@ -549,11 +454,11 @@ public final class DaysAdjustment
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3076183:  // days
-          return ((DaysAdjustment) bean).getDays();
+          return ((DaysAdjuster) bean).getDays();
         case -178324674:  // calendar
-          return ((DaysAdjustment) bean).getCalendar();
-        case 1977085293:  // adjustment
-          return ((DaysAdjustment) bean).getAdjustment();
+          return ((DaysAdjuster) bean).getCalendar();
+        case -1043751812:  // adjuster
+          return ((DaysAdjuster) bean).getAdjuster();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -571,13 +476,13 @@ public final class DaysAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code DaysAdjustment}.
+   * The bean-builder for {@code DaysAdjuster}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<DaysAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<DaysAdjuster> {
 
     private int days;
     private HolidayCalendar calendar;
-    private BusinessDayAdjustment adjustment;
+    private BusinessDayAdjuster adjuster;
 
     /**
      * Restricted constructor.
@@ -589,10 +494,10 @@ public final class DaysAdjustment
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(DaysAdjustment beanToCopy) {
+    private Builder(DaysAdjuster beanToCopy) {
       this.days = beanToCopy.getDays();
       this.calendar = beanToCopy.getCalendar();
-      this.adjustment = beanToCopy.getAdjustment();
+      this.adjuster = beanToCopy.getAdjuster();
     }
 
     //-----------------------------------------------------------------------
@@ -603,8 +508,8 @@ public final class DaysAdjustment
           return days;
         case -178324674:  // calendar
           return calendar;
-        case 1977085293:  // adjustment
-          return adjustment;
+        case -1043751812:  // adjuster
+          return adjuster;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -619,8 +524,8 @@ public final class DaysAdjustment
         case -178324674:  // calendar
           this.calendar = (HolidayCalendar) newValue;
           break;
-        case 1977085293:  // adjustment
-          this.adjustment = (BusinessDayAdjustment) newValue;
+        case -1043751812:  // adjuster
+          this.adjuster = (BusinessDayAdjuster) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -653,11 +558,11 @@ public final class DaysAdjustment
     }
 
     @Override
-    public DaysAdjustment build() {
-      return new DaysAdjustment(
+    public DaysAdjuster build() {
+      return new DaysAdjuster(
           days,
           calendar,
-          adjustment);
+          adjuster);
     }
 
     //-----------------------------------------------------------------------
@@ -696,21 +601,21 @@ public final class DaysAdjustment
     }
 
     /**
-     * Sets the business day adjustment that is performed to the result of the addition.
+     * Sets the business day adjuster that is applied to the result of the addition.
      * <p>
-     * This adjustment is applied to the result of the period addition calculation.
+     * This adjuster is applied to the result of the period addition calculation.
      * If the addition is performed using business days then any adjustment here is expected to
      * have a different holiday calendar to that used during addition.
      * <p>
-     * If no adjustment is required, use the 'None' business day adjustment.
+     * If no adjustment is required, use the 'None' business day adjuster.
      * <p>
      * See the class-level documentation for more information.
-     * @param adjustment  the new value, not null
+     * @param adjuster  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder adjustment(BusinessDayAdjustment adjustment) {
-      JodaBeanUtils.notNull(adjustment, "adjustment");
-      this.adjustment = adjustment;
+    public Builder adjuster(BusinessDayAdjuster adjuster) {
+      JodaBeanUtils.notNull(adjuster, "adjuster");
+      this.adjuster = adjuster;
       return this;
     }
 
@@ -718,10 +623,10 @@ public final class DaysAdjustment
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("DaysAdjustment.Builder{");
+      buf.append("DaysAdjuster.Builder{");
       buf.append("days").append('=').append(JodaBeanUtils.toString(days)).append(',').append(' ');
       buf.append("calendar").append('=').append(JodaBeanUtils.toString(calendar)).append(',').append(' ');
-      buf.append("adjustment").append('=').append(JodaBeanUtils.toString(adjustment));
+      buf.append("adjuster").append('=').append(JodaBeanUtils.toString(adjuster));
       buf.append('}');
       return buf.toString();
     }

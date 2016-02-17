@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link DaysAdjustment}.
@@ -25,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class DaysAdjustmentTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendar HOLCAL_NONE = HolidayCalendars.NO_HOLIDAYS;
   private static final HolidayCalendar HOLCAL_SAT_SUN = HolidayCalendars.SAT_SUN;
   private static final HolidayCalendar HOLCAL_WED_THU =
@@ -65,6 +67,8 @@ public class DaysAdjustmentTest {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2);
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base), date(2014, 8, 17));  // Sun
+    assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
+    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
   }
 
   public void test_ofCalendarDays2_oneDay() {
@@ -87,6 +91,8 @@ public class DaysAdjustmentTest {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base), date(2014, 8, 18));  // Mon
+    assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
+    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
   }
 
   public void test_ofCalendarDays2_null() {
@@ -114,6 +120,8 @@ public class DaysAdjustmentTest {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN);
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base), date(2014, 8, 19));  // Tue
+    assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
+    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
   }
 
   public void test_ofBusinessDays2_null() {
@@ -143,6 +151,8 @@ public class DaysAdjustmentTest {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, BDA_FOLLOW_WED_THU);
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
+    assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
+    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
   }
 
   public void test_ofBusinessDays3_null() {
@@ -169,35 +179,35 @@ public class DaysAdjustmentTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getEffectiveResultCalendar1() {
+  public void test_getResultCalendar1() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN);
-    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_SAT_SUN);
+    assertEquals(test.getResultCalendar(), HOLCAL_SAT_SUN);
   }
 
-  public void test_getEffectiveResultCalendar2() {
+  public void test_getResultCalendar2() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, BDA_FOLLOW_WED_THU);
-    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_WED_THU);
+    assertEquals(test.getResultCalendar(), HOLCAL_WED_THU);
   }
 
-  public void test_getEffectiveResultCalendar3() {
+  public void test_getResultCalendar3() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(3);
-    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_NONE);
+    assertEquals(test.getResultCalendar(), HOLCAL_NONE);
   }
 
   //-------------------------------------------------------------------------
-  public void test_normalize() {
+  public void test_normalized() {
     DaysAdjustment zeroDays = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment zeroDaysWithCalendar = DaysAdjustment.ofBusinessDays(0, HOLCAL_WED_THU, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment twoDays = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment twoDaysWithCalendar = DaysAdjustment.ofBusinessDays(2, HOLCAL_WED_THU, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment twoDaysWithSameCalendar = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment twoDaysWithNoAdjust = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN);
-    assertEquals(zeroDays.normalize(), zeroDays);
-    assertEquals(zeroDaysWithCalendar.normalize(), zeroDays);
-    assertEquals(twoDays.normalize(), twoDays);
-    assertEquals(twoDaysWithCalendar.normalize(), twoDaysWithCalendar);
-    assertEquals(twoDaysWithSameCalendar.normalize(), twoDaysWithNoAdjust);
-    assertEquals(twoDaysWithNoAdjust.normalize(), twoDaysWithNoAdjust);
+    assertEquals(zeroDays.normalized(), zeroDays);
+    assertEquals(zeroDaysWithCalendar.normalized(), zeroDays);
+    assertEquals(twoDays.normalized(), twoDays);
+    assertEquals(twoDaysWithCalendar.normalized(), twoDaysWithCalendar);
+    assertEquals(twoDaysWithSameCalendar.normalized(), twoDaysWithNoAdjust);
+    assertEquals(twoDaysWithNoAdjust.normalized(), twoDaysWithNoAdjust);
   }
 
   //-------------------------------------------------------------------------

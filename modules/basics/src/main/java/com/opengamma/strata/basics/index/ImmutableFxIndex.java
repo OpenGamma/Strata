@@ -98,7 +98,7 @@ public final class ImmutableFxIndex
 
   // finds the calendar of the maturity date
   private HolidayCalendar maturityDateCalendar() {
-    HolidayCalendar cal = maturityDateOffset.getEffectiveResultCalendar();
+    HolidayCalendar cal = maturityDateOffset.getResultCalendar();
     return (cal == HolidayCalendars.NO_HOLIDAYS ? fixingCalendar : cal);
   }
 

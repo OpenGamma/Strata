@@ -31,12 +31,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
  * <p>
  * This class combines an unadjusted date and the business day adjustment necessary to adjust it.
  * Calling the {@link #adjusted(ReferenceData)} method will return the adjusted date.
- * 
- * <h4>Usage</h4>
- * {@code AdjustableDate} contains enough information to directly return the adjusted date:
- * <pre>
- *  LocalDate adjusted = adjustableDate.adjusted();
- * </pre>
  */
 @BeanDefinition(builderScope = "private")
 public final class AdjustableDate

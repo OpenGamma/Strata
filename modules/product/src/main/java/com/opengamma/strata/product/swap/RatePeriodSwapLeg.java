@@ -37,6 +37,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
@@ -229,24 +230,28 @@ public final class RatePeriodSwapLeg
    */
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
+    DateAdjuster paymentDateAdjuster = paymentBusinessDayAdjustment.toDateAdjuster(refData);
     ImmutableList<RatePaymentPeriod> adjusted = paymentPeriods.stream()
-        .map(pp -> pp.adjustPaymentDate(paymentBusinessDayAdjustment))
+        .map(pp -> pp.adjustPaymentDate(paymentDateAdjuster))
         .collect(toImmutableList());
     return ResolvedSwapLeg.builder()
         .type(type)
         .payReceive(payReceive)
         .paymentPeriods(adjusted)
-        .paymentEvents(createEvents(refData, adjusted))
+        .paymentEvents(createEvents(adjusted, paymentDateAdjuster))
         .build();
   }
 
   // notional exchange events
-  private ImmutableList<PaymentEvent> createEvents(ReferenceData refData, List<RatePaymentPeriod> adjPaymentPeriods) {
+  private ImmutableList<PaymentEvent> createEvents(
+      List<RatePaymentPeriod> adjPaymentPeriods,
+      DateAdjuster paymentDateAdjuster) {
+
     ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
-    LocalDate initialExchangeDate = paymentBusinessDayAdjustment.adjust(getStartDate().adjusted(refData));
+    LocalDate initialExchangeDate = paymentDateAdjuster.adjust(adjPaymentPeriods.get(0).getStartDate());
     events.addAll(NotionalSchedule.createEvents(
         adjPaymentPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange));
-    paymentEvents.forEach(pe -> events.add(pe.adjustPaymentDate(paymentBusinessDayAdjustment)));
+    paymentEvents.forEach(pe -> events.add(pe.adjustPaymentDate(paymentDateAdjuster)));
     return events.build();
   }
 

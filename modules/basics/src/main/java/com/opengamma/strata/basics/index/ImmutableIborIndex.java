@@ -155,7 +155,7 @@ public final class ImmutableIborIndex
 
   // finds the calendar of the effective date
   private HolidayCalendar effectiveDateCalendar() {
-    HolidayCalendar cal = effectiveDateOffset.getEffectiveResultCalendar();
+    HolidayCalendar cal = effectiveDateOffset.getResultCalendar();
     if (cal == HolidayCalendars.NO_HOLIDAYS) {
       cal = fixingCalendar;
     }

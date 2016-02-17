@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,29 +24,28 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An adjustment that alters a date if it falls on a day other than a business day.
+ * An adjuster that alters a date if it falls on a day other than a business day,
+ * resolved to specific holiday calendars.
  * <p>
- * When processing dates in finance, it is typically intended that non-business days,
- * such as weekends and holidays, are converted to a nearby valid business day.
- * This class represents the necessary adjustment.
+ * This is the resolved form of {@link BusinessDayAdjustment} which describes the adjustment in detail.
+ * Applications will typically create a {@code BusinessDayAdjuster} from a {@code BusinessDayAdjustment}
+ * using {@link BusinessDayAdjustment#resolve(ReferenceData)}.
  * <p>
- * This class combines a {@linkplain BusinessDayConvention business day convention}
- * with a {@linkplain HolidayCalendar holiday calendar}.
- * Together, these contain enough information to be able to adjust a date.
+ * A {@code BusinessDayAdjuster} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
-public final class BusinessDayAdjustment
-    implements Resolvable<BusinessDayAdjuster>, ImmutableBean, Serializable {
+@BeanDefinition(constructorScope = "package")
+public final class BusinessDayAdjuster
+    implements ImmutableBean, DateAdjuster, Serializable {
 
   /**
    * An instance that performs no adjustment.
    */
-  public static final BusinessDayAdjustment NONE =
-      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
+  public static final BusinessDayAdjuster NONE =
+      new BusinessDayAdjuster(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
 
   /**
    * The convention used to the adjust the date if it does not fall on a business day.
@@ -71,10 +70,10 @@ public final class BusinessDayAdjustment
    * 
    * @param convention  the convention used to the adjust the date if it does not fall on a business day
    * @param calendar  the calendar that defines holidays and business days
-   * @return the adjuster
+   * @return the business day adjuster
    */
-  public static BusinessDayAdjustment of(BusinessDayConvention convention, HolidayCalendar calendar) {
-    return new BusinessDayAdjustment(convention, calendar);
+  public static BusinessDayAdjuster of(BusinessDayConvention convention, HolidayCalendar calendar) {
+    return new BusinessDayAdjuster(convention, calendar);
   }
 
   //-------------------------------------------------------------------------
@@ -87,45 +86,14 @@ public final class BusinessDayAdjustment
    * @param date  the date to adjust
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date) {
-    ArgChecker.notNull(date, "date");
-    return convention.adjust(date, calendar);
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning an adjuster.
-   * <p>
-   * This returns a {@link BusinessDayAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the adjuster, bound to a specific holiday calendar
-   */
   @Override
-  public BusinessDayAdjuster resolve(ReferenceData refData) {
-    return new BusinessDayAdjuster(convention, calendar);
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning a date adjuster.
-   * <p>
-   * This returns a {@link BusinessDayAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * See {@link #resolve(ReferenceData)} for an equivalent method that returns a bean.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the date adjuster, bound to a specific holiday calendar
-   */
-  public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
+  public LocalDate adjust(LocalDate date) {
+    return convention.adjust(date, calendar);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a string describing the adjustment.
+   * Returns a string describing the adjuster.
    * 
    * @return the descriptive string
    */
@@ -134,21 +102,21 @@ public final class BusinessDayAdjustment
     if (this.equals(NONE)) {
       return convention.toString();
     }
-    return convention + " using calendar " + calendar.getName();
+    return convention + " using calendar " + calendar;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BusinessDayAdjustment}.
+   * The meta-bean for {@code BusinessDayAdjuster}.
    * @return the meta-bean, not null
    */
-  public static BusinessDayAdjustment.Meta meta() {
-    return BusinessDayAdjustment.Meta.INSTANCE;
+  public static BusinessDayAdjuster.Meta meta() {
+    return BusinessDayAdjuster.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(BusinessDayAdjustment.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(BusinessDayAdjuster.Meta.INSTANCE);
   }
 
   /**
@@ -160,11 +128,16 @@ public final class BusinessDayAdjustment
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static BusinessDayAdjustment.Builder builder() {
-    return new BusinessDayAdjustment.Builder();
+  public static BusinessDayAdjuster.Builder builder() {
+    return new BusinessDayAdjuster.Builder();
   }
 
-  private BusinessDayAdjustment(
+  /**
+   * Creates an instance.
+   * @param convention  the value of the property, not null
+   * @param calendar  the value of the property, not null
+   */
+  BusinessDayAdjuster(
       BusinessDayConvention convention,
       HolidayCalendar calendar) {
     JodaBeanUtils.notNull(convention, "convention");
@@ -174,8 +147,8 @@ public final class BusinessDayAdjustment
   }
 
   @Override
-  public BusinessDayAdjustment.Meta metaBean() {
-    return BusinessDayAdjustment.Meta.INSTANCE;
+  public BusinessDayAdjuster.Meta metaBean() {
+    return BusinessDayAdjuster.Meta.INSTANCE;
   }
 
   @Override
@@ -225,7 +198,7 @@ public final class BusinessDayAdjustment
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BusinessDayAdjustment other = (BusinessDayAdjustment) obj;
+      BusinessDayAdjuster other = (BusinessDayAdjuster) obj;
       return JodaBeanUtils.equal(convention, other.convention) &&
           JodaBeanUtils.equal(calendar, other.calendar);
     }
@@ -242,7 +215,7 @@ public final class BusinessDayAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BusinessDayAdjustment}.
+   * The meta-bean for {@code BusinessDayAdjuster}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -254,12 +227,12 @@ public final class BusinessDayAdjustment
      * The meta-property for the {@code convention} property.
      */
     private final MetaProperty<BusinessDayConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", BusinessDayAdjustment.class, BusinessDayConvention.class);
+        this, "convention", BusinessDayAdjuster.class, BusinessDayConvention.class);
     /**
      * The meta-property for the {@code calendar} property.
      */
     private final MetaProperty<HolidayCalendar> calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", BusinessDayAdjustment.class, HolidayCalendar.class);
+        this, "calendar", BusinessDayAdjuster.class, HolidayCalendar.class);
     /**
      * The meta-properties.
      */
@@ -286,13 +259,13 @@ public final class BusinessDayAdjustment
     }
 
     @Override
-    public BusinessDayAdjustment.Builder builder() {
-      return new BusinessDayAdjustment.Builder();
+    public BusinessDayAdjuster.Builder builder() {
+      return new BusinessDayAdjuster.Builder();
     }
 
     @Override
-    public Class<? extends BusinessDayAdjustment> beanType() {
-      return BusinessDayAdjustment.class;
+    public Class<? extends BusinessDayAdjuster> beanType() {
+      return BusinessDayAdjuster.class;
     }
 
     @Override
@@ -322,9 +295,9 @@ public final class BusinessDayAdjustment
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
-          return ((BusinessDayAdjustment) bean).getConvention();
+          return ((BusinessDayAdjuster) bean).getConvention();
         case -178324674:  // calendar
-          return ((BusinessDayAdjustment) bean).getCalendar();
+          return ((BusinessDayAdjuster) bean).getCalendar();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -342,9 +315,9 @@ public final class BusinessDayAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code BusinessDayAdjustment}.
+   * The bean-builder for {@code BusinessDayAdjuster}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<BusinessDayAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<BusinessDayAdjuster> {
 
     private BusinessDayConvention convention;
     private HolidayCalendar calendar;
@@ -359,7 +332,7 @@ public final class BusinessDayAdjustment
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(BusinessDayAdjustment beanToCopy) {
+    private Builder(BusinessDayAdjuster beanToCopy) {
       this.convention = beanToCopy.getConvention();
       this.calendar = beanToCopy.getCalendar();
     }
@@ -417,8 +390,8 @@ public final class BusinessDayAdjustment
     }
 
     @Override
-    public BusinessDayAdjustment build() {
-      return new BusinessDayAdjustment(
+    public BusinessDayAdjuster build() {
+      return new BusinessDayAdjuster(
           convention,
           calendar);
     }
@@ -454,7 +427,7 @@ public final class BusinessDayAdjustment
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("BusinessDayAdjustment.Builder{");
+      buf.append("BusinessDayAdjuster.Builder{");
       buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
       buf.append("calendar").append('=').append(JodaBeanUtils.toString(calendar));
       buf.append('}');

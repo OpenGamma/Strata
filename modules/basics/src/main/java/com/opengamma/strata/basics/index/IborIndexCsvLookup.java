@@ -127,9 +127,9 @@ final class IborIndexCsvLookup
     ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
-        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalize();
+        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalized();
     DaysAdjustment effectiveOffset = DaysAdjustment.ofBusinessDays(
-        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalize();
+        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalized();
     BusinessDayAdjustment adj = BusinessDayAdjustment.of(
         isEndOfMonth(tenorConvention) ? MODIFIED_FOLLOWING : FOLLOWING,
         effectiveCal);
