@@ -94,8 +94,8 @@ public class DefaultMarketDataFactoryTest {
    * Tests non-observable market data values supplied by the user are included in the results.
    */
   public void buildSuppliedNonObservableValues() {
-    TestId id1 = TestId.of("1");
-    TestId id2 = TestId.of("2");
+    TestId id1 = new TestId("1");
+    TestId id2 = new TestId("2");
     MarketEnvironment suppliedData = MarketEnvironment.builder()
         .valuationDate(date(2011, 3, 8))
         .addValue(id1, "foo")

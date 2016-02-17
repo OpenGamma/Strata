@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,20 +12,16 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
- * MarketDataId implementation used in tests.
+ * A test market data ID.
  */
-public class TestId implements MarketDataId<String> {
+public class TestSimpleId implements MarketDataId<String> {
 
   private final String id;
   private final MarketDataFeed marketDataFeed;
 
-  public TestId(String id, MarketDataFeed marketDataFeed) {
+  public TestSimpleId(String id, MarketDataFeed marketDataFeed) {
     this.id = id;
     this.marketDataFeed = marketDataFeed;
-  }
-
-  public TestId(String id) {
-    this(id, MarketDataFeed.NONE);
   }
 
   @Override
@@ -35,7 +31,11 @@ public class TestId implements MarketDataId<String> {
 
   @Override
   public MarketDataKey<String> toMarketDataKey() {
-    return new TestKey(id);
+    throw new UnsupportedOperationException("toMarketDataKey not implemented");
+  }
+
+  public MarketDataFeed getMarketDataFeed() {
+    return marketDataFeed;
   }
 
   @Override
@@ -46,18 +46,13 @@ public class TestId implements MarketDataId<String> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TestId testId = (TestId) o;
-    return Objects.equals(id, testId.id) &&
-        Objects.equals(marketDataFeed, testId.marketDataFeed);
+    TestSimpleId that = (TestSimpleId) o;
+    return Objects.equals(id, that.id) &&
+        Objects.equals(marketDataFeed, that.marketDataFeed);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, marketDataFeed);
-  }
-
-  @Override
-  public String toString() {
-    return "TestId [id='" + id + "', marketDataFeed=" + marketDataFeed + "]";
   }
 }

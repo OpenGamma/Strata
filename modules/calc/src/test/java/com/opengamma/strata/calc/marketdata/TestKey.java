@@ -14,14 +14,14 @@ import com.opengamma.strata.basics.market.MarketDataKey;
  */
 public class TestKey implements MarketDataKey<String> {
 
-  private final String value;
+  private final String id;
 
   public static TestKey of(String value) {
     return new TestKey(value);
   }
 
-  public TestKey(String value) {
-    this.value = value;
+  public TestKey(String id) {
+    this.id = id;
   }
 
   @Override
@@ -29,8 +29,8 @@ public class TestKey implements MarketDataKey<String> {
     return String.class;
   }
 
-  public String getValue() {
-    return value;
+  public String getId() {
+    return id;
   }
 
   @Override
@@ -42,16 +42,16 @@ public class TestKey implements MarketDataKey<String> {
       return false;
     }
     TestKey testId = (TestKey) o;
-    return Objects.equals(value, testId.value);
+    return Objects.equals(id, testId.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(value);
+    return Objects.hash(id);
   }
 
   @Override
   public String toString() {
-    return "TestId [value='" + value + "']";
+    return "TestId [value='" + id + "']";
   }
 }

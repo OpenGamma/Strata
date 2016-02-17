@@ -29,7 +29,9 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 public interface MarketDataMapping<T, K extends MarketDataKey<T>> {
 
   /**
-   * @return the types of {@link MarketDataId} for which the mapper return data.
+   * Returns the type of market data key for which this mapping can return a market data ID.
+   *
+   * @return the type of market data key for which this mapping can return a market data ID
    */
   public abstract Class<? extends K> getMarketDataKeyType();
 

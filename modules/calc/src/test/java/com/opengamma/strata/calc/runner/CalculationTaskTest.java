@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class CalculationTaskTest {
     MarketDataFeed marketDataFeed = MarketDataFeed.of("MarketDataVendor");
     MarketDataMappings marketDataMappings =
         DefaultMarketDataMappings.builder()
-            .mappings(ImmutableMap.of(TestKey.class, new TestMapping("foo")))
+            .mappings(ImmutableMap.of(TestKey.class, new TestMapping("foo", marketDataFeed)))
             .marketDataFeed(marketDataFeed)
             .build();
     CalculationTask task =
@@ -82,7 +81,7 @@ public class CalculationTaskTest {
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
-    MarketDataId<?> nonObservableId = TestId.of("1");
+    MarketDataId<?> nonObservableId = new TestId("1", marketDataFeed);
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
