@@ -70,7 +70,7 @@ public class BulletPaymentCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
-  private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().adjusted().minusDays(7);
+  private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
   public void test_group() {

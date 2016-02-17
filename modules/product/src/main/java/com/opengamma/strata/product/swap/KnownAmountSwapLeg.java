@@ -122,13 +122,13 @@ public final class KnownAmountSwapLeg
   @Override
   @DerivedProperty
   public AdjustableDate getStartDate() {
-    return AdjustableDate.of(accrualSchedule.getStartDate(), accrualSchedule.getEffectiveStartDateBusinessDayAdjustment());
+    return accrualSchedule.calculatedStartDate();
   }
 
   @Override
   @DerivedProperty
   public AdjustableDate getEndDate() {
-    return AdjustableDate.of(accrualSchedule.getEndDate(), accrualSchedule.getEffectiveEndDateBusinessDayAdjustment());
+    return accrualSchedule.calculatedEndDate();
   }
 
   @Override

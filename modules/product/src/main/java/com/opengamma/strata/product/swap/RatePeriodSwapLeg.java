@@ -236,15 +236,14 @@ public final class RatePeriodSwapLeg
         .type(type)
         .payReceive(payReceive)
         .paymentPeriods(adjusted)
-        .paymentEvents(createEvents(adjusted))
+        .paymentEvents(createEvents(refData, adjusted))
         .build();
   }
 
   // notional exchange events
-  private ImmutableList<PaymentEvent> createEvents(List<RatePaymentPeriod> adjPaymentPeriods) {
-
+  private ImmutableList<PaymentEvent> createEvents(ReferenceData refData, List<RatePaymentPeriod> adjPaymentPeriods) {
     ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
-    LocalDate initialExchangeDate = paymentBusinessDayAdjustment.adjust(getStartDate().adjusted());
+    LocalDate initialExchangeDate = paymentBusinessDayAdjustment.adjust(getStartDate().adjusted(refData));
     events.addAll(NotionalSchedule.createEvents(
         adjPaymentPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange));
     paymentEvents.forEach(pe -> events.add(pe.adjustPaymentDate(paymentBusinessDayAdjustment)));

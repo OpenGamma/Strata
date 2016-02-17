@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -229,24 +230,22 @@ public final class CmsLeg
    * Gets the accrual start date of the leg.
    * <p>
    * This is the first accrual date in the leg, often known as the effective date.
-   * This date has been adjusted to be a valid business day.
    * 
    * @return the start date of the leg
    */
-  public LocalDate getStartDate() {
-    return paymentSchedule.getAdjustedStartDate();
+  public AdjustableDate getStartDate() {
+    return paymentSchedule.calculatedStartDate();
   }
 
   /**
    * Gets the accrual end date of the leg.
    * <p>
    * This is the last accrual date in the leg, often known as the termination date.
-   * This date has been adjusted to be a valid business day.
    * 
    * @return the end date of the leg
    */
-  public LocalDate getEndDate() {
-    return paymentSchedule.getAdjustedEndDate();
+  public AdjustableDate getEndDate() {
+    return paymentSchedule.calculatedEndDate();
   }
 
   //-------------------------------------------------------------------------

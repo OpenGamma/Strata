@@ -176,7 +176,7 @@ public final class XCcyIborIborSwapCurveNode
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-    return trade.getProduct().getEndDate().adjusted();
+    return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date

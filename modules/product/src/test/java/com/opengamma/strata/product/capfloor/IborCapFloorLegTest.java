@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -94,8 +95,8 @@ public class IborCapFloorLegTest {
     assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
     assertEquals(test.getPaymentSchedule(), SCHEDULE);
     assertEquals(test.getPayReceive(), PAY);
-    assertEquals(test.getStartDate(), BUSS_ADJ.adjust(START));
-    assertEquals(test.getEndDate(), BUSS_ADJ.adjust(END));
+    assertEquals(test.getStartDate(), AdjustableDate.of(START, BUSS_ADJ));
+    assertEquals(test.getEndDate(), AdjustableDate.of(END, BUSS_ADJ));
   }
 
   public void test_builder_min() {
@@ -114,8 +115,8 @@ public class IborCapFloorLegTest {
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getPaymentSchedule(), SCHEDULE);
     assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), BUSS_ADJ.adjust(START));
-    assertEquals(test.getEndDate(), BUSS_ADJ.adjust(END));
+    assertEquals(test.getStartDate(), AdjustableDate.of(START, BUSS_ADJ));
+    assertEquals(test.getEndDate(), AdjustableDate.of(END, BUSS_ADJ));
   }
 
   public void test_builder_fail() {

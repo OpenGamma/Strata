@@ -235,7 +235,7 @@ public final class Fra
     LocalDate start = bda.adjust(startDate);
     LocalDate end = bda.adjust(endDate);
     return ResolvedFra.builder()
-        .paymentDate(getPaymentDate().adjusted())
+        .paymentDate(getPaymentDate().adjusted(refData))
         .startDate(start)
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))

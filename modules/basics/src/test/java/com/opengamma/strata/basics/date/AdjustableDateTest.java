@@ -15,12 +15,15 @@ import java.time.LocalDate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
+
 /**
  * Test {@link AdjustableDate}.
  */
 @Test
 public class AdjustableDateTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
@@ -38,7 +41,7 @@ public class AdjustableDateTest {
     assertEquals(test.getUnadjusted(), FRI_2014_07_11);
     assertEquals(test.getAdjustment(), BDA_NONE);
     assertEquals(test.toString(), "2014-07-11");
-    assertEquals(test.adjusted(), FRI_2014_07_11);
+    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
   }
 
   public void test_of_2args_withAdjustment() {
@@ -46,7 +49,7 @@ public class AdjustableDateTest {
     assertEquals(test.getUnadjusted(), FRI_2014_07_11);
     assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.toString(), "2014-07-11 adjusted by Following using calendar Sat/Sun");
-    assertEquals(test.adjusted(), FRI_2014_07_11);
+    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
   }
 
   public void test_of_2args_withNoAdjustment() {
@@ -54,7 +57,7 @@ public class AdjustableDateTest {
     assertEquals(test.getUnadjusted(), FRI_2014_07_11);
     assertEquals(test.getAdjustment(), BDA_NONE);
     assertEquals(test.toString(), "2014-07-11");
-    assertEquals(test.adjusted(), FRI_2014_07_11);
+    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
   }
 
   public void test_of_null() {
@@ -80,7 +83,7 @@ public class AdjustableDateTest {
   @Test(dataProvider = "adjusted")
   public void test_adjusted(LocalDate date, LocalDate expected) {
     AdjustableDate test = AdjustableDate.of(date, BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.adjusted(), expected);
+    assertEquals(test.adjusted(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

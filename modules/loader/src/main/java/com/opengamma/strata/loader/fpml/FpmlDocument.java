@@ -398,7 +398,7 @@ public final class FpmlDocument {
     if (relativeToEl.hasContent()) {
       baseDate = parseDate(relativeToEl);
     } else if (relativeToEl.getName().contains("relative")) {
-      baseDate = parseAdjustedRelativeDateOffset(relativeToEl).adjusted();
+      baseDate = parseAdjustedRelativeDateOffset(relativeToEl).getUnadjusted();
     } else {
       throw new FpmlParseException(
           "Unable to resolve 'dateRelativeTo' to a date: " + baseEl.getChild("dateRelativeTo").getAttribute(HREF));

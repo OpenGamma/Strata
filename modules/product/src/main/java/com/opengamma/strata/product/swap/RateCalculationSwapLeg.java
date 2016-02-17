@@ -110,13 +110,13 @@ public final class RateCalculationSwapLeg
   @Override
   @DerivedProperty
   public AdjustableDate getStartDate() {
-    return AdjustableDate.of(accrualSchedule.getStartDate(), accrualSchedule.getEffectiveStartDateBusinessDayAdjustment());
+    return accrualSchedule.calculatedStartDate();
   }
 
   @Override
   @DerivedProperty
   public AdjustableDate getEndDate() {
-    return AdjustableDate.of(accrualSchedule.getEndDate(), accrualSchedule.getEffectiveEndDateBusinessDayAdjustment());
+    return accrualSchedule.calculatedEndDate();
   }
 
   @Override
@@ -153,7 +153,7 @@ public final class RateCalculationSwapLeg
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
-        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate().adjusted()))
+        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate().adjusted(refData)))
         .build();
   }
 
