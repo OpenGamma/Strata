@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -94,7 +95,8 @@ public class ValuePathEvaluator {
 
   // Tokens always has at least one token
   private static <T> Result<?> evaluate(List<String> tokens, TokenEvaluator<T> evaluator, T target) {
-    EvaluationResult evaluationResult = evaluator.evaluate(target, tokens.get(0), tokens.subList(1, tokens.size()));
+    List<String> remaining = tokens.subList(1, tokens.size());
+    EvaluationResult evaluationResult = evaluator.evaluate(target, tokens.get(0), remaining);
 
     if (evaluationResult.isComplete()) {
       return evaluationResult.getResult();
@@ -104,13 +106,14 @@ public class ValuePathEvaluator {
 
     return nextEvaluator.isPresent() ?
         evaluate(evaluationResult.getRemainingTokens(), nextEvaluator.get(), value) :
-        noEvaluatorResult(value);
+        noEvaluatorResult(remaining, value);
   }
 
-  private static Result<?> noEvaluatorResult(Object value) {
+  private static Result<?> noEvaluatorResult(List<String> remaining, Object value) {
     return Result.failure(
         FailureReason.INVALID_INPUT,
-        "No evaluator available for objects of type {}",
+        "Expression '{}' cannot be invoked on type {}",
+        Joiner.on('.').join(remaining),
         value.getClass().getName());
   }
 
