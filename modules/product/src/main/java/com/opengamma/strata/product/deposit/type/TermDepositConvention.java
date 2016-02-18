@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -65,19 +66,15 @@ public interface TermDepositConvention
    */
   public abstract Currency getCurrency();
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention, specifying the period from start to end.
+   * Gets the offset of the spot value date from the trade date.
    * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date is specified.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    * 
-   * @param depositPeriod  the period from the start date to the end date
-   * @return the template
+   * @return the spot date offset, not null
    */
-  public default TermDepositTemplate toTemplate(Period depositPeriod) {
-    return TermDepositTemplate.of(depositPeriod, this);
-  }
+  public abstract DaysAdjustment getSpotDateOffset();
 
   //-------------------------------------------------------------------------
   /**
@@ -130,6 +127,17 @@ public interface TermDepositConvention
       BuySell buySell,
       double notional,
       double rate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the spot date from the trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @return the spot date
+   */
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
+    return getSpotDateOffset().adjust(tradeDate);
+  }
 
   //-------------------------------------------------------------------------
   /**

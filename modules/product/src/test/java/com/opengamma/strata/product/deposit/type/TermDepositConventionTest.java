@@ -42,6 +42,7 @@ public class TermDepositConventionTest {
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
 
+  //-------------------------------------------------------------------------
   public void test_builder_full() {
     ImmutableTermDepositConvention test = ImmutableTermDepositConvention.builder()
         .name("Test")
@@ -66,19 +67,7 @@ public class TermDepositConventionTest {
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
   }
 
-  public void test_toTemplate() {
-    TermDepositConvention convention = ImmutableTermDepositConvention.builder()
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .currency(EUR)
-        .dayCount(ACT_360)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
-    Period period3M = Period.ofMonths(3);
-    TermDepositTemplate template = convention.toTemplate(period3M);
-    assertEquals(template.getConvention(), convention);
-    assertEquals(template.getDepositPeriod(), period3M);
-  }
-
+  //-------------------------------------------------------------------------
   public void test_toTrade() {
     TermDepositConvention convention = ImmutableTermDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)

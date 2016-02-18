@@ -234,6 +234,7 @@ public final class ImmutableFraConvention
    * 
    * @return the spot date offset, not null
    */
+  @Override
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset != null ? spotDateOffset : index.getEffectiveDateOffset();
   }
@@ -358,11 +359,6 @@ public final class ImmutableFraConvention
             .discounting(getDiscounting())
             .build())
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   @Override

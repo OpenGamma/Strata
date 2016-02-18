@@ -12,6 +12,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -82,6 +83,16 @@ public interface IborIborSwapConvention
    * @return the flat leg convention
    */
   public abstract IborRateSwapLegConvention getFlatLeg();
+
+  /**
+   * Gets the offset of the spot value date from the trade date.
+   * <p>
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
+   * 
+   * @return the spot date offset, not null
+   */
+  public abstract DaysAdjustment getSpotDateOffset();
 
   //-------------------------------------------------------------------------
   /**
@@ -176,7 +187,9 @@ public interface IborIborSwapConvention
    * @param tradeDate  the trade date
    * @return the spot date
    */
-  public abstract LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate);
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
+    return getSpotDateOffset().adjust(tradeDate);
+  }
 
   //-------------------------------------------------------------------------
   /**
