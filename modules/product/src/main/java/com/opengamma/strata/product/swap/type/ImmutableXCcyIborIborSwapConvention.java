@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -25,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
@@ -76,57 +76,58 @@ public final class ImmutableXCcyIborIborSwapConvention
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborRateSwapLegConvention flatLeg;
   /**
-   * The offset of the spot value date from the trade date, optional with defaulting getter.
+   * The offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
-   * <p>
-   * This will default to the effective date offset of the spread leg index if not specified.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    */
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment spotDateOffset;
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the offset of the spot value date from the trade date,
-   * providing a default result if no override specified.
+   * Obtains a convention based on the specified name and leg conventions.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
-   * <p>
-   * This will default to the effective date offset of the index of the leg with the spread if not specified.
+   * The two leg conventions must be in different currencies.
+   * The spot date offset is set to be the effective date offset of the index of the spread leg.
    * 
-   * @return the spot date offset, not null
+   * @param name  the unique name of the convention 
+   * @param spreadLeg  the market convention for the leg that the spread is added to
+   * @param flatLeg  the market convention for the other leg, known as the flat leg
+   * @return the convention
    */
-  public DaysAdjustment getSpotDateOffset() {
-    return spotDateOffset != null ? spotDateOffset : spreadLeg.getIndex().getEffectiveDateOffset();
+  public static ImmutableXCcyIborIborSwapConvention of(
+      String name,
+      IborRateSwapLegConvention spreadLeg,
+      IborRateSwapLegConvention flatLeg) {
+
+    return of(name, spreadLeg, flatLeg, spreadLeg.getIndex().getEffectiveDateOffset());
   }
 
   /**
-   * Gets the currency pair of the convention.
+   * Obtains a convention based on the specified name and leg conventions.
+   * <p>
+   * The two leg conventions must be in different currencies.
    * 
-   * @return the currency pair
+   * @param name  the unique name of the convention 
+   * @param spreadLeg  the market convention for the leg that the spread is added to
+   * @param flatLeg  the market convention for the other leg, known as the flat leg
+   * @param spotDateOffset  the offset of the spot value date from the trade date
+   * @return the convention
    */
-  @Override
-  public CurrencyPair getCurrencyPair() {
-    return CurrencyPair.of(spreadLeg.getCurrency(), flatLeg.getCurrency());
+  public static ImmutableXCcyIborIborSwapConvention of(
+      String name,
+      IborRateSwapLegConvention spreadLeg,
+      IborRateSwapLegConvention flatLeg,
+      DaysAdjustment spotDateOffset) {
+
+    return new ImmutableXCcyIborIborSwapConvention(name, spreadLeg, flatLeg, spotDateOffset);
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableXCcyIborIborSwapConvention expand() {
-    return ImmutableXCcyIborIborSwapConvention.builder()
-        .name(name)
-        .spreadLeg(spreadLeg.expand())
-        .flatLeg(flatLeg.expand())
-        .spotDateOffset(getSpotDateOffset())
-        .build();
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isFalse(spreadLeg.getCurrency().equals(flatLeg.getCurrency()), "Conventions must have different currencies");
   }
 
   //-------------------------------------------------------------------------
@@ -149,11 +150,6 @@ public final class ImmutableXCcyIborIborSwapConvention
             .build())
         .product(Swap.of(leg1, leg2))
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   //-------------------------------------------------------------------------
@@ -197,10 +193,12 @@ public final class ImmutableXCcyIborIborSwapConvention
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(spreadLeg, "spreadLeg");
     JodaBeanUtils.notNull(flatLeg, "flatLeg");
+    JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     this.name = name;
     this.spreadLeg = spreadLeg;
     this.flatLeg = flatLeg;
     this.spotDateOffset = spotDateOffset;
+    validate();
   }
 
   @Override
@@ -249,6 +247,19 @@ public final class ImmutableXCcyIborIborSwapConvention
   @Override
   public IborRateSwapLegConvention getFlatLeg() {
     return flatLeg;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the offset of the spot value date from the trade date.
+   * <p>
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
+   * @return the value of the property, not null
+   */
+  @Override
+  public DaysAdjustment getSpotDateOffset() {
+    return spotDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -405,7 +416,7 @@ public final class ImmutableXCcyIborIborSwapConvention
         case -778843179:  // flatLeg
           return ((ImmutableXCcyIborIborSwapConvention) bean).getFlatLeg();
         case 746995843:  // spotDateOffset
-          return ((ImmutableXCcyIborIborSwapConvention) bean).spotDateOffset;
+          return ((ImmutableXCcyIborIborSwapConvention) bean).getSpotDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -446,7 +457,7 @@ public final class ImmutableXCcyIborIborSwapConvention
       this.name = beanToCopy.getName();
       this.spreadLeg = beanToCopy.getSpreadLeg();
       this.flatLeg = beanToCopy.getFlatLeg();
-      this.spotDateOffset = beanToCopy.spotDateOffset;
+      this.spotDateOffset = beanToCopy.getSpotDateOffset();
     }
 
     //-----------------------------------------------------------------------
@@ -558,16 +569,15 @@ public final class ImmutableXCcyIborIborSwapConvention
     }
 
     /**
-     * Sets the offset of the spot value date from the trade date, optional with defaulting getter.
+     * Sets the offset of the spot value date from the trade date.
      * <p>
-     * The offset is applied to the trade date and is typically plus 2 business days.
-     * The start date of the swap is relative to the spot date.
-     * <p>
-     * This will default to the effective date offset of the spread leg index if not specified.
-     * @param spotDateOffset  the new value
+     * The offset is applied to the trade date to find the start date.
+     * A typical value is "plus 2 business days".
+     * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder spotDateOffset(DaysAdjustment spotDateOffset) {
+      JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
       this.spotDateOffset = spotDateOffset;
       return this;
     }

@@ -70,22 +70,22 @@ public final class ImmutableFixedOvernightSwapConvention
   /**
    * The offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment spotDateOffset;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains a convention based on the specified name and leg conventions.
    * <p>
-   * The spot date offset is set to be the effective date offset of the index.
+   * The two leg conventions must be in the same currency.
    * 
    * @param name  the unique name of the convention 
    * @param fixedLeg  the market convention for the fixed leg
    * @param floatingLeg  the market convention for the floating leg
-   * @param spotDateOffset  the spot date offset
+   * @param spotDateOffset  the offset of the spot value date from the trade date
    * @return the convention
    */
   public static ImmutableFixedOvernightSwapConvention of(
@@ -94,35 +94,13 @@ public final class ImmutableFixedOvernightSwapConvention
       OvernightRateSwapLegConvention floatingLeg,
       DaysAdjustment spotDateOffset) {
 
-    return ImmutableFixedOvernightSwapConvention.builder()
-        .name(name)
-        .fixedLeg(fixedLeg)
-        .floatingLeg(floatingLeg)
-        .spotDateOffset(spotDateOffset)
-        .build();
+    return new ImmutableFixedOvernightSwapConvention(name, fixedLeg, floatingLeg, spotDateOffset);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     ArgChecker.isTrue(fixedLeg.getCurrency().equals(floatingLeg.getCurrency()), "Conventions must have same currency");
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableFixedOvernightSwapConvention expand() {
-    return ImmutableFixedOvernightSwapConvention.builder()
-        .name(name)
-        .fixedLeg(fixedLeg.expand())
-        .floatingLeg(floatingLeg.expand())
-        .spotDateOffset(spotDateOffset)
-        .build();
   }
 
   //-------------------------------------------------------------------------
@@ -144,11 +122,6 @@ public final class ImmutableFixedOvernightSwapConvention
             .build())
         .product(Swap.of(leg1, leg2))
         .build();
-  }
-
-  @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
   }
 
   //-------------------------------------------------------------------------
@@ -249,10 +222,11 @@ public final class ImmutableFixedOvernightSwapConvention
   /**
    * Gets the offset of the spot value date from the trade date.
    * <p>
-   * The offset is applied to the trade date and is typically plus 2 business days.
-   * The start date of the swap is relative to the spot date.
+   * The offset is applied to the trade date to find the start date.
+   * A typical value is "plus 2 business days".
    * @return the value of the property, not null
    */
+  @Override
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset;
   }
@@ -563,8 +537,8 @@ public final class ImmutableFixedOvernightSwapConvention
     /**
      * Sets the offset of the spot value date from the trade date.
      * <p>
-     * The offset is applied to the trade date and is typically plus 2 business days.
-     * The start date of the swap is relative to the spot date.
+     * The offset is applied to the trade date to find the start date.
+     * A typical value is "plus 2 business days".
      * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
      */

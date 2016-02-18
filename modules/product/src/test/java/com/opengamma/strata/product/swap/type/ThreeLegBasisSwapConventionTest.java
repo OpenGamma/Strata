@@ -64,37 +64,28 @@ public class ThreeLegBasisSwapConventionTest {
     assertEquals(test.getSpotDateOffset(), EUR_EURIBOR_6M.getEffectiveDateOffset());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ImmutableThreeLegBasisSwapConvention.builder()
-        .spotDateOffset(PLUS_ONE_DAY)
-        .build());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_of_spotDateOffset() {
     ImmutableThreeLegBasisSwapConvention test =
-        ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M).expand();
+        ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M, PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), FIXED.expand());
-    assertEquals(test.getSpreadFloatingLeg(), IBOR6M.expand());
-    assertEquals(test.getFlatFloatingLeg(), IBOR12M.expand());
-    assertEquals(test.getSpotDateOffset(), EUR_EURIBOR_6M.getEffectiveDateOffset());
+    assertEquals(test.getSpreadLeg(), FIXED);
+    assertEquals(test.getSpreadFloatingLeg(), IBOR6M);
+    assertEquals(test.getFlatFloatingLeg(), IBOR12M);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
-  public void test_expandAllSpecified() {
+  public void test_builder() {
     ImmutableThreeLegBasisSwapConvention test = ImmutableThreeLegBasisSwapConvention.builder()
         .name(NAME)
         .spreadLeg(FIXED)
         .spreadFloatingLeg(IBOR6M)
         .flatFloatingLeg(IBOR12M)
         .spotDateOffset(PLUS_ONE_DAY)
-        .build()
-        .expand();
+        .build();
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), FIXED.expand());
-    assertEquals(test.getSpreadFloatingLeg(), IBOR6M.expand());
-    assertEquals(test.getFlatFloatingLeg(), IBOR12M.expand());
+    assertEquals(test.getSpreadLeg(), FIXED);
+    assertEquals(test.getSpreadFloatingLeg(), IBOR6M);
+    assertEquals(test.getFlatFloatingLeg(), IBOR12M);
     assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 

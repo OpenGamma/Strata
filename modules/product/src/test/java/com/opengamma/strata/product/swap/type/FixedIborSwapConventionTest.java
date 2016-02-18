@@ -50,7 +50,6 @@ public class FixedIborSwapConventionTest {
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
-  private static final DaysAdjustment NEXT_SAME_BUS_DAY = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, GBLO);
 
   private static final String NAME = "USD-Swap";
@@ -71,33 +70,24 @@ public class FixedIborSwapConventionTest {
     assertEquals(test.getSpotDateOffset(), USD_LIBOR_3M.getEffectiveDateOffset());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ImmutableFixedIborSwapConvention.builder()
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.of(NAME, FIXED, IBOR).expand();
+  public void test_of_spotDateOffset() {
+    ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.of(NAME, FIXED, IBOR, PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED.expand());
-    assertEquals(test.getFloatingLeg(), IBOR.expand());
-    assertEquals(test.getSpotDateOffset(), USD_LIBOR_3M.getEffectiveDateOffset());
+    assertEquals(test.getFixedLeg(), FIXED);
+    assertEquals(test.getFloatingLeg(), IBOR);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
-  public void test_expandAllSpecified() {
+  public void test_builder() {
     ImmutableFixedIborSwapConvention test = ImmutableFixedIborSwapConvention.builder()
         .name(NAME)
         .fixedLeg(FIXED)
         .floatingLeg(IBOR)
         .spotDateOffset(PLUS_ONE_DAY)
-        .build()
-        .expand();
+        .build();
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED.expand());
-    assertEquals(test.getFloatingLeg(), IBOR.expand());
+    assertEquals(test.getFixedLeg(), FIXED);
+    assertEquals(test.getFloatingLeg(), IBOR);
     assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 

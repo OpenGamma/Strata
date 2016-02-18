@@ -72,7 +72,7 @@ public final class ImmutableFxSwapConvention
    * in the joint calendar of the two currencies.
    * The start and end date of the FX swap are relative to the spot date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DaysAdjustment spotDateOffset;
   /**
    * The business day adjustment to apply to the start and end date, optional with defaulting getter.
@@ -176,11 +176,6 @@ public final class ImmutableFxSwapConvention
   }
 
   @Override
-  public LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
-  }
-
-  @Override
   public String toString() {
     return getName();
   }
@@ -259,6 +254,7 @@ public final class ImmutableFxSwapConvention
    * The start and end date of the FX swap are relative to the spot date.
    * @return the value of the property, not null
    */
+  @Override
   public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset;
   }

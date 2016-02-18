@@ -43,15 +43,17 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class XCcyIborIborSwapConventionTest {
 
+
   private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
 
-  private static final String NAME = "EUR/USD-Swap";
+  private static final String NAME = "EUR-EURIBOR-3M-USD-LIBOR-3M";
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final double FX_EUR_USD = 1.15d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, EUTA_USNY);
   private static final DaysAdjustment NEXT_SAME_BUS_DAY = DaysAdjustment.ofCalendarDays(0, BDA_FOLLOW);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
+  private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA_USNY);
 
   private static final IborRateSwapLegConvention EUR3M = IborRateSwapLegConvention.builder()
       .index(IborIndices.EUR_EURIBOR_3M)
@@ -63,48 +65,41 @@ public class XCcyIborIborSwapConventionTest {
       .build();
 
   //-------------------------------------------------------------------------
-  public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ImmutableXCcyIborIborSwapConvention.builder()
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.builder()
-        .name(NAME)
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .build();
-    ImmutableXCcyIborIborSwapConvention test = base.expand();
+  public void test_of() {
+    ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M);
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), EUR3M.expand());
-    assertEquals(test.getFlatLeg(), USD3M.expand());
+    assertEquals(test.getSpreadLeg(), EUR3M);
+    assertEquals(test.getFlatLeg(), USD3M);
     assertEquals(test.getSpotDateOffset(), EUR3M.getIndex().getEffectiveDateOffset());
     assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
-  public void test_expandAllSpecified() {
-    ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.builder()
+  public void test_of_spotDateOffset() {
+    ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_ONE_DAY);
+    assertEquals(test.getName(), NAME);
+    assertEquals(test.getSpreadLeg(), EUR3M);
+    assertEquals(test.getFlatLeg(), USD3M);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
+  }
+
+  public void test_builder() {
+    ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.builder()
         .name(NAME)
         .spreadLeg(EUR3M)
         .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
+        .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    ImmutableXCcyIborIborSwapConvention test = base.expand();
-    assertEquals(test.getSpreadLeg(), EUR3M.expand());
-    assertEquals(test.getFlatLeg(), USD3M.expand());
-    assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
+    assertEquals(test.getName(), NAME);
+    assertEquals(test.getSpreadLeg(), EUR3M);
+    assertEquals(test.getFlatLeg(), USD3M);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertEquals(test.getCurrencyPair(), EUR_USD);
   }
 
   //-------------------------------------------------------------------------
   public void test_toTrade_tenor() {
-    XCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
+    ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 5, 7);
     LocalDate endDate = date(2025, 5, 7);
@@ -117,12 +112,7 @@ public class XCcyIborIborSwapConventionTest {
   }
 
   public void test_toTrade_periodTenor() {
-    XCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
+    ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
@@ -135,12 +125,7 @@ public class XCcyIborIborSwapConventionTest {
   }
 
   public void test_toTrade_dates() {
-    XCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
+    ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
@@ -193,29 +178,17 @@ public class XCcyIborIborSwapConventionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
+    ImmutableXCcyIborIborSwapConvention test =
+        ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     coverImmutableBean(test);
-    ImmutableXCcyIborIborSwapConvention test2 = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("XXX")
-        .spreadLeg(USD3M)
-        .flatLeg(EUR3M)
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build();
+    ImmutableXCcyIborIborSwapConvention test2 =
+        ImmutableXCcyIborIborSwapConvention.of("XXX", USD3M, EUR3M, NEXT_SAME_BUS_DAY);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    XCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.builder()
-        .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
-        .spreadLeg(EUR3M)
-        .flatLeg(USD3M)
-        .spotDateOffset(PLUS_TWO_DAYS)
-        .build();
+    ImmutableXCcyIborIborSwapConvention test =
+        ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     assertSerialization(test);
   }
 
