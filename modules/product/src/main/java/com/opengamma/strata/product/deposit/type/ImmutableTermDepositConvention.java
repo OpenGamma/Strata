@@ -129,18 +129,6 @@ public final class ImmutableTermDepositConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableTermDepositConvention expand() {
-    return toBuilder().name(getName()).build();
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public TermDepositTrade toTrade(
       LocalDate tradeDate,

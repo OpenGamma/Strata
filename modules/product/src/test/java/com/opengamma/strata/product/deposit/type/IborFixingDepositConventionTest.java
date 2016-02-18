@@ -47,8 +47,10 @@ public class IborFixingDepositConventionTest {
   private static final DaysAdjustment FIXING_ADJ =
       DaysAdjustment.ofBusinessDays(-2, EUTA, BusinessDayAdjustment.of(PRECEDING, GBLO));
 
+  //-------------------------------------------------------------------------
   public void test_builder_full() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
+        .name("Name")
         .businessDayAdjustment(BDA_MOD_FOLLOW)
         .currency(EUR)
         .dayCount(ACT_365F)
@@ -56,12 +58,12 @@ public class IborFixingDepositConventionTest {
         .index(EUR_LIBOR_3M)
         .spotDateOffset(SPOT_ADJ)
         .build();
+    assertEquals(test.getName(), "Name");
     assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getFixingDateOffset(), FIXING_ADJ);
     assertEquals(test.getIndex(), EUR_LIBOR_3M);
-    assertEquals(test.getName(), EUR_LIBOR_3M.getName());
     assertEquals(test.getSpotDateOffset(), SPOT_ADJ);
   }
 
@@ -89,29 +91,7 @@ public class IborFixingDepositConventionTest {
     assertEquals(test.getSpotDateOffset(), GBP_LIBOR_6M.getEffectiveDateOffset());
   }
 
-  public void test_expand() {
-    ImmutableIborFixingDepositConvention base = ImmutableIborFixingDepositConvention.of(EUR_LIBOR_3M);
-    IborFixingDepositConvention test = base.expand();
-    IborFixingDepositConvention expected = ImmutableIborFixingDepositConvention.builder()
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUR_LIBOR_3M.getFixingCalendar()))
-        .currency(EUR_LIBOR_3M.getCurrency())
-        .dayCount(EUR_LIBOR_3M.getDayCount())
-        .fixingDateOffset(EUR_LIBOR_3M.getFixingDateOffset())
-        .index(EUR_LIBOR_3M)
-        .name(EUR_LIBOR_3M.getName())
-        .spotDateOffset(EUR_LIBOR_3M.getEffectiveDateOffset())
-        .build();
-    assertEquals(test.getName(), EUR_LIBOR_3M.getName());
-    assertEquals(test, expected);
-  }
-
-  public void test_toTemplate() {
-    IborFixingDepositConvention convention = IborFixingDepositConvention.of(GBP_LIBOR_6M);
-    IborFixingDepositTemplate template = convention.toTemplate();
-    assertEquals(template.getConvention(), convention);
-    assertEquals(template.getDepositPeriod(), GBP_LIBOR_6M.getTenor().getPeriod());
-  }
-
+  //-------------------------------------------------------------------------
   public void test_toTrade() {
     IborFixingDepositConvention convention = ImmutableIborFixingDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)

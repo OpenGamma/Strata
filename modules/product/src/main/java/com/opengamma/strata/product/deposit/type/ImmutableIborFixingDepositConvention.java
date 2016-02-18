@@ -247,26 +247,6 @@ public final class ImmutableIborFixingDepositConvention
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public ImmutableIborFixingDepositConvention expand() {
-    return ImmutableIborFixingDepositConvention.builder()
-        .index(index)
-        .name(getName())
-        .currency(getCurrency())
-        .spotDateOffset(getSpotDateOffset())
-        .businessDayAdjustment(getBusinessDayAdjustment())
-        .fixingDateOffset(getFixingDateOffset())
-        .dayCount(getDayCount())
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public IborFixingDepositTrade toTrade(
       LocalDate tradeDate,

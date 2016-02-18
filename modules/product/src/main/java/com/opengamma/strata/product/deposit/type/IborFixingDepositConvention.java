@@ -97,32 +97,6 @@ public interface IborFixingDepositConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date will be the tenor of the index.
-   * 
-   * @return the template
-   */
-  public default IborFixingDepositTemplate toTemplate() {
-    return toTemplate(getIndex().getTenor().getPeriod());
-  }
-
-  /**
-   * Creates a template based on this convention, specifying the period from start to end.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the start date to the end date is specified.
-   * 
-   * @param depositPeriod  the period from the start date to the end date
-   * @return the template
-   */
-  public default IborFixingDepositTemplate toTemplate(Period depositPeriod) {
-    return IborFixingDepositTemplate.of(depositPeriod, this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a trade based on this convention.
    * <p>
    * This returns a trade based on the specified deposit period.

@@ -29,49 +29,49 @@ final class StandardTermDepositConventions {
       Currency.GBP,
       BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
       ACT_365F,
-      DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO))).expand();
+      DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)));
 
   // EUR with standard spot T+2
   public static final TermDepositConvention EUR_DEPOSIT = ImmutableTermDepositConvention.of(
       Currency.EUR,
       BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
       ACT_360,
-      DaysAdjustment.ofBusinessDays(2, EUTA)).expand();
+      DaysAdjustment.ofBusinessDays(2, EUTA));
   // EUR with value date T+0; used for O/N
   public static final TermDepositConvention EUR_DEPOSIT_T0 = ImmutableTermDepositConvention.builder()
       .name("EUR-Deposit-T")
       .currency(Currency.EUR)
       .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, EUTA))
       .spotDateOffset(DaysAdjustment.ofBusinessDays(0, EUTA, BusinessDayAdjustment.of(FOLLOWING, EUTA)))
-      .dayCount(ACT_360).build().expand();
+      .dayCount(ACT_360).build();
   // EUR with value date T+1; used for T/N
   public static final TermDepositConvention EUR_DEPOSIT_T1 = ImmutableTermDepositConvention.builder()
       .name("EUR-Deposit-T+1")
       .currency(Currency.EUR)
       .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, EUTA))
       .spotDateOffset(DaysAdjustment.ofBusinessDays(1, EUTA, BusinessDayAdjustment.of(FOLLOWING, EUTA)))
-      .dayCount(ACT_360).build().expand();
+      .dayCount(ACT_360).build();
 
   // USD with standard spot T+2
   public static final TermDepositConvention USD_DEPOSIT = ImmutableTermDepositConvention.of(
       Currency.USD,
       BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY),
       ACT_360,
-      DaysAdjustment.ofBusinessDays(2, USNY, BusinessDayAdjustment.of(FOLLOWING, USNY))).expand();
+      DaysAdjustment.ofBusinessDays(2, USNY, BusinessDayAdjustment.of(FOLLOWING, USNY)));
   // USD with value date T+0; used for O/N
   public static final TermDepositConvention USD_DEPOSIT_T0 = ImmutableTermDepositConvention.builder()
       .name("USD-Deposit-T")
       .currency(Currency.USD)
       .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
       .spotDateOffset(DaysAdjustment.ofBusinessDays(0, USNY, BusinessDayAdjustment.of(FOLLOWING, USNY)))
-      .dayCount(ACT_360).build().expand();
+      .dayCount(ACT_360).build();
   // USD with value date T+1; used for T/N
   public static final TermDepositConvention USD_DEPOSIT_T1 = ImmutableTermDepositConvention.builder()
       .name("USD-Deposit-T+1")
       .currency(Currency.USD)
       .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
       .spotDateOffset(DaysAdjustment.ofBusinessDays(1, USNY, BusinessDayAdjustment.of(FOLLOWING, USNY)))
-      .dayCount(ACT_360).build().expand();
+      .dayCount(ACT_360).build();
 
   //-------------------------------------------------------------------------
   /**
