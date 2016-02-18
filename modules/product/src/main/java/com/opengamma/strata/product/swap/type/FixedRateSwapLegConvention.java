@@ -296,30 +296,6 @@ public final class FixedRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Expands this convention, returning an instance where all the optional fields are present.
-   * <p>
-   * This returns an equivalent instance where any empty optional have been filled in.
-   * 
-   * @return the expanded convention
-   */
-  public FixedRateSwapLegConvention expand() {
-    return FixedRateSwapLegConvention.builder()
-        .currency(getCurrency())
-        .dayCount(getDayCount())
-        .accrualFrequency(getAccrualFrequency())
-        .accrualBusinessDayAdjustment(getAccrualBusinessDayAdjustment())
-        .startDateBusinessDayAdjustment(getStartDateBusinessDayAdjustment())
-        .endDateBusinessDayAdjustment(getEndDateBusinessDayAdjustment())
-        .stubConvention(getStubConvention())
-        .rollConvention(getRollConvention())
-        .paymentFrequency(getPaymentFrequency())
-        .paymentDateOffset(getPaymentDateOffset())
-        .compoundingMethod(getCompoundingMethod())
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a leg based on this convention.
    * <p>
    * This returns a leg based on the specified date.

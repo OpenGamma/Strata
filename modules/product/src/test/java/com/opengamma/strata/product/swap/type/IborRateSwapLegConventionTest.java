@@ -97,27 +97,7 @@ public class IborRateSwapLegConventionTest {
     assertThrowsIllegalArg(() -> IborRateSwapLegConvention.builder().build());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    IborRateSwapLegConvention test = IborRateSwapLegConvention.of(GBP_LIBOR_3M).expand();
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getAccrualFrequency(), P3M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
-    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
-    assertEquals(test.getPaymentFrequency(), P3M);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
-    assertEquals(test.isNotionalExchange(), false);
-  }
-
-  public void test_expandAllSpecified() {
+  public void test_builderAllSpecified() {
     IborRateSwapLegConvention test = IborRateSwapLegConvention.builder()
         .index(GBP_LIBOR_3M)
         .currency(USD)

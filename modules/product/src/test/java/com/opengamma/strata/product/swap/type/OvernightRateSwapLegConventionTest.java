@@ -116,26 +116,7 @@ public class OvernightRateSwapLegConventionTest {
     assertThrowsIllegalArg(() -> OvernightRateSwapLegConvention.builder().build());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_expand() {
-    OvernightRateSwapLegConvention test = OvernightRateSwapLegConvention.of(GBP_SONIA, P12M, 2).expand();
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getAccrualMethod(), COMPOUNDED);
-    assertEquals(test.getRateCutOffDays(), 0);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getAccrualFrequency(), P12M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
-    assertEquals(test.getPaymentFrequency(), P12M);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.ofBusinessDays(2, GBP_SONIA.getFixingCalendar()));
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
-  }
-
-  public void test_expandAllSpecified() {
+  public void test_builderAllSpecified() {
     OvernightRateSwapLegConvention test = OvernightRateSwapLegConvention.builder()
         .index(GBP_SONIA)
         .accrualMethod(COMPOUNDED)
