@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.range.LocalDateRange;
 enum StandardHolidayCalendars implements HolidayCalendar {
 
   // no holidays
-  NO_HOLIDAYS("NoHolidays") {
+  NO_HOLIDAYS(HolidayCalendarIds.NO_HOLIDAYS) {
     @Override
     public boolean isHoliday(LocalDate date) {
       ArgChecker.notNull(date, "date");
@@ -67,13 +67,13 @@ enum StandardHolidayCalendars implements HolidayCalendar {
     }
 
     @Override
-    public HolidayCalendar combineWith(HolidayCalendar other) {
+    public HolidayCalendar combinedWith(HolidayCalendar other) {
       return ArgChecker.notNull(other, "other");
     }
   },
 
   // Saturday and Sunday only
-  SAT_SUN("Sat/Sun") {
+  SAT_SUN(HolidayCalendarIds.SAT_SUN) {
     @Override
     public boolean isHoliday(LocalDate date) {
       ArgChecker.notNull(date, "date");
@@ -83,7 +83,7 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   },
 
   // Friday and Saturday only
-  FRI_SAT("Fri/Sat") {
+  FRI_SAT(HolidayCalendarIds.FRI_SAT) {
     @Override
     public boolean isHoliday(LocalDate date) {
       ArgChecker.notNull(date, "date");
@@ -93,7 +93,7 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   },
 
   // Thursday and Friday only
-  THU_FRI("Thu/Fri") {
+  THU_FRI(HolidayCalendarIds.THU_FRI) {
     @Override
     public boolean isHoliday(LocalDate date) {
       ArgChecker.notNull(date, "date");
@@ -103,11 +103,11 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   };
 
   // name
-  private final String name;
+  private final HolidayCalendarId id;
 
   // create
-  private StandardHolidayCalendars(String name) {
-    this.name = name;
+  private StandardHolidayCalendars(HolidayCalendarId id) {
+    this.id = id;
   }
 
   @Override
@@ -120,13 +120,13 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   }
 
   @Override
-  public String getName() {
-    return name;
+  public HolidayCalendarId getId() {
+    return id;
   }
 
   @Override
   public String toString() {
-    return name;
+    return getName();
   }
 
 }

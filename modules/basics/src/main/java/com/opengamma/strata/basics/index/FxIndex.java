@@ -12,6 +12,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -113,6 +114,16 @@ public interface FxIndex
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the identifier for the index.
+   * <p>
+   * This identifier is used to locate the index in {@link ReferenceData}.
+   * 
+   * @return the identifier
+   */
+  public abstract FxIndexId getId();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the name that uniquely identifies this index.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
@@ -121,6 +132,8 @@ public interface FxIndex
    */
   @ToString
   @Override
-  public abstract String getName();
+  public default String getName() {
+    return getId().getName();
+  }
 
 }

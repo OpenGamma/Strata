@@ -44,10 +44,10 @@ public final class ImmutableFxIndex
     implements FxIndex, ImmutableBean, Serializable {
 
   /**
-   * The FX index name.
+   * The identifier, such as 'EUR/GBP-ECB'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final String name;
+  private final FxIndexId id;
   /**
    * The currency pair.
    * <p>
@@ -109,14 +109,14 @@ public final class ImmutableFxIndex
       return true;
     }
     if (obj instanceof ImmutableFxIndex) {
-      return name.equals(((ImmutableFxIndex) obj).name);
+      return id.equals(((ImmutableFxIndex) obj).id);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return id.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -158,15 +158,15 @@ public final class ImmutableFxIndex
   }
 
   private ImmutableFxIndex(
-      String name,
+      FxIndexId id,
       CurrencyPair currencyPair,
       HolidayCalendar fixingCalendar,
       DaysAdjustment maturityDateOffset) {
-    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(maturityDateOffset, "maturityDateOffset");
-    this.name = name;
+    this.id = id;
     this.currencyPair = currencyPair;
     this.fixingCalendar = fixingCalendar;
     this.maturityDateOffset = maturityDateOffset;
@@ -189,12 +189,12 @@ public final class ImmutableFxIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the FX index name.
+   * Gets the identifier, such as 'EUR/GBP-ECB'.
    * @return the value of the property, not null
    */
   @Override
-  public String getName() {
-    return name;
+  public FxIndexId getId() {
+    return id;
   }
 
   //-----------------------------------------------------------------------
@@ -257,10 +257,10 @@ public final class ImmutableFxIndex
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", ImmutableFxIndex.class, String.class);
+    private final MetaProperty<FxIndexId> id = DirectMetaProperty.ofImmutable(
+        this, "id", ImmutableFxIndex.class, FxIndexId.class);
     /**
      * The meta-property for the {@code currencyPair} property.
      */
@@ -281,7 +281,7 @@ public final class ImmutableFxIndex
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name",
+        "id",
         "currencyPair",
         "fixingCalendar",
         "maturityDateOffset");
@@ -295,8 +295,8 @@ public final class ImmutableFxIndex
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case 1005147787:  // currencyPair
           return currencyPair;
         case 394230283:  // fixingCalendar
@@ -324,11 +324,11 @@ public final class ImmutableFxIndex
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
-      return name;
+    public MetaProperty<FxIndexId> id() {
+      return id;
     }
 
     /**
@@ -359,8 +359,8 @@ public final class ImmutableFxIndex
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((ImmutableFxIndex) bean).getName();
+        case 3355:  // id
+          return ((ImmutableFxIndex) bean).getId();
         case 1005147787:  // currencyPair
           return ((ImmutableFxIndex) bean).getCurrencyPair();
         case 394230283:  // fixingCalendar
@@ -388,7 +388,7 @@ public final class ImmutableFxIndex
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableFxIndex> {
 
-    private String name;
+    private FxIndexId id;
     private CurrencyPair currencyPair;
     private HolidayCalendar fixingCalendar;
     private DaysAdjustment maturityDateOffset;
@@ -404,7 +404,7 @@ public final class ImmutableFxIndex
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ImmutableFxIndex beanToCopy) {
-      this.name = beanToCopy.getName();
+      this.id = beanToCopy.getId();
       this.currencyPair = beanToCopy.getCurrencyPair();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.maturityDateOffset = beanToCopy.getMaturityDateOffset();
@@ -414,8 +414,8 @@ public final class ImmutableFxIndex
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case 1005147787:  // currencyPair
           return currencyPair;
         case 394230283:  // fixingCalendar
@@ -430,8 +430,8 @@ public final class ImmutableFxIndex
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          this.name = (String) newValue;
+        case 3355:  // id
+          this.id = (FxIndexId) newValue;
           break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
@@ -475,7 +475,7 @@ public final class ImmutableFxIndex
     @Override
     public ImmutableFxIndex build() {
       return new ImmutableFxIndex(
-          name,
+          id,
           currencyPair,
           fixingCalendar,
           maturityDateOffset);
@@ -483,13 +483,13 @@ public final class ImmutableFxIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the FX index name.
-     * @param name  the new value, not null
+     * Sets the identifier, such as 'EUR/GBP-ECB'.
+     * @param id  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
-      this.name = name;
+    public Builder id(FxIndexId id) {
+      JodaBeanUtils.notNull(id, "id");
+      this.id = id;
       return this;
     }
 
@@ -542,7 +542,7 @@ public final class ImmutableFxIndex
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutableFxIndex.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
       buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("maturityDateOffset").append('=').append(JodaBeanUtils.toString(maturityDateOffset));

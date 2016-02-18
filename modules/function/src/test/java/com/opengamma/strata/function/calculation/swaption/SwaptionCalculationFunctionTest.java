@@ -73,7 +73,7 @@ public class SwaptionCalculationFunctionTest {
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
       .createTrade(LocalDate.of(2014, 6, 12), Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct();
   private static final BusinessDayAdjustment ADJUSTMENT =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO.combineWith(USNY));
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO.combinedWith(USNY));
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 6, 14);
   private static final AdjustableDate ADJUSTABLE_EXPIRY_DATE = AdjustableDate.of(EXPIRY_DATE, ADJUSTMENT);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);

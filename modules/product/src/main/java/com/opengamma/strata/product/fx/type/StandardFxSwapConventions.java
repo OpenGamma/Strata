@@ -24,9 +24,9 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 public class StandardFxSwapConventions {
 
   // Join calendar with the main currencies
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
-  private static final HolidayCalendar GBLO_EUTA = GBLO.combineWith(EUTA);
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendar GBLO_EUTA = GBLO.combinedWith(EUTA);
+  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
 
   /**
    * EUR/USD convention with 2 days spot date.

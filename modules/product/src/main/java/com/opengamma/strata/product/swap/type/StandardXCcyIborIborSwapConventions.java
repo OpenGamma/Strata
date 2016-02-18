@@ -23,8 +23,8 @@ import com.opengamma.strata.basics.index.IborIndices;
 final class StandardXCcyIborIborSwapConventions {
 
   // Join calendar with the main currencies
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
 
   /**
    * EUR EURIBOR 3M v USD LIBOR 3M.

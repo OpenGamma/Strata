@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -182,6 +183,16 @@ public interface OvernightIndex
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the identifier for the index.
+   * <p>
+   * This identifier is used to locate the index in {@link ReferenceData}.
+   * 
+   * @return the identifier
+   */
+  public abstract OvernightIndexId getId();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the name that uniquely identifies this index.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
@@ -190,6 +201,8 @@ public interface OvernightIndex
    */
   @ToString
   @Override
-  public abstract String getName();
+  public default String getName() {
+    return getId().getName();
+  }
 
 }

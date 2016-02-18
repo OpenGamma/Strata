@@ -507,7 +507,7 @@ public final class FpmlDocument {
         optionalBusinessCentersEl.orElseGet(() -> lookupReference(baseEl.getChild("businessCentersReference")));
     HolidayCalendar calendar = HolidayCalendars.NO_HOLIDAYS;
     for (XmlElement businessCenterEl : businessCentersEl.getChildren("businessCenter")) {
-      calendar = calendar.combineWith(parseBusinessCenter(businessCenterEl));
+      calendar = calendar.combinedWith(parseBusinessCenter(businessCenterEl));
     }
     return calendar;
   }

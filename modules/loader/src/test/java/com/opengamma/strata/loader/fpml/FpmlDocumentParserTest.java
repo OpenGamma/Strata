@@ -63,6 +63,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.FxIndexId;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -114,7 +115,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FpmlDocumentParserTest {
 
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
 
   //-------------------------------------------------------------------------
   public void bulletPayment() {
@@ -198,7 +199,7 @@ public class FpmlDocumentParserTest {
     assertEquals(fx.getSettlementCurrencyNotional(), CurrencyAmount.of(USD, 10000000));
     assertEquals(fx.getAgreedFxRate(), FxRate.of(USD, INR, 43.4));
     assertEquals(fx.getIndex(), ImmutableFxIndex.builder()
-        .name("Reuters/RBIB/14:30")
+        .id(FxIndexId.of("Reuters/RBIB/14:30"))
         .currencyPair(CurrencyPair.of(USD, INR))
         .fixingCalendar(USNY)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(-2))

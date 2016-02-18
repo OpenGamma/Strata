@@ -96,7 +96,7 @@ final class StandardCdsConventions {
       .name("USD-European")
       .currency(Currency.USD)
       .dayCount(DayCounts.ACT_360)
-      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY)))
+      .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(USNY)))
       .paymentFrequency(Frequency.P3M)
       .rollConvention(RollConventions.DAY_20)
       .payAccruedOnDefault(true)

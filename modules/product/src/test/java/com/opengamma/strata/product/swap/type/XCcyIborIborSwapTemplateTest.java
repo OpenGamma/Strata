@@ -41,7 +41,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class XCcyIborIborSwapTemplateTest {
 
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
 
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);

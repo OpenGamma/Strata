@@ -169,7 +169,7 @@ public final class HolidayCalendars {
     if (uniqueName.contains("+")) {
       return Splitter.on('+').splitToList(uniqueName).stream()
           .map(HolidayCalendars::of)
-          .reduce(NO_HOLIDAYS, HolidayCalendar::combineWith);
+          .reduce(NO_HOLIDAYS, HolidayCalendar::combinedWith);
     }
     return ENUM_LOOKUP.lookup(uniqueName);
   }
@@ -195,7 +195,7 @@ public final class HolidayCalendars {
     // calendar 2
     private final HolidayCalendar calendar2;
     // name
-    private final String name;
+    private final HolidayCalendarId id;
 
     private Object readResolve() {
       return new Combined(calendar1, calendar2);
@@ -205,7 +205,7 @@ public final class HolidayCalendars {
     Combined(HolidayCalendar calendar1, HolidayCalendar calendar2) {
       this.calendar1 = ArgChecker.notNull(calendar1, "calendar1");
       this.calendar2 = ArgChecker.notNull(calendar2, "calendar2");
-      this.name = calendar1.getName() + "+" + calendar2.getName();
+      this.id = calendar1.getId().combinedWith(calendar2.getId());
     }
 
     @Override
@@ -214,26 +214,26 @@ public final class HolidayCalendars {
     }
 
     @Override
-    public String getName() {
-      return name;
+    public HolidayCalendarId getId() {
+      return id;
     }
 
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof Combined) {
-        return ((Combined) obj).name.equals(name);
+        return ((Combined) obj).id.equals(id);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return name.hashCode();
+      return id.hashCode();
     }
 
     @Override
     public String toString() {
-      return name;
+      return getName();
     }
   }
 

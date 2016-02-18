@@ -176,7 +176,8 @@ public class BusinessDayConventionTest {
   }
 
   public void test_nearest() {
-    HolidayCalendar cal = ImmutableHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
+    HolidayCalendar cal = ImmutableHolidayCalendar.of(
+        HolidayCalendarId.of("Test"), ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
     assertEquals(NEAREST.adjust(FRI_2014_07_11, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SAT_2014_07_12, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SUN_2014_07_13, cal), TUE_2014_07_15);

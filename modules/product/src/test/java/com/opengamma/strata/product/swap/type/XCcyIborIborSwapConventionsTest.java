@@ -29,8 +29,8 @@ import com.opengamma.strata.basics.schedule.Frequency;
 @Test
 public class XCcyIborIborSwapConventionsTest {
 
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
 
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {

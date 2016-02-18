@@ -62,7 +62,7 @@ public class HolidayCalendarIdTest {
     HolidayCalendar euCal = StandardHolidayCalendars.FRI_SAT;
     ReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(gb, gbCal, eu, euCal));
     HolidayCalendarId combined = gb.combinedWith(eu);
-    assertEquals(combined.resolve(refData), euCal.combineWith(gbCal));
+    assertEquals(combined.resolve(refData), euCal.combinedWith(gbCal));
   }
 
   //-------------------------------------------------------------------------

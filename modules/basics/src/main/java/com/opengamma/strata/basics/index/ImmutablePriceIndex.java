@@ -41,10 +41,10 @@ public final class ImmutablePriceIndex
     implements PriceIndex, ImmutableBean, Serializable {
 
   /**
-   * The index name, such as 'GB-HICP'.
+   * The identifier, such as 'GB-HICP'.
    */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
-  private final String name;
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final PriceIndexId id;
   /**
    * The region of the index.
    */
@@ -69,14 +69,14 @@ public final class ImmutablePriceIndex
       return true;
     }
     if (obj instanceof ImmutablePriceIndex) {
-      return name.equals(((ImmutablePriceIndex) obj).name);
+      return id.equals(((ImmutablePriceIndex) obj).id);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return id.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -118,15 +118,15 @@ public final class ImmutablePriceIndex
   }
 
   private ImmutablePriceIndex(
-      String name,
+      PriceIndexId id,
       Country region,
       Currency currency,
       Frequency publicationFrequency) {
-    JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(region, "region");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(publicationFrequency, "publicationFrequency");
-    this.name = name;
+    this.id = id;
     this.region = region;
     this.currency = currency;
     this.publicationFrequency = publicationFrequency;
@@ -149,12 +149,12 @@ public final class ImmutablePriceIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index name, such as 'GB-HICP'.
-   * @return the value of the property, not empty
+   * Gets the identifier, such as 'GB-HICP'.
+   * @return the value of the property, not null
    */
   @Override
-  public String getName() {
-    return name;
+  public PriceIndexId getId() {
+    return id;
   }
 
   //-----------------------------------------------------------------------
@@ -208,10 +208,10 @@ public final class ImmutablePriceIndex
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", ImmutablePriceIndex.class, String.class);
+    private final MetaProperty<PriceIndexId> id = DirectMetaProperty.ofImmutable(
+        this, "id", ImmutablePriceIndex.class, PriceIndexId.class);
     /**
      * The meta-property for the {@code region} property.
      */
@@ -232,7 +232,7 @@ public final class ImmutablePriceIndex
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name",
+        "id",
         "region",
         "currency",
         "publicationFrequency");
@@ -246,8 +246,8 @@ public final class ImmutablePriceIndex
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case -934795532:  // region
           return region;
         case 575402001:  // currency
@@ -275,11 +275,11 @@ public final class ImmutablePriceIndex
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
-      return name;
+    public MetaProperty<PriceIndexId> id() {
+      return id;
     }
 
     /**
@@ -310,8 +310,8 @@ public final class ImmutablePriceIndex
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((ImmutablePriceIndex) bean).getName();
+        case 3355:  // id
+          return ((ImmutablePriceIndex) bean).getId();
         case -934795532:  // region
           return ((ImmutablePriceIndex) bean).getRegion();
         case 575402001:  // currency
@@ -339,7 +339,7 @@ public final class ImmutablePriceIndex
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutablePriceIndex> {
 
-    private String name;
+    private PriceIndexId id;
     private Country region;
     private Currency currency;
     private Frequency publicationFrequency;
@@ -355,7 +355,7 @@ public final class ImmutablePriceIndex
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ImmutablePriceIndex beanToCopy) {
-      this.name = beanToCopy.getName();
+      this.id = beanToCopy.getId();
       this.region = beanToCopy.getRegion();
       this.currency = beanToCopy.getCurrency();
       this.publicationFrequency = beanToCopy.getPublicationFrequency();
@@ -365,8 +365,8 @@ public final class ImmutablePriceIndex
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case -934795532:  // region
           return region;
         case 575402001:  // currency
@@ -381,8 +381,8 @@ public final class ImmutablePriceIndex
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          this.name = (String) newValue;
+        case 3355:  // id
+          this.id = (PriceIndexId) newValue;
           break;
         case -934795532:  // region
           this.region = (Country) newValue;
@@ -426,7 +426,7 @@ public final class ImmutablePriceIndex
     @Override
     public ImmutablePriceIndex build() {
       return new ImmutablePriceIndex(
-          name,
+          id,
           region,
           currency,
           publicationFrequency);
@@ -434,13 +434,13 @@ public final class ImmutablePriceIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the index name, such as 'GB-HICP'.
-     * @param name  the new value, not empty
+     * Sets the identifier, such as 'GB-HICP'.
+     * @param id  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder name(String name) {
-      JodaBeanUtils.notEmpty(name, "name");
-      this.name = name;
+    public Builder id(PriceIndexId id) {
+      JodaBeanUtils.notNull(id, "id");
+      this.id = id;
       return this;
     }
 
@@ -483,7 +483,7 @@ public final class ImmutablePriceIndex
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutablePriceIndex.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
       buf.append("region").append('=').append(JodaBeanUtils.toString(region)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("publicationFrequency").append('=').append(JodaBeanUtils.toString(publicationFrequency));

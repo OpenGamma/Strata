@@ -43,7 +43,7 @@ public class ImmutableFxSwapConventionTest {
 
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final CurrencyPair GBP_USD = CurrencyPair.of(Currency.GBP, Currency.USD);
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA_USNY);
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);

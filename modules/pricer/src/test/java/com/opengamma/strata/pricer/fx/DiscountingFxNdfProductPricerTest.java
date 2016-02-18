@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexId;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -47,7 +48,7 @@ public class DiscountingFxNdfProductPricerTest {
   private static final double FX_RATE = 1123.45;
   private static final CurrencyAmount CURRENCY_NOTIONAL_INVERSE = CurrencyAmount.of(KRW, NOMINAL_USD * FX_RATE);
   private static final FxIndex INDEX = ImmutableFxIndex.builder()
-      .name("USD/KRW")
+      .id(FxIndexId.of("USD/KRW"))
       .currencyPair(CurrencyPair.of(USD, KRW))
       .fixingCalendar(HolidayCalendars.USNY)
       .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))

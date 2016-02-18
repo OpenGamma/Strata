@@ -21,9 +21,9 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 @Test
 public class FxSwapConventionsTest {
 
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
-  private static final HolidayCalendar GBLO_EUTA = GBLO.combineWith(EUTA);
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendar GBLO_EUTA = GBLO.combinedWith(EUTA);
+  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
 
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {

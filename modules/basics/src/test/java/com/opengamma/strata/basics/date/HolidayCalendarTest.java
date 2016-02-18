@@ -94,12 +94,12 @@ public class HolidayCalendarTest {
 
   public void test_NO_HOLIDAYS_combineWith() {
     HolidayCalendar base = new MockHolCal();
-    HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS.combineWith(base);
+    HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS.combinedWith(base);
     assertSame(test, base);
   }
 
   public void test_NO_HOLIDAYS_combineWith_null() {
-    assertThrowsIllegalArg(() -> HolidayCalendars.NO_HOLIDAYS.combineWith(null));
+    assertThrowsIllegalArg(() -> HolidayCalendars.NO_HOLIDAYS.combinedWith(null));
   }
 
   //-------------------------------------------------------------------------
@@ -600,16 +600,16 @@ public class HolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_combineWith() {
+  public void test_combinedWith() {
     HolidayCalendar base1 = new MockHolCal();
     HolidayCalendar base2 = HolidayCalendars.FRI_SAT;
-    HolidayCalendar test = base1.combineWith(base2);
-    assertEquals(test.toString(), "Mock+Fri/Sat");
-    assertEquals(test.getName(), "Mock+Fri/Sat");
-    assertEquals(test.equals(base1.combineWith(base2)), true);
+    HolidayCalendar test = base1.combinedWith(base2);
+    assertEquals(test.toString(), "Fri/Sat+Mock");
+    assertEquals(test.getName(), "Fri/Sat+Mock");
+    assertEquals(test.equals(base1.combinedWith(base2)), true);
     assertEquals(test.equals(""), false);
     assertEquals(test.equals(null), false);
-    assertEquals(test.hashCode(), base1.combineWith(base2).hashCode());
+    assertEquals(test.hashCode(), base1.combinedWith(base2).hashCode());
 
     assertEquals(test.isHoliday(THU_2014_07_10), false);
     assertEquals(test.isHoliday(FRI_2014_07_11), true);
@@ -627,18 +627,18 @@ public class HolidayCalendarTest {
 
   public void test_combineWith_same() {
     HolidayCalendar base = new MockHolCal();
-    HolidayCalendar test = base.combineWith(base);
+    HolidayCalendar test = base.combinedWith(base);
     assertSame(test, base);
   }
 
   public void test_combineWith_none() {
     HolidayCalendar base = new MockHolCal();
-    HolidayCalendar test = base.combineWith(HolidayCalendars.NO_HOLIDAYS);
+    HolidayCalendar test = base.combinedWith(HolidayCalendars.NO_HOLIDAYS);
     assertSame(test, base);
   }
 
   public void test_combineWith_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().combineWith(null));
+    assertThrowsIllegalArg(() -> new MockHolCal().combinedWith(null));
   }
 
   //-------------------------------------------------------------------------
@@ -656,13 +656,13 @@ public class HolidayCalendarTest {
     assertSerialization(HolidayCalendars.NO_HOLIDAYS);
     assertSerialization(HolidayCalendars.SAT_SUN);
     assertSerialization(HolidayCalendars.FRI_SAT);
-    assertSerialization(HolidayCalendars.FRI_SAT.combineWith(HolidayCalendars.SAT_SUN));
+    assertSerialization(HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN));
   }
 
   public void test_jodaConvert() {
     assertJodaConvert(HolidayCalendar.class, HolidayCalendars.NO_HOLIDAYS);
     assertJodaConvert(HolidayCalendar.class, HolidayCalendars.SAT_SUN);
-    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.FRI_SAT.combineWith(HolidayCalendars.SAT_SUN));
+    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN));
   }
 
   //-------------------------------------------------------------------------
@@ -674,8 +674,8 @@ public class HolidayCalendarTest {
     }
 
     @Override
-    public String getName() {
-      return "Mock";
+    public HolidayCalendarId getId() {
+      return HolidayCalendarId.of("Mock");
     }
   }
 
@@ -688,8 +688,8 @@ public class HolidayCalendarTest {
     }
 
     @Override
-    public String getName() {
-      return "MockEom";
+    public HolidayCalendarId getId() {
+      return HolidayCalendarId.of("MockEom");
     }
   }
 

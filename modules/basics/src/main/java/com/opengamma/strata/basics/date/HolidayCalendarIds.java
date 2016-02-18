@@ -29,21 +29,21 @@ public final class HolidayCalendarIds {
    * This calendar is mostly useful in testing scenarios.
    * Note that not all countries use Saturday and Sunday weekends.
    */
-  public static final HolidayCalendarId SAT_SUN = HolidayCalendarId.of("SatSun");
+  public static final HolidayCalendarId SAT_SUN = HolidayCalendarId.of("Sat/Sun");
   /**
    * An identifier for a calendar declaring all days as business days
    * except Friday/Saturday weekends, with code 'FriSat'.
    * <p>
    * This calendar is mostly useful in testing scenarios.
    */
-  public static final HolidayCalendarId FRI_SAT = HolidayCalendarId.of("FriSat");
+  public static final HolidayCalendarId FRI_SAT = HolidayCalendarId.of("Fri/Sat");
   /**
    * An identifier for a calendar declaring all days as business days
    * except Thursday/Friday weekends, with code 'ThuFri'.
    * <p>
    * This calendar is mostly useful in testing scenarios.
    */
-  public static final HolidayCalendarId THU_FRI = HolidayCalendarId.of("ThuFri");
+  public static final HolidayCalendarId THU_FRI = HolidayCalendarId.of("Thu/Fri");
 
   /**
    * An identifier for the holiday calendar of London, United Kingdom, with code 'GBLO'.

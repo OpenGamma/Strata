@@ -128,7 +128,7 @@ final class HolidayCalendarIniLookup
       }
     }
     // build result
-    return ImmutableHolidayCalendar.of(calendarName, holidays, weekends);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends);
   }
 
   // parse weekend format, such as 'Sat,Sun'

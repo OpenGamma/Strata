@@ -53,7 +53,7 @@ public class FxSwapCurveNodeTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
   private static final ImmutableFxSwapConvention CONVENTION = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS);
   private static final Period NEAR_PERIOD = Period.ofMonths(3);

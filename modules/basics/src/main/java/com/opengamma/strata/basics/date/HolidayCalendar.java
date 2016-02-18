@@ -15,6 +15,7 @@ import java.time.temporal.TemporalAdjusters;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -303,7 +304,7 @@ public interface HolidayCalendar
    * @return the combined calendar
    * @throws IllegalArgumentException if unable to combine the calendars
    */
-  public default HolidayCalendar combineWith(HolidayCalendar other) {
+  public default HolidayCalendar combinedWith(HolidayCalendar other) {
     ArgChecker.notNull(other, "other");
     if (this.equals(other)) {
       return this;
@@ -316,6 +317,16 @@ public interface HolidayCalendar
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the identifier for the calendar.
+   * <p>
+   * This identifier is used to locate the index in {@link ReferenceData}.
+   * 
+   * @return the identifier
+   */
+  public abstract HolidayCalendarId getId();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the name that uniquely identifies this calendar.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
@@ -324,6 +335,8 @@ public interface HolidayCalendar
    */
   @ToString
   @Override
-  public abstract String getName();
+  public default String getName() {
+    return getId().getName();
+  }
 
 }

@@ -38,13 +38,12 @@ import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Test {@link IborIborSwapConvention}.
+ * Test {@link XCcyIborIborSwapConvention}.
  */
 @Test
 public class XCcyIborIborSwapConventionTest {
 
-
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
+  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
 
   private static final String NAME = "EUR-EURIBOR-3M-USD-LIBOR-3M";
   private static final double NOTIONAL_2M = 2_000_000d;

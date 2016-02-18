@@ -90,9 +90,9 @@ public class IborIndexTest {
     assertEquals(test.getFixingCalendar(), GBLO);
     assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, GBLO));
     assertEquals(test.getEffectiveDateOffset(),
-        DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, GBLO.combineWith(USNY))));
+        DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(USNY))));
     assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combineWith(USNY))));
+        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "USD-LIBOR-3M");
   }
@@ -290,7 +290,7 @@ public class IborIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableIborIndex a = ImmutableIborIndex.builder()
-        .name("OGIBOR")
+        .id(IborIndexId.of("OGIBOR"))
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -300,14 +300,14 @@ public class IborIndexTest {
         .fixingTime(LocalTime.NOON)
         .fixingZone(ZoneId.of("Europe/London"))
         .build();
-    IborIndex b = a.toBuilder().name("Rubbish").build();
+    IborIndex b = a.toBuilder().id(IborIndexId.of("Rubbish")).build();
     assertEquals(a.equals(b), false);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableIborIndex index = ImmutableIborIndex.builder()
-        .name("OGIBOR")
+        .id(IborIndexId.of("OGIBOR"))
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -327,7 +327,7 @@ public class IborIndexTest {
 
   public void test_serialization() {
     IborIndex index = ImmutableIborIndex.builder()
-        .name("OGIBOR")
+        .id(IborIndexId.of("OGIBOR"))
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
