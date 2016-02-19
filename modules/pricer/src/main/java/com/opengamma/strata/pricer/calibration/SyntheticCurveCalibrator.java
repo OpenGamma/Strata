@@ -187,7 +187,7 @@ public final class SyntheticCurveCalibrator {
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        Trade trade = node.trade(valuationDate, marketQuotes0, refData);
+        Trade trade = node.resolvedTrade(valuationDate, marketQuotes0, refData);
         double mq = measures.value(trade, inputProvider);
         MarketDataKey<?> k = node.requirements().iterator().next();
         mapKeySy.put(k, mq);

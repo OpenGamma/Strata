@@ -441,7 +441,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] dscNodes = CURVES_NODES.get(0).get(0);
     List<Trade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.length; i++) {
-      dscTrades.add(dscNodes[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      dscTrades.add(dscNodes[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
@@ -459,7 +459,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
     List<Trade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing3 = FIXING_PRICER.presentValue(
@@ -481,7 +481,7 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
     CurveNode[] fwd6Nodes = CURVES_NODES.get(2).get(0);
     List<Trade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.length; i++) {
-      fwd6Trades.add(fwd6Nodes[i].trade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      fwd6Trades.add(fwd6Nodes[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing6 = FIXING_PRICER.presentValue(

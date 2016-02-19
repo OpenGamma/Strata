@@ -168,14 +168,14 @@ public final class TermDepositCurveNode
   }
 
   @Override
-  public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
   }
 
   @Override
-  public ResolvedTermDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData).resolve(refData);
+  public ResolvedTermDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

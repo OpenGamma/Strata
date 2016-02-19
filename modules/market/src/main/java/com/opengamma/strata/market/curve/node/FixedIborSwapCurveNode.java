@@ -185,14 +185,14 @@ public final class FixedIborSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate);
   }
 
   @Override
-  public ResolvedSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData).resolve(refData);
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

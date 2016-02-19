@@ -109,7 +109,7 @@ public class FxSwapCurveNodeTest {
   public void test_trade() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    FxSwapTrade trade = node.trade(valuationDate, OV);
+    FxSwapTrade trade = node.trade(valuationDate, OV, REF_DATA);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
     FxSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS);
     assertEquals(trade, expected);
@@ -121,7 +121,7 @@ public class FxSwapCurveNodeTest {
     double rate = 0.035;
     QuoteKey quoteKey = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
     ImmutableMarketData md = ImmutableMarketData.builder(valuationDate).addValue(quoteKey, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, md));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, md, REF_DATA));
   }
 
   public void test_initialGuess() {

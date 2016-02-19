@@ -104,7 +104,7 @@ public class FixedOvernightSwapCurveNodeTest {
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
     MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_KEY, rate).build();
-    SwapTrade trade = node.trade(tradeDate, marketData);
+    SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
     SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD);
     assertEquals(trade, expected);
   }
@@ -115,7 +115,7 @@ public class FixedOvernightSwapCurveNodeTest {
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
     MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(key, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {

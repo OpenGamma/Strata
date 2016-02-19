@@ -149,7 +149,7 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsKey);
@@ -157,8 +157,8 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public ResolvedFxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData).resolve(refData);
+  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

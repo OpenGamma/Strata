@@ -129,7 +129,8 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build());
+    ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
+    FraTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     LocalDate startDateExpected = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START);
     LocalDate endDateExpected = startDateExpected.plusMonths(3);
     Fra productExpected = Fra.builder()
@@ -156,7 +157,7 @@ public class FraCurveNodeTest {
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
     ImmutableMarketData md = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, md));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, md, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -192,7 +193,8 @@ public class FraCurveNodeTest {
   public void test_metadata_last_fixing() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
+    ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build();
+    FraTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateObservation) (resolved.getFloatingRate())).getFixingDate();
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);

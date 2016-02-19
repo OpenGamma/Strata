@@ -154,14 +154,14 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double price = marketData.getValue(rateKey) + additionalSpread;
     return template.createTrade(valuationDate, 1L, 1d, price);
   }
 
   @Override
-  public ResolvedIborFutureTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData).resolve(refData);
+  public ResolvedIborFutureTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

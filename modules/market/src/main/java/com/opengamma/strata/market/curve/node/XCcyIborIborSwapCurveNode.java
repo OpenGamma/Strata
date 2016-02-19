@@ -195,7 +195,7 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
@@ -203,8 +203,8 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   @Override
-  public ResolvedSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData).resolve(refData);
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override
