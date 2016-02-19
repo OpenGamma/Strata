@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -88,11 +89,12 @@ public class RateCalculationSwapLegTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_01_05)
         .endDate(DATE_04_05)
         .frequency(P1M)
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(P1M)
@@ -110,8 +112,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), DATE_01_06);
-    assertEquals(test.getEndDate(), DATE_04_07);
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_01_05, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_04_05, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), PAY);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -531,12 +533,12 @@ public class RateCalculationSwapLegTest {
 
   //-------------------------------------------------------------------------
   public void test_inflation_monthly() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -555,8 +557,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), PAY);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -565,7 +567,7 @@ public class RateCalculationSwapLegTest {
     assertEquals(test.getCalculation(), rateCalc);
 
     RatePaymentPeriod rpp = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09)))
         .accrualPeriods(RateAccrualPeriod.builder()
             .startDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_14_06_09))
             .endDate(BusinessDayAdjustment.of(FOLLOWING, GBLO).adjust(DATE_19_06_09))
@@ -575,8 +577,8 @@ public class RateCalculationSwapLegTest {
             .rateObservation(
                 InflationMonthlyRateObservation.of(
                     GB_RPI,
-                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
-                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3)))
+                    YearMonth.from(bda.adjust(DATE_14_06_09)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_19_06_09)).minusMonths(3)))
             .build())
         .dayCount(ONE_ONE)
         .currency(GBP)
@@ -593,12 +595,12 @@ public class RateCalculationSwapLegTest {
   }
 
   public void test_inflation_interpolated() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(Frequency.ofYears(5))
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -617,8 +619,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -628,18 +630,18 @@ public class RateCalculationSwapLegTest {
 
     double weight = 1. - 9.0 / 30.0;
     RatePaymentPeriod rpp0 = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09)))
         .accrualPeriods(RateAccrualPeriod.builder()
-            .startDate(adj.adjust(DATE_14_06_09))
-            .endDate(adj.adjust(DATE_19_06_09))
+            .startDate(bda.adjust(DATE_14_06_09))
+            .endDate(bda.adjust(DATE_19_06_09))
             .unadjustedStartDate(DATE_14_06_09)
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
             .rateObservation(
                 InflationInterpolatedRateObservation.of(
                     GB_RPI,
-                    YearMonth.from(adj.adjust(DATE_14_06_09)).minusMonths(3),
-                    YearMonth.from(adj.adjust(DATE_19_06_09)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_14_06_09)).minusMonths(3),
+                    YearMonth.from(bda.adjust(DATE_19_06_09)).minusMonths(3),
                     weight))
             .build())
         .dayCount(ONE_ONE)
@@ -656,12 +658,12 @@ public class RateCalculationSwapLegTest {
   }
 
   public void test_inflation_fixed() {
-    BusinessDayAdjustment adj = BusinessDayAdjustment.of(FOLLOWING, GBLO);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_14_06_09)
         .endDate(DATE_19_06_09)
         .frequency(P12M)
-        .businessDayAdjustment(adj)
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.ofYears(5))
@@ -680,8 +682,8 @@ public class RateCalculationSwapLegTest {
         .notionalSchedule(notionalSchedule)
         .calculation(rateCalc)
         .build();
-    assertEquals(test.getStartDate(), adj.adjust(DATE_14_06_09));
-    assertEquals(test.getEndDate(), adj.adjust(DATE_19_06_09));
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_14_06_09, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_19_06_09, bda));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPayReceive(), RECEIVE);
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
@@ -689,47 +691,47 @@ public class RateCalculationSwapLegTest {
     assertEquals(test.getNotionalSchedule(), notionalSchedule);
     assertEquals(test.getCalculation(), rateCalc);
     RateAccrualPeriod rap0 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(1)))
+        .startDate(bda.adjust(DATE_14_06_09))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(1)))
         .unadjustedStartDate(DATE_14_06_09)
         .unadjustedEndDate(DATE_14_06_09.plusYears(1))
         .yearFraction(1.0)
         .rateObservation(FixedRateObservation.of(0.05))
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(1)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(2)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(1)))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(2)))
         .unadjustedStartDate(DATE_14_06_09.plusYears(1))
         .unadjustedEndDate(DATE_14_06_09.plusYears(2))
         .yearFraction(1.0)
         .rateObservation(FixedRateObservation.of(0.05))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(2)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(3)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(2)))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(3)))
         .unadjustedStartDate(DATE_14_06_09.plusYears(2))
         .unadjustedEndDate(DATE_14_06_09.plusYears(3))
         .yearFraction(1.0)
         .rateObservation(FixedRateObservation.of(0.05))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(3)))
-        .endDate(adj.adjust(DATE_14_06_09.plusYears(4)))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(3)))
+        .endDate(bda.adjust(DATE_14_06_09.plusYears(4)))
         .unadjustedStartDate(DATE_14_06_09.plusYears(3))
         .unadjustedEndDate(DATE_14_06_09.plusYears(4))
         .yearFraction(1.0)
         .rateObservation(FixedRateObservation.of(0.05))
         .build();
     RateAccrualPeriod rap4 = RateAccrualPeriod.builder()
-        .startDate(adj.adjust(DATE_14_06_09.plusYears(4)))
-        .endDate(adj.adjust(DATE_19_06_09))
+        .startDate(bda.adjust(DATE_14_06_09.plusYears(4)))
+        .endDate(bda.adjust(DATE_19_06_09))
         .unadjustedStartDate(DATE_14_06_09.plusYears(4))
         .unadjustedEndDate(DATE_19_06_09)
         .yearFraction(1.0)
         .rateObservation(FixedRateObservation.of(0.05))
         .build();
     RatePaymentPeriod rpp = RatePaymentPeriod.builder()
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(adj.adjust(DATE_19_06_09)))
+        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09)))
         .accrualPeriods(rap0, rap1, rap2, rap3, rap4)
         .compoundingMethod(STRAIGHT)
         .dayCount(ONE_ONE)

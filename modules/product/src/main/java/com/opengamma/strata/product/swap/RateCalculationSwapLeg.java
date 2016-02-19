@@ -6,7 +6,6 @@
 package com.opengamma.strata.product.swap;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -28,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -107,43 +107,18 @@ public final class RateCalculationSwapLeg
     return calculation.getType();
   }
 
-  /**
-   * Gets the accrual start date of the leg.
-   * <p>
-   * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
-   * <p>
-   * Defined as the effective date by the 2006 ISDA definitions article 3.2.
-   * 
-   * @return the start date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getStartDate() {
-    return accrualSchedule.getAdjustedStartDate();
+  public AdjustableDate getStartDate() {
+    return AdjustableDate.of(accrualSchedule.getStartDate(), accrualSchedule.getEffectiveStartDateBusinessDayAdjustment());
   }
 
-  /**
-   * Gets the accrual end date of the leg.
-   * <p>
-   * This is the last accrual date in the leg, often known as the termination date.
-   * This date has been typically adjusted to be a valid business day.
-   * <p>
-   * Defined as the termination date by the 2006 ISDA definitions article 3.3.
-   * 
-   * @return the end date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getEndDate() {
-    return accrualSchedule.getAdjustedEndDate();
+  public AdjustableDate getEndDate() {
+    return AdjustableDate.of(accrualSchedule.getEndDate(), accrualSchedule.getEffectiveEndDateBusinessDayAdjustment());
   }
 
-  /**
-   * Gets the currency of the swap leg.
-   * 
-   * @return the currency
-   */
   @Override
   @DerivedProperty
   public Currency getCurrency() {
@@ -178,7 +153,7 @@ public final class RateCalculationSwapLeg
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
-        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))
+        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate().adjusted()))
         .build();
   }
 
@@ -402,13 +377,13 @@ public final class RateCalculationSwapLeg
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", RateCalculationSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", RateCalculationSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", RateCalculationSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", RateCalculationSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -528,7 +503,7 @@ public final class RateCalculationSwapLeg
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -536,7 +511,7 @@ public final class RateCalculationSwapLeg
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 

@@ -84,7 +84,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP_REC.getStartDate())
+      .settlementDate(SWAP_REC.getStartDate().getUnadjusted())
       .build();
 
   private static final ResolvedSwaption SWAPTION_LONG_REC = Swaption.builder()

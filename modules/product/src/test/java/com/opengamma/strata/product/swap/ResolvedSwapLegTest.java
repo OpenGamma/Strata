@@ -19,7 +19,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -31,7 +30,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -41,7 +39,6 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class ResolvedSwapLegTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
   private static final LocalDate DATE_2014_12_30 = date(2014, 12, 30);
@@ -136,16 +133,6 @@ public class ResolvedSwapLegTest {
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
-  }
-
-  public void test_resolve() {
-    ResolvedSwapLeg test = ResolvedSwapLeg.builder()
-        .type(IBOR)
-        .payReceive(RECEIVE)
-        .paymentPeriods(RPP1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
-        .build();
-    assertSame(test.resolve(REF_DATA), test);
   }
 
   public void test_findNotional() {

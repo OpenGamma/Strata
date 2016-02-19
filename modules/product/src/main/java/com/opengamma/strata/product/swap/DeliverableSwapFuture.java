@@ -75,7 +75,8 @@ public final class DeliverableSwapFuture
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderOrEqual(deliveryDate, underlyingSwap.getStartDate(), "deliveryDate", "startDate");
+    ArgChecker.inOrderOrEqual(
+        deliveryDate, underlyingSwap.getStartDate().getUnadjusted(), "deliveryDate", "underlyingSwap.startDate.unadjusted");
     ArgChecker.isFalse(underlyingSwap.isCrossCurrency(), "Underlying swap must not be cross currency");
     for (SwapLeg swapLeg : underlyingSwap.getLegs()) {
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {

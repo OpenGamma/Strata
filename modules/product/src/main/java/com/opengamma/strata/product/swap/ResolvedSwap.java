@@ -176,7 +176,7 @@ public final class ResolvedSwap
   @DerivedProperty
   public LocalDate getStartDate() {
     return legs.stream()
-        .map(SwapLeg::getStartDate)
+        .map(ResolvedSwapLeg::getStartDate)
         .min(Comparator.naturalOrder())
         .get();  // always at least one leg, so get() is safe
   }
@@ -192,7 +192,7 @@ public final class ResolvedSwap
   @DerivedProperty
   public LocalDate getEndDate() {
     return legs.stream()
-        .map(SwapLeg::getEndDate)
+        .map(ResolvedSwapLeg::getEndDate)
         .max(Comparator.naturalOrder())
         .get();  // always at least one leg, so get() is safe
   }

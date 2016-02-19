@@ -7,7 +7,7 @@ package com.opengamma.strata.function.calculation.swap;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATECALC_SWAP_LEG;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -18,10 +18,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
@@ -45,16 +45,11 @@ import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.impl.swap.DiscountingRatePaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.swap.SwapDummyData;
-import com.opengamma.strata.product.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link SwapCalculationFunction}.
@@ -62,12 +57,13 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class SwapCalculationFunctionTest {
 
-  public static final SwapTrade TRADE = SwapDummyData.SWAP_TRADE;
+  public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
+      .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01);
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
-  private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
+  private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
   public void test_group() {
@@ -158,36 +154,6 @@ public class SwapCalculationFunctionTest {
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
             Measures.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
-  }
-
-  public void test_accruedInterest() {
-    SwapCalculationFunction function = new SwapCalculationFunction();
-    Currency ccy = FIXED_RATECALC_SWAP_LEG.getCurrency();
-    LocalDate valDate = FIXED_RATECALC_SWAP_LEG.getEndDate().minusDays(7);
-    SwapTrade trade = SwapTrade.builder()
-        .product(Swap.of(FIXED_RATECALC_SWAP_LEG))
-        .build();
-
-    Set<Measure> measures = ImmutableSet.of(Measures.ACCRUED_INTEREST);
-    CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
-
-    // create a period with altered end date, and price it
-    ResolvedSwapLeg expanded = FIXED_RATECALC_SWAP_LEG.resolve(REF_DATA);
-    RatePaymentPeriod rpp = (RatePaymentPeriod) expanded.getPaymentPeriods().get(expanded.getPaymentPeriods().size() - 1);
-    RateAccrualPeriod rap = rpp.getAccrualPeriods().get(0);
-    RateAccrualPeriod rap2 = rap.toBuilder()
-        .endDate(valDate)
-        .unadjustedEndDate(valDate)
-        .yearFraction(DayCounts.ACT_365F.yearFraction(rap.getStartDate(), valDate))
-        .build();
-    RatePaymentPeriod rpp2 = rpp.toBuilder().accrualPeriods(rap2).build();
-    CurrencyAmount expected = CurrencyAmount.of(
-        ccy, DiscountingRatePaymentPeriodPricer.DEFAULT.forecastValue(rpp2, provider));
-
-    MultiCurrencyValuesArray expectedArray = MultiCurrencyValuesArray.of(MultiCurrencyAmount.of(expected));
-    assertThat(function.calculate(trade, measures, md, REF_DATA))
-        .containsEntry(Measures.ACCRUED_INTEREST, Result.success(expectedArray));
   }
 
   //-------------------------------------------------------------------------

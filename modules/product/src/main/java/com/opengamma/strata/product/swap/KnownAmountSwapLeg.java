@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
@@ -118,32 +119,16 @@ public final class KnownAmountSwapLeg
     return SwapLegType.FIXED;
   }
 
-  /**
-   * Gets the accrual start date of the leg.
-   * <p>
-   * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the start date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getStartDate() {
-    return accrualSchedule.getAdjustedStartDate();
+  public AdjustableDate getStartDate() {
+    return AdjustableDate.of(accrualSchedule.getStartDate(), accrualSchedule.getEffectiveStartDateBusinessDayAdjustment());
   }
 
-  /**
-   * Gets the accrual end date of the leg.
-   * <p>
-   * This is the last accrual date in the leg, often known as the termination date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the end date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getEndDate() {
-    return accrualSchedule.getAdjustedEndDate();
+  public AdjustableDate getEndDate() {
+    return AdjustableDate.of(accrualSchedule.getEndDate(), accrualSchedule.getEffectiveEndDateBusinessDayAdjustment());
   }
 
   @Override
@@ -419,13 +404,13 @@ public final class KnownAmountSwapLeg
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", KnownAmountSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", KnownAmountSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", KnownAmountSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", KnownAmountSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-properties.
      */
@@ -537,7 +522,7 @@ public final class KnownAmountSwapLeg
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -545,7 +530,7 @@ public final class KnownAmountSwapLeg
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 

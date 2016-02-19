@@ -83,7 +83,7 @@ public class CalibrationMeasuresTest {
         "Trade type 'FraTrade' must be resolved to 'ResolvedFraTrade' for calibration");
     assertThrowsIllegalArg(
         () -> test.value(SwapDummyData.SWAP_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX),
-        "Trade type 'SwapTrade' is not supported for calibration");
+        "Trade type 'ResolvedSwapTrade' is not supported for calibration");
   }
 
 }

@@ -18,7 +18,8 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
@@ -30,10 +31,13 @@ public class SwapLegAmountTest {
   private static final CurrencyAmount CURRENCY_AMOUNT = CurrencyAmount.of(Currency.USD, 123.45);
 
   public void test_of() {
-    SwapLeg leg = mock(SwapLeg.class);
-    when(leg.getPayReceive()).thenReturn(PayReceive.PAY);
-    when(leg.getType()).thenReturn(SwapLegType.FIXED);
-    when(leg.getCurrency()).thenReturn(Currency.GBP);
+    PaymentPeriod pp = mock(PaymentPeriod.class);
+    when(pp.getCurrency()).thenReturn(Currency.GBP);
+    ResolvedSwapLeg leg = ResolvedSwapLeg.builder()
+        .type(SwapLegType.FIXED)
+        .payReceive(PayReceive.PAY)
+        .paymentPeriods(pp)
+        .build();
     SwapLegAmount legAmount = SwapLegAmount.of(leg, CurrencyAmount.of(Currency.GBP, 10));
     SwapLegAmount test = legAmount.convertedTo(Currency.USD, FxRate.of(Currency.GBP, Currency.USD, 1.6));
 

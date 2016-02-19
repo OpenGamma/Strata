@@ -79,7 +79,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP_REC.getStartDate())
+      .settlementDate(SWAP_REC.getStartDate().getUnadjusted())
       .build();
   private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
@@ -311,7 +311,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueDelta_parity() {
     double pvbp = SWAP_PRICER.getLegPricer()
-        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA), RATE_PROVIDER);
+        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
     CurrencyAmount deltaRec = SWAPTION_PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount deltaPay = SWAPTION_PRICER.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(deltaRec.getAmount() + deltaPay.getAmount(), -pvbp, TOLERANCE_DELTA);
@@ -329,7 +329,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
   public void test_presentValueDelta_atMaturity() {
     double forward = SWAP_PRICER.parRate(RSWAP_REC, RATE_PROVIDER_AT_MATURITY);
     double pvbp = SWAP_PRICER.getLegPricer()
-        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA), RATE_PROVIDER_AT_MATURITY);
+        .pvbp(SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER_AT_MATURITY);
     CurrencyAmount deltaRec =
         SWAPTION_PRICER.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY);
     assertEquals(deltaRec.getAmount(), RATE > forward ? -pvbp : 0, TOLERANCE_DELTA);

@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -195,39 +196,16 @@ public final class RatePeriodSwapLeg
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the accrual start date of the leg.
-   * <p>
-   * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the start date of the leg
-   */
   @Override
-  public LocalDate getStartDate() {
-    return paymentPeriods.get(0).getStartDate();
+  public AdjustableDate getStartDate() {
+    return AdjustableDate.of(paymentPeriods.get(0).getStartDate());
   }
 
-  /**
-   * Gets the accrual end date of the leg.
-   * <p>
-   * This is the last accrual date in the leg, often known as the termination date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the end date of the leg
-   */
   @Override
-  public LocalDate getEndDate() {
-    return paymentPeriods.get(paymentPeriods.size() - 1).getEndDate();
+  public AdjustableDate getEndDate() {
+    return AdjustableDate.of(paymentPeriods.get(paymentPeriods.size() - 1).getEndDate());
   }
 
-  /**
-   * Gets the currency of the swap leg.
-   * <p>
-   * All periods in the leg will have this currency.
-   * 
-   * @return the currency
-   */
   @Override
   public Currency getCurrency() {
     return currency;
@@ -266,7 +244,7 @@ public final class RatePeriodSwapLeg
   private ImmutableList<PaymentEvent> createEvents(List<RatePaymentPeriod> adjPaymentPeriods) {
 
     ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
-    LocalDate initialExchangeDate = getStartDate().with(paymentBusinessDayAdjustment);
+    LocalDate initialExchangeDate = paymentBusinessDayAdjustment.adjust(getStartDate().adjusted());
     events.addAll(NotionalSchedule.createEvents(
         adjPaymentPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange));
     paymentEvents.forEach(pe -> events.add(pe.adjustPaymentDate(paymentBusinessDayAdjustment)));

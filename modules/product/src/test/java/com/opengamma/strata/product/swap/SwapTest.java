@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -114,19 +115,19 @@ public class SwapTest {
   public void test_getStartDate() {
     SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
     SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
-    assertEquals(Swap.of(leg1).getStartDate(), date(2015, 6, 29));
-    assertEquals(Swap.of(leg2).getStartDate(), date(2015, 6, 30));
-    assertEquals(Swap.of(leg1, leg2).getStartDate(), date(2015, 6, 29));
-    assertEquals(Swap.of(leg2, leg1).getStartDate(), date(2015, 6, 29));
+    assertEquals(Swap.of(leg1).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
+    assertEquals(Swap.of(leg2).getStartDate(), AdjustableDate.of(date(2015, 6, 30)));
+    assertEquals(Swap.of(leg1, leg2).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
+    assertEquals(Swap.of(leg2, leg1).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
   }
 
   public void test_getEndDate() {
     SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
     SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
-    assertEquals(Swap.of(leg1).getEndDate(), date(2017, 6, 30));
-    assertEquals(Swap.of(leg2).getEndDate(), date(2017, 6, 29));
-    assertEquals(Swap.of(leg1, leg2).getEndDate(), date(2017, 6, 30));
-    assertEquals(Swap.of(leg2, leg1).getEndDate(), date(2017, 6, 30));
+    assertEquals(Swap.of(leg1).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
+    assertEquals(Swap.of(leg2).getEndDate(), AdjustableDate.of(date(2017, 6, 29)));
+    assertEquals(Swap.of(leg1, leg2).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
+    assertEquals(Swap.of(leg2, leg1).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
   }
 
   //-------------------------------------------------------------------------

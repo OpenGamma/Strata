@@ -8,7 +8,6 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
@@ -145,15 +145,15 @@ public final class Swap
    * Gets the accrual start date of the swap.
    * <p>
    * This is the earliest accrual date of the legs, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
+   * The latest date is chosen by examining the unadjusted end date.
    * 
    * @return the start date of the swap
    */
   @DerivedProperty
-  public LocalDate getStartDate() {
+  public AdjustableDate getStartDate() {
     return legs.stream()
         .map(SwapLeg::getStartDate)
-        .min(Comparator.naturalOrder())
+        .min(Comparator.comparing(adjDate -> adjDate.getUnadjusted()))
         .get();  // always at least one leg, so get() is safe
   }
 
@@ -161,15 +161,15 @@ public final class Swap
    * Gets the accrual end date of the swap.
    * <p>
    * This is the latest accrual date of the legs, often known as the termination date.
-   * This date has typically been adjusted to be a valid business day.
+   * The latest date is chosen by examining the unadjusted end date.
    * 
    * @return the end date of the swap
    */
   @DerivedProperty
-  public LocalDate getEndDate() {
+  public AdjustableDate getEndDate() {
     return legs.stream()
         .map(SwapLeg::getEndDate)
-        .max(Comparator.naturalOrder())
+        .max(Comparator.comparing(adjDate -> adjDate.getUnadjusted()))
         .get();  // always at least one leg, so get() is safe
   }
 
@@ -336,13 +336,13 @@ public final class Swap
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", Swap.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", Swap.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", Swap.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", Swap.class, AdjustableDate.class);
     /**
      * The meta-properties.
      */
@@ -399,7 +399,7 @@ public final class Swap
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -407,7 +407,7 @@ public final class Swap
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 

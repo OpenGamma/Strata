@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
@@ -71,7 +71,7 @@ public class SwapLegAmount
    * @param amount  the amount
    * @return the swap leg amount
    */
-  public static SwapLegAmount of(SwapLeg leg, CurrencyAmount amount) {
+  public static SwapLegAmount of(ResolvedSwapLeg leg, CurrencyAmount amount) {
     return builder()
         .amount(amount)
         .payReceive(leg.getPayReceive())

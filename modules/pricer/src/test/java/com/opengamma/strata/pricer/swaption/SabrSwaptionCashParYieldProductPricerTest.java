@@ -402,7 +402,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueDelta_parity() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
-    ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA);
+    ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(fixedLeg, forward);
     CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.getSwaptionSettlement();
     double discountSettle = RATE_PROVIDER.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());
@@ -423,7 +423,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
 
   public void test_presentValueDelta_atMaturity() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER_AT_MATURITY);
-    ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0).resolve(REF_DATA);
+    ResolvedSwapLeg fixedLeg = SWAPTION_REC_LONG.getUnderlying().getLegs(SwapLegType.FIXED).get(0);
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(fixedLeg, forward);
     CashSettlement cashSettlement = (CashSettlement) SWAPTION_REC_LONG.getSwaptionSettlement();
     double discountSettle = RATE_PROVIDER_AT_MATURITY.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());

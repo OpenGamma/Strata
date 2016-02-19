@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.product.swap;
 
-import java.time.LocalDate;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataId;
@@ -61,21 +60,23 @@ public interface SwapLeg extends Resolvable<ResolvedSwapLeg> {
    * Gets the accrual start date of the leg.
    * <p>
    * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
+   * <p>
+   * Defined as the effective date by the 2006 ISDA definitions article 3.2.
    * 
    * @return the start date of the leg
    */
-  public abstract LocalDate getStartDate();
+  public abstract AdjustableDate getStartDate();
 
   /**
    * Gets the accrual end date of the leg.
    * <p>
    * This is the last accrual date in the leg, often known as the termination date.
-   * This date has typically been adjusted to be a valid business day.
+   * <p>
+   * Defined as the termination date by the 2006 ISDA definitions article 3.3.
    * 
    * @return the end date of the leg
    */
-  public abstract LocalDate getEndDate();
+  public abstract AdjustableDate getEndDate();
 
   /**
    * Gets the currency of the leg.

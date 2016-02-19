@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -42,7 +41,6 @@ import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.Swap;
 
 /**
  * Test {@link CashFlowEquivalentCalculator}.
@@ -51,7 +49,6 @@ import com.opengamma.strata.product.swap.Swap;
 public class CashFlowEquivalentCalculatorTest {
 
   // setup
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate PAYMENT1 = date(2014, 10, 6);
   private static final LocalDate START1 = date(2014, 7, 2);
   private static final LocalDate END1 = date(2014, 10, 2);
@@ -134,15 +131,12 @@ public class CashFlowEquivalentCalculatorTest {
   private static final double TOLERANCE_PV = 1.0E-2;
 
   public void test_cashFlowEquivalent() {
-    ResolvedSwap swap = Swap.builder()
-        .legs(IBOR_LEG, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap = ResolvedSwap.of(IBOR_LEG, FIXED_LEG);
     ResolvedSwapLeg computed = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER);
     ResolvedSwapLeg computedIborLeg =
-        CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG.resolve(REF_DATA), PROVIDER);
+        CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER);
     ResolvedSwapLeg computedFixedLeg =
-        CashFlowEquivalentCalculator.cashFlowEquivalentFixedLeg(FIXED_LEG.resolve(REF_DATA), PROVIDER);
+        CashFlowEquivalentCalculator.cashFlowEquivalentFixedLeg(FIXED_LEG, PROVIDER);
     assertEquals(computedFixedLeg.getPaymentEvents(), computed.getPaymentEvents().subList(0, 2));
     assertEquals(computedIborLeg.getPaymentEvents(), computed.getPaymentEvents().subList(2, 6));
 
@@ -189,10 +183,7 @@ public class CashFlowEquivalentCalculatorTest {
   }
   
   public void test_cashFlowEquivalent_pv() {
-    ResolvedSwap swap = Swap.builder()
-        .legs(IBOR_LEG, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap = ResolvedSwap.of(IBOR_LEG, FIXED_LEG);
     ResolvedSwapLeg cfe = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER);
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = DiscountingSwapProductPricer.DEFAULT;
@@ -214,10 +205,7 @@ public class CashFlowEquivalentCalculatorTest {
         .payReceive(PAY)
         .paymentPeriods(iborCmp)
         .build();
-    ResolvedSwap swap1 = Swap.builder()
-        .legs(iborLegCmp, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap1 = ResolvedSwap.of(iborLegCmp, FIXED_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap1, PROVIDER));
     RatePaymentPeriod fixedCmp = RatePaymentPeriod.builder()
         .paymentDate(PAYMENT2)
@@ -231,45 +219,32 @@ public class CashFlowEquivalentCalculatorTest {
         .payReceive(RECEIVE)
         .paymentPeriods(fixedCmp)
         .build();
-    ResolvedSwap swap2 = Swap.builder()
-        .legs(IBOR_LEG, fixedLegCmp)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap2 = ResolvedSwap.of(IBOR_LEG, fixedLegCmp);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap2, PROVIDER));
   }
 
   public void test_cashFlowEquivalent_wrongSwap() {
-    ResolvedSwap swap1 = Swap.builder()
-        .legs(IBOR_LEG, FIXED_LEG, IBOR_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap1 = ResolvedSwap.of(IBOR_LEG, FIXED_LEG, IBOR_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap1, PROVIDER));
-    ResolvedSwap swap2 = Swap.builder()
-        .legs(FIXED_LEG, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap2 = ResolvedSwap.of(FIXED_LEG, FIXED_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap2, PROVIDER));
-    ResolvedSwap swap3 = Swap.builder()
-        .legs(FIXED_LEG, CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER))
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap3 = ResolvedSwap.of(
+        FIXED_LEG,
+        CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER));
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap3, PROVIDER));
   }
 
   //-------------------------------------------------------------------------
   public void test_cashFlowEquivalentAndSensitivity() {
-    ResolvedSwap swap = Swap.builder()
-        .legs(IBOR_LEG, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap = ResolvedSwap.of(IBOR_LEG, FIXED_LEG);
     ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedFull =
         CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap, PROVIDER);
     ImmutableList<NotionalExchange> keyComputedFull = computedFull.keySet().asList();
     ImmutableList<PointSensitivityBuilder> valueComputedFull = computedFull.values().asList();
     ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedIborLeg =
-        CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityIborLeg(IBOR_LEG.resolve(REF_DATA), PROVIDER);
+        CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityIborLeg(IBOR_LEG, PROVIDER);
     ImmutableMap<NotionalExchange, PointSensitivityBuilder> computedFixedLeg =
-        CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityFixedLeg(FIXED_LEG.resolve(REF_DATA), PROVIDER);
+        CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivityFixedLeg(FIXED_LEG, PROVIDER);
     assertEquals(computedFixedLeg.keySet().asList(), keyComputedFull.subList(0, 2));
     assertEquals(computedIborLeg.keySet().asList(), keyComputedFull.subList(2, 6));
     assertEquals(computedFixedLeg.values().asList(), valueComputedFull.subList(0, 2));
@@ -303,10 +278,7 @@ public class CashFlowEquivalentCalculatorTest {
         .payReceive(PAY)
         .paymentPeriods(iborCmp)
         .build();
-    ResolvedSwap swap1 = Swap.builder()
-        .legs(iborLegCmp, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap1 = ResolvedSwap.of(iborLegCmp, FIXED_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap1, PROVIDER));
     RatePaymentPeriod fixedCmp = RatePaymentPeriod.builder()
         .paymentDate(PAYMENT2)
@@ -320,28 +292,17 @@ public class CashFlowEquivalentCalculatorTest {
         .payReceive(RECEIVE)
         .paymentPeriods(fixedCmp)
         .build();
-    ResolvedSwap swap2 = Swap.builder()
-        .legs(IBOR_LEG, fixedLegCmp)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap2 = ResolvedSwap.of(IBOR_LEG, fixedLegCmp);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap2, PROVIDER));
   }
 
   public void test_cashFlowEquivalentAndSensitivity_wrongSwap() {
-    ResolvedSwap swap1 = Swap.builder()
-        .legs(IBOR_LEG, FIXED_LEG, IBOR_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap1 = ResolvedSwap.of(IBOR_LEG, FIXED_LEG, IBOR_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap1, PROVIDER));
-    ResolvedSwap swap2 = Swap.builder()
-        .legs(FIXED_LEG, FIXED_LEG)
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap2 = ResolvedSwap.of(FIXED_LEG, FIXED_LEG);
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap2, PROVIDER));
-    ResolvedSwap swap3 = Swap.builder()
-        .legs(FIXED_LEG, CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER))
-        .build()
-        .resolve(REF_DATA);
+    ResolvedSwap swap3 = ResolvedSwap.of(FIXED_LEG, CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER));
     assertThrowsIllegalArg(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap3, PROVIDER));
   }
+
 }

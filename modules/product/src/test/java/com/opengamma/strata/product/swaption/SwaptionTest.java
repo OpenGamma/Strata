@@ -56,7 +56,7 @@ public class SwaptionTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
-      .settlementDate(SWAP.getStartDate())
+      .settlementDate(SWAP.getStartDate().getUnadjusted())
       .build();
   private static final Swap SWAP_OIS = FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS
       .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct();

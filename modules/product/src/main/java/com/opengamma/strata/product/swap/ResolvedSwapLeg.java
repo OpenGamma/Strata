@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -59,14 +58,14 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition
 public final class ResolvedSwapLeg
-    implements SwapLeg, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable {
 
   /**
    * The type of the leg, such as Fixed or Ibor.
    * <p>
    * This provides a high level categorization of the swap leg.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final SwapLegType type;
   /**
    * Whether the leg is pay or receive.
@@ -78,7 +77,7 @@ public final class ResolvedSwapLeg
    * <p>
    * The value of this flag should match the signs of the payment period notionals.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final PayReceive payReceive;
   /**
    * The payment periods that combine to form the swap leg.
@@ -135,7 +134,6 @@ public final class ResolvedSwapLeg
    * 
    * @return the start date of the leg
    */
-  @Override
   public LocalDate getStartDate() {
     return paymentPeriods.get(0).getStartDate();
   }
@@ -148,7 +146,6 @@ public final class ResolvedSwapLeg
    * 
    * @return the end date of the leg
    */
-  @Override
   public LocalDate getEndDate() {
     return paymentPeriods.get(paymentPeriods.size() - 1).getEndDate();
   }
@@ -160,7 +157,6 @@ public final class ResolvedSwapLeg
    * 
    * @return the currency
    */
-  @Override
   public Currency getCurrency() {
     return currency;
   }
@@ -183,14 +179,16 @@ public final class ResolvedSwapLeg
         .findFirst();
   }
 
-  @Override
+  /**
+   * Collects all the indices referred to by this leg.
+   * <p>
+   * A swap leg will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Each index that is referred to must be added to the specified builder.
+   * 
+   * @param builder  the builder to use
+   */
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     paymentPeriods.stream().forEach(period -> period.collectIndices(builder));
-  }
-
-  @Override
-  public ResolvedSwapLeg resolve(ReferenceData refData) {
-    return this;
   }
 
   /**
@@ -272,7 +270,6 @@ public final class ResolvedSwapLeg
    * This provides a high level categorization of the swap leg.
    * @return the value of the property, not null
    */
-  @Override
   public SwapLegType getType() {
     return type;
   }
@@ -289,7 +286,6 @@ public final class ResolvedSwapLeg
    * The value of this flag should match the signs of the payment period notionals.
    * @return the value of the property, not null
    */
-  @Override
   public PayReceive getPayReceive() {
     return payReceive;
   }

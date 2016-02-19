@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -110,8 +111,8 @@ public class RatePeriodSwapLegTest {
         .build();
     assertEquals(test.getType(), IBOR);
     assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), DATE_2014_06_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_2014_06_30));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_2014_09_30));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
     assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
@@ -128,8 +129,8 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1)
         .build();
     assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), DATE_2014_06_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_2014_06_30));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_2014_09_30));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
     assertEquals(test.getPaymentEvents(), ImmutableList.of());

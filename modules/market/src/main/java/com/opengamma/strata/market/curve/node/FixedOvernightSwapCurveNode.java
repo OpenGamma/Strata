@@ -152,7 +152,7 @@ public final class FixedOvernightSwapCurveNode
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
+        () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
@@ -161,9 +161,9 @@ public final class FixedOvernightSwapCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
-    return trade.getProduct().getEndDate();
+    return trade.getProduct().getEndDate().adjusted();
   }
 
   // calculate the last fixing date

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
@@ -56,11 +57,12 @@ public class KnownAmountSwapLegTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(DATE_01_05)
         .endDate(DATE_04_05)
         .frequency(P1M)
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+        .businessDayAdjustment(bda)
         .build();
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(P1M)
@@ -75,8 +77,8 @@ public class KnownAmountSwapLegTest {
         .currency(GBP)
         .build();
     assertEquals(test.getPayReceive(), PAY);
-    assertEquals(test.getStartDate(), DATE_01_06);
-    assertEquals(test.getEndDate(), DATE_04_07);
+    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_01_05, bda));
+    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_04_05, bda));
     assertEquals(test.getAccrualSchedule(), accrualSchedule);
     assertEquals(test.getPaymentSchedule(), paymentSchedule);
     assertEquals(test.getAmount(), amountSchedule);
