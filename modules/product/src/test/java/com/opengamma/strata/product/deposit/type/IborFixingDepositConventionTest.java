@@ -105,7 +105,7 @@ public class IborFixingDepositConventionTest {
     Period depositPeriod = Period.ofMonths(3);
     double notional = 1d;
     double fixedRate = 0.045;
-    IborFixingDepositTrade trade = convention.toTrade(tradeDate, depositPeriod, BUY, notional, fixedRate);
+    IborFixingDepositTrade trade = convention.createTrade(tradeDate, depositPeriod, BUY, notional, fixedRate);
     LocalDate startExpected = SPOT_ADJ.adjust(tradeDate);
     LocalDate endExpected = startExpected.plus(depositPeriod);
     IborFixingDeposit productExpected = IborFixingDeposit.builder()

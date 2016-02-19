@@ -120,7 +120,7 @@ public interface XCcyIborIborSwapConvention
    * @param spread  the spread, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Tenor tenor,
       BuySell buySell,
@@ -128,7 +128,7 @@ public interface XCcyIborIborSwapConvention
       double notionalFlatLeg,
       double spread) {
 
-    return toTrade(tradeDate, Period.ZERO, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
+    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
   }
 
   /**
@@ -151,7 +151,7 @@ public interface XCcyIborIborSwapConvention
    * @param spread  the spread, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Tenor tenor,

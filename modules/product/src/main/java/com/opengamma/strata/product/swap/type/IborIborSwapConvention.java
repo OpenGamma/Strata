@@ -112,14 +112,14 @@ public interface IborIborSwapConvention
    * @param spread  the spread, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Tenor tenor,
       BuySell buySell,
       double notional,
       double spread) {
 
-    return toTrade(tradeDate, Period.ZERO, tenor, buySell, notional, spread);
+    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notional, spread);
   }
 
   /**
@@ -141,7 +141,7 @@ public interface IborIborSwapConvention
    * @param spread  the spread, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Tenor tenor,

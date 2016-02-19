@@ -160,7 +160,7 @@ public final class FixedOvernightSwapCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate) {
-    SwapTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
     return trade.getProduct().getEndDate();
   }
 
@@ -172,7 +172,7 @@ public final class FixedOvernightSwapCurveNode
   @Override
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.toTrade(valuationDate, BuySell.BUY, 1, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate);
   }
 
   @Override

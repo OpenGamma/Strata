@@ -63,13 +63,13 @@ public class TermDepositTemplateTest {
     assertEquals(test.getDepositPeriod(), DEPOSIT_PERIOD);
   }
 
-  public void test_toTrade() {
+  public void test_createTrade() {
     TermDepositTemplate template = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 1, 23);
     BuySell buy = BuySell.BUY;
     double notional = 2_000_000d;
     double rate = 0.0125;
-    TermDepositTrade trade = template.toTrade(tradeDate, buy, notional, rate);
+    TermDepositTrade trade = template.createTrade(tradeDate, buy, notional, rate);
     TradeInfo tradeInfoExpected = TradeInfo.builder().tradeDate(tradeDate).build();
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);

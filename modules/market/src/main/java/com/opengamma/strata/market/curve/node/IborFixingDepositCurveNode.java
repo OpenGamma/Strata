@@ -160,20 +160,20 @@ public final class IborFixingDepositCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate) {
-    ExpandedIborFixingDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+    ExpandedIborFixingDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
     return deposit.getEndDate();
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    ExpandedIborFixingDeposit deposit = template.toTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+    ExpandedIborFixingDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
     return deposit.getFloatingRate().getFixingDate();
   }
 
   @Override
   public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.toTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
   }
 
   @Override

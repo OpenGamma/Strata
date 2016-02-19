@@ -130,7 +130,7 @@ public final class ImmutableTermDepositConvention
 
   //-------------------------------------------------------------------------
   @Override
-  public TermDepositTrade toTrade(
+  public TermDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,

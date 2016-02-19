@@ -109,7 +109,7 @@ public class FxSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     FxSwapTrade trade = node.trade(valuationDate, OV);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
-    FxSwapTrade expected = TEMPLATE.toTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS);
+    FxSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS);
     assertEquals(trade, expected);
   }
 

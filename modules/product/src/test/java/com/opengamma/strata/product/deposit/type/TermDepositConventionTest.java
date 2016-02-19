@@ -80,7 +80,7 @@ public class TermDepositConventionTest {
     BuySell buy = BuySell.BUY;
     double notional = 2_000_000d;
     double rate = 0.0125;
-    TermDepositTrade trade = convention.toTrade(tradeDate, period3M, buy, notional, rate);
+    TermDepositTrade trade = convention.createTrade(tradeDate, period3M, buy, notional, rate);
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate endDateExpected = startDateExpected.plus(period3M);
     TermDeposit termDepositExpected = TermDeposit.builder()

@@ -157,29 +157,13 @@ public class FraConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTemplate() {
-    FraConvention base = ImmutableFraConvention.builder()
-        .index(GBP_LIBOR_3M)
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build();
-    FraTemplate test = base.toTemplate(Period.ofMonths(2));
-    FraTemplate expected = FraTemplate.of(Period.ofMonths(2), Period.ofMonths(5), base);
-    assertEquals(test, expected);
-  }
-
-  public void test_toTemplate_negativePeriod() {
-    FraConvention base = FraConvention.of(GBP_LIBOR_3M);
-    assertThrowsIllegalArg(() -> base.toTemplate(Period.ofMonths(-1)));
-  }
-
-  //-------------------------------------------------------------------------
   public void test_toTrade_periods() {
     FraConvention base = ImmutableFraConvention.builder()
         .index(GBP_LIBOR_3M)
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
-    FraTrade test = base.toTrade(tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)

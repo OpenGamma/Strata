@@ -248,7 +248,7 @@ public final class ImmutableIborFixingDepositConvention
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFixingDepositTrade toTrade(
+  public IborFixingDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,

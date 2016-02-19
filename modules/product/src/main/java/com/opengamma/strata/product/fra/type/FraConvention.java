@@ -97,22 +97,6 @@ public interface FraConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a template based on this convention, specifying the period to start.
-   * <p>
-   * This returns a template based on this convention.
-   * The period from the spot date to the start date is specified.
-   * The period from the spot date to the end date will be the period to start
-   * plus the tenor of the index.
-   * 
-   * @param periodToStart  the period from the spot date to the start date
-   * @return the template
-   */
-  public default FraTemplate toTemplate(Period periodToStart) {
-    return FraTemplate.of(periodToStart, periodToStart.plus(getIndex().getTenor().getPeriod()), this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates a trade based on this convention.
    * <p>
    * This returns a trade based on the specified periods.
@@ -131,7 +115,7 @@ public interface FraConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public default FraTrade toTrade(
+  public default FraTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,

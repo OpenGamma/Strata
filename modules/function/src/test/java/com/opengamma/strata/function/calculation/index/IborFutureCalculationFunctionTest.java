@@ -51,7 +51,7 @@ import com.opengamma.strata.product.index.type.IborFutureConventions;
 public class IborFutureCalculationFunctionTest {
 
   private static final double MARKET_PRICE = 99.42;
-  public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.toTrade(
+  public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
       LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998);
   private static final StandardId SEC_ID = TRADE.getSecurity().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();

@@ -101,7 +101,7 @@ public class IborFutureCurveNodeTest {
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, price).build();
     IborFutureTrade trade = node.trade(date, marketData);
-    IborFutureTrade expected = TEMPLATE.toTrade(date, 1L, 1.0, price + SPREAD);
+    IborFutureTrade expected = TEMPLATE.createTrade(date, 1L, 1.0, price + SPREAD);
     assertEquals(trade, expected);
   }
 
@@ -131,7 +131,7 @@ public class IborFutureCurveNodeTest {
   public void test_metadata_end() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
-    LocalDate referenceDate = TEMPLATE.referenceDate(date);
+    LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(date);
     LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
     CurveParameterMetadata metadata = node.metadata(date);
     assertEquals(metadata.getLabel(), LABEL);
@@ -157,7 +157,7 @@ public class IborFutureCurveNodeTest {
     LocalDate fixingDate = trade.getProduct().getFixingDate();
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
     assertEquals(metadata.getDate(), fixingDate);
-    LocalDate referenceDate = TEMPLATE.referenceDate(valuationDate);
+    LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(valuationDate);
     assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
   }
 

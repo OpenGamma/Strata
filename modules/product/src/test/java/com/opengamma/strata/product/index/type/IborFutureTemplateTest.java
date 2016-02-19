@@ -48,22 +48,22 @@ public class IborFutureTemplateTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTrade() {
+  public void test_createTrade() {
     IborFutureTemplate base = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     LocalDate date = LocalDate.of(2015, 10, 20);
     long quantity = 3;
     double price = 0.99;
     double notional = 100.0;
-    IborFutureTrade trade = base.toTrade(date, quantity, notional, price);
-    IborFutureTrade expected = CONVENTION.toTrade(date, MIN_PERIOD, NUMBER, quantity, notional, price);
+    IborFutureTrade trade = base.createTrade(date, quantity, notional, price);
+    IborFutureTrade expected = CONVENTION.createTrade(date, MIN_PERIOD, NUMBER, quantity, notional, price);
     assertEquals(trade, expected);
   }
 
-  public void test_referenceDate() {
+  public void test_calculateReferenceDateFromTradeDate() {
     IborFutureTemplate base = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     LocalDate date = LocalDate.of(2015, 10, 20);  // 2nd Quarterly IMM at least 2 months later from this date
     LocalDate expected = LocalDate.of(2016, 6, 15);  // 1st is March 2016, 2nd is Jun 2016
-    assertEquals(base.referenceDate(date), expected);
+    assertEquals(base.calculateReferenceDateFromTradeDate(date), expected);
   }
 
   //-------------------------------------------------------------------------

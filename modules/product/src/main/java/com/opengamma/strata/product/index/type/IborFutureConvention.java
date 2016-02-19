@@ -79,7 +79,7 @@ public interface IborFutureConvention
    * @param price  the trade price of the future
    * @return the trade
    */
-  public abstract IborFutureTrade toTrade(
+  public abstract IborFutureTrade createTrade(
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,

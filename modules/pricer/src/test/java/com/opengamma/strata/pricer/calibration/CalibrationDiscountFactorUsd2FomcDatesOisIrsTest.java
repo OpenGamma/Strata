@@ -406,7 +406,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
       Map<Index, LocalDateDoubleTimeSeries> ts) {
     double notional = 100_000_000.0;
     double rate = 0.0400;
-    SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.toTrade(VAL_DATE_BD, Period.ofMonths(6),
+    SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.createTrade(VAL_DATE_BD, Period.ofMonths(6),
         Tenor.TENOR_7Y, BuySell.BUY, notional, rate);
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, ts);

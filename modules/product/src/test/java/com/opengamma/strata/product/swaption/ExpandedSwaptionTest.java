@@ -34,7 +34,7 @@ public class ExpandedSwaptionTest {
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final ExpandedSwap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .toTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct().expand();
+      .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct().expand();
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 6, 13);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
@@ -92,7 +92,7 @@ public class ExpandedSwaptionTest {
         .longShort(SHORT)
         .swaptionSettlement(CASH_SETTLE)
         .underlying(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-            .toTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct().expand())
+            .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct().expand())
         .build();
     coverBeanEquals(test1, test2);
   }
