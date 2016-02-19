@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Schedule;
 
 /**
@@ -60,7 +61,8 @@ public interface RateCalculation {
    * @param paymentSchedule  the payment schedule
    * @param refData  the reference data to use when resolving
    * @return the accrual periods
-   * @throws RuntimeException if the swap is invalid
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if the calculation is invalid
    */
   public abstract ImmutableList<RateAccrualPeriod> createAccrualPeriods(
       Schedule accrualSchedule,

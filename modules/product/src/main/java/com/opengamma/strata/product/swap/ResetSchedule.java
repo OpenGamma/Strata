@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -107,6 +108,8 @@ public final class ResetSchedule
    * @param rollConvention  the applicable roll convention
    * @param refData  the reference data to use when resolving
    * @return the reset schedule
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if the schedule is invalid
    */
   Function<SchedulePeriod, Schedule> resolve(RollConvention rollConvention, ReferenceData refData) {
     return accrualPeriod -> accrualPeriod.subSchedule(

@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.Messages;
 
@@ -118,6 +119,8 @@ public final class FxResetCalculation
    * 
    * @param refData  the reference data to use when resolving
    * @return the resolved function
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if the calculation is invalid
    */
   Function<SchedulePeriod, FxReset> resolve(ReferenceData refData) {
     DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);

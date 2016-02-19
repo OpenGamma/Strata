@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -140,6 +141,7 @@ public final class PaymentSchedule
    * @param accrualSchedule  the accrual schedule
    * @param refData  the reference data to use when resolving
    * @return the payment schedule
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws IllegalArgumentException if the accrual frequency does not divide evenly into the payment frequency
    */
   public Schedule createSchedule(Schedule accrualSchedule, ReferenceData refData) {
