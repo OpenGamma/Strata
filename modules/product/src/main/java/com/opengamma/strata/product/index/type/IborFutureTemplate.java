@@ -95,8 +95,8 @@ public final class IborFutureTemplate
    * @param price  the trade price
    * @return the trade
    */
-  public IborFutureTrade toTrade(LocalDate tradeDate, long quantity, double notional, double price) {
-    return convention.toTrade(tradeDate, minimumPeriod, sequenceNumber, quantity, notional, price);
+  public IborFutureTrade createTrade(LocalDate tradeDate, long quantity, double notional, double price) {
+    return convention.createTrade(tradeDate, minimumPeriod, sequenceNumber, quantity, notional, price);
   }
 
   /**
@@ -105,7 +105,7 @@ public final class IborFutureTemplate
    * @param tradeDate  the date of the trade
    * @return the reference date
    */
-  public LocalDate referenceDate(LocalDate tradeDate) {
+  public LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate) {
     return convention.calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber);
   }
 

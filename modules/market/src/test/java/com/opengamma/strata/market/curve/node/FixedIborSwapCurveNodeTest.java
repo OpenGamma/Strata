@@ -105,7 +105,7 @@ public class FixedIborSwapCurveNodeTest {
     double rate = 0.125;
     MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_KEY, rate).build();
     SwapTrade trade = node.trade(tradeDate, marketData);
-    SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate + SPREAD);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD);
     assertEquals(trade, expected);
   }
 

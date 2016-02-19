@@ -113,7 +113,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     SwapTrade trade = node.trade(tradeDate, OV);
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
-    SwapTrade expected = TEMPLATE.toTrade(tradeDate, BUY, 1, rate, SPREAD_XCS + SPREAD_ADJ);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate, SPREAD_XCS + SPREAD_ADJ);
     assertEquals(trade, expected);
   }
 

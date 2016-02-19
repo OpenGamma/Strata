@@ -97,7 +97,7 @@ public class DeliverableSwapFuturePricingExample {
   //-----------------------------------------------------------------------  
   // create a trade
   private static Trade createTrade1() {
-    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
+    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
         LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()
@@ -125,7 +125,7 @@ public class DeliverableSwapFuturePricingExample {
 
   // create a trade
   private static Trade createTrade2() {
-    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
+    Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
         LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()

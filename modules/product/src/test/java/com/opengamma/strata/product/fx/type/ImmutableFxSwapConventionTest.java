@@ -95,7 +95,7 @@ public class ImmutableFxSwapConventionTest {
     LocalDate nearDate = BDA_FOLLOW.adjust(spotDate.plus(startPeriod));
     LocalDate farDate = BDA_FOLLOW.adjust(spotDate.plus(endPeriod));
     FxSwapTrade test =
-        base.toTrade(tradeDate, startPeriod, endPeriod, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
+        base.createTrade(tradeDate, startPeriod, endPeriod, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
     FxSwap expected = FxSwap
         .ofForwardPoints(CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));

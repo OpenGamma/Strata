@@ -112,7 +112,7 @@ public interface IborFixingDepositConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract IborFixingDepositTrade toTrade(
+  public abstract IborFixingDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,

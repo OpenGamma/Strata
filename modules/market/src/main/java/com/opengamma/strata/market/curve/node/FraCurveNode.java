@@ -152,14 +152,14 @@ public final class FraCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate) {
-    FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
     ExpandedFra expandedFra = trade.getProduct().expand();
     return expandedFra.getEndDate();
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    FraTrade trade = template.toTrade(valuationDate, BuySell.BUY, 1, 1);
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
     ExpandedFra expandedFra = trade.getProduct().expand();
     return ((IborRateObservation) expandedFra.getFloatingRate()).getFixingDate();
   }
@@ -167,7 +167,7 @@ public final class FraCurveNode
   @Override
   public FraTrade trade(LocalDate valuationDate, MarketData marketData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.toTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
   }
 
   @Override

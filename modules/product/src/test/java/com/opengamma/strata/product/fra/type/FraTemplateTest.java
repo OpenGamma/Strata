@@ -70,10 +70,10 @@ public class FraTemplateTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTrade() {
+  public void test_createTrade() {
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), FRA_GBP_LIBOR_3M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
-    FraTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
@@ -87,13 +87,13 @@ public class FraTemplateTest {
     assertEquals(test.getProduct(), expected);
   }
 
-  public void test_toTrade_paymentOffset() {
+  public void test_createTrade_paymentOffset() {
     FraConvention convention = ((ImmutableFraConvention) FRA_GBP_LIBOR_3M).toBuilder()
         .paymentDateOffset(PLUS_TWO_DAYS)
         .build();
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), convention);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
-    FraTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)

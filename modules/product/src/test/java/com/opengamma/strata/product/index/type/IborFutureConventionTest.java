@@ -73,7 +73,7 @@ public class IborFutureConventionTest {
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
     long quantity = 3;
     double price = 0.99;
-    IborFutureTrade trade = convention.toTrade(date, start, number, quantity, NOTIONAL_1M, price);
+    IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price);
     assertEquals(trade.getInitialPrice(), price);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
     assertEquals(trade.getQuantity(), quantity);

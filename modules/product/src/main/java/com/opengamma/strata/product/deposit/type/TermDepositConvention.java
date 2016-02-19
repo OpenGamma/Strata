@@ -95,7 +95,7 @@ public interface TermDepositConvention
    * @param rate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract TermDepositTrade toTrade(
+  public abstract TermDepositTrade createTrade(
       LocalDate tradeDate,
       Period depositPeriod,
       BuySell buySell,

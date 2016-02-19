@@ -101,14 +101,14 @@ public interface FixedIborSwapConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Tenor tenor,
       BuySell buySell,
       double notional,
       double fixedRate) {
 
-    return toTrade(tradeDate, Period.ZERO, tenor, buySell, notional, fixedRate);
+    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notional, fixedRate);
   }
 
   /**
@@ -130,7 +130,7 @@ public interface FixedIborSwapConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public default SwapTrade toTrade(
+  public default SwapTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Tenor tenor,

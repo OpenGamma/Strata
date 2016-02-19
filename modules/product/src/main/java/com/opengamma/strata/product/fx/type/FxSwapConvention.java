@@ -95,7 +95,7 @@ public interface FxSwapConvention
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
    */
-  public default FxSwapTrade toTrade(
+  public default FxSwapTrade createTrade(
       LocalDate tradeDate,
       Period periodToNear,
       Period periodToFar,

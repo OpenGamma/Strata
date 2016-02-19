@@ -130,7 +130,7 @@ public final class IborFutureCurveNode
 
   @Override
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    LocalDate referenceDate = template.referenceDate(valuationDate);
+    LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate);
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(referenceDate),
         () -> calculateLastFixingDate(valuationDate));
@@ -147,14 +147,14 @@ public final class IborFutureCurveNode
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    IborFutureTrade trade = template.toTrade(valuationDate, 1, 1, 0);
+    IborFutureTrade trade = template.createTrade(valuationDate, 1, 1, 0);
     return trade.getProduct().getFixingDate();
   }
 
   @Override
   public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData) {
     double price = marketData.getValue(rateKey) + additionalSpread;
-    return template.toTrade(valuationDate, 1L, 1d, price);
+    return template.createTrade(valuationDate, 1L, 1d, price);
   }
 
   @Override

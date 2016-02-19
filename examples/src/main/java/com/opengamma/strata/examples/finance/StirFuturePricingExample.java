@@ -93,7 +93,7 @@ public class StirFuturePricingExample {
   //-----------------------------------------------------------------------  
   // create a trade
   private static Trade createTrade1() {
-    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.toTrade(
+    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
@@ -110,7 +110,7 @@ public class StirFuturePricingExample {
 
   // create a trade
   private static Trade createTrade2() {
-    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.toTrade(
+    IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()

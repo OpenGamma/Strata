@@ -147,10 +147,10 @@ public class DiscountingSwapProductPricerTest {
   private static final double NOTIONAL_SWAP = 100_000_000;
   private static final SwapTrade SWAP_USD_FIXED_6M_LIBOR_3M_5Y = FixedIborSwapTemplate
       .of(Period.ZERO, TENOR_5Y, USD_FIXED_6M_LIBOR_3M)
-      .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE);
+      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE);
   private static final SwapTrade SWAP_USD_LIBOR_3M_LIBOR_6M_5Y = IborIborSwapTemplate
       .of(Period.ZERO, TENOR_5Y, CONV_USD_LIBOR3M_LIBOR6M)
-      .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD);
+      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD);
   
   private static final DiscountingSwapProductPricer SWAP_PRODUCT_PRICER = DiscountingSwapProductPricer.DEFAULT;
   private static final DiscountingSwapTradePricer SWAP_TRADE_PRICER = DiscountingSwapTradePricer.DEFAULT;
@@ -703,7 +703,7 @@ public class DiscountingSwapProductPricerTest {
     double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct(), MULTI_USD);
     SwapTrade swap0 = FixedIborSwapTemplate
         .of(Period.ZERO, TENOR_5Y, USD_FIXED_6M_LIBOR_3M)
-        .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE + ps);
+        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE + ps);
     CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
     assertEquals(pv0.getAmount(),  0, TOLERANCE_PV);
   }
@@ -712,16 +712,16 @@ public class DiscountingSwapProductPricerTest {
     double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct(), MULTI_USD);
     SwapTrade swap0 = IborIborSwapTemplate
         .of(Period.ZERO, TENOR_5Y, CONV_USD_LIBOR3M_LIBOR6M)
-        .toTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD + ps);
+        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD + ps);
     CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
     assertEquals(pv0.getAmount(), 0, TOLERANCE_PV);
   }
 
   public void par_spread_ibor_cmp_ibor() {
-    SwapTrade trade = USD_LIBOR_3M_LIBOR_6M.toTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
+    SwapTrade trade = USD_LIBOR_3M_LIBOR_6M.createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
     double ps = SWAP_PRODUCT_PRICER.parSpread(trade.getProduct(), MULTI_USD);
     SwapTrade swap0 = USD_LIBOR_3M_LIBOR_6M
-        .toTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + ps);
+        .createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + ps);
     CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
     assertEquals(pv0.getAmount(), 0, TOLERANCE_PV);
   }
@@ -778,7 +778,7 @@ public class DiscountingSwapProductPricerTest {
   }
 
   public void test_currentCash_onPayment() {
-    SwapTrade trade = GBP_FIXED_1Y_LIBOR_3M.toTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
+    SwapTrade trade = GBP_FIXED_1Y_LIBOR_3M.createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
     ExpandedSwap expanded = trade.getProduct().expand();
     ImmutableRatesProvider prov =
         RatesProviderDataSets.MULTI_GBP.toBuilder(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
@@ -797,7 +797,7 @@ public class DiscountingSwapProductPricerTest {
   public void three_leg_swap() {
     ThreeLegBasisSwapConvention conv = ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M;
     LocalDate tradeDate = LocalDate.of(2014, 1, 22);
-    Swap swap = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD).getProduct();
+    Swap swap = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD).getProduct();
     // pv
     MultiCurrencyAmount pvComputed = SWAP_PRODUCT_PRICER.presentValue(swap, MULTI_EUR);
     DiscountingSwapLegPricer legPricer = SWAP_PRODUCT_PRICER.getLegPricer();
@@ -813,7 +813,7 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvPointComputed, pvPointExpected);
     // par rate
     double parRate = SWAP_PRODUCT_PRICER.parRate(swap, MULTI_EUR);
-    Swap swapParRate = conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
+    Swap swapParRate = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
     MultiCurrencyAmount pvParRate = SWAP_PRODUCT_PRICER.presentValue(swapParRate, MULTI_EUR);
     assertEquals(pvParRate, MultiCurrencyAmount.of(EUR, 0d));
     // par rate sensitivity
@@ -825,7 +825,7 @@ public class DiscountingSwapProductPricerTest {
     // par spread
     double parSpread = SWAP_PRODUCT_PRICER.parSpread(swap, MULTI_EUR);
     Swap swapParSpread =
-        conv.toTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread).getProduct();
+        conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread).getProduct();
     MultiCurrencyAmount pvParSpread = SWAP_PRODUCT_PRICER.presentValue(swapParSpread, MULTI_EUR);
     assertEquals(pvParSpread, MultiCurrencyAmount.of(EUR, 0d));
     // par spread sensitivity

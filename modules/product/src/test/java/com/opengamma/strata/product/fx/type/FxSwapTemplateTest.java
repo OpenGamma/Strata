@@ -72,10 +72,10 @@ public class FxSwapTemplateTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toTrade() {
+  public void test_createTrade() {
     FxSwapTemplate base = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 10, 29);
-    FxSwapTrade test = base.toTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
+    FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
     LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate nearDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(NEAR_PERIOD));
     LocalDate farDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(FAR_PERIOD));

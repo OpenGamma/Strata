@@ -172,7 +172,7 @@ public class FixedIborSwapConventionsTest {
   @Test(dataProvider = "stubIbor")
   public void test_stub_ibor(FixedIborSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
-    SwapTrade swap = convention.toTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
+    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
     ExpandedSwap swapExpanded = swap.getProduct().expand();
     LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
     assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));

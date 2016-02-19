@@ -95,7 +95,7 @@ public class ThreeLegBasisSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 5, 7);
     LocalDate endDate = date(2025, 5, 7);
-    SwapTrade test = base.toTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
@@ -109,7 +109,7 @@ public class ThreeLegBasisSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
-    SwapTrade test = base.toTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),

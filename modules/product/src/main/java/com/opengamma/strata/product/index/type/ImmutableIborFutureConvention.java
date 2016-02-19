@@ -123,7 +123,7 @@ public final class ImmutableIborFutureConvention
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFutureTrade toTrade(
+  public IborFutureTrade createTrade(
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,

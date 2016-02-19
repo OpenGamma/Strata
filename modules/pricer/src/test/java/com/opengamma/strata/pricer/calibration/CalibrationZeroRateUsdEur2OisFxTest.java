@@ -267,7 +267,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     double fx = 1.1111;
     double fxPts = 0.0012;
     FxSwapTrade trade = EUR_USD
-        .toTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts);
+        .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts);
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
