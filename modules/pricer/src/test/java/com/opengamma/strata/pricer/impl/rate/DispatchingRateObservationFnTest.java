@@ -36,6 +36,8 @@ import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateObservation;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.InflationBondInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationBondMonthlyRateObservation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.product.rate.OvernightAveragedRateObservation;
@@ -71,6 +73,10 @@ public class DispatchingRateObservationFnTest {
       mock(RateObservationFn.class);
   private static final RateObservationFn<InflationInterpolatedRateObservation> MOCK_INF_INT_EMPTY =
       mock(RateObservationFn.class);
+  private static final RateObservationFn<InflationBondMonthlyRateObservation> MOCK_INF_BOND_MON_EMPTY =
+      mock(RateObservationFn.class);
+  private static final RateObservationFn<InflationBondInterpolatedRateObservation> MOCK_INF_BOND_INT_EMPTY =
+      mock(RateObservationFn.class);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
 
@@ -92,7 +98,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), 0.0123d, 0d);
   }
 
@@ -109,7 +117,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
   }
 
@@ -135,7 +145,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
   }
 
@@ -153,7 +165,9 @@ public class DispatchingRateObservationFnTest {
         mockOnCpd,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
 
@@ -171,7 +185,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         mockOnAve,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
 
@@ -189,7 +205,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         mockInfMon,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
 
@@ -207,6 +225,48 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
+        mockInfInt,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
+    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+  }
+
+  public void test_rate_InflationBondMonthlyRateObservation() {
+    double mockRate = 223.0d;
+    RateObservationFn<InflationBondMonthlyRateObservation> mockInfMon = mock(RateObservationFn.class);
+    InflationBondMonthlyRateObservation ro =
+        InflationBondMonthlyRateObservation.of(US_CPI_U, 123d, ACCRUAL_END_MONTH);
+    when(mockInfMon.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
+        .thenReturn(mockRate);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY,
+        mockInfMon,
+        MOCK_INF_BOND_INT_EMPTY);
+    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+  }
+
+  public void test_rate_InflationBondInterpolatedRateObservation() {
+    double mockRate = 223.0d;
+    RateObservationFn<InflationBondInterpolatedRateObservation> mockInfInt = mock(RateObservationFn.class);
+    InflationBondInterpolatedRateObservation ro =
+        InflationBondInterpolatedRateObservation.of(US_CPI_U, 234d, ACCRUAL_END_MONTH, 0.3);
+    when(mockInfInt.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
+        .thenReturn(mockRate);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY,
+        MOCK_IBOR_INT_EMPTY,
+        MOCK_IBOR_AVE_EMPTY,
+        MOCK_ON_CPD_EMPTY,
+        MOCK_ON_AVE_EMPTY,
+        MOCK_INF_MON_EMPTY,
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
         mockInfInt);
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
   }
@@ -237,7 +297,9 @@ public class DispatchingRateObservationFnTest {
         MOCK_ON_CPD_EMPTY,
         MOCK_ON_AVE_EMPTY,
         MOCK_INF_MON_EMPTY,
-        MOCK_INF_INT_EMPTY);
+        MOCK_INF_INT_EMPTY,
+        MOCK_INF_BOND_MON_EMPTY,
+        MOCK_INF_BOND_INT_EMPTY);
     FixedRateObservation fixed = FixedRateObservation.of(0.0123d);
     IborRateObservation ibor = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     IborInterpolatedRateObservation iborInt =
@@ -252,6 +314,10 @@ public class DispatchingRateObservationFnTest {
         InflationMonthlyRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
     InflationInterpolatedRateObservation inflationInterp =
         InflationInterpolatedRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH, 0.3);
+    InflationBondMonthlyRateObservation inflationBondMonthly =
+        InflationBondMonthlyRateObservation.of(US_CPI_U, 234d, ACCRUAL_END_MONTH);
+    InflationBondInterpolatedRateObservation inflationBondInterp =
+        InflationBondInterpolatedRateObservation.of(US_CPI_U, 1234d, ACCRUAL_END_MONTH, 0.3);
 
     RateObservation mock = mock(RateObservation.class);
     ignoreThrows(() -> test.rateSensitivity(fixed, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
@@ -262,6 +328,8 @@ public class DispatchingRateObservationFnTest {
     ignoreThrows(() -> test.rateSensitivity(onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
+    ignoreThrows(() -> test.rateSensitivity(inflationBondMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
+    ignoreThrows(() -> test.rateSensitivity(inflationBondInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
     ignoreThrows(() -> test.rateSensitivity(mock, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
 
     ExplainMapBuilder explain = ExplainMap.builder();
@@ -273,6 +341,8 @@ public class DispatchingRateObservationFnTest {
     ignoreThrows(() -> test.explainRate(onAvg, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(inflationMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(inflationInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(inflationBondMonthly, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
+    ignoreThrows(() -> test.explainRate(inflationBondInterp, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
     ignoreThrows(() -> test.explainRate(mock, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, explain));
   }
 
