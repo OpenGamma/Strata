@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -39,6 +40,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 @Test
 public class TermDepositConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
 
@@ -80,7 +82,7 @@ public class TermDepositConventionTest {
     BuySell buy = BuySell.BUY;
     double notional = 2_000_000d;
     double rate = 0.0125;
-    TermDepositTrade trade = convention.createTrade(tradeDate, period3M, buy, notional, rate);
+    TermDepositTrade trade = convention.createTrade(tradeDate, period3M, buy, notional, rate, REF_DATA);
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate endDateExpected = startDateExpected.plus(period3M);
     TermDeposit termDepositExpected = TermDeposit.builder()

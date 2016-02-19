@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -135,9 +136,10 @@ public final class ImmutableTermDepositConvention
       Period depositPeriod,
       BuySell buySell,
       double notional,
-      double rate) {
+      double rate,
+      ReferenceData refData) {
 
-    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate endDate = startDate.plus(depositPeriod);
     return toTrade(tradeDate, startDate, endDate, buySell, notional, rate);
   }

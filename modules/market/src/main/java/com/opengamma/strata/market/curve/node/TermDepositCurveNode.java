@@ -158,7 +158,8 @@ public final class TermDepositCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    ResolvedTermDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().resolve(refData);
+    TermDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
+    ResolvedTermDeposit deposit = trade.getProduct().resolve(refData);
     return deposit.getEndDate();
   }
 
@@ -170,7 +171,7 @@ public final class TermDepositCurveNode
   @Override
   public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
   }
 
   @Override

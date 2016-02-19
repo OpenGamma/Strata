@@ -175,13 +175,13 @@ public final class XCcyIborIborSwapCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
     return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
     // Select the 'second' Ibor leg, i.e. the flat leg
     ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
@@ -199,7 +199,7 @@ public final class XCcyIborIborSwapCurveNode
     double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
-    return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote);
+    return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote, refData);
   }
 
   @Override

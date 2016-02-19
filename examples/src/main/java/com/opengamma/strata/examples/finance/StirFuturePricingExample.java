@@ -53,8 +53,11 @@ public class StirFuturePricingExample {
 
   // obtains the data and calculates the grid of results
   private static void calculate(CalculationRunner runner) {
+    // the reference data, such as holidays, indices and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // the trades that will have measures calculated
-    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2());
+    List<Trade> trades = ImmutableList.of(createTrade1(refData), createTrade2(refData));
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
@@ -76,9 +79,6 @@ public class StirFuturePricingExample {
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
-    // the reference data, such as holidays, indices and securities
-    ReferenceData refData = ReferenceData.standard();
-
     // calculate the results
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
@@ -96,9 +96,9 @@ public class StirFuturePricingExample {
 
   //-----------------------------------------------------------------------  
   // create a trade
-  private static Trade createTrade1() {
+  private static Trade createTrade1(ReferenceData refData) {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998);
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
@@ -113,9 +113,9 @@ public class StirFuturePricingExample {
   }
 
   // create a trade
-  private static Trade createTrade2() {
+  private static Trade createTrade2(ReferenceData refData) {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996);
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))

@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 
@@ -37,6 +38,7 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 @Test
 public class FxSwapTemplateTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
@@ -76,7 +78,7 @@ public class FxSwapTemplateTest {
   public void test_createTrade() {
     FxSwapTemplate base = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 10, 29);
-    FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
+    FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS, REF_DATA);
     LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate nearDate = spotDate.plus(NEAR_PERIOD);
     LocalDate farDate = spotDate.plus(FAR_PERIOD);

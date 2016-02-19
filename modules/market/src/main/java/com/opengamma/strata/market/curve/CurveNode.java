@@ -52,7 +52,7 @@ public interface CurveNode {
    *
    * @param valuationDate  the valuation date used when calibrating the curve
    * @param marketData  the market data required to build a trade for the instrument
-   * @param refData  the reference data, used to resolve the trade
+   * @param refData  the reference data, used to resolve the trade dates
    * @return a trade representing the instrument at the node
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws RuntimeException if unable to resolve due to an invalid definition

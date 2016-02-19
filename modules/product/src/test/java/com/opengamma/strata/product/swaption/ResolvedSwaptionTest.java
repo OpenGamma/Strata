@@ -37,7 +37,7 @@ public class ResolvedSwaptionTest {
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final ResolvedSwap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct().resolve(REF_DATA);
+      .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct().resolve(REF_DATA);
   private static final ZoneId EUROPE_LONDON = ZoneId.of("Europe/London");
   private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 6, 13, 11, 0, 0, 0, EUROPE_LONDON);
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
@@ -84,7 +84,8 @@ public class ResolvedSwaptionTest {
         .longShort(SHORT)
         .swaptionSettlement(CASH_SETTLE)
         .underlying(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-            .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct().resolve(REF_DATA))
+            .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE, REF_DATA)
+            .getProduct().resolve(REF_DATA))
         .build();
   }
 

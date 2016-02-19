@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -42,12 +43,13 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 @Test
 public class DeliverableSwapFutureTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
   private static final LocalDate START_DATE = LocalDate.of(2014, 9, 12);
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .createTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015).getProduct();
+      .createTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015, REF_DATA).getProduct();
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
   private static final double NOTIONAL = 100000;

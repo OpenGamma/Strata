@@ -36,6 +36,7 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_P
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
+import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -201,7 +202,7 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbp_compounding_flat_ibor() {
     LocalDate tradeDate = RATES_USD.getValuationDate();
-    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate effectiveDate = USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate, REF_DATA);
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
     double shift = 1.0E-6;
@@ -427,7 +428,7 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbpSensitivity_compounding_flat_ibor() {
     LocalDate tradeDate = RATES_USD.getValuationDate();
-    LocalDate effectiveDate = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate effectiveDate = USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate, REF_DATA);
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
     RateCalculationSwapLeg leg = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()

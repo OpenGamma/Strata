@@ -139,7 +139,7 @@ public final class FxSwapCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
+    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
     return trade.getProduct().getFarLeg().resolve(refData).getPaymentDate();
   }
 
@@ -153,7 +153,7 @@ public final class FxSwapCurveNode
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsKey);
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
   }
 
   @Override

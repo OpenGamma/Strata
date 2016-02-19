@@ -12,6 +12,8 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -77,7 +79,9 @@ public interface IborFutureConvention
    * @param quantity  the quantity of contract traded
    * @param notional  the notional amount of one future contract
    * @param price  the trade price of the future
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
   public abstract IborFutureTrade createTrade(
       LocalDate tradeDate,
@@ -85,7 +89,8 @@ public interface IborFutureConvention
       int sequenceNumber,
       long quantity,
       double notional,
-      double price);
+      double price,
+      ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
@@ -94,12 +99,14 @@ public interface IborFutureConvention
    * @param tradeDate  the trade date
    * @param minimumPeriod  minimum period between the trade date and the first future
    * @param sequenceNumber  the 1-based sequence number of the futures
-   * @return reference date
+   * @param refData  the reference data, used to resolve the date
+   * @return the future reference date
    */
   public abstract LocalDate calculateReferenceDateFromTradeDate(
       LocalDate tradeDate,
       Period minimumPeriod,
-      int sequenceNumber);
+      int sequenceNumber,
+      ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

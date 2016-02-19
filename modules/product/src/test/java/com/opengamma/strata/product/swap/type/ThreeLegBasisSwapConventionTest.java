@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -43,6 +44,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class ThreeLegBasisSwapConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA);
@@ -95,7 +97,7 @@ public class ThreeLegBasisSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 5, 7);
     LocalDate endDate = date(2025, 5, 7);
-    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
@@ -109,7 +111,7 @@ public class ThreeLegBasisSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
-    SwapTrade test = base.createTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),

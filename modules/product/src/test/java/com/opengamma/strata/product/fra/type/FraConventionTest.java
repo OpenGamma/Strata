@@ -44,6 +44,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.IborIndexId;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraDiscountingMethod;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -54,6 +55,7 @@ import com.opengamma.strata.product.fra.FraTrade;
 @Test
 public class FraConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
@@ -164,7 +166,7 @@ public class FraConventionTest {
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build();
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
-    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d);
+    FraTrade test = base.createTrade(tradeDate, Period.ofMonths(3), Period.ofMonths(6), BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)

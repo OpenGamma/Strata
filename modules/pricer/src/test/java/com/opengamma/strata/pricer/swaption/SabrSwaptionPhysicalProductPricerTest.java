@@ -71,10 +71,10 @@ public class SabrSwaptionPhysicalProductPricerTest {
   private static final Tenor TENOR = Tenor.ofYears(TENOR_YEAR);
   private static final ZonedDateTime MATURITY_DATE = LocalDate.of(2016, 1, 22).atStartOfDay(ZoneOffset.UTC); // 2Y
   private static final Swap SWAP_PAY = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD.createTrade(
-      MATURITY_DATE.toLocalDate(), TENOR, BuySell.BUY, NOTIONAL, RATE).getProduct();
+      MATURITY_DATE.toLocalDate(), TENOR, BuySell.BUY, NOTIONAL, RATE, REF_DATA).getProduct();
   private static final ResolvedSwap RSWAP_PAY = SWAP_PAY.resolve(REF_DATA);
   private static final Swap SWAP_REC = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD.createTrade(
-      MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE).getProduct();
+      MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE, REF_DATA).getProduct();
   private static final ResolvedSwap RSWAP_REC = SWAP_REC.resolve(REF_DATA);
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE = CashSettlement.builder()

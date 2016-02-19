@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -36,6 +37,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 @Test
 public class TermDepositTemplateTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
   private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
@@ -69,7 +71,7 @@ public class TermDepositTemplateTest {
     BuySell buy = BuySell.BUY;
     double notional = 2_000_000d;
     double rate = 0.0125;
-    TermDepositTrade trade = template.createTrade(tradeDate, buy, notional, rate);
+    TermDepositTrade trade = template.createTrade(tradeDate, buy, notional, rate, REF_DATA);
     TradeInfo tradeInfoExpected = TradeInfo.builder().tradeDate(tradeDate).build();
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);

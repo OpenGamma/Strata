@@ -165,13 +165,13 @@ public final class ThreeLegBasisSwapCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
     // Select the 'second' Ibor leg, i.e. the flat floating leg
     ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
@@ -187,7 +187,7 @@ public final class ThreeLegBasisSwapCurveNode
   @Override
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote);
+    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote, refData);
   }
 
   @Override

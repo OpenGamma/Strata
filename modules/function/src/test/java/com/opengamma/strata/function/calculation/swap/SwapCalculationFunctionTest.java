@@ -57,10 +57,10 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 @Test
 public class SwapCalculationFunctionTest {
 
-  public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
-      .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01);
-
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
+      .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
+
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().getUnadjusted().minusDays(7);

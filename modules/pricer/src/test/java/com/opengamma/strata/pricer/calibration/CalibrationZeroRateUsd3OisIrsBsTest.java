@@ -399,8 +399,8 @@ public class CalibrationZeroRateUsd3OisIrsBsTest {
       double shift) {
     double notional = 100_000_000.0;
     double spread = 0.0050;
-    SwapTrade trade = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.createTrade(VAL_DATE, Period.ofMonths(8),
-        Tenor.TENOR_7Y, BuySell.BUY, notional, spread);
+    SwapTrade trade = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.createTrade(
+        VAL_DATE, Period.ofMonths(8), Tenor.TENOR_7Y, BuySell.BUY, notional, spread, REF_DATA);
     ImmutableRatesProvider result = calibrator.apply(ALL_QUOTES);
     ResolvedSwap product = trade.getProduct().resolve(REF_DATA);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(product, result);

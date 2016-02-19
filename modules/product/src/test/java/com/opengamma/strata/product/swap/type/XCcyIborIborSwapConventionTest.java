@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -43,6 +44,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class XCcyIborIborSwapConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
 
   private static final String NAME = "EUR-EURIBOR-3M-USD-LIBOR-3M";
@@ -102,7 +104,7 @@ public class XCcyIborIborSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 5, 7);
     LocalDate endDate = date(2025, 5, 7);
-    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, NOTIONAL_2M * FX_EUR_USD, 0.25d);
+    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, NOTIONAL_2M * FX_EUR_USD, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
@@ -115,7 +117,8 @@ public class XCcyIborIborSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 7);
     LocalDate endDate = date(2025, 8, 7);
-    SwapTrade test = base.createTrade(tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, NOTIONAL_2M * FX_EUR_USD, 0.25d);
+    SwapTrade test = base.createTrade(
+        tradeDate, Period.ofMonths(3), TENOR_10Y, BUY, NOTIONAL_2M, NOTIONAL_2M * FX_EUR_USD, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));

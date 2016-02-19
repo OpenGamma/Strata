@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
@@ -42,6 +43,7 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 @Test
 public class IborFixingDepositConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment SPOT_ADJ = DaysAdjustment.ofBusinessDays(2, EUTA);
   private static final DaysAdjustment FIXING_ADJ =
@@ -105,7 +107,7 @@ public class IborFixingDepositConventionTest {
     Period depositPeriod = Period.ofMonths(3);
     double notional = 1d;
     double fixedRate = 0.045;
-    IborFixingDepositTrade trade = convention.createTrade(tradeDate, depositPeriod, BUY, notional, fixedRate);
+    IborFixingDepositTrade trade = convention.createTrade(tradeDate, depositPeriod, BUY, notional, fixedRate, REF_DATA);
     LocalDate startExpected = SPOT_ADJ.adjust(tradeDate);
     LocalDate endExpected = startExpected.plus(depositPeriod);
     IborFixingDeposit productExpected = IborFixingDeposit.builder()

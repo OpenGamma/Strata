@@ -50,7 +50,7 @@ public class SabrSwaptionCashParYieldTradePricerTest {
   private static final Tenor TENOR = Tenor.ofYears(TENOR_YEAR);
   private static final ZonedDateTime MATURITY_DATE = LocalDate.of(2016, 1, 22).atStartOfDay(ZoneOffset.UTC); // 2Y
   private static final Swap SWAP_REC = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD.createTrade(
-      MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE).getProduct();
+      MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE, REF_DATA).getProduct();
   private static final LocalDate SETTLE_DATE = SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_USD.getFloatingLeg()
       .getIndex().calculateEffectiveFromFixing(MATURITY_DATE.toLocalDate());
   private static final CashSettlement PAR_YIELD = CashSettlement.builder()
