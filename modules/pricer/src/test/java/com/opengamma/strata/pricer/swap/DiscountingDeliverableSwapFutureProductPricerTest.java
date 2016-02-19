@@ -42,12 +42,12 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -132,11 +132,11 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
   private static final LocalDate LAST_TRADE = LocalDate.of(2012, 12, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2012, 12, 19);
   private static final double NOTIONAL = 100000;
-  private static final DeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
+  private static final ResolvedDeliverableSwapFuture FUTURE = ResolvedDeliverableSwapFuture.builder()
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .underlyingSwap(SWAP)
+      .underlyingSwap(SWAP.resolve(REF_DATA))
       .build();
   // calculators
   private static final double TOL = 1.0e-13;

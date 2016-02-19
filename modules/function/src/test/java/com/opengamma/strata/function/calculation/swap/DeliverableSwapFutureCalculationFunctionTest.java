@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
@@ -57,6 +58,7 @@ import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
 import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
@@ -68,6 +70,7 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 @Test
 public class DeliverableSwapFutureCalculationFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
   private static final SwapLeg FIXED_LEG =
@@ -101,6 +104,7 @@ public class DeliverableSwapFutureCalculationFunctionTest {
       .securityLink(DSF_SECURITY_LINK)
       .tradePrice(TRADE_PRICE)
       .build();
+  private static final ResolvedDeliverableSwapFutureTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
   private static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
   private static final LocalDate VAL_DATE = LAST_TRADE.minusDays(7);
@@ -136,7 +140,7 @@ public class DeliverableSwapFutureCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingDeliverableSwapFutureTradePricer pricer = DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(TRADE, provider, REF_PRICE);
+    CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
     assertThat(function.calculate(TRADE, measures, md))
@@ -151,7 +155,7 @@ public class DeliverableSwapFutureCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingDeliverableSwapFutureTradePricer pricer = DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE, provider);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);

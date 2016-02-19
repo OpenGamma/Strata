@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer.swap;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
 
 /**
  * Base pricer for deliverable swap futures.
  * <p>
- * This function provides common code used when pricing an {@link DeliverableSwapFuture}.
+ * This function provides common code used when pricing an {@link ResolvedDeliverableSwapFuture}.
  */
 public abstract class AbstractDeliverableSwapFutureProductPricer {
 
@@ -28,12 +28,12 @@ public abstract class AbstractDeliverableSwapFutureProductPricer {
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
-   * @param futures  the futures
+   * @param future  the future
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  protected double marginIndex(DeliverableSwapFuture futures, double price) {
-    return price * futures.getNotional();
+  protected double marginIndex(ResolvedDeliverableSwapFuture future, double price) {
+    return price * future.getNotional();
   }
 
   /**
@@ -43,12 +43,15 @@ public abstract class AbstractDeliverableSwapFutureProductPricer {
    * For two consecutive closing prices C1 and C2, the daily margin is computed as 
    *    {@code (marginIndex(future, C2) - marginIndex(future, C1))}.
    * 
-   * @param futures  the futures
+   * @param future  the future
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  protected PointSensitivities marginIndexSensitivity(DeliverableSwapFuture futures, PointSensitivities priceSensitivity) {
-    return priceSensitivity.multipliedBy(futures.getNotional());
+  protected PointSensitivities marginIndexSensitivity(
+      ResolvedDeliverableSwapFuture future,
+      PointSensitivities priceSensitivity) {
+
+    return priceSensitivity.multipliedBy(future.getNotional());
   }
 
 }
