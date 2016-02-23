@@ -61,10 +61,10 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a box containing values for the specified ID if available.
+   * Returns a value for the specified ID if available.
    *
    * @param key  the key identifying the item of market data
-   * @return a box containing values for the specified ID if available
+   * @return a value for the specified ID if available
    */
   public abstract <T> Optional<T> findValue(MarketDataKey<T> key);
 
