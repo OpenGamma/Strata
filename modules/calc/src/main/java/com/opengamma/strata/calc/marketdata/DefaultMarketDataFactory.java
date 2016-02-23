@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
@@ -166,21 +165,21 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Build any time series that are required but not available
       leafRequirements.getTimeSeries().stream()
-          .filter(not(marketData::containsTimeSeries))
-          .filter(not(suppliedData::containsTimeSeries))
+          .filter(id -> marketData.getTimeSeries(id).isEmpty())
+          .filter(id -> suppliedData.getTimeSeries(id).isEmpty())
           .forEach(id -> dataBuilder.addTimeSeriesResult(id, this.findTimeSeries(id)));
 
       // Copy supplied time series to the scenario data
       leafRequirements.getTimeSeries().stream()
-          .filter(suppliedData::containsTimeSeries)
+          .filter(id -> !suppliedData.getTimeSeries(id).isEmpty())
           .forEach(id -> dataBuilder.addTimeSeries(id, suppliedData.getTimeSeries(id)));
 
       // Single values of observable data -----------------------------------------------------------
 
       // Filter out IDs for the data that is already available
       Set<ObservableId> observableIds = leafRequirements.getObservables().stream()
-          .filter(not(marketData::containsValue))
-          .filter(not(suppliedData::containsValue))
+          .filter(id -> !marketData.findValue(id).isPresent())
+          .filter(id -> !suppliedData.findValue(id).isPresent())
           .collect(toImmutableSet());
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
@@ -189,15 +188,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()
-          .filter(suppliedData::containsValue)
+          .filter(id -> suppliedData.findValue(id).isPresent())
           .forEach(id -> addValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // Non-observable data -----------------------------------------------------------------------
 
       // Filter out IDs for the data that is already available and build the rest
       Set<MarketDataId<?>> nonObservableIds = leafRequirements.getNonObservables().stream()
-          .filter(not(marketData::containsValue))
-          .filter(not(suppliedData::containsValue))
+          .filter(id -> !marketData.findValue(id).isPresent())
+          .filter(id -> !suppliedData.findValue(id).isPresent())
           .collect(toImmutableSet());
 
       Map<MarketDataId<?>, Result<MarketDataBox<?>>> nonObservableResults =
@@ -207,7 +206,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
-          .filter(suppliedData::containsValue)
+          .filter(id -> suppliedData.findValue(id).isPresent())
           .forEach(id -> addValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
 
       // --------------------------------------------------------------------------------------------

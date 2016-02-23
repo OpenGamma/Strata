@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.market.MarketData;
@@ -79,12 +80,12 @@ public interface CalculationMarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this set of data contains a value for the specified key.
+   * Returns a box containing values for the specified ID if available.
    *
    * @param key  the key identifying the item of market data
-   * @return true if this set of data contains a value for the specified key
+   * @return a box containing values for the specified ID if available
    */
-  public abstract boolean containsValue(MarketDataKey<?> key);
+  public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key);
 
   /**
    * Gets a box that can provide an item of market data for a scenario.
@@ -134,13 +135,6 @@ public interface CalculationMarketData {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Checks if this set of data contains a time-series for the specified key.
-   *
-   * @param key  the key identifying the item of market data
-   * @return true if this set of data contains a time-series of market data for the specified key
-   */
-  public abstract boolean containsTimeSeries(ObservableKey key);
 
   /**
    * Gets the time-series identified by the specified key, empty if not found.

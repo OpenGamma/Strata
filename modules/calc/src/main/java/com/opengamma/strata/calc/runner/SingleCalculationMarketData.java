@@ -6,8 +6,10 @@
 package com.opengamma.strata.calc.runner;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -58,18 +60,14 @@ public final class SingleCalculationMarketData implements MarketData {
   }
 
   @Override
-  public boolean containsValue(MarketDataKey<?> key) {
-    return marketData.containsValue(key);
+  public <T> Optional<T> findValue(MarketDataKey<T> key) {
+    Optional<MarketDataBox<T>> optionalBox = marketData.findValue(key);
+    return optionalBox.map(box -> box.getValue(scenarioIndex));
   }
 
   @Override
   public <T> T getValue(MarketDataKey<T> key) {
     return marketData.getValue(key).getValue(scenarioIndex);
-  }
-
-  @Override
-  public boolean containsTimeSeries(ObservableKey key) {
-    return marketData.containsTimeSeries(key);
   }
 
   @Override
