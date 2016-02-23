@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -29,59 +30,94 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Defines the observation of inflation figures from a price index.
+ * Defines the observation of inflation figures from a price index with interpolation
+ * where the start index value is known.
  * <p>
- * A typical application of this rate observation is payments of a capital indexed bond, 
- * where the reference start month is start month of the bond rather than start month of the payment period. 
+ * A typical application of this rate observation is payments of a capital indexed bond,
+ * where the reference start month is the start month of the bond rather than start month
+ * of the payment period. 
  * <p>
  * A price index is typically published monthly and has a delay before publication.
- * The rate observed by this instance will be based on the start index value and the observation relative to the end month.
+ * The rate observed by this instance will be based on the specified start index value
+ * and two index observations relative to the end month.
+ * Linear interpolation based on the number of days of the payment month is used
+ * to find the appropriate value.
  */
 @BeanDefinition
-public final class InflationBondMonthlyRateObservation
+public final class InflationEndInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The index of prices.
-   * <p>
-   * The pay-off is computed based on this index
-   */
+  * The index of prices.
+  * <p>
+  * The pay-off is computed based on this index
+  */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The start index value. 
+   * The start index value.
    * <p>
-   * The published index value of the start month. 
+   * The published index value of the start month.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double startIndexValue;
   /**
-   * The reference month for the index relative to the end date of the period.
+   * The reference month for the index relative to the end of the period.
    * <p>
    * The reference month is typically three months before the end date of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceEndMonth;
+  /**
+   * The reference month used for interpolation for the index relative to the end of the period.
+   * <p>
+   * The reference month for interpolation is typically one month after the reference end month.
+   * As such it is typically two months before the accrual end date.
+   * Must be after the reference end month.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final YearMonth referenceEndInterpolationMonth;
+  /**
+   * The positive weight used when interpolating.
+   * <p>
+   * Given two price index observations, typically in adjacent months, the weight is used
+   * to determine the adjusted index value. The value is given by the formula
+   * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double weight;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code InflationBondMonthlyRateObservation} from an index, start index value and reference end month.
+   * Creates an instance from an index, start index value and reference end month.
+   * <p>
+   * The interpolated end month will be one month later.
    * 
    * @param index  the index
    * @param startIndexValue  the start index value
    * @param referenceEndMonth  the reference end month
+   * @param weight  the weight
    * @return the inflation rate observation
    */
-  public static InflationBondMonthlyRateObservation of(
+  public static InflationEndInterpolatedRateObservation of(
       PriceIndex index,
       double startIndexValue,
-      YearMonth referenceEndMonth) {
+      YearMonth referenceEndMonth,
+      double weight) {
 
-    return InflationBondMonthlyRateObservation.builder()
+    return InflationEndInterpolatedRateObservation.builder()
         .index(index)
         .startIndexValue(startIndexValue)
         .referenceEndMonth(referenceEndMonth)
+        .referenceEndInterpolationMonth(referenceEndMonth.plusMonths(1))
+        .weight(weight)
         .build();
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.inOrderNotEqual(
+        referenceEndMonth, referenceEndInterpolationMonth, "referenceEndMonth", "referenceEndInterpolationMonth");
   }
 
   //-------------------------------------------------------------------------
@@ -93,15 +129,15 @@ public final class InflationBondMonthlyRateObservation
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code InflationBondMonthlyRateObservation}.
+   * The meta-bean for {@code InflationEndInterpolatedRateObservation}.
    * @return the meta-bean, not null
    */
-  public static InflationBondMonthlyRateObservation.Meta meta() {
-    return InflationBondMonthlyRateObservation.Meta.INSTANCE;
+  public static InflationEndInterpolatedRateObservation.Meta meta() {
+    return InflationEndInterpolatedRateObservation.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(InflationBondMonthlyRateObservation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(InflationEndInterpolatedRateObservation.Meta.INSTANCE);
   }
 
   /**
@@ -113,25 +149,32 @@ public final class InflationBondMonthlyRateObservation
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static InflationBondMonthlyRateObservation.Builder builder() {
-    return new InflationBondMonthlyRateObservation.Builder();
+  public static InflationEndInterpolatedRateObservation.Builder builder() {
+    return new InflationEndInterpolatedRateObservation.Builder();
   }
 
-  private InflationBondMonthlyRateObservation(
+  private InflationEndInterpolatedRateObservation(
       PriceIndex index,
       double startIndexValue,
-      YearMonth referenceEndMonth) {
+      YearMonth referenceEndMonth,
+      YearMonth referenceEndInterpolationMonth,
+      double weight) {
     JodaBeanUtils.notNull(index, "index");
     ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
     JodaBeanUtils.notNull(referenceEndMonth, "referenceEndMonth");
+    JodaBeanUtils.notNull(referenceEndInterpolationMonth, "referenceEndInterpolationMonth");
+    ArgChecker.notNegative(weight, "weight");
     this.index = index;
     this.startIndexValue = startIndexValue;
     this.referenceEndMonth = referenceEndMonth;
+    this.referenceEndInterpolationMonth = referenceEndInterpolationMonth;
+    this.weight = weight;
+    validate();
   }
 
   @Override
-  public InflationBondMonthlyRateObservation.Meta metaBean() {
-    return InflationBondMonthlyRateObservation.Meta.INSTANCE;
+  public InflationEndInterpolatedRateObservation.Meta metaBean() {
+    return InflationEndInterpolatedRateObservation.Meta.INSTANCE;
   }
 
   @Override
@@ -168,13 +211,39 @@ public final class InflationBondMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index relative to the end date of the period.
+   * Gets the reference month for the index relative to the end of the period.
    * <p>
    * The reference month is typically three months before the end date of the period.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceEndMonth() {
     return referenceEndMonth;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the reference month used for interpolation for the index relative to the end of the period.
+   * <p>
+   * The reference month for interpolation is typically one month after the reference end month.
+   * As such it is typically two months before the accrual end date.
+   * Must be after the reference end month.
+   * @return the value of the property, not null
+   */
+  public YearMonth getReferenceEndInterpolationMonth() {
+    return referenceEndInterpolationMonth;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the positive weight used when interpolating.
+   * <p>
+   * Given two price index observations, typically in adjacent months, the weight is used
+   * to determine the adjusted index value. The value is given by the formula
+   * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
+   * @return the value of the property
+   */
+  public double getWeight() {
+    return weight;
   }
 
   //-----------------------------------------------------------------------
@@ -192,10 +261,12 @@ public final class InflationBondMonthlyRateObservation
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      InflationBondMonthlyRateObservation other = (InflationBondMonthlyRateObservation) obj;
+      InflationEndInterpolatedRateObservation other = (InflationEndInterpolatedRateObservation) obj;
       return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(startIndexValue, other.startIndexValue) &&
-          JodaBeanUtils.equal(referenceEndMonth, other.referenceEndMonth);
+          JodaBeanUtils.equal(referenceEndMonth, other.referenceEndMonth) &&
+          JodaBeanUtils.equal(referenceEndInterpolationMonth, other.referenceEndInterpolationMonth) &&
+          JodaBeanUtils.equal(weight, other.weight);
     }
     return false;
   }
@@ -206,23 +277,27 @@ public final class InflationBondMonthlyRateObservation
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(startIndexValue);
     hash = hash * 31 + JodaBeanUtils.hashCode(referenceEndMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(referenceEndInterpolationMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(weight);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
-    buf.append("InflationBondMonthlyRateObservation{");
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("InflationEndInterpolatedRateObservation{");
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("startIndexValue").append('=').append(startIndexValue).append(',').append(' ');
-    buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth));
+    buf.append("referenceEndMonth").append('=').append(referenceEndMonth).append(',').append(' ');
+    buf.append("referenceEndInterpolationMonth").append('=').append(referenceEndInterpolationMonth).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code InflationBondMonthlyRateObservation}.
+   * The meta-bean for {@code InflationEndInterpolatedRateObservation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -234,17 +309,27 @@ public final class InflationBondMonthlyRateObservation
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", InflationBondMonthlyRateObservation.class, PriceIndex.class);
+        this, "index", InflationEndInterpolatedRateObservation.class, PriceIndex.class);
     /**
      * The meta-property for the {@code startIndexValue} property.
      */
     private final MetaProperty<Double> startIndexValue = DirectMetaProperty.ofImmutable(
-        this, "startIndexValue", InflationBondMonthlyRateObservation.class, Double.TYPE);
+        this, "startIndexValue", InflationEndInterpolatedRateObservation.class, Double.TYPE);
     /**
      * The meta-property for the {@code referenceEndMonth} property.
      */
     private final MetaProperty<YearMonth> referenceEndMonth = DirectMetaProperty.ofImmutable(
-        this, "referenceEndMonth", InflationBondMonthlyRateObservation.class, YearMonth.class);
+        this, "referenceEndMonth", InflationEndInterpolatedRateObservation.class, YearMonth.class);
+    /**
+     * The meta-property for the {@code referenceEndInterpolationMonth} property.
+     */
+    private final MetaProperty<YearMonth> referenceEndInterpolationMonth = DirectMetaProperty.ofImmutable(
+        this, "referenceEndInterpolationMonth", InflationEndInterpolatedRateObservation.class, YearMonth.class);
+    /**
+     * The meta-property for the {@code weight} property.
+     */
+    private final MetaProperty<Double> weight = DirectMetaProperty.ofImmutable(
+        this, "weight", InflationEndInterpolatedRateObservation.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -252,7 +337,9 @@ public final class InflationBondMonthlyRateObservation
         this, null,
         "index",
         "startIndexValue",
-        "referenceEndMonth");
+        "referenceEndMonth",
+        "referenceEndInterpolationMonth",
+        "weight");
 
     /**
      * Restricted constructor.
@@ -269,18 +356,22 @@ public final class InflationBondMonthlyRateObservation
           return startIndexValue;
         case 1861034704:  // referenceEndMonth
           return referenceEndMonth;
+        case -227090196:  // referenceEndInterpolationMonth
+          return referenceEndInterpolationMonth;
+        case -791592328:  // weight
+          return weight;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public InflationBondMonthlyRateObservation.Builder builder() {
-      return new InflationBondMonthlyRateObservation.Builder();
+    public InflationEndInterpolatedRateObservation.Builder builder() {
+      return new InflationEndInterpolatedRateObservation.Builder();
     }
 
     @Override
-    public Class<? extends InflationBondMonthlyRateObservation> beanType() {
-      return InflationBondMonthlyRateObservation.class;
+    public Class<? extends InflationEndInterpolatedRateObservation> beanType() {
+      return InflationEndInterpolatedRateObservation.class;
     }
 
     @Override
@@ -313,16 +404,36 @@ public final class InflationBondMonthlyRateObservation
       return referenceEndMonth;
     }
 
+    /**
+     * The meta-property for the {@code referenceEndInterpolationMonth} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<YearMonth> referenceEndInterpolationMonth() {
+      return referenceEndInterpolationMonth;
+    }
+
+    /**
+     * The meta-property for the {@code weight} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> weight() {
+      return weight;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((InflationBondMonthlyRateObservation) bean).getIndex();
+          return ((InflationEndInterpolatedRateObservation) bean).getIndex();
         case -1656407615:  // startIndexValue
-          return ((InflationBondMonthlyRateObservation) bean).getStartIndexValue();
+          return ((InflationEndInterpolatedRateObservation) bean).getStartIndexValue();
         case 1861034704:  // referenceEndMonth
-          return ((InflationBondMonthlyRateObservation) bean).getReferenceEndMonth();
+          return ((InflationEndInterpolatedRateObservation) bean).getReferenceEndMonth();
+        case -227090196:  // referenceEndInterpolationMonth
+          return ((InflationEndInterpolatedRateObservation) bean).getReferenceEndInterpolationMonth();
+        case -791592328:  // weight
+          return ((InflationEndInterpolatedRateObservation) bean).getWeight();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -340,13 +451,15 @@ public final class InflationBondMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code InflationBondMonthlyRateObservation}.
+   * The bean-builder for {@code InflationEndInterpolatedRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<InflationBondMonthlyRateObservation> {
+  public static final class Builder extends DirectFieldsBeanBuilder<InflationEndInterpolatedRateObservation> {
 
     private PriceIndex index;
     private double startIndexValue;
     private YearMonth referenceEndMonth;
+    private YearMonth referenceEndInterpolationMonth;
+    private double weight;
 
     /**
      * Restricted constructor.
@@ -358,10 +471,12 @@ public final class InflationBondMonthlyRateObservation
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(InflationBondMonthlyRateObservation beanToCopy) {
+    private Builder(InflationEndInterpolatedRateObservation beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.startIndexValue = beanToCopy.getStartIndexValue();
       this.referenceEndMonth = beanToCopy.getReferenceEndMonth();
+      this.referenceEndInterpolationMonth = beanToCopy.getReferenceEndInterpolationMonth();
+      this.weight = beanToCopy.getWeight();
     }
 
     //-----------------------------------------------------------------------
@@ -374,6 +489,10 @@ public final class InflationBondMonthlyRateObservation
           return startIndexValue;
         case 1861034704:  // referenceEndMonth
           return referenceEndMonth;
+        case -227090196:  // referenceEndInterpolationMonth
+          return referenceEndInterpolationMonth;
+        case -791592328:  // weight
+          return weight;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -390,6 +509,12 @@ public final class InflationBondMonthlyRateObservation
           break;
         case 1861034704:  // referenceEndMonth
           this.referenceEndMonth = (YearMonth) newValue;
+          break;
+        case -227090196:  // referenceEndInterpolationMonth
+          this.referenceEndInterpolationMonth = (YearMonth) newValue;
+          break;
+        case -791592328:  // weight
+          this.weight = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -422,11 +547,13 @@ public final class InflationBondMonthlyRateObservation
     }
 
     @Override
-    public InflationBondMonthlyRateObservation build() {
-      return new InflationBondMonthlyRateObservation(
+    public InflationEndInterpolatedRateObservation build() {
+      return new InflationEndInterpolatedRateObservation(
           index,
           startIndexValue,
-          referenceEndMonth);
+          referenceEndMonth,
+          referenceEndInterpolationMonth,
+          weight);
     }
 
     //-----------------------------------------------------------------------
@@ -457,7 +584,7 @@ public final class InflationBondMonthlyRateObservation
     }
 
     /**
-     * Sets the reference month for the index relative to the end date of the period.
+     * Sets the reference month for the index relative to the end of the period.
      * <p>
      * The reference month is typically three months before the end date of the period.
      * @param referenceEndMonth  the new value, not null
@@ -469,14 +596,46 @@ public final class InflationBondMonthlyRateObservation
       return this;
     }
 
+    /**
+     * Sets the reference month used for interpolation for the index relative to the end of the period.
+     * <p>
+     * The reference month for interpolation is typically one month after the reference end month.
+     * As such it is typically two months before the accrual end date.
+     * Must be after the reference end month.
+     * @param referenceEndInterpolationMonth  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder referenceEndInterpolationMonth(YearMonth referenceEndInterpolationMonth) {
+      JodaBeanUtils.notNull(referenceEndInterpolationMonth, "referenceEndInterpolationMonth");
+      this.referenceEndInterpolationMonth = referenceEndInterpolationMonth;
+      return this;
+    }
+
+    /**
+     * Sets the positive weight used when interpolating.
+     * <p>
+     * Given two price index observations, typically in adjacent months, the weight is used
+     * to determine the adjusted index value. The value is given by the formula
+     * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
+     * @param weight  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder weight(double weight) {
+      ArgChecker.notNegative(weight, "weight");
+      this.weight = weight;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("InflationBondMonthlyRateObservation.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("InflationEndInterpolatedRateObservation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue)).append(',').append(' ');
-      buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth));
+      buf.append("referenceEndMonth").append('=').append(JodaBeanUtils.toString(referenceEndMonth)).append(',').append(' ');
+      buf.append("referenceEndInterpolationMonth").append('=').append(JodaBeanUtils.toString(referenceEndInterpolationMonth)).append(',').append(' ');
+      buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
       buf.append('}');
       return buf.toString();
     }

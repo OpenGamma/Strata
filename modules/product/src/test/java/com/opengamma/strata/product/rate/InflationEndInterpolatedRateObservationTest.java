@@ -21,10 +21,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
 
 /**
- * Test {@link InflationBondInterpolatedRateObservation}.
+ * Test {@link InflationEndInterpolatedRateObservation}.
  */
 @Test
-public class InflationBondInterpolatedRateObservationTest {
+public class InflationEndInterpolatedRateObservationTest {
 
   private static final double START_INDEX = 135d;
   private static final YearMonth END_MONTH_FIRST = YearMonth.of(2015, 1);
@@ -33,7 +33,7 @@ public class InflationBondInterpolatedRateObservationTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    InflationBondInterpolatedRateObservation test = InflationBondInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     assertEquals(test.getIndex(), GB_HICP);
     assertEquals(test.getStartIndexValue(), START_INDEX);
@@ -43,7 +43,7 @@ public class InflationBondInterpolatedRateObservationTest {
   }
 
   public void test_builder() {
-    InflationBondInterpolatedRateObservation test = InflationBondInterpolatedRateObservation.builder()
+    InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.builder()
         .index(CH_CPI)
         .startIndexValue(START_INDEX)
         .referenceEndMonth(END_MONTH_FIRST)
@@ -58,7 +58,7 @@ public class InflationBondInterpolatedRateObservationTest {
   }
 
   public void test_wrongMonthOrder() {
-    assertThrowsIllegalArg(() -> InflationBondInterpolatedRateObservation.builder()
+    assertThrowsIllegalArg(() -> InflationEndInterpolatedRateObservation.builder()
         .index(GB_HICP)
         .startIndexValue(START_INDEX)
         .referenceEndMonth(YearMonth.of(2010, 7))
@@ -69,7 +69,7 @@ public class InflationBondInterpolatedRateObservationTest {
 
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
-    InflationBondInterpolatedRateObservation test = InflationBondInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
@@ -78,10 +78,10 @@ public class InflationBondInterpolatedRateObservationTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    InflationBondInterpolatedRateObservation test1 = InflationBondInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateObservation test1 = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     coverImmutableBean(test1);
-    InflationBondInterpolatedRateObservation test2 = InflationBondInterpolatedRateObservation.builder()
+    InflationEndInterpolatedRateObservation test2 = InflationEndInterpolatedRateObservation.builder()
         .index(CH_CPI)
         .startIndexValue(334d)
         .referenceEndMonth(YearMonth.of(2010, 7))
@@ -92,7 +92,7 @@ public class InflationBondInterpolatedRateObservationTest {
   }
 
   public void test_serialization() {
-    InflationBondInterpolatedRateObservation test = InflationBondInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     assertSerialization(test);
   }

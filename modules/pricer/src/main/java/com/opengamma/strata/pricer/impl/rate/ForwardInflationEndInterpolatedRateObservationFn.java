@@ -15,37 +15,37 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.InflationBondInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of fixings 
  * of a single price index. 
  * <p>
- * The rate computed by this instance is based on fixed start index value and two observations relative to the end date 
- * of the period. 
- * The start index is given by {@code InflationBondInterpolatedRateObservation}.
+ * The rate computed by this instance is based on fixed start index value
+ * and two observations relative to the end date  of the period. 
+ * The start index is given by {@code InflationEndInterpolatedRateObservation}.
  * The end index is the weighted average of the index values associated with the two reference dates. 
  * Then the pay-off for a unit notional is {@code IndexEnd / IndexStart}. 
  */
-public class ForwardInflationBondInterpolatedRateObservationFn
-    implements RateObservationFn<InflationBondInterpolatedRateObservation> {
+public class ForwardInflationEndInterpolatedRateObservationFn
+    implements RateObservationFn<InflationEndInterpolatedRateObservation> {
 
   /**
    * Default instance.
    */
-  public static final ForwardInflationBondInterpolatedRateObservationFn DEFAULT =
-      new ForwardInflationBondInterpolatedRateObservationFn();
+  public static final ForwardInflationEndInterpolatedRateObservationFn DEFAULT =
+      new ForwardInflationEndInterpolatedRateObservationFn();
   
   /**
    * Creates an instance.
    */
-  public ForwardInflationBondInterpolatedRateObservationFn() {
+  public ForwardInflationEndInterpolatedRateObservationFn() {
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      InflationBondInterpolatedRateObservation observation,
+      InflationEndInterpolatedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
@@ -53,28 +53,29 @@ public class ForwardInflationBondInterpolatedRateObservationFn
     PriceIndexValues values = provider.priceIndexValues(observation.getIndex());
     double indexReferenceStart1 = values.value(observation.getReferenceEndMonth());
     double indexReferenceStart2 = values.value(observation.getReferenceEndInterpolationMonth());
-    double indexEnd = observation.getWeight() * indexReferenceStart1 + (1d - observation.getWeight()) * indexReferenceStart2;
-    return indexEnd / observation.getStartIndexValue(); // notional included
+    double w1 = observation.getWeight();
+    double indexEnd = w1 * indexReferenceStart1 + (1d - w1) * indexReferenceStart2;
+    return indexEnd / observation.getStartIndexValue() - 1;
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      InflationBondInterpolatedRateObservation observation,
+      InflationEndInterpolatedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
 
     PriceIndexValues values = provider.priceIndexValues(observation.getIndex());
-    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getReferenceEndMonth());
-    sensi1 = sensi1.multipliedBy(observation.getWeight());
-    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getReferenceEndInterpolationMonth());
-    sensi2 = sensi2.multipliedBy(1d - observation.getWeight());
+    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getReferenceEndMonth())
+        .multipliedBy(observation.getWeight());
+    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getReferenceEndInterpolationMonth())
+        .multipliedBy(1d - observation.getWeight());
     return sensi1.combinedWith(sensi2).multipliedBy(1d / observation.getStartIndexValue());
   }
 
   @Override
   public double explainRate(
-      InflationBondInterpolatedRateObservation observation,
+      InflationEndInterpolatedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider,

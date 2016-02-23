@@ -48,16 +48,16 @@ public final class InflationMonthlyRateObservation
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The reference month for the index relative to the accrual start date.
+   * The reference month for the index relative to the start of the period.
    * <p>
-   * The reference month is typically three months before the accrual start date.
+   * The reference month is typically three months before the start of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartMonth;
   /**
-   * The reference month for the index relative to the accrual end date.
+   * The reference month for the index relative to the end of the period.
    * <p>
-   * The reference month is typically three months before the accrual end date.
+   * The reference month is typically three months before the end of the period.
    * Must be after the reference start month.
    */
   @PropertyDefinition(validate = "notNull")
@@ -65,8 +65,7 @@ public final class InflationMonthlyRateObservation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code InflationMonthlyRateObservation} from an index, reference
-   * start month and reference end month.
+   * Creates an instance from an index, reference start month and reference end month.
    * 
    * @param index  the index
    * @param referenceStartMonth  the reference start month
@@ -164,9 +163,9 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index relative to the accrual start date.
+   * Gets the reference month for the index relative to the start of the period.
    * <p>
-   * The reference month is typically three months before the accrual start date.
+   * The reference month is typically three months before the start of the period.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceStartMonth() {
@@ -175,9 +174,9 @@ public final class InflationMonthlyRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index relative to the accrual end date.
+   * Gets the reference month for the index relative to the end of the period.
    * <p>
-   * The reference month is typically three months before the accrual end date.
+   * The reference month is typically three months before the end of the period.
    * Must be after the reference start month.
    * @return the value of the property, not null
    */
@@ -452,9 +451,9 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * Sets the reference month for the index relative to the accrual start date.
+     * Sets the reference month for the index relative to the start of the period.
      * <p>
-     * The reference month is typically three months before the accrual start date.
+     * The reference month is typically three months before the start of the period.
      * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -465,9 +464,9 @@ public final class InflationMonthlyRateObservation
     }
 
     /**
-     * Sets the reference month for the index relative to the accrual end date.
+     * Sets the reference month for the index relative to the end of the period.
      * <p>
-     * The reference month is typically three months before the accrual end date.
+     * The reference month is typically three months before the end of the period.
      * Must be after the reference start month.
      * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null

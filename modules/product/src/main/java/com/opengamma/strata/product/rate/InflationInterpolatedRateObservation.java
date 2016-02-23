@@ -50,31 +50,30 @@ public class InflationInterpolatedRateObservation
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The reference month for the index relative to the accrual start date.
+   * The reference month for the index relative to the start of the period.
    * <p>
-   * The reference month is typically three months before the accrual start date.
+   * The reference month is typically three months before the start of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartMonth;
   /**
-   * The reference month used for interpolation for the index relative to the accrual start date.
+   * The reference month used for interpolation for the index relative to the start of the period.
    * <p>
    * The reference month for interpolation is typically one month after the reference start month.
-   * As such it is typically two months before the accrual start date.
+   * As such it is typically two months before the start of the period.
    * Must be after the reference start month.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceStartInterpolationMonth;
   /**
-   * The reference month for the index relative to the accrual end date.
+   * The reference month for the index relative to the end of the period.
    * <p>
-   * The reference month is typically three months before the accrual end date.
-   * Must be after the reference start month.
+   * The reference month is typically three months before the end date of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private final YearMonth referenceEndMonth;
   /**
-   * The reference month used for interpolation for the index relative to the accrual end date.
+   * The reference month used for interpolation for the index relative to the end of the period.
    * <p>
    * The reference month for interpolation is typically one month after the reference end month.
    * As such it is typically two months before the accrual end date.
@@ -94,8 +93,7 @@ public class InflationInterpolatedRateObservation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code InflationInterpolatedRateObservation} from an index,
-   * reference start month and reference end month.
+   * Creates an instance from an index, reference start month and reference end month.
    * <p>
    * The interpolated start and end month will be one month later.
    * 
@@ -211,9 +209,9 @@ public class InflationInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index relative to the accrual start date.
+   * Gets the reference month for the index relative to the start of the period.
    * <p>
-   * The reference month is typically three months before the accrual start date.
+   * The reference month is typically three months before the start of the period.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceStartMonth() {
@@ -222,10 +220,10 @@ public class InflationInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month used for interpolation for the index relative to the accrual start date.
+   * Gets the reference month used for interpolation for the index relative to the start of the period.
    * <p>
    * The reference month for interpolation is typically one month after the reference start month.
-   * As such it is typically two months before the accrual start date.
+   * As such it is typically two months before the start of the period.
    * Must be after the reference start month.
    * @return the value of the property, not null
    */
@@ -235,10 +233,9 @@ public class InflationInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month for the index relative to the accrual end date.
+   * Gets the reference month for the index relative to the end of the period.
    * <p>
-   * The reference month is typically three months before the accrual end date.
-   * Must be after the reference start month.
+   * The reference month is typically three months before the end date of the period.
    * @return the value of the property, not null
    */
   public YearMonth getReferenceEndMonth() {
@@ -247,7 +244,7 @@ public class InflationInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference month used for interpolation for the index relative to the accrual end date.
+   * Gets the reference month used for interpolation for the index relative to the end of the period.
    * <p>
    * The reference month for interpolation is typically one month after the reference end month.
    * As such it is typically two months before the accrual end date.
@@ -627,9 +624,9 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the reference month for the index relative to the accrual start date.
+     * Sets the reference month for the index relative to the start of the period.
      * <p>
-     * The reference month is typically three months before the accrual start date.
+     * The reference month is typically three months before the start of the period.
      * @param referenceStartMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -640,10 +637,10 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the reference month used for interpolation for the index relative to the accrual start date.
+     * Sets the reference month used for interpolation for the index relative to the start of the period.
      * <p>
      * The reference month for interpolation is typically one month after the reference start month.
-     * As such it is typically two months before the accrual start date.
+     * As such it is typically two months before the start of the period.
      * Must be after the reference start month.
      * @param referenceStartInterpolationMonth  the new value, not null
      * @return this, for chaining, not null
@@ -655,10 +652,9 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the reference month for the index relative to the accrual end date.
+     * Sets the reference month for the index relative to the end of the period.
      * <p>
-     * The reference month is typically three months before the accrual end date.
-     * Must be after the reference start month.
+     * The reference month is typically three months before the end date of the period.
      * @param referenceEndMonth  the new value, not null
      * @return this, for chaining, not null
      */
@@ -669,7 +665,7 @@ public class InflationInterpolatedRateObservation
     }
 
     /**
-     * Sets the reference month used for interpolation for the index relative to the accrual end date.
+     * Sets the reference month used for interpolation for the index relative to the end of the period.
      * <p>
      * The reference month for interpolation is typically one month after the reference end month.
      * As such it is typically two months before the accrual end date.

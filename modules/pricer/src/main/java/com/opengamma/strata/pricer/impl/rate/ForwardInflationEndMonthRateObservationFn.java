@@ -14,33 +14,34 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.InflationBondMonthlyRateObservation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 
 /**
  * Rate observation implementation for a price index. 
  * <p>
- * The pay-off for a unit notional is {@code (IndexEnd / IndexStart)}, where the start index value is given by 
- * {@code InflationBondMonthlyRateObservation} and the end index value is returned by {@code RatesProvider}.
+ * The pay-off for a unit notional is {@code (IndexEnd / IndexStart)}, where
+ * the start index value is given by  {@code InflationEndMonthRateObservation}
+ * and the end index value is returned by {@code RatesProvider}.
  */
-public class ForwardInflationBondMonthlyRateObservationFn
-    implements RateObservationFn<InflationBondMonthlyRateObservation> {
+public class ForwardInflationEndMonthRateObservationFn
+    implements RateObservationFn<InflationEndMonthRateObservation> {
 
   /**
    * Default instance.
    */
-  public static final ForwardInflationBondMonthlyRateObservationFn DEFAULT =
-      new ForwardInflationBondMonthlyRateObservationFn();
+  public static final ForwardInflationEndMonthRateObservationFn DEFAULT =
+      new ForwardInflationEndMonthRateObservationFn();
 
   /**
    * Creates an instance.
    */
-  public ForwardInflationBondMonthlyRateObservationFn() {
+  public ForwardInflationEndMonthRateObservationFn() {
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      InflationBondMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
@@ -48,25 +49,25 @@ public class ForwardInflationBondMonthlyRateObservationFn
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
     double indexEnd = values.value(observation.getReferenceEndMonth());
-    return indexEnd / observation.getStartIndexValue(); // notional included
+    return indexEnd / observation.getStartIndexValue() - 1;
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      InflationBondMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    PointSensitivityBuilder indexEndSensitivity = values.valuePointSensitivity(observation.getReferenceEndMonth());
-    return indexEndSensitivity.multipliedBy(1d / observation.getStartIndexValue());
+    return values.valuePointSensitivity(observation.getReferenceEndMonth())
+        .multipliedBy(1d / observation.getStartIndexValue());
   }
 
   @Override
   public double explainRate(
-      InflationBondMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider,

@@ -42,8 +42,8 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.InflationBondInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationBondMonthlyRateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
@@ -174,11 +174,12 @@ public final class InflationRateCalculation
 
   // creates the rate observation
   private RateObservation createRateObservation(SchedulePeriod period) {
+    LocalDate endDate = period.getEndDate();
     YearMonth referenceStartMonth = YearMonth.from(period.getStartDate().minus(lag));
-    YearMonth referenceEndMonth = YearMonth.from(period.getEndDate().minus(lag));
+    YearMonth referenceEndMonth = YearMonth.from(endDate.minus(lag));
     if (interpolated) {
       // interpolate between data from two different months
-      double weight = 1.0 - (period.getEndDate().getDayOfMonth() - 1.0) / period.getEndDate().lengthOfMonth();
+      double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
       return InflationInterpolatedRateObservation.of(index, referenceStartMonth, referenceEndMonth, weight);
     } else {
       // no interpolation
@@ -187,8 +188,9 @@ public final class InflationRateCalculation
   }
 
   /**
-   * Creates the rate observation for capital indexed bonds. 
+   * Creates the rate observation where the start index value is known.
    * <p>
+   * This is typically used for capital indexed bonds.
    * The resulting rate observation involves start index value and reference end month. 
    * 
    * @param endDate  the end date of the period
@@ -200,10 +202,10 @@ public final class InflationRateCalculation
     if (interpolated) {
       // interpolate between data from two different months
       double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
-      return InflationBondInterpolatedRateObservation.of(index, startIndexValue, referenceEndMonth, weight);
+      return InflationEndInterpolatedRateObservation.of(index, startIndexValue, referenceEndMonth, weight);
     } else {
       // no interpolation
-      return InflationBondMonthlyRateObservation.of(index, startIndexValue, referenceEndMonth);
+      return InflationEndMonthRateObservation.of(index, startIndexValue, referenceEndMonth);
     }
   }
 
