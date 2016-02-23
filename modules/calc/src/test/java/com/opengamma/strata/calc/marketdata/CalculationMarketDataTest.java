@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.marketdata;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
@@ -134,15 +135,15 @@ public class CalculationMarketDataTest {
       throw new UnsupportedOperationException("containsValue(MarketDataKey) not implemented");
     }
 
+    @Override
+    public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
+      throw new UnsupportedOperationException("findValue not implemented");
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
       return (MarketDataBox<T>) value;
-    }
-
-    @Override
-    public boolean containsTimeSeries(ObservableKey key) {
-      throw new UnsupportedOperationException("containsTimeSeries(ObservableKey) not implemented");
     }
 
     @Override

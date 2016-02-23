@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.market;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -49,6 +50,7 @@ public interface MarketData {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the valuation date of the market data.
    * <p>
@@ -59,6 +61,7 @@ public interface MarketData {
   public abstract LocalDate getValuationDate();
 
   //-------------------------------------------------------------------------
+
   /**
    * Checks if this set of data contains a value for the specified key.
    *
@@ -66,6 +69,14 @@ public interface MarketData {
    * @return true if this set of data contains a value for the specified key
    */
   public abstract boolean containsValue(MarketDataKey<?> key);
+
+  /**
+   * Returns a value for the specified ID if available.
+   *
+   * @param key  the key identifying the item of market data
+   * @return a value for the specified ID if available
+   */
+  public abstract <T> Optional<T> findValue(MarketDataKey<T> key);
 
   /**
    * Gets the market data value identified by the specified key.
@@ -80,13 +91,6 @@ public interface MarketData {
   public abstract <T> T getValue(MarketDataKey<T> key);
 
   //-------------------------------------------------------------------------
-  /**
-   * Checks if this set of data contains a time-series for the specified key.
-   *
-   * @param key  the key identifying the item of market data
-   * @return true if this set of data contains a time-series of market data for the specified key
-   */
-  public abstract boolean containsTimeSeries(ObservableKey key);
 
   /**
    * Gets the time-series identified by the specified key, empty if not found.

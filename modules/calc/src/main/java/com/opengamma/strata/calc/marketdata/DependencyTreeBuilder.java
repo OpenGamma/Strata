@@ -167,7 +167,7 @@ class DependencyTreeBuilder {
 
     switch (dataType) {
       case TIME_SERIES:
-        return (id instanceof ObservableId) && suppliedData.containsTimeSeries((ObservableId) id);
+        return (id instanceof ObservableId) && !suppliedData.getTimeSeries((ObservableId) id).isEmpty();
       case SINGLE_VALUE:
         return suppliedData.containsValue(id);
       default:

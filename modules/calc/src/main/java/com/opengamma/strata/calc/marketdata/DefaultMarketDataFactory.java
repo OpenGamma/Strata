@@ -166,13 +166,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
       // Build any time series that are required but not available
       leafRequirements.getTimeSeries().stream()
-          .filter(not(marketData::containsTimeSeries))
-          .filter(not(suppliedData::containsTimeSeries))
+          .filter(id -> marketData.getTimeSeries(id).isEmpty())
+          .filter(id -> suppliedData.getTimeSeries(id).isEmpty())
           .forEach(id -> dataBuilder.addTimeSeriesResult(id, this.findTimeSeries(id)));
 
       // Copy supplied time series to the scenario data
       leafRequirements.getTimeSeries().stream()
-          .filter(suppliedData::containsTimeSeries)
+          .filter(id -> !suppliedData.getTimeSeries(id).isEmpty())
           .forEach(id -> dataBuilder.addTimeSeries(id, suppliedData.getTimeSeries(id)));
 
       // Single values of observable data -----------------------------------------------------------

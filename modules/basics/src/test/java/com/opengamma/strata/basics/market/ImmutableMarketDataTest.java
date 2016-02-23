@@ -67,11 +67,8 @@ public class ImmutableMarketDataTest {
   public void containsValue() {
     assertThat(DATA.containsValue(KEY1)).isTrue();
     assertThat(DATA.containsValue(KEY2)).isFalse();
-  }
-
-  public void containsTimeSeries() {
-    assertThat(DATA.containsTimeSeries(KEY1)).isFalse();
-    assertThat(DATA.containsTimeSeries(KEY2)).isTrue();
+    assertThat(DATA.findValue(KEY1)).isPresent();
+    assertThat(DATA.findValue(KEY2)).isEmpty();
   }
 
   public void getValue() {

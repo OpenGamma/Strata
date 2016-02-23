@@ -7,6 +7,7 @@ package com.opengamma.strata.examples.marketdata;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
@@ -242,7 +243,7 @@ public class ExampleMarketDataBuilderTest {
     assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate().getSingleValue());
 
     for (ObservableId id : TIME_SERIES) {
-      assertTrue(snapshot.containsTimeSeries(id), "Time-series not found: " + id);
+      assertFalse(snapshot.getTimeSeries(id).isEmpty(), "Time-series not found: " + id);
     }
     assertEquals(snapshot.getTimeSeries().size(), TIME_SERIES.size(),
         Messages.format("Snapshot contained unexpected time-series: {}",

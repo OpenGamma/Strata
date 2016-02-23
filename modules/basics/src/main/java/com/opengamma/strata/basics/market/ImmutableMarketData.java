@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -106,14 +107,17 @@ public final class ImmutableMarketData
   }
 
   //-------------------------------------------------------------------------
+
   @Override
   public boolean containsValue(MarketDataKey<?> key) {
     return values.containsKey(key);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public boolean containsTimeSeries(ObservableKey key) {
-    return timeSeries.containsKey(key);
+  public <T> Optional<T> findValue(MarketDataKey<T> key) {
+    Object value = values.get(key);
+    return Optional.ofNullable((T) value);
   }
 
   @SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -121,9 +122,17 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   }
 
   //-------------------------------------------------------------------------
+
   @Override
   public boolean containsValue(MarketDataId<?> id) {
     return values.containsKey(id);
+  }
+
+  @Override
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
+    @SuppressWarnings("unchecked")
+    MarketDataBox<T> marketDataBox = (MarketDataBox<T>) values.get(id);
+    return Optional.ofNullable(marketDataBox);
   }
 
   @SuppressWarnings("unchecked")
@@ -165,11 +174,6 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
               value));
     }
     return value;
-  }
-
-  @Override
-  public boolean containsTimeSeries(ObservableId id) {
-    return timeSeries.containsKey(id);
   }
 
   @Override

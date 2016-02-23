@@ -37,8 +37,9 @@ public class MarketDataTest {
     assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
     assertThat(test.containsValue(KEY1)).isTrue();
     assertThat(test.containsValue(KEY2)).isFalse();
+    assertThat(test.findValue(KEY1)).isPresent();
+    assertThat(test.findValue(KEY2)).isEmpty();
     assertThat(test.getValue(KEY1)).isEqualTo(123d);
-    assertThat(test.containsTimeSeries(KEY2)).isFalse();
   }
 
   public void of_3arg() {
@@ -48,8 +49,9 @@ public class MarketDataTest {
     assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
     assertThat(test.containsValue(KEY1)).isTrue();
     assertThat(test.containsValue(KEY2)).isFalse();
+    assertThat(test.findValue(KEY1)).isPresent();
+    assertThat(test.findValue(KEY2)).isEmpty();
     assertThat(test.getValue(KEY1)).isEqualTo(123d);
-    assertThat(test.containsTimeSeries(KEY2)).isTrue();
     assertThat(test.getTimeSeries(KEY2)).isEqualTo(TIME_SERIES);
   }
 

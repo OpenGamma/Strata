@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -13,7 +14,6 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
@@ -88,19 +88,17 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   //-------------------------------------------------------------------------
   @Override
   public boolean containsValue(MarketDataKey<?> key) {
-    MarketDataId<?> id = marketDataMappings.getIdForKey(key);
-    return marketData.containsValue(id);
+    return marketDataMappings.containsValue(key, marketData);
+  }
+
+  @Override
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
+    return marketDataMappings.findValue(key, marketData);
   }
 
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
     return marketDataMappings.getValue(key, marketData);
-  }
-
-  @Override
-  public boolean containsTimeSeries(ObservableKey key) {
-    ObservableId id = marketDataMappings.getIdForObservableKey(key);
-    return marketData.containsTimeSeries(id);
   }
 
   @Override

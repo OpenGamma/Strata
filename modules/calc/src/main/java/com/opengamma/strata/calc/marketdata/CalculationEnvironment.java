@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -48,6 +49,14 @@ public interface CalculationEnvironment {
   public abstract boolean containsValue(MarketDataId<?> id);
 
   /**
+   * Returns a box containing values for the specified ID if available.
+   *
+   * @param id  the ID identifying the item of market data
+   * @return a box containing values for the specified ID if available
+   */
+  public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id);
+
+  /**
    * Gets a box that can provide an item of market data for a scenario.
    *
    * @param <T>  the type of the market data
@@ -75,13 +84,6 @@ public interface CalculationEnvironment {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Checks if this set of data contains a time-series for the specified ID.
-   *
-   * @param id  the ID identifying the item of market data
-   * @return true if this set of data contains a time-series for the specified ID
-   */
-  public abstract boolean containsTimeSeries(ObservableId id);
 
   /**
    * Gets the time-series identified by the specified key, empty if not found.

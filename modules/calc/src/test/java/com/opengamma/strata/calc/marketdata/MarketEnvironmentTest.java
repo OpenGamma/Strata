@@ -105,9 +105,9 @@ public class MarketEnvironmentTest {
 
     assertThat(marketData.containsValue(TEST_ID1)).isTrue();
     assertThat(marketData.containsValue(TEST_ID2)).isFalse();
+    assertThat(marketData.findValue(TEST_ID1)).isPresent();
+    assertThat(marketData.findValue(TEST_ID2)).isEmpty();
     assertThat(marketData.getValue(TEST_ID1).getSingleValue()).isEqualTo(1d);
-    assertThat(marketData.containsTimeSeries(TEST_ID1)).isFalse();
-    assertThat(marketData.containsTimeSeries(TEST_ID2)).isTrue();
     assertThat(marketData.getTimeSeries(TEST_ID2)).isEqualTo(timeSeries2);
   }
 

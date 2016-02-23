@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -120,7 +121,8 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
   @Override
   public boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData) {
     if (key instanceof ObservableKey) {
-      return marketData.containsValue(getIdForObservableKey((ObservableKey) key));
+      ObservableId observableId = ((ObservableKey) key).toMarketDataId(marketDataFeed);
+      return marketData.containsValue(observableId);
     }
     if (key instanceof SimpleMarketDataKey) {
       return marketData.containsValue(((SimpleMarketDataKey) key).toMarketDataId(marketDataFeed));
@@ -134,9 +136,23 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
     return marketData.containsValue(id);
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public boolean containsTimeSeries(ObservableKey key, CalculationEnvironment marketData) {
-    return marketData.containsTimeSeries(getIdForObservableKey(key));
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key, CalculationEnvironment marketData) {
+    if (key instanceof ObservableKey) {
+      ObservableId observableId = getIdForObservableKey((ObservableKey) key);
+      return marketData.findValue((MarketDataId<T>) observableId);
+    }
+    if (key instanceof SimpleMarketDataKey) {
+      return marketData.findValue(((SimpleMarketDataKey) key).toMarketDataId(marketDataFeed));
+    }
+    MarketDataMapping mapping = mappings.get(key.getClass());
+
+    if (mapping == null) {
+      return Optional.empty();
+    }
+    MarketDataId<T> id = mapping.getIdForKey(key);
+    return marketData.findValue(id);
   }
 
   @Override

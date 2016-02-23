@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -57,8 +59,8 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   }
 
   @Override
-  public boolean containsTimeSeries(ObservableKey key, CalculationEnvironment marketData) {
-    return false;
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key, CalculationEnvironment marketData) {
+    return Optional.empty();
   }
 
   @Override
@@ -68,6 +70,6 @@ class NoMatchingRuleMappings implements MarketDataMappings {
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key, CalculationEnvironment marketData) {
-    throw new IllegalArgumentException("No market data available for key " + key);
+    return LocalDateDoubleTimeSeries.empty();
   }
 }

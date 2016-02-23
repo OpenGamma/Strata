@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc.marketdata.mapping;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -102,12 +103,13 @@ public interface MarketDataMappings {
   public abstract <T> MarketDataBox<T> getValue(MarketDataKey<T> key, CalculationEnvironment marketData);
 
   /**
-   * Returns a time series from a calculation environment given a key identifying the data in the series.
+   * Returns a time series from a calculation environment given a key identifying the data in the series or
+   * an empty series if there is no data for the key.
    *
    * @param key  a key identifying a time series of market data
    * @param marketData  a set of market data
-   * @return a time series from the calculation environment identified by the key
-   * @throws IllegalArgumentException if there is no data available for the key
+   * @return a time series from the calculation environment identified by the key, empty if there is no data for
+   * the key
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key, CalculationEnvironment marketData);
 
@@ -129,19 +131,17 @@ public interface MarketDataMappings {
   public abstract boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData);
 
   /**
-   * Checks whether this set of mappings contains a mapping from the key to a time series of market data
-   * available in the calculation environment.
+   * Returns a market data box containing values for the specified ID if available.
    * <p>
-   * This method returns true if both of the following are true:
+   * This method returns a market data box if both of the following are true:
    * <ul>
    *   <li>A market data ID can be found for the key</li>
-   *   <li>The market data contains a time series of values for the ID</li>
+   *   <li>The market data contains a data for the ID</li>
    * </ul>
    *
    * @param key  a market data key
    * @param marketData  a set of market data
-   * @return true if this set of mappings is able to return an ID for the key and the market data contains a
-   * time series of values for the ID
+   * @return a box containing values for the specified ID if available
    */
-  public abstract boolean containsTimeSeries(ObservableKey key, CalculationEnvironment marketData);
+  public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key, CalculationEnvironment marketData);
 }

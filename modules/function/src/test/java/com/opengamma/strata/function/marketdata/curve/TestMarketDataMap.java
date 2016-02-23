@@ -7,6 +7,7 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -65,6 +66,13 @@ public final class TestMarketDataMap implements CalculationMarketData {
     return valueMap.containsKey(key);
   }
 
+  @Override
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
+    @SuppressWarnings("unchecked")
+    T value = (T) valueMap.get(key);
+    return value == null ? Optional.empty() : Optional.of(MarketDataBox.ofSingleValue(value));
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
@@ -74,11 +82,6 @@ public final class TestMarketDataMap implements CalculationMarketData {
     } else {
       throw new IllegalArgumentException("No market data for " + key);
     }
-  }
-
-  @Override
-  public boolean containsTimeSeries(ObservableKey key) {
-    return timeSeriesMap.containsKey(key);
   }
 
   @Override

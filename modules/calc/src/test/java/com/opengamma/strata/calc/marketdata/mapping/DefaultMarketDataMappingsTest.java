@@ -75,25 +75,24 @@ public class DefaultMarketDataMappingsTest {
     assertThat(mappings.containsValue(testKey, calculationEnvironment)).isTrue();
     assertThat(mappings.containsValue(testSimpleKey, calculationEnvironment)).isTrue();
     assertThat(mappings.containsValue(testObservableKey, calculationEnvironment)).isTrue();
+    assertThat(mappings.findValue(testKey, calculationEnvironment)).isPresent();
+    assertThat(mappings.findValue(testSimpleKey, calculationEnvironment)).isPresent();
+    assertThat(mappings.findValue(testObservableKey, calculationEnvironment)).isPresent();
   }
 
   public void containsMappingNoData() {
     assertThat(mappings.containsValue(testKey, CalculationEnvironment.empty())).isFalse();
     assertThat(mappings.containsValue(testSimpleKey, CalculationEnvironment.empty())).isFalse();
     assertThat(mappings.containsValue(testObservableKey, CalculationEnvironment.empty())).isFalse();
+    assertThat(mappings.findValue(testKey, CalculationEnvironment.empty())).isEmpty();
+    assertThat(mappings.findValue(testSimpleKey, CalculationEnvironment.empty())).isEmpty();
+    assertThat(mappings.findValue(testObservableKey, CalculationEnvironment.empty())).isEmpty();
   }
 
   public void containsMappingNoMarketDataMapping() {
     MarketDataMappings testMappings = DefaultMarketDataMappings.of(marketDataFeed);
     assertThat(testMappings.containsValue(testKey, calculationEnvironment)).isFalse();
-  }
-
-  public void containsTimeSeries() {
-    assertThat(mappings.containsTimeSeries(testObservableKey, calculationEnvironment)).isTrue();
-  }
-
-  public void containsTimeSeriesNoData() {
-    assertThat(mappings.containsTimeSeries(testObservableKey, CalculationEnvironment.empty())).isFalse();
+    assertThat(testMappings.findValue(testKey, calculationEnvironment)).isEmpty();
   }
 
   public void getValue() {
