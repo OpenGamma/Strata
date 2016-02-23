@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,66 +14,60 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 
 /**
  * Rate observation implementation for a price index. 
  * <p>
- * The pay-off for a unit notional is {@code (IndexEnd / IndexStart - 1)}, where
- * start index value and end index value are simply returned by {@code RatesProvider}.
+ * The pay-off for a unit notional is {@code (IndexEnd / IndexStart)}, where
+ * the start index value is given by  {@code InflationEndMonthRateObservation}
+ * and the end index value is returned by {@code RatesProvider}.
  */
-public class ForwardInflationMonthlyRateObservationFn
-    implements RateObservationFn<InflationMonthlyRateObservation> {
+public class ForwardInflationEndMonthRateObservationFn
+    implements RateObservationFn<InflationEndMonthRateObservation> {
 
   /**
    * Default instance.
    */
-  public static final ForwardInflationMonthlyRateObservationFn DEFAULT =
-      new ForwardInflationMonthlyRateObservationFn();
+  public static final ForwardInflationEndMonthRateObservationFn DEFAULT =
+      new ForwardInflationEndMonthRateObservationFn();
 
   /**
    * Creates an instance.
    */
-  public ForwardInflationMonthlyRateObservationFn() {
+  public ForwardInflationEndMonthRateObservationFn() {
   }
 
   //-------------------------------------------------------------------------
   @Override
   public double rate(
-      InflationMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
     double indexEnd = values.value(observation.getReferenceEndMonth());
-    return indexEnd / indexStart - 1d;
+    return indexEnd / observation.getStartIndexValue() - 1;
   }
 
   @Override
   public PointSensitivityBuilder rateSensitivity(
-      InflationMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider) {
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
-    double indexEnd = values.value(observation.getReferenceEndMonth());
-    double indexStartInv = 1d / indexStart;
-    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getReferenceStartMonth())
-        .multipliedBy(-indexEnd * indexStartInv * indexStartInv);
-    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getReferenceEndMonth())
-        .multipliedBy(indexStartInv);
-    return sensi1.combinedWith(sensi2);
+    return values.valuePointSensitivity(observation.getReferenceEndMonth())
+        .multipliedBy(1d / observation.getStartIndexValue());
   }
 
   @Override
   public double explainRate(
-      InflationMonthlyRateObservation observation,
+      InflationEndMonthRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       RatesProvider provider,
@@ -81,14 +75,7 @@ public class ForwardInflationMonthlyRateObservationFn
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
     double indexEnd = values.value(observation.getReferenceEndMonth());
-
-    builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
-        .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, observation.getReferenceStartMonth().atEndOfMonth())
-        .put(ExplainKey.INDEX, index)
-        .put(ExplainKey.INDEX_VALUE, indexStart));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
         .put(ExplainKey.FIXING_DATE, observation.getReferenceEndMonth().atEndOfMonth())

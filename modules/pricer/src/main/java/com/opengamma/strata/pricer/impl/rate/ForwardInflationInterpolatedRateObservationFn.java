@@ -80,13 +80,11 @@ public class ForwardInflationInterpolatedRateObservationFn
     double w2 = 1d - w1;
     double indexStartInv = 1d / interpolatedIndex(values, startMonth, startInterpolationMonth, w1, w2);
     double indexEnd = interpolatedIndex(values, endMonth, endInterpolationMonth, w1, w2);
-    PointSensitivityBuilder indexStartSensitivity =
-        interpolatedIndexSensitivity(values, startMonth, startInterpolationMonth, w1, w2);
-    PointSensitivityBuilder indexEndSensitivity =
-        interpolatedIndexSensitivity(values, endMonth, endInterpolationMonth, w1, w2);
-    indexEndSensitivity = indexEndSensitivity.multipliedBy(indexStartInv);
-    indexStartSensitivity = indexStartSensitivity.multipliedBy(-indexEnd * indexStartInv * indexStartInv);
-    return indexStartSensitivity.combinedWith(indexEndSensitivity);
+    PointSensitivityBuilder sensi1 = interpolatedSensitivity(values, startMonth, startInterpolationMonth, w1, w2)
+        .multipliedBy(-indexEnd * indexStartInv * indexStartInv);
+    PointSensitivityBuilder sensi2 = interpolatedSensitivity(values, endMonth, endInterpolationMonth, w1, w2)
+        .multipliedBy(indexStartInv);
+    return sensi1.combinedWith(sensi2);
   }
 
   @Override
@@ -150,7 +148,7 @@ public class ForwardInflationInterpolatedRateObservationFn
   }
 
   // calculate the interpolates sensitivity
-  private PointSensitivityBuilder interpolatedIndexSensitivity(
+  private PointSensitivityBuilder interpolatedSensitivity(
       PriceIndexValues values,
       YearMonth month1,
       YearMonth month2,

@@ -31,6 +31,8 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 
@@ -58,7 +60,7 @@ public class InflationRateCalculationTest {
       .frequency(Frequency.P1M)
       .rollConvention(RollConventions.DAY_5)
       .build();
-
+  private static final double START_INDEX = 325d;
   private static final ValueSchedule GEARING =
       ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofReplace(2d)));
 
@@ -198,6 +200,45 @@ public class InflationRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createRateObservation_Monthly() {
+    InflationRateCalculation test = InflationRateCalculation.builder()
+        .index(GB_HICP)
+        .lag(Period.ofMonths(3))
+        .interpolated(false)
+        .build();
+    InflationEndMonthRateObservation obs1 = InflationEndMonthRateObservation.of(
+        GB_HICP, START_INDEX, YearMonth.from(DATE_2015_01_06).minusMonths(3));
+    InflationEndMonthRateObservation obs2 = InflationEndMonthRateObservation.of(
+        GB_HICP, START_INDEX, YearMonth.from(DATE_2016_01_07).minusMonths(3));
+    InflationEndMonthRateObservation obs3 = InflationEndMonthRateObservation.of(
+        GB_HICP, START_INDEX, YearMonth.from(DATE_2017_01_05).minusMonths(3));
+    assertEquals(test.createRateObservation(DATE_2015_01_06, START_INDEX), obs1);
+    assertEquals(test.createRateObservation(DATE_2016_01_07, START_INDEX), obs2);
+    assertEquals(test.createRateObservation(DATE_2017_01_05, START_INDEX), obs3);
+  }
+
+  @Test
+  public void test_createRateObservation_Interpolated() {
+    InflationRateCalculation test = InflationRateCalculation.builder()
+        .index(CH_CPI)
+        .lag(Period.ofMonths(3))
+        .interpolated(true)
+        .build();
+    double weight1 = 1.0 - 5.0 / 31.0;
+    double weight2 = 1.0 - 6.0 / 31.0;
+    double weight3 = 1.0 - 4.0 / 31.0;
+    InflationEndInterpolatedRateObservation obs1 = InflationEndInterpolatedRateObservation.of(
+        CH_CPI, START_INDEX, YearMonth.from(DATE_2015_01_06).minusMonths(3), weight1);
+    InflationEndInterpolatedRateObservation obs2 = InflationEndInterpolatedRateObservation.of(
+        CH_CPI, START_INDEX, YearMonth.from(DATE_2016_01_07).minusMonths(3), weight2);
+    InflationEndInterpolatedRateObservation obs3 = InflationEndInterpolatedRateObservation.of(
+        CH_CPI, START_INDEX, YearMonth.from(DATE_2017_01_05).minusMonths(3), weight3);
+    assertEquals(test.createRateObservation(DATE_2015_01_06, START_INDEX), obs1);
+    assertEquals(test.createRateObservation(DATE_2016_01_07, START_INDEX), obs2);
+    assertEquals(test.createRateObservation(DATE_2017_01_05, START_INDEX), obs3);
   }
 
   //-------------------------------------------------------------------------
