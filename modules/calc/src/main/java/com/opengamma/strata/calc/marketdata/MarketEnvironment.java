@@ -122,6 +122,12 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   }
 
   //-------------------------------------------------------------------------
+
+  @Override
+  public boolean containsValue(MarketDataId<?> id) {
+    return values.containsKey(id);
+  }
+
   @Override
   public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
     @SuppressWarnings("unchecked")

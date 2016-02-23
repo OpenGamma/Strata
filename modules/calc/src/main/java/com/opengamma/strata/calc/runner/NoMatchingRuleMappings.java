@@ -54,6 +54,11 @@ class NoMatchingRuleMappings implements MarketDataMappings {
   }
 
   @Override
+  public boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData) {
+    return false;
+  }
+
+  @Override
   public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key, CalculationEnvironment marketData) {
     return Optional.empty();
   }

@@ -41,6 +41,14 @@ public interface CalculationEnvironment {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this set of data contains a value for the specified ID.
+   *
+   * @param id  the ID identifying the item of market data
+   * @return true if this set of data contains a value for the specified ID and it is of the expected type
+   */
+  public abstract boolean containsValue(MarketDataId<?> id);
+
+  /**
    * Returns a box containing values for the specified ID if available.
    *
    * @param id  the ID identifying the item of market data

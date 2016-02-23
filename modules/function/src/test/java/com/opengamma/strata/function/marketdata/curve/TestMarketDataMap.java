@@ -62,6 +62,11 @@ public final class TestMarketDataMap implements CalculationMarketData {
   }
 
   @Override
+  public boolean containsValue(MarketDataKey<?> key) {
+    return valueMap.containsKey(key);
+  }
+
+  @Override
   public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
     @SuppressWarnings("unchecked")
     T value = (T) valueMap.get(key);

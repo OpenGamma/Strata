@@ -117,7 +117,24 @@ public final class DefaultMarketDataMappings implements MarketDataMappings, Immu
     return key.toMarketDataId(marketDataFeed);
   }
 
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData) {
+    if (key instanceof ObservableKey) {
+      ObservableId observableId = ((ObservableKey) key).toMarketDataId(marketDataFeed);
+      return marketData.containsValue(observableId);
+    }
+    if (key instanceof SimpleMarketDataKey) {
+      return marketData.containsValue(((SimpleMarketDataKey) key).toMarketDataId(marketDataFeed));
+    }
+    MarketDataMapping mapping = mappings.get(key.getClass());
 
+    if (mapping == null) {
+      return false;
+    }
+    MarketDataId<?> id = mapping.getIdForKey(key);
+    return marketData.containsValue(id);
+  }
 
   @SuppressWarnings("rawtypes")
   @Override

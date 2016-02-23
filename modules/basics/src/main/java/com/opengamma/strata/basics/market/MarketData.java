@@ -50,6 +50,7 @@ public interface MarketData {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the valuation date of the market data.
    * <p>
@@ -60,6 +61,15 @@ public interface MarketData {
   public abstract LocalDate getValuationDate();
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Checks if this set of data contains a value for the specified key.
+   *
+   * @param key  the key identifying the item of market data
+   * @return true if this set of data contains a value for the specified key
+   */
+  public abstract boolean containsValue(MarketDataKey<?> key);
+
   /**
    * Returns a value for the specified ID if available.
    *

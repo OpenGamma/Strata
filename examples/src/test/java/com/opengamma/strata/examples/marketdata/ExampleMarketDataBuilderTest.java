@@ -250,7 +250,7 @@ public class ExampleMarketDataBuilderTest {
             Sets.difference(snapshot.getTimeSeries().keySet(), TIME_SERIES)));
 
     for (MarketDataId<?> id : VALUES) {
-      assertTrue(snapshot.findValue(id).isPresent(), "Id not found: " + id);
+      assertTrue(snapshot.containsValue(id), "Id not found: " + id);
     }
     MarketDataBox<CurveGroup> curveGroupBox = snapshot.getValue(CurveGroupId.of(DEFAULT_CURVE_GROUP));
     assertTrue(curveGroupBox.isSingleValue());

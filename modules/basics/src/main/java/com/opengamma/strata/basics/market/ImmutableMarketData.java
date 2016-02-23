@@ -108,6 +108,11 @@ public final class ImmutableMarketData
 
   //-------------------------------------------------------------------------
 
+  @Override
+  public boolean containsValue(MarketDataKey<?> key) {
+    return values.containsKey(key);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> Optional<T> findValue(MarketDataKey<T> key) {

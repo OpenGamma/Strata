@@ -114,7 +114,30 @@ public interface MarketDataMappings {
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key, CalculationEnvironment marketData);
 
   /**
-   * Returns a box containing values for the specified ID if available.
+   * Checks whether this set of mappings contains a mapping from the key to a piece of market data
+   * available in the calculation environment.
+   * <p>
+   * This method returns true if both of the following are true:
+   * <ul>
+   *   <li>A market data ID can be found for the key</li>
+   *   <li>The market data contains a value for the ID</li>
+   * </ul>
+   *
+   * @param key  a market data key
+   * @param marketData  a set of market data
+   * @return true if this set of mappings is able to return an ID for the key and the market data contains a
+   * value for the ID
+   */
+  public abstract boolean containsValue(MarketDataKey<?> key, CalculationEnvironment marketData);
+
+  /**
+   * Returns a market data box containing values for the specified ID if available.
+   * <p>
+   * This method returns a market data box if both of the following are true:
+   * <ul>
+   *   <li>A market data ID can be found for the key</li>
+   *   <li>The market data contains a data for the ID</li>
+   * </ul>
    *
    * @param key  a market data key
    * @param marketData  a set of market data

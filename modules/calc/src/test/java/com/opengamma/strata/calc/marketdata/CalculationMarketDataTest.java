@@ -131,6 +131,11 @@ public class CalculationMarketDataTest {
     }
 
     @Override
+    public boolean containsValue(MarketDataKey<?> key) {
+      throw new UnsupportedOperationException("containsValue(MarketDataKey) not implemented");
+    }
+
+    @Override
     public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
       throw new UnsupportedOperationException("findValue not implemented");
     }

@@ -80,6 +80,14 @@ public interface CalculationMarketData {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this set of data contains a value for the specified key.
+   *
+   * @param key  the key identifying the item of market data
+   * @return true if this set of data contains a value for the specified key
+   */
+  public abstract boolean containsValue(MarketDataKey<?> key);
+
+  /**
    * Returns a box containing values for the specified ID if available.
    *
    * @param key  the key identifying the item of market data

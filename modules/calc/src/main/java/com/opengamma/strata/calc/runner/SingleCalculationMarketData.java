@@ -60,6 +60,11 @@ public final class SingleCalculationMarketData implements MarketData {
   }
 
   @Override
+  public boolean containsValue(MarketDataKey<?> key) {
+    return marketData.containsValue(key);
+  }
+
+  @Override
   public <T> Optional<T> findValue(MarketDataKey<T> key) {
     Optional<MarketDataBox<T>> optionalBox = marketData.findValue(key);
     return optionalBox.map(box -> box.getValue(scenarioIndex));

@@ -103,6 +103,8 @@ public class MarketEnvironmentTest {
         .build()
         .filter(requirements);
 
+    assertThat(marketData.containsValue(TEST_ID1)).isTrue();
+    assertThat(marketData.containsValue(TEST_ID2)).isFalse();
     assertThat(marketData.findValue(TEST_ID1)).isPresent();
     assertThat(marketData.findValue(TEST_ID2)).isEmpty();
     assertThat(marketData.getValue(TEST_ID1).getSingleValue()).isEqualTo(1d);

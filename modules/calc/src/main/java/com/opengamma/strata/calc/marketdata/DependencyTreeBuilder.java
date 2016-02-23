@@ -169,7 +169,7 @@ class DependencyTreeBuilder {
       case TIME_SERIES:
         return (id instanceof ObservableId) && !suppliedData.getTimeSeries((ObservableId) id).isEmpty();
       case SINGLE_VALUE:
-        return suppliedData.findValue(id).isPresent();
+        return suppliedData.containsValue(id);
       default:
         throw new IllegalArgumentException("Unexpected data type " + dataType);
     }
