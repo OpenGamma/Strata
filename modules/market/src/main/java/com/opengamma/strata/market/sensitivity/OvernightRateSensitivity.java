@@ -87,7 +87,7 @@ public final class OvernightRateSensitivity
    * @return the point sensitivity object
    */
   public static OvernightRateSensitivity of(OvernightIndex index, LocalDate fixingDate, double sensitivity) {
-    LocalDate endDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(fixingDate));
+    LocalDate endDate = index.calculateMaturityFromFixing(fixingDate);
     return OvernightRateSensitivity.of(index, fixingDate, endDate, index.getCurrency(), sensitivity);
   }
 

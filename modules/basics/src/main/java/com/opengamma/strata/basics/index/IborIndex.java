@@ -117,6 +117,20 @@ public interface IborIndex
   public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate);
 
   /**
+   * Calculates the maturity date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The maturity date is the date on which the implied deposit ends.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @return the maturity date
+   */
+  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate);
+
+  /**
    * Calculates the fixing date from the effective date.
    * <p>
    * The fixing date is the date on which the index is to be observed.

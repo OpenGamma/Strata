@@ -110,7 +110,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate endFixingDateP1 = observation.getEndDate();
     LocalDate endFixingDate = calendar.previous(endFixingDateP1);
-    LocalDate onRateEndDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(endFixingDate));
+    LocalDate onRateEndDate = index.calculateMaturityFromFixing(endFixingDate);
     LocalDate onRateStartDate = index.calculateEffectiveFromFixing(startFixingDate);
     LocalDate onRateNoCutOffEndDate = onRateEndDate;
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
@@ -147,7 +147,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate endFixingDateP1 = observation.getEndDate();
     LocalDate endFixingDate = calendar.previous(endFixingDateP1);
-    LocalDate onRateEndDate = index.calculateMaturityFromEffective(index.calculateEffectiveFromFixing(endFixingDate));
+    LocalDate onRateEndDate = index.calculateMaturityFromFixing(endFixingDate);
     LocalDate onRateStartDate = index.calculateEffectiveFromFixing(startFixingDate);
     LocalDate onRateNoCutOffEndDate = onRateEndDate;
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;

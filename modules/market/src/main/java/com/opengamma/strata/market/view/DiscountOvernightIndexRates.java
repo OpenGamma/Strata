@@ -169,8 +169,7 @@ public final class DiscountOvernightIndexRates
         (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    LocalDate fixingEndDate = index.calculateMaturityFromFixing(fixingDate);
     return OvernightRateSensitivity.of(index, fixingDate, fixingEndDate, index.getCurrency(), 1d);
   }
 

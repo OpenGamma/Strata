@@ -61,7 +61,7 @@ public class OvernightRateSensitivityTest {
     OvernightRateSensitivity base = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), 32d);
     assertSame(base.withCurrency(GBP), base);
 
-    LocalDate mat = GBP_SONIA.calculateMaturityFromEffective(GBP_SONIA.calculateEffectiveFromFixing(date(2015, 8, 27)));
+    LocalDate mat = GBP_SONIA.calculateMaturityFromFixing(date(2015, 8, 27));
     OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA, date(2015, 8, 27), mat, USD, 32d);
     OvernightRateSensitivity test = base.withCurrency(USD);
     assertEquals(test, expected);

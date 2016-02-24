@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An overnight index, such as Sonia or Eonia.
@@ -99,75 +98,28 @@ public final class ImmutableOvernightIndex
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the publication date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The publication date is the date on which the fixed rate is actually published.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the publication date
-   */
   @Override
   public LocalDate calculatePublicationFromFixing(LocalDate fixingDate) {
-    ArgChecker.notNull(fixingDate, "fixingDate");
     return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), publicationDateOffset);
   }
 
-  /**
-   * Calculates the effective date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the effective date
-   */
   @Override
   public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
-    ArgChecker.notNull(fixingDate, "fixingDate");
     return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset);
   }
 
-  /**
-   * Calculates the fixing date from the effective date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the fixing date
-   */
+  @Override
+  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset + 1);
+  }
+
   @Override
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
-    ArgChecker.notNull(effectiveDate, "effectiveDate");
     return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -effectiveDateOffset);
   }
 
-  /**
-   * Calculates the maturity date from the effective date.
-   * <p>
-   * The effective date is the date on which the implied deposit starts.
-   * The maturity date is the date on which the implied deposit ends.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the maturity date
-   */
   @Override
   public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
-    ArgChecker.notNull(effectiveDate, "effectiveDate");
     return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), 1);
   }
 

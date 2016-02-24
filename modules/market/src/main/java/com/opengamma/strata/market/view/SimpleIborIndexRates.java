@@ -188,8 +188,7 @@ public final class SimpleIborIndexRates
 
   @Override
   public double rateIgnoringTimeSeries(LocalDate fixingDate) {
-    LocalDate effective = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate maturity = index.calculateMaturityFromEffective(effective);
+    LocalDate maturity = index.calculateMaturityFromFixing(fixingDate);
     double relativeYearFraction = relativeYearFraction(maturity);
     return curve.yValue(relativeYearFraction);
   }
@@ -212,8 +211,7 @@ public final class SimpleIborIndexRates
   @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
     LocalDate fixingDate = pointSensitivity.getFixingDate();
-    LocalDate effective = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate maturity = index.calculateMaturityFromEffective(effective);
+    LocalDate maturity = index.calculateMaturityFromFixing(fixingDate);
     double relativeYearFraction = relativeYearFraction(maturity);
     CurveUnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
     CurveCurrencyParameterSensitivity sensitivity =  
