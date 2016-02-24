@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -206,7 +205,7 @@ public final class OvernightRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateObservation(createRateObservation(period, paymentSchedule))
+          .rateObservation(createRateObservation(period, paymentSchedule, refData))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -216,14 +215,14 @@ public final class OvernightRateCalculation
   }
 
   // creates the rate observation
-  private RateObservation createRateObservation(SchedulePeriod period, Schedule paymentSchedule) {
+  private RateObservation createRateObservation(SchedulePeriod period, Schedule paymentSchedule, ReferenceData refData) {
     int effectiveRateCutOffDaysOffset = (isLastAccrualInPaymentPeriod(period, paymentSchedule) ? rateCutOffDays : 0);
-    LocalDate startDate = index.calculateFixingFromEffective(period.getStartDate());
-    LocalDate endDate = index.calculateFixingFromEffective(period.getEndDate());
     if (accrualMethod == OvernightAccrualMethod.AVERAGED) {
-      return OvernightAveragedRateObservation.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+      return OvernightAveragedRateObservation.of(
+          index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
     } else {
-      return OvernightCompoundedRateObservation.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+      return OvernightCompoundedRateObservation.of(
+          index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
     }
   }
 

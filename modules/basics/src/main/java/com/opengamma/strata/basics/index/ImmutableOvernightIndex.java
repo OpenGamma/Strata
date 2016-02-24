@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * An overnight index, such as Sonia or Eonia.
@@ -87,39 +87,28 @@ public final class ImmutableOvernightIndex
   private final DayCount dayCount;
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the tenor of the index, which is always one day.
-   * 
-   * @return the one day tenor
-   */
   @Override
-  public Tenor getTenor() {
-    return Tenor.TENOR_1D;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public LocalDate calculatePublicationFromFixing(LocalDate fixingDate) {
+  public LocalDate calculatePublicationFromFixing(LocalDate fixingDate, ReferenceData refData) {
     return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), publicationDateOffset);
   }
 
   @Override
-  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
+  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData) {
     return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset);
   }
 
   @Override
-  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
+  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
     return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset + 1);
   }
 
   @Override
-  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
+  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -effectiveDateOffset);
   }
 
   @Override
-  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
+  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), 1);
   }
 

@@ -160,7 +160,7 @@ public class DispatchingRateObservationFnTest {
     double mockRate = 0.0123d;
     RateObservationFn<OvernightCompoundedRateObservation> mockOnCpd = mock(RateObservationFn.class);
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     when(mockOnCpd.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
@@ -180,7 +180,7 @@ public class DispatchingRateObservationFnTest {
     double mockRate = 0.0123d;
     RateObservationFn<OvernightAveragedRateObservation> mockOnAve = mock(RateObservationFn.class);
     OvernightAveragedRateObservation ro =
-        OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+        OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     when(mockOnAve.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV))
         .thenReturn(mockRate);
     DispatchingRateObservationFn test = new DispatchingRateObservationFn(
@@ -312,9 +312,9 @@ public class DispatchingRateObservationFnTest {
     IborAveragedRateObservation iborAvg =
         IborAveragedRateObservation.of(ImmutableList.of(IborAveragedFixing.of(ibor)));
     OvernightCompoundedRateObservation onCpd =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     OvernightAveragedRateObservation onAvg =
-        OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+        OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     InflationMonthlyRateObservation inflationMonthly =
         InflationMonthlyRateObservation.of(US_CPI_U, ACCRUAL_START_MONTH, ACCRUAL_END_MONTH);
     InflationInterpolatedRateObservation inflationInterp =
