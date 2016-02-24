@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -40,6 +41,7 @@ import com.opengamma.strata.basics.value.ValueStep;
 @Test
 public class KnownAmountSwapLegTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
@@ -105,7 +107,7 @@ public class KnownAmountSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     // test case
     KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
         .payReceive(PAY)
@@ -144,7 +146,7 @@ public class KnownAmountSwapLegTest {
         .unadjustedEndDate(DATE_04_05)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)

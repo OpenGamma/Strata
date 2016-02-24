@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,29 +13,27 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test.
+ * Test {@link ResolvedSwapTrade}.
  */
 @Test
-public class SwapTradeTest {
+public class ResolvedSwapTradeTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final ResolvedSwap SWAP1 = ResolvedSwap.of(ResolvedSwapTest.LEG1, ResolvedSwapTest.LEG2);
+  private static final ResolvedSwap SWAP2 = ResolvedSwap.of(ResolvedSwapTest.LEG1);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
-  private static final Swap SWAP1 = Swap.of(MockSwapLeg.MOCK_GBP1, MockSwapLeg.MOCK_USD1);
-  private static final Swap SWAP2 = Swap.of(MockSwapLeg.MOCK_GBP1);
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SwapTrade test = SwapTrade.of(TRADE_INFO, SWAP1);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    ResolvedSwapTrade test = ResolvedSwapTrade.of(TRADE_INFO, SWAP1);
     assertEquals(test.getProduct(), SWAP1);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
-    SwapTrade test = SwapTrade.builder()
+    ResolvedSwapTrade test = ResolvedSwapTrade.builder()
         .product(SWAP1)
         .build();
     assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
@@ -43,28 +41,21 @@ public class SwapTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_resolve() {
-    SwapTrade test = SwapTrade.of(TRADE_INFO, SWAP1);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
-    assertEquals(test.resolve(REF_DATA).getProduct(), SWAP1.resolve(REF_DATA));
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
-    SwapTrade test = SwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+    ResolvedSwapTrade test = ResolvedSwapTrade.builder()
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();
     coverImmutableBean(test);
-    SwapTrade test2 = SwapTrade.builder()
+    ResolvedSwapTrade test2 = ResolvedSwapTrade.builder()
         .product(SWAP2)
         .build();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    SwapTrade test = SwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+    ResolvedSwapTrade test = ResolvedSwapTrade.builder()
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();
     assertSerialization(test);

@@ -67,8 +67,9 @@ public class TradeCalibrationMeasure<T extends Trade>
       TradeCalibrationMeasure.of(
           "SwapParSpreadDiscounting",
           SwapTrade.class,
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p).build());
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpread(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpreadSensitivity(
+              trade.getProduct().resolve(REF_DATA), p).build());
 
   /**
    * The calibrator for {@link IborFixingDepositTrade} using par spread discounting.

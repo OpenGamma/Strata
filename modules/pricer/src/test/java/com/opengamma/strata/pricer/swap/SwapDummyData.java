@@ -33,7 +33,7 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FxReset;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
@@ -142,7 +142,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg (ibor).
    */
-  public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC_GBP = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC_GBP = ResolvedSwapLeg.builder()
       .type(IBOR)
       .payReceive(RECEIVE)
       .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD_REC_GBP)
@@ -151,7 +151,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg (ibor).
    */
-  public static final ExpandedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC_GBP_MULTI = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg IBOR_EXPANDED_SWAP_LEG_REC_GBP_MULTI = ResolvedSwapLeg.builder()
       .type(IBOR)
       .payReceive(RECEIVE)
       .paymentPeriods(IBOR_RATE_PAYMENT_PERIOD_REC_GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2)
@@ -254,7 +254,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg (GBP - fixed - receiver).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(RECEIVE)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_REC_GBP)
@@ -263,7 +263,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg (GBP - fixed - payer).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_GBP)
@@ -302,7 +302,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg  (USD - fixed - receiver).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC_USD = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_EXPANDED_SWAP_LEG_REC_USD = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(RECEIVE)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_REC_USD)
@@ -310,7 +310,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg  (USD - fixed - receiver).
    */
-  public static final ExpandedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY_USD = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_EXPANDED_SWAP_LEG_PAY_USD = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_PAY_USD)
@@ -319,7 +319,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg  (USD - fixed - receiver - FX reset).
    */
-  public static final ExpandedSwapLeg FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_FX_RESET_EXPANDED_SWAP_LEG_PAY_GBP = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(FIXED_RATE_PAYMENT_FX_RESET_PERIOD_PAY_GBP)
@@ -328,7 +328,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg  (GBP - fixed - receiver - compounding).
    */
-  public static final ExpandedSwapLeg FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_CMP_NONE_EXPANDED_SWAP_LEG_PAY_GBP = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_CMP_NONE_REC_GBP)
@@ -336,7 +336,7 @@ public final class SwapDummyData {
   /**
    * ExpandedSwapLeg  (GBP - fixed - receiver - compounding).
    */
-  public static final ExpandedSwapLeg FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_CMP_FLAT_EXPANDED_SWAP_LEG_PAY_GBP = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP)

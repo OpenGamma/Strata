@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -28,7 +29,7 @@ import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -103,15 +104,15 @@ public class SwapTradeModelDemo {
                 ValueStep.of(LocalDate.of(2015, 1, 31), ValueAdjustment.ofReplace(0.007))))
             .build())
         .build();
-    // an ExpandedSwapLeg has all the dates of the cash flows
+    // a ResolvedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
-    ExpandedSwapLeg expandedLeg = swapLeg.expand();
+    ResolvedSwapLeg resolvedLeg = swapLeg.resolve(ReferenceData.standard());
 
     System.out.println("===== Fixed =====");
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
-    System.out.println("===== Fixed expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
+    System.out.println("===== Fixed resolved =====");
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(resolvedLeg));
     System.out.println();
   }
 
@@ -159,15 +160,15 @@ public class SwapTradeModelDemo {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.GBLO))
             .build())
         .build();
-    // an ExpandedSwapLeg has all the dates of the cash flows
+    // a ResolvedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
-    ExpandedSwapLeg expandedLeg = swapLeg.expand();
+    ResolvedSwapLeg resolvedLeg = swapLeg.resolve(ReferenceData.standard());
 
     System.out.println("===== Floating =====");
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
-    System.out.println("===== Floating expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
+    System.out.println("===== Floating resolved =====");
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(resolvedLeg));
     System.out.println();
   }
 
@@ -226,10 +227,10 @@ public class SwapTradeModelDemo {
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m pay leg =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(payLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(payLeg.resolve(ReferenceData.standard())));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m receive leg =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(receiveLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(receiveLeg.resolve(ReferenceData.standard())));
     System.out.println();
   }
 

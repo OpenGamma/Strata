@@ -150,8 +150,6 @@ public class ThreeLegBasisSwapCurveNodeTest {
     ThreeLegBasisSwapCurveNode node =
         ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    SwapTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
-    trade.getProduct().expand();
     LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), fixingExpected);

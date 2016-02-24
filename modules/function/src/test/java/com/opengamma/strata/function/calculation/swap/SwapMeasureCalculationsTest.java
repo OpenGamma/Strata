@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
@@ -21,6 +22,8 @@ import com.opengamma.strata.pricer.swap.SwapDummyData;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -31,20 +34,21 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class SwapMeasureCalculationsTest {
 
-  private static final SwapTrade SWAP_TRADE = SwapDummyData.SWAP_TRADE;
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final ResolvedSwapTrade RSWAP_TRADE = SwapDummyData.SWAP_TRADE.resolve(REF_DATA);
 
   public void test_bothLegsPreExpanded() {
-    SwapLeg firstLeg = SWAP_TRADE.getProduct().getLegs().get(0);
-    SwapLeg secondLeg = SWAP_TRADE.getProduct().getLegs().get(1);
+    ResolvedSwapLeg firstLeg = RSWAP_TRADE.getProduct().getLegs().get(0);
+    ResolvedSwapLeg secondLeg = RSWAP_TRADE.getProduct().getLegs().get(1);
     Currency ccy = firstLeg.getCurrency();
-    RatePaymentPeriod firstPaymentPeriod = (RatePaymentPeriod) firstLeg.expand().getPaymentPeriods().get(0);
+    RatePaymentPeriod firstPaymentPeriod = (RatePaymentPeriod) firstLeg.getPaymentPeriods().get(0);
     double notional = firstPaymentPeriod.getNotional();
 
     LegAmounts expected = LegAmounts.of(
         SwapLegAmount.of(firstLeg, CurrencyAmount.of(ccy, notional)),
         SwapLegAmount.of(secondLeg, CurrencyAmount.of(ccy, notional)));
 
-    assertThat(SwapMeasureCalculations.calculateLegInitialNotional(SWAP_TRADE)).isEqualTo(expected);
+    assertThat(SwapMeasureCalculations.calculateLegInitialNotional(RSWAP_TRADE)).isEqualTo(expected);
   }
 
   public void test_bothLegsParameterized() {
@@ -56,7 +60,7 @@ public class SwapMeasureCalculationsTest {
         .amount(ValueSchedule.of(1000d))
         .build();
     RateCalculationSwapLeg secondLeg = SwapDummyData.IBOR_RATECALC_SWAP_LEG;
-    SwapTrade trade = SwapTrade.builder().product(Swap.of(firstLeg, secondLeg)).build();
+    ResolvedSwapTrade trade = SwapTrade.builder().product(Swap.of(firstLeg, secondLeg)).build().resolve(REF_DATA);
 
     double notional = secondLeg.getNotionalSchedule().getAmount().getInitialValue();
     LegAmounts expected = LegAmounts.of(
@@ -74,7 +78,7 @@ public class SwapMeasureCalculationsTest {
         .currency(GBP)
         .amount(ValueSchedule.of(1000d))
         .build();
-    SwapTrade trade = SwapTrade.builder().product(Swap.of(leg, leg)).build();
+    ResolvedSwapTrade trade = SwapTrade.builder().product(Swap.of(leg, leg)).build().resolve(REF_DATA);
 
     assertThrowsIllegalArg(() -> SwapMeasureCalculations.calculateLegInitialNotional(trade));
   }

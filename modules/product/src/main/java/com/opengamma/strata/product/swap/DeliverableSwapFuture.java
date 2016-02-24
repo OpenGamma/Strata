@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 
@@ -39,6 +40,9 @@ import com.opengamma.strata.product.Product;
 @BeanDefinition
 public final class DeliverableSwapFuture
     implements Product, ImmutableBean, Serializable {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * The notional of the futures. 
@@ -79,7 +83,7 @@ public final class DeliverableSwapFuture
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {
         ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "underlying must be receiver swap");
       }
-      ExpandedSwapLeg expandedSwapLeg = swapLeg.expand();
+      ResolvedSwapLeg expandedSwapLeg = swapLeg.resolve(REF_DATA);
       for (PaymentEvent event : expandedSwapLeg.getPaymentEvents()) {
         ArgChecker.isTrue(event instanceof NotionalExchange, "PaymentEvent must be NotionalExchange");
         NotionalExchange notioanlEvent = (NotionalExchange) event;

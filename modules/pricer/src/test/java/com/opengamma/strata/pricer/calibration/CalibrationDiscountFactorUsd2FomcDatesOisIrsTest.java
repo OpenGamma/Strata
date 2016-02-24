@@ -83,6 +83,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositConvention;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
@@ -362,7 +363,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
-          ((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
+          ((SwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -384,7 +385,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
-          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result);
+          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -412,19 +413,19 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     double rate = 0.0400;
     SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.createTrade(VAL_DATE_BD, Period.ofMonths(6),
         Tenor.TENOR_7Y, BuySell.BUY, notional, rate);
-    ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, ts);
-    PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(trade.getProduct(), result);
+    ImmutableRatesProvider result = CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, ts);
+    ResolvedSwap product = trade.getProduct().resolve(REF_DATA);
+    PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(product, result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts.build());
     CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);
-    double pv0 = SWAP_PRICER.presentValue(trade.getProduct(), result).getAmount(USD).getAmount();
+    double pv0 = SWAP_PRICER.presentValue(product, result).getAmount(USD).getAmount();
     double[] mqsDscComputed = mqs.getSensitivity(DSCON_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < DSC_NB_NODES; i++) {
       Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES_BD.getValues());
       map.put(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])), DSC_MARKET_QUOTES[i] + shift);
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE_BD, map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
-      double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
+      double pvS = SWAP_PRICER.presentValue(product, rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA);
     }
     double[] mqsFwd3Computed = mqs.getSensitivity(FWD3_CURVE_NAME, USD).getSensitivity().toArray();
@@ -433,7 +434,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
       map.put(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i] + shift);
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE_BD, map);
       ImmutableRatesProvider rpShifted = calibrator.apply(marketData);
-      double pvS = SWAP_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
+      double pvS = SWAP_PRICER.presentValue(product, rpShifted).getAmount(USD).getAmount();
       assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA);
     }
   }

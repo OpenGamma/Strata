@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -38,6 +39,7 @@ import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swaption.CashSettlement;
@@ -51,6 +53,7 @@ import com.opengamma.strata.product.swaption.Swaption;
 @Test
 public class NormalSwaptionCashParYieldProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VAL_DATE.minusYears(1);
@@ -64,8 +67,10 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   private static final double NOTIONAL = 100_000_000;
   private static final Swap SWAP_REC = USD_FIXED_6M_LIBOR_3M
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, NOTIONAL, STRIKE).getProduct();
+  private static final ResolvedSwap RSWAP_REC = SWAP_REC.resolve(REF_DATA);
   private static final Swap SWAP_PAY = USD_FIXED_6M_LIBOR_3M
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, BUY, NOTIONAL, STRIKE).getProduct();
+  private static final ResolvedSwap RSWAP_PAY = SWAP_PAY.resolve(REF_DATA);
   private static final Swap SWAP_REC_PAST = USD_FIXED_6M_LIBOR_3M // Only for checks; no actual computation on that swap
       .toTrade(SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE, SWAPTION_PAST_EXERCISE_DATE.plusYears(10),
           SELL, NOTIONAL, STRIKE).getProduct();
@@ -162,8 +167,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   public void test_presentValue() {
     CurrencyAmount pvRecComputed = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvPayComputed = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
@@ -181,8 +186,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   public void test_presentValue_at_expiry() {
     CurrencyAmount pvRec = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvPay = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     assertEquals(pvRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(pvPay.getAmount(), discount * annuityCash * (STRIKE - forward), NOTIONAL * TOL);
@@ -202,8 +207,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     CurrencyAmount pvPayShort = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(pvRecLong.getAmount(), -pvRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvPayLong.getAmount(), -pvPayShort.getAmount(), NOTIONAL * TOL);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     double expected = discount * annuityCash * (forward - STRIKE);
     assertEquals(pvPayLong.getAmount() - pvRecLong.getAmount(), expected, NOTIONAL * TOL);
@@ -228,8 +233,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
         PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvDeltaPayComputed =
         PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
@@ -249,8 +254,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
         PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvDeltaPay =
         PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     assertEquals(pvDeltaRec.getAmount(), 0d, NOTIONAL * TOL);
     assertEquals(pvDeltaPay.getAmount(), -discount * annuityCash, NOTIONAL * TOL);
@@ -270,8 +275,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     CurrencyAmount pvDeltaPayShort = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     assertEquals(pvDeltaRecLong.getAmount(), -pvDeltaRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvDeltaPayLong.getAmount(), -pvDeltaPayShort.getAmount(), NOTIONAL * TOL);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     double expected = discount * annuityCash;
     assertEquals(pvDeltaPayLong.getAmount() - pvDeltaRecLong.getAmount(), expected, NOTIONAL * TOL);
@@ -284,8 +289,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
         PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvGammaPayComputed =
         PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     NormalFunctionData normalData = NormalFunctionData.of(forward, annuityCash * discount, volatility);
@@ -333,8 +338,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
         PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvThetaPayComputed =
         PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double volatility = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE,
         forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
@@ -427,7 +432,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_impliedVolatility() {
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double expected = VOL_PROVIDER.volatility(SWAPTION_REC_LONG.getExpiryDateTime(), SWAP_TENOR_YEAR, STRIKE, forward);
     double computedRec = PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
     double computedPay = PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
@@ -436,7 +441,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   public void test_impliedVolatility_at_expiry() {
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double expected = VOL_PROVIDER.volatility(
         VAL_DATE.atTime(SWAPTION_EXPIRY_TIME).atZone(SWAPTION_EXPIRY_ZONE), SWAP_TENOR_YEAR, STRIKE, forward);
     double computedRec = PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOL_PROVIDER);
@@ -538,11 +543,11 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
     assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
 
-    double forward = PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER);
-    PointSensitivityBuilder forwardSensi = PRICER_SWAP.parRateSensitivity(SWAP_REC, RATE_PROVIDER);
-    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+    double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
+    PointSensitivityBuilder forwardSensi = PRICER_SWAP.parRateSensitivity(RSWAP_REC, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double annuityCashDeriv = PRICER_SWAP.getLegPricer()
-        .annuityCashDerivative(SWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
+        .annuityCashDerivative(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), forward);
     double discount = RATE_PROVIDER.discountFactor(USD, SETTLE_DATE);
     PointSensitivityBuilder discountSensi = RATE_PROVIDER.discountFactors(USD).zeroRatePointSensitivity(SETTLE_DATE);
     PointSensitivities expecedPoint = discountSensi.multipliedBy(annuityCash * (forward - STRIKE)).combinedWith(
@@ -569,7 +574,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertEquals(computedRec.getExpiry(), SWAPTION_REC_LONG.getExpiryDateTime());
     assertEquals(computedRec.getTenor(), SWAP_TENOR_YEAR, TOL);
     assertEquals(computedRec.getStrike(), STRIKE, TOL);
-    assertEquals(computedRec.getForward(), PRICER_SWAP.parRate(SWAP_REC, RATE_PROVIDER), TOL);
+    assertEquals(computedRec.getForward(), PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER), TOL);
     SwaptionSensitivity computedPay = PRICER_SWAPTION
         .presentValueSensitivityVolatility(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvUpPay = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER,
@@ -583,7 +588,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertEquals(computedPay.getExpiry(), SWAPTION_PAY_SHORT.getExpiryDateTime());
     assertEquals(computedPay.getTenor(), SWAP_TENOR_YEAR, TOL);
     assertEquals(computedPay.getStrike(), STRIKE, TOL);
-    assertEquals(computedPay.getForward(), PRICER_SWAP.parRate(SWAP_PAY, RATE_PROVIDER), TOL);
+    assertEquals(computedPay.getForward(), PRICER_SWAP.parRate(RSWAP_PAY, RATE_PROVIDER), TOL);
   }
 
   public void test_presentValueSensitivityNormalVolatility_at_expiry() {

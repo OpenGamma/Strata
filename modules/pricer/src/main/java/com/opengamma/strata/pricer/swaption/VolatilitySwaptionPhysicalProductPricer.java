@@ -17,11 +17,10 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.SwapProduct;
 import com.opengamma.strata.product.swaption.ExpandedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;
 import com.opengamma.strata.product.swaption.SwaptionProduct;
@@ -45,7 +44,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
    */
   public static final VolatilitySwaptionPhysicalProductPricer DEFAULT =
       new VolatilitySwaptionPhysicalProductPricer(DiscountingSwapProductPricer.DEFAULT);
-  /** 
+
+  /**
    * Pricer for {@link SwapProduct}. 
    */
   private final DiscountingSwapProductPricer swapPricer;
@@ -88,8 +88,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
@@ -139,8 +139,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     ArgChecker.isTrue(expiry >= 0d, "Option must be before expiry to compute an implied volatility");
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
@@ -177,8 +177,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
@@ -215,8 +215,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
@@ -253,8 +253,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
@@ -289,8 +289,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, swaptionVolatilities);
     double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
@@ -330,8 +330,8 @@ public class VolatilitySwaptionPhysicalProductPricer {
     validate(expanded, ratesProvider, swaptionVolatilities);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
@@ -361,10 +361,10 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * @param swap  the swap
    * @return the fixed leg
    */
-  protected ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
+  protected ResolvedSwapLeg fixedLeg(ResolvedSwap swap) {
     ArgChecker.isFalse(swap.isCrossCurrency(), "Swap must be single currency");
     // find fixed leg
-    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    List<ResolvedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
     if (fixedLegs.isEmpty()) {
       throw new IllegalArgumentException("Swap must contain a fixed leg");
     }

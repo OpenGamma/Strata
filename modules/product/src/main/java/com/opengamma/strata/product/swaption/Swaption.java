@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -46,6 +47,9 @@ import com.opengamma.strata.product.swap.SwapLegType;
 @BeanDefinition
 public final class Swaption
     implements SwaptionProduct, ImmutableBean, Serializable {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Whether the option is long or short.
@@ -161,7 +165,7 @@ public final class Swaption
         .expiryZone(expiryZone)
         .longShort(longShort)
         .swaptionSettlement(swaptionSettlement)
-        .underlying(underlying.expand())
+        .underlying(underlying.resolve(REF_DATA))
         .build();
   }
 

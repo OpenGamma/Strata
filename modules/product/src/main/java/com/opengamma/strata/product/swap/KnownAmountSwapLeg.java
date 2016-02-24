@@ -32,6 +32,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -150,20 +152,21 @@ public final class KnownAmountSwapLeg
   }
 
   /**
-   * Converts this swap leg to the equivalent {@code ExpandedSwapLeg}.
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
-   * An {@link ExpandedSwapLeg} represents the same data as this leg, but with
+   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
    * a complete schedule of dates defined using {@link KnownAmountPaymentPeriod}.
    * 
-   * @return the equivalent expanded swap leg
-   * @throws RuntimeException if unable to expand due to an invalid swap schedule or definition
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
    */
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     Schedule resolvedAccruals = accrualSchedule.createSchedule();
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
     List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments);
-    return ExpandedSwapLeg.builder()
+    return ResolvedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)

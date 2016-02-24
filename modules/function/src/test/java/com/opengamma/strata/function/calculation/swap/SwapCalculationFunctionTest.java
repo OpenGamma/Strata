@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -48,9 +49,10 @@ import com.opengamma.strata.pricer.impl.swap.DiscountingRatePaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swap.SwapDummyData;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -61,6 +63,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
 public class SwapCalculationFunctionTest {
 
   public static final SwapTrade TRADE = SwapDummyData.SWAP_TRADE;
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
@@ -103,13 +107,14 @@ public class SwapCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
-    MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
-    double expectedParRate = pricer.parRate(TRADE.getProduct(), provider);
-    double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(TRADE.getProduct(), provider);
-    CashFlows expectedCashFlows = pricer.cashFlows(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedExposure = pricer.currencyExposure(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedCash = pricer.currentCash(TRADE.getProduct(), provider);
+    ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
+    MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    double expectedParRate = pricer.parRate(resolved, provider);
+    double expectedParSpread = pricer.parSpread(resolved, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
+    MultiCurrencyAmount expectedExposure = pricer.currencyExposure(resolved, provider);
+    MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE,
         Measures.PRESENT_VALUE_MULTI_CCY,
@@ -141,7 +146,8 @@ public class SwapCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider).build();
+    ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -167,7 +173,7 @@ public class SwapCalculationFunctionTest {
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
 
     // create a period with altered end date, and price it
-    ExpandedSwapLeg expanded = FIXED_RATECALC_SWAP_LEG.expand();
+    ResolvedSwapLeg expanded = FIXED_RATECALC_SWAP_LEG.resolve(REF_DATA);
     RatePaymentPeriod rpp = (RatePaymentPeriod) expanded.getPaymentPeriods().get(expanded.getPaymentPeriods().size() - 1);
     RateAccrualPeriod rap = rpp.getAccrualPeriods().get(0);
     RateAccrualPeriod rap2 = rap.toBuilder()

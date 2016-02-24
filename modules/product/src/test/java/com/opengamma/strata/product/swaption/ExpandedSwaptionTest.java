@@ -21,7 +21,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
@@ -30,11 +31,12 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 @Test
 public class ExpandedSwaptionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 6, 12); // starts on 2014/6/19
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
-  private static final ExpandedSwap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct().expand();
+  private static final ResolvedSwap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
+      .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE).getProduct().resolve(REF_DATA);
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 6, 13);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
@@ -92,7 +94,7 @@ public class ExpandedSwaptionTest {
         .longShort(SHORT)
         .swaptionSettlement(CASH_SETTLE)
         .underlying(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-            .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct().expand())
+            .createTrade(LocalDate.of(2014, 6, 10), Tenor.TENOR_10Y, BuySell.BUY, 1d, FIXED_RATE).getProduct().resolve(REF_DATA))
         .build();
     coverBeanEquals(test1, test2);
   }

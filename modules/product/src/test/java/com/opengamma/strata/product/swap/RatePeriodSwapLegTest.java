@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -40,6 +41,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class RatePeriodSwapLegTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_06_28 = date(2014, 6, 28);
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_28 = date(2014, 9, 28);
@@ -159,23 +161,23 @@ public class RatePeriodSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_createNotionalExchange() {
+  public void test_resolve_createNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -184,7 +186,7 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(true)
         .finalExchange(true)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
@@ -192,10 +194,10 @@ public class RatePeriodSwapLegTest {
             NotionalExchange.of(DATE_2014_06_30, CurrencyAmount.of(GBP, -5000d)),
             NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 5000d)))
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_fxResetNotionalExchange() {
+  public void test_resolve_fxResetNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -220,16 +222,16 @@ public class RatePeriodSwapLegTest {
         .build();
     NotionalExchange ne2a = NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, -6000d));
     NotionalExchange ne2b = NotionalExchange.of(DATE_2014_01_02, CurrencyAmount.of(GBP, 6000d));
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET, RPP2)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b)
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_omitFxResetNotionalExchange() {
+  public void test_resolve_omitFxResetNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -238,15 +240,15 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(false)
         .finalExchange(true)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1_FXRESET)
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_createNotionalExchange_noInitial() {
+  public void test_resolve_createNotionalExchange_noInitial() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -255,16 +257,16 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(true)
         .finalExchange(true)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 5000d)))
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_createNotionalExchange_initialOnly() {
+  public void test_resolve_createNotionalExchange_initialOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -273,16 +275,16 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(false)
         .finalExchange(false)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_06_30, CurrencyAmount.of(GBP, -5000d)))
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expand_createNotionalExchange_finalOnly() {
+  public void test_resolve_createNotionalExchange_finalOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
@@ -291,13 +293,13 @@ public class RatePeriodSwapLegTest {
         .intermediateExchange(false)
         .finalExchange(true)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 5000d)))
         .build();
-    assertEquals(test.expand(), expected);
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

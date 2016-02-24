@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 
 /**
@@ -65,7 +65,7 @@ public final class ExpandedCms
    * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront. 
    */
   @PropertyDefinition(get = "optional")
-  private final ExpandedSwapLeg payLeg;
+  private final ResolvedSwapLeg payLeg;
 
   //-------------------------------------------------------------------------
   /**
@@ -87,7 +87,7 @@ public final class ExpandedCms
    * @param payLeg  the pay leg
    * @return the CMS
    */
-  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ExpandedSwapLeg payLeg) {
+  public static ExpandedCms of(ExpandedCmsLeg cmsLeg, ResolvedSwapLeg payLeg) {
     return new ExpandedCms(cmsLeg, payLeg);
   }
 
@@ -127,7 +127,7 @@ public final class ExpandedCms
 
   private ExpandedCms(
       ExpandedCmsLeg cmsLeg,
-      ExpandedSwapLeg payLeg) {
+      ResolvedSwapLeg payLeg) {
     JodaBeanUtils.notNull(cmsLeg, "cmsLeg");
     this.cmsLeg = cmsLeg;
     this.payLeg = payLeg;
@@ -170,7 +170,7 @@ public final class ExpandedCms
    * These periodic payments are not made for certain CMS products. Instead the premium is paid upfront.
    * @return the optional value of the property, not null
    */
-  public Optional<ExpandedSwapLeg> getPayLeg() {
+  public Optional<ResolvedSwapLeg> getPayLeg() {
     return Optional.ofNullable(payLeg);
   }
 
@@ -224,8 +224,8 @@ public final class ExpandedCms
     /**
      * The meta-property for the {@code payLeg} property.
      */
-    private final MetaProperty<ExpandedSwapLeg> payLeg = DirectMetaProperty.ofImmutable(
-        this, "payLeg", ExpandedCms.class, ExpandedSwapLeg.class);
+    private final MetaProperty<ResolvedSwapLeg> payLeg = DirectMetaProperty.ofImmutable(
+        this, "payLeg", ExpandedCms.class, ResolvedSwapLeg.class);
     /**
      * The meta-properties.
      */
@@ -279,7 +279,7 @@ public final class ExpandedCms
      * The meta-property for the {@code payLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedSwapLeg> payLeg() {
+    public MetaProperty<ResolvedSwapLeg> payLeg() {
       return payLeg;
     }
 
@@ -313,7 +313,7 @@ public final class ExpandedCms
   private static final class Builder extends DirectFieldsBeanBuilder<ExpandedCms> {
 
     private ExpandedCmsLeg cmsLeg;
-    private ExpandedSwapLeg payLeg;
+    private ResolvedSwapLeg payLeg;
 
     /**
      * Restricted constructor.
@@ -341,7 +341,7 @@ public final class ExpandedCms
           this.cmsLeg = (ExpandedCmsLeg) newValue;
           break;
         case -995239866:  // payLeg
-          this.payLeg = (ExpandedSwapLeg) newValue;
+          this.payLeg = (ResolvedSwapLeg) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

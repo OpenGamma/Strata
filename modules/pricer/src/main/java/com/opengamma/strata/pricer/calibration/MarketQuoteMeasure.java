@@ -65,8 +65,9 @@ public class MarketQuoteMeasure<T extends Trade>
       MarketQuoteMeasure.of( // Market quote
           "SwapParRateDiscounting",
           SwapTrade.class,
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p).build());
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRate(trade.getProduct().resolve(REF_DATA), p),
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRateSensitivity(
+              trade.getProduct().resolve(REF_DATA), p).build());
 
   /**
    * The measure for {@link IborFixingDepositTrade} using par rate discounting.

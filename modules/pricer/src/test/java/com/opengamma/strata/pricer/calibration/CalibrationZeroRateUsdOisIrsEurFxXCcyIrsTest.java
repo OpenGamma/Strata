@@ -399,7 +399,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
-          ((SwapTrade) usdTrades.get(2 + i)).getProduct(), result);
+          ((SwapTrade) usdTrades.get(2 + i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV USD Fwd3
@@ -420,7 +420,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // IRS
     for (int i = 0; i < USD_FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
-          ((SwapTrade) fwd3Trades.get(i + 1 + USD_FWD3_NB_FRA_NODES)).getProduct(), result);
+          ((SwapTrade) fwd3Trades.get(i + 1 + USD_FWD3_NB_FRA_NODES)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test DSC EUR;
@@ -437,7 +437,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // XCCY
     for (int i = 0; i < EUR_DSC_NB_XCCY_NODES; i++) {
       MultiCurrencyAmount pvFx = SWAP_PRICER.presentValue(
-          ((SwapTrade) eurTrades.get(EUR_DSC_NB_FX_NODES + i)).getProduct(), result);
+          ((SwapTrade) eurTrades.get(EUR_DSC_NB_FX_NODES + i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR Fwd3
@@ -458,7 +458,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // IRS
     for (int i = 0; i < EUR_FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
-          ((SwapTrade) eurFwd3Trades.get(i + 1 + EUR_FWD3_NB_FRA_NODES)).getProduct(), result);
+          ((SwapTrade) eurFwd3Trades.get(i + 1 + EUR_FWD3_NB_FRA_NODES)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

@@ -37,6 +37,8 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
@@ -104,7 +106,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the start of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
    * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
    * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
@@ -117,7 +119,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on each intermediate payment date of the swap leg.
    * If set to true, the behavior depends on whether an FX reset payment period is defined.
    * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
@@ -131,7 +133,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on the final payment date of the swap leg.
    * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
    * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
@@ -238,20 +240,21 @@ public final class RatePeriodSwapLeg
   }
 
   /**
-   * Converts this swap leg to the equivalent {@code ExpandedSwapLeg}.
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
-   * An {@link ExpandedSwapLeg} represents the same data as this leg, but with
-   * the schedules expanded to be {@link PaymentPeriod} instances.
+   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
+   * the schedules resolved to be {@link PaymentPeriod} instances.
    * 
-   * @return the equivalent expanded swap leg
-   * @throws RuntimeException if unable to expand due to an invalid definition
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
    */
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     ImmutableList<RatePaymentPeriod> adjusted = paymentPeriods.stream()
         .map(pp -> pp.adjustPaymentDate(paymentBusinessDayAdjustment))
         .collect(toImmutableList());
-    return ExpandedSwapLeg.builder()
+    return ResolvedSwapLeg.builder()
         .type(type)
         .payReceive(payReceive)
         .paymentPeriods(adjusted)
@@ -364,7 +367,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the start of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
    * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
    * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
@@ -381,7 +384,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on each intermediate payment date of the swap leg.
    * If set to true, the behavior depends on whether an FX reset payment period is defined.
    * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
@@ -399,7 +402,7 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * This flag controls whether a notional exchange object is created when the leg is resolved.
    * It covers an exchange on the final payment date of the swap leg.
    * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
    * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
@@ -898,7 +901,7 @@ public final class RatePeriodSwapLeg
      * Setting this to true indicates that the notional is transferred at the start of the trade.
      * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * <p>
-     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * This flag controls whether a notional exchange object is created when the leg is resolved.
      * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
      * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
      * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
@@ -916,7 +919,7 @@ public final class RatePeriodSwapLeg
      * Setting this to true indicates that the notional is transferred when it changes during the trade.
      * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * <p>
-     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * This flag controls whether a notional exchange object is created when the leg is resolved.
      * It covers an exchange on each intermediate payment date of the swap leg.
      * If set to true, the behavior depends on whether an FX reset payment period is defined.
      * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
@@ -935,7 +938,7 @@ public final class RatePeriodSwapLeg
      * Setting this to true indicates that the notional is transferred at the end of the trade.
      * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
      * <p>
-     * This flag controls whether a notional exchange object is created when the leg is expanded.
+     * This flag controls whether a notional exchange object is created when the leg is resolved.
      * It covers an exchange on the final payment date of the swap leg.
      * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
      * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.

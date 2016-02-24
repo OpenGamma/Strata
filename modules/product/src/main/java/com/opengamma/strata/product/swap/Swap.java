@@ -34,7 +34,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.Product;
 
 /**
  * A rate swap.
@@ -50,7 +53,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition
 public final class Swap
-    implements SwapProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedSwap>, ImmutableBean, Serializable {
 
   /**
    * The legs of the swap.
@@ -205,20 +208,11 @@ public final class Swap
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this swap.
-   * <p>
-   * Expanding a swap causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the expended swap
-   * @throws RuntimeException if unable to expand due to an invalid swap schedule or definition
-   */
   @Override
-  public ExpandedSwap expand() {
-    return ExpandedSwap.builder()
+  public ResolvedSwap resolve(ReferenceData refData) {
+    return ResolvedSwap.builder()
         .legs(legs.stream()
-            .map(SwapLeg::expand)
+            .map(leg -> leg.resolve(refData))
             .collect(toImmutableList()))
         .build();
   }

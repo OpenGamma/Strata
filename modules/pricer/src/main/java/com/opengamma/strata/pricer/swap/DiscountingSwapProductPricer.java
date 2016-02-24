@@ -21,19 +21,17 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.SwapProduct;
 
 /**
  * Pricer for for rate swap products.
  * <p>
- * This function provides the ability to price a {@link SwapProduct}.
+ * This function provides the ability to price a {@link ResolvedSwap}.
  * The product is priced by pricing each leg.
  */
 public class DiscountingSwapProductPricer {
@@ -45,14 +43,14 @@ public class DiscountingSwapProductPricer {
       DiscountingSwapLegPricer.DEFAULT);
 
   /**
-   * Pricer for {@link SwapLeg}.
+   * Pricer for {@link ResolvedSwapLeg}.
    */
   private final DiscountingSwapLegPricer legPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param legPricer  the pricer for {@link SwapLeg}
+   * @param legPricer  the pricer for {@link ResolvedSwapLeg}
    */
   public DiscountingSwapProductPricer(
       DiscountingSwapLegPricer legPricer) {
@@ -77,14 +75,14 @@ public class DiscountingSwapProductPricer {
    * This is the discounted forecast value.
    * The result is converted to the specified currency.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param currency  the currency to convert to
    * @param provider  the rates provider
    * @return the present value of the swap product in the specified currency
    */
-  public CurrencyAmount presentValue(SwapProduct product, Currency currency, RatesProvider provider) {
+  public CurrencyAmount presentValue(ResolvedSwap swap, Currency currency, RatesProvider provider) {
     double totalPv = 0;
-    for (ExpandedSwapLeg leg : product.expand().getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       double pv = legPricer.presentValueInternal(leg, provider);
       totalPv += (pv * provider.fxRate(leg.getCurrency(), currency));
     }
@@ -98,12 +96,12 @@ public class DiscountingSwapProductPricer {
    * This is the discounted forecast value.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the present value of the swap product
    */
-  public MultiCurrencyAmount presentValue(SwapProduct product, RatesProvider provider) {
-    return swapValue(provider, product.expand(), legPricer::presentValueInternal);
+  public MultiCurrencyAmount presentValue(ResolvedSwap swap, RatesProvider provider) {
+    return swapValue(provider, swap, legPricer::presentValueInternal);
   }
 
   /**
@@ -112,20 +110,20 @@ public class DiscountingSwapProductPricer {
    * The forecast value of the product is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the forecast value of the swap product
    */
-  public MultiCurrencyAmount forecastValue(SwapProduct product, RatesProvider provider) {
-    return swapValue(provider, product.expand(), legPricer::forecastValueInternal);
+  public MultiCurrencyAmount forecastValue(ResolvedSwap swap, RatesProvider provider) {
+    return swapValue(provider, swap, legPricer::forecastValueInternal);
   }
 
   //-------------------------------------------------------------------------
   // calculate present or forecast value for the swap
   private static MultiCurrencyAmount swapValue(
       RatesProvider provider,
-      ExpandedSwap swap,
-      ToDoubleBiFunction<SwapLeg, RatesProvider> legFn) {
+      ResolvedSwap swap,
+      ToDoubleBiFunction<ResolvedSwapLeg, RatesProvider> legFn) {
 
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
@@ -134,7 +132,7 @@ public class DiscountingSwapProductPricer {
     } else {
       Currency currency = swap.getLegs().iterator().next().getCurrency();
       double total = 0d;
-      for (ExpandedSwapLeg leg : swap.getLegs()) {
+      for (ResolvedSwapLeg leg : swap.getLegs()) {
         total += legFn.applyAsDouble(leg, provider);
       }
       return MultiCurrencyAmount.of(currency, total);
@@ -148,14 +146,13 @@ public class DiscountingSwapProductPricer {
    * This determines the payment period applicable at the valuation date and calculates
    * the accrued interest since the last payment.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the accrued interest of the swap product
    */
-  public MultiCurrencyAmount accruedInterest(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
+  public MultiCurrencyAmount accruedInterest(ResolvedSwap swap, RatesProvider provider) {
     MultiCurrencyAmount result = MultiCurrencyAmount.empty();
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       result = result.plus(legPricer.accruedInterest(leg, provider));
     }
     return result;
@@ -172,18 +169,17 @@ public class DiscountingSwapProductPricer {
    * If the fixed leg is compounding, the par rate is computed only when the number of fixed coupon payments is 1 and 
    * accrual factor of each sub-period is 1 
    * 
-   * @param product  the swap product for which the par rate should be computed
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate
    */
-  public double parRate(SwapProduct product, RatesProvider provider) {
+  public double parRate(ResolvedSwap swap, RatesProvider provider) {
     // find fixed leg
-    ExpandedSwap swap = product.expand();
-    ExpandedSwapLeg fixedLeg = fixedLeg(swap);
+    ResolvedSwapLeg fixedLeg = fixedLeg(swap);
     Currency ccyFixedLeg = fixedLeg.getCurrency();
     // other payments (not fixed leg coupons) converted in fixed leg currency
     double otherLegsConvertedPv = 0.0;
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
         double pvLocal = legPricer.presentValueInternal(leg, provider);
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
@@ -227,13 +223,12 @@ public class DiscountingSwapProductPricer {
    * The par spread will be computed with respect to the first leg. For that leg, all the payments have a unique 
    * accrual period or multiple accrual periods with Flat compounding and no FX reset.
    * 
-   * @param product  the swap product for which the par rate should be computed
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate
    */
-  public double parSpread(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
-    SwapLeg referenceLeg = swap.getLegs().get(0);
+  public double parSpread(ResolvedSwap swap, RatesProvider provider) {
+    ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
     Currency ccyReferenceLeg = referenceLeg.getCurrency();
     double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
     double pvbp = legPricer.pvbp(referenceLeg, provider);
@@ -247,15 +242,12 @@ public class DiscountingSwapProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder presentValueSensitivity(SwapProduct product, RatesProvider provider) {
-    return swapValueSensitivity(
-        product.expand(),
-        provider,
-        legPricer::presentValueSensitivity);
+  public PointSensitivityBuilder presentValueSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    return swapValueSensitivity(swap, provider, legPricer::presentValueSensitivity);
   }
 
   /**
@@ -264,14 +256,14 @@ public class DiscountingSwapProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param currency  the currency to convert to
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap product converted in the given currency
    */
-  public PointSensitivityBuilder presentValueSensitivity(SwapProduct product, Currency currency, RatesProvider provider) {
+  public PointSensitivityBuilder presentValueSensitivity(ResolvedSwap swap, Currency currency, RatesProvider provider) {
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
-    for (ExpandedSwapLeg leg : product.expand().getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       PointSensitivityBuilder ls = legPricer.presentValueSensitivity(leg, provider);
       PointSensitivityBuilder lsConverted =
           ls.withCurrency(currency).multipliedBy(provider.fxRate(leg.getCurrency(), currency));
@@ -286,25 +278,22 @@ public class DiscountingSwapProductPricer {
    * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the forecast value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder forecastValueSensitivity(SwapProduct product, RatesProvider provider) {
-    return swapValueSensitivity(
-        product.expand(),
-        provider,
-        legPricer::forecastValueSensitivity);
+  public PointSensitivityBuilder forecastValueSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    return swapValueSensitivity(swap, provider, legPricer::forecastValueSensitivity);
   }
 
   // calculate present or forecast value sensitivity for the swap
   private static PointSensitivityBuilder swapValueSensitivity(
-      ExpandedSwap swap,
+      ResolvedSwap swap,
       RatesProvider provider,
-      BiFunction<SwapLeg, RatesProvider, PointSensitivityBuilder> legFn) {
+      BiFunction<ResolvedSwapLeg, RatesProvider, PointSensitivityBuilder> legFn) {
 
     PointSensitivityBuilder builder = PointSensitivityBuilder.none();
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       builder = builder.combinedWith(legFn.apply(leg, provider));
     }
     return builder;
@@ -318,17 +307,16 @@ public class DiscountingSwapProductPricer {
    * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
    * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder parRateSensitivity(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
-    ExpandedSwapLeg fixedLeg = fixedLeg(swap);
+  public PointSensitivityBuilder parRateSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    ResolvedSwapLeg fixedLeg = fixedLeg(swap);
     Currency ccyFixedLeg = fixedLeg.getCurrency();
     // other payments (not fixed leg coupons) converted in fixed leg currency
     double otherLegsConvertedPv = 0.0;
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
         double pvLocal = legPricer.presentValueInternal(leg, provider);
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
@@ -343,7 +331,7 @@ public class DiscountingSwapProductPricer {
     PointSensitivityBuilder pvbpFixedLegDr = legPricer.pvbpSensitivity(fixedLeg, provider);
     PointSensitivityBuilder fixedLegEventsPvDr = legPricer.presentValueSensitivityEventsInternal(fixedLeg, provider);
     PointSensitivityBuilder otherLegsConvertedPvDr = PointSensitivityBuilder.none();
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       if (leg != fixedLeg) {
         PointSensitivityBuilder pvLegDr = legPricer.presentValueSensitivity(leg, provider)
             .multipliedBy(provider.fxRate(leg.getCurrency(), ccyFixedLeg));
@@ -364,13 +352,12 @@ public class DiscountingSwapProductPricer {
    * The par spread is computed with respect to the first leg. For that leg, all the payments have a unique 
    * accrual period (no compounding) and no FX reset.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the par spread curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder parSpreadSensitivity(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
-    SwapLeg referenceLeg = swap.getLegs().get(0);
+  public PointSensitivityBuilder parSpreadSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
     Currency ccyReferenceLeg = referenceLeg.getCurrency();
     double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
     double pvbp = legPricer.pvbp(referenceLeg, provider);
@@ -387,14 +374,13 @@ public class DiscountingSwapProductPricer {
    * Calculates the future cash flows of the swap product.
    * <p>
    * Each expected cash flow is added to the result.
-   * This is based on {@link #forecastValue(SwapProduct, RatesProvider)}.
+   * This is based on {@link #forecastValue(ResolvedSwap, RatesProvider)}.
    * 
-   * @param product  the swap product for which the cash flows should be computed
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the cash flow
    */
-  public CashFlows cashFlows(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
+  public CashFlows cashFlows(ResolvedSwap swap, RatesProvider provider) {
     return swap.getLegs().stream()
         .map(leg -> legPricer.cashFlows(leg, provider))
         .reduce(CashFlows.NONE, CashFlows::combinedWith);
@@ -406,16 +392,14 @@ public class DiscountingSwapProductPricer {
    * <p>
    * This returns explanatory information about the calculation.
    * 
-   * @param product  the swap product for which present value should be computed
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the explanatory information
    */
-  public ExplainMap explainPresentValue(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
-
+  public ExplainMap explainPresentValue(ResolvedSwap swap, RatesProvider provider) {
     ExplainMapBuilder builder = ExplainMap.builder();
     builder.put(ExplainKey.ENTRY_TYPE, "Swap");
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       builder.addListEntryWithIndex(
           ExplainKey.LEGS, child -> legPricer.explainPresentValueInternal(leg, provider, child));
     }
@@ -426,14 +410,13 @@ public class DiscountingSwapProductPricer {
   /**
    * Calculates the currency exposure of the swap product.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the currency exposure of the swap product
    */
-  public MultiCurrencyAmount currencyExposure(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
+  public MultiCurrencyAmount currencyExposure(ResolvedSwap swap, RatesProvider provider) {
     MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       ce = ce.plus(legPricer.currencyExposure(leg, provider));
     }
     return ce;
@@ -442,14 +425,13 @@ public class DiscountingSwapProductPricer {
   /**
    * Calculates the current cash of the swap product.
    * 
-   * @param product  the product to price
+   * @param swap  the product
    * @param provider  the rates provider
    * @return the current cash of the swap product
    */
-  public MultiCurrencyAmount currentCash(SwapProduct product, RatesProvider provider) {
-    ExpandedSwap swap = product.expand();
+  public MultiCurrencyAmount currentCash(ResolvedSwap swap, RatesProvider provider) {
     MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
-    for (ExpandedSwapLeg leg : swap.getLegs()) {
+    for (ResolvedSwapLeg leg : swap.getLegs()) {
       ce = ce.plus(legPricer.currentCash(leg, provider));
     }
     return ce;
@@ -457,8 +439,8 @@ public class DiscountingSwapProductPricer {
 
   //-------------------------------------------------------------------------
   // checking that at least one leg is a fixed leg and returning the first one
-  private ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
-    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+  private ResolvedSwapLeg fixedLeg(ResolvedSwap swap) {
+    List<ResolvedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
     if (fixedLegs.isEmpty()) {
       throw new IllegalArgumentException("Swap must contain a fixed leg");
     }

@@ -111,7 +111,7 @@ public final class FxResetCalculation
    * and the data held in this object.
    * 
    * @param period  the schedule period
-   * @return the expanded reset
+   * @return the resolved reset
    */
   public FxReset applyToPeriod(SchedulePeriod period) {
     LocalDate fixingDate = fixingDateOffset.adjust(fixingRelativeTo.selectBaseDate(period));

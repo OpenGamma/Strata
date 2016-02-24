@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
@@ -40,6 +41,7 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 @Test
 public class SwaptionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 6, 12); // starts on 2014/6/19
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
@@ -145,7 +147,7 @@ public class SwaptionTest {
     assertEquals(test.getExpiryDateTime(), ADJUSTMENT.adjust(EXPIRY_DATE).atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
-    assertEquals(test.getUnderlying(), SWAP.expand());
+    assertEquals(test.getUnderlying(), SWAP.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

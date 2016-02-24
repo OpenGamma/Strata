@@ -43,6 +43,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueAdjustment;
@@ -59,6 +60,7 @@ import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 @Test
 public class RateCalculationSwapLegTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_02 = date(2014, 1, 2);
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
@@ -180,7 +182,7 @@ public class RateCalculationSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand_oneAccrualPerPayment_fixedRate() {
+  public void test_resolve_oneAccrualPerPayment_fixedRate() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -240,14 +242,14 @@ public class RateCalculationSwapLegTest {
         .notional(-1000d)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
         .build());
   }
 
-  public void test_expand_twoAccrualsPerPayment_iborRate_varyingNotional_notionalExchange() {
+  public void test_resolve_twoAccrualsPerPayment_iborRate_varyingNotional_notionalExchange() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -339,7 +341,7 @@ public class RateCalculationSwapLegTest {
     NotionalExchange nexIntermediate = NotionalExchange.of(DATE_03_07, CurrencyAmount.of(GBP, 500d));
     NotionalExchange nexFinal = NotionalExchange.of(DATE_06_09, CurrencyAmount.of(GBP, -1500d));
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
@@ -347,7 +349,7 @@ public class RateCalculationSwapLegTest {
         .build());
   }
 
-  public void test_expand_threeAccrualsPerPayment() {
+  public void test_resolve_threeAccrualsPerPayment() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -398,7 +400,7 @@ public class RateCalculationSwapLegTest {
         .compoundingMethod(STRAIGHT)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1)
@@ -406,7 +408,7 @@ public class RateCalculationSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand_oneAccrualPerPayment_fxReset() {
+  public void test_resolve_oneAccrualPerPayment_fxReset() {
     // test case
     RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -519,7 +521,7 @@ public class RateCalculationSwapLegTest {
         .fixingDate(DATE_03_03)
         .build();
     // assertion
-    assertEquals(test.expand(), ExpandedSwapLeg.builder()
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
@@ -580,13 +582,13 @@ public class RateCalculationSwapLegTest {
         .currency(GBP)
         .notional(-1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp)
         .payReceive(PAY)
         .type(SwapLegType.INFLATION)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
-    assertEquals(testExpand, expected);
+    ResolvedSwapLeg testResolved = test.resolve(REF_DATA);
+    assertEquals(testResolved, expected);
 
   }
 
@@ -644,12 +646,12 @@ public class RateCalculationSwapLegTest {
         .currency(GBP)
         .notional(1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp0)
         .payReceive(RECEIVE)
         .type(SwapLegType.INFLATION)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertEquals(testExpand, expected);
   }
 
@@ -734,12 +736,12 @@ public class RateCalculationSwapLegTest {
         .currency(GBP)
         .notional(1000d)
         .build();
-    ExpandedSwapLeg expected = ExpandedSwapLeg.builder()
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
         .paymentPeriods(rpp)
         .payReceive(RECEIVE)
         .type(SwapLegType.FIXED)
         .build();
-    ExpandedSwapLeg testExpand = test.expand();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertEquals(testExpand, expected);
   }
 

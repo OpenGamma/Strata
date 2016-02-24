@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -49,6 +50,9 @@ import com.opengamma.strata.product.swap.SwapLeg;
  */
 @Test
 public class SabrExtrapolationReplicationCmsProductPricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // CMS products
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_5Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
@@ -111,7 +115,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     MultiCurrencyAmount pv1 = PRODUCT_PRICER.presentValue(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount pv2 = PRODUCT_PRICER.presentValue(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvCms = CMS_LEG_PRICER.presentValue(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
-    CurrencyAmount pvPay = SWAP_LEG_PRICER.presentValue(PAY_LEG, RATES_PROVIDER);
+    CurrencyAmount pvPay = SWAP_LEG_PRICER.presentValue(PAY_LEG.resolve(REF_DATA), RATES_PROVIDER);
     assertEquals(pv1, MultiCurrencyAmount.of(pvCms));
     assertEquals(pv2, MultiCurrencyAmount.of(pvCms).plus(pvPay));
   }
@@ -121,7 +125,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptCms =
         CMS_LEG_PRICER.presentValueSensitivity(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder ptPay = SWAP_LEG_PRICER.presentValueSensitivity(PAY_LEG, RATES_PROVIDER);
+    PointSensitivityBuilder ptPay = SWAP_LEG_PRICER.presentValueSensitivity(PAY_LEG.resolve(REF_DATA), RATES_PROVIDER);
     assertEquals(pt1, ptCms);
     assertEquals(pt2, ptCms.combinedWith(ptPay));
   }
@@ -169,7 +173,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     MultiCurrencyAmount cc1 = PRODUCT_PRICER.currentCash(CMS_ONE_LEG, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     MultiCurrencyAmount cc2 = PRODUCT_PRICER.currentCash(CMS_TWO_LEGS, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     CurrencyAmount ccCms = CMS_LEG_PRICER.currentCash(CMS_LEG.expand(), RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    CurrencyAmount ccPay = SWAP_LEG_PRICER.currentCash(PAY_LEG, RATES_PROVIDER_ON_PAY);
+    CurrencyAmount ccPay = SWAP_LEG_PRICER.currentCash(PAY_LEG.resolve(REF_DATA), RATES_PROVIDER_ON_PAY);
     assertEquals(cc1, MultiCurrencyAmount.of(ccCms));
     assertEquals(cc2, MultiCurrencyAmount.of(ccCms).plus(ccPay));
   }

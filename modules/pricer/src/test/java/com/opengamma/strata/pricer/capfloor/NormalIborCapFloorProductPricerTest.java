@@ -29,7 +29,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.product.capfloor.IborCapFloor;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
  * Test {@link NormalIborCapFloorProductPricer}.
@@ -45,7 +45,7 @@ public class NormalIborCapFloorProductPricerTest {
   private static final ValueSchedule STRIKE = ValueSchedule.of(STRIKE_VALUE);
   private static final IborCapFloorLeg CAP_LEG =
       IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_6M, START, END, STRIKE, NOTIONAL, CALL, RECEIVE);
-  private static final SwapLeg PAY_LEG =
+  private static final ResolvedSwapLeg PAY_LEG =
       IborCapFloorDataSet.createFixedPayLeg(EUR_EURIBOR_6M, START, END, 0.002, NOTIONAL_VALUE, PAY);
   private static final IborCapFloor CAP_TWO_LEGS = IborCapFloor.of(CAP_LEG, PAY_LEG);
   private static final IborCapFloor CAP_ONE_LEG = IborCapFloor.of(CAP_LEG);

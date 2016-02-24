@@ -54,7 +54,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
  * forwards or backwards, applying the same direction as accrual schedule generation.
  * <p>
  * A different business day adjustment may be specified for the payment schedule to that
- * used for the accrual schedule. When expanding the swap, the adjustment will be applied
+ * used for the accrual schedule. When resolving the swap, the adjustment will be applied
  * as part of the process that creates the payment date. Note that the start and end dates
  * of the payment period, as defined by the payment schedule, cannot be observed on the
  * resulting {@link RatePaymentPeriod} instance.

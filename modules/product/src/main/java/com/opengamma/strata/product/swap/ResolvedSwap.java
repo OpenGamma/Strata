@@ -8,6 +8,8 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
@@ -29,12 +32,20 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.ResolvedProduct;
 
 /**
- * An expanded rate swap, with dates calculated ready for pricing.
+ * A rate swap, resolved for pricing.
+ * <p>
+ * This is the resolved form of {@link Swap} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedSwap} from a {@code Swap}
+ * using {@link Swap#resolve(ReferenceData)}.
  * <p>
  * A rate swap is a financial instrument that represents the exchange of streams of payments.
  * The swap is formed of legs, where each leg typically represents the obligations
@@ -46,16 +57,16 @@ import com.opengamma.strata.collect.ArgChecker;
  * Each payment period typically consists of one or more accrual periods.
  * Additional payment events may also be specified.
  * <p>
- * An {@code ExpandedSwap} contains information based on holiday calendars.
- * If a holiday calendar changes, the adjusted dates may no longer be correct.
- * Care must be taken when placing the expanded form in a cache or persistence layer.
- * <p>
  * Any combination of legs, payments and accrual periods is supported in the data model,
  * however there is no guarantee that exotic combinations will price sensibly.
+ * <p>
+ * A {@code ResolvedSwap} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition
-public final class ExpandedSwap
-    implements SwapProduct, ImmutableBean, Serializable {
+public final class ResolvedSwap
+    implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
    * The legs of the swap.
@@ -65,7 +76,7 @@ public final class ExpandedSwap
    * and closer to user expectation to treat them as being ordered.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<ExpandedSwapLeg> legs;
+  private final ImmutableList<ResolvedSwapLeg> legs;
   /**
    * Whether the swap is cross currency or not.
    */
@@ -80,22 +91,22 @@ public final class ExpandedSwap
    * @param legs  the array of legs
    * @return the swap
    */
-  public static ExpandedSwap of(ExpandedSwapLeg... legs) {
+  public static ResolvedSwap of(ResolvedSwapLeg... legs) {
     ArgChecker.notEmpty(legs, "legs");
-    return new ExpandedSwap(ImmutableList.copyOf(legs));
+    return new ResolvedSwap(ImmutableList.copyOf(legs));
   }
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
-  private ExpandedSwap(List<ExpandedSwapLeg> legs) {
+  private ResolvedSwap(List<ResolvedSwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
     this.legs = ImmutableList.copyOf(legs);
     this.crossCurrency = checkIfCrossCurrency(legs);
   }
 
   // profiling showed a hotspot when using streams, removed when using this approach
-  private static boolean checkIfCrossCurrency(List<ExpandedSwapLeg> legs) {
-    Iterator<ExpandedSwapLeg> it = legs.iterator();
+  private static boolean checkIfCrossCurrency(List<ResolvedSwapLeg> legs) {
+    Iterator<ResolvedSwapLeg> it = legs.iterator();
     Currency currency = it.next().getCurrency();
     while (it.hasNext()) {
       if (!currency.equals(it.next().getCurrency())) {
@@ -106,6 +117,86 @@ public final class ExpandedSwap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the legs of the swap with the specified type.
+   * <p>
+   * This returns all the legs with the given type.
+   * 
+   * @param type  the type to find
+   * @return the matching legs of the swap
+   */
+  public ImmutableList<ResolvedSwapLeg> getLegs(SwapLegType type) {
+    return legs.stream().filter(leg -> leg.getType() == type).collect(toImmutableList());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the first pay or receive leg of the swap.
+   * <p>
+   * This returns the first pay or receive leg of the swap, empty if no matching leg.
+   * 
+   * @param payReceive  the pay or receive flag
+   * @return the first matching leg of the swap
+   */
+  public Optional<ResolvedSwapLeg> getLeg(PayReceive payReceive) {
+    return legs.stream().filter(leg -> leg.getPayReceive() == payReceive).findFirst();
+  }
+
+  /**
+   * Gets the first pay leg of the swap.
+   * <p>
+   * This returns the first pay leg of the swap, empty if no pay leg.
+   * 
+   * @return the first pay leg of the swap
+   */
+  public Optional<ResolvedSwapLeg> getPayLeg() {
+    return getLeg(PayReceive.PAY);
+  }
+
+  /**
+   * Gets the first receive leg of the swap.
+   * <p>
+   * This returns the first receive leg of the swap, empty if no receive leg.
+   * 
+   * @return the first receive leg of the swap
+   */
+  public Optional<ResolvedSwapLeg> getReceiveLeg() {
+    return getLeg(PayReceive.RECEIVE);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the accrual start date of the swap.
+   * <p>
+   * This is the earliest accrual date of the legs, often known as the effective date.
+   * This date has typically been adjusted to be a valid business day.
+   * 
+   * @return the start date of the swap
+   */
+  @DerivedProperty
+  public LocalDate getStartDate() {
+    return legs.stream()
+        .map(SwapLeg::getStartDate)
+        .min(Comparator.naturalOrder())
+        .get();  // always at least one leg, so get() is safe
+  }
+
+  /**
+   * Gets the accrual end date of the swap.
+   * <p>
+   * This is the latest accrual date of the legs, often known as the termination date.
+   * This date has typically been adjusted to be a valid business day.
+   * 
+   * @return the end date of the swap
+   */
+  @DerivedProperty
+  public LocalDate getEndDate() {
+    return legs.stream()
+        .map(SwapLeg::getEndDate)
+        .max(Comparator.naturalOrder())
+        .get();  // always at least one leg, so get() is safe
+  }
+
   /**
    * Checks if this trade is cross-currency.
    * <p>
@@ -119,52 +210,32 @@ public final class ExpandedSwap
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the legs of the swap with the specified type.
+   * Returns the set of indices referred to by the swap.
    * <p>
-   * This returns all the legs with the given type.
+   * A swap will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Calling this method will return the complete list of indices, including
+   * any associated with FX reset.
    * 
-   * @param type  the type to find
-   * @return the matching legs of the swap
+   * @return the set of indices referred to by this swap
    */
-  public ImmutableList<ExpandedSwapLeg> getLegs(SwapLegType type) {
-    return legs.stream().filter(leg -> leg.getType() == type).collect(toImmutableList());
-  }
-
-  /**
-   * Gets the first pay or receive leg of the swap.
-   * <p>
-   * This returns the first pay or receive leg of the swap, empty if no matching leg.
-   * 
-   * @param payReceive  the pay or receive flag
-   * @return the first matching leg of the swap
-   */
-  public Optional<ExpandedSwapLeg> getLeg(PayReceive payReceive) {
-    return legs.stream().filter(leg -> leg.getPayReceive() == payReceive).findFirst();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Expands this swap, trivially returning {@code this}.
-   * 
-   * @return this swap
-   */
-  @Override
-  public ExpandedSwap expand() {
-    return this;
+  public ImmutableSet<Index> allIndices() {
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    legs.stream().forEach(leg -> leg.collectIndices(builder));
+    return builder.build();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedSwap}.
+   * The meta-bean for {@code ResolvedSwap}.
    * @return the meta-bean, not null
    */
-  public static ExpandedSwap.Meta meta() {
-    return ExpandedSwap.Meta.INSTANCE;
+  public static ResolvedSwap.Meta meta() {
+    return ResolvedSwap.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedSwap.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedSwap.Meta.INSTANCE);
   }
 
   /**
@@ -176,13 +247,13 @@ public final class ExpandedSwap
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static ExpandedSwap.Builder builder() {
-    return new ExpandedSwap.Builder();
+  public static ResolvedSwap.Builder builder() {
+    return new ResolvedSwap.Builder();
   }
 
   @Override
-  public ExpandedSwap.Meta metaBean() {
-    return ExpandedSwap.Meta.INSTANCE;
+  public ResolvedSwap.Meta metaBean() {
+    return ResolvedSwap.Meta.INSTANCE;
   }
 
   @Override
@@ -204,7 +275,7 @@ public final class ExpandedSwap
    * and closer to user expectation to treat them as being ordered.
    * @return the value of the property, not empty
    */
-  public ImmutableList<ExpandedSwapLeg> getLegs() {
+  public ImmutableList<ResolvedSwapLeg> getLegs() {
     return legs;
   }
 
@@ -223,7 +294,7 @@ public final class ExpandedSwap
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedSwap other = (ExpandedSwap) obj;
+      ResolvedSwap other = (ResolvedSwap) obj;
       return JodaBeanUtils.equal(legs, other.legs);
     }
     return false;
@@ -238,16 +309,18 @@ public final class ExpandedSwap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
-    buf.append("ExpandedSwap{");
-    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ResolvedSwap{");
+    buf.append("legs").append('=').append(legs).append(',').append(' ');
+    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedSwap}.
+   * The meta-bean for {@code ResolvedSwap}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -259,14 +332,26 @@ public final class ExpandedSwap
      * The meta-property for the {@code legs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<ExpandedSwapLeg>> legs = DirectMetaProperty.ofImmutable(
-        this, "legs", ExpandedSwap.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<ResolvedSwapLeg>> legs = DirectMetaProperty.ofImmutable(
+        this, "legs", ResolvedSwap.class, (Class) ImmutableList.class);
+    /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", ResolvedSwap.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", ResolvedSwap.class, LocalDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "legs");
+        "legs",
+        "startDate",
+        "endDate");
 
     /**
      * Restricted constructor.
@@ -279,18 +364,22 @@ public final class ExpandedSwap
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return legs;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public ExpandedSwap.Builder builder() {
-      return new ExpandedSwap.Builder();
+    public ResolvedSwap.Builder builder() {
+      return new ResolvedSwap.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedSwap> beanType() {
-      return ExpandedSwap.class;
+    public Class<? extends ResolvedSwap> beanType() {
+      return ResolvedSwap.class;
     }
 
     @Override
@@ -303,8 +392,24 @@ public final class ExpandedSwap
      * The meta-property for the {@code legs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<ExpandedSwapLeg>> legs() {
+    public MetaProperty<ImmutableList<ResolvedSwapLeg>> legs() {
       return legs;
+    }
+
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
     }
 
     //-----------------------------------------------------------------------
@@ -312,7 +417,11 @@ public final class ExpandedSwap
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          return ((ExpandedSwap) bean).getLegs();
+          return ((ResolvedSwap) bean).getLegs();
+        case -2129778896:  // startDate
+          return ((ResolvedSwap) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((ResolvedSwap) bean).getEndDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -330,11 +439,11 @@ public final class ExpandedSwap
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedSwap}.
+   * The bean-builder for {@code ResolvedSwap}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwap> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResolvedSwap> {
 
-    private List<ExpandedSwapLeg> legs = ImmutableList.of();
+    private List<ResolvedSwapLeg> legs = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -346,7 +455,7 @@ public final class ExpandedSwap
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(ExpandedSwap beanToCopy) {
+    private Builder(ResolvedSwap beanToCopy) {
       this.legs = beanToCopy.getLegs();
     }
 
@@ -366,7 +475,7 @@ public final class ExpandedSwap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          this.legs = (List<ExpandedSwapLeg>) newValue;
+          this.legs = (List<ResolvedSwapLeg>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -399,8 +508,8 @@ public final class ExpandedSwap
     }
 
     @Override
-    public ExpandedSwap build() {
-      return new ExpandedSwap(
+    public ResolvedSwap build() {
+      return new ResolvedSwap(
           legs);
     }
 
@@ -414,7 +523,7 @@ public final class ExpandedSwap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(List<ExpandedSwapLeg> legs) {
+    public Builder legs(List<ResolvedSwapLeg> legs) {
       JodaBeanUtils.notEmpty(legs, "legs");
       this.legs = legs;
       return this;
@@ -426,7 +535,7 @@ public final class ExpandedSwap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(ExpandedSwapLeg... legs) {
+    public Builder legs(ResolvedSwapLeg... legs) {
       return legs(ImmutableList.copyOf(legs));
     }
 
@@ -434,7 +543,7 @@ public final class ExpandedSwap
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("ExpandedSwap.Builder{");
+      buf.append("ResolvedSwap.Builder{");
       buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
       buf.append('}');
       return buf.toString();

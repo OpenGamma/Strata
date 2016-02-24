@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -69,6 +68,7 @@ import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fx.type.FxSwapConventions;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -362,7 +362,7 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    FraTrade trade = (FraTrade) node.trade(valuationDate, marketDataMap);
+    FraTrade trade = node.trade(valuationDate, marketDataMap);
     ResolvedFraTrade resolved = trade.resolve(REF_DATA);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue(resolved, ratesProvider);
     double pv = currencyAmount.getAmount();
@@ -375,8 +375,9 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    Trade trade = node.trade(valuationDate, marketDataMap);
-    MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue((SwapTrade) trade, ratesProvider);
+    SwapTrade trade = node.trade(valuationDate, marketDataMap);
+    ResolvedSwapTrade resolved = trade.resolve(REF_DATA);
+    MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue(resolved, ratesProvider);
     double pv = amount.getAmount(Currency.USD).getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
   }

@@ -240,7 +240,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
-          ((SwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct(), result);
+          ((SwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR;

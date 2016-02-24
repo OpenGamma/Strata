@@ -46,6 +46,9 @@ public class CalibrationDiscountingSimpleEur3Test {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 24);
 
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   /** Data for EUR-DSCON curve */
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
@@ -83,9 +86,6 @@ public class CalibrationDiscountingSimpleEur3Test {
   private static final DiscountingSwapProductPricer SWAP_PRICER =
       DiscountingSwapProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
-
-  // reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;
@@ -130,7 +130,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // OIS
     for (int i = 0; i < DSC_MARKET_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct(), result);
+          .presentValue(((SwapTrade) dscTrades.get(i)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd3
@@ -148,7 +148,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // IRS
     for (int i = 0; i < FWD3_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct(), result);
+          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + FWD3_FRA_QUOTES.length)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV Fwd6
@@ -160,7 +160,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // IRS
     for (int i = 0; i < FWD6_IRS_QUOTES.length; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct(), result);
+          .presentValue(((SwapTrade) fwd6Trades.get(i + 1 + FWD6_FRA_QUOTES.length)).getProduct().resolve(REF_DATA), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -206,7 +206,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     // OIS
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
       PointSensitivities pts = SWAP_PRICER.parRateSensitivity(
-          ((SwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
+          ((SwapTrade) dscTrades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3); // Calibration of all curves simultaneously
@@ -237,7 +237,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
       if (fwd3Trades.get(loopnode) instanceof SwapTrade) {
         pts = SWAP_PRICER.parSpreadSensitivity(
-            ((SwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
+            ((SwapTrade) fwd3Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
@@ -273,7 +273,7 @@ public class CalibrationDiscountingSimpleEur3Test {
       }
       if (fwd6Trades.get(loopnode) instanceof SwapTrade) {
         pts = SWAP_PRICER.parSpreadSensitivity(
-            ((SwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
+            ((SwapTrade) fwd6Trades.get(loopnode)).getProduct().resolve(REF_DATA), provider).build();
       }
       CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
       CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);

@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.rate.FixedRateObservation;
@@ -48,6 +49,7 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 @Test
 public class SwapTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double RATE = 0.01d;
   private static final double NOTIONAL = 100_000d;
 
@@ -142,14 +144,14 @@ public class SwapTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     Swap test = Swap.builder()
         .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
         .build();
-    assertEquals(test.expand(), ExpandedSwap.of(MOCK_EXPANDED_GBP1, MOCK_EXPANDED_USD1));
+    assertEquals(test.resolve(REF_DATA), ResolvedSwap.of(MOCK_EXPANDED_GBP1, MOCK_EXPANDED_USD1));
   }
 
-  public void test_expand_unadjustedAccrualAdjustedPayment() {
+  public void test_resolve_unadjustedAccrualAdjustedPayment() {
     Swap test = Swap.builder()
         .legs(RateCalculationSwapLeg.builder()
             .payReceive(RECEIVE)
@@ -224,14 +226,14 @@ public class SwapTest {
         .currency(GBP)
         .notional(NOTIONAL)
         .build();
-    ExpandedSwap expected = ExpandedSwap.builder()
-        .legs(ExpandedSwapLeg.builder()
+    ResolvedSwap expected = ResolvedSwap.builder()
+        .legs(ResolvedSwapLeg.builder()
             .paymentPeriods(pp1, pp2, pp3, pp4)
             .payReceive(RECEIVE)
             .type(FIXED)
             .build())
         .build();
-    assertEqualsBean(test.expand(), expected);
+    assertEqualsBean(test.resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

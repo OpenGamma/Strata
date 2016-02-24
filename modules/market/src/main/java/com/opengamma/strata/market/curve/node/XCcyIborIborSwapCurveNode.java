@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -165,7 +165,7 @@ public final class XCcyIborIborSwapCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -179,11 +179,11 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
     // Select the 'second' Ibor leg, i.e. the flat leg
-    ExpandedSwapLeg iborLegExpanded = iborLeg.expand();
+    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
     List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
     int nbPeriods = periods.size();
     RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);

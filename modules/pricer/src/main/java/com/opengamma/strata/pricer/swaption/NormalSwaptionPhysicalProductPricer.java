@@ -15,8 +15,8 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.ExpandedSwaption;
 import com.opengamma.strata.product.swaption.SwaptionProduct;
@@ -78,8 +78,8 @@ public class NormalSwaptionPhysicalProductPricer
     ArgChecker.isTrue(expiryDate.isAfter(valuationDate),
         "Expiry must be after valuation date to compute an implied volatility");
     double expiry = dayCount.yearFraction(valuationDate, expiryDate);
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double numeraire = Math.abs(pvbp);

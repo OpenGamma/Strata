@@ -22,8 +22,8 @@ import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.PaymentEventPricer;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -85,12 +85,12 @@ public class HullWhiteSwaptionPhysicalProductPricer {
 
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
+    ResolvedSwap swap = expanded.getUnderlying();
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return CurrencyAmount.of(swap.getLegs().get(0).getCurrency(), 0d);
     }
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[] discountedCashFlow = new double[nPayments];
@@ -145,7 +145,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
 
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
+    ResolvedSwap swap = expanded.getUnderlying();
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return PointSensitivityBuilder.none();
@@ -193,12 +193,12 @@ public class HullWhiteSwaptionPhysicalProductPricer {
 
     ExpandedSwaption expanded = swaption.expand();
     validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
+    ResolvedSwap swap = expanded.getUnderlying();
     LocalDate expiryDate = expanded.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return DoubleArray.EMPTY;
     }
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[][] alphaAdjoint = new double[nPayments][];

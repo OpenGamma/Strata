@@ -208,7 +208,7 @@ public class CalibrationDiscountingSimple1Test {
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs2 = SWAP_PRICER.presentValue(
-          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result2);
+          ((SwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct().resolve(REF_DATA), result2);
       assertEquals(pvIrs2.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
   }

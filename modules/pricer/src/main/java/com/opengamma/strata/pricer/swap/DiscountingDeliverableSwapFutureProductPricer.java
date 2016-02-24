@@ -7,12 +7,13 @@ package com.opengamma.strata.pricer.swap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 
 /**
  * Pricer for for deliverable swap futures.
@@ -27,15 +28,18 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
   public static final DiscountingDeliverableSwapFutureProductPricer DEFAULT =
       new DiscountingDeliverableSwapFutureProductPricer(DiscountingSwapProductPricer.DEFAULT);
 
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   /**
-   * Pricer for {@link Swap}.
+   * Pricer for {@link ResolvedSwap}.
    */
   private final DiscountingSwapProductPricer swapPricer;
 
   /**
    * Creates an instance.
    * 
-   * @param swapPricer  the pricer for {@link Swap}.
+   * @param swapPricer  the pricer for {@link ResolvedSwap}.
    */
   public DiscountingDeliverableSwapFutureProductPricer(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swapPricer");
@@ -62,7 +66,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @return the price of the product, in decimal form
    */
   public double price(DeliverableSwapFuture futures, RatesProvider ratesProvider) {
-    Swap swap = futures.getUnderlyingSwap();
+    ResolvedSwap swap = futures.getUnderlyingSwap().resolve(REF_DATA);
     Currency currency = futures.getCurrency();
     CurrencyAmount pvSwap = swapPricer.presentValue(swap, currency, ratesProvider);
     double df = ratesProvider.discountFactor(currency, futures.getDeliveryDate());
@@ -80,7 +84,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivity(DeliverableSwapFuture futures, RatesProvider ratesProvider) {
-    Swap swap = futures.getUnderlyingSwap();
+    ResolvedSwap swap = futures.getUnderlyingSwap().resolve(REF_DATA);
     Currency currency = futures.getCurrency();
     double pvSwap = swapPricer.presentValue(swap, currency, ratesProvider).getAmount();
     double dfInv = 1d / ratesProvider.discountFactor(currency, futures.getDeliveryDate());

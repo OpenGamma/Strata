@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -43,6 +44,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 @Test
 public class CmsTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ValueSchedule NOTIONAL = ValueSchedule.of(1.0e6);
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_10Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
@@ -83,14 +85,14 @@ public class CmsTest {
     assertFalse(test.getPayLeg().isPresent());
   }
 
-  public void test_expand_twoLegs() {
+  public void test_resolve_twoLegs() {
     Cms base = Cms.of(CMS_LEG, PAY_LEG);
     ExpandedCms test = base.expand();
     assertEquals(test.getCmsLeg(), CMS_LEG.expand());
-    assertEquals(test.getPayLeg().get(), PAY_LEG.expand());
+    assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
   }
 
-  public void test_expand_oneLeg() {
+  public void test_resolve_oneLeg() {
     Cms base = Cms.of(CMS_LEG);
     ExpandedCms test = base.expand();
     assertEquals(test.getCmsLeg(), CMS_LEG.expand());

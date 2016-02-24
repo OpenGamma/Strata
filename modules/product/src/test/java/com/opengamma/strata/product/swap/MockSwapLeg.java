@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 
 /**
@@ -45,7 +46,7 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
   public static final SwapLeg MOCK_GBP1 = new MockSwapLeg(FIXED, PAY, date(2012, 1, 15), date(2012, 8, 15), GBP);
-  public static final ExpandedSwapLeg MOCK_EXPANDED_GBP1 = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg MOCK_EXPANDED_GBP1 = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(RatePaymentPeriod.builder()
@@ -62,7 +63,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
       .build();
   public static final SwapLeg MOCK_GBP2 = new MockSwapLeg(FIXED, PAY, date(2012, 1, 15), date(2012, 6, 15), GBP);
   public static final SwapLeg MOCK_USD1 = new MockSwapLeg(IBOR, RECEIVE, date(2012, 1, 15), date(2012, 8, 15), USD);
-  public static final ExpandedSwapLeg MOCK_EXPANDED_USD1 = ExpandedSwapLeg.builder()
+  public static final ResolvedSwapLeg MOCK_EXPANDED_USD1 = ResolvedSwapLeg.builder()
       .type(IBOR)
       .payReceive(RECEIVE)
       .paymentPeriods(RatePaymentPeriod.builder()
@@ -103,7 +104,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   }
 
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     if (this == MOCK_GBP1) {
       return MOCK_EXPANDED_GBP1;
     }

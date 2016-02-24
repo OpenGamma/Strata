@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 
 /**
  * An expanded option on an underlying swap.
@@ -84,7 +84,7 @@ public final class ExpandedSwaption
    * as viewed by the party long the option. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final ExpandedSwap underlying;
+  private final ResolvedSwap underlying;
 
   //-------------------------------------------------------------------------
   /**
@@ -144,7 +144,7 @@ public final class ExpandedSwaption
       LocalDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
-      ExpandedSwap underlying) {
+      ResolvedSwap underlying) {
     JodaBeanUtils.notNull(longShort, "longShort");
     JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
@@ -240,7 +240,7 @@ public final class ExpandedSwaption
    * as viewed by the party long the option.
    * @return the value of the property, not null
    */
-  public ExpandedSwap getUnderlying() {
+  public ResolvedSwap getUnderlying() {
     return underlying;
   }
 
@@ -334,8 +334,8 @@ public final class ExpandedSwaption
     /**
      * The meta-property for the {@code underlying} property.
      */
-    private final MetaProperty<ExpandedSwap> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", ExpandedSwaption.class, ExpandedSwap.class);
+    private final MetaProperty<ResolvedSwap> underlying = DirectMetaProperty.ofImmutable(
+        this, "underlying", ExpandedSwaption.class, ResolvedSwap.class);
     /**
      * The meta-properties.
      */
@@ -433,7 +433,7 @@ public final class ExpandedSwaption
      * The meta-property for the {@code underlying} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ExpandedSwap> underlying() {
+    public MetaProperty<ResolvedSwap> underlying() {
       return underlying;
     }
 
@@ -479,7 +479,7 @@ public final class ExpandedSwaption
     private LocalDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
-    private ExpandedSwap underlying;
+    private ResolvedSwap underlying;
 
     /**
      * Restricted constructor.
@@ -540,7 +540,7 @@ public final class ExpandedSwaption
           this.expiryZone = (ZoneId) newValue;
           break;
         case -1770633379:  // underlying
-          this.underlying = (ExpandedSwap) newValue;
+          this.underlying = (ResolvedSwap) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -660,7 +660,7 @@ public final class ExpandedSwaption
      * @param underlying  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(ExpandedSwap underlying) {
+    public Builder underlying(ResolvedSwap underlying) {
       JodaBeanUtils.notNull(underlying, "underlying");
       this.underlying = underlying;
       return this;

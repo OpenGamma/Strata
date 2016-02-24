@@ -30,6 +30,8 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 
@@ -155,23 +157,24 @@ public final class RateCalculationSwapLeg
   }
 
   /**
-   * Converts this swap leg to the equivalent {@code ExpandedSwapLeg}.
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
-   * An {@link ExpandedSwapLeg} represents the same data as this leg, but with
+   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
    * a complete schedule of dates defined using {@link RatePaymentPeriod}.
    * 
-   * @return the equivalent expanded swap leg
-   * @throws RuntimeException if unable to expand due to an invalid swap schedule or definition
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
    */
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
     Schedule resolvedAccruals = accrualSchedule.createSchedule();
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
     List<RateAccrualPeriod> accrualPeriods = calculation.expand(resolvedAccruals, resolvedPayments);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive);
-    return ExpandedSwapLeg.builder()
+    return ResolvedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)

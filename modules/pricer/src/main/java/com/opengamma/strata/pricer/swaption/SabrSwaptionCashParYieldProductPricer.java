@@ -15,8 +15,8 @@ import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.ExpandedSwaption;
@@ -73,8 +73,8 @@ public class SabrSwaptionCashParYieldProductPricer
     validate(expanded, ratesProvider, swaptionVolatilities);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
@@ -122,8 +122,8 @@ public class SabrSwaptionCashParYieldProductPricer
     validate(expanded, ratesProvider, swaptionVolatilities);
     ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
     double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = expanded.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double shift = swaptionVolatilities.shift(expiry, tenor);
     double strike = calculateStrike(fixedLeg);

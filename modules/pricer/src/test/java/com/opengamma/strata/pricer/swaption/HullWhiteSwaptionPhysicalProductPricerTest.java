@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -53,13 +54,14 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swap.PaymentEventPricer;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swaption.CashSettlement;
@@ -73,6 +75,7 @@ import com.opengamma.strata.product.swaption.Swaption;
 @Test
 public class HullWhiteSwaptionPhysicalProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ZonedDateTime MATURITY = dateUtc(2016, 7, 7);
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
@@ -142,7 +145,9 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .calculation(RATE_IBOR)
       .build();
   private static final Swap SWAP_REC = Swap.of(FIXED_LEG_REC, IBOR_LEG_PAY);
+  private static final ResolvedSwap RSWAP_REC = SWAP_REC.resolve(REF_DATA);
   private static final Swap SWAP_PAY = Swap.of(FIXED_LEG_PAY, IBOR_LEG_REC);
+  private static final ResolvedSwap RSWAP_PAY = SWAP_PAY.resolve(REF_DATA);
   private static final CashSettlement PAR_YIELD = CashSettlement.builder()
       .cashSettlementMethod(CashSettlementMethod.PAR_YIELD)
       .settlementDate(SETTLE)
@@ -223,7 +228,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
     CurrencyAmount computedRec = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount computedPay = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
     PaymentEventPricer<PaymentEvent> paymentEventPricer = PaymentEventPricer.instance();
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(SWAP_REC.expand(), RATE_PROVIDER);
+    ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(RSWAP_REC, RATE_PROVIDER);
     LocalDate expiryDate = MATURITY.toLocalDate();
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
@@ -252,7 +257,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
     CurrencyAmount computedPay =
         PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
-    double swapPv = SWAP_PRICER.presentValue(SWAP_REC, RATES_PROVIDER_AT_MATURITY).getAmount(EUR).getAmount();
+    double swapPv = SWAP_PRICER.presentValue(RSWAP_REC, RATES_PROVIDER_AT_MATURITY).getAmount(EUR).getAmount();
     assertEquals(computedRec.getAmount(), swapPv, NOTIONAL * TOL);
     assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
   }
@@ -273,7 +278,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
     CurrencyAmount pvPayShort = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
     assertEquals(pvRecLong.getAmount(), -pvRecShort.getAmount(), NOTIONAL * TOL);
     assertEquals(pvPayLong.getAmount(), -pvPayShort.getAmount(), NOTIONAL * TOL);
-    double swapPv = SWAP_PRICER.presentValue(SWAP_PAY, RATE_PROVIDER).getAmount(EUR).getAmount();
+    double swapPv = SWAP_PRICER.presentValue(RSWAP_PAY, RATE_PROVIDER).getAmount(EUR).getAmount();
     assertEquals(pvPayLong.getAmount() - pvRecLong.getAmount(), swapPv, NOTIONAL * TOL);
     assertEquals(pvPayShort.getAmount() - pvRecShort.getAmount(), -swapPv, NOTIONAL * TOL);
   }
@@ -381,7 +386,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivity(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER).build());
     assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
     assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
-    PointSensitivities expectedPoint = SWAP_PRICER.presentValueSensitivity(SWAP_PAY, RATE_PROVIDER).build();
+    PointSensitivities expectedPoint = SWAP_PRICER.presentValueSensitivity(RSWAP_PAY, RATE_PROVIDER).build();
     CurveCurrencyParameterSensitivities expected = RATE_PROVIDER.curveParameterSensitivity(expectedPoint);
     assertTrue(expected.equalWithTolerance(pvSensiPayLong.combinedWith(pvSensiRecLong.multipliedBy(-1d)), NOTIONAL * TOL));
     assertTrue(expected.equalWithTolerance(pvSensiRecShort.combinedWith(pvSensiPayShort.multipliedBy(-1d)), NOTIONAL * TOL));

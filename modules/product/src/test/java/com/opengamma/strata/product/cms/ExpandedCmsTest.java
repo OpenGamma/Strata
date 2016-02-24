@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.SwapIndex;
@@ -86,7 +86,7 @@ public class ExpandedCmsTest {
       .currency(GBP)
       .notional(-NOTIONAL)
       .build();
-  private static final ExpandedSwapLeg PAY_LEG = ExpandedSwapLeg.builder()
+  private static final ResolvedSwapLeg PAY_LEG = ResolvedSwapLeg.builder()
       .paymentPeriods(PAY_PERIOD_1, PAY_PERIOD_2)
       .type(FIXED)
       .payReceive(PAY)
