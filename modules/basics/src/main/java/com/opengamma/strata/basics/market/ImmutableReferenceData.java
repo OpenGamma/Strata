@@ -26,6 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -53,7 +55,7 @@ public final class ImmutableReferenceData
    * Obtains an instance from a map of reference data.
    * <p>
    * Each entry in the map is a single piece of reference data, keyed by the matching identifier.
-   * For example, a {@code HolidayCalendarId} associated with a {@code HolidayCalendar}.
+   * For example, a {@link HolidayCalendarId} associated with a {@link HolidayCalendar}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
    *
