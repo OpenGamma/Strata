@@ -92,7 +92,7 @@ final class OvernightIndexCsvLookup
     int effectiveDays = Integer.parseInt(row.getField(EFFECTIVE_DAYS_FIELD));
     // build result
     return ImmutableOvernightIndex.builder()
-        .id(OvernightIndexId.of(name))
+        .name(name)
         .currency(currency)
         .dayCount(dayCount)
         .fixingCalendar(fixingCal)

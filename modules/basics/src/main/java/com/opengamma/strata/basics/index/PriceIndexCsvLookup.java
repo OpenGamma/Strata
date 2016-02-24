@@ -88,7 +88,7 @@ final class PriceIndexCsvLookup
     Frequency frequency = Frequency.parse(row.getField(PUBLICATION_FREQUENCY_FIELD));
     // build result
     return ImmutablePriceIndex.builder()
-        .id(PriceIndexId.of(name))
+        .name(name)
         .currency(currency)
         .region(region)
         .publicationFrequency(frequency)

@@ -52,10 +52,10 @@ public final class ImmutableIborIndex
     implements IborIndex, ImmutableBean, Serializable {
 
   /**
-   * The identifier, such as 'GBP-LIBOR-3M'.
+   * The index name, such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final IborIndexId id;
+  private final String name;
   /**
    * The currency of the index.
    */
@@ -171,14 +171,14 @@ public final class ImmutableIborIndex
       return true;
     }
     if (obj instanceof ImmutableIborIndex) {
-      return id.equals(((ImmutableIborIndex) obj).id);
+      return name.equals(((ImmutableIborIndex) obj).name);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return name.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -220,7 +220,7 @@ public final class ImmutableIborIndex
   }
 
   private ImmutableIborIndex(
-      IborIndexId id,
+      String name,
       Currency currency,
       HolidayCalendarId fixingCalendar,
       LocalTime fixingTime,
@@ -229,7 +229,7 @@ public final class ImmutableIborIndex
       DaysAdjustment effectiveDateOffset,
       TenorAdjustment maturityDateOffset,
       DayCount dayCount) {
-    JodaBeanUtils.notNull(id, "id");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(fixingTime, "fixingTime");
@@ -238,7 +238,7 @@ public final class ImmutableIborIndex
     JodaBeanUtils.notNull(effectiveDateOffset, "effectiveDateOffset");
     JodaBeanUtils.notNull(maturityDateOffset, "maturityDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    this.id = id;
+    this.name = name;
     this.currency = currency;
     this.fixingCalendar = fixingCalendar;
     this.fixingTime = fixingTime;
@@ -266,12 +266,12 @@ public final class ImmutableIborIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier, such as 'GBP-LIBOR-3M'.
+   * Gets the index name, such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
   @Override
-  public IborIndexId getId() {
-    return id;
+  public String getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
@@ -389,10 +389,10 @@ public final class ImmutableIborIndex
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<IborIndexId> id = DirectMetaProperty.ofImmutable(
-        this, "id", ImmutableIborIndex.class, IborIndexId.class);
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", ImmutableIborIndex.class, String.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -438,7 +438,7 @@ public final class ImmutableIborIndex
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "id",
+        "name",
         "currency",
         "fixingCalendar",
         "fixingTime",
@@ -457,8 +457,8 @@ public final class ImmutableIborIndex
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 394230283:  // fixingCalendar
@@ -496,11 +496,11 @@ public final class ImmutableIborIndex
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndexId> id() {
-      return id;
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
@@ -571,8 +571,8 @@ public final class ImmutableIborIndex
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return ((ImmutableIborIndex) bean).getId();
+        case 3373707:  // name
+          return ((ImmutableIborIndex) bean).getName();
         case 575402001:  // currency
           return ((ImmutableIborIndex) bean).getCurrency();
         case 394230283:  // fixingCalendar
@@ -610,7 +610,7 @@ public final class ImmutableIborIndex
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableIborIndex> {
 
-    private IborIndexId id;
+    private String name;
     private Currency currency;
     private HolidayCalendarId fixingCalendar;
     private LocalTime fixingTime;
@@ -631,7 +631,7 @@ public final class ImmutableIborIndex
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ImmutableIborIndex beanToCopy) {
-      this.id = beanToCopy.getId();
+      this.name = beanToCopy.getName();
       this.currency = beanToCopy.getCurrency();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.fixingTime = beanToCopy.getFixingTime();
@@ -646,8 +646,8 @@ public final class ImmutableIborIndex
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 394230283:  // fixingCalendar
@@ -672,8 +672,8 @@ public final class ImmutableIborIndex
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          this.id = (IborIndexId) newValue;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -732,7 +732,7 @@ public final class ImmutableIborIndex
     @Override
     public ImmutableIborIndex build() {
       return new ImmutableIborIndex(
-          id,
+          name,
           currency,
           fixingCalendar,
           fixingTime,
@@ -745,13 +745,13 @@ public final class ImmutableIborIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the identifier, such as 'GBP-LIBOR-3M'.
-     * @param id  the new value, not null
+     * Sets the index name, such as 'GBP-LIBOR-3M'.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder id(IborIndexId id) {
-      JodaBeanUtils.notNull(id, "id");
-      this.id = id;
+    public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
       return this;
     }
 
@@ -865,7 +865,7 @@ public final class ImmutableIborIndex
     public String toString() {
       StringBuilder buf = new StringBuilder(320);
       buf.append("ImmutableIborIndex.Builder{");
-      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(fixingTime)).append(',').append(' ');

@@ -99,7 +99,7 @@ public class FxIndexTest {
 
   public void test_dates() {
     FxIndex test = ImmutableFxIndex.builder()
-        .id(FxIndexId.of("Test"))
+        .name("Test")
         .currencyPair(CurrencyPair.of(EUR, GBP))
         .fixingCalendar(NO_HOLIDAYS)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(2))
@@ -119,12 +119,12 @@ public class FxIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableFxIndex a = ImmutableFxIndex.builder()
-        .id(FxIndexId.of("GBP-EUR"))
+        .name("GBP-EUR")
         .currencyPair(CurrencyPair.of(GBP, EUR))
         .fixingCalendar(GBLO)
         .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    ImmutableFxIndex b = a.toBuilder().id(FxIndexId.of("EUR-GBP")).build();
+    ImmutableFxIndex b = a.toBuilder().name("EUR-GBP").build();
     assertEquals(a.equals(b), false);
   }
 

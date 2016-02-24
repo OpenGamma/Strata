@@ -65,7 +65,6 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.FxIndexId;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
@@ -202,7 +201,7 @@ public class FpmlDocumentParserTest {
     assertEquals(fx.getSettlementCurrencyNotional(), CurrencyAmount.of(USD, 10000000));
     assertEquals(fx.getAgreedFxRate(), FxRate.of(USD, INR, 43.4));
     assertEquals(fx.getIndex(), ImmutableFxIndex.builder()
-        .id(FxIndexId.of("Reuters/RBIB/14:30"))
+        .name("Reuters/RBIB/14:30")
         .currencyPair(CurrencyPair.of(USD, INR))
         .fixingCalendar(USNY)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(-2))

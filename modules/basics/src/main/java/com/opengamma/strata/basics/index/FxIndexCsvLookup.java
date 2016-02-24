@@ -93,7 +93,7 @@ final class FxIndexCsvLookup
     HolidayCalendarId maturityCal = HolidayCalendarId.of(row.getField(MATURITY_CALENDAR_FIELD));
     // build result
     return ImmutableFxIndex.builder()
-        .id(FxIndexId.of(name))
+        .name(name)
         .currencyPair(CurrencyPair.of(baseCurrency, counterCurrency))
         .fixingCalendar(fixingCal)
         .maturityDateOffset(DaysAdjustment.ofBusinessDays(maturityDays, maturityCal))

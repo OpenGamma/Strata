@@ -46,10 +46,10 @@ public final class ImmutableOvernightIndex
     implements OvernightIndex, ImmutableBean, Serializable {
 
   /**
-   * The identifier, such as 'GBP-SONIA'.
+   * The index name, such as 'GBP-SONIA'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final OvernightIndexId id;
+  private final String name;
   /**
    * The currency of the index.
    */
@@ -125,14 +125,14 @@ public final class ImmutableOvernightIndex
       return true;
     }
     if (obj instanceof ImmutableOvernightIndex) {
-      return id.equals(((ImmutableOvernightIndex) obj).id);
+      return name.equals(((ImmutableOvernightIndex) obj).name);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return name.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -174,19 +174,19 @@ public final class ImmutableOvernightIndex
   }
 
   private ImmutableOvernightIndex(
-      OvernightIndexId id,
+      String name,
       Currency currency,
       HolidayCalendarId fixingCalendar,
       int publicationDateOffset,
       int effectiveDateOffset,
       DayCount dayCount) {
-    JodaBeanUtils.notNull(id, "id");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(publicationDateOffset, "publicationDateOffset");
     JodaBeanUtils.notNull(effectiveDateOffset, "effectiveDateOffset");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    this.id = id;
+    this.name = name;
     this.currency = currency;
     this.fixingCalendar = fixingCalendar;
     this.publicationDateOffset = publicationDateOffset;
@@ -211,12 +211,12 @@ public final class ImmutableOvernightIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier, such as 'GBP-SONIA'.
+   * Gets the index name, such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
   @Override
-  public OvernightIndexId getId() {
-    return id;
+  public String getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
@@ -300,10 +300,10 @@ public final class ImmutableOvernightIndex
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<OvernightIndexId> id = DirectMetaProperty.ofImmutable(
-        this, "id", ImmutableOvernightIndex.class, OvernightIndexId.class);
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", ImmutableOvernightIndex.class, String.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -334,7 +334,7 @@ public final class ImmutableOvernightIndex
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "id",
+        "name",
         "currency",
         "fixingCalendar",
         "publicationDateOffset",
@@ -350,8 +350,8 @@ public final class ImmutableOvernightIndex
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 394230283:  // fixingCalendar
@@ -383,11 +383,11 @@ public final class ImmutableOvernightIndex
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code id} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<OvernightIndexId> id() {
-      return id;
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
@@ -434,8 +434,8 @@ public final class ImmutableOvernightIndex
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return ((ImmutableOvernightIndex) bean).getId();
+        case 3373707:  // name
+          return ((ImmutableOvernightIndex) bean).getName();
         case 575402001:  // currency
           return ((ImmutableOvernightIndex) bean).getCurrency();
         case 394230283:  // fixingCalendar
@@ -467,7 +467,7 @@ public final class ImmutableOvernightIndex
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableOvernightIndex> {
 
-    private OvernightIndexId id;
+    private String name;
     private Currency currency;
     private HolidayCalendarId fixingCalendar;
     private int publicationDateOffset;
@@ -485,7 +485,7 @@ public final class ImmutableOvernightIndex
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ImmutableOvernightIndex beanToCopy) {
-      this.id = beanToCopy.getId();
+      this.name = beanToCopy.getName();
       this.currency = beanToCopy.getCurrency();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.publicationDateOffset = beanToCopy.getPublicationDateOffset();
@@ -497,8 +497,8 @@ public final class ImmutableOvernightIndex
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          return id;
+        case 3373707:  // name
+          return name;
         case 575402001:  // currency
           return currency;
         case 394230283:  // fixingCalendar
@@ -517,8 +517,8 @@ public final class ImmutableOvernightIndex
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3355:  // id
-          this.id = (OvernightIndexId) newValue;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -568,7 +568,7 @@ public final class ImmutableOvernightIndex
     @Override
     public ImmutableOvernightIndex build() {
       return new ImmutableOvernightIndex(
-          id,
+          name,
           currency,
           fixingCalendar,
           publicationDateOffset,
@@ -578,13 +578,13 @@ public final class ImmutableOvernightIndex
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the identifier, such as 'GBP-SONIA'.
-     * @param id  the new value, not null
+     * Sets the index name, such as 'GBP-SONIA'.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder id(OvernightIndexId id) {
-      JodaBeanUtils.notNull(id, "id");
-      this.id = id;
+    public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
       return this;
     }
 
@@ -659,7 +659,7 @@ public final class ImmutableOvernightIndex
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("ImmutableOvernightIndex.Builder{");
-      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("publicationDateOffset").append('=').append(JodaBeanUtils.toString(publicationDateOffset)).append(',').append(' ');

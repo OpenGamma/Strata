@@ -136,7 +136,7 @@ final class IborIndexCsvLookup
     TenorAdjustment tenorAdjustment = TenorAdjustment.of(tenor, tenorConvention, adj);
     // build result
     return ImmutableIborIndex.builder()
-        .id(IborIndexId.of(name))
+        .name(name)
         .currency(currency)
         .dayCount(dayCount)
         .fixingCalendar(fixingCal)

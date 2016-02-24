@@ -38,7 +38,6 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
-import com.opengamma.strata.basics.index.IborIndexId;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
@@ -78,7 +77,7 @@ public class FraTest {
 
   public void test_builder_AUD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .id(IborIndexId.of("AUD-INDEX"))
+        .name("AUD-INDEX")
         .currency(AUD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)
@@ -115,7 +114,7 @@ public class FraTest {
 
   public void test_builder_NZD() {
     ImmutableIborIndex dummyIndex = ImmutableIborIndex.builder()
-        .id(IborIndexId.of("NZD-INDEX"))
+        .name("NZD-INDEX")
         .currency(NZD)
         .dayCount(ACT_360)
         .fixingDateOffset(MINUS_TWO_DAYS)

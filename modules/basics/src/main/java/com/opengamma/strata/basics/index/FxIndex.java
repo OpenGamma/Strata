@@ -116,16 +116,6 @@ public interface FxIndex
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the identifier for the index.
-   * <p>
-   * This identifier is used to locate the index in {@link ReferenceData}.
-   * 
-   * @return the identifier
-   */
-  public abstract FxIndexId getId();
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the name that uniquely identifies this index.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
@@ -134,8 +124,6 @@ public interface FxIndex
    */
   @ToString
   @Override
-  public default String getName() {
-    return getId().getName();
-  }
+  public abstract String getName();
 
 }

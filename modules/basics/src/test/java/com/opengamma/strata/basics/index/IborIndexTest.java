@@ -293,7 +293,7 @@ public class IborIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableIborIndex a = ImmutableIborIndex.builder()
-        .id(IborIndexId.of("OGIBOR"))
+        .name("Test")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -303,14 +303,14 @@ public class IborIndexTest {
         .fixingTime(LocalTime.NOON)
         .fixingZone(ZoneId.of("Europe/London"))
         .build();
-    IborIndex b = a.toBuilder().id(IborIndexId.of("Rubbish")).build();
+    IborIndex b = a.toBuilder().name("Rubbish").build();
     assertEquals(a.equals(b), false);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableIborIndex index = ImmutableIborIndex.builder()
-        .id(IborIndexId.of("OGIBOR"))
+        .name("Test")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
@@ -330,7 +330,7 @@ public class IborIndexTest {
 
   public void test_serialization() {
     IborIndex index = ImmutableIborIndex.builder()
-        .id(IborIndexId.of("OGIBOR"))
+        .name("Test")
         .currency(Currency.GBP)
         .fixingCalendar(GBLO)
         .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))

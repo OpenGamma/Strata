@@ -142,22 +142,22 @@ public class OvernightIndexTest {
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableOvernightIndex a = ImmutableOvernightIndex.builder()
+        .name("Test")
         .currency(Currency.GBP)
-        .id(OvernightIndexId.of("OGONIA"))
         .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)
         .dayCount(ACT_360)
         .build();
-    OvernightIndex b = a.toBuilder().id(OvernightIndexId.of("Rubbish")).build();
+    OvernightIndex b = a.toBuilder().name("Rubbish").build();
     assertEquals(a.equals(b), false);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableOvernightIndex index = ImmutableOvernightIndex.builder()
+        .name("Test")
         .currency(Currency.GBP)
-        .id(OvernightIndexId.of("OGONIA"))
         .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)
@@ -173,8 +173,8 @@ public class OvernightIndexTest {
 
   public void test_serialization() {
     OvernightIndex index = ImmutableOvernightIndex.builder()
+        .name("Test")
         .currency(Currency.GBP)
-        .id(OvernightIndexId.of("OGONIA"))
         .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)

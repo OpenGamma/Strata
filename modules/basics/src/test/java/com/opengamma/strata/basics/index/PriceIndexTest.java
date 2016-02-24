@@ -78,7 +78,7 @@ public class PriceIndexTest {
     coverPrivateConstructor(PriceIndices.class);
     coverImmutableBean((ImmutableBean) PriceIndices.US_CPI_U);
     coverBeanEquals((ImmutableBean) PriceIndices.US_CPI_U, ImmutablePriceIndex.builder()
-        .id(PriceIndexId.of("Test"))
+        .name("Test")
         .region(Country.AR)
         .currency(Currency.ARS)
         .publicationFrequency(Frequency.P6M)

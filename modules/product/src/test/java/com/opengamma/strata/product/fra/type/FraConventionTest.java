@@ -43,7 +43,6 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
-import com.opengamma.strata.basics.index.IborIndexId;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fra.Fra;
@@ -66,7 +65,7 @@ public class FraConventionTest {
   private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
   private static final DaysAdjustment MINUS_FIVE_DAYS = DaysAdjustment.ofBusinessDays(-5, GBLO);
   private static final ImmutableIborIndex AUD_INDEX = ImmutableIborIndex.builder()
-      .id(IborIndexId.of("AUD-INDEX"))
+      .name("AUD-INDEX")
       .currency(AUD)
       .dayCount(ACT_360)
       .fixingDateOffset(MINUS_TWO_DAYS)
@@ -77,7 +76,7 @@ public class FraConventionTest {
       .fixingZone(ZoneId.of("Australia/Sydney"))
       .build();
   private static final ImmutableIborIndex NZD_INDEX = ImmutableIborIndex.builder()
-      .id(IborIndexId.of("NZD-INDEX"))
+      .name("NZD-INDEX")
       .currency(NZD)
       .dayCount(ACT_360)
       .fixingDateOffset(MINUS_TWO_DAYS)
