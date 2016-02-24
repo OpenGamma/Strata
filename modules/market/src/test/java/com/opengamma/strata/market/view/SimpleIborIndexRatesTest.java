@@ -134,8 +134,7 @@ public class SimpleIborIndexRatesTest {
 
   public void test_rateIgnoringTimeSeries_onValuation_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    LocalDate effective = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_VAL);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromEffective(effective);
+    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_VAL);
     double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
     double expected = CURVE.yValue(time);
     assertEquals(test.rateIgnoringTimeSeries(DATE_VAL), expected, TOLERANCE_RATE);
@@ -143,8 +142,7 @@ public class SimpleIborIndexRatesTest {
 
   public void test_rate_onValuation_noFixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
-    LocalDate effective = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_VAL);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromEffective(effective);
+    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_VAL);
     double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
     double expected = CURVE.yValue(time);
     assertEquals(test.rate(DATE_VAL), expected, TOLERANCE_RATE);
@@ -153,8 +151,7 @@ public class SimpleIborIndexRatesTest {
 
   public void test_rate_afterValuation() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    LocalDate effective = GBP_LIBOR_3M.calculateEffectiveFromFixing(DATE_AFTER);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromEffective(effective);
+    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_AFTER);
     double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
     double expected = CURVE.yValue(time);
     assertEquals(test.rate(DATE_AFTER), expected, TOLERANCE_RATE);

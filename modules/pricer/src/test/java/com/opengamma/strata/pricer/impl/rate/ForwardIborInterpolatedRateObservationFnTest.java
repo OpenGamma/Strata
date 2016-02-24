@@ -54,9 +54,8 @@ public class ForwardIborInterpolatedRateObservationFnTest {
 
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obs = ForwardIborInterpolatedRateObservationFn.DEFAULT;
-    LocalDate fixingStartDate = ro.getShortIndex().calculateEffectiveFromFixing(ro.getFixingDate());
-    LocalDate fixingEndDate3M = ro.getShortIndex().calculateMaturityFromEffective(fixingStartDate);
-    LocalDate fixingEndDate6M = ro.getLongIndex().calculateMaturityFromEffective(fixingStartDate);
+    LocalDate fixingEndDate3M = ro.getShortIndex().calculateMaturityFromFixing(ro.getFixingDate());
+    LocalDate fixingEndDate6M = ro.getLongIndex().calculateMaturityFromFixing(ro.getFixingDate());
     double days3M = fixingEndDate3M.toEpochDay() - ro.getFixingDate().toEpochDay(); //nb days in 3M fixing period
     double days6M = fixingEndDate6M.toEpochDay() - ro.getFixingDate().toEpochDay(); //nb days in 6M fixing period
     double daysCpn = ACCRUAL_END_DATE.toEpochDay() - ro.getFixingDate().toEpochDay();
@@ -95,9 +94,8 @@ public class ForwardIborInterpolatedRateObservationFnTest {
 
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     ForwardIborInterpolatedRateObservationFn obsFn = ForwardIborInterpolatedRateObservationFn.DEFAULT;
-    LocalDate fixingStartDate = ro.getShortIndex().calculateEffectiveFromFixing(ro.getFixingDate());
-    LocalDate fixingEndDate3M = ro.getShortIndex().calculateMaturityFromEffective(fixingStartDate);
-    LocalDate fixingEndDate6M = ro.getLongIndex().calculateMaturityFromEffective(fixingStartDate);
+    LocalDate fixingEndDate3M = ro.getShortIndex().calculateMaturityFromFixing(ro.getFixingDate());
+    LocalDate fixingEndDate6M = ro.getLongIndex().calculateMaturityFromFixing(ro.getFixingDate());
     double days3M = fixingEndDate3M.toEpochDay() - ro.getFixingDate().toEpochDay(); //nb days in 3M fixing period
     double days6M = fixingEndDate6M.toEpochDay() - ro.getFixingDate().toEpochDay(); //nb days in 6M fixing period
     double daysCpn = ACCRUAL_END_DATE.toEpochDay() - ro.getFixingDate().toEpochDay();

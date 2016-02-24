@@ -32,14 +32,6 @@ import com.opengamma.strata.basics.currency.Currency;
 @Test
 public class OvernightIndexTest {
 
-  public void test_null() {
-    OvernightIndex test = OvernightIndex.of("GBP-SONIA");
-    assertThrowsIllegalArg(() -> test.calculatePublicationFromFixing(null));
-    assertThrowsIllegalArg(() -> test.calculateEffectiveFromFixing(null));
-    assertThrowsIllegalArg(() -> test.calculateFixingFromEffective(null));
-    assertThrowsIllegalArg(() -> test.calculateMaturityFromEffective(null));
-  }
-
   public void test_gbpSonia() {
     OvernightIndex test = OvernightIndex.of("GBP-SONIA");
     assertEquals(test.getCurrency(), GBP);
@@ -56,16 +48,19 @@ public class OvernightIndexTest {
     OvernightIndex test = OvernightIndex.of("GBP-SONIA");
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 13)), date(2014, 10, 13));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 13)), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13)), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 13)), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 13)), date(2014, 10, 14));
     // weekend
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 10)), date(2014, 10, 10));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2014, 10, 13));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10)), date(2014, 10, 10));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10)), date(2014, 10, 13));
     // input date is Sunday
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 12)), date(2014, 10, 13));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2014, 10, 14));
   }
@@ -86,16 +81,19 @@ public class OvernightIndexTest {
     OvernightIndex test = OvernightIndex.of("USD-FED-FUND");
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 27)), date(2014, 10, 28));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27)), date(2014, 10, 28));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 27)), date(2014, 10, 27));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 27)), date(2014, 10, 28));
     // weekend and US holiday
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 10)), date(2014, 10, 14));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10)), date(2014, 10, 10));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10)), date(2014, 10, 14));
     // input date is Sunday, 13th is US holiday
     assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 14));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 14));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2014, 10, 15));
   }

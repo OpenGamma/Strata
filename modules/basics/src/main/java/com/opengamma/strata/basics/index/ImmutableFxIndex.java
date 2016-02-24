@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A foreign exchange index implementation based on an immutable set of rules.
@@ -79,7 +78,6 @@ public final class ImmutableFxIndex
   //-------------------------------------------------------------------------
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
-    ArgChecker.notNull(fixingDate, "fixingDate");
     // handle case where the input date is not a valid fixing date
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
     // find the maturity date using the offset and calendar in DaysAdjustment
@@ -88,7 +86,6 @@ public final class ImmutableFxIndex
 
   @Override
   public LocalDate calculateFixingFromMaturity(LocalDate maturityDate) {
-    ArgChecker.notNull(maturityDate, "maturityDate");
     // handle case where the input date is not a valid maturity date
     LocalDate maturityBusinessDay = maturityDateCalendar().nextOrSame(maturityDate);
     // find the fixing date iteratively
