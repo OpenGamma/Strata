@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateObservation;
@@ -80,7 +81,7 @@ public class RatePeriodSwapLegTest {
       .accrualPeriods(RAP1)
       .dayCount(ACT_365F)
       .currency(GBP)
-      .fxReset(FxReset.of(GBP_USD_WM, USD, DATE_2014_06_28))
+      .fxReset(FxReset.of(FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA), USD))
       .notional(8000d)
       .build();
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
@@ -213,15 +214,13 @@ public class RatePeriodSwapLegTest {
         .paymentDate(DATE_2014_06_30)
         .referenceCurrency(USD)
         .notional(-8000d)
-        .index(GBP_USD_WM)
-        .fixingDate(DATE_2014_06_28)
+        .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA))
         .build();
     FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_10_01)
         .referenceCurrency(USD)
         .notional(8000d)
-        .index(GBP_USD_WM)
-        .fixingDate(DATE_2014_06_28)
+        .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA))
         .build();
     NotionalExchange ne2a = NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, -6000d));
     NotionalExchange ne2b = NotionalExchange.of(DATE_2014_01_02, CurrencyAmount.of(GBP, 6000d));

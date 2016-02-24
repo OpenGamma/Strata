@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 
@@ -78,7 +79,7 @@ public class FxResetCalculationTest {
         .fixingDateOffset(MINUS_TWO_DAYS)
         .build();
     FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 3, 27)));
+    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 27), REF_DATA), GBP));
   }
 
   public void test_resolve_beforeEnd_weekend() {
@@ -89,7 +90,7 @@ public class FxResetCalculationTest {
         .fixingRelativeTo(FxResetFixingRelativeTo.PERIOD_END)
         .build();
     FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 6, 26)));
+    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 6, 26), REF_DATA), GBP));
   }
 
   public void test_resolve_beforeStart_threeDays() {
@@ -99,7 +100,7 @@ public class FxResetCalculationTest {
         .fixingDateOffset(MINUS_THREE_DAYS)
         .build();
     FxReset test = base.resolve(REF_DATA).apply(SchedulePeriod.of(DATE_2014_03_31, DATE_2014_06_30));
-    assertEquals(test, FxReset.of(EUR_GBP_ECB, GBP, date(2014, 3, 26)));
+    assertEquals(test, FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, date(2014, 3, 26), REF_DATA), GBP));
   }
 
   //-------------------------------------------------------------------------

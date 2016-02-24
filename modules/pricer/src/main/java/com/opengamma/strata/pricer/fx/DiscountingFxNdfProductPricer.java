@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import java.time.LocalDate;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -54,8 +52,7 @@ public class DiscountingFxNdfProductPricer {
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
     double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
-    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ndf.getObservation(), ccySettle);
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
     return notionalSettle.multipliedBy(dfSettle * (1d - agreedRate / forwardRate));
   }
@@ -78,8 +75,7 @@ public class DiscountingFxNdfProductPricer {
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     double notionalSettle = ndf.getSettlementNotional();
     double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
-    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ndf.getObservation(), ccySettle);
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
     double ratio = agreedRate / forwardRate;
     double dscBar = (1d - ratio) * notionalSettle;
@@ -87,7 +83,7 @@ public class DiscountingFxNdfProductPricer {
         provider.discountFactors(ccySettle).zeroRatePointSensitivity(ndf.getPaymentDate()).multipliedBy(dscBar);
     double forwardRateBar = dfSettle * notionalSettle * ratio / forwardRate;
     PointSensitivityBuilder sensiFx = provider.fxIndexRates(ndf.getIndex())
-        .ratePointSensitivity(ccySettle, fixingDate).withCurrency(ccySettle).multipliedBy(forwardRateBar);
+        .ratePointSensitivity(ndf.getObservation(), ccySettle).withCurrency(ccySettle).multipliedBy(forwardRateBar);
     return sensiDsc.combinedWith(sensiFx).build();
   }
 
@@ -126,8 +122,7 @@ public class DiscountingFxNdfProductPricer {
       Currency ccyOther = ndf.getNonDeliverableCurrency();
       CurrencyAmount notionalSettle = ndf.getSettlementCurrencyNotional();
       double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
-      LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-      double rate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+      double rate = provider.fxIndexRates(ndf.getIndex()).rate(ndf.getObservation(), ccySettle);
       return notionalSettle.multipliedBy(1d - agreedRate / rate);
     }
     return CurrencyAmount.zero(ccySettle);
@@ -144,8 +139,7 @@ public class DiscountingFxNdfProductPricer {
   public FxRate forwardFxRate(ResolvedFxNdf ndf, RatesProvider provider) {
     Currency ccySettle = ndf.getSettlementCurrency();
     Currency ccyOther = ndf.getNonDeliverableCurrency();
-    LocalDate fixingDate = ndf.getIndex().calculateFixingFromMaturity(ndf.getPaymentDate());
-    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ccySettle, fixingDate);
+    double forwardRate = provider.fxIndexRates(ndf.getIndex()).rate(ndf.getObservation(), ccySettle);
     return FxRate.of(ccySettle, ccyOther, forwardRate);
   }
 

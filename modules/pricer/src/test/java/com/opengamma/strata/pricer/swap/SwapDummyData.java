@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -88,16 +89,14 @@ public final class SwapDummyData {
       .paymentDate(date(2014, 7, 1))
       .referenceCurrency(Currency.USD)
       .notional(NOTIONAL)
-      .index(FxIndices.GBP_USD_WM)
-      .fixingDate(date(2014, 7, 1))
+      .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
       .build();
 
   public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP = FxResetNotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
       .referenceCurrency(Currency.GBP)
       .notional(-NOTIONAL)
-      .index(FxIndices.GBP_USD_WM)
-      .fixingDate(date(2014, 7, 1))
+      .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
       .build();
 
   /**
@@ -254,7 +253,7 @@ public final class SwapDummyData {
       .dayCount(ACT_365F)
       .currency(Currency.GBP)
       .notional(-NOTIONAL)
-      .fxReset(FxReset.of(FxIndices.GBP_USD_WM, Currency.USD, date(2014, 7, 2)))
+      .fxReset(FxReset.of(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 2), REF_DATA), Currency.USD))
       .build();
   /**
    * ResolvedSwapLeg (GBP - fixed - receiver).

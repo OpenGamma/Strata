@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.market.view;
 
-import java.time.LocalDate;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -75,26 +74,26 @@ public interface FxIndexRates
    * To convert an amount in the specified base currency to the other currency,
    * multiply it by the returned FX rate.
    * 
+   * @param observation  the rate observation, including the fixing date
    * @param baseCurrency  the base currency that the rate should be expressed against
-   * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double rate(Currency baseCurrency, LocalDate fixingDate);
+  public abstract double rate(FxIndexObservation observation, Currency baseCurrency);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
-   * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
+   * The sensitivity refers to the result of {@link #rate(FxIndexObservation, Currency)}.
    * 
+   * @param observation  the rate observation, including the fixing date
    * @param baseCurrency  the base currency that the rate should be expressed against
-   * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate);
+  public abstract PointSensitivityBuilder ratePointSensitivity(FxIndexObservation observation, Currency baseCurrency);
 
   //-------------------------------------------------------------------------
   /**

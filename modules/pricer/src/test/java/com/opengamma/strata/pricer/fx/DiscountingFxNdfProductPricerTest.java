@@ -22,7 +22,9 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexId;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -37,6 +39,7 @@ import com.opengamma.strata.product.fx.ResolvedFxSingle;
 @Test
 public class DiscountingFxNdfProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
   private static final Currency KRW = Currency.KRW;
@@ -53,17 +56,20 @@ public class DiscountingFxNdfProductPricerTest {
       .fixingCalendar(HolidayCalendars.USNY)
       .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
       .build();
+  private static final LocalDate FIXING_DATE = INDEX.calculateFixingFromMaturity(PAYMENT_DATE, REF_DATA);
+  private static final LocalDate FIXING_DATE_PAST = INDEX.calculateFixingFromMaturity(PAYMENT_DATE_PAST, REF_DATA);
+
   private static final ResolvedFxNdf NDF = ResolvedFxNdf.builder()
       .settlementCurrencyNotional(CURRENCY_NOTIONAL)
       .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+      .observation(FxIndexObservation.of(INDEX, FIXING_DATE, REF_DATA))
       .paymentDate(PAYMENT_DATE)
-      .index(INDEX)
       .build();
   private static final ResolvedFxNdf NDF_INVERSE = ResolvedFxNdf.builder()
       .settlementCurrencyNotional(CURRENCY_NOTIONAL_INVERSE)
       .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+      .observation(FxIndexObservation.of(INDEX, FIXING_DATE, REF_DATA))
       .paymentDate(PAYMENT_DATE)
-      .index(INDEX)
       .build();
 
   private static final DiscountingFxNdfProductPricer PRICER = DiscountingFxNdfProductPricer.DEFAULT;
@@ -94,8 +100,8 @@ public class DiscountingFxNdfProductPricerTest {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .observation(FxIndexObservation.of(INDEX, FIXING_DATE_PAST, REF_DATA))
         .paymentDate(PAYMENT_DATE_PAST)
-        .index(INDEX)
         .build();
     CurrencyAmount computed = PRICER.presentValue(ndf, PROVIDER);
     assertEquals(computed.getAmount(), 0d);
@@ -106,8 +112,8 @@ public class DiscountingFxNdfProductPricerTest {
     ResolvedFxNdf ndfFwd = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .agreedFxRate(computed)
+        .observation(FxIndexObservation.of(INDEX, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
-        .index(INDEX)
         .build();
     CurrencyAmount computedFwd = PRICER.presentValue(ndfFwd, PROVIDER);
     assertEquals(computedFwd.getAmount(), 0d, NOMINAL_USD * TOL);
@@ -125,8 +131,8 @@ public class DiscountingFxNdfProductPricerTest {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .observation(FxIndexObservation.of(INDEX, FIXING_DATE_PAST, REF_DATA))
         .paymentDate(PAYMENT_DATE_PAST)
-        .index(INDEX)
         .build();
     PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
     assertEquals(computed, PointSensitivities.empty());
@@ -145,8 +151,8 @@ public class DiscountingFxNdfProductPricerTest {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .agreedFxRate(FxRate.of(USD, KRW, FX_RATE))
+        .observation(FxIndexObservation.of(INDEX, LocalDate.of(2011, 5, 2), REF_DATA))
         .paymentDate(LocalDate.of(2011, 5, 4))
-        .index(INDEX)
         .build();
     MultiCurrencyAmount computed = PRICER.currencyExposure(ndf, PROVIDER);
     assertEquals(computed.size(), 0);

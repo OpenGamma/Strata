@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.product.Product;
@@ -122,11 +123,12 @@ public final class FxNdf
   //-------------------------------------------------------------------------
   @Override
   public ResolvedFxNdf resolve(ReferenceData refData) {
+    LocalDate fixingDate = index.calculateFixingFromMaturity(paymentDate, refData);
     return ResolvedFxNdf.builder()
         .settlementCurrencyNotional(settlementCurrencyNotional)
         .agreedFxRate(agreedFxRate)
+        .observation(FxIndexObservation.of(index, fixingDate, refData))
         .paymentDate(paymentDate)
-        .index(index)
         .build();
   }
 

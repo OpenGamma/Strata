@@ -67,14 +67,14 @@ public class DiscountingFxResetNotionalExchangePricer
 
   // obtains the FX rate
   private double fxRate(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    return rates.rate(event.getReferenceCurrency(), event.getFixingDate());
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
+    return rates.rate(event.getObservation(), event.getReferenceCurrency());
   }
 
   @Override
   public PointSensitivityBuilder forecastValueSensitivity(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
-    return rates.ratePointSensitivity(event.getReferenceCurrency(), event.getFixingDate())
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
+    return rates.ratePointSensitivity(event.getObservation(), event.getReferenceCurrency())
         .multipliedBy(event.getNotional());
   }
 
@@ -94,8 +94,8 @@ public class DiscountingFxResetNotionalExchangePricer
     } else {
       builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
         child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
-        child.put(ExplainKey.INDEX, event.getIndex());
-        child.put(ExplainKey.FIXING_DATE, event.getFixingDate());
+        child.put(ExplainKey.INDEX, event.getObservation().getIndex());
+        child.put(ExplainKey.FIXING_DATE, event.getObservation().getFixingDate());
         child.put(ExplainKey.INDEX_VALUE, fxRate(event, provider));
       });
       builder.put(ExplainKey.DISCOUNT_FACTOR, provider.discountFactor(currency, paymentDate));
@@ -107,15 +107,17 @@ public class DiscountingFxResetNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(FxResetNotionalExchange event, RatesProvider provider) {
-    FxIndexRates rates = provider.fxIndexRates(event.getIndex());
+    LocalDate fixingDate = event.getObservation().getFixingDate();
+    FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
     double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
-    if (!event.getFixingDate().isAfter(provider.getValuationDate()) &&
-        rates.getFixings().get(event.getFixingDate()).isPresent()) {
-      double fxRate = rates.rate(event.getReferenceCurrency(), event.getFixingDate());
+    if (!fixingDate.isAfter(provider.getValuationDate()) &&
+        rates.getFixings().get(fixingDate).isPresent()) {
+      double fxRate = rates.rate(event.getObservation(), event.getReferenceCurrency());
       return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), event.getNotional() * df * fxRate));
     }
-    LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(event.getFixingDate());
-    double fxRateSpotSensitivity = rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
+    LocalDate maturityDate = event.getObservation().getMaturityDate();
+    double fxRateSpotSensitivity =
+        rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
     return MultiCurrencyAmount.of(
         CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() * df * fxRateSpotSensitivity));
   }

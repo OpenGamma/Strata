@@ -155,7 +155,7 @@ public final class RateCalculationSwapLeg
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
-        .paymentEvents(notionalSchedule.createEvents(payPeriods, startDate))
+        .paymentEvents(notionalSchedule.createEvents(payPeriods, startDate, refData))
         .build();
   }
 

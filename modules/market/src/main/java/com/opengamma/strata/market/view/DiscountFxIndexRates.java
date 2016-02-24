@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -114,19 +115,20 @@ public final class DiscountFxIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(Currency baseCurrency, LocalDate fixingDate) {
+  public double rate(FxIndexObservation observation, Currency baseCurrency) {
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
 
-    double fxIndexRate = !fixingDate.isAfter(getValuationDate()) ? historicRate(fixingDate) : forwardRate(fixingDate);
+    LocalDate fixingDate = observation.getFixingDate();
+    double fxIndexRate = !fixingDate.isAfter(getValuationDate()) ? historicRate(observation) : forwardRate(observation);
     boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
-
     return (inverse ? 1d / fxIndexRate : fxIndexRate);
   }
 
   // historic rate
-  private double historicRate(LocalDate fixingDate) {
+  private double historicRate(FxIndexObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
@@ -137,28 +139,28 @@ public final class DiscountFxIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return forwardRate(fixingDate);
+      return forwardRate(observation);
     }
   }
 
   // forward rate
-  private double forwardRate(LocalDate fixingDate) {
-    LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
-    return fxForwardRates.rate(index.getCurrencyPair().getBase(), maturityDate);
+  private double forwardRate(FxIndexObservation observation) {
+    return fxForwardRates.rate(index.getCurrencyPair().getBase(), observation.getMaturityDate());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(Currency baseCurrency, LocalDate fixingDate) {
+  public PointSensitivityBuilder ratePointSensitivity(FxIndexObservation observation, Currency baseCurrency) {
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
 
+    LocalDate fixingDate = observation.getFixingDate();
     if (fixingDate.isBefore(getValuationDate()) ||
         (fixingDate.equals(getValuationDate()) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    return FxIndexSensitivity.of(index, baseCurrency, fixingDate, 1d);
+    return FxIndexSensitivity.of(observation, baseCurrency, 1d);
   }
 
   //-------------------------------------------------------------------------

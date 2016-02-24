@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.index.FxIndexObservation;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link ResolvedFxNdf}.
@@ -29,10 +31,12 @@ import com.opengamma.strata.basics.currency.FxRate;
 @Test
 public class ResolvedFxNdfTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final double NOTIONAL = 100_000_000;
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
+  private static final LocalDate FIXING_DATE = LocalDate.of(2015, 3, 17);
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -50,7 +54,7 @@ public class ResolvedFxNdfTest {
     CurrencyAmount currencyNotional = CurrencyAmount.of(USD, NOTIONAL);
     ResolvedFxNdf test = ResolvedFxNdf.builder()
         .agreedFxRate(FX_RATE)
-        .index(GBP_USD_WM)
+        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(currencyNotional)
         .build();
@@ -67,7 +71,7 @@ public class ResolvedFxNdfTest {
     CurrencyAmount currencyNotional = CurrencyAmount.of(EUR, NOTIONAL);
     assertThrowsIllegalArg(() -> ResolvedFxNdf.builder()
         .agreedFxRate(FX_RATE)
-        .index(GBP_USD_WM)
+        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(currencyNotional)
         .build());
@@ -77,7 +81,7 @@ public class ResolvedFxNdfTest {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
     assertThrowsIllegalArg(() -> ResolvedFxNdf.builder()
         .agreedFxRate(fxRate)
-        .index(GBP_USD_WM)
+        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .build());
@@ -97,7 +101,7 @@ public class ResolvedFxNdfTest {
   static ResolvedFxNdf sut() {
     return ResolvedFxNdf.builder()
         .agreedFxRate(FX_RATE)
-        .index(GBP_USD_WM)
+        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .build();
@@ -107,7 +111,7 @@ public class ResolvedFxNdfTest {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
     return ResolvedFxNdf.builder()
         .agreedFxRate(fxRate)
-        .index(EUR_GBP_ECB)
+        .observation(FxIndexObservation.of(EUR_GBP_ECB, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .build();

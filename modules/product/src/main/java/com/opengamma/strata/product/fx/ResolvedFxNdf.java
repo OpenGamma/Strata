@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.ResolvedProduct;
 
@@ -69,15 +70,17 @@ public final class ResolvedFxNdf
   @PropertyDefinition(validate = "notNull")
   private final FxRate agreedFxRate;
   /**
-   * The index defining the FX rate to observe on the fixing date.
+   * The FX index observation.
    * <p>
-   * The index is used to settle the trade by providing the actual FX rate on the fixing date.
+   * This defines the observation of the index used to settle the trade.
    * The value of the trade is based on the difference between the actual rate and the agreed rate.
    * <p>
-   * The forward is between the two currencies defined by the index.
+   * An FX index is a daily rate of exchange between two currencies.
+   * Note that the order of the currencies in the index does not matter, as the
+   * conversion direction is fully defined by the currency of the reference amount.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxIndex index;
+  private final FxIndexObservation observation;
   /**
    * The date that the forward settles.
    * <p>
@@ -90,7 +93,7 @@ public final class ResolvedFxNdf
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    CurrencyPair pair = index.getCurrencyPair();
+    CurrencyPair pair = observation.getIndex().getCurrencyPair();
     if (!pair.contains(settlementCurrencyNotional.getCurrency())) {
       throw new IllegalArgumentException("FxIndex and settlement notional currency are incompatible");
     }
@@ -100,6 +103,15 @@ public final class ResolvedFxNdf
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the FX index.
+   * 
+   * @return the FX index
+   */
+  public FxIndex getIndex() {
+    return observation.getIndex();
+  }
+
   /**
    * Gets the settlement currency.
    * 
@@ -128,6 +140,7 @@ public final class ResolvedFxNdf
    * @return the currency that is not to be settled
    */
   public Currency getNonDeliverableCurrency() {
+    FxIndex index = getIndex();
     return index.getCurrencyPair().getBase().equals(getSettlementCurrency()) ?
         index.getCurrencyPair().getCounter() : index.getCurrencyPair().getBase();
   }
@@ -162,15 +175,15 @@ public final class ResolvedFxNdf
   private ResolvedFxNdf(
       CurrencyAmount settlementCurrencyNotional,
       FxRate agreedFxRate,
-      FxIndex index,
+      FxIndexObservation observation,
       LocalDate paymentDate) {
     JodaBeanUtils.notNull(settlementCurrencyNotional, "settlementCurrencyNotional");
     JodaBeanUtils.notNull(agreedFxRate, "agreedFxRate");
-    JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(observation, "observation");
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     this.settlementCurrencyNotional = settlementCurrencyNotional;
     this.agreedFxRate = agreedFxRate;
-    this.index = index;
+    this.observation = observation;
     this.paymentDate = paymentDate;
     validate();
   }
@@ -221,16 +234,18 @@ public final class ResolvedFxNdf
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index defining the FX rate to observe on the fixing date.
+   * Gets the FX index observation.
    * <p>
-   * The index is used to settle the trade by providing the actual FX rate on the fixing date.
+   * This defines the observation of the index used to settle the trade.
    * The value of the trade is based on the difference between the actual rate and the agreed rate.
    * <p>
-   * The forward is between the two currencies defined by the index.
+   * An FX index is a daily rate of exchange between two currencies.
+   * Note that the order of the currencies in the index does not matter, as the
+   * conversion direction is fully defined by the currency of the reference amount.
    * @return the value of the property, not null
    */
-  public FxIndex getIndex() {
-    return index;
+  public FxIndexObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -263,7 +278,7 @@ public final class ResolvedFxNdf
       ResolvedFxNdf other = (ResolvedFxNdf) obj;
       return JodaBeanUtils.equal(settlementCurrencyNotional, other.settlementCurrencyNotional) &&
           JodaBeanUtils.equal(agreedFxRate, other.agreedFxRate) &&
-          JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(observation, other.observation) &&
           JodaBeanUtils.equal(paymentDate, other.paymentDate);
     }
     return false;
@@ -274,7 +289,7 @@ public final class ResolvedFxNdf
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementCurrencyNotional);
     hash = hash * 31 + JodaBeanUtils.hashCode(agreedFxRate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     return hash;
   }
@@ -285,7 +300,7 @@ public final class ResolvedFxNdf
     buf.append("ResolvedFxNdf{");
     buf.append("settlementCurrencyNotional").append('=').append(settlementCurrencyNotional).append(',').append(' ');
     buf.append("agreedFxRate").append('=').append(agreedFxRate).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("observation").append('=').append(observation).append(',').append(' ');
     buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
     buf.append('}');
     return buf.toString();
@@ -312,10 +327,10 @@ public final class ResolvedFxNdf
     private final MetaProperty<FxRate> agreedFxRate = DirectMetaProperty.ofImmutable(
         this, "agreedFxRate", ResolvedFxNdf.class, FxRate.class);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", ResolvedFxNdf.class, FxIndex.class);
+    private final MetaProperty<FxIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", ResolvedFxNdf.class, FxIndexObservation.class);
     /**
      * The meta-property for the {@code paymentDate} property.
      */
@@ -328,7 +343,7 @@ public final class ResolvedFxNdf
         this, null,
         "settlementCurrencyNotional",
         "agreedFxRate",
-        "index",
+        "observation",
         "paymentDate");
 
     /**
@@ -344,8 +359,8 @@ public final class ResolvedFxNdf
           return settlementCurrencyNotional;
         case 1040357930:  // agreedFxRate
           return agreedFxRate;
-        case 100346066:  // index
-          return index;
+        case 122345516:  // observation
+          return observation;
         case -1540873516:  // paymentDate
           return paymentDate;
       }
@@ -385,11 +400,11 @@ public final class ResolvedFxNdf
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxIndex> index() {
-      return index;
+    public MetaProperty<FxIndexObservation> observation() {
+      return observation;
     }
 
     /**
@@ -408,8 +423,8 @@ public final class ResolvedFxNdf
           return ((ResolvedFxNdf) bean).getSettlementCurrencyNotional();
         case 1040357930:  // agreedFxRate
           return ((ResolvedFxNdf) bean).getAgreedFxRate();
-        case 100346066:  // index
-          return ((ResolvedFxNdf) bean).getIndex();
+        case 122345516:  // observation
+          return ((ResolvedFxNdf) bean).getObservation();
         case -1540873516:  // paymentDate
           return ((ResolvedFxNdf) bean).getPaymentDate();
       }
@@ -435,7 +450,7 @@ public final class ResolvedFxNdf
 
     private CurrencyAmount settlementCurrencyNotional;
     private FxRate agreedFxRate;
-    private FxIndex index;
+    private FxIndexObservation observation;
     private LocalDate paymentDate;
 
     /**
@@ -451,7 +466,7 @@ public final class ResolvedFxNdf
     private Builder(ResolvedFxNdf beanToCopy) {
       this.settlementCurrencyNotional = beanToCopy.getSettlementCurrencyNotional();
       this.agreedFxRate = beanToCopy.getAgreedFxRate();
-      this.index = beanToCopy.getIndex();
+      this.observation = beanToCopy.getObservation();
       this.paymentDate = beanToCopy.getPaymentDate();
     }
 
@@ -463,8 +478,8 @@ public final class ResolvedFxNdf
           return settlementCurrencyNotional;
         case 1040357930:  // agreedFxRate
           return agreedFxRate;
-        case 100346066:  // index
-          return index;
+        case 122345516:  // observation
+          return observation;
         case -1540873516:  // paymentDate
           return paymentDate;
         default:
@@ -481,8 +496,8 @@ public final class ResolvedFxNdf
         case 1040357930:  // agreedFxRate
           this.agreedFxRate = (FxRate) newValue;
           break;
-        case 100346066:  // index
-          this.index = (FxIndex) newValue;
+        case 122345516:  // observation
+          this.observation = (FxIndexObservation) newValue;
           break;
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
@@ -522,7 +537,7 @@ public final class ResolvedFxNdf
       return new ResolvedFxNdf(
           settlementCurrencyNotional,
           agreedFxRate,
-          index,
+          observation,
           paymentDate);
     }
 
@@ -561,18 +576,20 @@ public final class ResolvedFxNdf
     }
 
     /**
-     * Sets the index defining the FX rate to observe on the fixing date.
+     * Sets the FX index observation.
      * <p>
-     * The index is used to settle the trade by providing the actual FX rate on the fixing date.
+     * This defines the observation of the index used to settle the trade.
      * The value of the trade is based on the difference between the actual rate and the agreed rate.
      * <p>
-     * The forward is between the two currencies defined by the index.
-     * @param index  the new value, not null
+     * An FX index is a daily rate of exchange between two currencies.
+     * Note that the order of the currencies in the index does not matter, as the
+     * conversion direction is fully defined by the currency of the reference amount.
+     * @param observation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(FxIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
+    public Builder observation(FxIndexObservation observation) {
+      JodaBeanUtils.notNull(observation, "observation");
+      this.observation = observation;
       return this;
     }
 
@@ -597,7 +614,7 @@ public final class ResolvedFxNdf
       buf.append("ResolvedFxNdf.Builder{");
       buf.append("settlementCurrencyNotional").append('=').append(JodaBeanUtils.toString(settlementCurrencyNotional)).append(',').append(' ');
       buf.append("agreedFxRate").append('=').append(JodaBeanUtils.toString(agreedFxRate)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
       buf.append('}');
       return buf.toString();

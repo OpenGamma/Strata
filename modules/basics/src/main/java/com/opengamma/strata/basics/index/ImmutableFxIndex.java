@@ -78,21 +78,20 @@ public final class ImmutableFxIndex
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
+  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
     // handle case where the input date is not a valid fixing date
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
     // find the maturity date using the offset and calendar in DaysAdjustment
-    // hard-coded reference data
-    return maturityDateOffset.adjust(fixingBusinessDay, ReferenceData.standard());
+    return maturityDateOffset.adjust(fixingBusinessDay, refData);
   }
 
   @Override
-  public LocalDate calculateFixingFromMaturity(LocalDate maturityDate) {
+  public LocalDate calculateFixingFromMaturity(LocalDate maturityDate, ReferenceData refData) {
     // handle case where the input date is not a valid maturity date
     LocalDate maturityBusinessDay = maturityDateCalendar().nextOrSame(maturityDate);
     // find the fixing date iteratively
     LocalDate fixingDate = maturityBusinessDay;
-    while (calculateMaturityFromFixing(fixingDate).isAfter(maturityBusinessDay)) {
+    while (calculateMaturityFromFixing(fixingDate, refData).isAfter(maturityBusinessDay)) {
       fixingDate = fixingDate.minusDays(1);
     }
     return fixingDate;

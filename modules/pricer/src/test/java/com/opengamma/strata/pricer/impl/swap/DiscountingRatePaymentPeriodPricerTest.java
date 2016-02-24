@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -153,7 +154,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(GBP_USD_WM, GBP, FX_DATE_1))
+      .fxReset(FxReset.of(FxIndexObservation.of(GBP_USD_WM, FX_DATE_1, REF_DATA), GBP))
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_1_GS = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_1)
@@ -183,7 +184,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(USD)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(GBP_USD_WM, GBP, FX_DATE_1))
+      .fxReset(FxReset.of(FxIndexObservation.of(GBP_USD_WM, FX_DATE_1, REF_DATA), GBP))
       .build();
   private static final RatePaymentPeriod PAYMENT_PERIOD_FULL_GS_FX_GBP = RatePaymentPeriod.builder()
       .paymentDate(PAYMENT_DATE_3)
@@ -191,7 +192,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .dayCount(ACT_365F)
       .currency(GBP)
       .notional(NOTIONAL_100)
-      .fxReset(FxReset.of(GBP_USD_WM, USD, FX_DATE_1))
+      .fxReset(FxReset.of(FxIndexObservation.of(GBP_USD_WM, FX_DATE_1, REF_DATA), USD))
       .build();
 
   // all tests use a fixed rate to avoid excessive use of mocks
@@ -791,7 +792,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     ExplainMap explainFxObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
     assertEquals(explainFxObs.get(ExplainKey.ENTRY_TYPE).get(), "FxObservation");
     assertEquals(explainFxObs.get(ExplainKey.INDEX).get(), fxReset.getIndex());
-    assertEquals(explainFxObs.get(ExplainKey.FIXING_DATE).get(), fxReset.getFixingDate());
+    assertEquals(explainFxObs.get(ExplainKey.FIXING_DATE).get(), fxReset.getObservation().getFixingDate());
     assertEquals(explainFxObs.get(ExplainKey.INDEX_VALUE).get(), RATE_FX, TOLERANCE_PV);
 
     assertEquals(explain.get(ExplainKey.ACCRUAL_PERIODS).get().size(), 1);
@@ -985,7 +986,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     DiscountFactors mockDf = mock(DiscountFactors.class);
     when(mockDf.discountFactor(PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
-    when(mockFxRates.rate(GBP, FX_DATE_1)).thenReturn(RATE_FX);
+    when(mockFxRates.rate(FxIndexObservation.of(GBP_USD_WM, FX_DATE_1, REF_DATA), GBP)).thenReturn(RATE_FX);
     SimpleRatesProvider prov = new SimpleRatesProvider(valDate);
     prov.setDayCount(DAY_COUNT);
     prov.setDiscountFactors(mockDf);

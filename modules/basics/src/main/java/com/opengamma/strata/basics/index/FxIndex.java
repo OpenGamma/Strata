@@ -91,9 +91,10 @@ public interface FxIndex
    * The maturity date is also known as the <i>value date</i>.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the maturity date
    */
-  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the fixing date from the maturity date.
@@ -108,9 +109,10 @@ public interface FxIndex
    * The maturity date is also known as the <i>value date</i>.
    * 
    * @param maturityDate  the maturity date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the fixing date
    */
-  public abstract LocalDate calculateFixingFromMaturity(LocalDate maturityDate);
+  public abstract LocalDate calculateFixingFromMaturity(LocalDate maturityDate, ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
