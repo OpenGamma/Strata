@@ -6,9 +6,7 @@
 package com.opengamma.strata.pricer.impl.rate;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -50,17 +48,26 @@ public class ForwardInflationInterpolatedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    PriceIndex index = observation.getIndex();
-    PriceIndexValues values = provider.priceIndexValues(index);
-    YearMonth startMonth = observation.getReferenceStartMonth();
-    YearMonth startInterpolationMonth = observation.getReferenceStartInterpolationMonth();
-    YearMonth endMonth = observation.getReferenceEndMonth();
-    YearMonth endInterpolationMonth = observation.getReferenceEndInterpolationMonth();
-    double w1 = observation.getWeight();
-    double w2 = 1d - w1;
-    double indexStart = interpolatedIndex(values, startMonth, startInterpolationMonth, w1, w2);
-    double indexEnd = interpolatedIndex(values, endMonth, endInterpolationMonth, w1, w2);
+    PriceIndexValues values = provider.priceIndexValues(observation.getIndex());
+    double indexStart = interpolateStart(observation, values);
+    double indexEnd = interpolateEnd(observation, values);
     return indexEnd / indexStart - 1d;
+  }
+
+  // interpolate the observations at the start
+  private double interpolateStart(InflationInterpolatedRateObservation observation, PriceIndexValues values) {
+    double weight = observation.getWeight();
+    double indexValue1 = values.value(observation.getStartObservation());
+    double indexValue2 = values.value(observation.getStartSecondObservation());
+    return weight * indexValue1 + (1d - weight) * indexValue2;
+  }
+
+  // interpolate the observations at the end
+  private double interpolateEnd(InflationInterpolatedRateObservation observation, PriceIndexValues values) {
+    double weight = observation.getWeight();
+    double indexValue1 = values.value(observation.getEndObservation());
+    double indexValue2 = values.value(observation.getEndSecondObservation());
+    return weight * indexValue1 + (1d - weight) * indexValue2;
   }
 
   @Override
@@ -70,20 +77,34 @@ public class ForwardInflationInterpolatedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    PriceIndex index = observation.getIndex();
-    PriceIndexValues values = provider.priceIndexValues(index);
-    YearMonth startMonth = observation.getReferenceStartMonth();
-    YearMonth startInterpolationMonth = observation.getReferenceStartInterpolationMonth();
-    YearMonth endMonth = observation.getReferenceEndMonth();
-    YearMonth endInterpolationMonth = observation.getReferenceEndInterpolationMonth();
-    double w1 = observation.getWeight();
-    double w2 = 1d - w1;
-    double indexStartInv = 1d / interpolatedIndex(values, startMonth, startInterpolationMonth, w1, w2);
-    double indexEnd = interpolatedIndex(values, endMonth, endInterpolationMonth, w1, w2);
-    PointSensitivityBuilder sensi1 = interpolatedSensitivity(values, startMonth, startInterpolationMonth, w1, w2)
+    PriceIndexValues values = provider.priceIndexValues(observation.getIndex());
+    double indexStart = interpolateStart(observation, values);
+    double indexEnd = interpolateEnd(observation, values);
+    double indexStartInv = 1d / indexStart;
+    PointSensitivityBuilder sensi1 = startSensitivity(observation, values)
         .multipliedBy(-indexEnd * indexStartInv * indexStartInv);
-    PointSensitivityBuilder sensi2 = interpolatedSensitivity(values, endMonth, endInterpolationMonth, w1, w2)
+    PointSensitivityBuilder sensi2 = endSensitivity(observation, values)
         .multipliedBy(indexStartInv);
+    return sensi1.combinedWith(sensi2);
+  }
+
+  // interpolate the observations at the start
+  private PointSensitivityBuilder startSensitivity(InflationInterpolatedRateObservation observation, PriceIndexValues values) {
+    double weight = observation.getWeight();
+    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getStartObservation())
+        .multipliedBy(weight);
+    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getStartSecondObservation())
+        .multipliedBy(1d - weight);
+    return sensi1.combinedWith(sensi2);
+  }
+
+  // interpolate the observations at the end
+  private PointSensitivityBuilder endSensitivity(InflationInterpolatedRateObservation observation, PriceIndexValues values) {
+    double weight = observation.getWeight();
+    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getEndObservation())
+        .multipliedBy(weight);
+    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getEndSecondObservation())
+        .multipliedBy(1d - weight);
     return sensi1.combinedWith(sensi2);
   }
 
@@ -95,71 +116,36 @@ public class ForwardInflationInterpolatedRateObservationFn
       RatesProvider provider,
       ExplainMapBuilder builder) {
 
-    PriceIndex index = observation.getIndex();
-    PriceIndexValues values = provider.priceIndexValues(index);
-    YearMonth startMonth = observation.getReferenceStartMonth();
-    YearMonth startInterpolationMonth = observation.getReferenceStartInterpolationMonth();
-    YearMonth endMonth = observation.getReferenceEndMonth();
-    YearMonth endInterpolationMonth = observation.getReferenceEndInterpolationMonth();
+    PriceIndexValues values = provider.priceIndexValues(observation.getIndex());
     double w1 = observation.getWeight();
     double w2 = 1d - w1;
-
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, startMonth.atEndOfMonth())
-        .put(ExplainKey.INDEX, index)
-        .put(ExplainKey.INDEX_VALUE, values.value(startMonth))
+        .put(ExplainKey.FIXING_DATE, observation.getStartObservation().getFixingMonth().atEndOfMonth())
+        .put(ExplainKey.INDEX, observation.getIndex())
+        .put(ExplainKey.INDEX_VALUE, values.value(observation.getStartObservation()))
         .put(ExplainKey.WEIGHT, w1));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, startInterpolationMonth.atEndOfMonth())
-        .put(ExplainKey.INDEX, index)
-        .put(ExplainKey.INDEX_VALUE, values.value(startInterpolationMonth))
+        .put(ExplainKey.FIXING_DATE, observation.getStartSecondObservation().getFixingMonth().atEndOfMonth())
+        .put(ExplainKey.INDEX, observation.getIndex())
+        .put(ExplainKey.INDEX_VALUE, values.value(observation.getStartSecondObservation()))
         .put(ExplainKey.WEIGHT, w2));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, endMonth.atEndOfMonth())
-        .put(ExplainKey.INDEX, index)
-        .put(ExplainKey.INDEX_VALUE, values.value(endMonth))
+        .put(ExplainKey.FIXING_DATE, observation.getEndObservation().getFixingMonth().atEndOfMonth())
+        .put(ExplainKey.INDEX, observation.getIndex())
+        .put(ExplainKey.INDEX_VALUE, values.value(observation.getEndObservation()))
         .put(ExplainKey.WEIGHT, w1));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, endInterpolationMonth.atEndOfMonth())
-        .put(ExplainKey.INDEX, index)
-        .put(ExplainKey.INDEX_VALUE, values.value(endInterpolationMonth))
+        .put(ExplainKey.FIXING_DATE, observation.getEndSecondObservation().getFixingMonth().atEndOfMonth())
+        .put(ExplainKey.INDEX, observation.getIndex())
+        .put(ExplainKey.INDEX_VALUE, values.value(observation.getEndSecondObservation()))
         .put(ExplainKey.WEIGHT, w2));
     double rate = rate(observation, startDate, endDate, provider);
     builder.put(ExplainKey.COMBINED_RATE, rate);
     return rate;
-  }
-
-  //-------------------------------------------------------------------------
-  // calculate the interpolates index value
-  private double interpolatedIndex(
-      PriceIndexValues values,
-      YearMonth month1,
-      YearMonth month2,
-      double weight1,
-      double weight2) {
-
-    double indexReferenceStart1 = values.value(month1);
-    double indexReferenceStart2 = values.value(month2);
-    return weight1 * indexReferenceStart1 + weight2 * indexReferenceStart2;
-  }
-
-  // calculate the interpolates sensitivity
-  private PointSensitivityBuilder interpolatedSensitivity(
-      PriceIndexValues values,
-      YearMonth month1,
-      YearMonth month2,
-      double weight1,
-      double weight2) {
-
-    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(month1);
-    sensi1 = sensi1.multipliedBy(weight1);
-    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(month2);
-    sensi2 = sensi2.multipliedBy(weight2);
-    return sensi1.combinedWith(sensi2);
   }
 
 }

@@ -21,10 +21,13 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -77,6 +80,12 @@ public class ForwardPriceIndexValuesTest {
 
   private static final YearMonth[] TEST_MONTHS = new YearMonth[] {
       YearMonth.of(2015, 1), YearMonth.of(2015, 5), YearMonth.of(2016, 5), YearMonth.of(2016, 6), YearMonth.of(2024, 12)};
+  private static final PriceIndexObservation[] TEST_OBS = new PriceIndexObservation[] {
+      PriceIndexObservation.of(US_CPI_U, YearMonth.of(2015, 1)),
+      PriceIndexObservation.of(US_CPI_U, YearMonth.of(2015, 5)),
+      PriceIndexObservation.of(US_CPI_U, YearMonth.of(2016, 5)),
+      PriceIndexObservation.of(US_CPI_U, YearMonth.of(2016, 6)),
+      PriceIndexObservation.of(US_CPI_U, YearMonth.of(2024, 12))};
   private static final double TOLERANCE_VALUE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-5;
 
@@ -126,7 +135,7 @@ public class ForwardPriceIndexValuesTest {
       OptionalDouble valueTs = USCPI_TS.get(TEST_MONTHS[i].atEndOfMonth());
       double adj = SEASONALITY.get(TEST_MONTHS[i].getMonthValue() - 1);
       double valueExpected = valueTs.isPresent() ? valueTs.getAsDouble() : finalCurve.yValue(nbMonth) * adj;
-      double valueComputed = INSTANCE.value(TEST_MONTHS[i]);
+      double valueComputed = INSTANCE.value(TEST_OBS[i]);
       assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
     }
   }
@@ -134,22 +143,24 @@ public class ForwardPriceIndexValuesTest {
   //-------------------------------------------------------------------------
   public void test_valuePointSensitivity_fixing() {
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
-    assertEquals(test.valuePointSensitivity(VAL_MONTH.minusMonths(3)), PointSensitivityBuilder.none());
+    PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, VAL_MONTH.minusMonths(3));
+    assertEquals(test.valuePointSensitivity(obs), PointSensitivityBuilder.none());
   }
 
   public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
-    InflationRateSensitivity expected = InflationRateSensitivity.of(US_CPI_U, month, 1d);
-    assertEquals(test.valuePointSensitivity(month), expected);
+    PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, month);
+    InflationRateSensitivity expected = InflationRateSensitivity.of(obs, 1d);
+    assertEquals(test.valuePointSensitivity(obs), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      DoubleArray sensitivityComputed =
-          INSTANCE.unitParameterSensitivity(TEST_MONTHS[i]).getSensitivity(NAME).getSensitivity();
+      CurveCurrencyParameterSensitivities cps = INSTANCE.curveParameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
+      DoubleArray sensitivityComputed = cps.getSensitivity(NAME, Currency.USD).getSensitivity();
       for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
@@ -158,7 +169,7 @@ public class ForwardPriceIndexValuesTest {
             adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
           }
           ForwardPriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));
-          valueFd[k] = curveShifted.value(TEST_MONTHS[i]);
+          valueFd[k] = curveShifted.value(TEST_OBS[i]);
         }
         double sensitivityExpected = (valueFd[1] - valueFd[0]) / (2 * shift);
         assertEquals(sensitivityComputed.get(j), sensitivityExpected, TOLERANCE_DELTA, "Test: " + i + " - sensi: " + j);
@@ -170,7 +181,8 @@ public class ForwardPriceIndexValuesTest {
   // proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
     ForwardPriceIndexValues test = ForwardPriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
-    InflationRateSensitivity point = InflationRateSensitivity.of(US_CPI_U, VAL_MONTH.plusMonths(3), 1d);
+    InflationRateSensitivity point =
+        InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 1);
   }
 

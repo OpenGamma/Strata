@@ -47,8 +47,8 @@ public class ForwardInflationMonthlyRateObservationFn
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
-    double indexEnd = values.value(observation.getReferenceEndMonth());
+    double indexStart = values.value(observation.getStartObservation());
+    double indexEnd = values.value(observation.getEndObservation());
     return indexEnd / indexStart - 1d;
   }
 
@@ -61,12 +61,12 @@ public class ForwardInflationMonthlyRateObservationFn
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
-    double indexEnd = values.value(observation.getReferenceEndMonth());
+    double indexStart = values.value(observation.getStartObservation());
+    double indexEnd = values.value(observation.getEndObservation());
     double indexStartInv = 1d / indexStart;
-    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getReferenceStartMonth())
+    PointSensitivityBuilder sensi1 = values.valuePointSensitivity(observation.getStartObservation())
         .multipliedBy(-indexEnd * indexStartInv * indexStartInv);
-    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getReferenceEndMonth())
+    PointSensitivityBuilder sensi2 = values.valuePointSensitivity(observation.getEndObservation())
         .multipliedBy(indexStartInv);
     return sensi1.combinedWith(sensi2);
   }
@@ -81,17 +81,17 @@ public class ForwardInflationMonthlyRateObservationFn
 
     PriceIndex index = observation.getIndex();
     PriceIndexValues values = provider.priceIndexValues(index);
-    double indexStart = values.value(observation.getReferenceStartMonth());
-    double indexEnd = values.value(observation.getReferenceEndMonth());
+    double indexStart = values.value(observation.getStartObservation());
+    double indexEnd = values.value(observation.getEndObservation());
 
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, observation.getReferenceStartMonth().atEndOfMonth())
+        .put(ExplainKey.FIXING_DATE, observation.getStartObservation().getFixingMonth().atEndOfMonth())
         .put(ExplainKey.INDEX, index)
         .put(ExplainKey.INDEX_VALUE, indexStart));
     builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
         .put(ExplainKey.ENTRY_TYPE, "InflationObservation")
-        .put(ExplainKey.FIXING_DATE, observation.getReferenceEndMonth().atEndOfMonth())
+        .put(ExplainKey.FIXING_DATE, observation.getEndObservation().getFixingMonth().atEndOfMonth())
         .put(ExplainKey.INDEX, index)
         .put(ExplainKey.INDEX_VALUE, indexEnd));
     double rate = rate(observation, startDate, endDate, provider);

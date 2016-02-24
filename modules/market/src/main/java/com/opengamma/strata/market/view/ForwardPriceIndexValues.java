@@ -30,6 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -201,33 +202,40 @@ public final class ForwardPriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
-  public double value(YearMonth month) {
+  public double value(PriceIndexObservation observation) {
+    YearMonth fixingMonth = observation.getFixingMonth();
     // returns the historic month price index if present in the time series
-    OptionalDouble fixing = fixings.get(month.atEndOfMonth());
+    OptionalDouble fixing = fixings.get(fixingMonth.atEndOfMonth());
     if (fixing.isPresent()) {
       return fixing.getAsDouble();
     }
     // otherwise, return the estimate from the curve.
-    double nbMonth = numberOfMonths(month);
+    double nbMonth = numberOfMonths(fixingMonth);
     double value = extendedCurve.yValue(nbMonth);
-    int month0 = month.getMonthValue() - 1; // seasonality list start at 0 and months start at 1
+    int month0 = fixingMonth.getMonthValue() - 1; // seasonality list start at 0 and months start at 1
     double adjustment = seasonality.get(month0);
     return value * adjustment;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder valuePointSensitivity(YearMonth fixingMonth) {
+  public PointSensitivityBuilder valuePointSensitivity(PriceIndexObservation observation) {
+    YearMonth fixingMonth = observation.getFixingMonth();
     // no sensitivity if historic month price index present in the time series
     if (fixings.get(fixingMonth.atEndOfMonth()).isPresent()) {
       return PointSensitivityBuilder.none();
     }
-    return InflationRateSensitivity.of(index, fixingMonth, 1d);
+    return InflationRateSensitivity.of(observation, 1d);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity) {
+    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getObservation().getFixingMonth());
+    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
+  }
+
+  private CurveUnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
     // no sensitivity if historic month price index present in the time series
     if (fixings.get(month.atEndOfMonth()).isPresent()) {
       return CurveUnitParameterSensitivities.of(
@@ -240,13 +248,6 @@ public final class ForwardPriceIndexValues
     // remove first element which is to the last fixing and multiply by seasonality
     DoubleArray adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
     return CurveUnitParameterSensitivities.of(CurveUnitParameterSensitivity.of(curve.getMetadata(), adjustedSensitivity));
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity) {
-    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getReferenceMonth());
-    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
   }
 
   //-------------------------------------------------------------------------

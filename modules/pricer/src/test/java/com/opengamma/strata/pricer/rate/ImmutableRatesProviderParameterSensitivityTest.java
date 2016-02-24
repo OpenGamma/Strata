@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.FxIndexObservation;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -204,11 +205,14 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
     double pointSensiValue = 2.5;
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
-    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
+    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPI, refMonth), pointSensiValue);
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
     DoubleArray sensiComputed = computed.getSensitivities().get(0).getSensitivity();
+
+    InflationRateSensitivity pointSensi1 = InflationRateSensitivity.of(PriceIndexObservation.of(GB_RPI, refMonth), 1);
     DoubleArray sensiExpectedUnit =
-        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
+        provider.priceIndexValues(GB_RPI).curveParameterSensitivity(pointSensi1).getSensitivities().get(0).getSensitivity();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 

@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 
 /**
  * Test {@link InflationEndMonthRateObservation}.
@@ -33,20 +34,14 @@ public class InflationEndMonthRateObservationTest {
     InflationEndMonthRateObservation test =
         InflationEndMonthRateObservation.of(GB_HICP, START_INDEX, END_MONTH);
     assertEquals(test.getIndex(), GB_HICP);
-    assertEquals(test.getStartIndexValue(), START_INDEX);
-    assertEquals(test.getReferenceEndMonth(), END_MONTH);
   }
 
   public void test_builder() {
     InflationEndMonthRateObservation test = InflationEndMonthRateObservation.builder()
-        .index(CH_CPI)
         .startIndexValue(START_INDEX)
-        .referenceEndMonth(END_MONTH)
+        .endObservation(PriceIndexObservation.of(CH_CPI, END_MONTH))
         .build();
     assertEquals(test.getIndex(), CH_CPI);
-    assertEquals(test.getStartIndexValue(), START_INDEX);
-    assertEquals(test.getReferenceEndMonth(), END_MONTH);
-
   }
 
   //-------------------------------------------------------------------------

@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curves;
@@ -98,10 +99,10 @@ public class ForwardInflationMonthlyRateObservationFnTest {
     double rateEndUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndUp);
     double rateEndDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndDw);
 
-    PointSensitivityBuilder sensiStr =
-        InflationRateSensitivity.of(GB_RPIX, REFERENCE_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
-    PointSensitivityBuilder sensiEnd =
-        InflationRateSensitivity.of(GB_RPIX, REFERENCE_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
+    PointSensitivityBuilder sensiStr = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REFERENCE_START_MONTH), 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
+    PointSensitivityBuilder sensiEnd = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REFERENCE_END_MONTH), 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
     PointSensitivityBuilder sensiExpected = sensiStr.combinedWith(sensiEnd);
 
     PointSensitivityBuilder sensiComputed =
