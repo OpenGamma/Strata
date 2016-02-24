@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.google.common.base.Splitter;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
@@ -16,12 +17,13 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * Constants and implementations for standard holiday calendars.
  * <p>
  * The purpose of each holiday calendar is to define whether a date is a holiday or a business day.
- * The is of use in many calculations.
+ * The standard holiday calendar data is provided by direct research and is not derived
+ * from a vendor of holiday calendar data. The implementation is defined by {@code HolidayCalendar.ini},
+ * The data may or may not be sufficient for your production needs.
  * <p>
- * The holiday calendar data provided here has been identified through direct research and is not
- * derived from a vendor of holiday calendar data.
- * This data may or may not be sufficient for your production needs.
- * To change the implementation, see {@code HolidayCalendar.ini}.
+ * Applications should refer to holidays using {@link HolidayCalendarId}.
+ * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
+ * to a {@link HolidayCalendar} before holidays can be accessed.
  */
 public final class HolidayCalendars {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
@@ -57,105 +59,6 @@ public final class HolidayCalendars {
    * This calendar is mostly useful in testing scenarios.
    */
   public static final HolidayCalendar THU_FRI = HolidayCalendar.of(StandardHolidayCalendars.THU_FRI.getName());
-
-  /**
-   * The holiday calendar for London, United Kingdom, with code 'GBLO'.
-   * <p>
-   * This constant provides the calendar for London bank holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   */
-  public static final HolidayCalendar GBLO = HolidayCalendar.of(GlobalHolidayCalendars.GBLO.getName());
-  /**
-   * The holiday calendar for Paris, France, with code 'FRPA'.
-   * <p>
-   * This constant provides the calendar for Paris public holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   */
-  public static final HolidayCalendar FRPA = HolidayCalendar.of(GlobalHolidayCalendars.FRPA.getName());
-  /**
-   * The holiday calendar for Zurich, Switzerland, with code 'EUTA'.
-   * <p>
-   * This constant provides the calendar for Zurich public holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   */
-  public static final HolidayCalendar CHZU = HolidayCalendar.of(GlobalHolidayCalendars.CHZU.getName());
-  /**
-   * The holiday calendar for the European Union TARGET system, with code 'EUTA'.
-   * <p>
-   * This constant provides the calendar for the TARGET interbank payment system holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1997 to 2099.
-   * Future dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.8.
-   */
-  public static final HolidayCalendar EUTA = HolidayCalendar.of(GlobalHolidayCalendars.EUTA.getName());
-  /**
-   * The holiday calendar for United States Government Securities, with code 'USGS'.
-   * <p>
-   * This constant provides the calendar for United States Government Securities as per SIFMA.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.11.
-   */
-  public static final HolidayCalendar USGS = HolidayCalendar.of(GlobalHolidayCalendars.USGS.getName());
-  /**
-   * The holiday calendar for New York, United States, with code 'USNY'.
-   * <p>
-   * This constant provides the calendar for New York holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   */
-  public static final HolidayCalendar USNY = HolidayCalendar.of(GlobalHolidayCalendars.USNY.getName());
-  /**
-   * The holiday calendar for the Federal Reserve Bank of New York, with code 'NYFD'.
-   * <p>
-   * This constant provides the calendar for the Federal Reserve Bank of New York holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.9.
-   */
-  public static final HolidayCalendar NYFD = HolidayCalendar.of(GlobalHolidayCalendars.NYFD.getName());
-  /**
-   * The holiday calendar for the New York Stock Exchange, with code 'NYSE'.
-   * <p>
-   * This constant provides the calendar for the New York Stock Exchange.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.10.
-   */
-  public static final HolidayCalendar NYSE = HolidayCalendar.of(GlobalHolidayCalendars.NYSE.getName());
-  /**
-   * The holiday calendar for Tokyo, Japan, with code 'JPTO'.
-   * <p>
-   * This constant provides the calendar for Tokyo bank holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * To change the implementation, see {@code HolidayCalendar.ini}.
-   */
-  public static final HolidayCalendar JPTO = HolidayCalendar.of(GlobalHolidayCalendars.JPTO.getName());
 
   //-------------------------------------------------------------------------
   /**

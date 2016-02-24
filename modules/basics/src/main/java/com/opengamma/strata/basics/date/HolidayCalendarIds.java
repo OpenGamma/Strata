@@ -12,6 +12,15 @@ import com.opengamma.strata.basics.market.ReferenceData;
  * <p>
  * The constants defined here are identifiers, used to locate instances of
  * {@link HolidayCalendar} from {@link ReferenceData}.
+ * <p>
+ * All the constants defined here will be available from {@link ReferenceData#standard()}.
+ * The associated holiday data may or may not be sufficient for your production needs.
+ * <p>
+ * The standard holiday data was obtained by direct research - it was not derived from a vendor
+ * of holiday calendar data. Two approaches are available to add or change the data.
+ * Firstly, applications can provide their own {@code ReferenceData} implementation, mapping
+ * the identifier to any data desired. Secondly, the standard data can be amended by following
+ * the instructions in {@code HolidayCalendar.ini}.
  */
 public final class HolidayCalendarIds {
 

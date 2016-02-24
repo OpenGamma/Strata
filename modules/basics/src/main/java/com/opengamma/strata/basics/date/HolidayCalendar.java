@@ -28,11 +28,14 @@ import com.opengamma.strata.collect.range.LocalDateRange;
  * This class encapsulates that knowledge, with each day treated as a holiday or a business day.
  * Weekends are effectively treated as a special kind of holiday.
  * <p>
- * The most common implementations are provided in {@link HolidayCalendars}.
- * Additional implementations may be added using {@link ImmutableHolidayCalendar},
- * or by directly implementing this interface.
+ * Applications should refer to holidays using {@link HolidayCalendarId}.
+ * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
+ * to a {@link HolidayCalendar} before the holiday data methods can be accessed.
+ * See {@link HolidayCalendarIds} for a standard set of identifiers available in {@link ReferenceData#standard()}.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
+ * 
+ * @see ImmutableHolidayCalendar
  */
 public interface HolidayCalendar
     extends Named {

@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.joda.beans.PropertyDefinition;
@@ -25,7 +26,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An immutable identifier for a holiday calendar.
+ * An identifier for a holiday calendar.
  * <p>
  * This identifier is used to obtain a {@link HolidayCalendar} from {@link ReferenceData}.
  * The holiday calendar itself is used to determine whether a day is a business day or not.
@@ -37,9 +38,11 @@ public final class HolidayCalendarId
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+  /** Instance cache. */
+  private static final ConcurrentHashMap<String, HolidayCalendarId> CACHE = new ConcurrentHashMap<>();
 
   /**
-   * The identifier, expressed as a unique name.
+   * The identifier, expressed as a normalized unique name.
    */
   @PropertyDefinition(validate = "notNull")
   private final String name;
@@ -61,45 +64,55 @@ public final class HolidayCalendarId
    * <p>
    * It is possible to combine two or more calendars using the '+' symbol.
    * For example, 'GBLO+USNY' will combine the separate 'GBLO' and 'USNY' calendars.
-   * The identifier will have the identifiers normalized into alphabetical order.
+   * The resulting identifier will have the individual identifiers normalized into alphabetical order.
    * 
    * @param uniqueName  the unique name
    * @return the identifier
    */
   @FromString
   public static HolidayCalendarId of(String uniqueName) {
-    return new HolidayCalendarId(uniqueName);
+    HolidayCalendarId id = CACHE.get(uniqueName);
+    return id != null ? id : create(uniqueName);
+  }
+
+  // create a new instance atomically, broken out to aid inlining
+  private static HolidayCalendarId create(String name) {
+    if (!name.contains("+")) {
+      return CACHE.computeIfAbsent(name, n -> new HolidayCalendarId(name));
+    }
+    // parse + separated names once and build resolver function to aid performance
+    // name BBB+CCC+AAA changed to sorted form of AAA+BBB+CCC
+    // dedicated resolver function created
+    List<HolidayCalendarId> ids = Splitter.on('+').splitToList(name).stream()
+        .filter(n -> !n.equals(HolidayCalendarIds.NO_HOLIDAYS.getName()))
+        .map(n -> HolidayCalendarId.of(n))
+        .distinct()
+        .sorted(comparing(HolidayCalendarId::getName))
+        .collect(toList());
+    String normalizedName = Joiner.on('+').join(ids);
+    Function<ReferenceData, HolidayCalendar> resolver =
+        refData -> ids.stream()
+            .map(r -> refData.getValue(r))
+            .reduce(HolidayCalendars.NO_HOLIDAYS, HolidayCalendar::combinedWith);
+    // cache under the normalized and non-normalized names
+    HolidayCalendarId id = CACHE.computeIfAbsent(normalizedName, n -> new HolidayCalendarId(normalizedName, resolver));
+    CACHE.putIfAbsent(name, id);
+    return id;
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a identifier.
-   *
-   * @param name  the unique name
-   */
-  private HolidayCalendarId(String name) {
-    ArgChecker.notNull(name, "name");
-    // handle + separated names in constructor to aid performance
-    if (name.contains("+")) {
-      // name BBB+CCC+AAA changed to sorted form of AAA+BBB+CCC
-      // dedicated resolver function created
-      List<HolidayCalendarId> ids = Splitter.on('+').splitToList(name).stream()
-          .filter(n -> !n.equals(HolidayCalendarIds.NO_HOLIDAYS.getName()))
-          .map(n -> HolidayCalendarId.of(n))
-          .distinct()
-          .sorted(comparing(HolidayCalendarId::getName))
-          .collect(toList());
-      this.name = Joiner.on('+').join(ids);
-      this.hashCode = this.name.hashCode();
-      this.resolver =
-          refData -> ids.stream()
-              .map(r -> refData.getValue(r))
-              .reduce(HolidayCalendars.NO_HOLIDAYS, HolidayCalendar::combinedWith);
-    } else {
-      this.name = name;
-      this.hashCode = name.hashCode();
-      this.resolver = refData -> refData.getValue(this);
-    }
+  // creates an identifier for a single calendar
+  private HolidayCalendarId(String normalizedName) {
+    this.name = normalizedName;
+    this.hashCode = normalizedName.hashCode();
+    this.resolver = refData -> refData.getValue(this);
+  }
+
+  // creates an identifier for a combined calendar
+  private HolidayCalendarId(String normalizedName, Function<ReferenceData, HolidayCalendar> resolver) {
+    this.name = normalizedName;
+    this.hashCode = normalizedName.hashCode();
+    this.resolver = resolver;
   }
 
   // resolve after deserialization
@@ -164,7 +177,7 @@ public final class HolidayCalendarId
    */
   public HolidayCalendarId combinedWith(HolidayCalendarId other) {
     ArgChecker.notNull(other, "other");
-    if (this.equals(other)) {
+    if (this == other) {
       return this;
     }
     if (this == HolidayCalendarIds.NO_HOLIDAYS) {
@@ -173,7 +186,7 @@ public final class HolidayCalendarId
     if (other == HolidayCalendarIds.NO_HOLIDAYS) {
       return this;
     }
-    return new HolidayCalendarId(name + "+" + other.name);
+    return HolidayCalendarId.of(name + '+' + other.name);
   }
 
   //-------------------------------------------------------------------------
@@ -187,14 +200,8 @@ public final class HolidayCalendarId
    */
   @Override
   public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof HolidayCalendarId) {
-      HolidayCalendarId other = (HolidayCalendarId) obj;
-      return name.equals(other.name);
-    }
-    return false;
+    // cache permits fast equality check
+    return obj == this;
   }
 
   /**

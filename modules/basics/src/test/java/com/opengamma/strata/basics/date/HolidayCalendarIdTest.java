@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import org.testng.annotations.Test;
 
@@ -36,6 +37,9 @@ public class HolidayCalendarIdTest {
     assertEquals(test.getName(), "EU+GB");
     assertEquals(test.getReferenceDataType(), HolidayCalendar.class);
     assertEquals(test.toString(), "EU+GB");
+
+    HolidayCalendarId test2 = HolidayCalendarId.of("EU+GB");
+    assertSame(test, test2);
   }
 
   public void test_of_combined_NoHolidays() {
