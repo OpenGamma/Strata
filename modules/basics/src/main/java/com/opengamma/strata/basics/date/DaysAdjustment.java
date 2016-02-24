@@ -244,22 +244,6 @@ public final class DaysAdjustment
   }
 
   /**
-   * Returns an adjustable date instance resulting from applying this adjustment to a date.
-   * <p>
-   * The number of days of this adjustment is added to the specified date using the
-   * {@link HolidayCalendar#shift(LocalDate, int)}.
-   * If the holiday calendar is 'None' this will effectively add calendar days.
-   * The result is then created from the shifted date and the result of {@link #getAdjustment()}.
-   * 
-   * @param date  the date to adjust
-   * @return the adjusted date
-   */
-  public AdjustableDate toAdjustedDate(LocalDate date) {
-    LocalDate added = calendar.shift(date, days);
-    return AdjustableDate.of(added, adjustment);
-  }
-
-  /**
    * Gets the holiday calendar that will be applied to the result.
    * <p>
    * This adjustment may contain more than one holiday calendar.

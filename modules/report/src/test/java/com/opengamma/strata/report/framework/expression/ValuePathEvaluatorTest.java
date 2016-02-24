@@ -6,8 +6,6 @@
 package com.opengamma.strata.report.framework.expression;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,8 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.runner.Results;
@@ -150,8 +147,7 @@ public class ValuePathEvaluatorTest {
         .notional(notional)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
-        .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).toAdjustedDate(date(2015, 8, 5)))
+        .paymentDate(AdjustableDate.of(date(2015, 8, 7)))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();

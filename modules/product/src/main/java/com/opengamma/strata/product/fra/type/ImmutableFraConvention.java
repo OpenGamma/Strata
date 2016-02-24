@@ -13,6 +13,7 @@ import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,10 +33,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
@@ -309,10 +312,28 @@ public final class ImmutableFraConvention
 
   //-------------------------------------------------------------------------
   @Override
+  public FraTrade createTrade(
+      LocalDate tradeDate,
+      Period periodToStart,
+      Period periodToEnd,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData) {
+
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
+    LocalDate startDate = spotValue.plus(periodToStart);
+    LocalDate endDate = spotValue.plus(periodToEnd);
+    LocalDate paymentDate = getPaymentDateOffset().adjust(startDate, refData);
+    return toTrade(tradeDate, startDate, endDate, paymentDate, buySell, notional, fixedRate);
+  }
+
+  @Override
   public FraTrade toTrade(
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
+      LocalDate paymentDate,
       BuySell buySell,
       double notional,
       double fixedRate) {
@@ -329,7 +350,7 @@ public final class ImmutableFraConvention
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(getBusinessDayAdjustment())
-            .paymentDate(getPaymentDateOffset().toAdjustedDate(startDate))
+            .paymentDate(AdjustableDate.of(paymentDate, getPaymentDateOffset().getAdjustment()))
             .fixedRate(fixedRate)
             .index(index)
             .fixingDateOffset(getFixingDateOffset())

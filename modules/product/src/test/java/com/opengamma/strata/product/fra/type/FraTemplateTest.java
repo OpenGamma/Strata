@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -102,7 +103,7 @@ public class FraTemplateTest {
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
         .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .paymentDate(PLUS_TWO_DAYS.toAdjustedDate(date(2015, 8, 5)))
+        .paymentDate(AdjustableDate.of(date(2015, 8, 7), PLUS_TWO_DAYS.getAdjustment()))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();

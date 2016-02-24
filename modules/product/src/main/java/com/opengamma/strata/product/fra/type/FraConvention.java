@@ -119,20 +119,14 @@ public interface FraConvention
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default FraTrade createTrade(
+  public abstract FraTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,
       BuySell buySell,
       double notional,
       double fixedRate,
-      ReferenceData refData) {
-
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
-    LocalDate startDate = spotValue.plus(periodToStart);
-    LocalDate endDate = spotValue.plus(periodToEnd);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
-  }
+      ReferenceData refData);
 
   /**
    * Creates a trade based on this convention.
@@ -145,6 +139,7 @@ public interface FraConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
+   * @param paymentDate  the payment date
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -154,6 +149,7 @@ public interface FraConvention
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
+      LocalDate paymentDate,
       BuySell buySell,
       double notional,
       double fixedRate);

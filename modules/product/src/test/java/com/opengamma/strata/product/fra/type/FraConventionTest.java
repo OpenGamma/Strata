@@ -39,6 +39,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
@@ -188,13 +189,15 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
-    FraTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
+    LocalDate paymentDate = startDate;
+    FraTrade test = base.toTrade(tradeDate, startDate, endDate, startDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
         .startDate(startDate)
         .endDate(endDate)
         .businessDayAdjustment(BDA_MOD_FOLLOW)
+        .paymentDate(AdjustableDate.of(paymentDate))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
@@ -211,14 +214,15 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
-    FraTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
+    LocalDate paymentDate = date(2015, 8, 7);
+    FraTrade test = base.toTrade(tradeDate, startDate, endDate, paymentDate, BUY, NOTIONAL_2M, 0.25d);
     Fra expected = Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_2M)
         .startDate(date(2015, 8, 5))
         .endDate(date(2015, 11, 5))
         .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .paymentDate(PLUS_TWO_DAYS.toAdjustedDate(startDate))
+        .paymentDate(AdjustableDate.of(paymentDate, PLUS_TWO_DAYS.getAdjustment()))
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
@@ -231,7 +235,8 @@ public class FraConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 4, 5);
     LocalDate endDate = date(2015, 7, 5);
-    assertThrowsIllegalArg(() -> base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d));
+    LocalDate paymentDate = date(2015, 8, 7);
+    assertThrowsIllegalArg(() -> base.toTrade(tradeDate, startDate, endDate, paymentDate, BUY, NOTIONAL_2M, 0.25d));
   }
 
   //-------------------------------------------------------------------------
