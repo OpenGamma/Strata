@@ -131,7 +131,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate shift(LocalDate date, int amount) {
-    ArgChecker.notNull(date, "date");
     LocalDate adjusted = date;
     if (amount > 0) {
       for (int i = 0; i < amount; i++) {
@@ -155,7 +154,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate next = plusDays(date, 1);
     return isHoliday(next) ? next(next) : next;
   }
@@ -172,7 +170,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate nextOrSame(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isHoliday(date) ? next(date) : date;
   }
 
@@ -187,7 +184,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate previous(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate previous = plusDays(date, -1);
     return isHoliday(previous) ? previous(previous) : previous;
   }
@@ -204,7 +200,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate previousOrSame(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isHoliday(date) ? previous(date) : date;
   }
 
@@ -229,7 +224,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate nextSameOrLastInMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate nextOrSame = nextOrSame(date);
     return (nextOrSame.getMonthValue() != date.getMonthValue() ? previous(date) : nextOrSame);
   }
@@ -245,7 +239,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the date is outside the supported range
    */
   public default boolean isLastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isBusinessDay(date) && next(date).getMonthValue() != date.getMonthValue();
   }
 
@@ -259,7 +252,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the date is outside the supported range
    */
   public default LocalDate lastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return previousOrSame(date.withDayOfMonth(date.lengthOfMonth()));
   }
 
@@ -290,7 +282,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default int daysBetween(LocalDateRange dateRange) {
-    ArgChecker.notNull(dateRange, "dateRange");
     return Math.toIntExact(dateRange.stream()
         .filter(this::isBusinessDay)
         .count());
@@ -308,14 +299,13 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if unable to combine the calendars
    */
   public default HolidayCalendar combinedWith(HolidayCalendar other) {
-    ArgChecker.notNull(other, "other");
     if (this.equals(other)) {
       return this;
     }
     if (other == HolidayCalendars.NO_HOLIDAYS) {
       return this;
     }
-    return new HolidayCalendars.Combined(this, other);
+    return new CombinedHolidayCalendar(this, other);
   }
 
   //-------------------------------------------------------------------------

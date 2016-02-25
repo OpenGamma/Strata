@@ -28,31 +28,26 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   NO_HOLIDAYS(HolidayCalendarIds.NO_HOLIDAYS) {
     @Override
     public boolean isHoliday(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       return false;
     }
 
     @Override
     public boolean isBusinessDay(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       return true;
     }
 
     @Override
     public LocalDate shift(LocalDate date, int amount) {
-      ArgChecker.notNull(date, "date");
       return plusDays(date, amount);
     }
 
     @Override
     public LocalDate next(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       return plusDays(date, 1);
     }
 
     @Override
     public LocalDate previous(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       return plusDays(date, -1);
     }
 
@@ -76,7 +71,6 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   SAT_SUN(HolidayCalendarIds.SAT_SUN) {
     @Override
     public boolean isHoliday(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       DayOfWeek dow = date.getDayOfWeek();
       return dow == SATURDAY || dow == SUNDAY;
     }
@@ -86,7 +80,6 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   FRI_SAT(HolidayCalendarIds.FRI_SAT) {
     @Override
     public boolean isHoliday(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       DayOfWeek dow = date.getDayOfWeek();
       return dow == FRIDAY || dow == SATURDAY;
     }
@@ -96,7 +89,6 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   THU_FRI(HolidayCalendarIds.THU_FRI) {
     @Override
     public boolean isHoliday(LocalDate date) {
-      ArgChecker.notNull(date, "date");
       DayOfWeek dow = date.getDayOfWeek();
       return dow == THURSDAY || dow == FRIDAY;
     }
@@ -114,7 +106,6 @@ enum StandardHolidayCalendars implements HolidayCalendar {
   public LocalDate shift(LocalDate date, int amount) {
     // optimize because we know there are 5 business days in a week
     // method implemented here as cannot reach default method from enum subclass
-    ArgChecker.notNull(date, "date");
     LocalDate weekAdjusted = date.plusWeeks(amount / 5);
     return HolidayCalendar.super.shift(weekAdjusted, amount % 5);
   }
@@ -126,7 +117,7 @@ enum StandardHolidayCalendars implements HolidayCalendar {
 
   @Override
   public String toString() {
-    return getName();
+    return "HolidayCalendar[" + getName() + ']';
   }
 
 }

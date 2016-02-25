@@ -5,9 +5,6 @@
  */
 package com.opengamma.strata.basics.date;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import com.google.common.base.Splitter;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
@@ -82,62 +79,6 @@ public final class HolidayCalendars {
    * Restricted constructor.
    */
   private HolidayCalendars() {
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Implementation of the combined holiday calendar.
-   */
-  static final class Combined implements HolidayCalendar, Serializable {
-
-    // Serialization version
-    private static final long serialVersionUID = 1L;
-
-    // calendar 1
-    private final HolidayCalendar calendar1;
-    // calendar 2
-    private final HolidayCalendar calendar2;
-    // name
-    private final HolidayCalendarId id;
-
-    private Object readResolve() {
-      return new Combined(calendar1, calendar2);
-    }
-
-    // create
-    Combined(HolidayCalendar calendar1, HolidayCalendar calendar2) {
-      this.calendar1 = ArgChecker.notNull(calendar1, "calendar1");
-      this.calendar2 = ArgChecker.notNull(calendar2, "calendar2");
-      this.id = calendar1.getId().combinedWith(calendar2.getId());
-    }
-
-    @Override
-    public boolean isHoliday(LocalDate date) {
-      return calendar1.isHoliday(date) || calendar2.isHoliday(date);
-    }
-
-    @Override
-    public HolidayCalendarId getId() {
-      return id;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof Combined) {
-        return ((Combined) obj).id.equals(id);
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return id.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return getName();
-    }
   }
 
 }

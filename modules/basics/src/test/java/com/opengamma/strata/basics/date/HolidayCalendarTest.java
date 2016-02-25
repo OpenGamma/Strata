@@ -7,8 +7,8 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
@@ -22,6 +22,7 @@ import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
+import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -61,7 +62,7 @@ public class HolidayCalendarTest {
       assertEquals(test.isHoliday(date), false);
     });
     assertEquals(test.getName(), "NoHolidays");
-    assertEquals(test.toString(), "NoHolidays");
+    assertEquals(test.toString(), "HolidayCalendar[NoHolidays]");
   }
 
   public void test_NO_HOLIDAYS_of() {
@@ -98,10 +99,6 @@ public class HolidayCalendarTest {
     assertSame(test, base);
   }
 
-  public void test_NO_HOLIDAYS_combineWith_null() {
-    assertThrowsIllegalArg(() -> HolidayCalendars.NO_HOLIDAYS.combinedWith(null));
-  }
-
   //-------------------------------------------------------------------------
   public void test_SAT_SUN() {
     HolidayCalendar test = HolidayCalendars.SAT_SUN;
@@ -112,7 +109,7 @@ public class HolidayCalendarTest {
       assertEquals(test.isHoliday(date), !isBusinessDay);
     });
     assertEquals(test.getName(), "Sat/Sun");
-    assertEquals(test.toString(), "Sat/Sun");
+    assertEquals(test.toString(), "HolidayCalendar[Sat/Sun]");
   }
 
   public void test_SAT_SUN_of() {
@@ -172,7 +169,7 @@ public class HolidayCalendarTest {
       assertEquals(test.isHoliday(date), !isBusinessDay);
     });
     assertEquals(test.getName(), "Fri/Sat");
-    assertEquals(test.toString(), "Fri/Sat");
+    assertEquals(test.toString(), "HolidayCalendar[Fri/Sat]");
   }
 
   public void test_FRI_SAT_of() {
@@ -233,7 +230,7 @@ public class HolidayCalendarTest {
       assertEquals(test.isHoliday(date), !isBusinessDay);
     });
     assertEquals(test.getName(), "Thu/Fri");
-    assertEquals(test.toString(), "Thu/Fri");
+    assertEquals(test.toString(), "HolidayCalendar[Thu/Fri]");
   }
 
   public void test_THU_FRI_of() {
@@ -359,10 +356,6 @@ public class HolidayCalendarTest {
     assertEquals(test.shift(date, amount), expected);
   }
 
-  public void test_shift_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().shift(null, 1));
-  }
-
   @Test(dataProvider = "shift")
   public void test_adjustBy(LocalDate date, int amount, LocalDate expected) {
     HolidayCalendar test = new MockHolCal();
@@ -394,10 +387,6 @@ public class HolidayCalendarTest {
     assertEquals(test.next(date), expectedNext);
   }
 
-  public void test_next_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().next(null));
-  }
-
   //-------------------------------------------------------------------------
   @DataProvider(name = "nextOrSame")
   static Object[][] data_nextOrSame() {
@@ -421,10 +410,6 @@ public class HolidayCalendarTest {
   public void test_nextOrSame(LocalDate date, LocalDate expectedNext) {
     HolidayCalendar test = new MockHolCal();
     assertEquals(test.nextOrSame(date), expectedNext);
-  }
-
-  public void test_nextOrSame_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().nextOrSame(null));
   }
 
   //-------------------------------------------------------------------------
@@ -452,10 +437,6 @@ public class HolidayCalendarTest {
     assertEquals(test.previous(date), expectedPrevious);
   }
 
-  public void test_previous_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().previous(null));
-  }
-
   //-------------------------------------------------------------------------
   @DataProvider(name = "previousOrSame")
   static Object[][] data_previousOrSame() {
@@ -479,10 +460,6 @@ public class HolidayCalendarTest {
   public void test_previousOrSame(LocalDate date, LocalDate expectedPrevious) {
     HolidayCalendar test = new MockHolCal();
     assertEquals(test.previousOrSame(date), expectedPrevious);
-  }
-
-  public void test_previousOrSame_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().previousOrSame(null));
   }
 
   //-------------------------------------------------------------------------
@@ -511,10 +488,6 @@ public class HolidayCalendarTest {
     // mock calendar has Sat/Sun plus 16th, 18th and 31st as holidays
     HolidayCalendar test = new MockHolCal();
     assertEquals(test.nextSameOrLastInMonth(date), expectedNext);
-  }
-
-  public void test_nextSameOrLastInMonth_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().nextSameOrLastInMonth(null));
   }
 
   //-------------------------------------------------------------------------
@@ -555,11 +528,6 @@ public class HolidayCalendarTest {
     assertEquals(test.isLastBusinessDayOfMonth(date), date.equals(expectedEom));
   }
 
-  public void test_lastBusinessDayOfMonth_null() {
-    assertThrowsIllegalArg(() -> new MockEomHolCal().isLastBusinessDayOfMonth(null));
-    assertThrowsIllegalArg(() -> new MockEomHolCal().lastBusinessDayOfMonth(null));
-  }
-
   //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
   static Object[][] data_daysBetween() {
@@ -591,20 +559,12 @@ public class HolidayCalendarTest {
     assertEquals(test.daysBetween(LocalDateRange.of(start, end)), expected);
   }
 
-  public void test_daysBetween_null() {
-    HolidayCalendar test = new MockHolCal();
-    assertThrowsIllegalArg(() -> test.daysBetween(null, WED_2014_07_16));
-    assertThrowsIllegalArg(() -> test.daysBetween(WED_2014_07_16, null));
-    assertThrowsIllegalArg(() -> test.daysBetween(null, null));
-    assertThrowsIllegalArg(() -> test.daysBetween(null));
-  }
-
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
     HolidayCalendar base1 = new MockHolCal();
     HolidayCalendar base2 = HolidayCalendars.FRI_SAT;
     HolidayCalendar test = base1.combinedWith(base2);
-    assertEquals(test.toString(), "Fri/Sat+Mock");
+    assertEquals(test.toString(), "HolidayCalendar[Fri/Sat+Mock]");
     assertEquals(test.getName(), "Fri/Sat+Mock");
     assertEquals(test.equals(base1.combinedWith(base2)), true);
     assertEquals(test.equals(""), false);
@@ -637,10 +597,6 @@ public class HolidayCalendarTest {
     assertSame(test, base);
   }
 
-  public void test_combineWith_null() {
-    assertThrowsIllegalArg(() -> new MockHolCal().combinedWith(null));
-  }
-
   //-------------------------------------------------------------------------
   public void test_extendedEnum() {
     assertEquals(HolidayCalendar.extendedEnum().lookupAll().get("NoHolidays"), HolidayCalendars.NO_HOLIDAYS);
@@ -650,6 +606,11 @@ public class HolidayCalendarTest {
   public void coverage() {
     coverPrivateConstructor(HolidayCalendars.class);
     coverEnum(StandardHolidayCalendars.class);
+  }
+
+  public void coverage_combined() {
+    HolidayCalendar test = HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN);
+    coverImmutableBean((ImmutableBean) test);
   }
 
   public void test_serialization() {

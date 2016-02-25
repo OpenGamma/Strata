@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.range.LocalDateRange;
 
@@ -43,10 +44,10 @@ import com.opengamma.strata.collect.range.LocalDateRange;
  * Internally, the class uses a range to determine the valid range of dates.
  * Only dates between the start of the earliest year and the end of the latest year can be queried.
  * <p>
- * In most cases, applications should refer to calendars by name, using {@link HolidayCalendar#of(String)}.
- * The named calendar will typically be resolved to an instance of this class.
- * As such, it is recommended to use the {@code HolidayCalendar} interface in application
- * code rather than directly referring to this class.
+ * Applications should refer to holidays using {@link HolidayCalendarId}.
+ * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
+ * to a {@link HolidayCalendar} before the holiday data methods can be accessed.
+ * See {@link HolidayCalendarIds} for a standard set of identifiers available in {@link ReferenceData#standard()}.
  */
 @BeanDefinition(builderScope = "private")
 public final class ImmutableHolidayCalendar
@@ -142,6 +143,31 @@ public final class ImmutableHolidayCalendar
     return new ImmutableHolidayCalendar(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
   }
 
+  /**
+   * Obtains a combined holiday calendar instance.
+   * <p>
+   * This combines the two input calendars.
+   * It is intended for up-front occasional use rather than continuous use, as it is relatively slow.
+   * 
+   * @param cal1  the first calendar
+   * @param cal2  the second calendar
+   * @return the combined calendar
+   */
+  public static ImmutableHolidayCalendar combined(ImmutableHolidayCalendar cal1, ImmutableHolidayCalendar cal2) {
+    // do not override combinedWith(), as this is too slow
+    ArgChecker.notNull(cal1, "cal1");
+    ArgChecker.notNull(cal2, "cal2");
+    if (cal1 == cal2) {
+      return cal1;
+    }
+    LocalDateRange newRange = cal1.range.union(cal2.range);  // exception if no overlap
+    ImmutableSortedSet<LocalDate> newHolidays =
+        ImmutableSortedSet.copyOf(Iterables.concat(cal1.holidays, cal2.holidays))
+            .subSet(newRange.getStart(), newRange.getEndExclusive());
+    ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(cal1.weekendDays, cal2.weekendDays));
+    return new ImmutableHolidayCalendar(cal1.id.combinedWith(cal2.id), newHolidays, newWeekends);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates an instance calculating the supported range.
@@ -224,7 +250,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public boolean isHoliday(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -247,7 +272,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate shift(LocalDate date, int amount) {
-    ArgChecker.notNull(date, "date");
     try {
       if (amount > 0) {
         // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
@@ -269,7 +293,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
       return shiftNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 1);
@@ -308,7 +331,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate previous(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: minus one to start from previous day
       return shiftPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 1, -1);
@@ -347,7 +369,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate nextSameOrLastInMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: no alteration as method is one-based and same is valid
       return shiftNextSameLast(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
@@ -388,7 +409,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public boolean isLastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -407,7 +427,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate lastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -422,28 +441,6 @@ public final class ImmutableHolidayCalendar
       }
       throw new IllegalArgumentException(rangeError(date));
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public HolidayCalendar combinedWith(HolidayCalendar other) {
-    ArgChecker.notNull(other, "other");
-    if (this.equals(other)) {
-      return this;
-    }
-    if (other == HolidayCalendars.NO_HOLIDAYS) {
-      return this;
-    }
-    if (other instanceof ImmutableHolidayCalendar) {
-      ImmutableHolidayCalendar otherCal = (ImmutableHolidayCalendar) other;
-      LocalDateRange newRange = range.union(otherCal.range);  // exception if no overlap
-      ImmutableSortedSet<LocalDate> newHolidays =
-          ImmutableSortedSet.copyOf(Iterables.concat(holidays, otherCal.holidays))
-              .subSet(newRange.getStart(), newRange.getEndExclusive());
-      ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(weekendDays, otherCal.weekendDays));
-      return new ImmutableHolidayCalendar(id.combinedWith(otherCal.id), newHolidays, newWeekends);
-    }
-    return HolidayCalendar.super.combinedWith(other);
   }
 
   //-------------------------------------------------------------------------
@@ -471,7 +468,7 @@ public final class ImmutableHolidayCalendar
    */
   @Override
   public String toString() {
-    return getName();
+    return "HolidayCalendar[" + getName() + ']';
   }
 
   //------------------------- AUTOGENERATED START -------------------------

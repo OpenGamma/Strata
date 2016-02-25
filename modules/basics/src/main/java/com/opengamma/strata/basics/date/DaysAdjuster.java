@@ -209,7 +209,7 @@ public final class DaysAdjuster
       if (days != 1) {
         buf.append("s");
       }
-      buf.append(" using calendar ").append(calendar);
+      buf.append(" using calendar ").append(calendar.getName());
     }
     if (adjuster.equals(BusinessDayAdjuster.NONE) == false) {
       buf.append(" then apply ").append(adjuster);
