@@ -68,6 +68,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
@@ -117,6 +118,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FpmlDocumentParserTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
 
   //-------------------------------------------------------------------------
@@ -1110,7 +1112,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.getFpmlRoot(), rootEl);
     assertEquals(test.getParties(), ImmutableListMultimap.of());
     assertEquals(test.getReferences(), ImmutableMap.of());
@@ -1125,7 +1127,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.convertFrequency("1", "M"), Frequency.P1M);
     assertEquals(test.convertFrequency("12", "M"), Frequency.P12M);
     assertEquals(test.convertFrequency("1", "Y"), Frequency.P12M);
@@ -1138,7 +1140,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.convertIndexTenor("1", "M"), Tenor.TENOR_1M);
     assertEquals(test.convertIndexTenor("12", "M"), Tenor.TENOR_12M);
     assertEquals(test.convertIndexTenor("1", "Y"), Tenor.TENOR_12M);

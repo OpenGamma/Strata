@@ -64,9 +64,6 @@ public final class FpmlDocument {
 
   private static final Logger log = LoggerFactory.getLogger(FpmlDocument.class);
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * The 'id' attribute key.
    */
@@ -168,6 +165,10 @@ public final class FpmlDocument {
    * The trade info builder.
    */
   private final FpmlTradeInfoParserPlugin tradeInfoParser;
+  /**
+   * The reference data.
+   */
+  private final ReferenceData refData;
 
   //-------------------------------------------------------------------------
   /**
@@ -181,18 +182,21 @@ public final class FpmlDocument {
    * @param references  the map of id/href to referenced element
    * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
    * @param tradeInfoParser  the trade info parser
+   * @param refData  the reference data to use
    */
   public FpmlDocument(
       XmlElement fpmlRootEl,
       Map<String, XmlElement> references,
       FpmlPartySelector ourPartySelector,
-      FpmlTradeInfoParserPlugin tradeInfoParser) {
+      FpmlTradeInfoParserPlugin tradeInfoParser,
+      ReferenceData refData) {
 
     this.fpmlRoot = fpmlRootEl;
     this.references = ImmutableMap.copyOf(references);
     this.parties = parseParties(fpmlRootEl);
     this.ourPartyHrefId = findOurParty(ourPartySelector);
     this.tradeInfoParser = tradeInfoParser;
+    this.refData = refData;
   }
 
   // parse all the root-level party elements
@@ -273,6 +277,18 @@ public final class FpmlDocument {
    */
   public String getOurPartyHrefId() {
     return ourPartyHrefId;
+  }
+
+  /**
+   * Gets the reference data.
+   * <p>
+   * Use of reference data is not necessary to parse most FpML documents.
+   * It is only needed to handle some edge cases, notably around relative dates.
+   * 
+   * @return the reference data
+   */
+  public ReferenceData getReferenceData() {
+    return refData;
   }
 
   //-------------------------------------------------------------------------
@@ -418,9 +434,10 @@ public final class FpmlDocument {
     // interpret and resolve, simple calendar arithmetic or business days
     LocalDate resolvedDate;
     if (period.getYears() > 0 || period.getMonths() > 0 || calendarDays) {
-      resolvedDate = bda1.adjust(baseDate.plus(period), REF_DATA);
+      resolvedDate = bda1.adjust(baseDate.plus(period), refData);
     } else {
-      resolvedDate = bda1.adjust(bda1.getCalendar().resolve(REF_DATA).shift(baseDate, period.getDays()), REF_DATA);
+      LocalDate datePlusBusDays = bda1.getCalendar().resolve(refData).shift(baseDate, period.getDays());
+      resolvedDate = bda1.adjust(datePlusBusDays, refData);
     }
     return AdjustableDate.of(resolvedDate, bda2);
   }
