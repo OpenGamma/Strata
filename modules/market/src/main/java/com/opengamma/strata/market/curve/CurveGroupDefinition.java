@@ -173,6 +173,21 @@ public final class CurveGroupDefinition
 
   //-------------------------------------------------------------------------
   /**
+   * Creates the curve metadata for each definition.
+   * <p>
+   * This method returns a list of metadata, one for each curve definition.
+   *
+   * @param valuationDate  the valuation date
+   * @return the metadata
+   */
+  public ImmutableList<CurveMetadata> metadata(LocalDate valuationDate) {
+    return curveDefinitionsByName.values().stream()
+        .map(curveDef -> curveDef.metadata(valuationDate))
+        .collect(toImmutableList());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the total number of parameters in the group.
    * <p>
    * This returns the total number of parameters in the group, which equals the number of nodes.
@@ -213,7 +228,6 @@ public final class CurveGroupDefinition
    */
   public ImmutableList<Double> initialGuesses(LocalDate valuationDate, MarketData marketData) {
     ImmutableList.Builder<Double> result = ImmutableList.builder();
-
     for (NodalCurveDefinition defn : curveDefinitions) {
       ValueType valueType = defn.getYValueType();
       for (CurveNode node : defn.getNodes()) {

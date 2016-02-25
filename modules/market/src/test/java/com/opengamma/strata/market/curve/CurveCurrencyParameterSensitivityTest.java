@@ -36,6 +36,8 @@ public class CurveCurrencyParameterSensitivityTest {
   private static final FxRate FX_RATE = FxRate.of(EUR, USD, 1.5d);
   private static final CurveName NAME1 = CurveName.of("NAME-1");
   private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
+  private static final CurveMetadata METADATA1_PARAM = METADATA1
+      .withParameterMetadata(CurveParameterMetadata.listOfEmpty(VECTOR_USD1.size()));
   private static final CurveName NAME2 = CurveName.of("NAME-2");
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of(NAME2);
 
@@ -43,6 +45,15 @@ public class CurveCurrencyParameterSensitivityTest {
   public void test_of_metadata() {
     CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(METADATA1, USD, VECTOR_USD1);
     assertThat(test.getMetadata()).isEqualTo(METADATA1);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getCurveName()).isEqualTo(NAME1);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
+  }
+
+  public void test_of_metadata_withParameterMetadata() {
+    CurveCurrencyParameterSensitivity test = CurveCurrencyParameterSensitivity.of(METADATA1_PARAM, USD, VECTOR_USD1);
+    assertThat(test.getMetadata()).isEqualTo(METADATA1_PARAM);
     assertThat(test.getCurrency()).isEqualTo(USD);
     assertThat(test.getCurveName()).isEqualTo(NAME1);
     assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());

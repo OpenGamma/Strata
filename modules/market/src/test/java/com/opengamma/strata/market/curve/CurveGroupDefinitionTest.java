@@ -146,6 +146,18 @@ public class CurveGroupDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_metadata() {
+    CurveGroupDefinition test = CurveGroupDefinition.builder()
+        .name(CurveGroupName.of("Test"))
+        .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
+        .build();
+
+    LocalDate valuationDate = date(2015, 6, 30);
+    CurveMetadata meta = CURVE_DEFN1.metadata(valuationDate);
+    assertEquals(test.metadata(valuationDate), ImmutableList.of(meta));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_tradesInitialGuesses() {
     CurveGroupDefinition test = CurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))

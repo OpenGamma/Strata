@@ -151,10 +151,10 @@ public final class CurveCalibrator {
    * The calibration is defined using {@link CurveGroupDefinition}.
    * Observable market data, time-series and FX are also needed to complete the calibration.
    *
-   * @param curveGroupDefn the curve group definition
-   * @param valuationDate the validation date
-   * @param marketData the market data required to build a trade for the instrument
-   * @param timeSeries the time-series
+   * @param curveGroupDefn  the curve group definition
+   * @param valuationDate  the validation date
+   * @param marketData  the market data required to build a trade for the instrument
+   * @param timeSeries  the time-series
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
@@ -178,9 +178,9 @@ public final class CurveCalibrator {
    * <p>
    * A curve must only exist in one group.
    *
-   * @param allGroupsDefn the curve group definitions
-   * @param knownData the starting data for the calibration
-   * @param marketData the market data required to build a trade for the instrument
+   * @param allGroupsDefn  the curve group definitions
+   * @param knownData  the starting data for the calibration
+   * @param marketData  the market data required to build a trade for the instrument
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(

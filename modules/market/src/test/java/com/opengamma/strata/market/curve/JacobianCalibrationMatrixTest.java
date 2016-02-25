@@ -27,6 +27,7 @@ public class JacobianCalibrationMatrixTest {
 
   private static final CurveName NAME1 = CurveName.of("Test1");
   private static final CurveName NAME2 = CurveName.of("Test2");
+  private static final CurveName NAME3 = CurveName.of("Test3");
   private static final CurveParameterSize CPS1 = CurveParameterSize.of(NAME1, 3);
   private static final CurveParameterSize CPS2 = CurveParameterSize.of(NAME2, 2);
   private static final List<CurveParameterSize> CPS = ImmutableList.of(CPS1, CPS2);
@@ -40,6 +41,9 @@ public class JacobianCalibrationMatrixTest {
     assertEquals(test.getJacobianMatrix(), MATRIX);
     assertEquals(test.getCurveCount(), 2);
     assertEquals(test.getTotalParameterCount(), 5);
+    assertEquals(test.containsCurve(NAME1), true);
+    assertEquals(test.containsCurve(NAME2), true);
+    assertEquals(test.containsCurve(NAME3), false);
   }
 
   //-------------------------------------------------------------------------
