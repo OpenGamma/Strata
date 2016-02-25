@@ -13,18 +13,24 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Test serialization.
+ * Test serialization using Joda-Beans.
  */
 @Test
 public class SerializeTest {
 
-  public void test_serialize() {
+  public void test_jodaBeans_serialize() {
+    serialize(HolidayCalendars.NO_HOLIDAYS);
+    serialize(HolidayCalendars.SAT_SUN);
+    serialize(HolidayCalendars.of("GBLO"));
+  }
+
+  void serialize(HolidayCalendar holCal) {
     MockSerBean bean = new MockSerBean();
     bean.setBdConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    bean.setHolidayCalendar(HolidayCalendars.NO_HOLIDAYS);
+    bean.setHolidayCalendar(holCal);
     bean.setDayCount(DayCounts.ACT_360);
     bean.setObjects(ImmutableList.of(
-        BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendars.NO_HOLIDAYS, DayCounts.ACT_360));
+        BusinessDayConventions.MODIFIED_FOLLOWING, holCal, DayCounts.ACT_360));
 
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(bean);
     MockSerBean test = JodaBeanSer.COMPACT.xmlReader().read(xml, MockSerBean.class);

@@ -64,7 +64,7 @@ final class Business252DayCount implements NamedLookup<DayCount> {
 
   private static DayCount createByName(String name) {
     if (name.startsWith("Bus/252 ")) {
-      HolidayCalendar cal = HolidayCalendar.of(name.substring(8));
+      HolidayCalendar cal = HolidayCalendars.of(name.substring(8));  // load from standard calendars
       return new Bus252(name, cal);
     }
     return null;  // name not a Bus/252 calendar

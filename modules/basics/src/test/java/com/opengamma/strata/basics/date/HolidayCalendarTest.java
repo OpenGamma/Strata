@@ -5,9 +5,7 @@
  */
 package com.opengamma.strata.basics.date;
 
-import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -66,7 +64,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_NO_HOLIDAYS_of() {
-    HolidayCalendar test = HolidayCalendar.of("NoHolidays");
+    HolidayCalendar test = HolidayCalendars.of("NoHolidays");
     assertEquals(test, HolidayCalendars.NO_HOLIDAYS);
   }
 
@@ -80,9 +78,24 @@ public class HolidayCalendarTest {
     assertEquals(HolidayCalendars.NO_HOLIDAYS.next(SAT_2014_07_12), SUN_2014_07_13);
   }
 
+  public void test_NO_HOLIDAYS_nextOrSame() {
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.nextOrSame(FRI_2014_07_11), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.nextOrSame(SAT_2014_07_12), SAT_2014_07_12);
+  }
+
   public void test_NO_HOLIDAYS_previous() {
     assertEquals(HolidayCalendars.NO_HOLIDAYS.previous(SAT_2014_07_12), FRI_2014_07_11);
     assertEquals(HolidayCalendars.NO_HOLIDAYS.previous(SUN_2014_07_13), SAT_2014_07_12);
+  }
+
+  public void test_NO_HOLIDAYS_previousOrSame() {
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.previousOrSame(SAT_2014_07_12), SAT_2014_07_12);
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.previousOrSame(SUN_2014_07_13), SUN_2014_07_13);
+  }
+
+  public void test_NO_HOLIDAYS_nextSameOrLastInMonth() {
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.nextSameOrLastInMonth(FRI_2014_07_11), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.NO_HOLIDAYS.nextSameOrLastInMonth(SAT_2014_07_12), SAT_2014_07_12);
   }
 
   public void test_NO_HOLIDAYS_daysBetween_LocalDateLocalDate() {
@@ -113,7 +126,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_SAT_SUN_of() {
-    HolidayCalendar test = HolidayCalendar.of("Sat/Sun");
+    HolidayCalendar test = HolidayCalendars.of("Sat/Sun");
     assertEquals(test, HolidayCalendars.SAT_SUN);
   }
 
@@ -173,7 +186,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_FRI_SAT_of() {
-    HolidayCalendar test = HolidayCalendar.of("Fri/Sat");
+    HolidayCalendar test = HolidayCalendars.of("Fri/Sat");
     assertEquals(test, HolidayCalendars.FRI_SAT);
   }
 
@@ -234,7 +247,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_THU_FRI_of() {
-    HolidayCalendar test = HolidayCalendar.of("Thu/Fri");
+    HolidayCalendar test = HolidayCalendars.of("Thu/Fri");
     assertEquals(test, HolidayCalendars.THU_FRI);
   }
 
@@ -276,6 +289,16 @@ public class HolidayCalendarTest {
 
   public void test_THU_FRI_daysBetween_LocalDateRange() {
     assertEquals(HolidayCalendars.THU_FRI.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 3);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_combined() {
+    HolidayCalendar test = HolidayCalendars.of("Thu/Fri+Fri/Sat");
+    assertEquals(test.getName(), "Fri/Sat+Thu/Fri");
+    assertEquals(test.toString(), "HolidayCalendar[Fri/Sat+Thu/Fri]");
+
+    HolidayCalendar test2 = HolidayCalendars.of("Thu/Fri+Fri/Sat");
+    assertEquals(test, test2);
   }
 
   //-------------------------------------------------------------------------
@@ -599,13 +622,12 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   public void test_extendedEnum() {
-    assertEquals(HolidayCalendar.extendedEnum().lookupAll().get("NoHolidays"), HolidayCalendars.NO_HOLIDAYS);
+    assertEquals(HolidayCalendars.extendedEnum().lookupAll().get("NoHolidays"), HolidayCalendars.NO_HOLIDAYS);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(HolidayCalendars.class);
-    coverEnum(StandardHolidayCalendars.class);
   }
 
   public void coverage_combined() {
@@ -613,17 +635,22 @@ public class HolidayCalendarTest {
     coverImmutableBean((ImmutableBean) test);
   }
 
+  public void coverage_noHolidays() {
+    HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS;
+    coverImmutableBean((ImmutableBean) test);
+  }
+
+  public void coverage_weekend() {
+    HolidayCalendar test = HolidayCalendars.FRI_SAT;
+    coverImmutableBean((ImmutableBean) test);
+  }
+
   public void test_serialization() {
     assertSerialization(HolidayCalendars.NO_HOLIDAYS);
     assertSerialization(HolidayCalendars.SAT_SUN);
     assertSerialization(HolidayCalendars.FRI_SAT);
+    assertSerialization(HolidayCalendars.THU_FRI);
     assertSerialization(HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN));
-  }
-
-  public void test_jodaConvert() {
-    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.NO_HOLIDAYS);
-    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.SAT_SUN);
-    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN));
   }
 
   //-------------------------------------------------------------------------

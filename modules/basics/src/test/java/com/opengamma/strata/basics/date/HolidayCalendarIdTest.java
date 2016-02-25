@@ -53,7 +53,7 @@ public class HolidayCalendarIdTest {
   public void test_resolve_single() {
     HolidayCalendarId gb = HolidayCalendarId.of("GB");
     HolidayCalendarId eu = HolidayCalendarId.of("EU");
-    HolidayCalendar gbCal = StandardHolidayCalendars.SAT_SUN;
+    HolidayCalendar gbCal = HolidayCalendars.SAT_SUN;
     ReferenceData refData = ImmutableReferenceData.of(gb, gbCal);
     assertEquals(gb.resolve(refData), gbCal);
     assertThrows(() -> eu.resolve(refData), ReferenceDataNotFoundException.class);
@@ -61,9 +61,9 @@ public class HolidayCalendarIdTest {
 
   public void test_resolve_combined() {
     HolidayCalendarId gb = HolidayCalendarId.of("GB");
-    HolidayCalendar gbCal = StandardHolidayCalendars.SAT_SUN;
+    HolidayCalendar gbCal = HolidayCalendars.SAT_SUN;
     HolidayCalendarId eu = HolidayCalendarId.of("EU");
-    HolidayCalendar euCal = StandardHolidayCalendars.FRI_SAT;
+    HolidayCalendar euCal = HolidayCalendars.FRI_SAT;
     ReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(gb, gbCal, eu, euCal));
     HolidayCalendarId combined = gb.combinedWith(eu);
     assertEquals(combined.resolve(refData), euCal.combinedWith(gbCal));

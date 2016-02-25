@@ -12,12 +12,7 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
-import org.joda.convert.FromString;
-import org.joda.convert.ToString;
-
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.collect.range.LocalDateRange;
 
@@ -40,38 +35,6 @@ import com.opengamma.strata.collect.range.LocalDateRange;
 public interface HolidayCalendar
     extends Named {
 
-  /**
-   * Obtains an instance from the specified unique name.
-   * <p>
-   * The unique name identifies a calendar in an underlying source of calendars.
-   * The calendar itself is looked up on demand when required.
-   * <p>
-   * It is possible to combine two or more calendars using the '+' symbol.
-   * For example, 'GBLO+USNY' will combine the separate 'GBLO' and 'USNY' calendars.
-   * 
-   * @param uniqueName  the unique name of the calendar
-   * @return the holiday calendar
-   * @throws IllegalArgumentException if the name is not known
-   */
-  @FromString
-  public static HolidayCalendar of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return HolidayCalendars.of(uniqueName);
-  }
-
-  /**
-   * Gets the extended enum helper.
-   * <p>
-   * This helper allows instances of the calendar to be looked up.
-   * It also provides the complete set of available instances.
-   * 
-   * @return the extended enum helper
-   */
-  public static ExtendedEnum<HolidayCalendar> extendedEnum() {
-    return HolidayCalendars.ENUM_LOOKUP;
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Checks if the specified date is a holiday.
    * <p>
@@ -320,13 +283,12 @@ public interface HolidayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name that uniquely identifies this calendar.
+   * Gets the name that identifies this calendar.
    * <p>
-   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * This is the name associated with the {@linkplain HolidayCalendarId identifier}.
    * 
-   * @return the unique name
+   * @return the name
    */
-  @ToString
   @Override
   public default String getName() {
     return getId().getName();

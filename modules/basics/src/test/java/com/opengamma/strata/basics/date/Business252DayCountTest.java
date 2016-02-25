@@ -36,16 +36,16 @@ public class Business252DayCountTest {
     assertEquals(test.toString(), "Bus/252 EUTA");
 
     assertSame(DayCount.of("Bus/252 EUTA"), test);
-    assertSame(DayCount.ofBus252(EUTA.resolve(REF_DATA)), test);
+    assertSame(DayCount.ofBus252(EUTA), test);
   }
 
   public void test_factory_calendar() {
-    DayCount test = DayCount.ofBus252(GBLO.resolve(REF_DATA));
+    DayCount test = DayCount.ofBus252(GBLO);
     assertEquals(test.getName(), "Bus/252 GBLO");
     assertEquals(test.toString(), "Bus/252 GBLO");
 
     assertSame(DayCount.of("Bus/252 GBLO"), test);
-    assertSame(DayCount.ofBus252(GBLO.resolve(REF_DATA)), test);
+    assertSame(DayCount.ofBus252(GBLO), test);
   }
 
   //-------------------------------------------------------------------------
@@ -83,11 +83,11 @@ public class Business252DayCountTest {
   }
 
   public void test_serialization() {
-    assertSerialization(DayCount.ofBus252(EUTA.resolve(REF_DATA)));
+    assertSerialization(DayCount.ofBus252(EUTA));
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(DayCount.class, DayCount.ofBus252(EUTA.resolve(REF_DATA)));
+    assertJodaConvert(DayCount.class, DayCount.ofBus252(EUTA));
   }
 
 }
