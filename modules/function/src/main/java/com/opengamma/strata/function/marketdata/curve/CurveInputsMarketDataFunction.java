@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -41,6 +42,9 @@ import com.opengamma.strata.market.id.CurveInputsId;
  * Market data function that builds the input data used when calibrating a curve.
  */
 public final class CurveInputsMarketDataFunction implements MarketDataFunction<CurveInputs, CurveInputsId> {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   @Override
   public MarketDataRequirements requirements(CurveInputsId id, MarketDataConfig marketDataConfig) {
@@ -88,18 +92,20 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
     boolean multipleValuationDates = valuationDate.isScenarioValue();
 
+    ReferenceData refData = REF_DATA;
     return multipleInputValues || multipleValuationDates ?
-        buildMultipleCurveInputs(curveDefn, marketDataValues, valuationDate) :
-        buildSingleCurveInputs(curveDefn, marketDataValues, valuationDate);
+        buildMultipleCurveInputs(curveDefn, marketDataValues, valuationDate, refData) :
+        buildSingleCurveInputs(curveDefn, marketDataValues, valuationDate, refData);
   }
 
   private MarketDataBox<CurveInputs> buildSingleCurveInputs(
       NodalCurveDefinition curveDefn,
       Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
-      MarketDataBox<LocalDate> valuationDate) {
+      MarketDataBox<LocalDate> valuationDate,
+      ReferenceData refData) {
 
     // There is only a single map of values and single valuation date - create a single CurveInputs instance
-    CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue());
+    CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue(), refData);
     Map<? extends MarketDataKey<?>, ?> singleMarketDataValues = MapStream.of(marketData)
         .mapValues(box -> box.getSingleValue())
         .toMap();
@@ -111,7 +117,8 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   private MarketDataBox<CurveInputs> buildMultipleCurveInputs(
       NodalCurveDefinition curveDefn,
       Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
-      MarketDataBox<LocalDate> valuationDate) {
+      MarketDataBox<LocalDate> valuationDate,
+      ReferenceData refData) {
 
     // If there are multiple values for any of the input data values or for the valuation dates then we need to create
     // multiple sets of inputs
@@ -119,7 +126,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
     List<CurveMetadata> curveMetadata = IntStream.range(0, scenarioCount)
         .mapToObj(valuationDate::getValue)
-        .map(curveDefn::metadata)
+        .map((LocalDate valDate) -> curveDefn.metadata(valDate, refData))
         .collect(toImmutableList());
 
     List<Map<? extends MarketDataKey<?>, ?>> scenarioValues = IntStream.range(0, scenarioCount)

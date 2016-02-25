@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
@@ -71,11 +72,13 @@ public class ImmutableRatesProviderGenerator
    * 
    * @param knownProvider  the underlying known provider
    * @param groupDefn  the curve group definition
+   * @param refData  the reference data to use
    * @return the generator
    */
   public static ImmutableRatesProviderGenerator of(
       ImmutableRatesProvider knownProvider,
-      CurveGroupDefinition groupDefn) {
+      CurveGroupDefinition groupDefn,
+      ReferenceData refData) {
 
     List<NodalCurveDefinition> curveDefns = new ArrayList<>();
     List<CurveMetadata> curveMetadata = new ArrayList<>();
@@ -84,7 +87,7 @@ public class ImmutableRatesProviderGenerator
 
     for (NodalCurveDefinition curveDefn : groupDefn.getCurveDefinitions()) {
       curveDefns.add(curveDefn);
-      curveMetadata.add(curveDefn.metadata(knownProvider.getValuationDate()));
+      curveMetadata.add(curveDefn.metadata(knownProvider.getValuationDate(), refData));
       CurveName curveName = curveDefn.getName();
       // A curve group is guaranteed to include an entry for every definition
       CurveGroupEntry entry = groupDefn.findEntry(curveName).get();

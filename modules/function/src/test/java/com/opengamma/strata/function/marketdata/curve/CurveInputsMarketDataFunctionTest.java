@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -50,6 +51,7 @@ import com.opengamma.strata.product.fra.type.FraTemplate;
 @Test
 public class CurveInputsMarketDataFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
 
   /**
@@ -176,9 +178,9 @@ public class CurveInputsMarketDataFunctionTest {
     assertThat(curveInputs.getMarketData().get(idC.toMarketDataKey())).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
-        node1x4.metadata(VAL_DATE),
-        node2x5.metadata(VAL_DATE),
-        node3x6.metadata(VAL_DATE));
+        node1x4.metadata(VAL_DATE, REF_DATA),
+        node2x5.metadata(VAL_DATE, REF_DATA),
+        node3x6.metadata(VAL_DATE, REF_DATA));
     assertThat(curveInputs.getCurveMetadata().getParameterMetadata()).hasValue(expectedMetadata);
   }
 

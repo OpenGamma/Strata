@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
@@ -129,7 +130,7 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate);
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(referenceDate),

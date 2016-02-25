@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -161,7 +162,7 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate),
         () -> calculateLastFixingDate(valuationDate));

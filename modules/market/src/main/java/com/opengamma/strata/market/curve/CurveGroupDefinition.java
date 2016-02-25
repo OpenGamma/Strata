@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 
@@ -178,11 +179,12 @@ public final class CurveGroupDefinition
    * This method returns a list of metadata, one for each curve definition.
    *
    * @param valuationDate  the valuation date
+   * @param refData  the reference data
    * @return the metadata
    */
-  public ImmutableList<CurveMetadata> metadata(LocalDate valuationDate) {
+  public ImmutableList<CurveMetadata> metadata(LocalDate valuationDate, ReferenceData refData) {
     return curveDefinitionsByName.values().stream()
-        .map(curveDef -> curveDef.metadata(valuationDate))
+        .map(curveDef -> curveDef.metadata(valuationDate, refData))
         .collect(toImmutableList());
   }
 

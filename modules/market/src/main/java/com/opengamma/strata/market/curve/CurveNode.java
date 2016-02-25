@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 
@@ -35,9 +36,10 @@ public interface CurveNode {
    * This provides curve metadata for the node at the specified valuation date.
    *
    * @param valuationDate  the valuation date used when calibrating the curve
+   * @param refData  the reference data to use to resolve the trade
    * @return metadata for the node
    */
-  public abstract DatedCurveParameterMetadata metadata(LocalDate valuationDate);
+  public abstract DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData);
 
   /**
    * Creates a trade representing the instrument at the node.

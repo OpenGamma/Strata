@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -51,6 +52,7 @@ import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
 @Test
 public class FxSwapCurveNodeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
@@ -134,7 +136,7 @@ public class FxSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
         .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate).plus(FAR_PERIOD));
-    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
   }
@@ -143,14 +145,14 @@ public class FxSwapCurveNodeTest {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   public void test_metadata_last_fixing() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.LAST_FIXING);
-    assertThrowsWithCause(() -> node.metadata(VAL_DATE), UnsupportedOperationException.class);
+    assertThrowsWithCause(() -> node.metadata(VAL_DATE, REF_DATA), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

@@ -246,7 +246,7 @@ public class CurveGroupMarketDataFunctionTest {
         .put(CurveTestUtils.key(fraNodes.get(6)), 0.0134).build();
 
     LocalDate valuationDate = date(2011, 3, 8);
-    CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate));
+    CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate, REF_DATA));
     MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
         .build();
@@ -275,7 +275,7 @@ public class CurveGroupMarketDataFunctionTest {
     assertThat(forwardTenors).isEqualTo(expectedForwardTenors);
 
     List<CurveParameterMetadata> expectedForwardMetadata = fraNodes.stream()
-        .map(node -> node.metadata(valuationDate))
+        .map(node -> node.metadata(valuationDate, REF_DATA))
         .collect(toImmutableList());
 
     assertThat(forwardMetadata).isEqualTo(expectedForwardMetadata);

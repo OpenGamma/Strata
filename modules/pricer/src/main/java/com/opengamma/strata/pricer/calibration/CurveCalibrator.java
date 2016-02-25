@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -50,6 +51,8 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
  */
 public final class CurveCalibrator {
 
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   /**
    * The standard curve calibrator.
    */
@@ -203,7 +206,7 @@ public final class CurveCalibrator {
           .build();
 
       // calibrate
-      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn);
+      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn, REF_DATA);
       DoubleArray calibratedGroupParams = calibrateGroup(providerGenerator, trades, initialGuesses, orderGroup);
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 

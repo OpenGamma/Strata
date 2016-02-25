@@ -36,8 +36,8 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -47,9 +47,6 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @BeanDefinition
 public final class FraCurveNode
     implements CurveNode, ImmutableBean, Serializable {
-
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * The template for the FRA associated with this node.
@@ -143,8 +140,7 @@ public final class FraCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    ReferenceData refData = REF_DATA;
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));

@@ -176,7 +176,7 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START).plusMonths(3);
-    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
   }
@@ -184,7 +184,7 @@ public class FraCurveNodeTest {
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD).withDate(CurveNodeDate.of(nodeDate));
-    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -195,7 +195,7 @@ public class FraCurveNodeTest {
     FraTrade trade = node.trade(valuationDate, ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, 0.0d).build());
     ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateObservation) (resolved.getFloatingRate())).getFixingDate();
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);
   }
