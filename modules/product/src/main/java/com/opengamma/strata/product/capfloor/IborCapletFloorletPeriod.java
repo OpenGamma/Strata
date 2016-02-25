@@ -9,6 +9,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
@@ -217,6 +218,24 @@ public final class IborCapletFloorletPeriod
    */
   public LocalDate getFixingDate() {
     return rateObservation.getFixingDate();
+  }
+
+  /**
+   * Gets the fixing date-time of the index.
+   * 
+   * @return the fixing date-time. 
+   */
+  public ZonedDateTime getFixingDateTime() {
+    return rateObservation.getIndex().calculateFixingDateTime(rateObservation.getFixingDate());
+  }
+
+  /**
+   * Gets the strike value.
+   * 
+   * @return the strike
+   */
+  public double getStrike() {
+    return firstNonNull(caplet, floorlet);
   }
 
   /**
