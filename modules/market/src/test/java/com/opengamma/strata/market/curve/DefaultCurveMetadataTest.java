@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,6 +86,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThat(test.getInfo(CurveInfoType.DAY_COUNT)).isEqualTo(ACT_360);
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.of(ACT_360));
     assertThat(test.getInfo(CurveInfoType.JACOBIAN)).isEqualTo(JACOBIAN_DATA);
     assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.of(JACOBIAN_DATA));
@@ -106,6 +108,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThrowsIllegalArg(() -> test.getInfo(CurveInfoType.DAY_COUNT));
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
@@ -123,6 +126,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
+    assertThrowsIllegalArg(() -> test.getInfo(CurveInfoType.DAY_COUNT));
     assertThat(test.findInfo(CurveInfoType.DAY_COUNT)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.empty());
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
@@ -147,6 +151,15 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
     assertThat(test.getParameterMetadata().get()).containsExactly(
         CurveParameterMetadata.empty(), CurveParameterMetadata.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withInfo() {
+    DefaultCurveMetadata base = DefaultCurveMetadata.of(CURVE_NAME);
+    assertThat(base.findInfo(CurveInfoType.DAY_COUNT).isPresent()).isFalse();
+    DefaultCurveMetadata test = base.withInfo(ImmutableMap.of(CurveInfoType.DAY_COUNT, ACT_360));
+    assertThat(base.findInfo(CurveInfoType.DAY_COUNT).isPresent()).isFalse();
+    assertThat(test.findInfo(CurveInfoType.DAY_COUNT).isPresent()).isTrue();
   }
 
   //-------------------------------------------------------------------------

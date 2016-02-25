@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 
 /**
@@ -124,10 +125,27 @@ public final class DefaultCurveMetadata
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public <T> T getInfo(CurveInfoType<T> type) {
+    // overridden for performance
+    @SuppressWarnings("unchecked")
+    T value = (T) info.get(type);
+    if (value == null) {
+      throw new IllegalArgumentException(Messages.format("Curve info not found for type '{}'", type));
+    }
+    return value;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> Optional<T> findInfo(CurveInfoType<T> type) {
     return Optional.ofNullable((T) info.get(type));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public DefaultCurveMetadata withInfo(Map<CurveInfoType<?>, Object> additionalInfo) {
+    return toBuilder().addInfo(additionalInfo).build();
   }
 
   @Override
@@ -135,6 +153,7 @@ public final class DefaultCurveMetadata
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
    * 

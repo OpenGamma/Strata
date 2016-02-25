@@ -6,9 +6,11 @@
 package com.opengamma.strata.market.curve;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 
 /**
@@ -71,7 +73,7 @@ public interface CurveMetadata {
    */
   public default <T> T getInfo(CurveInfoType<T> type) {
     return findInfo(type).orElseThrow(() -> new IllegalArgumentException(
-        "Unable to find curve information of type " + type));
+        Messages.format("Curve info not found for type '{}'", type)));
   }
 
   /**
@@ -97,13 +99,29 @@ public interface CurveMetadata {
    */
   public abstract Optional<List<CurveParameterMetadata>> getParameterMetadata();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance where the specified additional information has been added.
+   * <p>
+   * The result will contain the specified additional information.
+   * If this metadata instance already contains additional info, the two maps will
+   * be merged, with the specified map taking priority, as per {@link Map#putAll(Map)}.
+   * <p>
+   * The map must contain no nulls. The value of each entry must match the parameterized
+   * type of the associated {@code CurveInfoType} key.
+   * 
+   * @param additionalInfo  the additional information to add
+   * @return the new curve metadata
+   */
+  public abstract CurveMetadata withInfo(Map<CurveInfoType<?>, Object> additionalInfo);
+
   /**
    * Returns an instance where the parameter metadata has been changed.
    * <p>
    * The result will contain the specified parameter metadata.
    * A null value is accepted and causes the result to have no parameter metadata.
    * 
-   * @param parameterMetadata  the new parameter metadata
+   * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new curve metadata
    */
   public abstract CurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata);

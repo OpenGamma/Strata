@@ -70,10 +70,10 @@ public interface NodalCurveDefinition {
    * The parameters might represent 1 day, 1 week, 1 month, 3 months, 6 months and 12 months.
    * The metadata could be used to describe each parameter in terms of a {@link Period}.
    * <p>
-   * The metadata includes an optional list of parameter metadata, however this must be present.
-   * If present, the size of the parameter metadata list will match the number of parameters of this curve.
+   * The optional parameter-level metadata will be populated on the resulting metadata.
+   * The size of the parameter-level metadata will match the number of parameters of this curve.
    *
-   * @param valuationDate  the valuation date used when calibrating the curve
+   * @param valuationDate  the valuation date
    * @return the metadata
    */
   public abstract CurveMetadata metadata(LocalDate valuationDate);
@@ -85,11 +85,12 @@ public interface NodalCurveDefinition {
    * The size of the array must match the {@linkplain #getParameterCount() count of parameters}.
    * 
    * @param valuationDate  the valuation date
+   * @param metadata  the curve metadata
    * @param parameters  the array of parameters
    * @return the curve
    */
-  public default NodalCurve curve(LocalDate valuationDate, DoubleArray parameters) {
-    return curve(valuationDate, parameters, ImmutableMap.of());
+  public default NodalCurve curve(LocalDate valuationDate, CurveMetadata metadata, DoubleArray parameters) {
+    return curve(valuationDate, metadata, parameters, ImmutableMap.of());
   }
 
   /**
@@ -100,12 +101,14 @@ public interface NodalCurveDefinition {
    * Any additional information may be added to the curve metadata.
    * 
    * @param valuationDate  the valuation date
+   * @param metadata  the curve metadata
    * @param parameters  the array of parameters
    * @param additionalInfo  the additional curve information, such as information about calibration
    * @return the curve
    */
   public abstract NodalCurve curve(
       LocalDate valuationDate,
+      CurveMetadata metadata,
       DoubleArray parameters,
       Map<CurveInfoType<?>, Object> additionalInfo);
 

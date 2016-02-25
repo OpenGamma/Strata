@@ -66,7 +66,7 @@ public class InterpolatedNodalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_createMetadata() {
+  public void test_metadata() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
@@ -88,7 +88,7 @@ public class InterpolatedNodalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_createCurve() {
+  public void test_curve() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
         .xValueType(ValueType.YEAR_FRACTION)
@@ -114,7 +114,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.curve(VAL_DATE, DoubleArray.of(1d, 1.5d)), expected);
+    assertEquals(test.curve(VAL_DATE, metadata, DoubleArray.of(1d, 1.5d)), expected);
   }
 
   //-------------------------------------------------------------------------

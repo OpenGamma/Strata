@@ -143,14 +143,19 @@ public final class InterpolatedNodalCurveDefinition
 
   //-------------------------------------------------------------------------
   @Override
-  public NodalCurve curve(LocalDate valuationDate, DoubleArray parameters, Map<CurveInfoType<?>, Object> additionalInfo) {
-    CurveMetadata meta = metadata(valuationDate, additionalInfo);
+  public NodalCurve curve(
+      LocalDate valuationDate,
+      CurveMetadata metadata,
+      DoubleArray parameters,
+      Map<CurveInfoType<?>, Object> additionalInfo) {
+
+    CurveMetadata combinedMetadata = metadata.withInfo(additionalInfo);
     DoubleArray nodeTimes = DoubleArray.of(getParameterCount(), i -> {
-      LocalDate nodeDate = ((DatedCurveParameterMetadata) meta.getParameterMetadata().get().get(i)).getDate();
+      LocalDate nodeDate = ((DatedCurveParameterMetadata) combinedMetadata.getParameterMetadata().get().get(i)).getDate();
       return getDayCount().get().yearFraction(valuationDate, nodeDate);
     });
     return InterpolatedNodalCurve.builder()
-        .metadata(meta)
+        .metadata(combinedMetadata)
         .xValues(nodeTimes)
         .yValues(parameters)
         .extrapolatorLeft(extrapolatorLeft)

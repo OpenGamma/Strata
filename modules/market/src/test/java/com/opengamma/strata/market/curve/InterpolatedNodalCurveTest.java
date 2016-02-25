@@ -75,6 +75,9 @@ public class InterpolatedNodalCurveTest {
     // parameter metadata size != node size
     assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
         METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
+    // x not in order
+    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
+        METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
