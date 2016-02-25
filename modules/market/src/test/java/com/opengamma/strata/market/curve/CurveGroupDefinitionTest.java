@@ -173,7 +173,7 @@ public class CurveGroupDefinitionTest {
     Trade trade1 = NODE1.resolvedTrade(valuationDate, marketData, REF_DATA);
     Trade trade2 = NODE2.resolvedTrade(valuationDate, marketData, REF_DATA);
     assertEquals(test.getTotalParameterCount(), 2);
-    assertEquals(test.trades(valuationDate, marketData, REF_DATA), ImmutableList.of(trade1, trade2));
+    assertEquals(test.resolvedTrades(valuationDate, marketData, REF_DATA), ImmutableList.of(trade1, trade2));
     assertEquals(test.initialGuesses(valuationDate, marketData), ImmutableList.of(0.5d, 1.5d));
   }
 
