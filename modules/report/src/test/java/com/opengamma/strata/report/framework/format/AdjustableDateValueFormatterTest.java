@@ -6,7 +6,7 @@
 package com.opengamma.strata.report.framework.format;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 

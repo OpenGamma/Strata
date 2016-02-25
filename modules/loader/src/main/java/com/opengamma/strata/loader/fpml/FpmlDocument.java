@@ -34,8 +34,8 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.Index;
@@ -420,7 +420,7 @@ public final class FpmlDocument {
     if (period.getYears() > 0 || period.getMonths() > 0 || calendarDays) {
       resolvedDate = bda1.adjust(baseDate.plus(period), REF_DATA);
     } else {
-      resolvedDate = bda1.adjust(bda1.getCalendar().shift(baseDate, period.getDays()), REF_DATA);
+      resolvedDate = bda1.adjust(bda1.getCalendar().resolve(REF_DATA).shift(baseDate, period.getDays()), REF_DATA);
     }
     return AdjustableDate.of(resolvedDate, bda2);
   }
@@ -447,7 +447,7 @@ public final class FpmlDocument {
     boolean calendarDays = period.isZero() || (dayTypeEl.isPresent() && dayTypeEl.get().getContent().equals("Calendar"));
     BusinessDayConvention fixingBdc = convertBusinessDayConvention(
         baseEl.getChild("businessDayConvention").getContent());
-    HolidayCalendar calendar = parseBusinessCenters(baseEl);
+    HolidayCalendarId calendar = parseBusinessCenters(baseEl);
     if (calendarDays) {
       return DaysAdjustment.ofCalendarDays(
           period.getDays(), BusinessDayAdjustment.of(fixingBdc, calendar));
@@ -490,8 +490,8 @@ public final class FpmlDocument {
         baseEl.getChild("businessDayConvention").getContent());
     Optional<XmlElement> centersEl = baseEl.findChild("businessCenters");
     Optional<XmlElement> centersRefEl = baseEl.findChild("businessCentersReference");
-    HolidayCalendar calendar =
-        (centersEl.isPresent() || centersRefEl.isPresent() ? parseBusinessCenters(baseEl) : HolidayCalendars.NO_HOLIDAYS);
+    HolidayCalendarId calendar =
+        (centersEl.isPresent() || centersRefEl.isPresent() ? parseBusinessCenters(baseEl) : HolidayCalendarIds.NO_HOLIDAYS);
     return BusinessDayAdjustment.of(bdc, calendar);
   }
 
@@ -503,14 +503,14 @@ public final class FpmlDocument {
    * @return the holiday calendar
    * @throws RuntimeException if unable to parse
    */
-  public HolidayCalendar parseBusinessCenters(XmlElement baseEl) {
+  public HolidayCalendarId parseBusinessCenters(XmlElement baseEl) {
     // FpML content: ('businessCentersReference' | 'businessCenters')
     // FpML 'businessCenters' content: ('businessCenter+')
     // Each 'businessCenter' is a location treated as a holiday calendar
     Optional<XmlElement> optionalBusinessCentersEl = baseEl.findChild("businessCenters");
     XmlElement businessCentersEl =
         optionalBusinessCentersEl.orElseGet(() -> lookupReference(baseEl.getChild("businessCentersReference")));
-    HolidayCalendar calendar = HolidayCalendars.NO_HOLIDAYS;
+    HolidayCalendarId calendar = HolidayCalendarIds.NO_HOLIDAYS;
     for (XmlElement businessCenterEl : businessCentersEl.getChildren("businessCenter")) {
       calendar = calendar.combinedWith(parseBusinessCenter(businessCenterEl));
     }
@@ -525,7 +525,7 @@ public final class FpmlDocument {
    * @return the calendar
    * @throws RuntimeException if unable to parse
    */
-  public HolidayCalendar parseBusinessCenter(XmlElement baseEl) {
+  public HolidayCalendarId parseBusinessCenter(XmlElement baseEl) {
     validateScheme(baseEl, "businessCenterScheme", "http://www.fpml.org/coding-scheme/business-center");
     return convertHolidayCalendar(baseEl.getContent());
   }
@@ -743,8 +743,8 @@ public final class FpmlDocument {
    * @return the holiday calendar
    * @throws IllegalArgumentException if the holiday calendar is not known
    */
-  public HolidayCalendar convertHolidayCalendar(String fpmlBusinessCenter) {
-    return HolidayCalendar.of(fpmlBusinessCenter);
+  public HolidayCalendarId convertHolidayCalendar(String fpmlBusinessCenter) {
+    return HolidayCalendarId.of(fpmlBusinessCenter);
   }
 
   /**

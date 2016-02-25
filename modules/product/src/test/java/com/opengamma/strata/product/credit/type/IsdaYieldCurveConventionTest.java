@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;

@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -38,8 +38,8 @@ public class InterpolatedNodalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 9, 9);
-  private static final LocalDate DATE1 = GBLO.nextOrSame(VAL_DATE.plusMonths(2));
-  private static final LocalDate DATE2 = GBLO.nextOrSame(VAL_DATE.plusMonths(4));
+  private static final LocalDate DATE1 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(2));
+  private static final LocalDate DATE2 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(4));
   private static final CurveName CURVE_NAME = CurveName.of("Test");
   private static final ImmutableList<DummyFraCurveNode> NODES = ImmutableList.of(
       DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))),

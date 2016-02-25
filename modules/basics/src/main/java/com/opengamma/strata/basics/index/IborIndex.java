@@ -13,7 +13,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -74,13 +74,13 @@ public interface IborIndex
   public abstract DayCount getDayCount();
 
   /**
-   * Gets the fixing calendar of the index.
+   * Gets the calendar that determines which dates are fixing dates.
    * <p>
    * The rate will be fixed on each business day in this calendar.
    * 
-   * @return the currency pair of the index
+   * @return the calendar used to determine the fixing dates of the index
    */
-  public abstract HolidayCalendar getFixingCalendar();
+  public abstract HolidayCalendarId getFixingCalendar();
 
   /**
    * Gets the tenor of the index.

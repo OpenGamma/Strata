@@ -34,8 +34,8 @@ import com.opengamma.strata.basics.market.Resolvable;
  * This class represents the necessary adjustment.
  * <p>
  * This class combines a {@linkplain BusinessDayConvention business day convention}
- * with a {@linkplain HolidayCalendar holiday calendar}.
- * Together, these contain enough information to be able to adjust a date.
+ * with a {@linkplain HolidayCalendarId holiday calendar}. To adjust a date,
+ * {@link ReferenceData} must be provided to resolve the holiday calendar.
  */
 @BeanDefinition
 public final class BusinessDayAdjustment
@@ -45,7 +45,7 @@ public final class BusinessDayAdjustment
    * An instance that performs no adjustment.
    */
   public static final BusinessDayAdjustment NONE =
-      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
+      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendarIds.NO_HOLIDAYS);
 
   /**
    * The convention used to the adjust the date if it does not fall on a business day.
@@ -60,7 +60,7 @@ public final class BusinessDayAdjustment
    * When the adjustment is made, this calendar is used to skip holidays.
    */
   @PropertyDefinition(validate = "notNull")
-  private final HolidayCalendar calendar;
+  private final HolidayCalendarId calendar;
 
   //-------------------------------------------------------------------------
   /**
@@ -72,7 +72,7 @@ public final class BusinessDayAdjustment
    * @param calendar  the calendar that defines holidays and business days
    * @return the adjuster
    */
-  public static BusinessDayAdjustment of(BusinessDayConvention convention, HolidayCalendar calendar) {
+  public static BusinessDayAdjustment of(BusinessDayConvention convention, HolidayCalendarId calendar) {
     return new BusinessDayAdjustment(convention, calendar);
   }
 
@@ -88,7 +88,7 @@ public final class BusinessDayAdjustment
    * @return the adjusted date
    */
   public LocalDate adjust(LocalDate date, ReferenceData refData) {
-    HolidayCalendar holCal = calendar;
+    HolidayCalendar holCal = calendar.resolve(refData);
     return convention.adjust(date, holCal);
   }
 
@@ -104,7 +104,7 @@ public final class BusinessDayAdjustment
    */
   @Override
   public BusinessDayAdjuster resolve(ReferenceData refData) {
-    return new BusinessDayAdjuster(convention, calendar);
+    return new BusinessDayAdjuster(convention, calendar.resolve(refData));
   }
 
   /**
@@ -120,7 +120,7 @@ public final class BusinessDayAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    HolidayCalendar holCal = calendar;
+    HolidayCalendar holCal = calendar.resolve(refData);
     return date -> convention.adjust(date, holCal);
   }
 
@@ -167,7 +167,7 @@ public final class BusinessDayAdjustment
 
   private BusinessDayAdjustment(
       BusinessDayConvention convention,
-      HolidayCalendar calendar) {
+      HolidayCalendarId calendar) {
     JodaBeanUtils.notNull(convention, "convention");
     JodaBeanUtils.notNull(calendar, "calendar");
     this.convention = convention;
@@ -207,7 +207,7 @@ public final class BusinessDayAdjustment
    * When the adjustment is made, this calendar is used to skip holidays.
    * @return the value of the property, not null
    */
-  public HolidayCalendar getCalendar() {
+  public HolidayCalendarId getCalendar() {
     return calendar;
   }
 
@@ -259,8 +259,8 @@ public final class BusinessDayAdjustment
     /**
      * The meta-property for the {@code calendar} property.
      */
-    private final MetaProperty<HolidayCalendar> calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", BusinessDayAdjustment.class, HolidayCalendar.class);
+    private final MetaProperty<HolidayCalendarId> calendar = DirectMetaProperty.ofImmutable(
+        this, "calendar", BusinessDayAdjustment.class, HolidayCalendarId.class);
     /**
      * The meta-properties.
      */
@@ -314,7 +314,7 @@ public final class BusinessDayAdjustment
      * The meta-property for the {@code calendar} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<HolidayCalendar> calendar() {
+    public MetaProperty<HolidayCalendarId> calendar() {
       return calendar;
     }
 
@@ -348,7 +348,7 @@ public final class BusinessDayAdjustment
   public static final class Builder extends DirectFieldsBeanBuilder<BusinessDayAdjustment> {
 
     private BusinessDayConvention convention;
-    private HolidayCalendar calendar;
+    private HolidayCalendarId calendar;
 
     /**
      * Restricted constructor.
@@ -385,7 +385,7 @@ public final class BusinessDayAdjustment
           this.convention = (BusinessDayConvention) newValue;
           break;
         case -178324674:  // calendar
-          this.calendar = (HolidayCalendar) newValue;
+          this.calendar = (HolidayCalendarId) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -445,7 +445,7 @@ public final class BusinessDayAdjustment
      * @param calendar  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder calendar(HolidayCalendar calendar) {
+    public Builder calendar(HolidayCalendarId calendar) {
       JodaBeanUtils.notNull(calendar, "calendar");
       this.calendar = calendar;
       return this;

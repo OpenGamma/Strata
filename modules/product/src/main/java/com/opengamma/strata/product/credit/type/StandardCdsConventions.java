@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.credit.type;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;

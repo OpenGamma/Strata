@@ -36,7 +36,7 @@ public class OvernightAveragedRateObservationTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), REF_DATA);
     OvernightAveragedRateObservation expected = OvernightAveragedRateObservation.builder()
         .index(USD_FED_FUND)
-        .fixingCalendar(USD_FED_FUND.getFixingCalendar())
+        .fixingCalendar(USD_FED_FUND.getFixingCalendar().resolve(REF_DATA))
         .startDate(date(2016, 2, 24))
         .endDate(date(2016, 3, 24))
         .rateCutOffDays(0)
@@ -49,7 +49,7 @@ public class OvernightAveragedRateObservationTest {
         OvernightAveragedRateObservation.of(CHF_TOIS, date(2016, 2, 24), date(2016, 3, 24), REF_DATA);
     OvernightAveragedRateObservation expected = OvernightAveragedRateObservation.builder()
         .index(CHF_TOIS)
-        .fixingCalendar(CHF_TOIS.getFixingCalendar())
+        .fixingCalendar(CHF_TOIS.getFixingCalendar().resolve(REF_DATA))
         .startDate(date(2016, 2, 23))
         .endDate(date(2016, 3, 23))
         .rateCutOffDays(0)
@@ -62,7 +62,7 @@ public class OvernightAveragedRateObservationTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), 0, REF_DATA);
     OvernightAveragedRateObservation expected = OvernightAveragedRateObservation.builder()
         .index(USD_FED_FUND)
-        .fixingCalendar(USD_FED_FUND.getFixingCalendar())
+        .fixingCalendar(USD_FED_FUND.getFixingCalendar().resolve(REF_DATA))
         .startDate(date(2016, 2, 24))
         .endDate(date(2016, 3, 24))
         .rateCutOffDays(0)
@@ -75,7 +75,7 @@ public class OvernightAveragedRateObservationTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), 2, REF_DATA);
     OvernightAveragedRateObservation expected = OvernightAveragedRateObservation.builder()
         .index(USD_FED_FUND)
-        .fixingCalendar(USD_FED_FUND.getFixingCalendar())
+        .fixingCalendar(USD_FED_FUND.getFixingCalendar().resolve(REF_DATA))
         .startDate(date(2016, 2, 24))
         .endDate(date(2016, 3, 24))
         .rateCutOffDays(2)

@@ -34,7 +34,7 @@ public class TenorAdjustmentTest {
   private static final PeriodAdditionConvention PAC_NONE = PeriodAdditionConventions.NONE;
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.SAT_SUN);
 
   //-------------------------------------------------------------------------
   public void test_of_additionConventionNone() {

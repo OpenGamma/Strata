@@ -26,8 +26,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -85,7 +85,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       .build();
   // underlying swap
   private static final NotionalSchedule UNIT_NOTIONAL = NotionalSchedule.of(USD, 1d);
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CALENDAR);
   private static final LocalDate START = LocalDate.of(2013, 6, 19);

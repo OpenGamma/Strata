@@ -73,7 +73,7 @@ public final class DaysAdjustment
    * An instance that performs no adjustment.
    */
   public static final DaysAdjustment NONE =
-      new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+      new DaysAdjustment(0, HolidayCalendarIds.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
 
   /**
    * The number of days to be added.
@@ -96,7 +96,7 @@ public final class DaysAdjustment
    * See the class-level documentation for more information.
    */
   @PropertyDefinition(validate = "notNull")
-  private final HolidayCalendar calendar;
+  private final HolidayCalendarId calendar;
   /**
    * The business day adjustment that is performed to the result of the addition.
    * <p>
@@ -124,7 +124,7 @@ public final class DaysAdjustment
    * @return the days adjustment
    */
   public static DaysAdjustment ofCalendarDays(int numberOfDays) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+    return new DaysAdjustment(numberOfDays, HolidayCalendarIds.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
   }
 
   /**
@@ -140,7 +140,7 @@ public final class DaysAdjustment
    * @return the days adjustment
    */
   public static DaysAdjustment ofCalendarDays(int numberOfDays, BusinessDayAdjustment adjustment) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, adjustment);
+    return new DaysAdjustment(numberOfDays, HolidayCalendarIds.NO_HOLIDAYS, adjustment);
   }
 
   /**
@@ -155,7 +155,7 @@ public final class DaysAdjustment
    * @param holidayCalendar  the calendar that defines holidays and business days
    * @return the days adjustment
    */
-  public static DaysAdjustment ofBusinessDays(int numberOfDays, HolidayCalendar holidayCalendar) {
+  public static DaysAdjustment ofBusinessDays(int numberOfDays, HolidayCalendarId holidayCalendar) {
     return new DaysAdjustment(numberOfDays, holidayCalendar, BusinessDayAdjustment.NONE);
   }
 
@@ -174,7 +174,7 @@ public final class DaysAdjustment
    */
   public static DaysAdjustment ofBusinessDays(
       int numberOfDays,
-      HolidayCalendar holidayCalendar,
+      HolidayCalendarId holidayCalendar,
       BusinessDayAdjustment adjustment) {
     return new DaysAdjustment(numberOfDays, holidayCalendar, adjustment);
   }
@@ -196,7 +196,7 @@ public final class DaysAdjustment
    * @return the adjusted date
    */
   public LocalDate adjust(LocalDate date, ReferenceData refData) {
-    LocalDate added = calendar.shift(date, days);
+    LocalDate added = calendar.resolve(refData).shift(date, days);
     return adjustment.adjust(added, refData);
   }
 
@@ -214,7 +214,7 @@ public final class DaysAdjustment
    */
   @Override
   public DaysAdjuster resolve(ReferenceData refData) {
-    HolidayCalendar cal = days == 0 ? HolidayCalendars.NO_HOLIDAYS : calendar;
+    HolidayCalendar cal = days == 0 ? HolidayCalendars.NO_HOLIDAYS : calendar.resolve(refData);
     BusinessDayAdjustment adj = calendar.equals(adjustment.getCalendar()) ? BusinessDayAdjustment.NONE : adjustment;
     return new DaysAdjuster(days, cal, adj.resolve(refData));
   }
@@ -232,13 +232,12 @@ public final class DaysAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    if (calendar == HolidayCalendars.NO_HOLIDAYS) {
-      HolidayCalendar holCalAdj = adjustment.getCalendar();
+    HolidayCalendar holCalAdj = adjustment.getCalendar().resolve(refData);
+    if (calendar == HolidayCalendarIds.NO_HOLIDAYS) {
       BusinessDayConvention adjustmentConvention = adjustment.getConvention();
       return date -> adjustmentConvention.adjust(LocalDateUtils.plusDays(date, days), holCalAdj);
     }
-    HolidayCalendar holCalAdd = calendar;
-    HolidayCalendar holCalAdj = adjustment.getCalendar();
+    HolidayCalendar holCalAdd = calendar.resolve(refData);
     BusinessDayConvention adjustmentConvention = adjustment.getConvention();
     return date -> adjustmentConvention.adjust(holCalAdd.shift(date, days), holCalAdj);
   }
@@ -252,9 +251,9 @@ public final class DaysAdjustment
    * 
    * @return the result holiday calendar
    */
-  public HolidayCalendar getResultCalendar() {
-    HolidayCalendar cal = adjustment.getCalendar();
-    if (cal == HolidayCalendars.NO_HOLIDAYS) {
+  public HolidayCalendarId getResultCalendar() {
+    HolidayCalendarId cal = adjustment.getCalendar();
+    if (cal == HolidayCalendarIds.NO_HOLIDAYS) {
       cal = calendar;
     }
     return cal;
@@ -272,7 +271,7 @@ public final class DaysAdjustment
    */
   public DaysAdjustment normalized() {
     if (days == 0) {
-      if (!calendar.equals(HolidayCalendars.NO_HOLIDAYS)) {
+      if (calendar != HolidayCalendarIds.NO_HOLIDAYS) {
         return DaysAdjustment.ofCalendarDays(days, adjustment);
       }
       return this;
@@ -293,7 +292,7 @@ public final class DaysAdjustment
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append(days);
-    if (calendar == HolidayCalendars.NO_HOLIDAYS) {
+    if (calendar == HolidayCalendarIds.NO_HOLIDAYS) {
       buf.append(" calendar day");
       if (days != 1) {
         buf.append("s");
@@ -340,7 +339,7 @@ public final class DaysAdjustment
 
   private DaysAdjustment(
       int days,
-      HolidayCalendar calendar,
+      HolidayCalendarId calendar,
       BusinessDayAdjustment adjustment) {
     JodaBeanUtils.notNull(days, "days");
     JodaBeanUtils.notNull(calendar, "calendar");
@@ -391,7 +390,7 @@ public final class DaysAdjustment
    * See the class-level documentation for more information.
    * @return the value of the property, not null
    */
-  public HolidayCalendar getCalendar() {
+  public HolidayCalendarId getCalendar() {
     return calendar;
   }
 
@@ -462,8 +461,8 @@ public final class DaysAdjustment
     /**
      * The meta-property for the {@code calendar} property.
      */
-    private final MetaProperty<HolidayCalendar> calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", DaysAdjustment.class, HolidayCalendar.class);
+    private final MetaProperty<HolidayCalendarId> calendar = DirectMetaProperty.ofImmutable(
+        this, "calendar", DaysAdjustment.class, HolidayCalendarId.class);
     /**
      * The meta-property for the {@code adjustment} property.
      */
@@ -525,7 +524,7 @@ public final class DaysAdjustment
      * The meta-property for the {@code calendar} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<HolidayCalendar> calendar() {
+    public MetaProperty<HolidayCalendarId> calendar() {
       return calendar;
     }
 
@@ -569,7 +568,7 @@ public final class DaysAdjustment
   public static final class Builder extends DirectFieldsBeanBuilder<DaysAdjustment> {
 
     private int days;
-    private HolidayCalendar calendar;
+    private HolidayCalendarId calendar;
     private BusinessDayAdjustment adjustment;
 
     /**
@@ -610,7 +609,7 @@ public final class DaysAdjustment
           this.days = (Integer) newValue;
           break;
         case -178324674:  // calendar
-          this.calendar = (HolidayCalendar) newValue;
+          this.calendar = (HolidayCalendarId) newValue;
           break;
         case 1977085293:  // adjustment
           this.adjustment = (BusinessDayAdjustment) newValue;
@@ -682,7 +681,7 @@ public final class DaysAdjustment
      * @param calendar  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder calendar(HolidayCalendar calendar) {
+    public Builder calendar(HolidayCalendarId calendar) {
       JodaBeanUtils.notNull(calendar, "calendar");
       this.calendar = calendar;
       return this;

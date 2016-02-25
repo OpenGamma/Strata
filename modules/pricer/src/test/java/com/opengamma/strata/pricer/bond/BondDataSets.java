@@ -19,8 +19,8 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -48,7 +48,7 @@ public final class BondDataSets {
   private static final YieldConvention YIELD_CONVENTION_USD = YieldConvention.US_STREET;
   /** Notional of underlying bond */
   public static final double NOTIONAL_USD = 100000.0;
-  private static final HolidayCalendar CALENDAR_USD = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendarId CALENDAR_USD = HolidayCalendarIds.SAT_SUN;
   private static final DaysAdjustment SETTLEMENT_DAYS_USD = DaysAdjustment.ofBusinessDays(1, CALENDAR_USD);
   private static final DayCount DAY_COUNT_USD = DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayAdjustment BUSINESS_ADJUST_USD =
@@ -130,7 +130,7 @@ public final class BondDataSets {
   private static final YieldConvention YIELD_CONVENTION_EUR = YieldConvention.GERMAN_BONDS;
   /** Notional of underlying bond */
   public static final double NOTIONAL_EUR = 100000d;
-  private static final HolidayCalendar CALENDAR_EUR = HolidayCalendars.EUTA;
+  private static final HolidayCalendarId CALENDAR_EUR = HolidayCalendarIds.EUTA;
   private static final DaysAdjustment SETTLEMENT_DAYS_EUR = DaysAdjustment.ofBusinessDays(3, CALENDAR_EUR);
   private static final DayCount DAY_COUNT_EUR = DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayAdjustment BUSINESS_ADJUST_EUR =

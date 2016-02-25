@@ -6,7 +6,8 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -29,7 +30,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -52,8 +52,7 @@ public class PaymentScheduleTest {
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
   private static final LocalDate DATE_05_05 = date(2014, 5, 5);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
-  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(
-      MODIFIED_FOLLOWING, HolidayCalendars.SAT_SUN);
+  private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
 
   private static final SchedulePeriod ACCRUAL1STUB = SchedulePeriod.of(DATE_01_08, DATE_02_05, DATE_01_08, DATE_02_05);
   private static final SchedulePeriod ACCRUAL1 = SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05);

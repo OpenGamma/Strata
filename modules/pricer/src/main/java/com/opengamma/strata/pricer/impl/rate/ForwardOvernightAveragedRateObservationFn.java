@@ -58,7 +58,7 @@ public class ForwardOvernightAveragedRateObservationFn
     OvernightIndexObservation lastIndexObs = null;
     // cutoffOffset >= 1, so loop always runs at least once
     for (int i = 0; i < cutoffOffset; i++) {
-      lastNonCutoffFixing = index.getFixingCalendar().previous(lastNonCutoffFixing);
+      lastNonCutoffFixing = observation.getFixingCalendar().previous(lastNonCutoffFixing);
       lastIndexObs = observation.observeOn(lastNonCutoffFixing);
       accrualFactorTotal += lastIndexObs.getYearFraction();
       cutoffAccrualFactor += lastIndexObs.getYearFraction();
@@ -73,7 +73,7 @@ public class ForwardOvernightAveragedRateObservationFn
       double forwardRate = rates.rate(indexObs);
       accrualFactorTotal += indexObs.getYearFraction();
       accumulatedInterest += indexObs.getYearFraction() * forwardRate;
-      currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
+      currentFixingNonCutoff = observation.getFixingCalendar().next(currentFixingNonCutoff);
     }
     // final rate
     return accumulatedInterest / accrualFactorTotal;
@@ -98,7 +98,7 @@ public class ForwardOvernightAveragedRateObservationFn
     OvernightIndexObservation lastIndexObs = null;
     // cutoffOffset >= 1, so loop always runs at least once
     for (int i = 0; i < cutoffOffset; i++) {
-      lastNonCutoffFixing = index.getFixingCalendar().previous(lastNonCutoffFixing);
+      lastNonCutoffFixing = observation.getFixingCalendar().previous(lastNonCutoffFixing);
       lastIndexObs = observation.observeOn(lastNonCutoffFixing);
       accrualFactorTotal += lastIndexObs.getYearFraction();
       cutoffAccrualFactor += lastIndexObs.getYearFraction();
@@ -115,7 +115,7 @@ public class ForwardOvernightAveragedRateObservationFn
           .multipliedBy(indexObs.getYearFraction());
       combinedPointSensitivityBuilder = combinedPointSensitivityBuilder.combinedWith(forwardRateSensitivity);
       accrualFactorTotal += indexObs.getYearFraction();
-      currentFixingNonCutoff = index.getFixingCalendar().next(currentFixingNonCutoff);
+      currentFixingNonCutoff = observation.getFixingCalendar().next(currentFixingNonCutoff);
     }
     return combinedPointSensitivityBuilder.multipliedBy(1.0 / accrualFactorTotal);
   }

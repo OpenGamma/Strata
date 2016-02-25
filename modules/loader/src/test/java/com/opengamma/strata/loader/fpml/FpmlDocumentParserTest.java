@@ -19,12 +19,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.FRPA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
@@ -61,7 +61,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
@@ -96,7 +96,6 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -108,6 +107,7 @@ import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.StubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -118,7 +118,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FpmlDocumentParserTest {
 
-  private static final HolidayCalendar GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
 
   //-------------------------------------------------------------------------
   public void bulletPayment() {
@@ -516,29 +516,30 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.06))
             .build())
         .build();
-    // TODO: removed until holiday calendar mapping works
-//    ImmutableReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(
-//        HolidayCalendarIds.GBLO, HolidayCalendars.SAT_SUN,
-//        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN));
-//    ResolvedSwapLeg expandedPayLeg = payLeg.resolve(refData);
-//    assertEquals(expandedPayLeg.getPaymentPeriods().size(), 10);
-//    assertIborPaymentPeriod(expandedPayLeg, 0, "1995-06-14", "1995-01-16", "1995-06-14", 50000000d, "1995-01-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 1, "1995-12-14", "1995-06-14", "1995-12-14", 50000000d, "1995-06-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 2, "1996-06-14", "1995-12-14", "1996-06-14", 40000000d, "1995-12-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 3, "1996-12-16", "1996-06-14", "1996-12-16", 40000000d, "1996-06-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 4, "1997-06-16", "1996-12-16", "1997-06-16", 30000000d, "1996-12-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 5, "1997-12-15", "1997-06-16", "1997-12-15", 30000000d, "1997-06-12");
-//    assertIborPaymentPeriod(expandedPayLeg, 6, "1998-06-15", "1997-12-15", "1998-06-15", 20000000d, "1997-12-11");
-//    assertIborPaymentPeriod(expandedPayLeg, 7, "1998-12-14", "1998-06-15", "1998-12-14", 20000000d, "1998-06-11");
-//    assertIborPaymentPeriod(expandedPayLeg, 8, "1999-06-14", "1998-12-14", "1999-06-14", 10000000d, "1998-12-10");
-//    assertIborPaymentPeriod(expandedPayLeg, 9, "1999-12-14", "1999-06-14", "1999-12-14", 10000000d, "1999-06-10");
-//    ResolvedSwapLeg expandedRecLeg = recLeg.resolve(refData);
-//    assertEquals(expandedRecLeg.getPaymentPeriods().size(), 5);
-//    assertFixedPaymentPeriod(expandedRecLeg, 0, "1995-12-14", "1995-01-16", "1995-12-14", 50000000d, 0.06d);
-//    assertFixedPaymentPeriod(expandedRecLeg, 1, "1996-12-16", "1995-12-14", "1996-12-16", 40000000d, 0.06d);
-//    assertFixedPaymentPeriod(expandedRecLeg, 2, "1997-12-15", "1996-12-16", "1997-12-15", 30000000d, 0.06d);
-//    assertFixedPaymentPeriod(expandedRecLeg, 3, "1998-12-14", "1997-12-15", "1998-12-14", 20000000d, 0.06d);
-//    assertFixedPaymentPeriod(expandedRecLeg, 4, "1999-12-14", "1998-12-14", "1999-12-14", 10000000d, 0.06d);
+    ImmutableReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(
+        HolidayCalendarIds.GBLO, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.SAT_SUN, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendars.NO_HOLIDAYS));
+    ResolvedSwapLeg expandedPayLeg = payLeg.resolve(refData);
+    assertEquals(expandedPayLeg.getPaymentPeriods().size(), 10);
+    assertIborPaymentPeriod(expandedPayLeg, 0, "1995-06-14", "1995-01-16", "1995-06-14", 50000000d, "1995-01-12");
+    assertIborPaymentPeriod(expandedPayLeg, 1, "1995-12-14", "1995-06-14", "1995-12-14", 50000000d, "1995-06-12");
+    assertIborPaymentPeriod(expandedPayLeg, 2, "1996-06-14", "1995-12-14", "1996-06-14", 40000000d, "1995-12-12");
+    assertIborPaymentPeriod(expandedPayLeg, 3, "1996-12-16", "1996-06-14", "1996-12-16", 40000000d, "1996-06-12");
+    assertIborPaymentPeriod(expandedPayLeg, 4, "1997-06-16", "1996-12-16", "1997-06-16", 30000000d, "1996-12-12");
+    assertIborPaymentPeriod(expandedPayLeg, 5, "1997-12-15", "1997-06-16", "1997-12-15", 30000000d, "1997-06-12");
+    assertIborPaymentPeriod(expandedPayLeg, 6, "1998-06-15", "1997-12-15", "1998-06-15", 20000000d, "1997-12-11");
+    assertIborPaymentPeriod(expandedPayLeg, 7, "1998-12-14", "1998-06-15", "1998-12-14", 20000000d, "1998-06-11");
+    assertIborPaymentPeriod(expandedPayLeg, 8, "1999-06-14", "1998-12-14", "1999-06-14", 10000000d, "1998-12-10");
+    assertIborPaymentPeriod(expandedPayLeg, 9, "1999-12-14", "1999-06-14", "1999-12-14", 10000000d, "1999-06-10");
+    ResolvedSwapLeg expandedRecLeg = recLeg.resolve(refData);
+    assertEquals(expandedRecLeg.getPaymentPeriods().size(), 5);
+    assertFixedPaymentPeriod(expandedRecLeg, 0, "1995-12-14", "1995-01-16", "1995-12-14", 50000000d, 0.06d);
+    assertFixedPaymentPeriod(expandedRecLeg, 1, "1996-12-16", "1995-12-14", "1996-12-16", 40000000d, 0.06d);
+    assertFixedPaymentPeriod(expandedRecLeg, 2, "1997-12-15", "1996-12-16", "1997-12-15", 30000000d, 0.06d);
+    assertFixedPaymentPeriod(expandedRecLeg, 3, "1998-12-14", "1997-12-15", "1998-12-14", 20000000d, 0.06d);
+    assertFixedPaymentPeriod(expandedRecLeg, 4, "1999-12-14", "1998-12-14", "1999-12-14", 10000000d, 0.06d);
   }
 
   //-------------------------------------------------------------------------
@@ -647,7 +648,10 @@ public class FpmlDocumentParserTest {
         .build();
     ImmutableReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(
         HolidayCalendarIds.GBLO, HolidayCalendars.SAT_SUN,
-        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN));
+        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.USNY, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.SAT_SUN, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendars.NO_HOLIDAYS));
     ResolvedSwapLeg expandedRecLeg = recLeg.resolve(refData);
     assertEquals(expandedRecLeg.getPaymentPeriods().size(), 4);
     assertIborPaymentPeriodCpd(expandedRecLeg, 0, 0, "2000-11-03", "2000-04-27", "2000-07-27", 100000000d, "2000-04-25");

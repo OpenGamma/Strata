@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.deposit;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

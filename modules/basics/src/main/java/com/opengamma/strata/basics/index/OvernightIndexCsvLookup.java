@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
@@ -87,7 +87,7 @@ final class OvernightIndexCsvLookup
     String name = row.getField(NAME_FIELD);
     Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
     DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(row.getField(FIXING_CALENDAR_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
     int publicationDays = Integer.parseInt(row.getField(PUBLICATION_DAYS_FIELD));
     int effectiveDays = Integer.parseInt(row.getField(EFFECTIVE_DAYS_FIELD));
     // build result

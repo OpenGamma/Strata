@@ -14,7 +14,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;

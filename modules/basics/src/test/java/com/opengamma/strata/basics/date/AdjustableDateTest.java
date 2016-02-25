@@ -26,7 +26,7 @@ public class AdjustableDateTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.SAT_SUN);
 
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
   private static final LocalDate FRI_2014_07_11 = LocalDate.of(2014, 7, 11);

@@ -6,7 +6,8 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -35,7 +36,7 @@ public class BusinessDayAdjustmentTest {
   @Test(dataProvider = "convention", dataProviderClass = BusinessDayConventionTest.class)
   public void test_resolve(BusinessDayConvention convention, LocalDate input, LocalDate expected) {
     BusinessDayAdjustment test = BusinessDayAdjustment.of(convention, SAT_SUN);
-    assertEquals(test.resolve(REF_DATA), BusinessDayAdjuster.of(convention, SAT_SUN));
+    assertEquals(test.resolve(REF_DATA), BusinessDayAdjuster.of(convention, SAT_SUN.resolve(REF_DATA)));
   }
 
   @Test(dataProvider = "convention", dataProviderClass = BusinessDayConventionTest.class)
@@ -49,14 +50,14 @@ public class BusinessDayAdjustmentTest {
   public void test_noAdjust_constant() {
     BusinessDayAdjustment test = BusinessDayAdjustment.NONE;
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendars.NO_HOLIDAYS);
+    assertEquals(test.getCalendar(), NO_HOLIDAYS);
     assertEquals(test.toString(), "NoAdjust");
   }
 
   public void test_noAdjust_factory() {
-    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
+    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, NO_HOLIDAYS);
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendars.NO_HOLIDAYS);
+    assertEquals(test.getCalendar(), NO_HOLIDAYS);
     assertEquals(test.toString(), "NoAdjust");
   }
 

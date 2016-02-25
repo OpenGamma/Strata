@@ -19,7 +19,7 @@ import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDE
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -116,7 +116,7 @@ final class StandardFixedOvernightSwapConventions {
       int paymentLag,
       int spotLag) {
 
-    HolidayCalendar calendar = index.getFixingCalendar();
+    HolidayCalendarId calendar = index.getFixingCalendar();
     DaysAdjustment paymentDateOffset = DaysAdjustment.ofBusinessDays(paymentLag, calendar);
     DaysAdjustment spotDateOffset = DaysAdjustment.ofBusinessDays(spotLag, calendar);
     return ImmutableFixedOvernightSwapConvention.of(

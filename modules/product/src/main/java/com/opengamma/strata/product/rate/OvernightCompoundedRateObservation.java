@@ -141,7 +141,7 @@ public final class OvernightCompoundedRateObservation
 
     return OvernightCompoundedRateObservation.builder()
         .index(index)
-        .fixingCalendar(index.getFixingCalendar())
+        .fixingCalendar(index.getFixingCalendar().resolve(refData))
         .startDate(index.calculateFixingFromEffective(startDate, refData))
         .endDate(index.calculateFixingFromEffective(endDate, refData))
         .rateCutOffDays(rateCutOffDays)

@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -204,7 +204,7 @@ public class SwapPricingWithCalibrationExample {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P6M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P6M)
@@ -220,7 +220,7 @@ public class SwapPricingWithCalibrationExample {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P3M)

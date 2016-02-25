@@ -14,10 +14,10 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.JPTO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;

@@ -10,8 +10,8 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.swap.Swap;
@@ -45,7 +45,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 public class XCcyIborIborSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
 
   private static final String NAME = "EUR-EURIBOR-3M-USD-LIBOR-3M";
   private static final double NOTIONAL_2M = 2_000_000d;

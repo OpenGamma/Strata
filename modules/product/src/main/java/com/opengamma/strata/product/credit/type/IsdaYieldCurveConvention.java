@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
@@ -114,7 +114,7 @@ public interface IsdaYieldCurveConvention
    * 
    * @return the holiday calendar
    */
-  public abstract HolidayCalendar getHolidayCalendar();
+  public abstract HolidayCalendarId getHolidayCalendar();
 
   //-------------------------------------------------------------------------
   /**

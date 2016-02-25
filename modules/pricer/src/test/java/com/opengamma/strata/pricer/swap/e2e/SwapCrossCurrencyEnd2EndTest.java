@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -48,7 +49,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class SwapCrossCurrencyEnd2EndTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final ReferenceData REF_DATA = ReferenceData.standard()
+      .combinedWith(ImmutableReferenceData.of(CalendarUSD.NYC, CalendarUSD.NYC_CALENDAR));
   private static final IborIndex EUR_EURIBOR_3M = IborIndices.EUR_EURIBOR_3M;
   private static final IborIndex USD_LIBOR_3M = IborIndices.USD_LIBOR_3M;
   private static final FxIndex EUR_USD_WM = FxIndices.EUR_USD_WM;

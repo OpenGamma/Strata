@@ -6,7 +6,7 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;

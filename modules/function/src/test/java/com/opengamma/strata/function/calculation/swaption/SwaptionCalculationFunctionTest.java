@@ -7,8 +7,8 @@ package com.opengamma.strata.function.calculation.swaption;
 
 import static com.opengamma.strata.basics.LongShort.LONG;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 

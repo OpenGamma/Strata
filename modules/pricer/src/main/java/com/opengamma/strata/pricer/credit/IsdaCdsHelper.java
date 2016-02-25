@@ -15,7 +15,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
@@ -44,6 +45,9 @@ import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
  * Present value of the expanded CDS product (single name or index) is calculated here.
  */
 public class IsdaCdsHelper {
+
+  // hard-coded reference data
+  public static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * DayCount used with calculating time during curve calibration.
@@ -170,7 +174,7 @@ public class IsdaCdsHelper {
       DayCount swapDayCount = curveConvention.getFixedDayCount();
 
       BusinessDayConvention convention = curveConvention.getBusinessDayConvention();
-      HolidayCalendar holidayCalendar = curveConvention.getHolidayCalendar();
+      HolidayCalendarId holidayCalendar = curveConvention.getHolidayCalendar();
 
       LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);
 
@@ -189,7 +193,7 @@ public class IsdaCdsHelper {
           swapInterval,
           CURVE_DAY_COUNT,
           convention,
-          holidayCalendar);
+          holidayCalendar.resolve(REF_DATA));
       return builder.build(yieldCurve.getParRates());
 
     } catch (Exception ex) {

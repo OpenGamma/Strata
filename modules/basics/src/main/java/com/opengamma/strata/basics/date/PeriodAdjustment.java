@@ -159,7 +159,7 @@ public final class PeriodAdjustment
    * @return the adjusted date
    */
   public LocalDate adjust(LocalDate date, ReferenceData refData) {
-    HolidayCalendar holCal = adjustment.getCalendar();
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
     BusinessDayConvention bda = adjustment.getConvention();
     return bda.adjust(additionConvention.adjust(date, period, holCal), holCal);
   }
@@ -192,7 +192,7 @@ public final class PeriodAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    HolidayCalendar holCal = adjustment.getCalendar();
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
     BusinessDayConvention bda = adjustment.getConvention();
     return date -> bda.adjust(additionConvention.adjust(date, period, holCal), holCal);
   }

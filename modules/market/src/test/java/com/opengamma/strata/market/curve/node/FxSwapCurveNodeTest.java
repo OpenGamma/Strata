@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.curve.node;
 
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
@@ -55,7 +55,7 @@ public class FxSwapCurveNodeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
-  private static final HolidayCalendar EUTA_USNY = EUTA.combinedWith(USNY);
+  private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
   private static final ImmutableFxSwapConvention CONVENTION = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS);
   private static final Period NEAR_PERIOD = Period.ofMonths(3);

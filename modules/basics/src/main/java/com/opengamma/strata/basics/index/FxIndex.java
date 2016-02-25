@@ -11,7 +11,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -75,7 +75,7 @@ public interface FxIndex
    * 
    * @return the calendar used to determine the fixing dates of the index
    */
-  public abstract HolidayCalendar getFixingCalendar();
+  public abstract HolidayCalendarId getFixingCalendar();
 
   //-------------------------------------------------------------------------
   /**

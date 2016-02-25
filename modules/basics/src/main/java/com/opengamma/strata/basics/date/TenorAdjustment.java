@@ -153,7 +153,7 @@ public final class TenorAdjustment
    * @return the adjusted date
    */
   public LocalDate adjust(LocalDate date, ReferenceData refData) {
-    HolidayCalendar holCal = adjustment.getCalendar();
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
     BusinessDayConvention bda = adjustment.getConvention();
     return bda.adjust(additionConvention.adjust(date, tenor.getPeriod(), holCal), holCal);
   }
@@ -186,7 +186,7 @@ public final class TenorAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    HolidayCalendar holCal = adjustment.getCalendar();
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
     BusinessDayConvention bda = adjustment.getConvention();
     Period period = tenor.getPeriod();
     return date -> bda.adjust(additionConvention.adjust(date, period, holCal), holCal);

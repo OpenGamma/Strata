@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -19,7 +20,6 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexId;
 import com.opengamma.strata.basics.index.FxIndexObservation;
@@ -53,8 +53,8 @@ public class DiscountingFxNdfProductPricerTest {
   private static final FxIndex INDEX = ImmutableFxIndex.builder()
       .id(FxIndexId.of("USD/KRW"))
       .currencyPair(CurrencyPair.of(USD, KRW))
-      .fixingCalendar(HolidayCalendars.USNY)
-      .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
+      .fixingCalendar(USNY)
+      .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, USNY))
       .build();
   private static final LocalDate FIXING_DATE = INDEX.calculateFixingFromMaturity(PAYMENT_DATE, REF_DATA);
   private static final LocalDate FIXING_DATE_PAST = INDEX.calculateFixingFromMaturity(PAYMENT_DATE_PAST, REF_DATA);

@@ -22,8 +22,8 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -82,7 +82,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final BondGroup GROUP_REPO = BondGroup.of("GOVT BONDS");
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.JAPAN_SIMPLE;
   /** Notional of underlying bond */
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.JPTO;
+  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.JPTO;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(3, CALENDAR);
   private static final DayCount DAY_COUNT = DayCounts.NL_365;
   private static final BusinessDayAdjustment BUSINESS_ADJUST = BusinessDayAdjustment.of(FOLLOWING, CALENDAR);

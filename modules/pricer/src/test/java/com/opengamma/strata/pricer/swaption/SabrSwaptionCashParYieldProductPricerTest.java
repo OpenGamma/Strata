@@ -34,8 +34,8 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -86,9 +86,10 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   private static final ZonedDateTime VAL_DATE_TIME = dateUtc(2008, 8, 18);
 
   private static final ZonedDateTime MATURITY = dateUtc(2014, 3, 18);
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
-  private static final LocalDate SETTLE = BDA_MF.adjust(CALENDAR.shift(MATURITY.toLocalDate(), 2), REF_DATA);
+  private static final LocalDate SETTLE =
+      BDA_MF.adjust(CALENDAR.resolve(REF_DATA).shift(MATURITY.toLocalDate(), 2), REF_DATA);
   private static final double NOTIONAL = 100000000; //100m
   private static final int TENOR_YEAR = 5;
   private static final LocalDate END = SETTLE.plusYears(TENOR_YEAR);

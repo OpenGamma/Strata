@@ -15,8 +15,8 @@ import org.joda.beans.MetaProperty;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -125,21 +125,21 @@ public class ScheduleGui extends Application {
     bdcInp.setValue(BusinessDayConventions.MODIFIED_FOLLOWING);
 
     Label holidayLbl = new Label("Holidays:");
-    ChoiceBox<HolidayCalendar> holidayInp = new ChoiceBox<>(
+    ChoiceBox<HolidayCalendarId> holidayInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
-            HolidayCalendars.CHZU,
-            HolidayCalendars.GBLO,
-            HolidayCalendars.EUTA,
-            HolidayCalendars.FRPA,
-            HolidayCalendars.JPTO,
-            HolidayCalendars.NYFD,
-            HolidayCalendars.NYSE,
-            HolidayCalendars.USNY,
-            HolidayCalendars.USGS,
-            HolidayCalendars.NO_HOLIDAYS,
-            HolidayCalendars.SAT_SUN));
+            HolidayCalendarIds.CHZU,
+            HolidayCalendarIds.GBLO,
+            HolidayCalendarIds.EUTA,
+            HolidayCalendarIds.FRPA,
+            HolidayCalendarIds.JPTO,
+            HolidayCalendarIds.NYFD,
+            HolidayCalendarIds.NYSE,
+            HolidayCalendarIds.USNY,
+            HolidayCalendarIds.USGS,
+            HolidayCalendarIds.NO_HOLIDAYS,
+            HolidayCalendarIds.SAT_SUN));
     holidayLbl.setLabelFor(holidayInp);
-    holidayInp.setValue(HolidayCalendars.GBLO);
+    holidayInp.setValue(HolidayCalendarIds.GBLO);
 
     TableView<SchedulePeriod> resultGrid = new TableView<>();
     TableColumn<SchedulePeriod, LocalDate> unadjustedCol = new TableColumn<>("Unadjusted dates");
@@ -189,7 +189,7 @@ public class ScheduleGui extends Application {
       Frequency freq = freqInp.getValue();
       StubConvention stub = stubInp.getValue();
       RollConvention roll = rollInp.getValue();
-      HolidayCalendar holCal = holidayInp.getValue();
+      HolidayCalendarId holCal = holidayInp.getValue();
       BusinessDayConvention bdc = bdcInp.getValue();
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(bdc, holCal);
       PeriodicSchedule defn = PeriodicSchedule.builder()

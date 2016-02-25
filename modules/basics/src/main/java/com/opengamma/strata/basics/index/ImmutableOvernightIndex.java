@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -60,7 +61,7 @@ public final class ImmutableOvernightIndex
    * All dates are calculated with reference to the same calendar.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final HolidayCalendar fixingCalendar;
+  private final HolidayCalendarId fixingCalendar;
   /**
    * The number of days to add to the fixing date to obtain the publication date.
    * <p>
@@ -89,27 +90,32 @@ public final class ImmutableOvernightIndex
   //-------------------------------------------------------------------------
   @Override
   public LocalDate calculatePublicationFromFixing(LocalDate fixingDate, ReferenceData refData) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), publicationDateOffset);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    return fixingCal.shift(fixingCal.nextOrSame(fixingDate), publicationDateOffset);
   }
 
   @Override
   public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    return fixingCal.shift(fixingCal.nextOrSame(fixingDate), effectiveDateOffset);
   }
 
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), effectiveDateOffset + 1);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    return fixingCal.shift(fixingCal.nextOrSame(fixingDate), effectiveDateOffset + 1);
   }
 
   @Override
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -effectiveDateOffset);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    return fixingCal.shift(fixingCal.nextOrSame(effectiveDate), -effectiveDateOffset);
   }
 
   @Override
   public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), 1);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    return fixingCal.shift(fixingCal.nextOrSame(effectiveDate), 1);
   }
 
   //-------------------------------------------------------------------------
@@ -170,7 +176,7 @@ public final class ImmutableOvernightIndex
   private ImmutableOvernightIndex(
       OvernightIndexId id,
       Currency currency,
-      HolidayCalendar fixingCalendar,
+      HolidayCalendarId fixingCalendar,
       int publicationDateOffset,
       int effectiveDateOffset,
       DayCount dayCount) {
@@ -231,7 +237,7 @@ public final class ImmutableOvernightIndex
    * @return the value of the property, not null
    */
   @Override
-  public HolidayCalendar getFixingCalendar() {
+  public HolidayCalendarId getFixingCalendar() {
     return fixingCalendar;
   }
 
@@ -306,8 +312,8 @@ public final class ImmutableOvernightIndex
     /**
      * The meta-property for the {@code fixingCalendar} property.
      */
-    private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
-        this, "fixingCalendar", ImmutableOvernightIndex.class, HolidayCalendar.class);
+    private final MetaProperty<HolidayCalendarId> fixingCalendar = DirectMetaProperty.ofImmutable(
+        this, "fixingCalendar", ImmutableOvernightIndex.class, HolidayCalendarId.class);
     /**
      * The meta-property for the {@code publicationDateOffset} property.
      */
@@ -396,7 +402,7 @@ public final class ImmutableOvernightIndex
      * The meta-property for the {@code fixingCalendar} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<HolidayCalendar> fixingCalendar() {
+    public MetaProperty<HolidayCalendarId> fixingCalendar() {
       return fixingCalendar;
     }
 
@@ -463,7 +469,7 @@ public final class ImmutableOvernightIndex
 
     private OvernightIndexId id;
     private Currency currency;
-    private HolidayCalendar fixingCalendar;
+    private HolidayCalendarId fixingCalendar;
     private int publicationDateOffset;
     private int effectiveDateOffset;
     private DayCount dayCount;
@@ -518,7 +524,7 @@ public final class ImmutableOvernightIndex
           this.currency = (Currency) newValue;
           break;
         case 394230283:  // fixingCalendar
-          this.fixingCalendar = (HolidayCalendar) newValue;
+          this.fixingCalendar = (HolidayCalendarId) newValue;
           break;
         case 1901198637:  // publicationDateOffset
           this.publicationDateOffset = (Integer) newValue;
@@ -600,7 +606,7 @@ public final class ImmutableOvernightIndex
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingCalendar(HolidayCalendar fixingCalendar) {
+    public Builder fixingCalendar(HolidayCalendarId fixingCalendar) {
       JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
       this.fixingCalendar = fixingCalendar;
       return this;

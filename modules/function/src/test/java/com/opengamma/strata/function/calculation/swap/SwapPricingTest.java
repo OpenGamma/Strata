@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -73,7 +74,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class SwapPricingTest {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final ReferenceData REF_DATA = ReferenceData.standard()
+      .combinedWith(ImmutableReferenceData.of(CalendarUSD.NYC, CalendarUSD.NYC_CALENDAR));
   private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
   private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
   private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);

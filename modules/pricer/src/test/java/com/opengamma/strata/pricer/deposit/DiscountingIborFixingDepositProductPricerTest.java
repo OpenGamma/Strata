@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.deposit;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;

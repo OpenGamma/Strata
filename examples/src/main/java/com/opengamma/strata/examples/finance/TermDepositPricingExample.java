@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
@@ -108,7 +108,7 @@ public class TermDepositPricingExample {
         .buySell(BuySell.BUY)
         .startDate(LocalDate.of(2014, 9, 12))
         .endDate(LocalDate.of(2014, 12, 12))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendars.GBLO))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO))
         .currency(Currency.USD)
         .notional(10_000_000)
         .dayCount(DayCounts.THIRTY_360_ISDA)
@@ -132,7 +132,7 @@ public class TermDepositPricingExample {
         .buySell(BuySell.BUY)
         .startDate(LocalDate.of(2014, 12, 12))
         .endDate(LocalDate.of(2015, 12, 12))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendars.GBLO))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO))
         .currency(Currency.USD)
         .notional(5_000_000)
         .dayCount(DayCounts.THIRTY_360_ISDA)

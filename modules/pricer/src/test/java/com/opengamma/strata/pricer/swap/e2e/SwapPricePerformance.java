@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -49,7 +50,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  */
 public class SwapPricePerformance {
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final ReferenceData REF_DATA = ReferenceData.standard()
+      .combinedWith(ImmutableReferenceData.of(CalendarUSD.NYC, CalendarUSD.NYC_CALENDAR));
 
   public static void main(String[] args) throws Exception {
     System.out.println("Go");

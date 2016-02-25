@@ -11,14 +11,15 @@ import java.time.Period;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurveBuild;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * This holds yield curves use in tests
  */
 public class YieldCurveProvider extends IsdaBaseTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //USD conventions
   final static String[] USD_PILLARS = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
@@ -42,7 +43,7 @@ public class YieldCurveProvider extends IsdaBaseTest {
   final static Period GBP_SWAP_INTERVAL = Period.ofMonths(6);
 
   //JPY Conventions
-  final static HolidayCalendar TYO_CAL = HolidayCalendars.JPTO;
+  final static HolidayCalendar TYO_CAL = HolidayCalendarIds.JPTO.resolve(REF_DATA);
   final static String[] JPY_PILLARS = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
   final static String[] JPY_INSTR = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
   final static DayCount JPY_MM_DCC = ACT360;

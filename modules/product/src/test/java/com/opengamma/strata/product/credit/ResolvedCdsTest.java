@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -24,6 +24,7 @@ import java.util.OptionalDouble;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjuster;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 
 /**
@@ -32,6 +33,9 @@ import com.opengamma.strata.basics.schedule.Frequency;
 @Test
 public class ResolvedCdsTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
+  //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
     assertThrowsIllegalArg(() -> ResolvedCds.builder().build());
   }
@@ -63,7 +67,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY))
+        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY.resolve(REF_DATA)))
         .referenceInformation(SingleNameReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())
@@ -82,7 +86,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY))
+        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY.resolve(REF_DATA)))
         .referenceInformation(IndexReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())

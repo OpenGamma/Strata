@@ -30,7 +30,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -66,7 +67,7 @@ public final class ImmutableIborIndex
    * The fixing date is when the rate is determined.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final HolidayCalendar fixingCalendar;
+  private final HolidayCalendarId fixingCalendar;
   /**
    * The fixing time.
    * <p>
@@ -132,35 +133,35 @@ public final class ImmutableIborIndex
 
   @Override
   public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData) {
-    LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
+    LocalDate fixingBusinessDay = fixingCalendar.resolve(refData).nextOrSame(fixingDate);
     return effectiveDateOffset.adjust(fixingBusinessDay, refData);
   }
 
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
-    LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
+    LocalDate fixingBusinessDay = fixingCalendar.resolve(refData).nextOrSame(fixingDate);
     return maturityDateOffset.adjust(effectiveDateOffset.adjust(fixingBusinessDay, refData), refData);
   }
 
   @Override
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData) {
-    LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
+    LocalDate effectiveBusinessDay = effectiveDateCalendar(refData).nextOrSame(effectiveDate);
     return fixingDateOffset.adjust(effectiveBusinessDay, refData);
   }
 
   @Override
   public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData) {
-    LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
+    LocalDate effectiveBusinessDay = effectiveDateCalendar(refData).nextOrSame(effectiveDate);
     return maturityDateOffset.adjust(effectiveBusinessDay, refData);
   }
 
   // finds the calendar of the effective date
-  private HolidayCalendar effectiveDateCalendar() {
-    HolidayCalendar cal = effectiveDateOffset.getResultCalendar();
-    if (cal == HolidayCalendars.NO_HOLIDAYS) {
+  private HolidayCalendar effectiveDateCalendar(ReferenceData refData) {
+    HolidayCalendarId cal = effectiveDateOffset.getResultCalendar();
+    if (cal == HolidayCalendarIds.NO_HOLIDAYS) {
       cal = fixingCalendar;
     }
-    return cal;
+    return cal.resolve(refData);
   }
 
   //-------------------------------------------------------------------------
@@ -221,7 +222,7 @@ public final class ImmutableIborIndex
   private ImmutableIborIndex(
       IborIndexId id,
       Currency currency,
-      HolidayCalendar fixingCalendar,
+      HolidayCalendarId fixingCalendar,
       LocalTime fixingTime,
       ZoneId fixingZone,
       DaysAdjustment fixingDateOffset,
@@ -291,7 +292,7 @@ public final class ImmutableIborIndex
    * @return the value of the property, not null
    */
   @Override
-  public HolidayCalendar getFixingCalendar() {
+  public HolidayCalendarId getFixingCalendar() {
     return fixingCalendar;
   }
 
@@ -400,8 +401,8 @@ public final class ImmutableIborIndex
     /**
      * The meta-property for the {@code fixingCalendar} property.
      */
-    private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
-        this, "fixingCalendar", ImmutableIborIndex.class, HolidayCalendar.class);
+    private final MetaProperty<HolidayCalendarId> fixingCalendar = DirectMetaProperty.ofImmutable(
+        this, "fixingCalendar", ImmutableIborIndex.class, HolidayCalendarId.class);
     /**
      * The meta-property for the {@code fixingTime} property.
      */
@@ -514,7 +515,7 @@ public final class ImmutableIborIndex
      * The meta-property for the {@code fixingCalendar} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<HolidayCalendar> fixingCalendar() {
+    public MetaProperty<HolidayCalendarId> fixingCalendar() {
       return fixingCalendar;
     }
 
@@ -611,7 +612,7 @@ public final class ImmutableIborIndex
 
     private IborIndexId id;
     private Currency currency;
-    private HolidayCalendar fixingCalendar;
+    private HolidayCalendarId fixingCalendar;
     private LocalTime fixingTime;
     private ZoneId fixingZone;
     private DaysAdjustment fixingDateOffset;
@@ -678,7 +679,7 @@ public final class ImmutableIborIndex
           this.currency = (Currency) newValue;
           break;
         case 394230283:  // fixingCalendar
-          this.fixingCalendar = (HolidayCalendar) newValue;
+          this.fixingCalendar = (HolidayCalendarId) newValue;
           break;
         case 1255686170:  // fixingTime
           this.fixingTime = (LocalTime) newValue;
@@ -772,7 +773,7 @@ public final class ImmutableIborIndex
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingCalendar(HolidayCalendar fixingCalendar) {
+    public Builder fixingCalendar(HolidayCalendarId fixingCalendar) {
       JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
       this.fixingCalendar = fixingCalendar;
       return this;

@@ -7,6 +7,7 @@ package com.opengamma.strata.function.calculation.swap;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,8 +25,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -71,8 +70,7 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 public class DeliverableSwapFutureCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
-  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
+  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
   private static final SwapLeg FIXED_LEG =
       FixedRateSwapLegConvention.of(Currency.GBP, DayCounts.ACT_360, Frequency.P6M, BDA_MF)
           .toLeg(LocalDate.of(2013, 6, 30), LocalDate.of(2016, 6, 30), PayReceive.RECEIVE, 1, 0.001);

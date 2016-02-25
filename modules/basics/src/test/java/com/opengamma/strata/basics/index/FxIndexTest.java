@@ -7,7 +7,8 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_CHF_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -24,7 +25,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -101,7 +101,7 @@ public class FxIndexTest {
     FxIndex test = ImmutableFxIndex.builder()
         .id(FxIndexId.of("Test"))
         .currencyPair(CurrencyPair.of(EUR, GBP))
-        .fixingCalendar(HolidayCalendars.NO_HOLIDAYS)
+        .fixingCalendar(NO_HOLIDAYS)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(2))
         .build();
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));

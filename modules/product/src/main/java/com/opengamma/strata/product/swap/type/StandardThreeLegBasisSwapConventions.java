@@ -8,7 +8,7 @@ package com.opengamma.strata.product.swap.type;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;

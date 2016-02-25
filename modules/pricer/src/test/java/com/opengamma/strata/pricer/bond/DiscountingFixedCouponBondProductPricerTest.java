@@ -7,6 +7,8 @@ package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
@@ -26,8 +28,8 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -72,7 +74,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
-  private static final HolidayCalendar EUR_CALENDAR = HolidayCalendars.EUTA;
+  private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUR_CALENDAR);
   private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
   private static final LocalDate START_DATE = LocalDate.of(2015, 4, 12);
@@ -406,7 +408,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate START_US = date(2006, 11, 15);
   private static final LocalDate END_US = START_US.plusYears(10);
   private static final PeriodicSchedule SCHEDULE_US = PeriodicSchedule.of(START_US, END_US, Frequency.P6M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN),
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_US = FixedCouponBond.builder()
       .dayCount(DayCounts.ACT_ACT_ICMA)
@@ -415,7 +417,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .currency(Currency.USD)
       .notional(100)
       .periodicSchedule(SCHEDULE_US)
-      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, HolidayCalendars.SAT_SUN))
+      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
       .yieldConvention(YieldConvention.US_STREET)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
@@ -490,7 +492,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate START_UK = date(2002, 9, 7);
   private static final LocalDate END_UK = START_UK.plusYears(12);
   private static final PeriodicSchedule SCHEDULE_UK = PeriodicSchedule.of(START_UK, END_UK, Frequency.P6M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN),
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_UK = FixedCouponBond.builder()
       .dayCount(DayCounts.ACT_ACT_ICMA)
@@ -499,10 +501,10 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .currency(Currency.GBP)
       .notional(100)
       .periodicSchedule(SCHEDULE_UK)
-      .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, HolidayCalendars.SAT_SUN))
+      .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, SAT_SUN))
       .yieldConvention(YieldConvention.UK_BUMP_DMO)
       .exCouponPeriod(DaysAdjustment.ofCalendarDays(-7,
-          BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, HolidayCalendars.SAT_SUN)))
+          BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, SAT_SUN)))
       .build()
       .resolve(REF_DATA);
   private static final LocalDate VALUATION_UK = date(2011, 9, 2);
@@ -575,7 +577,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate START_GER = date(2002, 9, 7);
   private static final LocalDate END_GER = START_GER.plusYears(12);
   private static final PeriodicSchedule SCHEDULE_GER = PeriodicSchedule.of(START_GER, END_GER, Frequency.P12M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN),
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_GER = FixedCouponBond.builder()
       .dayCount(DayCounts.ACT_ACT_ICMA)
@@ -584,7 +586,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .currency(Currency.EUR)
       .notional(100)
       .periodicSchedule(SCHEDULE_GER)
-      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, HolidayCalendars.SAT_SUN))
+      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
       .yieldConvention(YieldConvention.GERMAN_BONDS)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
@@ -659,7 +661,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate START_JP = date(2015, 9, 20);
   private static final LocalDate END_JP = START_JP.plusYears(10);
   private static final PeriodicSchedule SCHEDULE_JP = PeriodicSchedule.of(START_JP, END_JP, Frequency.P6M,
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.JPTO),
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO),
       StubConvention.SHORT_INITIAL, false);
   private static final double RATE_JP = 0.004;
   private static final ResolvedFixedCouponBond PRODUCT_JP = FixedCouponBond.builder()
@@ -669,7 +671,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .currency(Currency.JPY)
       .notional(100)
       .periodicSchedule(SCHEDULE_JP)
-      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, HolidayCalendars.JPTO))
+      .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, JPTO))
       .yieldConvention(YieldConvention.JAPAN_SIMPLE)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()

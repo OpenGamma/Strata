@@ -24,9 +24,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -66,7 +68,7 @@ public final class ImmutableFxIndex
    * The fixing date is when the rate is determined.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final HolidayCalendar fixingCalendar;
+  private final HolidayCalendarId fixingCalendar;
   /**
    * The adjustment applied to the fixing date to obtain the maturity date.
    * <p>
@@ -80,7 +82,8 @@ public final class ImmutableFxIndex
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
     // handle case where the input date is not a valid fixing date
-    LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    LocalDate fixingBusinessDay = fixingCal.nextOrSame(fixingDate);
     // find the maturity date using the offset and calendar in DaysAdjustment
     return maturityDateOffset.adjust(fixingBusinessDay, refData);
   }
@@ -88,19 +91,21 @@ public final class ImmutableFxIndex
   @Override
   public LocalDate calculateFixingFromMaturity(LocalDate maturityDate, ReferenceData refData) {
     // handle case where the input date is not a valid maturity date
-    LocalDate maturityBusinessDay = maturityDateCalendar().nextOrSame(maturityDate);
+    LocalDate maturityBusinessDay = maturityDateCalendar().resolve(refData).nextOrSame(maturityDate);
     // find the fixing date iteratively
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    DateAdjuster maturityFromFixing = maturityDateOffset.toDateAdjuster(refData);
     LocalDate fixingDate = maturityBusinessDay;
-    while (calculateMaturityFromFixing(fixingDate, refData).isAfter(maturityBusinessDay)) {
+    while (fixingCal.isHoliday(fixingDate) || maturityFromFixing.adjust(fixingDate).isAfter(maturityBusinessDay)) {
       fixingDate = fixingDate.minusDays(1);
     }
     return fixingDate;
   }
 
   // finds the calendar of the maturity date
-  private HolidayCalendar maturityDateCalendar() {
-    HolidayCalendar cal = maturityDateOffset.getResultCalendar();
-    return (cal == HolidayCalendars.NO_HOLIDAYS ? fixingCalendar : cal);
+  private HolidayCalendarId maturityDateCalendar() {
+    HolidayCalendarId cal = maturityDateOffset.getResultCalendar();
+    return (cal == HolidayCalendarIds.NO_HOLIDAYS ? fixingCalendar : cal);
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +166,7 @@ public final class ImmutableFxIndex
   private ImmutableFxIndex(
       FxIndexId id,
       CurrencyPair currencyPair,
-      HolidayCalendar fixingCalendar,
+      HolidayCalendarId fixingCalendar,
       DaysAdjustment maturityDateOffset) {
     JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(currencyPair, "currencyPair");
@@ -222,7 +227,7 @@ public final class ImmutableFxIndex
    * @return the value of the property, not null
    */
   @Override
-  public HolidayCalendar getFixingCalendar() {
+  public HolidayCalendarId getFixingCalendar() {
     return fixingCalendar;
   }
 
@@ -270,8 +275,8 @@ public final class ImmutableFxIndex
     /**
      * The meta-property for the {@code fixingCalendar} property.
      */
-    private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
-        this, "fixingCalendar", ImmutableFxIndex.class, HolidayCalendar.class);
+    private final MetaProperty<HolidayCalendarId> fixingCalendar = DirectMetaProperty.ofImmutable(
+        this, "fixingCalendar", ImmutableFxIndex.class, HolidayCalendarId.class);
     /**
      * The meta-property for the {@code maturityDateOffset} property.
      */
@@ -344,7 +349,7 @@ public final class ImmutableFxIndex
      * The meta-property for the {@code fixingCalendar} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<HolidayCalendar> fixingCalendar() {
+    public MetaProperty<HolidayCalendarId> fixingCalendar() {
       return fixingCalendar;
     }
 
@@ -391,7 +396,7 @@ public final class ImmutableFxIndex
 
     private FxIndexId id;
     private CurrencyPair currencyPair;
-    private HolidayCalendar fixingCalendar;
+    private HolidayCalendarId fixingCalendar;
     private DaysAdjustment maturityDateOffset;
 
     /**
@@ -438,7 +443,7 @@ public final class ImmutableFxIndex
           this.currencyPair = (CurrencyPair) newValue;
           break;
         case 394230283:  // fixingCalendar
-          this.fixingCalendar = (HolidayCalendar) newValue;
+          this.fixingCalendar = (HolidayCalendarId) newValue;
           break;
         case 1574797394:  // maturityDateOffset
           this.maturityDateOffset = (DaysAdjustment) newValue;
@@ -518,7 +523,7 @@ public final class ImmutableFxIndex
      * @param fixingCalendar  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingCalendar(HolidayCalendar fixingCalendar) {
+    public Builder fixingCalendar(HolidayCalendarId fixingCalendar) {
       JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
       this.fixingCalendar = fixingCalendar;
       return this;

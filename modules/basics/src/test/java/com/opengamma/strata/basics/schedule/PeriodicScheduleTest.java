@@ -9,8 +9,8 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_PRECEDING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.NO_HOLIDAYS;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
@@ -51,9 +51,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -517,8 +515,8 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_startEndAdjust() {
-    BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
-    BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, SAT_SUN);
+    BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, SAT_SUN);
     PeriodicSchedule test = PeriodicSchedule.builder()
         .startDate(date(2014, 10, 4))
         .endDate(date(2015, 4, 4))
@@ -880,7 +878,7 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    BusinessDayAdjustment bda = BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(
         date(2014, JUNE, 4),
         date(2014, SEPTEMBER, 17),
@@ -892,7 +890,7 @@ public class PeriodicScheduleTest {
   }
 
   public void test_serialization() {
-    BusinessDayAdjustment bda = BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(
         date(2014, JUNE, 4),
         date(2014, SEPTEMBER, 17),

@@ -8,7 +8,7 @@ package com.opengamma.strata.product.swap.type;
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;

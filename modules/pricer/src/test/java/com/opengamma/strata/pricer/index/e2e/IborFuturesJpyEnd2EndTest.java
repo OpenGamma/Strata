@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -61,7 +61,7 @@ public class IborFuturesJpyEnd2EndTest {
   private static final long QUANTITY = 1L;
   private static final Rounding ROUNDING = Rounding.ofFractionalDecimalPlaces(2, 2);
   private static final IborIndex TIBOR_EUROYEN_3M = IborIndices.JPY_TIBOR_EUROYEN_3M;
-  private static final HolidayCalendar CALENDAR = TIBOR_EUROYEN_3M.getFixingCalendar();
+  private static final HolidayCalendarId CALENDAR = TIBOR_EUROYEN_3M.getFixingCalendar();
   // curve
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double[] TIMES_FWD = new double[] {0.25956284153005466, 0.3442622950819672, 0.4262295081967213,

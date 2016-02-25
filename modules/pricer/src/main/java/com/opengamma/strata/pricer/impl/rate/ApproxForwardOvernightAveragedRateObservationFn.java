@@ -106,7 +106,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
   // There is no need to compute overnight periods, except for the cut-off period.
   private double rateForward(OvernightAveragedRateObservation observation, OvernightIndexRates rates) {
     OvernightIndex index = observation.getIndex();
-    HolidayCalendar calendar = index.getFixingCalendar();
+    HolidayCalendar calendar = observation.getFixingCalendar();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate endFixingDateP1 = observation.getEndDate();
     LocalDate endFixingDate = calendar.previous(endFixingDateP1);
@@ -140,7 +140,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       OvernightIndexRates rates) {
 
     OvernightIndex index = observation.getIndex();
-    HolidayCalendar calendar = index.getFixingCalendar();
+    HolidayCalendar calendar = observation.getFixingCalendar();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate endFixingDateP1 = observation.getEndDate();
     LocalDate endFixingDate = calendar.previous(endFixingDateP1);

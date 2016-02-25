@@ -13,7 +13,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
