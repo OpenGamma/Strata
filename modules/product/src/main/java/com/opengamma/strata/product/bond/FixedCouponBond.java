@@ -190,7 +190,6 @@ public final class FixedCouponBond
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
         .settlementDateOffset(settlementDateOffset.resolve(refData))
-        .exCouponPeriod(exCouponPeriod.resolve(refData))
         .build();
   }
 

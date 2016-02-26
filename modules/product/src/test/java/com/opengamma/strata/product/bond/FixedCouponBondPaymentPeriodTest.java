@@ -75,6 +75,7 @@ public class FixedCouponBondPaymentPeriodTest {
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getYearFraction(), YEAR_FRACTION);
+    assertEquals(test.hasExCouponPeriod(), true);
   }
 
   public void test_of_wrongDates() {

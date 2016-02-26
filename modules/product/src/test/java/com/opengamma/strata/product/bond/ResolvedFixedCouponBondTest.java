@@ -37,6 +37,7 @@ public class ResolvedFixedCouponBondTest {
     assertEquals(test.getEndDate(), payments.get(payments.size() - 1).getEndDate());
     assertEquals(test.getUnadjustedStartDate(), payments.get(0).getUnadjustedStartDate());
     assertEquals(test.getUnadjustedEndDate(), payments.get(payments.size() - 1).getUnadjustedEndDate());
+    assertEquals(test.hasExCouponPeriod(), true);
   }
 
   //-------------------------------------------------------------------------

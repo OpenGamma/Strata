@@ -154,14 +154,11 @@ public class DiscountingFixedCouponBondTradePricer {
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(legalEntityId, currency);
-    boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     double pvDiff = 0d;
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
-      pvDiff = productPricer.presentValueCoupon(
-          product, discountFactors, tradeSettlementDate, standardSettlementDate, exCoupon);
+      pvDiff = productPricer.presentValueCoupon(product, discountFactors, tradeSettlementDate, standardSettlementDate);
     } else {
-      pvDiff = -productPricer.presentValueCoupon(
-          product, discountFactors, standardSettlementDate, tradeSettlementDate, exCoupon);
+      pvDiff = -productPricer.presentValueCoupon(product, discountFactors, standardSettlementDate, tradeSettlementDate);
     }
     return presentValueFromProductPresentValue(trade, provider, CurrencyAmount.of(currency, pvStandard + pvDiff));
   }
@@ -209,7 +206,6 @@ public class DiscountingFixedCouponBondTradePricer {
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(legalEntityId, currency);
-    boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     double pvDiff = 0d;
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
       pvDiff = productPricer.presentValueCouponWithZSpread(
@@ -219,8 +215,7 @@ public class DiscountingFixedCouponBondTradePricer {
           standardSettlementDate,
           zSpread,
           compoundedRateType,
-          periodsPerYear,
-          exCoupon);
+          periodsPerYear);
     } else {
       pvDiff = -productPricer.presentValueCouponWithZSpread(
           product,
@@ -229,8 +224,7 @@ public class DiscountingFixedCouponBondTradePricer {
           tradeSettlementDate,
           zSpread,
           compoundedRateType,
-          periodsPerYear,
-          exCoupon);
+          periodsPerYear);
     }
     return presentValueFromProductPresentValue(trade, provider, CurrencyAmount.of(currency, pvStandard + pvDiff));
   }
@@ -349,7 +343,7 @@ public class DiscountingFixedCouponBondTradePricer {
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     ResolvedFixedCouponBond product = trade.getProduct();
     if (!settlementDate.isAfter(valuationDate)) {
-      double cashCoupon = product.getExCouponPeriod().getDays() != 0 ? 0d : currentCashCouponPayment(product, valuationDate);
+      double cashCoupon = product.hasExCouponPeriod() ? 0d : currentCashCouponPayment(product, valuationDate);
       Payment payment = product.getNominalPayment();
       double cashNominal = payment.getDate().isEqual(valuationDate) ? payment.getAmount() : 0d;
       currentCash = currentCash.plus(CurrencyAmount.of(currency, (cashCoupon + cashNominal) * trade.getQuantity()));
