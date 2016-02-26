@@ -151,9 +151,9 @@ public final class ResolvedSwapLeg
   }
 
   /**
-   * Gets the currency of the swap leg.
+   * Gets the primary currency of the swap leg.
    * <p>
-   * All periods in the leg will have this currency.
+   * Any currency associated with FX reset is not included.
    * 
    * @return the currency
    */

@@ -14,7 +14,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
@@ -202,7 +201,7 @@ final class FraMeasureCalculations {
     NodalCurve nodalCurve = marketData.getValue(DiscountCurveKey.of(currency)).toNodalCurve();
 
     // find indices and validate there is only one curve
-    Set<Index> indices = product.allIndices();
+    Set<IborIndex> indices = product.allIndices();
     validateSingleCurve(indices, marketData, nodalCurve);
 
     // calculate gamma
@@ -212,9 +211,9 @@ final class FraMeasureCalculations {
   }
 
   // validates that the indices all resolve to the single specified curve
-  private static void validateSingleCurve(Set<Index> indices, MarketData marketData, NodalCurve nodalCurve) {
+  private static void validateSingleCurve(Set<IborIndex> indices, MarketData marketData, NodalCurve nodalCurve) {
     Set<IborIndexCurveKey> differentForwardCurves = indices.stream()
-        .map(idx -> IborIndexCurveKey.of((IborIndex) idx))
+        .map(idx -> IborIndexCurveKey.of(idx))
         .filter(k -> !nodalCurve.equals(marketData.getValue(k)))
         .collect(toSet());
     if (!differentForwardCurves.isEmpty()) {
@@ -228,7 +227,7 @@ final class FraMeasureCalculations {
   private static CurveCurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedFra product,
       Currency currency,
-      Set<? extends Index> indices,
+      Set<IborIndex> indices,
       MarketData marketData,
       NodalCurve bumpedCurve) {
 

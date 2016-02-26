@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product.swaption;
 
-import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -26,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -94,14 +93,10 @@ public final class ResolvedSwaption
    * <p>
    * This is the currency of the underlying swap, which is not allowed to be cross-currency.
    * 
-   * @return the expiry date and time
+   * @return the currency
    */
   public Currency getCurrency() {
-    return underlying.getLegs().stream()
-        .map(leg -> leg.getCurrency())
-        .distinct()
-        .reduce(ensureOnlyOne())
-        .get();
+    return Iterables.getOnlyElement(underlying.allCurrencies());
   }
 
   /**
