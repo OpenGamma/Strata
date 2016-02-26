@@ -27,6 +27,7 @@
 <listEntry value="com.opengamma.strata.pricer.fx"/>
 <listEntry value="com.opengamma.strata.pricer.impl"/>
 <listEntry value="com.opengamma.strata.pricer.impl.bond"/>
+<listEntry value="com.opengamma.strata.pricer.impl.capfloor"/>
 <listEntry value="com.opengamma.strata.pricer.impl.cms"/>
 <listEntry value="com.opengamma.strata.pricer.impl.credit.isda"/>
 <listEntry value="com.opengamma.strata.pricer.impl.credit.isda.e2e"/>

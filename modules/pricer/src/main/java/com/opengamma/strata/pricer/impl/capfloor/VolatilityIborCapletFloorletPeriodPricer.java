@@ -33,7 +33,6 @@ public class VolatilityIborCapletFloorletPeriodPricer {
    * Default implementation.
    */
   public static final VolatilityIborCapletFloorletPeriodPricer DEFAULT = new VolatilityIborCapletFloorletPeriodPricer();
-  
 
   //-------------------------------------------------------------------------
   /**
@@ -268,12 +267,12 @@ public class VolatilityIborCapletFloorletPeriodPricer {
         currency,
         vega * period.getNotional());
   }
-  
+
   /**
    * Validate the volatilities provider. 
    * <p>
-   * This validate method should be overridden such that a correct implementation of {@code IborCapletFloorletVolatilities} 
-   * is used for pricing. 
+   * This validate method should be overridden such that a correct implementation of
+   * {@code IborCapletFloorletVolatilities} is used for pricing. 
    * 
    * @param volatilities  the volatilities
    */

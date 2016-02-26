@@ -442,7 +442,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
       DoubleArray zBumped = surfaceBase.getZValues().with(i, surfaceBase.getZValues().get(i) + EPS_FD);
       InterpolatedNodalSurface surfaceBumped = surfaceBase.withZValues(zBumped);
       BlackIborCapletFloorletExpiryStrikeVolatilities volsBumped = BlackIborCapletFloorletExpiryStrikeVolatilities
-              .of(surfaceBumped, vols.getIndex(), vols.getValuationDateTime(), vols.getDayCount());
+          .of(surfaceBumped, vols.getIndex(), vols.getValuationDateTime(), vols.getDayCount());
       double value = (valueFn.apply(volsBumped).getAmount() - pvBase) / EPS_FD;
       expectedMap.put(DoublesPair.of(surfaceBase.getXValues().get(i), surfaceBase.getYValues().get(i)), value);
     }
@@ -500,8 +500,8 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   public void regression_pvSensi() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivity(CAPLET_REG, RATES, VOLS);
     CurveCurrencyParameterSensitivities sensi = RATES.curveParameterSensitivity(point.build());
-    double[] sensiDsc = new double[] {0.0, 0.0, 0.0, -7.148360371957523, -1.8968344850148018, 0.0 }; // 2.x
-    double[] sensiFwd = new double[] {0.0, 0.0, 0.0, -3999.714444844649, 5987.977558683395, 0.0, 0.0, 0.0 }; // 2.x
+    double[] sensiDsc = new double[] {0.0, 0.0, 0.0, -7.148360371957523, -1.8968344850148018, 0.0}; // 2.x
+    double[] sensiFwd = new double[] {0.0, 0.0, 0.0, -3999.714444844649, 5987.977558683395, 0.0, 0.0, 0.0}; // 2.x
     assertTrue(DoubleArrayMath.fuzzyEquals(
         sensi.getSensitivity(IborCapletFloorletDataSet.DSC_NAME, EUR).getSensitivity().toArray(),
         sensiDsc, NOTIONAL * TOL));

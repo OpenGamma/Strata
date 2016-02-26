@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 
-
 /**
  * Volatility for Ibor caplet/floorlet in the normal or Bachelier model.
  */

@@ -299,7 +299,7 @@ public class NormalIborCapFloorLegPricerTest {
       capExpected = capExpected.combinedWith(VOLS_AFTER.surfaceCurrencyParameterSensitivity(PRICER_PERIOD
           .presentValueSensitivityVolatility(CAP.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
       floorExpected = floorExpected.combinedWith(VOLS_AFTER.surfaceCurrencyParameterSensitivity(PRICER_PERIOD
-              .presentValueSensitivityVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
+          .presentValueSensitivityVolatility(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER).build()));
     }
     SurfaceCurrencyParameterSensitivities capSensiComputed =
         VOLS_AFTER.surfaceCurrencyParameterSensitivity(capComputed.build());

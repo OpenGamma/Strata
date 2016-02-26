@@ -101,10 +101,10 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
       NormalIborCapletFloorletExpiryStrikeVolatilities.of(SURFACE, GBP_LIBOR_3M, VAL_DATE_TIME, ACT_365F);
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY =
-      new ZonedDateTime[] {dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17) };
+      new ZonedDateTime[] {dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
   private static final int NB_TEST = TEST_OPTION_EXPIRY.length;
-  private static final double[] TEST_STRIKE = new double[] {-0.02, 0.0, 0.019, 0.032 };
-  private static final double[] TEST_SENSITIVITY = new double[] {1.0, 12.0, -41.0, -2.0 };
+  private static final double[] TEST_STRIKE = new double[] {-0.02, 0.0, 0.019, 0.032};
+  private static final double[] TEST_SENSITIVITY = new double[] {1.0, 12.0, -41.0, -2.0};
   private static final double TEST_FORWARD = 0.015; // not used internally
 
   private static final double TOLERANCE_VOL = 1.0E-10;
@@ -121,7 +121,7 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = PROVIDER_WITH_PARAM.relativeTime(TEST_OPTION_EXPIRY[i]);
       for (int j = 0; j < NB_TEST; j++) {
-        for (PutCall putCall : new PutCall[] {PutCall.CALL, PutCall.PUT }) {
+        for (PutCall putCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
           double price = PROVIDER.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol);
           double delta = PROVIDER.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol);
           double gamma = PROVIDER.priceGamma(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol);

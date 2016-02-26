@@ -211,7 +211,6 @@ public class VolatilityIborCapFloorLegPricer {
         .reduce((c1, c2) -> c1.plus(c2))
         .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
   }
-  
 
   //-------------------------------------------------------------------------
   private void validate(RatesProvider ratesProvider, IborCapletFloorletVolatilities volatilities) {
