@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -73,6 +72,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
@@ -386,7 +386,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
 
   private void assertPresentValue(ImmutableRatesProvider result) {
     // Test PV USD;
-    List<Trade> usdTrades = new ArrayList<>();
+    List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (CurveNode USD_DSC_NODE : USD_DSC_NODES) {
       usdTrades.add(USD_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -403,7 +403,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV USD Fwd3
-    List<Trade> fwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < USD_FWD3_NB_NODES; i++) {
       fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -424,7 +424,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test DSC EUR;
-    List<Trade> eurTrades = new ArrayList<>();
+    List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (CurveNode EUR_DSC_NODE : EUR_DSC_NODES) {
       eurTrades.add(EUR_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -441,7 +441,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR Fwd3
-    List<Trade> eurFwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> eurFwd3Trades = new ArrayList<>();
     for (int i = 0; i < EUR_FWD3_NB_NODES; i++) {
       eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }

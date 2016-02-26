@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -55,6 +54,7 @@ import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPr
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -191,7 +191,7 @@ public class CalibrationDiscountingSimple1Test {
         CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
-    List<Trade> fwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
       fwd3Trades.add(fwd3Nodes[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }

@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.pricer.datasets.ImmutableRatesProviderSimpleData;
-import com.opengamma.strata.pricer.fra.FraDummyData;
 import com.opengamma.strata.pricer.swap.SwapDummyData;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
@@ -78,9 +77,6 @@ public class CalibrationMeasuresTest {
 
   public void test_measureNotKnown() {
     CalibrationMeasures test = CalibrationMeasures.of("Test", TradeCalibrationMeasure.FRA_PAR_SPREAD);
-    assertThrowsIllegalArg(
-        () -> test.value(FraDummyData.FRA_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX),
-        "Trade type 'FraTrade' must be resolved to 'ResolvedFraTrade' for calibration");
     assertThrowsIllegalArg(
         () -> test.value(SwapDummyData.SWAP_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX),
         "Trade type 'ResolvedSwapTrade' is not supported for calibration");

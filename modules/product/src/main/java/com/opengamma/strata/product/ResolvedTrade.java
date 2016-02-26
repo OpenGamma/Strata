@@ -14,8 +14,16 @@ package com.opengamma.strata.product;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-public interface ResolvedTrade
-    extends FinanceTrade {
+public interface ResolvedTrade {
+
+  /**
+   * The additional trade information.
+   * <p>
+   * This allows additional information to be attached to the trade.
+   * 
+   * @return the additional trade info
+   */
+  public abstract TradeInfo getTradeInfo();
 
   /**
    * Gets the underlying product that was agreed when the trade occurred.

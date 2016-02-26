@@ -25,7 +25,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -52,6 +51,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
@@ -224,7 +224,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     ImmutableList<NodalCurveDefinition> definitions = CURVE_GROUP_CONFIG.getCurveDefinitions();
     // Test PV Dsc
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
-    List<Trade> dscTrades = new ArrayList<>();
+    List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
       dscTrades.add(dscNodes.get(i).resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -236,7 +236,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     }
     // Test PV Fwd3
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
-    List<Trade> fwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
       fwd3Trades.add(fwd3Nodes.get(i).resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -248,7 +248,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     }
     // Test PV Fwd6
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
-    List<Trade> fwd6Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
       fwd6Trades.add(fwd6Nodes.get(i).resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }

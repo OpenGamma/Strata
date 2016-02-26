@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -18,6 +17,7 @@ import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -31,7 +31,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * 
  * @param <T> the trade type
  */
-public class MarketQuoteMeasure<T extends Trade>
+public class MarketQuoteMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**
@@ -117,7 +117,7 @@ public class MarketQuoteMeasure<T extends Trade>
    * @param sensitivityFn  the function for calculating the sensitivity
    * @return the calibrator
    */
-  public static <R extends Trade> MarketQuoteMeasure<R> of(
+  public static <R extends ResolvedTrade> MarketQuoteMeasure<R> of(
       String name,
       Class<R> tradeType,
       ToDoubleBiFunction<R, RatesProvider> valueFn,

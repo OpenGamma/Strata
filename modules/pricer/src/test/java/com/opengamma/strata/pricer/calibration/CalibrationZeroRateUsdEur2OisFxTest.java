@@ -28,7 +28,6 @@ import java.util.function.Function;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -65,6 +64,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
@@ -227,7 +227,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   
   private void assertPresentValue(ImmutableRatesProvider result) {
     // Test PV USD;
-    List<Trade> usdTrades = new ArrayList<>();
+    List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (int i = 0; i < USD_DSC_NODES.length; i++) {
       usdTrades.add(USD_DSC_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
@@ -244,7 +244,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR;
-    List<Trade> eurTrades = new ArrayList<>();
+    List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (int i = 0; i < EUR_DSC_NODES.length; i++) {
       eurTrades.add(EUR_DSC_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }

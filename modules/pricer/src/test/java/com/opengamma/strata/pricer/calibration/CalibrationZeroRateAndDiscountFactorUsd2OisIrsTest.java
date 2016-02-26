@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -68,6 +67,7 @@ import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -320,7 +320,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   private void assertResult(ImmutableRatesProvider result, LocalDate valDate) {
     // Test PV Dsc
     CurveNode[] dscNodes = CURVES_NODES.get(0).get(0);
-    List<Trade> dscTrades = new ArrayList<>();
+    List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.length; i++) {
       dscTrades.add(dscNodes[i].resolvedTrade(valDate, ALL_QUOTES_BD, REF_DATA));
     }
@@ -332,7 +332,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     }
     // Test PV Fwd3
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
-    List<Trade> fwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
       fwd3Trades.add(fwd3Nodes[i].resolvedTrade(valDate, ALL_QUOTES_BD, REF_DATA));
     }

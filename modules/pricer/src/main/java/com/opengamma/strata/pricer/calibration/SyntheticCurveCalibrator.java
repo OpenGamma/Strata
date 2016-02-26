@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
@@ -28,6 +27,7 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Synthetic curve calibrator.
@@ -187,7 +187,7 @@ public final class SyntheticCurveCalibrator {
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        Trade trade = node.resolvedTrade(valuationDate, marketQuotes0, refData);
+        ResolvedTrade trade = node.resolvedTrade(valuationDate, marketQuotes0, refData);
         double mq = measures.value(trade, inputProvider);
         MarketDataKey<?> k = node.requirements().iterator().next();
         mapKeySy.put(k, mq);

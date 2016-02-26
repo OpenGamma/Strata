@@ -17,7 +17,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
@@ -31,8 +30,9 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Tests {@link SyntheticCurveCalibrator}.
@@ -108,15 +108,15 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : group.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        Trade tradeTsEmpty = node.resolvedTrade(VALUATION_DATE, madTsEmpty, REF_DATA);
+        ResolvedTrade tradeTsEmpty = node.resolvedTrade(VALUATION_DATE, madTsEmpty, REF_DATA);
         double mqTsEmpty = MQ_MEASURES.value(tradeTsEmpty, MULTICURVE_INPUT_TSEMPTY);
         assertEquals(mqTsEmpty, (Double) madTsEmpty.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
-        Trade tradeTsLarge = node.resolvedTrade(VALUATION_DATE, madTsLarge, REF_DATA);
+        ResolvedTrade tradeTsLarge = node.resolvedTrade(VALUATION_DATE, madTsLarge, REF_DATA);
         double mqTsLarge = MQ_MEASURES.value(tradeTsLarge, multicurveTsLarge);
         assertEquals(mqTsLarge, (Double) madTsLarge.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
         // Market Quote for Fixed v ibor swaps should have changed with the fixing
-        if ((tradeTsLarge instanceof SwapTrade) && // Swap Fixed v Ibor
-            (((SwapTrade) tradeTsLarge)).getProduct().getLegs(SwapLegType.IBOR).size() == 1) {
+        if ((tradeTsLarge instanceof ResolvedSwapTrade) && // Swap Fixed v Ibor
+            (((ResolvedSwapTrade) tradeTsLarge)).getProduct().getLegs(SwapLegType.IBOR).size() == 1) {
           assertTrue(Math.abs(mqTsEmpty - mqTsLarge) > TOLERANCE_MQ);
         }
       }
@@ -130,7 +130,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        Trade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSEMPTY);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
@@ -147,7 +147,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        Trade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSLARGE);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
