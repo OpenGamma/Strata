@@ -176,7 +176,7 @@ public class IsdaCdsHelper {
       BusinessDayConvention convention = curveConvention.getBusinessDayConvention();
       HolidayCalendarId holidayCalendar = curveConvention.getHolidayCalendar();
 
-      LocalDate spotDate = curveConvention.getSpotDateAsOf(valuationDate);
+      LocalDate spotDate = curveConvention.calculateSpotDateFromTradeDate(valuationDate, REF_DATA);
 
       IsdaInstrumentTypes[] types =
           Stream.of(yieldCurve.getYieldCurveInstruments())
@@ -216,8 +216,8 @@ public class IsdaCdsHelper {
       return builder.calibrateCreditCurve(
           valuationDate,
           cdsConvention.calculateUnadjustedStepInDate(valuationDate),
-          cdsConvention.calculateAdjustedSettleDate(valuationDate),
-          cdsConvention.calculateAdjustedStartDate(valuationDate),
+          cdsConvention.calculateAdjustedSettleDate(valuationDate, REF_DATA),
+          cdsConvention.calculateAdjustedStartDate(valuationDate, REF_DATA),
           curveCurve.getEndDatePoints(),
           curveCurve.getParRates(),
           cdsConvention.isPayAccruedOnDefault(),
@@ -249,8 +249,8 @@ public class IsdaCdsHelper {
       return builder.calibrateCreditCurve(
           valuationDate,
           cdsConvention.calculateUnadjustedStepInDate(valuationDate),
-          cdsConvention.calculateAdjustedSettleDate(valuationDate),
-          cdsConvention.calculateAdjustedStartDate(valuationDate),
+          cdsConvention.calculateAdjustedSettleDate(valuationDate, REF_DATA),
+          cdsConvention.calculateAdjustedStartDate(valuationDate, REF_DATA),
           curveCurve.getEndDatePoints(),
           curveCurve.getParRates(),
           cdsConvention.isPayAccruedOnDefault(),

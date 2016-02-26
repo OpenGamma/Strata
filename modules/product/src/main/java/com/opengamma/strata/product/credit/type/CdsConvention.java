@@ -41,9 +41,6 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 public interface CdsConvention
     extends TradeConvention, Named {
 
-  // hard-coded reference data
-  public static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * Obtains an instance from the specified unique name.
    * 
@@ -211,23 +208,25 @@ public interface CdsConvention
    * Gets the adjusted start date.
    * 
    * @param valuationDate  the valuation date
+   * @param refData  the reference data to use
    * @return adjusted start date
    */
-  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate, ReferenceData refData) {
     return getBusinessDayAdjustment().adjust(
-        calculateUnadjustedAccrualStartDate(valuationDate), REF_DATA);
+        calculateUnadjustedAccrualStartDate(valuationDate), refData);
   }
 
   /**
    * Gets the adjusted settlement date.
    * 
    * @param valuationDate  the valuation date
+   * @param refData  the reference data to use
    * @return unadjusted settle date
    */
-  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate, ReferenceData refData) {
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
         getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
-    return daysAdjustment.adjust(valuationDate, REF_DATA);
+    return daysAdjustment.adjust(valuationDate, refData);
   }
 
   /**

@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -38,9 +39,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 public interface IsdaYieldCurveConvention
     extends Named {
   // TODO: merge business day convention and holiday calendar
-
-  // hard-coded reference data
-  public static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Obtains an instance from the specified unique name.
@@ -118,18 +116,19 @@ public interface IsdaYieldCurveConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Apply the spot days settlement lag and adjust using the conventions
-   *
-   * @param asOfDate  the base date to adjust
-   * @return the adjusted spot date
+   * Calculates the spot date from the trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
+   * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default LocalDate getSpotDateAsOf(LocalDate asOfDate) {
-    DaysAdjustment adjustment = DaysAdjustment.ofBusinessDays(
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    DaysAdjustment spotDateOffset = DaysAdjustment.ofBusinessDays(
         getSpotDays(),
         getHolidayCalendar(),
         BusinessDayAdjustment.of(getBusinessDayConvention(), getHolidayCalendar()));
-
-    return adjustment.adjust(asOfDate, REF_DATA);
+    return spotDateOffset.adjust(tradeDate, refData);
   }
 
   @ToString
