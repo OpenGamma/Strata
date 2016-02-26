@@ -57,9 +57,9 @@ public class DiscountingFraTradePricerTest {
     RATES_PROVIDER = new SimpleRatesProvider(VAL_DATE, mockDf);
     RATES_PROVIDER.setIborRates(mockIbor);
     IborRateObservation obs = (IborRateObservation) RFRA.getFloatingRate();
-    IborRateSensitivity sens = IborRateSensitivity.of(obs.getIndex(), obs.getFixingDate(), 1d);
-    when(mockIbor.ratePointSensitivity(obs.getFixingDate())).thenReturn(sens);
-    when(mockIbor.rate(obs.getFixingDate())).thenReturn(FORWARD_RATE);
+    IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
+    when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
+    when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
     when(mockDf.discountFactor(RFRA.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
   }
 

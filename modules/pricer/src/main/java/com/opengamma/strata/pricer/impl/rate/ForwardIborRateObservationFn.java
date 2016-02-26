@@ -43,7 +43,7 @@ public class ForwardIborRateObservationFn
       RatesProvider provider) {
 
     IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
-    return rates.rate(observation.getFixingDate());
+    return rates.rate(observation);
   }
 
   @Override
@@ -54,7 +54,7 @@ public class ForwardIborRateObservationFn
       RatesProvider provider) {
 
     IborIndexRates rates = provider.iborIndexRates(observation.getIndex());
-    return rates.ratePointSensitivity(observation.getFixingDate());
+    return rates.ratePointSensitivity(observation);
   }
 
   @Override

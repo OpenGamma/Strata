@@ -213,9 +213,9 @@ public class CmsLegTest {
         .build();
     ResolvedCmsLeg resolvedFloor = baseFloor.resolve(REF_DATA);
     LocalDate end1 = LocalDate.of(2016, 10, 21);
-    LocalDate fixing1 = EUR_EURIBOR_6M.calculateFixingFromEffective(START);
-    LocalDate fixing2 = EUR_EURIBOR_6M.calculateFixingFromEffective(end1);
-    LocalDate fixing3 = EUR_EURIBOR_6M.calculateFixingFromEffective(END);
+    LocalDate fixing1 = EUR_EURIBOR_6M.calculateFixingFromEffective(START, REF_DATA);
+    LocalDate fixing2 = EUR_EURIBOR_6M.calculateFixingFromEffective(end1, REF_DATA);
+    LocalDate fixing3 = EUR_EURIBOR_6M.calculateFixingFromEffective(END, REF_DATA);
     LocalDate endDate = SCHEDULE_EUR.calculatedEndDate().adjusted(REF_DATA);
 
     CmsPeriod period1 = CmsPeriod.builder()

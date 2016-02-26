@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * A futures contract based on an Ibor index.
@@ -139,8 +140,7 @@ public final class IborFuture
         .currency(currency)
         .notional(notional)
         .accrualFactor(accrualFactor)
-        .lastTradeDate(lastTradeDate)
-        .index(index)
+        .observation(IborRateObservation.of(index, lastTradeDate, refData))
         .rounding(rounding)
         .build();
   }

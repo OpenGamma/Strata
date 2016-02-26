@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.view;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -19,6 +19,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.Perturbation;
@@ -32,6 +34,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Tests {@link SimpleIborIndexRates}.
@@ -39,16 +42,24 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 @Test
 public class SimpleIborIndexRatesTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
   private static final LocalDate DATE_BEFORE = date(2015, 6, 3);
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
 
+  private static final IborRateObservation GBP_LIBOR_3M_VAL = IborRateObservation.of(GBP_LIBOR_3M, DATE_VAL, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_BEFORE = IborRateObservation.of(GBP_LIBOR_3M, DATE_BEFORE, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_AFTER = IborRateObservation.of(GBP_LIBOR_3M, DATE_AFTER, REF_DATA);
+
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
+  private static final DayCount CURVE_DAY_COUNT = ACT_ACT_ISDA;
   private static final CurveName NAME = CurveName.of("TestCurve");
   private static final CurveMetadata METADATA = DefaultCurveMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.FORWARD_RATE)
-      .curveName(NAME).dayCount(ACT_365F).build();
+      .curveName(NAME)
+      .dayCount(CURVE_DAY_COUNT)
+      .build();
 
   private static final InterpolatedNodalCurve CURVE =
       InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
@@ -114,80 +125,77 @@ public class SimpleIborIndexRatesTest {
   //-------------------------------------------------------------------------
   public void test_rate_beforeValuation_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    assertEquals(test.rate(DATE_BEFORE), RATE_BEFORE);
+    assertEquals(test.rate(GBP_LIBOR_3M_BEFORE), RATE_BEFORE);
   }
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(DATE_BEFORE));
+    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(DATE_BEFORE));
+    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    assertEquals(test.rate(DATE_VAL), RATE_VAL);
+    assertEquals(test.rate(GBP_LIBOR_3M_VAL), RATE_VAL);
   }
 
   public void test_rateIgnoringTimeSeries_onValuation_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_VAL);
-    double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
+    double time = CURVE_DAY_COUNT.yearFraction(DATE_VAL, GBP_LIBOR_3M_VAL.getMaturityDate());
     double expected = CURVE.yValue(time);
-    assertEquals(test.rateIgnoringTimeSeries(DATE_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringTimeSeries(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_onValuation_noFixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_VAL);
-    double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
+    double time = CURVE_DAY_COUNT.yearFraction(DATE_VAL, GBP_LIBOR_3M_VAL.getMaturityDate());
     double expected = CURVE.yValue(time);
-    assertEquals(test.rate(DATE_VAL), expected, TOLERANCE_RATE);
-    assertEquals(test.rateIgnoringTimeSeries(DATE_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rate(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringTimeSeries(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_afterValuation() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    LocalDate maturity = GBP_LIBOR_3M.calculateMaturityFromFixing(DATE_AFTER);
-    double time = GBP_LIBOR_3M.getDayCount().yearFraction(DATE_VAL, maturity);
+    double time = CURVE_DAY_COUNT.yearFraction(DATE_VAL, GBP_LIBOR_3M_AFTER.getMaturityDate());
     double expected = CURVE.yValue(time);
-    assertEquals(test.rate(DATE_AFTER), expected, TOLERANCE_RATE);
+    assertEquals(test.rate(GBP_LIBOR_3M_AFTER), expected, TOLERANCE_RATE);
   }
 
   //-------------------------------------------------------------------------
   public void test_ratePointSensitivity_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    assertEquals(test.ratePointSensitivity(DATE_BEFORE), PointSensitivityBuilder.none());
-    assertEquals(test.ratePointSensitivity(DATE_VAL), PointSensitivityBuilder.none());
+    assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_BEFORE), PointSensitivityBuilder.none());
+    assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_VAL), PointSensitivityBuilder.none());
   }
   
   public void test_rateIgnoringTimeSeriesPointSensitivity_onValuation() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
-    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(DATE_VAL), expected);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M_VAL, 1d);
+    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(GBP_LIBOR_3M_VAL), expected);
   }
 
   public void test_ratePointSensitivity_onValuation_noFixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
-    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_VAL, 1d);
-    assertEquals(test.ratePointSensitivity(DATE_VAL), expected);
-    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(DATE_VAL), expected);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M_VAL, 1d);
+    assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_VAL), expected);
+    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(GBP_LIBOR_3M_VAL), expected);
   }
 
   public void test_ratePointSensitivity_afterValuation() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, 1d);
-    assertEquals(test.ratePointSensitivity(DATE_AFTER), expected);
+    IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M_AFTER, 1d);
+    assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
   public void test_curveParameterSensitivity() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M, DATE_AFTER, GBP, 1d);
+    IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M_AFTER, GBP, 1d);
     assertEquals(test.curveParameterSensitivity(point).size(), 1);
   }
 

@@ -43,15 +43,13 @@ public final class FixedRateObservation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code FixedRateObservation}.
+   * Creates an instance.
    * 
    * @param rate  the fixed rate
-   * @return the IBOR rate
+   * @return the fixed rate observation
    */
   public static FixedRateObservation of(double rate) {
-    return FixedRateObservation.builder()
-        .rate(rate)
-        .build();
+    return new FixedRateObservation(rate);
   }
 
   //-------------------------------------------------------------------------

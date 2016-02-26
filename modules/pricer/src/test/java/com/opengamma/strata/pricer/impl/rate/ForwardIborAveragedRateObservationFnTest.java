@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -29,6 +30,7 @@ import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateObservation;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
 * Test.
@@ -36,15 +38,19 @@ import com.opengamma.strata.product.rate.IborAveragedRateObservation;
 @Test
 public class ForwardIborAveragedRateObservationFnTest {
 
-  private static final LocalDate[] FIXING_DATES = new LocalDate[] {
-      date(2014, 6, 30), date(2014, 7, 7), date(2014, 7, 14), date(2014, 7, 21)};
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final IborRateObservation[] OBSERVATIONS = new IborRateObservation[] {
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA),
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 7), REF_DATA),
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 14), REF_DATA),
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 21), REF_DATA)};
   private static final double[] FIXING_VALUES = {0.0123d, 0.0234d, 0.0345d, 0.0456d};
   private static final double[] WEIGHTS = {0.10d, 0.20d, 0.30d, 0.40d};
   private static final IborRateSensitivity[] SENSITIVITIES = {
-      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], 1d),
-      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[1], 1d),
-      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[2], 1d),
-      IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], 1d),
+      IborRateSensitivity.of(OBSERVATIONS[0], 1d),
+      IborRateSensitivity.of(OBSERVATIONS[1], 1d),
+      IborRateSensitivity.of(OBSERVATIONS[2], 1d),
+      IborRateSensitivity.of(OBSERVATIONS[3], 1d),
   };
 
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
@@ -59,19 +65,20 @@ public class ForwardIborAveragedRateObservationFnTest {
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeightedRate = 0.0d;
     double totalWeight = 0.0d;
-    for (int i = 0; i < FIXING_DATES.length; i++) {
+    for (int i = 0; i < OBSERVATIONS.length; i++) {
+      IborRateObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
-          .fixingDate(FIXING_DATES[i])
+          .observation(obs)
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
       totalWeightedRate += FIXING_VALUES[i] * WEIGHTS[i];
       totalWeight += WEIGHTS[i];
-      when(mockIbor.rate(FIXING_DATES[i])).thenReturn(FIXING_VALUES[i]);
+      when(mockIbor.rate(obs)).thenReturn(FIXING_VALUES[i]);
     }
 
     double rateExpected = totalWeightedRate / totalWeight;
-    IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
+    IborAveragedRateObservation ro = IborAveragedRateObservation.of(fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
     double rateComputed = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
@@ -82,10 +89,10 @@ public class ForwardIborAveragedRateObservationFnTest {
 
     ExplainMap built = builder.build();
     assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), FIXING_DATES.length);
+    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), OBSERVATIONS.length);
     for (int i = 0; i < 4; i++) {
       ExplainMap childMap = built.get(ExplainKey.OBSERVATIONS).get().get(i);
-      assertEquals(childMap.get(ExplainKey.FIXING_DATE), Optional.of(FIXING_DATES[i]));
+      assertEquals(childMap.get(ExplainKey.FIXING_DATE), Optional.of(OBSERVATIONS[i].getFixingDate()));
       assertEquals(childMap.get(ExplainKey.INDEX), Optional.of(GBP_LIBOR_3M));
       assertEquals(childMap.get(ExplainKey.INDEX_VALUE), Optional.of(FIXING_VALUES[i]));
       assertEquals(childMap.get(ExplainKey.WEIGHT), Optional.of(WEIGHTS[i]));
@@ -100,22 +107,23 @@ public class ForwardIborAveragedRateObservationFnTest {
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeight = 0.0d;
-    for (int i = 0; i < FIXING_DATES.length; i++) {
+    for (int i = 0; i < OBSERVATIONS.length; i++) {
+      IborRateObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
-          .fixingDate(FIXING_DATES[i])
+          .observation(obs)
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
       totalWeight += WEIGHTS[i];
-      when(mockIbor.ratePointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.ratePointSensitivity(obs)).thenReturn(SENSITIVITIES[i]);
     }
 
     PointSensitivities expected = PointSensitivities.of(ImmutableList.of(
-        IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[0], WEIGHTS[0] / totalWeight),
-        IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[1], WEIGHTS[1] / totalWeight),
-        IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[2], WEIGHTS[2] / totalWeight),
-        IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATES[3], WEIGHTS[3] / totalWeight)));
-    IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
+        IborRateSensitivity.of(OBSERVATIONS[0], WEIGHTS[0] / totalWeight),
+        IborRateSensitivity.of(OBSERVATIONS[1], WEIGHTS[1] / totalWeight),
+        IborRateSensitivity.of(OBSERVATIONS[2], WEIGHTS[2] / totalWeight),
+        IborRateSensitivity.of(OBSERVATIONS[3], WEIGHTS[3] / totalWeight)));
+    IborAveragedRateObservation ro = IborAveragedRateObservation.of(fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
     PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     assertEquals(test.build(), expected);
@@ -127,18 +135,19 @@ public class ForwardIborAveragedRateObservationFnTest {
     prov.setIborRates(mockIbor);
 
     double eps = 1.0e-7;
-    int nDates = FIXING_DATES.length;
+    int nDates = OBSERVATIONS.length;
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < nDates; i++) {
+      IborRateObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
-          .fixingDate(FIXING_DATES[i])
+          .observation(obs)
           .weight(WEIGHTS[i])
           .build();
       fixings.add(fixing);
-      when(mockIbor.ratePointSensitivity(FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+      when(mockIbor.ratePointSensitivity(obs)).thenReturn(SENSITIVITIES[i]);
     }
 
-    IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
+    IborAveragedRateObservation ro = IborAveragedRateObservation.of(fixings);
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
     PointSensitivityBuilder test = obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov);
     for (int i = 0; i < nDates; ++i) {
@@ -151,11 +160,11 @@ public class ForwardIborAveragedRateObservationFnTest {
 
       for (int j = 0; j < nDates; ++j) {
         if (i == j) {
-          when(mockIborUp.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] + eps);
-          when(mockIborDw.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] - eps);
+          when(mockIborUp.rate(OBSERVATIONS[j])).thenReturn(FIXING_VALUES[j] + eps);
+          when(mockIborDw.rate(OBSERVATIONS[j])).thenReturn(FIXING_VALUES[j] - eps);
         } else {
-          when(mockIborUp.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
-          when(mockIborDw.rate(FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
+          when(mockIborUp.rate(OBSERVATIONS[j])).thenReturn(FIXING_VALUES[j]);
+          when(mockIborDw.rate(OBSERVATIONS[j])).thenReturn(FIXING_VALUES[j]);
         }
       }
       double rateUp = obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, provUp);

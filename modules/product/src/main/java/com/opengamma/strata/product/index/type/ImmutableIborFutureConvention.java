@@ -135,7 +135,7 @@ public final class ImmutableIborFutureConvention
 
     LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber, refData);
     double accrualFactor = index.getTenor().get(ChronoUnit.MONTHS) / 12.0;
-    LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate);
+    LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
     IborFuture underlying = IborFuture.builder()
         .index(index)
         .accrualFactor(accrualFactor)

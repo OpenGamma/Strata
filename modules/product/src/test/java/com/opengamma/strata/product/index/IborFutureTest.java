@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link IborFuture}.
@@ -112,8 +113,7 @@ public class IborFutureTest {
         .build();
     ResolvedIborFuture expected = ResolvedIborFuture.builder()
         .notional(NOTIONAL_1)
-        .index(GBP_LIBOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1)
+        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(test.resolve(REF_DATA), expected);

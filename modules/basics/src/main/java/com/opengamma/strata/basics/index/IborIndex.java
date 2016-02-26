@@ -113,9 +113,10 @@ public interface IborIndex
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the effective date
    */
-  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the maturity date from the fixing date.
@@ -127,9 +128,10 @@ public interface IborIndex
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the maturity date
    */
-  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the fixing date from the effective date.
@@ -141,9 +143,10 @@ public interface IborIndex
    * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the fixing date
    */
-  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate);
+  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
   /**
    * Calculates the maturity date from the effective date.
@@ -155,9 +158,10 @@ public interface IborIndex
    * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the maturity date
    */
-  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate);
+  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
   //-----------------------------------------------------------------------
   /**

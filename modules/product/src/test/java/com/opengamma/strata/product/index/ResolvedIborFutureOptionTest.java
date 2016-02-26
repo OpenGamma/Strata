@@ -23,8 +23,10 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link ResolvedIborFutureOption}. 
@@ -32,15 +34,15 @@ import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 @Test
 public class ResolvedIborFutureOptionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1 = 1_000d;
   private static final LocalDate LAST_TRADE_DATE_1 = date(2015, 6, 15);
   private static final LocalDate LAST_TRADE_DATE_2 = date(2015, 9, 16);
   private static final Rounding ROUNDING = Rounding.ofDecimalPlaces(6);
   private static final ResolvedIborFuture IBOR_FUTURE_1 = ResolvedIborFuture.builder()
       .currency(GBP)
-      .index(GBP_LIBOR_2M)
       .notional(NOTIONAL_1)
-      .lastTradeDate(LAST_TRADE_DATE_1)
+      .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
       .rounding(ROUNDING)
       .build();
 

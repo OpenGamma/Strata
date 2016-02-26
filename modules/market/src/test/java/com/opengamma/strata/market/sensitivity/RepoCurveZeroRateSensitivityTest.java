@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.value.BondGroup;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link RepoCurveZeroRateSensitivity}.
@@ -31,11 +33,14 @@ import com.opengamma.strata.market.value.BondGroup;
 @Test
 public class RepoCurveZeroRateSensitivityTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE = date(2015, 8, 27);
+  private static final LocalDate DATE2 = date(2015, 9, 27);
   private static final double VALUE = 32d;
   private static final Currency CURRENCY = USD;
   private static final BondGroup GROUP = BondGroup.of("ISSUER1 BND 10Y");
 
+  //-------------------------------------------------------------------------
   public void test_of_withSensitivityCurrency() {
     Currency sensiCurrency = GBP;
     RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, sensiCurrency, GROUP, VALUE);
@@ -90,12 +95,13 @@ public class RepoCurveZeroRateSensitivityTest {
 
   public void test_compareKey() {
     RepoCurveZeroRateSensitivity a1 = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity a2 = RepoCurveZeroRateSensitivity.of(CURRENCY, date(2015, 8, 27), GROUP, VALUE);
+    RepoCurveZeroRateSensitivity a2 = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
     RepoCurveZeroRateSensitivity b = RepoCurveZeroRateSensitivity.of(GBP, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity c = RepoCurveZeroRateSensitivity.of(CURRENCY, date(2015, 9, 27), GROUP, VALUE);
+    RepoCurveZeroRateSensitivity c = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE2, GROUP, VALUE);
     RepoCurveZeroRateSensitivity d =
         RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, BondGroup.of("ISSUER1 BND 3Y"), VALUE);
-    IborRateSensitivity other = IborRateSensitivity.of(GBP_LIBOR_3M, date(2015, 8, 27), 32d);
+    IborRateSensitivity other =
+        IborRateSensitivity.of(IborRateObservation.of(GBP_LIBOR_3M, DATE, REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);

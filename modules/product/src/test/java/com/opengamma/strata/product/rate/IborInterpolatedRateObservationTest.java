@@ -19,10 +19,13 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test.
@@ -30,93 +33,98 @@ import com.opengamma.strata.basics.index.Index;
 @Test
 public class IborInterpolatedRateObservationTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final LocalDate FIXING_DATE = date(2014, 6, 30);
+  private static final IborRateObservation GBP_LIBOR_1W_OBS = IborRateObservation.of(GBP_LIBOR_1W, FIXING_DATE, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_1M_OBS = IborRateObservation.of(GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
+  private static final IborRateObservation EUR_EURIBOR_1W_OBS = IborRateObservation.of(EUR_EURIBOR_1W, FIXING_DATE, REF_DATA);
+  private static final IborRateObservation EUR_EURIBOR_2W_OBS = IborRateObservation.of(EUR_EURIBOR_2W, FIXING_DATE, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_OBS2 =
+      IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE.plusDays(1), REF_DATA);
+
+  //-------------------------------------------------------------------------
   public void test_of_monthly() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
     IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortIndex(GBP_LIBOR_1M)
-        .longIndex(GBP_LIBOR_3M)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(GBP_LIBOR_1M_OBS)
+        .longObservation(GBP_LIBOR_3M_OBS)
         .build();
     assertEquals(test, expected);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_monthly_reverseOrder() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_1M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
     IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortIndex(GBP_LIBOR_1M)
-        .longIndex(GBP_LIBOR_3M)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(GBP_LIBOR_1M_OBS)
+        .longObservation(GBP_LIBOR_3M_OBS)
         .build();
     assertEquals(test, expected);
   }
 
   public void test_of_weekly() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(EUR_EURIBOR_1W, EUR_EURIBOR_2W, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(EUR_EURIBOR_1W, EUR_EURIBOR_2W, FIXING_DATE, REF_DATA);
     IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortIndex(EUR_EURIBOR_1W)
-        .longIndex(EUR_EURIBOR_2W)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(EUR_EURIBOR_1W_OBS)
+        .longObservation(EUR_EURIBOR_2W_OBS)
         .build();
     assertEquals(test, expected);
   }
 
   public void test_of_weekly_reverseOrder() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(EUR_EURIBOR_2W, EUR_EURIBOR_1W, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(EUR_EURIBOR_2W, EUR_EURIBOR_1W, FIXING_DATE, REF_DATA);
     IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortIndex(EUR_EURIBOR_1W)
-        .longIndex(EUR_EURIBOR_2W)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(EUR_EURIBOR_1W_OBS)
+        .longObservation(EUR_EURIBOR_2W_OBS)
         .build();
     assertEquals(test, expected);
   }
 
   public void test_of_weekMonthCombination() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
     IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortIndex(GBP_LIBOR_1W)
-        .longIndex(GBP_LIBOR_1M)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(GBP_LIBOR_1W_OBS)
+        .longObservation(GBP_LIBOR_1M_OBS)
         .build();
     assertEquals(test, expected);
   }
 
   public void test_of_sameIndex() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_1M, date(2014, 6, 30)));
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_1M, FIXING_DATE, REF_DATA));
   }
 
   public void test_builder_indexOrder() {
     assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
-        .shortIndex(GBP_LIBOR_3M)
-        .longIndex(GBP_LIBOR_1M)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(GBP_LIBOR_3M_OBS)
+        .longObservation(GBP_LIBOR_1M_OBS)
         .build());
     assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
-        .shortIndex(EUR_EURIBOR_2W)
-        .longIndex(EUR_EURIBOR_1W)
-        .fixingDate(date(2014, 6, 30))
+        .shortObservation(EUR_EURIBOR_2W_OBS)
+        .longObservation(EUR_EURIBOR_1W_OBS)
         .build());
   }
 
   public void test_of_differentCurrencies() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(EUR_EURIBOR_2W, GBP_LIBOR_1M, date(2014, 6, 30)));
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(EUR_EURIBOR_2W, GBP_LIBOR_1M, FIXING_DATE, REF_DATA));
   }
 
-  public void test_of_null() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(null, GBP_LIBOR_3M, date(2014, 6, 30)));
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, null, date(2014, 6, 30)));
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, null));
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(null, null, null));
+  public void test_of_differentFixingDates() {
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
+        .shortObservation(GBP_LIBOR_1M_OBS)
+        .longObservation(GBP_LIBOR_3M_OBS2)
+        .build());
   }
 
   //-------------------------------------------------------------------------
   public void test_collectIndices() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
     assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M));
@@ -125,16 +133,16 @@ public class IborInterpolatedRateObservationTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
     coverImmutableBean(test);
     IborInterpolatedRateObservation test2 =
-        IborInterpolatedRateObservation.of(USD_LIBOR_1M, USD_LIBOR_3M, date(2014, 7, 30));
+        IborInterpolatedRateObservation.of(USD_LIBOR_1M, USD_LIBOR_3M, date(2014, 7, 30), REF_DATA);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
     IborInterpolatedRateObservation test =
-        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
     assertSerialization(test);
   }
 

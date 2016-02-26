@@ -205,7 +205,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), FRA.getStartDate());
+    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA.getStartDate());
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
 
     // test via FraTrade
@@ -228,7 +228,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA_NONE.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), FRA_NONE.getStartDate());
+    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA_NONE.getStartDate());
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
   }
 
@@ -247,7 +247,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), FRA_AFMA.getStartDate());
+    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA_AFMA.getStartDate());
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
   }
 
@@ -266,7 +266,8 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA.getStartDate();
-    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
@@ -286,7 +287,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), fixingDate);
+    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA.getCurrency());
@@ -312,7 +313,8 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_NONE.getStartDate();
-    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
@@ -332,7 +334,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA_NONE.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), fixingDate);
+    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA_NONE.getCurrency());
@@ -354,7 +356,8 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_AFMA.getStartDate();
-    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
@@ -374,7 +377,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivities.size(), 2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
     assertEquals(sensitivity0.getIndex(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity0.getFixingDate(), fixingDate);
+    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA_AFMA.getCurrency());
@@ -620,9 +623,9 @@ public class DiscountingFraProductPricerTest {
     prov.setIborRates(mockIbor);
 
     IborRateObservation obs = (IborRateObservation) fraExp.getFloatingRate();
-    IborRateSensitivity sens = IborRateSensitivity.of(obs.getIndex(), obs.getFixingDate(), 1d);
-    when(mockIbor.ratePointSensitivity(obs.getFixingDate())).thenReturn(sens);
-    when(mockIbor.rate(obs.getFixingDate())).thenReturn(FORWARD_RATE);
+    IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
+    when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
+    when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
 
     when(mockDf.discountFactor(fraExp.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
     return prov;

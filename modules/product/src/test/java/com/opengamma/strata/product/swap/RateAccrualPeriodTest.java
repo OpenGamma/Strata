@@ -18,6 +18,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -27,13 +28,16 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class RateAccrualPeriodTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_03_28 = date(2014, 3, 28);
   private static final LocalDate DATE_2014_03_30 = date(2014, 3, 30);
   private static final LocalDate DATE_2014_03_31 = date(2014, 3, 31);
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_07_01 = date(2014, 7, 1);
-  private static final IborRateObservation GBP_LIBOR_3M_2014_03_27 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 27));
-  private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 = IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_03_28);
+  private static final IborRateObservation GBP_LIBOR_3M_2014_03_27 =
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 27), REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_03_28, REF_DATA);
 
   public void test_builder() {
     RateAccrualPeriod test = RateAccrualPeriod.builder()

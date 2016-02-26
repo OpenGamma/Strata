@@ -252,9 +252,9 @@ public final class Fra
   private RateObservation createRateObservation(ReferenceData refData) {
     LocalDate fixingDate = fixingDateOffset.adjust(startDate);
     if (indexInterpolated != null) {
-      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
+      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate, refData);
     } else {
-      return IborRateObservation.of(index, fixingDate);
+      return IborRateObservation.of(index, fixingDate, refData);
     }
   }
 

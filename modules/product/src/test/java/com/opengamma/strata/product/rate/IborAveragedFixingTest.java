@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.rate;
 
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -15,16 +16,22 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
+
 /**
  * Test.
  */
 @Test
 public class IborAveragedFixingTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
+
+  //-------------------------------------------------------------------------
   public void test_of_date() {
-    IborAveragedFixing test = IborAveragedFixing.of(date(2014, 6, 30));
+    IborAveragedFixing test = IborAveragedFixing.of(GBP_LIBOR_3M_OBS);
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(null)
         .weight(1)
         .build();
@@ -32,9 +39,9 @@ public class IborAveragedFixingTest {
   }
 
   public void test_of_date_fixedRate() {
-    IborAveragedFixing test = IborAveragedFixing.of(date(2014, 6, 30), 0.05);
+    IborAveragedFixing test = IborAveragedFixing.of(GBP_LIBOR_3M_OBS, 0.05);
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(0.05)
         .weight(1)
         .build();
@@ -43,9 +50,9 @@ public class IborAveragedFixingTest {
   }
 
   public void test_of_date_fixedRate_null() {
-    IborAveragedFixing test = IborAveragedFixing.of(date(2014, 6, 30), null);
+    IborAveragedFixing test = IborAveragedFixing.of(GBP_LIBOR_3M_OBS, null);
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(null)
         .weight(1)
         .build();
@@ -62,9 +69,9 @@ public class IborAveragedFixingTest {
   //-------------------------------------------------------------------------
   public void test_ofDaysInResetPeriod() {
     IborAveragedFixing test = IborAveragedFixing.ofDaysInResetPeriod(
-        date(2014, 6, 30), date(2014, 7, 2), date(2014, 8, 2));
+        GBP_LIBOR_3M_OBS, date(2014, 7, 2), date(2014, 8, 2));
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(null)
         .weight(31)
         .build();
@@ -73,9 +80,9 @@ public class IborAveragedFixingTest {
 
   public void test_ofDaysInResetPeriod_fixedRate() {
     IborAveragedFixing test = IborAveragedFixing.ofDaysInResetPeriod(
-        date(2014, 6, 30), date(2014, 7, 2), date(2014, 9, 2), 0.06);
+        GBP_LIBOR_3M_OBS, date(2014, 7, 2), date(2014, 9, 2), 0.06);
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(0.06)
         .weight(62)
         .build();
@@ -85,9 +92,9 @@ public class IborAveragedFixingTest {
 
   public void test_ofDaysInResetPeriod_fixedRate_null() {
     IborAveragedFixing test = IborAveragedFixing.ofDaysInResetPeriod(
-        date(2014, 6, 30), date(2014, 7, 2), date(2014, 9, 2), null);
+        GBP_LIBOR_3M_OBS, date(2014, 7, 2), date(2014, 9, 2), null);
     IborAveragedFixing expected = IborAveragedFixing.builder()
-        .fixingDate(date(2014, 6, 30))
+        .observation(GBP_LIBOR_3M_OBS)
         .fixedRate(null)
         .weight(62)
         .build();
@@ -97,23 +104,23 @@ public class IborAveragedFixingTest {
 
   public void test_ofDaysInResetPeriod_null() {
     assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2)));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(date(2014, 6, 30), null, date(2014, 8, 2)));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(date(2014, 6, 30), date(2014, 7, 2), null));
+    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2)));
+    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null));
     assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null));
     assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2), 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(date(2014, 6, 30), null, date(2014, 8, 2), 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(date(2014, 6, 30), date(2014, 7, 2), null, 0.05));
+    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2), 0.05));
+    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null, 0.05));
     assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null, null));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborAveragedFixing test = IborAveragedFixing.of(date(2014, 6, 30));
+    IborAveragedFixing test = IborAveragedFixing.of(GBP_LIBOR_3M_OBS);
     coverImmutableBean(test);
   }
 
   public void test_serialization() {
-    IborAveragedFixing test = IborAveragedFixing.of(date(2014, 6, 30));
+    IborAveragedFixing test = IborAveragedFixing.of(GBP_LIBOR_3M_OBS);
     assertSerialization(test);
   }
 

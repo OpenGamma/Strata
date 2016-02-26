@@ -103,7 +103,8 @@ public final class SwapDummyData {
   /**
    * IborRateObservation.
    */
-  public static final IborRateObservation IBOR_RATE_OBSERVATION = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30));
+  public static final IborRateObservation IBOR_RATE_OBSERVATION =
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
   /**
    * RateAccuralPeriod (ibor).
    */
@@ -119,7 +120,7 @@ public final class SwapDummyData {
   public static final RateAccrualPeriod IBOR_RATE_ACCRUAL_PERIOD_2 = RateAccrualPeriod.builder()
       .startDate(date(2014, 10, 2))
       .endDate(date(2015, 1, 2))
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, date(2014, 9, 30)))
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, date(2014, 9, 30), REF_DATA))
       .yearFraction(0.25d)
       .build();
   /**

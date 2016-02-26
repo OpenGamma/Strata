@@ -38,12 +38,15 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test Ibor Index.
  */
 @Test
 public class IborIndexTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   public void test_gbpLibor3m() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
@@ -63,20 +66,20 @@ public class IborIndexTest {
 
   public void test_gbpLibor3m_dates() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 13)), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13)), date(2015, 1, 13));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 13)), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 13)), date(2015, 1, 13));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2015, 1, 13));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 13), REF_DATA), date(2015, 1, 13));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2015, 1, 12));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10)), date(2015, 1, 12));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 12));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10), REF_DATA), date(2015, 1, 12));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2015, 1, 13));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 13));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
@@ -99,25 +102,25 @@ public class IborIndexTest {
 
   public void test_usdLibor3m_dates() {
     IborIndex test = IborIndex.of("USD-LIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27)), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 14));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2015, 1, 14));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14)), date(2015, 1, 14));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 14));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 14));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA), date(2015, 1, 14));
     // effective date is US holiday
-    assertEquals(test.calculateEffectiveFromFixing(date(2015, 1, 16)), date(2015, 1, 20));
-    assertEquals(test.calculateMaturityFromFixing(date(2015, 1, 16)), date(2015, 4, 20));
-    assertEquals(test.calculateFixingFromEffective(date(2015, 1, 20)), date(2015, 1, 16));
-    assertEquals(test.calculateMaturityFromEffective(date(2015, 1, 20)), date(2015, 4, 20));
+    assertEquals(test.calculateEffectiveFromFixing(date(2015, 1, 16), REF_DATA), date(2015, 1, 20));
+    assertEquals(test.calculateMaturityFromFixing(date(2015, 1, 16), REF_DATA), date(2015, 4, 20));
+    assertEquals(test.calculateFixingFromEffective(date(2015, 1, 20), REF_DATA), date(2015, 1, 16));
+    assertEquals(test.calculateMaturityFromEffective(date(2015, 1, 20), REF_DATA), date(2015, 4, 20));
     // input date is Sunday, 13th is US holiday, but not UK holiday (can fix, but not be effective)
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
@@ -139,20 +142,20 @@ public class IborIndexTest {
 
   public void test_euribor3m_dates() {
     IborIndex test = IborIndex.of("EUR-EURIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27)), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 14));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2015, 1, 14));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14)), date(2015, 1, 14));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 14));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 14));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA), date(2015, 1, 14));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 13));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/Brussels")));
@@ -174,20 +177,20 @@ public class IborIndexTest {
 
   public void test_tibor_japan3m_dates() {
     IborIndex test = IborIndex.of("JPY-TIBOR-JAPAN-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27)), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15)), date(2015, 1, 15));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA), date(2015, 1, 15));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2015, 1, 16));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 16));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 16));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
@@ -209,20 +212,20 @@ public class IborIndexTest {
 
   public void test_tibor_euroyen3m_dates() {
     IborIndex test = IborIndex.of("JPY-TIBOR-EUROYEN-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27)), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27)), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29)), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29)), date(2015, 1, 29));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10)), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10)), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15)), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15)), date(2015, 1, 15));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 15));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA), date(2015, 1, 15));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12)), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12)), date(2015, 1, 16));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12)), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 14));
+    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 16));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 16));
+    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
+    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));

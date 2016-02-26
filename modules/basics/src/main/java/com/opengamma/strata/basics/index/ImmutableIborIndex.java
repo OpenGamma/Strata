@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.date.TenorAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * An Ibor index implementation based on an immutable set of rules.
@@ -130,25 +131,25 @@ public final class ImmutableIborIndex
   }
 
   @Override
-  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
+  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData) {
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
     return effectiveDateOffset.adjust(fixingBusinessDay);
   }
 
   @Override
-  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
+  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
     return maturityDateOffset.adjust(effectiveDateOffset.adjust(fixingBusinessDay));
   }
 
   @Override
-  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
+  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
     return fixingDateOffset.adjust(effectiveBusinessDay);
   }
 
   @Override
-  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
+  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
     return maturityDateOffset.adjust(effectiveBusinessDay);
   }

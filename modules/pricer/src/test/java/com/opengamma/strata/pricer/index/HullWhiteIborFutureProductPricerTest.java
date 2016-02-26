@@ -47,11 +47,11 @@ public class HullWhiteIborFutureProductPricerTest {
 
   public void test_price() {
     double computed = PRICER.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    LocalDate start = EUR_EURIBOR_3M.calculateEffectiveFromFixing(FUTURE.getFixingDate());
-    LocalDate end = EUR_EURIBOR_3M.calculateMaturityFromEffective(start);
-    double fixingYearFraction = EUR_EURIBOR_3M.getDayCount().yearFraction(start, end);
+    LocalDate start = FUTURE.getObservation().getEffectiveDate();
+    LocalDate end = FUTURE.getObservation().getMaturityDate();
+    double fixingYearFraction = FUTURE.getObservation().getYearFraction();
     double convexity = HW_PROVIDER.futuresConvexityFactor(FUTURE.getLastTradeDate(), start, end);
-    double forward = RATE_PROVIDER.iborIndexRates(EUR_EURIBOR_3M).rate(FUTURE.getFixingDate());
+    double forward = RATE_PROVIDER.iborIndexRates(EUR_EURIBOR_3M).rate(FUTURE.getObservation());
     double expected = 1d - convexity * forward + (1d - convexity) / fixingYearFraction;
     assertEquals(computed, expected, TOL);
   }

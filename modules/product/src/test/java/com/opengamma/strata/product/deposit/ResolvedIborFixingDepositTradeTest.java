@@ -18,6 +18,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -27,11 +28,12 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class ResolvedIborFixingDepositTradeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate FIXING_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 20);
   private static final double YEAR_FRACTION = ACT_365F.yearFraction(START_DATE, END_DATE);
-  private static final IborRateObservation RATE_OBS = IborRateObservation.of(GBP_LIBOR_6M, FIXING_DATE);
+  private static final IborRateObservation RATE_OBS = IborRateObservation.of(GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
   private static final double NOTIONAL = 100000000d;
   private static final double RATE = 0.0250;
 

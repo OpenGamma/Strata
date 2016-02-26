@@ -22,7 +22,9 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link ResolvedIborFuture}.
@@ -30,6 +32,7 @@ import com.opengamma.strata.basics.value.Rounding;
 @Test
 public class ResolvedIborFutureTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1 = 1_000d;
   private static final double NOTIONAL_2 = 2_000d;
   private static final double ACCRUAL_FACTOR_2M = TENOR_2M.getPeriod().toTotalMonths() / 12.0;
@@ -44,8 +47,7 @@ public class ResolvedIborFutureTest {
         .currency(GBP)
         .notional(NOTIONAL_1)
         .accrualFactor(ACCRUAL_FACTOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1)
-        .index(GBP_LIBOR_2M)
+        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(test.getCurrency(), GBP);
@@ -54,14 +56,13 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), ROUNDING);
-    assertEquals(test.getFixingDate(), LAST_TRADE_DATE_1);
+    assertEquals(test.getObservation(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
   }
 
   public void test_builder_defaults() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .currency(GBP)
-        .lastTradeDate(LAST_TRADE_DATE_1)
-        .index(GBP_LIBOR_2M)
+        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .build();
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), 0.0);
@@ -69,14 +70,13 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getFixingDate(), LAST_TRADE_DATE_1);
+    assertEquals(test.getObservation(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
   }
 
-  public void test_builder_noIndex() {
+  public void test_builder_noObservation() {
     assertThrowsIllegalArg(() -> ResolvedIborFuture.builder()
         .notional(NOTIONAL_1)
         .currency(GBP)
-        .lastTradeDate(LAST_TRADE_DATE_1)
         .rounding(ROUNDING)
         .build());
   }
@@ -84,54 +84,40 @@ public class ResolvedIborFutureTest {
   public void test_builder_noCurrency() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .notional(NOTIONAL_1)
-        .index(GBP_LIBOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1)
+        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(GBP, test.getCurrency());
   }
 
-  public void test_builder_noLastTradeDate() {
-    assertThrowsIllegalArg(() -> ResolvedIborFuture.builder()
-        .notional(NOTIONAL_1)
-        .currency(GBP)
-        .index(GBP_LIBOR_2M)
-        .rounding(ROUNDING)
-        .build());
-  }
-
   //-------------------------------------------------------------------------
   public void coverage() {
-    ResolvedIborFuture test = ResolvedIborFuture.builder()
-        .currency(GBP)
-        .notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1)
-        .index(GBP_LIBOR_2M)
-        .rounding(ROUNDING)
-        .build();
-    coverImmutableBean(test);
-    ResolvedIborFuture test2 = ResolvedIborFuture.builder()
-        .currency(USD)
-        .notional(NOTIONAL_2)
-        .accrualFactor(ACCRUAL_FACTOR_3M)
-        .lastTradeDate(LAST_TRADE_DATE_2)
-        .index(USD_LIBOR_3M)
-        .rounding(ROUNDING)
-        .build();
-    coverBeanEquals(test, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    ResolvedIborFuture test = ResolvedIborFuture.builder()
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static ResolvedIborFuture sut() {
+    return ResolvedIborFuture.builder()
         .currency(GBP)
         .notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1)
-        .index(GBP_LIBOR_2M)
+        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
-    assertSerialization(test);
+  }
+
+  static ResolvedIborFuture sut2() {
+    return ResolvedIborFuture.builder()
+        .currency(USD)
+        .notional(NOTIONAL_2)
+        .accrualFactor(ACCRUAL_FACTOR_3M)
+        .observation(IborRateObservation.of(USD_LIBOR_3M, LAST_TRADE_DATE_2, REF_DATA))
+        .rounding(ROUNDING)
+        .build();
   }
 
 }

@@ -200,7 +200,7 @@ public class FraTest {
     assertEquals(test.getEndDate(), date(2015, 9, 15));
     assertEquals(test.getPaymentDate(), date(2015, 6, 22));
     assertEquals(test.getFixedRate(), 0.25d, 0d);
-    assertEquals(test.getFloatingRate(), IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 11)));
+    assertEquals(test.getFloatingRate(), IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 11), REF_DATA));
     assertEquals(test.getYearFraction(), ACT_365F.yearFraction(date(2015, 6, 15), date(2015, 9, 15)), 0d);
     assertEquals(test.getDiscounting(), ISDA);
   }
@@ -225,7 +225,7 @@ public class FraTest {
     assertEquals(test.getPaymentDate(), date(2015, 6, 12));
     assertEquals(test.getFixedRate(), 0.25d, 0d);
     assertEquals(test.getFloatingRate(),
-        IborInterpolatedRateObservation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10)));
+        IborInterpolatedRateObservation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10), REF_DATA));
     assertEquals(test.getYearFraction(), ACT_365F.yearFraction(date(2015, 6, 12), date(2015, 9, 7)), 0d);
     assertEquals(test.getDiscounting(), ISDA);
   }

@@ -52,8 +52,8 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
-  private static final LocalDate SWAP_EFFECTIVE_DATE = USD_LIBOR_3M
-      .calculateEffectiveFromFixing(SWAPTION_EXERCISE_DATE);
+  private static final LocalDate SWAP_EFFECTIVE_DATE =
+      USD_LIBOR_3M.calculateEffectiveFromFixing(SWAPTION_EXERCISE_DATE, REF_DATA);
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final LocalDate SWAP_MATURITY_DATE = SWAP_EFFECTIVE_DATE.plus(SWAP_TENOR);

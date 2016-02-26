@@ -295,7 +295,7 @@ public final class IborRateCalculation
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       RateObservation rateObs = createRateObservation(
-          period, fixingDateAdjuster, resetScheduleBuilder, i, scheduleInitialStub, scheduleFinalStub);
+          period, fixingDateAdjuster, resetScheduleBuilder, i, scheduleInitialStub, scheduleFinalStub, refData);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
           .rateObservation(rateObs)
@@ -314,47 +314,51 @@ public final class IborRateCalculation
       Function<SchedulePeriod, Schedule> resetScheduleBuilder,
       int scheduleIndex,
       Optional<SchedulePeriod> scheduleInitialStub,
-      Optional<SchedulePeriod> scheduleFinalStub) {
+      Optional<SchedulePeriod> scheduleFinalStub,
+      ReferenceData refData) {
 
     LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(period));
     // handle stubs
     if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
-      return initialStub.createRateObservation(fixingDate, index);
+      return initialStub.createRateObservation(fixingDate, index, refData);
     }
     if (scheduleFinalStub.isPresent() && scheduleFinalStub.get() == period) {
-      return finalStub.createRateObservation(fixingDate, index);
+      return finalStub.createRateObservation(fixingDate, index, refData);
     }
     // handle explicit reset periods, possible averaging
     if (resetScheduleBuilder != null) {
       return createRateObservationWithResetPeriods(
           resetScheduleBuilder.apply(period),
           fixingDateAdjuster,
-          isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()));
+          isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()),
+          refData);
     }
     // handle possible fixed rate
     if (firstRegularRate != null && isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
       return FixedRateObservation.of(firstRegularRate);
     }
     // simple Ibor
-    return IborRateObservation.of((IborIndex) index, fixingDate);
+    return IborRateObservation.of(index, fixingDate, refData);
   }
 
   // reset periods have been specified, which may or may not imply averaging
   private RateObservation createRateObservationWithResetPeriods(
       Schedule resetSchedule,
       DateAdjuster fixingDateAdjuster,
-      boolean firstRegular) {
+      boolean firstRegular,
+      ReferenceData refData) {
 
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < resetSchedule.size(); i++) {
       SchedulePeriod resetPeriod = resetSchedule.getPeriod(i);
+      LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(resetPeriod));
       fixings.add(IborAveragedFixing.builder()
-          .fixingDate(fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(resetPeriod)))
+          .observation(IborRateObservation.of(index, fixingDate, refData))
           .fixedRate(firstRegular && i == 0 ? firstRegularRate : null)
           .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
-    return IborAveragedRateObservation.of(index, fixings);
+    return IborAveragedRateObservation.of(fixings);
   }
 
   // is the period the first regular period

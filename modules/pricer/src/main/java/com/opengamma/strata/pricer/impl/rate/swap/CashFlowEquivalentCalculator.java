@@ -83,10 +83,9 @@ public final class CashFlowEquivalentCalculator {
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
       IborRateObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation());
       IborIndex index = obs.getIndex();
-      LocalDate fixingStartDate = index.calculateEffectiveFromFixing(obs.getFixingDate());
-      LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-      double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-      double beta = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs.getFixingDate()))
+      LocalDate fixingStartDate = obs.getEffectiveDate();
+      double fixingYearFraction = obs.getYearFraction();
+      double beta = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs))
           * ratesProvider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate())
           / ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double ycRatio = rateAccrualPeriod.getYearFraction() / fixingYearFraction;
@@ -183,11 +182,10 @@ public final class CashFlowEquivalentCalculator {
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
       IborRateObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation());
       IborIndex index = obs.getIndex();
-      LocalDate fixingStartDate = index.calculateEffectiveFromFixing(obs.getFixingDate());
-      LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-      double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+      LocalDate fixingStartDate = obs.getEffectiveDate();
+      double fixingYearFraction = obs.getYearFraction();
 
-      double factorIndex = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs.getFixingDate()));
+      double factorIndex = (1d + fixingYearFraction * ratesProvider.iborIndexRates(index).rate(obs));
       double dfPayment = ratesProvider.discountFactor(paymentPeriod.getCurrency(), paymentPeriod.getPaymentDate());
       double dfStart = ratesProvider.discountFactor(paymentPeriod.getCurrency(), fixingStartDate);
       double beta = factorIndex * dfPayment / dfStart;
@@ -197,7 +195,7 @@ public final class CashFlowEquivalentCalculator {
       double factor = ycRatio * notional.getAmount() / dfStart;
 
       PointSensitivityBuilder factorIndexSensi = ratesProvider.iborIndexRates(index)
-          .ratePointSensitivity(obs.getFixingDate()).multipliedBy(fixingYearFraction * dfPayment * factor);
+          .ratePointSensitivity(obs).multipliedBy(fixingYearFraction * dfPayment * factor);
       PointSensitivityBuilder dfPaymentSensitivity = ratesProvider.discountFactors(paymentPeriod.getCurrency())
           .zeroRatePointSensitivity(paymentPeriod.getPaymentDate()).multipliedBy(factorIndex * factor);
       PointSensitivityBuilder dfStartSensitivity = ratesProvider.discountFactors(paymentPeriod.getCurrency())

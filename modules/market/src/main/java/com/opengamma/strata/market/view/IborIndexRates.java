@@ -18,6 +18,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Provides access to rates for an Ibor index.
@@ -121,53 +122,53 @@ public interface IborIndexRates
    * or the estimated rate if the fixing date is after the valuation date.
    * If the fixing date equals the valuation date, then the best available rate is returned.
    * 
-   * @param fixingDate  the fixing date to query the rate for
+   * @param observation  the rate observation, including the fixing date
    * @return the rate of the index, either historic or forward
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double rate(LocalDate fixingDate);
+  public abstract double rate(IborRateObservation observation);
 
   /**
    * Ignores the time-series to get the forward rate at the specified fixing date, used in rare and special cases.
-   * In most cases callers should use {@link IborIndexRates#rate(LocalDate) rate(LocalDate)}.
+   * In most cases callers should use {@link #rate(IborRateObservation) rate(IborRateObservation)}.
    * <p>
    * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
    * The {@code rate(LocalDate)} method uses either the curve or time-series, depending on whether the
    * fixing date is before or after the valuation date. This method only queries the forward curve,
    * totally ignoring the time-series, which is needed for rare and special cases only.
    * 
-   * @param fixingDate  the fixing date to query the rate for
+   * @param observation  the rate observation, including the fixing date
    * @return the rate of the index as given by the forward curve
    */
-  public abstract double rateIgnoringTimeSeries(LocalDate fixingDate);
+  public abstract double rateIgnoringTimeSeries(IborRateObservation observation);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
+   * The sensitivity refers to the result of {@link #rate(IborRateObservation) rate(IborRateObservation)}.
    * 
-   * @param fixingDate  the fixing date to find the sensitivity for
+   * @param observation  the rate observation, including the fixing date
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder ratePointSensitivity(IborRateObservation observation);
 
   /**
    * Ignores the time-series to get the forward rate point sensitivity at the specified fixing date,
    * used in rare and special cases. In most cases callers should use
-   * {@link IborIndexRates#ratePointSensitivity(LocalDate) ratePointSensitivity(LocalDate)}.
+   * {@link #ratePointSensitivity(IborRateObservation) ratePointSensitivity(IborRateObservation)}.
    * <p>
    * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
    * The {@code ratePointSensitivity(LocalDate)} method uses either the curve or time-series, depending on whether the
    * fixing date is before or after the valuation date. This method only queries the forward curve,
    * totally ignoring the time-series, which is needed for rare and special cases only.
    * 
-   * @param fixingDate  the fixing date to query the rate for
+   * @param observation  the rate observation, including the fixing date
    * @return the point sensitivity of the rate to the forward curve
    */
-  public abstract PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborRateObservation observation);
 
   //-------------------------------------------------------------------------
   /**

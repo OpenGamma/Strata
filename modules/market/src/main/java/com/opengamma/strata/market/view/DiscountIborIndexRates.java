@@ -36,6 +36,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * An Ibor index curve providing rates from discount factors.
@@ -122,15 +123,16 @@ public final class DiscountIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(LocalDate fixingDate) {
-    if (!fixingDate.isAfter(getValuationDate())) {
-      return historicRate(fixingDate);
+  public double rate(IborRateObservation observation) {
+    if (!observation.getFixingDate().isAfter(getValuationDate())) {
+      return historicRate(observation);
     }
-    return rateIgnoringTimeSeries(fixingDate);
+    return rateIgnoringTimeSeries(observation);
   }
 
   // historic rate
-  private double historicRate(LocalDate fixingDate) {
+  private double historicRate(IborRateObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
@@ -141,55 +143,53 @@ public final class DiscountIborIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return rateIgnoringTimeSeries(fixingDate);
+      return rateIgnoringTimeSeries(observation);
     }
   }
 
   @Override
-  public double rateIgnoringTimeSeries(LocalDate fixingDate) {
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return simplyCompoundForwardRate(fixingStartDate, fixingEndDate, fixingYearFraction);
-  }
-
-  // compounded from discount factors
-  private double simplyCompoundForwardRate(LocalDate startDate, LocalDate endDate, double accrualFactor) {
-    return (discountFactors.discountFactor(startDate) / discountFactors.discountFactor(endDate) - 1) / accrualFactor;
+  public double rateIgnoringTimeSeries(IborRateObservation observation) {
+    LocalDate fixingStartDate = observation.getEffectiveDate();
+    LocalDate fixingEndDate = observation.getMaturityDate();
+    double accrualFactor = observation.getYearFraction();
+    // simply compounded forward rate from discount factors
+    double dfStart = discountFactors.discountFactor(fixingStartDate);
+    double dfEnd = discountFactors.discountFactor(fixingEndDate);
+    return (dfStart / dfEnd - 1) / accrualFactor;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate) {
+  public PointSensitivityBuilder ratePointSensitivity(IborRateObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     LocalDate valuationDate = getValuationDate();
     if (fixingDate.isBefore(valuationDate) ||
         (fixingDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    return IborRateSensitivity.of(index, fixingDate, 1d);
+    return IborRateSensitivity.of(observation, 1d);
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate) {
-    return IborRateSensitivity.of(index, fixingDate, 1d);
+  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborRateObservation observation) {
+    return IborRateSensitivity.of(observation, 1d);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
-    IborIndex index = pointSensitivity.getIndex();
-    LocalDate startDate = index.calculateEffectiveFromFixing(pointSensitivity.getFixingDate());
-    LocalDate endDate = index.calculateMaturityFromEffective(startDate);
-    double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
+    LocalDate fixingStartDate = pointSensitivity.getObservation().getEffectiveDate();
+    LocalDate fixingEndDate = pointSensitivity.getObservation().getMaturityDate();
+    double accrualFactor = pointSensitivity.getObservation().getYearFraction();
     double forwardBar = pointSensitivity.getSensitivity();
-    double dfForwardStart = discountFactors.discountFactor(startDate);
-    double dfForwardEnd = discountFactors.discountFactor(endDate);
+    double dfForwardStart = discountFactors.discountFactor(fixingStartDate);
+    double dfForwardEnd = discountFactors.discountFactor(fixingEndDate);
     double dfStartBar = forwardBar / (accrualFactor * dfForwardEnd);
     double dfEndBar = -forwardBar * dfForwardStart / (accrualFactor * dfForwardEnd * dfForwardEnd);
-    double zrStartBar = discountFactors.zeroRatePointSensitivity(startDate).getSensitivity() * dfStartBar;
-    double zrEndBar = discountFactors.zeroRatePointSensitivity(endDate).getSensitivity() * dfEndBar;
-    CurveUnitParameterSensitivities dzrdpStart = discountFactors.unitParameterSensitivity(startDate);
-    CurveUnitParameterSensitivities dzrdpEnd = discountFactors.unitParameterSensitivity(endDate);
+    double zrStartBar = discountFactors.zeroRatePointSensitivity(fixingStartDate).getSensitivity() * dfStartBar;
+    double zrEndBar = discountFactors.zeroRatePointSensitivity(fixingEndDate).getSensitivity() * dfEndBar;
+    CurveUnitParameterSensitivities dzrdpStart = discountFactors.unitParameterSensitivity(fixingStartDate);
+    CurveUnitParameterSensitivities dzrdpEnd = discountFactors.unitParameterSensitivity(fixingEndDate);
     // combine unit and point sensitivities at start and end
     CurveCurrencyParameterSensitivities sensStart = dzrdpStart.multipliedBy(pointSensitivity.getCurrency(), zrStartBar);
     CurveCurrencyParameterSensitivities sensEnd = dzrdpEnd.multipliedBy(pointSensitivity.getCurrency(), zrEndBar);

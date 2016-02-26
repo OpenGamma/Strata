@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -30,26 +31,27 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class ForwardIborRateObservationFnTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate FIXING_DATE = date(2014, 6, 30);
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
   private static final double RATE = 0.0123d;
-  private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATE, 1d);
+  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
+  private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M_OBS, 1d);
 
   public void test_rate() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
 
-    when(mockIbor.rate(FIXING_DATE)).thenReturn(RATE);
+    when(mockIbor.rate(GBP_LIBOR_3M_OBS)).thenReturn(RATE);
 
-    IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
-    assertEquals(obsFn.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), RATE);
+    assertEquals(obsFn.rate(GBP_LIBOR_3M_OBS, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), RATE);
 
     // explain
     ExplainMapBuilder builder = ExplainMap.builder();
-    assertEquals(obsFn.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov, builder), RATE);
+    assertEquals(obsFn.explainRate(GBP_LIBOR_3M_OBS, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov, builder), RATE);
 
     ExplainMap built = builder.build();
     assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
@@ -65,11 +67,10 @@ public class ForwardIborRateObservationFnTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
 
-    when(mockIbor.ratePointSensitivity(FIXING_DATE)).thenReturn(SENSITIVITY);
+    when(mockIbor.ratePointSensitivity(GBP_LIBOR_3M_OBS)).thenReturn(SENSITIVITY);
 
-    IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
-    assertEquals(obsFn.rateSensitivity(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), SENSITIVITY);
+    assertEquals(obsFn.rateSensitivity(GBP_LIBOR_3M_OBS, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), SENSITIVITY);
   }
 
 }

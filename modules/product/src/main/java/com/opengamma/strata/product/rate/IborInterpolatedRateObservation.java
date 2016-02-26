@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -42,65 +42,66 @@ public final class IborInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The shorter Ibor index.
+   * The shorter Ibor index observation.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex shortIndex;
+  private final IborRateObservation shortObservation;
   /**
-   * The longer Ibor index.
+   * The longer Ibor index observation.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex longIndex;
-  /**
-   * The date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
+  private final IborRateObservation longObservation;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code IborInterpolatedRateObservation} from two indices and fixing date.
+   * Creates an instance from two indices and fixing date.
    * <p>
    * The indices may be passed in any order.
    * 
    * @param index1  the first index
    * @param index2  the second index
    * @param fixingDate  the fixing date
-   * @return the interpolated IBOR rate
+   * @param refData  the reference data to use when resolving holiday calendars
+   * @return the interpolated rate observation
    */
-  public static IborInterpolatedRateObservation of(IborIndex index1, IborIndex index2, LocalDate fixingDate) {
-    ArgChecker.notNull(index1, "index1");
-    ArgChecker.notNull(index2, "index2");
-    ArgChecker.notNull(fixingDate, "fixingDate");
+  public static IborInterpolatedRateObservation of(
+      IborIndex index1,
+      IborIndex index2,
+      LocalDate fixingDate,
+      ReferenceData refData) {
+
     boolean inOrder = indicesInOrder(index1, index2, fixingDate);
+    IborRateObservation obs1 = IborRateObservation.of(index1, fixingDate, refData);
+    IborRateObservation obs2 = IborRateObservation.of(index2, fixingDate, refData);
     return IborInterpolatedRateObservation.builder()
-        .shortIndex(inOrder ? index1 : index2)
-        .longIndex(inOrder ? index2 : index1)
-        .fixingDate(fixingDate)
+        .shortObservation(inOrder ? obs1 : obs2)
+        .longObservation(inOrder ? obs2 : obs1)
         .build();
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
+    IborIndex shortIndex = shortObservation.getIndex();
+    IborIndex longIndex = longObservation.getIndex();
     if (!shortIndex.getCurrency().equals(longIndex.getCurrency())) {
       throw new IllegalArgumentException("Interpolation requires two indices in the same currency");
     }
     if (shortIndex.equals(longIndex)) {
       throw new IllegalArgumentException("Interpolation requires two different indices");
     }
-    if (!indicesInOrder(shortIndex, longIndex, fixingDate)) {
-      throw new IllegalArgumentException(
-          Messages.format("Interpolation indices passed in wrong order: {} {}", shortIndex, longIndex));
+    if (!shortObservation.getFixingDate().equals(longObservation.getFixingDate())) {
+      throw new IllegalArgumentException("Interpolation requires observations with same fixing date");
+    }
+    if (!indicesInOrder(shortIndex, longIndex, shortObservation.getFixingDate())) {
+      throw new IllegalArgumentException(Messages.format(
+          "Interpolation indices passed in wrong order: {} {}", shortIndex, longIndex));
     }
   }
 
@@ -110,10 +111,21 @@ public final class IborInterpolatedRateObservation
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the fixing date.
+   * 
+   * @return the fixing date
+   */
+  public LocalDate getFixingDate() {
+    // fixing date is the same for both observations
+    return shortObservation.getFixingDate();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    builder.add(shortIndex);
-    builder.add(longIndex);
+    builder.add(shortObservation.getIndex());
+    builder.add(longObservation.getIndex());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -144,15 +156,12 @@ public final class IborInterpolatedRateObservation
   }
 
   private IborInterpolatedRateObservation(
-      IborIndex shortIndex,
-      IborIndex longIndex,
-      LocalDate fixingDate) {
-    JodaBeanUtils.notNull(shortIndex, "shortIndex");
-    JodaBeanUtils.notNull(longIndex, "longIndex");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
-    this.shortIndex = shortIndex;
-    this.longIndex = longIndex;
-    this.fixingDate = fixingDate;
+      IborRateObservation shortObservation,
+      IborRateObservation longObservation) {
+    JodaBeanUtils.notNull(shortObservation, "shortObservation");
+    JodaBeanUtils.notNull(longObservation, "longObservation");
+    this.shortObservation = shortObservation;
+    this.longObservation = longObservation;
     validate();
   }
 
@@ -173,38 +182,26 @@ public final class IborInterpolatedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shorter Ibor index.
+   * Gets the shorter Ibor index observation.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
    * @return the value of the property, not null
    */
-  public IborIndex getShortIndex() {
-    return shortIndex;
+  public IborRateObservation getShortObservation() {
+    return shortObservation;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the longer Ibor index.
+   * Gets the longer Ibor index observation.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public IborIndex getLongIndex() {
-    return longIndex;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
+  public IborRateObservation getLongObservation() {
+    return longObservation;
   }
 
   //-----------------------------------------------------------------------
@@ -223,9 +220,8 @@ public final class IborInterpolatedRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborInterpolatedRateObservation other = (IborInterpolatedRateObservation) obj;
-      return JodaBeanUtils.equal(shortIndex, other.shortIndex) &&
-          JodaBeanUtils.equal(longIndex, other.longIndex) &&
-          JodaBeanUtils.equal(fixingDate, other.fixingDate);
+      return JodaBeanUtils.equal(shortObservation, other.shortObservation) &&
+          JodaBeanUtils.equal(longObservation, other.longObservation);
     }
     return false;
   }
@@ -233,19 +229,17 @@ public final class IborInterpolatedRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(shortIndex);
-    hash = hash * 31 + JodaBeanUtils.hashCode(longIndex);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(shortObservation);
+    hash = hash * 31 + JodaBeanUtils.hashCode(longObservation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("IborInterpolatedRateObservation{");
-    buf.append("shortIndex").append('=').append(shortIndex).append(',').append(' ');
-    buf.append("longIndex").append('=').append(longIndex).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
+    buf.append("shortObservation").append('=').append(shortObservation).append(',').append(' ');
+    buf.append("longObservation").append('=').append(JodaBeanUtils.toString(longObservation));
     buf.append('}');
     return buf.toString();
   }
@@ -261,28 +255,22 @@ public final class IborInterpolatedRateObservation
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code shortIndex} property.
+     * The meta-property for the {@code shortObservation} property.
      */
-    private final MetaProperty<IborIndex> shortIndex = DirectMetaProperty.ofImmutable(
-        this, "shortIndex", IborInterpolatedRateObservation.class, IborIndex.class);
+    private final MetaProperty<IborRateObservation> shortObservation = DirectMetaProperty.ofImmutable(
+        this, "shortObservation", IborInterpolatedRateObservation.class, IborRateObservation.class);
     /**
-     * The meta-property for the {@code longIndex} property.
+     * The meta-property for the {@code longObservation} property.
      */
-    private final MetaProperty<IborIndex> longIndex = DirectMetaProperty.ofImmutable(
-        this, "longIndex", IborInterpolatedRateObservation.class, IborIndex.class);
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", IborInterpolatedRateObservation.class, LocalDate.class);
+    private final MetaProperty<IborRateObservation> longObservation = DirectMetaProperty.ofImmutable(
+        this, "longObservation", IborInterpolatedRateObservation.class, IborRateObservation.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "shortIndex",
-        "longIndex",
-        "fixingDate");
+        "shortObservation",
+        "longObservation");
 
     /**
      * Restricted constructor.
@@ -293,12 +281,10 @@ public final class IborInterpolatedRateObservation
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1545478582:  // shortIndex
-          return shortIndex;
-        case 107618230:  // longIndex
-          return longIndex;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case -496986608:  // shortObservation
+          return shortObservation;
+        case -684321776:  // longObservation
+          return longObservation;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -320,39 +306,29 @@ public final class IborInterpolatedRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code shortIndex} property.
+     * The meta-property for the {@code shortObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> shortIndex() {
-      return shortIndex;
+    public MetaProperty<IborRateObservation> shortObservation() {
+      return shortObservation;
     }
 
     /**
-     * The meta-property for the {@code longIndex} property.
+     * The meta-property for the {@code longObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> longIndex() {
-      return longIndex;
-    }
-
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
+    public MetaProperty<IborRateObservation> longObservation() {
+      return longObservation;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1545478582:  // shortIndex
-          return ((IborInterpolatedRateObservation) bean).getShortIndex();
-        case 107618230:  // longIndex
-          return ((IborInterpolatedRateObservation) bean).getLongIndex();
-        case 1255202043:  // fixingDate
-          return ((IborInterpolatedRateObservation) bean).getFixingDate();
+        case -496986608:  // shortObservation
+          return ((IborInterpolatedRateObservation) bean).getShortObservation();
+        case -684321776:  // longObservation
+          return ((IborInterpolatedRateObservation) bean).getLongObservation();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -374,9 +350,8 @@ public final class IborInterpolatedRateObservation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborInterpolatedRateObservation> {
 
-    private IborIndex shortIndex;
-    private IborIndex longIndex;
-    private LocalDate fixingDate;
+    private IborRateObservation shortObservation;
+    private IborRateObservation longObservation;
 
     /**
      * Restricted constructor.
@@ -389,21 +364,18 @@ public final class IborInterpolatedRateObservation
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IborInterpolatedRateObservation beanToCopy) {
-      this.shortIndex = beanToCopy.getShortIndex();
-      this.longIndex = beanToCopy.getLongIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
+      this.shortObservation = beanToCopy.getShortObservation();
+      this.longObservation = beanToCopy.getLongObservation();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1545478582:  // shortIndex
-          return shortIndex;
-        case 107618230:  // longIndex
-          return longIndex;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case -496986608:  // shortObservation
+          return shortObservation;
+        case -684321776:  // longObservation
+          return longObservation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -412,14 +384,11 @@ public final class IborInterpolatedRateObservation
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1545478582:  // shortIndex
-          this.shortIndex = (IborIndex) newValue;
+        case -496986608:  // shortObservation
+          this.shortObservation = (IborRateObservation) newValue;
           break;
-        case 107618230:  // longIndex
-          this.longIndex = (IborIndex) newValue;
-          break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
+        case -684321776:  // longObservation
+          this.longObservation = (IborRateObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -454,62 +423,46 @@ public final class IborInterpolatedRateObservation
     @Override
     public IborInterpolatedRateObservation build() {
       return new IborInterpolatedRateObservation(
-          shortIndex,
-          longIndex,
-          fixingDate);
+          shortObservation,
+          longObservation);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the shorter Ibor index.
+     * Sets the shorter Ibor index observation.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-1M'.
-     * @param shortIndex  the new value, not null
+     * @param shortObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shortIndex(IborIndex shortIndex) {
-      JodaBeanUtils.notNull(shortIndex, "shortIndex");
-      this.shortIndex = shortIndex;
+    public Builder shortObservation(IborRateObservation shortObservation) {
+      JodaBeanUtils.notNull(shortObservation, "shortObservation");
+      this.shortObservation = shortObservation;
       return this;
     }
 
     /**
-     * Sets the longer Ibor index.
+     * Sets the longer Ibor index observation.
      * <p>
      * The rate to be paid is based on this index
      * It will be a well known market index such as 'GBP-LIBOR-3M'.
-     * @param longIndex  the new value, not null
+     * @param longObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder longIndex(IborIndex longIndex) {
-      JodaBeanUtils.notNull(longIndex, "longIndex");
-      this.longIndex = longIndex;
-      return this;
-    }
-
-    /**
-     * Sets the date of the index fixing.
-     * <p>
-     * This is an adjusted date with any business day applied.
-     * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
+    public Builder longObservation(IborRateObservation longObservation) {
+      JodaBeanUtils.notNull(longObservation, "longObservation");
+      this.longObservation = longObservation;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("IborInterpolatedRateObservation.Builder{");
-      buf.append("shortIndex").append('=').append(JodaBeanUtils.toString(shortIndex)).append(',').append(' ');
-      buf.append("longIndex").append('=').append(JodaBeanUtils.toString(longIndex)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
+      buf.append("shortObservation").append('=').append(JodaBeanUtils.toString(shortObservation)).append(',').append(' ');
+      buf.append("longObservation").append('=').append(JodaBeanUtils.toString(longObservation));
       buf.append('}');
       return buf.toString();
     }

@@ -134,7 +134,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(date, REF_DATA);
-    LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
+    LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
     CurveParameterMetadata metadata = node.metadata(date, REF_DATA);
     assertEquals(metadata.getLabel(), LABEL);
     assertTrue(metadata instanceof YearMonthCurveNodeMetadata);

@@ -50,8 +50,10 @@ public class RatePeriodSwapLegTest {
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
   private static final LocalDate DATE_2014_12_30 = date(2014, 12, 30);
   private static final LocalDate DATE_2014_01_02 = date(2014, 1, 2);
-  private static final IborRateObservation GBPLIBOR3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_06_28);
-  private static final IborRateObservation GBPLIBOR3M_2014_09_28 = IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_09_28);
+  private static final IborRateObservation GBPLIBOR3M_2014_06_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_06_28, REF_DATA);
+  private static final IborRateObservation GBPLIBOR3M_2014_09_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, DATE_2014_09_28, REF_DATA);
   private static final NotionalExchange NOTIONAL_EXCHANGE =
       NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 2000d));
   private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()

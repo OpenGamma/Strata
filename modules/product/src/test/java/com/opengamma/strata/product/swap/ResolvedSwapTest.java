@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -38,10 +39,12 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class ResolvedSwapTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
-  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28), REF_DATA);
   private static final NotionalExchange NOTIONAL_EXCHANGE =
       NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 2000d));
   private static final RateAccrualPeriod RAP = RateAccrualPeriod.builder()

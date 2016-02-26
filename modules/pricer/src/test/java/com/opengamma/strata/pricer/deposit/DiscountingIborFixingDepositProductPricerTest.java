@@ -36,8 +36,8 @@ public class DiscountingIborFixingDepositProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = ImmutableRatesProviderSimpleData.VAL_DATE;
-  private static final LocalDate START_DATE = EUR_EURIBOR_6M.calculateEffectiveFromFixing(VAL_DATE);
-  private static final LocalDate END_DATE = EUR_EURIBOR_6M.calculateMaturityFromEffective(START_DATE);
+  private static final LocalDate START_DATE = EUR_EURIBOR_6M.calculateEffectiveFromFixing(VAL_DATE, REF_DATA);
+  private static final LocalDate END_DATE = EUR_EURIBOR_6M.calculateMaturityFromEffective(START_DATE, REF_DATA);
   private static final double NOTIONAL = 100000000d;
   private static final double RATE = 0.0150;
   private static final BusinessDayAdjustment BD_ADJ = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
@@ -68,7 +68,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
   //-------------------------------------------------------------------------
   public void present_value_no_fixing() {
     double discountFactor = IMM_PROV_NOFIX.discountFactor(EUR, END_DATE);
-    double forwardRate = IMM_PROV_NOFIX.iborIndexRates(EUR_EURIBOR_6M).rate(RDEPOSIT.getFloatingRate().getFixingDate());
+    double forwardRate = IMM_PROV_NOFIX.iborIndexRates(EUR_EURIBOR_6M).rate(RDEPOSIT.getFloatingRate());
     CurrencyAmount computed = PRICER.presentValue(RDEPOSIT, IMM_PROV_NOFIX);
     double expected = NOTIONAL * discountFactor * (RATE - forwardRate) * RDEPOSIT.getYearFraction();
     assertEquals(computed.getCurrency(), EUR);

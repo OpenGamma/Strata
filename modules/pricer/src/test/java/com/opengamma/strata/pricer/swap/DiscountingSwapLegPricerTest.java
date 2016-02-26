@@ -20,19 +20,19 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_FLAT_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_NONE_SWAP_LEG_PAY_GBP;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY_USD;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_REC_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_FX_RESET_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_ACCRUAL_PERIOD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_ACCRUAL_PERIOD_2;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_CMP_FLAT_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP_MULTI;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY_USD;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_REC_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP_MULTI;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
@@ -57,7 +57,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -347,12 +346,10 @@ public class DiscountingSwapLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     ResolvedSwapLeg expSwapLeg = IBOR_SWAP_LEG_REC_GBP;
-    IborIndex index = GBP_LIBOR_3M;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
-    LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();
     LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate();
 
-    IborRateSensitivity fwdSense = IborRateSensitivity.of(index, fixingDate, ccy, 140.0);
+    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_OBSERVATION, 140.0);
     ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, paymentDate, -162.0);
     PointSensitivityBuilder sensiPeriod = fwdSense.combinedWith(dscSense);
     LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
@@ -448,10 +445,7 @@ public class DiscountingSwapLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
     ResolvedSwapLeg expSwapLeg = IBOR_SWAP_LEG_REC_GBP;
-    IborIndex index = GBP_LIBOR_3M;
-    Currency ccy = GBP_LIBOR_3M.getCurrency();
-    LocalDate fixingDate = IBOR_RATE_OBSERVATION.getFixingDate();
-    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(index, fixingDate, ccy, 140.0);
+    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(IBOR_RATE_OBSERVATION, 140.0);
     PointSensitivities expected = sensiPeriod.build();
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);

@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -70,6 +71,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 @Test
 public class DiscountingRatePaymentPeriodPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = VAL_DATE_2014_01_22;
   private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final LocalDate FX_DATE_1 = LocalDate.of(2014, 1, 22);
@@ -333,7 +335,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .startDate(CPN_DATE_1)
       .endDate(CPN_DATE_2)
       .yearFraction(ACCRUAL_FACTOR_1)
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_1))
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_1, REF_DATA))
       .gearing(GEARING)
       .spread(SPREAD)
       .build();
@@ -341,7 +343,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .startDate(CPN_DATE_2)
       .endDate(CPN_DATE_3)
       .yearFraction(ACCRUAL_FACTOR_2)
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_2))
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_2, REF_DATA))
       .gearing(GEARING)
       .spread(SPREAD)
       .build();
@@ -349,7 +351,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       .startDate(CPN_DATE_3)
       .endDate(CPN_DATE_4)
       .yearFraction(ACCRUAL_FACTOR_3)
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_3))
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_3, REF_DATA))
       .gearing(GEARING)
       .spread(SPREAD)
       .build();
@@ -408,7 +410,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     for (int i = 0; i < 3; ++i) {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
+      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1d);
       when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], simpleProv)).thenReturn(iborSense);
       when(obsFunc.rate(observation, dates[i], dates[i + 1], simpleProv)).thenReturn(rates[i]);
     }
@@ -438,7 +440,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     for (int i = 0; i < 3; ++i) {
       IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
           .getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
+      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1.0d);
       when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
       when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
@@ -472,7 +474,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     for (int i = 0; i < 3; ++i) {
       IborRateObservation observation =
           (IborRateObservation) period.getAccrualPeriods().get(i).getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(GBP_LIBOR_3M, dates[i], 1.0d);
+      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1.0d);
       when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
       when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
@@ -606,7 +608,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
       DiscountingRatePaymentPeriodPricer pricerDown = new DiscountingRatePaymentPeriodPricer(obsFuncDown);
       double up = pricerUp.forecastValue(payment, provNew);
       double down = pricerDown.forecastValue(payment, provNew);
-      IborRateSensitivity fwdSense = IborRateSensitivity.of(index, fixingDate, 0.5 * (up - down) / eps);
+      IborRateSensitivity fwdSense =
+          IborRateSensitivity.of(IborRateObservation.of(index, fixingDate, REF_DATA), 0.5 * (up - down) / eps);
       forwardRateSensi.add(fwdSense);
     }
     return forwardRateSensi;

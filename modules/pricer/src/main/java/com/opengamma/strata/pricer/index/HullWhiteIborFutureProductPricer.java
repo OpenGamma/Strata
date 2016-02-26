@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.index;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -72,7 +71,7 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
     double parRate = parRate(future, ratesProvider, hwProvider);
     return forward - parRate;
   }
@@ -93,11 +92,10 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
-    IborIndex index = future.getIndex();
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
+    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
+    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
+    double fixingYearFraction = future.getObservation().getYearFraction();
     double convexity = hwProvider.futuresConvexityFactor(future.getLastTradeDate(), fixingStartDate, fixingEndDate);
     return convexity * forward - (1d - convexity) / fixingYearFraction;
   }
@@ -117,11 +115,10 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    IborIndex index = future.getIndex();
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
+    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
     double convexity = hwProvider.futuresConvexityFactor(future.getLastTradeDate(), fixingStartDate, fixingEndDate);
-    IborRateSensitivity sensi = IborRateSensitivity.of(future.getIndex(), future.getFixingDate(), -convexity);
+    IborRateSensitivity sensi = IborRateSensitivity.of(future.getObservation(), -convexity);
     // The sensitivity should be to no currency or currency XXX. To avoid useless conversion, the dimension-less 
     // price sensitivity is reported in the future currency.
     return PointSensitivities.of(sensi);
@@ -140,11 +137,10 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getFixingDate());
-    IborIndex index = future.getIndex();
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(future.getFixingDate());
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
+    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
+    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
+    double fixingYearFraction = future.getObservation().getYearFraction();
     DoubleArray convexityDeriv = hwProvider.futuresConvexityFactorAdjoint(
         future.getLastTradeDate(), fixingStartDate, fixingEndDate).getDerivatives();
     convexityDeriv = convexityDeriv.multipliedBy(-forward - 1d / fixingYearFraction);

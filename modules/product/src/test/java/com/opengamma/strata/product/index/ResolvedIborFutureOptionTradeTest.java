@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.basics.PutCall.CALL;
+import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -20,10 +21,11 @@ import java.util.OptionalDouble;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link ResolvedIborFutureOptionTrade}.
@@ -31,6 +33,7 @@ import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 @Test
 public class ResolvedIborFutureOptionTradeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long QUANTITY = 35;
   private static final double INITIAL_PRICE = 0.015;
@@ -40,8 +43,7 @@ public class ResolvedIborFutureOptionTradeTest {
   private static final ResolvedIborFuture FUTURE = ResolvedIborFuture.builder()
       .currency(Currency.USD)
       .notional(1_000_000d)
-      .lastTradeDate(date(2015, 3, 16))
-      .index(IborIndices.USD_LIBOR_3M)
+      .observation(IborRateObservation.of(USD_LIBOR_3M, date(2015, 3, 16), REF_DATA))
       .build();
   private static final ResolvedIborFutureOption OPTION = ResolvedIborFutureOption.builder()
       .putCall(CALL)

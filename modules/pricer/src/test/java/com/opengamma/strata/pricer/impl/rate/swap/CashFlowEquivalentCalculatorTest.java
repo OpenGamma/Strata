@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -48,6 +49,8 @@ import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 @Test
 public class CashFlowEquivalentCalculatorTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // setup
   private static final LocalDate PAYMENT1 = date(2014, 10, 6);
   private static final LocalDate START1 = date(2014, 7, 2);
@@ -61,17 +64,20 @@ public class CashFlowEquivalentCalculatorTest {
   private static final double PAY_YC2 = 0.249;
   private static final double RATE = 0.0123d;
   private static final double NOTIONAL = 100_000_000;
+  private static final IborRateObservation GBP_LIBOR_3M_OBS1 = IborRateObservation.of(GBP_LIBOR_3M, FIXING1, REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_OBS2 = IborRateObservation.of(GBP_LIBOR_3M, FIXING2, REF_DATA);
+
   // accrual periods
   private static final  RateAccrualPeriod IBOR1 = RateAccrualPeriod.builder()
       .startDate(START1)
       .endDate(END1)
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, FIXING1))
+      .rateObservation(GBP_LIBOR_3M_OBS1)
       .yearFraction(PAY_YC1)
       .build();
   private static final  RateAccrualPeriod IBOR2 = RateAccrualPeriod.builder()
       .startDate(START2)
       .endDate(END2)
-      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, FIXING2))
+      .rateObservation(GBP_LIBOR_3M_OBS2)
       .yearFraction(PAY_YC2)
       .build();
   private static final  RateAccrualPeriod FIXED1 = RateAccrualPeriod.builder()
@@ -144,19 +150,19 @@ public class CashFlowEquivalentCalculatorTest {
     NotionalExchange fixedPayment1 = NotionalExchange.of(PAYMENT1, CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC1));
     NotionalExchange fixedPayment2 = NotionalExchange.of(PAYMENT2, CurrencyAmount.of(GBP, NOTIONAL * RATE * PAY_YC2));
     // expected payments from ibor leg
-    LocalDate fixingSTART1 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING1);
+    LocalDate fixingSTART1 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING1, REF_DATA);
     double fixedYearFraction1 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART1,
-        GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART1));
-    double beta1 = (1d + fixedYearFraction1 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(FIXING1))
+        GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART1, REF_DATA));
+    double beta1 = (1d + fixedYearFraction1 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_OBS1))
         * PROVIDER.discountFactor(GBP, PAYMENT1) / PROVIDER.discountFactor(GBP, fixingSTART1);
     NotionalExchange iborPayment11 =
         NotionalExchange.of(fixingSTART1, CurrencyAmount.of(GBP, -NOTIONAL * beta1 * PAY_YC1 / fixedYearFraction1));
     NotionalExchange iborPayment12 =
         NotionalExchange.of(PAYMENT1, CurrencyAmount.of(GBP, NOTIONAL * PAY_YC1 / fixedYearFraction1));
-    LocalDate fixingSTART2 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING2);
+    LocalDate fixingSTART2 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING2, REF_DATA);
     double fixedYearFraction2 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART2,
-        GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART2));
-    double beta2 = (1d + fixedYearFraction2 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(FIXING2))
+        GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART2, REF_DATA));
+    double beta2 = (1d + fixedYearFraction2 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_OBS2))
         * PROVIDER.discountFactor(GBP, PAYMENT2) / PROVIDER.discountFactor(GBP, fixingSTART2);
     NotionalExchange iborPayment21 =
         NotionalExchange.of(fixingSTART2, CurrencyAmount.of(GBP, -NOTIONAL * beta2 * PAY_YC2 / fixedYearFraction2));

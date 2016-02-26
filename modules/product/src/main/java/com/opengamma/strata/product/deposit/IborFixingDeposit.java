@@ -182,7 +182,7 @@ public final class IborFixingDeposit
         .yearFraction(yearFraction)
         .currency(getCurrency())
         .notional(buySell.normalize(notional))
-        .floatingRate(IborRateObservation.of(index, fixingDate))
+        .floatingRate(IborRateObservation.of(index, fixingDate, refData))
         .fixedRate(fixedRate)
         .build();
   }

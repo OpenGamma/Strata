@@ -117,7 +117,7 @@ public class IborFixingDepositTest {
     LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
     IborRateObservation expectedObservation = IborRateObservation.of(
-        GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE));
+        GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE), REF_DATA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), expectedEndDate);

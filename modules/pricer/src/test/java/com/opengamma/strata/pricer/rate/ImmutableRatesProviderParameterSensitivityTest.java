@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
@@ -46,6 +47,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Tests related to {@link ImmutableRatesProvider} for the computation of curve parameters sensitivities.
@@ -53,6 +55,7 @@ import com.opengamma.strata.pricer.datasets.StandardDataSets;
 @Test
 public class ImmutableRatesProviderParameterSensitivityTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final Currency USD = Currency.USD;
@@ -71,13 +74,13 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final PointSensitivities POINT_ZERO_4 =
       PointSensitivities.of(ZeroRateSensitivity.of(EUR, DATE_1, USD, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_1 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, AMOUNT_1));
+      PointSensitivities.of(IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_1, REF_DATA), AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_2 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_3, AMOUNT_1));
+      PointSensitivities.of(IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_3, REF_DATA), AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_3 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, EUR, AMOUNT_1));
+      PointSensitivities.of(IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_1, REF_DATA), EUR, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_4 =
-      PointSensitivities.of(IborRateSensitivity.of(EUR_EURIBOR_3M, DATE_1, EUR, AMOUNT_1));
+      PointSensitivities.of(IborRateSensitivity.of(IborRateObservation.of(EUR_EURIBOR_3M, DATE_1, REF_DATA), EUR, AMOUNT_1));
   private static final PointSensitivities POINT_ON_1 =
       PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_1, AMOUNT_1));
   private static final PointSensitivities POINT_ON_2 =

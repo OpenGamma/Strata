@@ -190,7 +190,7 @@ public class IborCapFloorLegTest {
           .paymentDate(PAYMENT_OFFSET.adjust(end))
           .notional(NOTIONALS[i])
           .rateObservation(
-              IborRateObservation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end)))
+              IborRateObservation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end), REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }
@@ -229,7 +229,7 @@ public class IborCapFloorLegTest {
           .paymentDate(PAYMENT_OFFSET.adjust(end))
           .notional(-NOTIONALS[i])
           .rateObservation(
-              IborRateObservation.of(EUR_EURIBOR_3M, RATE_CALCULATION.getFixingDateOffset().adjust(start)))
+              IborRateObservation.of(EUR_EURIBOR_3M, RATE_CALCULATION.getFixingDateOffset().adjust(start), REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }

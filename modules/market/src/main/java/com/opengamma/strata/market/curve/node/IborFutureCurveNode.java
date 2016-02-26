@@ -134,7 +134,7 @@ public final class IborFutureCurveNode
   public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate, refData);
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(referenceDate),
+        () -> calculateEnd(referenceDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
     if (label.isEmpty()) {
       return YearMonthCurveNodeMetadata.of(nodeDate, YearMonth.from(referenceDate));
@@ -143,8 +143,8 @@ public final class IborFutureCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate referenceDate) {
-    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
+  private LocalDate calculateEnd(LocalDate referenceDate, ReferenceData refData) {
+    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, refData);
   }
 
   // calculate the last fixing date
