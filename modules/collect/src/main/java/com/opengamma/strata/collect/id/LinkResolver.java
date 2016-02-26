@@ -90,7 +90,7 @@ public interface LinkResolver {
    * Resolves all the links within the specified list of beans.
    * <p>
    * This takes the specified list of beans and resolves any links.
-   * Each bean in the list is checked to see if it implements {@link Resolvable}.
+   * Each bean in the list is checked to see if it implements {@link LinkResolvable}.
    * If the target is not resolvable, or the target is already resolved,
    * then the input bean will be returned.
    * <p>
@@ -110,7 +110,7 @@ public interface LinkResolver {
   /**
    * Resolves all the links within the specified bean.
    * <p>
-   * This takes the specified bean and resolves any links if the object implements {@link Resolvable}.
+   * This takes the specified bean and resolves any links if the object implements {@link LinkResolvable}.
    * If the target is not resolvable, or the target is already resolved,
    * then the specified input bean will be returned.
    * <p>
@@ -123,7 +123,7 @@ public interface LinkResolver {
    */
   @SuppressWarnings("unchecked")
   public default <B> B resolveLinksIn(B bean) {
-    return (bean instanceof Resolvable ? ((Resolvable<B>) bean).resolveLinks(this) : bean);
+    return (bean instanceof LinkResolvable ? ((LinkResolvable<B>) bean).resolveLinks(this) : bean);
   }
 
   /**
@@ -141,7 +141,7 @@ public interface LinkResolver {
    *  resolver.resolveLinksIn(bean, bean.getFoo(), resolved -> bean.toBuilder().foo(resolved).build());
    * </pre>
    * <p>
-   * This method is typically invoked from implementations of {@link Resolvable#resolveLinks(LinkResolver)}.
+   * This method is typically invoked from implementations of {@link LinkResolvable#resolveLinks(LinkResolver)}.
    * In that case, the above example would use {@code this} instead of {@code bean}.
    * 
    * @param <B>  the type of the beans
@@ -152,9 +152,9 @@ public interface LinkResolver {
    * @return the updated bean
    */
   public default <B, T> B resolveLinksIn(B bean, T target, Function<T, B> updateFn) {
-    if (target instanceof Resolvable) {
+    if (target instanceof LinkResolvable) {
       @SuppressWarnings("unchecked")
-      Resolvable<T> resolvableTarget = (Resolvable<T>) target;
+      LinkResolvable<T> resolvableTarget = (LinkResolvable<T>) target;
       T resolved = resolvableTarget.resolveLinks(this);
       if (resolved != target) {
         return updateFn.apply(resolved);

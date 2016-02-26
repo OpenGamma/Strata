@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 @BeanDefinition
 public final class MockIdentifiable
-    implements IdentifiableBean, Resolvable<MockIdentifiable>, ImmutableBean, Serializable {
+    implements IdentifiableBean, LinkResolvable<MockIdentifiable>, ImmutableBean, Serializable {
 
   /**
    * Identifier of MOCK1.

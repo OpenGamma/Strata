@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityLink;
@@ -50,7 +50,7 @@ import com.opengamma.strata.product.SecurityLink;
 @SuppressWarnings("unchecked")
 @BeanDefinition
 public final class BondFuture
-    implements Product, Resolvable<BondFuture>, ImmutableBean, Serializable {
+    implements Product, LinkResolvable<BondFuture>, ImmutableBean, Serializable {
 
   /**
    * The basket of deliverable bonds.

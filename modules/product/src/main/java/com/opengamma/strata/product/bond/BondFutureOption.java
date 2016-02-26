@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolutionException;
 import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.Resolvable;
+import com.opengamma.strata.collect.id.LinkResolvable;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.Security;
@@ -51,7 +51,7 @@ import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
  */
 @BeanDefinition
 public final class BondFutureOption
-    implements Product, Resolvable<BondFutureOption>, ImmutableBean, Serializable {
+    implements Product, LinkResolvable<BondFutureOption>, ImmutableBean, Serializable {
 
   /**
    * Whether the option is put or call.
