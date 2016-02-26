@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -42,6 +43,7 @@ import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
 @Test
 public class InflationRateCalculationTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_2015_01_06 = date(2015, 1, 6);
   private static final LocalDate DATE_2015_01_05 = date(2015, 1, 5);
@@ -157,7 +159,7 @@ public class InflationRateCalculationTest {
                 YearMonth.from(DATE_2016_01_07).minusMonths(3),
                 YearMonth.from(DATE_2017_01_05).minusMonths(3)))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -198,7 +200,7 @@ public class InflationRateCalculationTest {
             YearMonth.from(DATE_2017_01_05).minusMonths(3),
             weight3))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 

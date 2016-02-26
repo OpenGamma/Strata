@@ -40,6 +40,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
@@ -57,6 +58,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class IborRateCalculationTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_02 = date(2014, 1, 2);
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
@@ -222,7 +224,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -244,7 +246,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_FINAL_STUB))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_FINAL_STUB, ACCRUAL_SCHEDULE_FINAL_STUB);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_FINAL_STUB, ACCRUAL_SCHEDULE_FINAL_STUB, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -266,7 +268,8 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB);
+    ImmutableList<RateAccrualPeriod> periods =
+        test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -288,7 +291,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -313,7 +316,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -337,7 +340,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
         .rateObservation(IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -361,7 +364,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -384,7 +387,8 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB);
+    ImmutableList<RateAccrualPeriod> periods =
+        test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -407,7 +411,7 @@ public class IborRateCalculationTest {
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
         .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -448,7 +452,7 @@ public class IborRateCalculationTest {
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
         .rateObservation(IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
   }
 
@@ -489,7 +493,7 @@ public class IborRateCalculationTest {
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
         .rateObservation(IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
   }
 
@@ -529,7 +533,7 @@ public class IborRateCalculationTest {
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
         .rateObservation(IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
   }
 
@@ -567,7 +571,7 @@ public class IborRateCalculationTest {
         .yearFraction(accrual2.yearFraction(ACT_360, schedule))
         .rateObservation(IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
   }
 
@@ -600,20 +604,8 @@ public class IborRateCalculationTest {
         .gearing(2d)
         .spread(-0.025d)
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
-  }
-
-  public void test_expand_null() {
-    IborRateCalculation test = IborRateCalculation.builder()
-        .dayCount(ACT_365F)
-        .index(GBP_LIBOR_3M)
-        .fixingDateOffset(MINUS_TWO_DAYS)
-        .build();
-    Schedule schedule = Schedule.ofTerm(SchedulePeriod.of(DATE_01_05, DATE_02_05));
-    assertThrowsIllegalArg(() -> test.expand(schedule, null));
-    assertThrowsIllegalArg(() -> test.expand(null, schedule));
-    assertThrowsIllegalArg(() -> test.expand(null, null));
   }
 
   //-------------------------------------------------------------------------

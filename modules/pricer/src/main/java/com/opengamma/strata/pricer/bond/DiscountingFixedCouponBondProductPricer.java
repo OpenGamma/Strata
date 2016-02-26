@@ -11,7 +11,7 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjuster;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
@@ -519,7 +519,7 @@ public class DiscountingFixedCouponBondProductPricer {
     double fixedRate = bond.getFixedRate();
     double accruedInterest = bond.getDayCount()
         .yearFraction(previousAccrualDate, settlementDate, scheduleUnadjusted) * fixedRate * notional;
-    DaysAdjustment exCouponDays = bond.getExCouponPeriod();
+    DaysAdjuster exCouponDays = bond.getExCouponPeriod();
     double result = 0d;
     if (exCouponDays.getDays() != 0 && settlementDate.isAfter(exCouponDays.adjust(paymentDate))) {
       result = accruedInterest - notional * fixedRate *

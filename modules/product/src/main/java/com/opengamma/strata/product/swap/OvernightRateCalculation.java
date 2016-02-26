@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -191,9 +192,11 @@ public final class OvernightRateCalculation
   }
 
   @Override
-  public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
-    ArgChecker.notNull(accrualSchedule, "accrualSchedule");
-    ArgChecker.notNull(paymentSchedule, "paymentSchedule");
+  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(
+      Schedule accrualSchedule,
+      Schedule paymentSchedule,
+      ReferenceData refData) {
+
     // resolve data by schedule
     List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule.getPeriods());

@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -40,6 +41,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 @Test
 public class PaymentScheduleTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
   private static final LocalDate DATE_01_08 = date(2014, 1, 8);
@@ -109,7 +111,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P1M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(schedule, ACCRUAL_SCHEDULE);
   }
 
@@ -118,7 +120,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P1M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_SINGLE);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_SINGLE, REF_DATA);
     assertEquals(schedule, ACCRUAL_SCHEDULE_SINGLE);
   }
 
@@ -127,7 +129,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(TERM)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(schedule, ACCRUAL_SCHEDULE_TERM);
   }
 
@@ -136,7 +138,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P3M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
     Schedule expected = Schedule.builder()
         .periods(SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05))
         .frequency(P3M)
@@ -150,7 +152,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P2M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
     Schedule expected = Schedule.builder()
         .periods(
             SchedulePeriod.of(DATE_01_06, DATE_03_05, DATE_01_05, DATE_03_05),
@@ -166,7 +168,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P2M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_INITIAL_STUB);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
     Schedule expected = Schedule.builder()
         .periods(
             ACCRUAL1STUB,
@@ -183,7 +185,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P2M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_FINAL_STUB);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_FINAL_STUB, REF_DATA);
     Schedule expected = Schedule.builder()
         .periods(
             SchedulePeriod.of(DATE_01_06, DATE_03_05, DATE_01_05, DATE_03_05),
@@ -199,7 +201,7 @@ public class PaymentScheduleTest {
         .paymentFrequency(P2M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_STUBS);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(schedule, ACCRUAL_SCHEDULE_STUBS.toBuilder().frequency(P2M).build());
   }
 

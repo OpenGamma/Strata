@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
@@ -125,7 +126,7 @@ public final class TermDeposit
   //-------------------------------------------------------------------------
   @Override
   public ResolvedTermDeposit resolve(ReferenceData refData) {
-    BusinessDayAdjustment bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE);
+    DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).toDateAdjuster(refData);
     LocalDate start = bda.adjust(startDate);
     LocalDate end = bda.adjust(endDate);
     double yearFraction = dayCount.yearFraction(start, end);

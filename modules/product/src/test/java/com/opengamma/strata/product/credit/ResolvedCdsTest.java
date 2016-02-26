@@ -23,7 +23,7 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayAdjuster;
 import com.opengamma.strata.basics.schedule.Frequency;
 
 /**
@@ -63,7 +63,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
+        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY))
         .referenceInformation(SingleNameReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())
@@ -82,7 +82,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
+        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY))
         .referenceInformation(IndexReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())

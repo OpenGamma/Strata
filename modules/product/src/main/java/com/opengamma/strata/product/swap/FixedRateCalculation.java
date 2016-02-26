@@ -27,10 +27,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 
 /**
@@ -90,9 +90,11 @@ public final class FixedRateCalculation
   }
 
   @Override
-  public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
-    ArgChecker.notNull(accrualSchedule, "accrualSchedule");
-    ArgChecker.notNull(paymentSchedule, "paymentSchedule");
+  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(
+      Schedule accrualSchedule,
+      Schedule paymentSchedule,
+      ReferenceData refData) {
+
     // resolve data by schedule
     List<Double> resolvedRates = rate.resolveValues(accrualSchedule.getPeriods());
     // build accrual periods

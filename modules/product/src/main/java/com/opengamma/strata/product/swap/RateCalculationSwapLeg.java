@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swap;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -145,15 +146,16 @@ public final class RateCalculationSwapLeg
   public ResolvedSwapLeg resolve(ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
     Schedule resolvedAccruals = accrualSchedule.createSchedule();
-    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
-    List<RateAccrualPeriod> accrualPeriods = calculation.expand(resolvedAccruals, resolvedPayments);
+    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
+    List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
-        resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive);
+        resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive, refData);
+    LocalDate startDate = accrualPeriods.get(0).getStartDate();
     return ResolvedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
-        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate().adjusted(refData)))
+        .paymentEvents(notionalSchedule.createEvents(payPeriods, startDate))
         .build();
   }
 

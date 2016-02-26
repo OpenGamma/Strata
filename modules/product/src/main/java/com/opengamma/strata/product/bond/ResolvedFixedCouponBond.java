@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjuster;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.id.StandardId;
@@ -121,7 +121,7 @@ public final class ResolvedFixedCouponBond
    * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment settlementDateOffset;
+  private final DaysAdjuster settlementDateOffset;
   /**
    * Ex-coupon period. 
    * <p>
@@ -133,7 +133,7 @@ public final class ResolvedFixedCouponBond
    * stored in this field should be zero or negative. 
    */
   @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment exCouponPeriod;
+  private final DaysAdjuster exCouponPeriod;
 
   //-------------------------------------------------------------------------
   /**
@@ -218,8 +218,8 @@ public final class ResolvedFixedCouponBond
       DayCount dayCount,
       YieldConvention yieldConvention,
       StandardId legalEntityId,
-      DaysAdjustment settlementDateOffset,
-      DaysAdjustment exCouponPeriod) {
+      DaysAdjuster settlementDateOffset,
+      DaysAdjuster exCouponPeriod) {
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
     JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
@@ -348,7 +348,7 @@ public final class ResolvedFixedCouponBond
    * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getSettlementDateOffset() {
+  public DaysAdjuster getSettlementDateOffset() {
     return settlementDateOffset;
   }
 
@@ -364,7 +364,7 @@ public final class ResolvedFixedCouponBond
    * stored in this field should be zero or negative.
    * @return the value of the property, not null
    */
-  public DaysAdjustment getExCouponPeriod() {
+  public DaysAdjuster getExCouponPeriod() {
     return exCouponPeriod;
   }
 
@@ -478,13 +478,13 @@ public final class ResolvedFixedCouponBond
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
-    private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
-        this, "settlementDateOffset", ResolvedFixedCouponBond.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjuster> settlementDateOffset = DirectMetaProperty.ofImmutable(
+        this, "settlementDateOffset", ResolvedFixedCouponBond.class, DaysAdjuster.class);
     /**
      * The meta-property for the {@code exCouponPeriod} property.
      */
-    private final MetaProperty<DaysAdjustment> exCouponPeriod = DirectMetaProperty.ofImmutable(
-        this, "exCouponPeriod", ResolvedFixedCouponBond.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjuster> exCouponPeriod = DirectMetaProperty.ofImmutable(
+        this, "exCouponPeriod", ResolvedFixedCouponBond.class, DaysAdjuster.class);
     /**
      * The meta-properties.
      */
@@ -607,7 +607,7 @@ public final class ResolvedFixedCouponBond
      * The meta-property for the {@code settlementDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> settlementDateOffset() {
+    public MetaProperty<DaysAdjuster> settlementDateOffset() {
       return settlementDateOffset;
     }
 
@@ -615,7 +615,7 @@ public final class ResolvedFixedCouponBond
      * The meta-property for the {@code exCouponPeriod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DaysAdjustment> exCouponPeriod() {
+    public MetaProperty<DaysAdjuster> exCouponPeriod() {
       return exCouponPeriod;
     }
 
@@ -669,8 +669,8 @@ public final class ResolvedFixedCouponBond
     private DayCount dayCount;
     private YieldConvention yieldConvention;
     private StandardId legalEntityId;
-    private DaysAdjustment settlementDateOffset;
-    private DaysAdjustment exCouponPeriod;
+    private DaysAdjuster settlementDateOffset;
+    private DaysAdjuster exCouponPeriod;
 
     /**
      * Restricted constructor.
@@ -747,10 +747,10 @@ public final class ResolvedFixedCouponBond
           this.legalEntityId = (StandardId) newValue;
           break;
         case 135924714:  // settlementDateOffset
-          this.settlementDateOffset = (DaysAdjustment) newValue;
+          this.settlementDateOffset = (DaysAdjuster) newValue;
           break;
         case 1408037338:  // exCouponPeriod
-          this.exCouponPeriod = (DaysAdjustment) newValue;
+          this.exCouponPeriod = (DaysAdjuster) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -914,7 +914,7 @@ public final class ResolvedFixedCouponBond
      * @param settlementDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder settlementDateOffset(DaysAdjustment settlementDateOffset) {
+    public Builder settlementDateOffset(DaysAdjuster settlementDateOffset) {
       JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
       this.settlementDateOffset = settlementDateOffset;
       return this;
@@ -932,7 +932,7 @@ public final class ResolvedFixedCouponBond
      * @param exCouponPeriod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder exCouponPeriod(DaysAdjustment exCouponPeriod) {
+    public Builder exCouponPeriod(DaysAdjuster exCouponPeriod) {
       JodaBeanUtils.notNull(exCouponPeriod, "exCouponPeriod");
       this.exCouponPeriod = exCouponPeriod;
       return this;

@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -45,6 +46,7 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
 @Test
 public class OvernightRateCalculationTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
@@ -125,7 +127,7 @@ public class OvernightRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
         .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 0))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -146,7 +148,7 @@ public class OvernightRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
         .rateObservation(OvernightCompoundedRateObservation.of(CHF_TOIS, date(2014, 3, 4), date(2014, 4, 4), 0))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -168,7 +170,7 @@ public class OvernightRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
         .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -190,7 +192,7 @@ public class OvernightRateCalculationTest {
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
         .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -222,19 +224,8 @@ public class OvernightRateCalculationTest {
         .gearing(2d)
         .spread(-0.025d)
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
-  }
-
-  public void test_expand_null() {
-    OvernightRateCalculation test = OvernightRateCalculation.builder()
-        .dayCount(ACT_365F)
-        .index(GBP_SONIA)
-        .build();
-    Schedule schedule = Schedule.ofTerm(SchedulePeriod.of(DATE_01_05, DATE_02_05));
-    assertThrowsIllegalArg(() -> test.expand(schedule, null));
-    assertThrowsIllegalArg(() -> test.expand(null, schedule));
-    assertThrowsIllegalArg(() -> test.expand(null, null));
   }
 
   //-------------------------------------------------------------------------

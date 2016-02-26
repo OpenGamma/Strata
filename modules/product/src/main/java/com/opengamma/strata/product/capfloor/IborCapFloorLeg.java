@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
@@ -192,11 +193,14 @@ public final class IborCapFloorLeg
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
+    DateAdjuster paymentDateAdjuster = paymentDateOffset.toDateAdjuster(refData);
+    DateAdjuster fixingDateAdjuster = calculation.getFixingDateOffset().toDateAdjuster(refData);
+
     ImmutableList.Builder<IborCapletFloorletPeriod> periodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      LocalDate paymentDate = paymentDateOffset.adjust(period.getEndDate());
-      LocalDate fixingDate = calculation.getFixingDateOffset().adjust(
+      LocalDate paymentDate = paymentDateAdjuster.adjust(period.getEndDate());
+      LocalDate fixingDate = fixingDateAdjuster.adjust(
           (calculation.getFixingRelativeTo().equals(FixingRelativeTo.PERIOD_START)) ?
               period.getStartDate() : period.getEndDate());
       IborRateObservation observation = IborRateObservation.of(calculation.getIndex(), fixingDate);

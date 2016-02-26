@@ -8,7 +8,6 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -19,6 +18,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -33,6 +33,8 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
  */
 @Test
 public class FixedRateCalculationTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   public void test_of() {
     FixedRateCalculation test = FixedRateCalculation.of(0.025d, ACT_365F);
@@ -87,7 +89,7 @@ public class FixedRateCalculationTest {
         .yearFraction(period3.yearFraction(ACT_365F, schedule))
         .rateObservation(FixedRateObservation.of(0.025d))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
@@ -119,19 +121,8 @@ public class FixedRateCalculationTest {
         .yearFraction(period3.yearFraction(ACT_365F, schedule))
         .rateObservation(FixedRateObservation.of(0.015d))
         .build();
-    ImmutableList<RateAccrualPeriod> periods = test.expand(schedule, schedule);
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
-  }
-
-  public void test_expand_null() {
-    FixedRateCalculation test = FixedRateCalculation.builder()
-        .dayCount(ACT_365F)
-        .rate(ValueSchedule.of(0.025d))
-        .build();
-    Schedule schedule = Schedule.ofTerm(SchedulePeriod.of(date(2014, 1, 5), date(2014, 7, 5)));
-    assertThrowsIllegalArg(() -> test.expand(schedule, null));
-    assertThrowsIllegalArg(() -> test.expand(null, schedule));
-    assertThrowsIllegalArg(() -> test.expand(null, null));
   }
 
   //-------------------------------------------------------------------------

@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -255,12 +256,14 @@ public final class CmsLeg
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
+    DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);
+    DateAdjuster paymentDateAdjuster = paymentDateOffset.toDateAdjuster(refData);
     ImmutableList.Builder<CmsPeriod> cmsPeriodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      LocalDate fixingDate = fixingDateOffset.adjust(
+      LocalDate fixingDate = fixingDateAdjuster.adjust(
           (fixingRelativeTo.equals(FixingRelativeTo.PERIOD_START)) ? period.getStartDate() : period.getEndDate());
-      LocalDate paymentDate = paymentDateOffset.adjust(period.getEndDate());
+      LocalDate paymentDate = paymentDateAdjuster.adjust(period.getEndDate());
       double signedNotional = payReceive.normalize(notionals.get(i));
       cmsPeriodsBuild.add(CmsPeriod.builder()
           .currency(currency)

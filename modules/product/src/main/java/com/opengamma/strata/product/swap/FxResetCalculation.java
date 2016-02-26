@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -26,8 +27,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.Messages;
 
@@ -105,16 +108,25 @@ public final class FxResetCalculation
 
   //-------------------------------------------------------------------------
   /**
-   * Applies this {@code FxResetCalculation} to the the specified period.
+   * Resolves this adjustment using the specified reference data.
    * <p>
+   * Calling this method resolves the holiday calendar, returning a function that
+   * can convert a {@code SchedulePeriod} to an {@code FxReset}.
+   * 
    * The conversion locks the fixing date based on the specified schedule period
    * and the data held in this object.
    * 
-   * @param period  the schedule period
-   * @return the resolved reset
+   * @param refData  the reference data to use when resolving
+   * @return the resolved function
    */
-  public FxReset applyToPeriod(SchedulePeriod period) {
-    LocalDate fixingDate = fixingDateOffset.adjust(fixingRelativeTo.selectBaseDate(period));
+  Function<SchedulePeriod, FxReset> resolve(ReferenceData refData) {
+    DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);
+    return period -> buildFxReset(period, fixingDateAdjuster);
+  }
+
+  // build the FxReset
+  private FxReset buildFxReset(SchedulePeriod period, DateAdjuster fixingDateAdjuster) {
+    LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(period));
     return FxReset.of(index, referenceCurrency, fixingDate);
   }
 

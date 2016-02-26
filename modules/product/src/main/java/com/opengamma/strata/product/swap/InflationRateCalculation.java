@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -154,9 +155,11 @@ public final class InflationRateCalculation
   }
 
   @Override
-  public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
-    ArgChecker.notNull(accrualSchedule, "accrualSchedule");
-    ArgChecker.notNull(paymentSchedule, "paymentSchedule");
+  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(
+      Schedule accrualSchedule,
+      Schedule paymentSchedule,
+      ReferenceData refData) {
+
     // resolve data by schedule
     List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
     // build accrual periods

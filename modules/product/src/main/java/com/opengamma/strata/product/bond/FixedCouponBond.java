@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -158,6 +159,8 @@ public final class FixedCouponBond
   public ResolvedFixedCouponBond resolve(ReferenceData refData) {
     Schedule adjustedSchedule = periodicSchedule.createSchedule();
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
+    DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.toDateAdjuster(refData);
+
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
@@ -168,7 +171,7 @@ public final class FixedCouponBond
           .unadjustedEndDate(period.getUnadjustedEndDate())
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .detachmentDate(exCouponPeriod.adjust(period.getEndDate()))
+          .detachmentDate(exCouponPeriodAdjuster.adjust(period.getEndDate()))
           .notional(notional)
           .currency(currency)
           .fixedRate(fixedRate)
@@ -186,8 +189,8 @@ public final class FixedCouponBond
         .fixedRate(fixedRate)
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
-        .settlementDateOffset(settlementDateOffset)
-        .exCouponPeriod(exCouponPeriod)
+        .settlementDateOffset(settlementDateOffset.resolve(refData))
+        .exCouponPeriod(exCouponPeriod.resolve(refData))
         .build();
   }
 
