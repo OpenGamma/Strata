@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -356,21 +356,21 @@ public final class Schedule
   //-------------------------------------------------------------------------
   /**
    * Converts this schedule to a schedule where all the start and end dates are
-   * adjusted using the specified adjustment.
+   * adjusted using the specified adjuster.
    * <p>
    * The result will have the same number of periods, but each start date and
-   * end date is replaced by the adjusted date as returned by the adjustment.
+   * end date is replaced by the adjusted date as returned by the adjuster.
    * The unadjusted start date and unadjusted end date of each period will not be changed.
    * 
-   * @param businessDayAdjustment  the adjustment to use
+   * @param adjuster  the adjuster to use
    * @return the adjusted schedule
    */
-  public Schedule toAdjusted(BusinessDayAdjustment businessDayAdjustment) {
+  public Schedule toAdjusted(DateAdjuster adjuster) {
     // implementation needs to return 'this' if unchanged to optimize downstream code
     boolean adjusted = false;
     ImmutableList.Builder<SchedulePeriod> builder = ImmutableList.builder();
     for (SchedulePeriod period : periods) {
-      SchedulePeriod adjPeriod = period.toAdjusted(businessDayAdjustment);
+      SchedulePeriod adjPeriod = period.toAdjusted(adjuster);
       builder.add(adjPeriod);
       adjusted |= (adjPeriod != period);
     }

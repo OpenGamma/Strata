@@ -106,23 +106,23 @@ public class FixedCouponBondTest {
     int expNum = 20;
     assertEquals(periodicPayments.size(), expNum);
     LocalDate unadjustedEnd = END_DATE;
-    Schedule unadjusted = PERIOD_SCHEDULE.createSchedule().toUnadjusted();
+    Schedule unadjusted = PERIOD_SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     for (int i = 0; i < expNum; ++i) {
       FixedCouponBondPaymentPeriod payment = periodicPayments.get(expNum - 1 - i);
       assertEquals(payment.getCurrency(), EUR);
       assertEquals(payment.getNotional(), NOTIONAL);
       assertEquals(payment.getFixedRate(), FIXED_RATE);
       assertEquals(payment.getUnadjustedEndDate(), unadjustedEnd);
-      assertEquals(payment.getEndDate(), BUSINESS_ADJUST.adjust(unadjustedEnd));
+      assertEquals(payment.getEndDate(), BUSINESS_ADJUST.adjust(unadjustedEnd, REF_DATA));
       assertEquals(payment.getPaymentDate(), payment.getEndDate());
       LocalDate unadjustedStart = unadjustedEnd.minusMonths(6);
       assertEquals(payment.getUnadjustedStartDate(), unadjustedStart);
-      assertEquals(payment.getStartDate(), BUSINESS_ADJUST.adjust(unadjustedStart));
+      assertEquals(payment.getStartDate(), BUSINESS_ADJUST.adjust(unadjustedStart, REF_DATA));
       assertEquals(payment.getYearFraction(), unadjusted.getPeriod(expNum - 1 - i).yearFraction(DAY_COUNT, unadjusted));
-      assertEquals(payment.getDetachmentDate(), EX_COUPON.adjust(payment.getPaymentDate()));
+      assertEquals(payment.getDetachmentDate(), EX_COUPON.adjust(payment.getPaymentDate(), REF_DATA));
       unadjustedEnd = unadjustedStart;
     }
-    Payment expectedPayment = Payment.of(CurrencyAmount.of(EUR, NOTIONAL), BUSINESS_ADJUST.adjust(END_DATE));
+    Payment expectedPayment = Payment.of(CurrencyAmount.of(EUR, NOTIONAL), BUSINESS_ADJUST.adjust(END_DATE, REF_DATA));
     assertEquals(resolved.getNominalPayment(), expectedPayment);
   }
 

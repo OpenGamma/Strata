@@ -133,25 +133,25 @@ public final class ImmutableIborIndex
   @Override
   public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData) {
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
-    return effectiveDateOffset.adjust(fixingBusinessDay);
+    return effectiveDateOffset.adjust(fixingBusinessDay, refData);
   }
 
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData) {
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
-    return maturityDateOffset.adjust(effectiveDateOffset.adjust(fixingBusinessDay));
+    return maturityDateOffset.adjust(effectiveDateOffset.adjust(fixingBusinessDay, refData), refData);
   }
 
   @Override
   public LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
-    return fixingDateOffset.adjust(effectiveBusinessDay);
+    return fixingDateOffset.adjust(effectiveBusinessDay, refData);
   }
 
   @Override
   public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData) {
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
-    return maturityDateOffset.adjust(effectiveBusinessDay);
+    return maturityDateOffset.adjust(effectiveBusinessDay, refData);
   }
 
   // finds the calendar of the effective date

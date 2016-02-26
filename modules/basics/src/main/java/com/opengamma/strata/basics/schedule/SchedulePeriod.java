@@ -28,7 +28,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -235,15 +237,12 @@ public final class SchedulePeriod
    * @return the sub-schedule
    * @throws ScheduleException if the schedule cannot be created
    */
-  public Schedule subSchedule(
+  public PeriodicSchedule subSchedule(
       Frequency frequency,
       RollConvention rollConvention,
       StubConvention stubConvention,
       BusinessDayAdjustment adjustment) {
-    ArgChecker.notNull(frequency, "frequency");
-    ArgChecker.notNull(rollConvention, "rollConvention");
-    ArgChecker.notNull(stubConvention, "stubConvention");
-    ArgChecker.notNull(adjustment, "adjustment");
+
     return PeriodicSchedule.builder()
         .startDate(unadjustedStartDate)
         .endDate(unadjustedEndDate)
@@ -251,25 +250,26 @@ public final class SchedulePeriod
         .businessDayAdjustment(adjustment)
         .rollConvention(rollConvention)
         .stubConvention(stubConvention)
-        .build()
-        .createSchedule();
+        .build();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this period to one where the start and end dates are adjusted using the specified adjustment.
+   * Converts this period to one where the start and end dates are adjusted using the specified adjuster.
    * <p>
-   * The start date of the result will be the start date of this period as altered by the specified adjustment.
-   * The end date of the result will be the end date of this period as altered by the specified adjustment.
+   * The start date of the result will be the start date of this period as altered by the specified adjuster.
+   * The end date of the result will be the end date of this period as altered by the specified adjuster.
    * The unadjusted start date and unadjusted end date will be the same as in this period.
+   * <p>
+   * The adjuster will typically be obtained from {@link BusinessDayAdjustment#resolve(ReferenceData)}.
    * 
-   * @param businessDayAdjustment  the adjustment to use
+   * @param adjuster  the adjuster to use
    * @return the adjusted schedule period
    */
-  public SchedulePeriod toAdjusted(BusinessDayAdjustment businessDayAdjustment) {
+  public SchedulePeriod toAdjusted(DateAdjuster adjuster) {
     // implementation needs to return 'this' if unchanged to optimize downstream code
-    LocalDate resultStart = businessDayAdjustment.adjust(startDate);
-    LocalDate resultEnd = businessDayAdjustment.adjust(endDate);
+    LocalDate resultStart = adjuster.adjust(startDate);
+    LocalDate resultEnd = adjuster.adjust(endDate);
     if (resultStart.equals(startDate) && resultEnd.equals(endDate)) {
       return this;
     }

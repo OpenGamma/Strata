@@ -40,6 +40,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.Messages;
@@ -62,6 +63,9 @@ public final class FpmlDocument {
   // FpML also has a 'NotApplicable' option, which probably should map to null in the caller
 
   private static final Logger log = LoggerFactory.getLogger(FpmlDocument.class);
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * The 'id' attribute key.
@@ -142,6 +146,7 @@ public final class FpmlDocument {
     builder.id(allTradeIds.get(doc.getOurPartyHrefId()).stream().findFirst().orElse(null));
     return builder;
   };
+
 
   /**
    * The parsed file.
@@ -413,9 +418,9 @@ public final class FpmlDocument {
     // interpret and resolve, simple calendar arithmetic or business days
     LocalDate resolvedDate;
     if (period.getYears() > 0 || period.getMonths() > 0 || calendarDays) {
-      resolvedDate = bda2.adjust(bda1.adjust(baseDate.plus(period)));
+      resolvedDate = bda1.adjust(baseDate.plus(period), REF_DATA);
     } else {
-      resolvedDate = bda2.adjust(bda1.adjust(bda1.getCalendar().shift(baseDate, period.getDays())));
+      resolvedDate = bda1.adjust(bda1.getCalendar().shift(baseDate, period.getDays()), REF_DATA);
     }
     return AdjustableDate.of(resolvedDate, bda2);
   }

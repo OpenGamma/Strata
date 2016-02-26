@@ -192,11 +192,12 @@ public final class DaysAdjustment
    * Step two, use {@link BusinessDayAdjuster#adjust(LocalDate)} to adjust the result of step one.
    * 
    * @param date  the date to adjust
+   * @param refData  the reference data, used to find the holiday calendar
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date) {
+  public LocalDate adjust(LocalDate date, ReferenceData refData) {
     LocalDate added = calendar.shift(date, days);
-    return adjustment.adjust(added);
+    return adjustment.adjust(added, refData);
   }
 
   /**
@@ -231,7 +232,15 @@ public final class DaysAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
+    if (calendar == HolidayCalendars.NO_HOLIDAYS) {
+      HolidayCalendar holCalAdj = adjustment.getCalendar();
+      BusinessDayConvention adjustmentConvention = adjustment.getConvention();
+      return date -> adjustmentConvention.adjust(LocalDateUtils.plusDays(date, days), holCalAdj);
+    }
+    HolidayCalendar holCalAdd = calendar;
+    HolidayCalendar holCalAdj = adjustment.getCalendar();
+    BusinessDayConvention adjustmentConvention = adjustment.getConvention();
+    return date -> adjustmentConvention.adjust(holCalAdd.shift(date, days), holCalAdj);
   }
 
   /**

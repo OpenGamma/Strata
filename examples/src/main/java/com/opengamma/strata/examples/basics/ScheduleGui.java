@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
@@ -54,6 +55,9 @@ import javafx.util.Callback;
  * It is not intended to be used in a production environment.
  */
 public class ScheduleGui extends Application {
+
+  // the reference data to use
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Launch GUI, no arguments needed.
@@ -197,7 +201,7 @@ public class ScheduleGui extends Application {
           .rollConvention(roll)
           .build();
       try {
-        Schedule schedule = defn.createSchedule();
+        Schedule schedule = defn.createSchedule(REF_DATA);
         System.out.println(schedule);
         resultGrid.setItems(FXCollections.observableArrayList(schedule.getPeriods()));
       } catch (ScheduleException ex) {

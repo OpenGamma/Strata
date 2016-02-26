@@ -189,7 +189,7 @@ public final class IborCapFloorLeg
   //-------------------------------------------------------------------------
   @Override
   public ResolvedIborCapFloorLeg resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = paymentSchedule.createSchedule();
+    Schedule adjustedSchedule = paymentSchedule.createSchedule(refData);
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());

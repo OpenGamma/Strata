@@ -250,7 +250,7 @@ public final class Fra
 
   // creates an Ibor or IborInterpolated observation
   private RateObservation createRateObservation(ReferenceData refData) {
-    LocalDate fixingDate = fixingDateOffset.adjust(startDate);
+    LocalDate fixingDate = fixingDateOffset.adjust(startDate, refData);
     if (indexInterpolated != null) {
       return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate, refData);
     } else {

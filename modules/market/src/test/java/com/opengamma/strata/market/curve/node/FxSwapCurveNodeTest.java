@@ -135,7 +135,7 @@ public class FxSwapCurveNodeTest {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
-        .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate).plus(FAR_PERIOD));
+        .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate, REF_DATA).plus(FAR_PERIOD), REF_DATA);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));

@@ -131,7 +131,7 @@ public class TermDepositCurveNodeTest {
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     TermDepositTrade trade = node.trade(valuationDate, marketData, REF_DATA);
-    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate);
+    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate, REF_DATA);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
         .buySell(BuySell.BUY)

@@ -158,7 +158,7 @@ public interface IborFixingDepositConvention
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
   public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
-    return getSpotDateOffset().adjust(tradeDate);
+    return getSpotDateOffset().adjust(tradeDate, refData);
   }
 
   //-------------------------------------------------------------------------

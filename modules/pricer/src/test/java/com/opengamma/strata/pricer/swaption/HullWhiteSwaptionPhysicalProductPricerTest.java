@@ -80,7 +80,7 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   private static final ZonedDateTime MATURITY = dateUtc(2016, 7, 7);
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
-  private static final LocalDate SETTLE = BDA_MF.adjust(CALENDAR.shift(MATURITY.toLocalDate(), 2));
+  private static final LocalDate SETTLE = BDA_MF.adjust(CALENDAR.shift(MATURITY.toLocalDate(), 2), REF_DATA);
   private static final double NOTIONAL = 100000000; //100m
   private static final int TENOR_YEAR = 5;
   private static final LocalDate END = SETTLE.plusYears(TENOR_YEAR);

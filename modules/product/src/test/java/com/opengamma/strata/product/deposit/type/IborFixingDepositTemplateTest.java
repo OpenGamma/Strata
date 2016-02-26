@@ -76,7 +76,7 @@ public class IborFixingDepositTemplateTest {
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     IborFixingDepositTrade trade = template.createTrade(tradeDate, BUY, notional, fixedRate, REF_DATA);
     ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) template.getConvention();
-    LocalDate startExpected = conv.getSpotDateOffset().adjust(tradeDate);
+    LocalDate startExpected = conv.getSpotDateOffset().adjust(tradeDate, REF_DATA);
     LocalDate endExpected = startExpected.plus(template.getDepositPeriod());
     IborFixingDeposit productExpected = IborFixingDeposit.builder()
         .businessDayAdjustment(conv.getBusinessDayAdjustment())

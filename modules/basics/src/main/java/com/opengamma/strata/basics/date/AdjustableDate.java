@@ -92,7 +92,7 @@ public final class AdjustableDate
    * @return the adjusted date
    */
   public LocalDate adjusted(ReferenceData refData) {
-    return adjustment.adjust(unadjusted);
+    return adjustment.adjust(unadjusted, refData);
   }
 
   //-------------------------------------------------------------------------

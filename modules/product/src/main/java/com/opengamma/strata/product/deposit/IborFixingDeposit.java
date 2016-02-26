@@ -175,7 +175,7 @@ public final class IborFixingDeposit
     LocalDate start = bda.adjust(startDate);
     LocalDate end = bda.adjust(endDate);
     double yearFraction = dayCount.yearFraction(start, end);
-    LocalDate fixingDate = fixingDateOffset.adjust(startDate);
+    LocalDate fixingDate = fixingDateOffset.adjust(startDate, refData);
     return ResolvedIborFixingDeposit.builder()
         .startDate(start)
         .endDate(end)

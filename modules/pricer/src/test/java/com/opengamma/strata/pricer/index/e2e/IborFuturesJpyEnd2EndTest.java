@@ -86,7 +86,7 @@ public class IborFuturesJpyEnd2EndTest {
       .build();
   // futures in March 2016
   private static final LocalDate REFERENCE_MAR = RollConventions.IMM.adjust(LocalDate.of(2016, 3, 1));
-  private static final LocalDate LAST_TRADE_MAR = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR);
+  private static final LocalDate LAST_TRADE_MAR = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR, REF_DATA);
   private static final ResolvedIborFuture FUTURE_PRODUCT_MAR = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
@@ -106,7 +106,7 @@ public class IborFuturesJpyEnd2EndTest {
       .build();
   // futures in June 2016
   private static final LocalDate REFERENCE_JUN = RollConventions.IMM.adjust(LocalDate.of(2016, 6, 1));
-  private static final LocalDate LAST_TRADE_JUN = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN);
+  private static final LocalDate LAST_TRADE_JUN = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN, REF_DATA);
   private static final ResolvedIborFuture FUTURE_PRODUCT_JUN = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
@@ -126,7 +126,7 @@ public class IborFuturesJpyEnd2EndTest {
       .build();
   // futures in September 2016
   private static final LocalDate REFERENCE_SEP = RollConventions.IMM.adjust(LocalDate.of(2016, 9, 1));
-  private static final LocalDate LAST_TRADE_SEP = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_SEP);
+  private static final LocalDate LAST_TRADE_SEP = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_SEP, REF_DATA);
   private static final ResolvedIborFuture FUTURE_PRODUCT_SEP = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
@@ -147,7 +147,7 @@ public class IborFuturesJpyEnd2EndTest {
   // futures in June 2017
   private static final LocalDate REFERENCE_JUN_MID = RollConventions.IMM.adjust(LocalDate.of(2017, 6, 1));
   private static final LocalDate LAST_TRADE_JUN_MID =
-      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN_MID);
+      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN_MID, REF_DATA);
   private static final ResolvedIborFuture FUTURE_PRODUCT_JUN_MID = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
@@ -168,7 +168,7 @@ public class IborFuturesJpyEnd2EndTest {
   // futures in March 2020
   private static final LocalDate REFERENCE_MAR_LONG = RollConventions.IMM.adjust(LocalDate.of(2020, 3, 1));
   private static final LocalDate LAST_TRADE_MAR_LONG =
-      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR_LONG);
+      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR_LONG, REF_DATA);
   private static final ResolvedIborFuture FUTURE_PRODUCT_MAR_LONG = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)

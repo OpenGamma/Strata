@@ -131,7 +131,7 @@ public class FraCurveNodeTest {
     double rate = 0.035;
     ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     FraTrade trade = node.trade(valuationDate, marketData, REF_DATA);
-    LocalDate startDateExpected = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START);
+    LocalDate startDateExpected = OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START);
     LocalDate endDateExpected = startDateExpected.plusMonths(3);
     Fra productExpected = Fra.builder()
         .buySell(BuySell.BUY)
@@ -176,7 +176,7 @@ public class FraCurveNodeTest {
   public void test_metadata_end() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    LocalDate endDate = OFFSET.adjust(valuationDate).plus(PERIOD_TO_START).plusMonths(3);
+    LocalDate endDate = OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START).plusMonths(3);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), TENOR_5M);

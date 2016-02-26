@@ -157,7 +157,7 @@ public final class FixedCouponBond
   //-------------------------------------------------------------------------
   @Override
   public ResolvedFixedCouponBond resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = periodicSchedule.createSchedule();
+    Schedule adjustedSchedule = periodicSchedule.createSchedule(refData);
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.toDateAdjuster(refData);
 

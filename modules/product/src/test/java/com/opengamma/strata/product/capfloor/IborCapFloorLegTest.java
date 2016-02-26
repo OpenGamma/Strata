@@ -177,8 +177,8 @@ public class IborCapFloorLegTest {
         new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12)};
     IborCapletFloorletPeriod[] periods = new IborCapletFloorletPeriod[4];
     for (int i = 0; i < 4; ++i) {
-      LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i]);
-      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i + 1]);
+      LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i], REF_DATA);
+      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i + 1], REF_DATA);
       double yearFraction = EUR_EURIBOR_3M.getDayCount().relativeYearFraction(start, end);
       periods[i] = IborCapletFloorletPeriod.builder()
           .caplet(CAP.getInitialValue())
@@ -187,10 +187,10 @@ public class IborCapFloorLegTest {
           .endDate(end)
           .unadjustedStartDate(unadjustedDates[i])
           .unadjustedEndDate(unadjustedDates[i + 1])
-          .paymentDate(PAYMENT_OFFSET.adjust(end))
+          .paymentDate(PAYMENT_OFFSET.adjust(end, REF_DATA))
           .notional(NOTIONALS[i])
           .rateObservation(
-              IborRateObservation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end), REF_DATA))
+              IborRateObservation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end, REF_DATA), REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }
@@ -216,9 +216,10 @@ public class IborCapFloorLegTest {
         new LocalDate[] {START, START.plusMonths(3), START.plusMonths(6), START.plusMonths(9), START.plusMonths(12)};
     IborCapletFloorletPeriod[] periods = new IborCapletFloorletPeriod[4];
     for (int i = 0; i < 4; ++i) {
-      LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i]);
-      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i + 1]);
+      LocalDate start = BUSS_ADJ.adjust(unadjustedDates[i], REF_DATA);
+      LocalDate end = BUSS_ADJ.adjust(unadjustedDates[i + 1], REF_DATA);
       double yearFraction = EUR_EURIBOR_3M.getDayCount().relativeYearFraction(start, end);
+      LocalDate fixingDate = RATE_CALCULATION.getFixingDateOffset().adjust(start, REF_DATA);
       periods[i] = IborCapletFloorletPeriod.builder()
           .floorlet(STRIKES[i])
           .currency(GBP)
@@ -226,10 +227,9 @@ public class IborCapFloorLegTest {
           .endDate(end)
           .unadjustedStartDate(unadjustedDates[i])
           .unadjustedEndDate(unadjustedDates[i + 1])
-          .paymentDate(PAYMENT_OFFSET.adjust(end))
+          .paymentDate(PAYMENT_OFFSET.adjust(end, REF_DATA))
           .notional(-NOTIONALS[i])
-          .rateObservation(
-              IborRateObservation.of(EUR_EURIBOR_3M, RATE_CALCULATION.getFixingDateOffset().adjust(start), REF_DATA))
+          .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, fixingDate, REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }

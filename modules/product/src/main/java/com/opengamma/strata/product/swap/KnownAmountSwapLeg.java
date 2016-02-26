@@ -150,7 +150,7 @@ public final class KnownAmountSwapLeg
    */
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
-    Schedule resolvedAccruals = accrualSchedule.createSchedule();
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
     return ResolvedSwapLeg.builder()

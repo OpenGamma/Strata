@@ -145,7 +145,7 @@ public final class RateCalculationSwapLeg
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = accrualSchedule.createSchedule();
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(

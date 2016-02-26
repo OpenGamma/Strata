@@ -128,8 +128,8 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   // underlying swap and swaption
   private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
-  private static final LocalDate MATURITY = BDA_MF.adjust(VAL_DATE.plusMonths(26));
-  private static final LocalDate SETTLE = BDA_MF.adjust(CALENDAR.shift(MATURITY, 2));
+  private static final LocalDate MATURITY = BDA_MF.adjust(VAL_DATE.plusMonths(26), REF_DATA);
+  private static final LocalDate SETTLE = BDA_MF.adjust(CALENDAR.shift(MATURITY, 2), REF_DATA);
   private static final double NOTIONAL = 123456789.0;
   private static final LocalDate END = SETTLE.plusYears(5);
   private static final double RATE = 0.02;

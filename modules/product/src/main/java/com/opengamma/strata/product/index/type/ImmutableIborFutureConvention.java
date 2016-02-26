@@ -160,7 +160,7 @@ public final class ImmutableIborFutureConvention
 
     LocalDate earliestDate = tradeDate.plus(minimumPeriod);
     LocalDate referenceDate = dateSequence.nthOrSame(earliestDate, sequenceNumber);
-    return businessDayAdjustment.adjust(referenceDate);
+    return businessDayAdjustment.adjust(referenceDate, refData);
   }
 
   //-------------------------------------------------------------------------

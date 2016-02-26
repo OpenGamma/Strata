@@ -154,7 +154,7 @@ public final class PaymentSchedule
     boolean rollForwards = !accrualSchedule.getInitialStub().isPresent();
     Schedule paySchedule = accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
     if (businessDayAdjustment != null) {
-      return paySchedule.toAdjusted(businessDayAdjustment);
+      return paySchedule.toAdjusted(businessDayAdjustment.toDateAdjuster(refData));
     }
     return paySchedule;
   }

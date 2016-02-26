@@ -88,7 +88,7 @@ public class TermDepositTest {
         .rate(RATE)
         .build();
     ResolvedTermDeposit test = base.resolve(REF_DATA);
-    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE);
+    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE, REF_DATA);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), expectedEndDate);

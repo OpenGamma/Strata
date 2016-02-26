@@ -93,7 +93,7 @@ public class TenorAdjustmentTest {
   @Test(dataProvider = "adjust")
   public void test_adjust(int months, LocalDate date, LocalDate expected) {
     TenorAdjustment test = TenorAdjustment.of(Tenor.ofMonths(months), LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.adjust(date), expected);
+    assertEquals(test.adjust(date, REF_DATA), expected);
     assertEquals(test.resolve(REF_DATA).adjust(date), expected);
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(date), expected);
   }

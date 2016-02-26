@@ -73,7 +73,7 @@ public class TermDepositTemplateTest {
     double rate = 0.0125;
     TermDepositTrade trade = template.createTrade(tradeDate, buy, notional, rate, REF_DATA);
     TradeInfo tradeInfoExpected = TradeInfo.builder().tradeDate(tradeDate).build();
-    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate);
+    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(tradeDate, REF_DATA);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit productExpected = TermDeposit.builder()
         .buySell(buy)

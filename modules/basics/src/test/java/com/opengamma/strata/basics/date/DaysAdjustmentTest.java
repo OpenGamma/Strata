@@ -66,7 +66,7 @@ public class DaysAdjustmentTest {
   public void test_ofCalendarDays1_adjust() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2);
     LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 17));  // Sun
+    assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 17));  // Sun
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
   }
@@ -90,7 +90,7 @@ public class DaysAdjustmentTest {
   public void test_ofCalendarDays2_adjust() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
     LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 18));  // Mon
+    assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 18));  // Mon
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
   }
@@ -119,7 +119,7 @@ public class DaysAdjustmentTest {
   public void test_ofBusinessDays2_adjust() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(2, HOLCAL_SAT_SUN);
     LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 19));  // Tue
+    assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 19));  // Tue
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
   }
@@ -150,7 +150,7 @@ public class DaysAdjustmentTest {
   public void test_ofBusinessDays3_adjust() {
     DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, BDA_FOLLOW_WED_THU);
     LocalDate base = date(2014, 8, 15);  // Fri
-    assertEquals(test.adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
+    assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
   }

@@ -94,7 +94,7 @@ public class ImmutableFxSwapConventionTest {
     Period startPeriod = Period.ofMonths(3);
     Period endPeriod = Period.ofMonths(6);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
-    LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
+    LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate, REF_DATA);
     LocalDate nearDate = spotDate.plus(startPeriod);
     LocalDate farDate = spotDate.plus(endPeriod);
     FxSwapTrade test =

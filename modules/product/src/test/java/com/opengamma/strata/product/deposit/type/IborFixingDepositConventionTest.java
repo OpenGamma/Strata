@@ -108,7 +108,7 @@ public class IborFixingDepositConventionTest {
     double notional = 1d;
     double fixedRate = 0.045;
     IborFixingDepositTrade trade = convention.createTrade(tradeDate, depositPeriod, BUY, notional, fixedRate, REF_DATA);
-    LocalDate startExpected = SPOT_ADJ.adjust(tradeDate);
+    LocalDate startExpected = SPOT_ADJ.adjust(tradeDate, REF_DATA);
     LocalDate endExpected = startExpected.plus(depositPeriod);
     IborFixingDeposit productExpected = IborFixingDeposit.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)

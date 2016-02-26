@@ -127,7 +127,7 @@ public class SwaptionTest {
   public void test_resolve() {
     Swaption base = sut();
     ResolvedSwaption test = base.resolve(REF_DATA);
-    assertEquals(test.getExpiry(), ADJUSTMENT.adjust(EXPIRY_DATE).atTime(EXPIRY_TIME).atZone(ZONE));
+    assertEquals(test.getExpiry(), ADJUSTMENT.adjust(EXPIRY_DATE, REF_DATA).atTime(EXPIRY_TIME).atZone(ZONE));
     assertEquals(test.getLongShort(), LONG);
     assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
     assertEquals(test.getUnderlying(), SWAP.resolve(REF_DATA));

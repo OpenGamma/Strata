@@ -41,7 +41,7 @@ public class BusinessDayAdjustmentTest {
   @Test(dataProvider = "convention", dataProviderClass = BusinessDayConventionTest.class)
   public void test_adjustDate(BusinessDayConvention convention, LocalDate input, LocalDate expected) {
     BusinessDayAdjustment test = BusinessDayAdjustment.of(convention, SAT_SUN);
-    assertEquals(test.adjust(input), expected);
+    assertEquals(test.adjust(input, REF_DATA), expected);
     assertEquals(test.resolve(REF_DATA).adjust(input), expected);
     assertEquals(test.toDateAdjuster(REF_DATA).adjust(input), expected);
   }

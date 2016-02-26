@@ -15,6 +15,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -97,8 +98,8 @@ public class BondFutureTest {
   private static final LocalDate LAST_TRADING_DATE = LocalDate.of(2011, 9, 30);
   private static final LocalDate FIRST_NOTICE_DATE = LocalDate.of(2011, 8, 31);
   private static final LocalDate LAST_NOTICE_DATE = LocalDate.of(2011, 10, 4);
-  private static final LocalDate FIRST_DELIVERY_DATE = SETTLEMENT_DAYS.adjust(FIRST_NOTICE_DATE);
-  private static final LocalDate LAST_DELIVERY_DATE = SETTLEMENT_DAYS.adjust(LAST_NOTICE_DATE);
+  private static final LocalDate FIRST_DELIVERY_DATE = SETTLEMENT_DAYS.adjust(FIRST_NOTICE_DATE, REF_DATA);
+  private static final LocalDate LAST_DELIVERY_DATE = SETTLEMENT_DAYS.adjust(LAST_NOTICE_DATE, REF_DATA);
   private static final Rounding ROUNDING = Rounding.ofDecimalPlaces(3);
 
   //-------------------------------------------------------------------------
@@ -119,9 +120,9 @@ public class BondFutureTest {
     assertEquals(test.getDeliveryBasket(), ImmutableList.copyOf(SECURITY_LINK));
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getFirstNoticeDate(), FIRST_NOTICE_DATE);
-    assertEquals(test.getFirstDeliveryDate(), FIRST_DELIVERY_DATE);
     assertEquals(test.getLastNoticeDate(), LAST_NOTICE_DATE);
-    assertEquals(test.getLastDeliveryDate(), LAST_DELIVERY_DATE);
+    assertEquals(test.getFirstDeliveryDate(), Optional.of(FIRST_DELIVERY_DATE));
+    assertEquals(test.getLastDeliveryDate(), Optional.of(LAST_DELIVERY_DATE));
     assertEquals(test.getLastTradeDate(), LAST_TRADING_DATE);
     assertEquals(test.getRounding(), ROUNDING);
   }
@@ -141,9 +142,9 @@ public class BondFutureTest {
     assertEquals(test.getDeliveryBasket(), ImmutableList.copyOf(SECURITY_LINK));
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getFirstNoticeDate(), FIRST_NOTICE_DATE);
-    assertEquals(test.getFirstDeliveryDate(), FIRST_DELIVERY_DATE);
     assertEquals(test.getLastNoticeDate(), LAST_NOTICE_DATE);
-    assertEquals(test.getLastDeliveryDate(), LAST_DELIVERY_DATE);
+    assertEquals(test.getFirstDeliveryDate(), Optional.empty());
+    assertEquals(test.getLastDeliveryDate(), Optional.empty());
     assertEquals(test.getLastTradeDate(), LAST_TRADING_DATE);
     assertEquals(test.getRounding(), ROUNDING);
 

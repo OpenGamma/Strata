@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An adjustment that alters a date if it falls on a day other than a business day.
@@ -85,11 +84,12 @@ public final class BusinessDayAdjustment
    * If the date is not a business day, the convention will be applied.
    * 
    * @param date  the date to adjust
+   * @param refData  the reference data, used to find the holiday calendar
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date) {
-    ArgChecker.notNull(date, "date");
-    return convention.adjust(date, calendar);
+  public LocalDate adjust(LocalDate date, ReferenceData refData) {
+    HolidayCalendar holCal = calendar;
+    return convention.adjust(date, holCal);
   }
 
   /**
@@ -120,7 +120,8 @@ public final class BusinessDayAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
+    HolidayCalendar holCal = calendar;
+    return date -> convention.adjust(date, holCal);
   }
 
   //-------------------------------------------------------------------------

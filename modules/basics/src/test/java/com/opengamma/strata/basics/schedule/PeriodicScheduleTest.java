@@ -54,6 +54,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link PeriodicSchedule}.
@@ -61,6 +62,7 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 @Test
 public class PeriodicScheduleTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final StubConvention STUB_NONE = StubConvention.NONE;
   private static final StubConvention STUB_BOTH = StubConvention.BOTH;
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
@@ -391,7 +393,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
         .build();
-    Schedule test = defn.createSchedule();
+    Schedule test = defn.createSchedule(REF_DATA);
     assertEquals(test.size(), unadjusted.size() - 1);
     for (int i = 0; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);
@@ -419,7 +421,7 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(lastReg)
         .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
         .build();
-    Schedule test = defn.createSchedule();
+    Schedule test = defn.createSchedule(REF_DATA);
     assertEquals(test.size(), unadjusted.size() - 1);
     SchedulePeriod period0 = test.getPeriod(0);
     assertEquals(period0.getUnadjustedStartDate(), date(2011, 1, 9));
@@ -489,7 +491,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
         .build();
-    ImmutableList<LocalDate> test = defn.createAdjustedDates();
+    ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
     assertEquals(test, adjusted);
   }
 
@@ -508,7 +510,7 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(lastReg)
         .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
         .build();
-    ImmutableList<LocalDate> test = defn.createAdjustedDates();
+    ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
     assertEquals(test.get(0), date(2011, 1, 10));
     assertEquals(test.subList(1, test.size()), adjusted.subList(1, test.size()));
   }
@@ -529,7 +531,7 @@ public class PeriodicScheduleTest {
     assertEquals(test.calculatedStartDate(), AdjustableDate.of(date(2014, 10, 4), bda1));
     assertEquals(test.calculatedEndDate(), AdjustableDate.of(date(2015, 4, 4), bda2));
     assertEquals(test.createUnadjustedDates(), ImmutableList.of(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4)));
-    assertEquals(test.createAdjustedDates(), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
+    assertEquals(test.createAdjustedDates(REF_DATA), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
   }
 
   //-------------------------------------------------------------------------
@@ -669,7 +671,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates();
+    defn.createAdjustedDates(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
@@ -684,7 +686,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   public void test_emptyWhenAdjusted_twoPeriods_createUnadjustedDates() {
@@ -714,7 +716,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates();
+    defn.createAdjustedDates(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
@@ -729,7 +731,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   @Test(
@@ -759,7 +761,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule();
+    defn.createSchedule(REF_DATA);
   }
 
   @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate unadjusted dates.*")

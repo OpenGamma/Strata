@@ -149,11 +149,13 @@ public final class TenorAdjustment
    * Step two, use {@link BusinessDayAdjuster#adjust(LocalDate)} to adjust the result of step one.
    * 
    * @param date  the date to adjust
+   * @param refData  the reference data, used to find the holiday calendar
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date) {
-    LocalDate unadjusted = additionConvention.adjust(date, tenor.getPeriod(), adjustment.getCalendar());
-    return adjustment.adjust(unadjusted);
+  public LocalDate adjust(LocalDate date, ReferenceData refData) {
+    HolidayCalendar holCal = adjustment.getCalendar();
+    BusinessDayConvention bda = adjustment.getConvention();
+    return bda.adjust(additionConvention.adjust(date, tenor.getPeriod(), holCal), holCal);
   }
 
   /**
@@ -184,7 +186,10 @@ public final class TenorAdjustment
    * @return the date adjuster, bound to a specific holiday calendar
    */
   public DateAdjuster toDateAdjuster(ReferenceData refData) {
-    return date -> adjust(date);
+    HolidayCalendar holCal = adjustment.getCalendar();
+    BusinessDayConvention bda = adjustment.getConvention();
+    Period period = tenor.getPeriod();
+    return date -> bda.adjust(additionConvention.adjust(date, period, holCal), holCal);
   }
 
   //-------------------------------------------------------------------------

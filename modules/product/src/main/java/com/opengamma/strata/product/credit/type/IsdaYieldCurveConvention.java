@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -37,6 +38,9 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 public interface IsdaYieldCurveConvention
     extends Named {
   // TODO: merge business day convention and holiday calendar
+
+  // hard-coded reference data
+  public static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Obtains an instance from the specified unique name.
@@ -125,7 +129,7 @@ public interface IsdaYieldCurveConvention
         getHolidayCalendar(),
         BusinessDayAdjustment.of(getBusinessDayConvention(), getHolidayCalendar()));
 
-    return adjustment.adjust(asOfDate);
+    return adjustment.adjust(asOfDate, REF_DATA);
   }
 
   @ToString

@@ -60,7 +60,7 @@ public class ResetScheduleTest {
         .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
         .build();
     SchedulePeriod accrualPeriod = SchedulePeriod.of(DATE_01_06, DATE_04_07, DATE_01_05, DATE_04_05);
-    Schedule schedule = test.resolve(DAY_5, REF_DATA).apply(accrualPeriod);
+    Schedule schedule = test.createSchedule(DAY_5, REF_DATA).apply(accrualPeriod);
     Schedule expected = Schedule.builder()
         .periods(
             SchedulePeriod.of(DATE_01_06, DATE_02_05, DATE_01_05, DATE_02_05),

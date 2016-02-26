@@ -110,7 +110,7 @@ public class IborFixingDepositCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
     IborFixingDepositTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     ImmutableIborFixingDepositConvention conv = (ImmutableIborFixingDepositConvention) TEMPLATE.getConvention();
-    LocalDate startDateExpected = conv.getSpotDateOffset().adjust(valuationDate);
+    LocalDate startDateExpected = conv.getSpotDateOffset().adjust(valuationDate, REF_DATA);
     LocalDate endDateExpected = startDateExpected.plus(TEMPLATE.getDepositPeriod());
     IborFixingDeposit depositExpected = IborFixingDeposit.builder()
         .buySell(BuySell.BUY)

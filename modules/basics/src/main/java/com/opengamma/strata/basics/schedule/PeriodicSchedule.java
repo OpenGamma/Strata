@@ -114,9 +114,6 @@ import com.opengamma.strata.collect.ArgChecker;
 public final class PeriodicSchedule
     implements ImmutableBean, Serializable {
 
-  // hard-coded reference data
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
   /**
    * The start date, which is the start of the first schedule period.
    * <p>
@@ -388,11 +385,12 @@ public final class PeriodicSchedule
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * 
    * @return the schedule
+   * @param refData  the reference data, used to find the holiday calendars
    * @throws ScheduleException if the definition is invalid
    */
-  public Schedule createSchedule() {
+  public Schedule createSchedule(ReferenceData refData) {
     List<LocalDate> unadj = generateUnadjustedDates();
-    List<LocalDate> adj = applyBusinessDayAdjustment(unadj, REF_DATA);
+    List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     RollConvention rollConv = calculatedRollConvention();
     List<SchedulePeriod> periods = new ArrayList<>();
     try {
@@ -403,7 +401,7 @@ public final class PeriodicSchedule
     } catch (IllegalArgumentException ex) {
       // check dates to throw a better exception for duplicate dates in schedule
       createUnadjustedDates();
-      createAdjustedDates();
+      createAdjustedDates(refData);
       // unknown exception
       ScheduleException se = new ScheduleException(this, "Schedule calculation resulted in invalid period");
       se.initCause(ex);
@@ -621,10 +619,11 @@ public final class PeriodicSchedule
    * If the stub convention and stub dates are not present, then no stubs are allowed.
    * 
    * @return the schedule of dates adjusted to valid business days
+   * @param refData  the reference data, used to find the holiday calendar
    * @throws ScheduleException if the definition is invalid
    */
-  public ImmutableList<LocalDate> createAdjustedDates() {
-    List<LocalDate> adj = applyBusinessDayAdjustment(generateUnadjustedDates(), REF_DATA);
+  public ImmutableList<LocalDate> createAdjustedDates(ReferenceData refData) {
+    List<LocalDate> adj = applyBusinessDayAdjustment(generateUnadjustedDates(), refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
     if (deduplicated.size() < adj.size()) {
@@ -638,7 +637,7 @@ public final class PeriodicSchedule
     List<LocalDate> adj = new ArrayList<>(unadj.size());
     adj.add(calculatedStartDate().adjusted(refData));
     for (int i = 1; i < unadj.size() - 1; i++) {
-      adj.add(businessDayAdjustment.adjust(unadj.get(i)));
+      adj.add(businessDayAdjustment.adjust(unadj.get(i), refData));
     }
     adj.add(calculatedEndDate().adjusted(refData));
     return adj;

@@ -244,7 +244,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_dirtyPriceFromCurves() {
     double computed = PRICER.dirtyPriceFromCurves(PRODUCT, SECURITY_ID, PROVIDER);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT, PROVIDER);
-    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
@@ -253,7 +253,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, SECURITY_ID, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
@@ -263,14 +263,14 @@ public class DiscountingFixedCouponBondProductPricerTest {
         PRODUCT, SECURITY_ID, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
     assertEquals(computed, pv.getAmount() / df / NOTIONAL);
   }
 
   public void test_dirtyPriceFromCleanPrice_cleanPriceFromDirtyPrice() {
     double dirtyPrice = PRICER.dirtyPriceFromCurves(PRODUCT, SECURITY_ID, PROVIDER);
-    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE);
+    LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(PRODUCT, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(PRODUCT, settlement);
     assertEquals(cleanPrice, dirtyPrice - accruedInterest / NOTIONAL, NOTIONAL * TOL);

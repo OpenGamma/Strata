@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -39,6 +40,9 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  */
 public interface CdsConvention
     extends TradeConvention, Named {
+
+  // hard-coded reference data
+  public static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Obtains an instance from the specified unique name.
@@ -211,7 +215,7 @@ public interface CdsConvention
    */
   public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate) {
     return getBusinessDayAdjustment().adjust(
-        calculateUnadjustedAccrualStartDate(valuationDate));
+        calculateUnadjustedAccrualStartDate(valuationDate), REF_DATA);
   }
 
   /**
@@ -223,7 +227,7 @@ public interface CdsConvention
   public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate) {
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
         getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
-    return daysAdjustment.adjust(valuationDate);
+    return daysAdjustment.adjust(valuationDate, REF_DATA);
   }
 
   /**
