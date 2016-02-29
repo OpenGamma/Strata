@@ -21,7 +21,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * specific to each yield convention. Accordingly, the computation of price, convexity
  * and duration from the yield should be based on this yield convention. 
  * <p>
- * Reference: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013.
+ * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013, 
+ * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */
 public enum YieldConvention {
 
@@ -43,7 +44,22 @@ public enum YieldConvention {
   /**
    * Japan Simple yield. 
    */
-  JAPAN_SIMPLE("Japan-Simple");
+  JAPAN_SIMPLE("Japan-Simple"),
+
+  /**
+   * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
+   */
+  US_IL_REAL("US-I/L-Real"),
+
+  /**
+   * The UK real yield convention. Used for inflation linked GILTS.
+   */
+  INDEX_LINKED_FLOAT("Index-Linked-Float"),
+
+  /**
+   * The UK real yield convention. Used for UK inflation linked corporate bond.
+   */
+  UK_IL_BOND("UK-I/L-Bond");
 
   // name
   private final String name;
@@ -64,7 +80,7 @@ public enum YieldConvention {
   @FromString
   public static YieldConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+    return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
   }
 
   //-------------------------------------------------------------------------

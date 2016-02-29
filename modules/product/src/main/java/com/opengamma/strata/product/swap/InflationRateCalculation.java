@@ -175,8 +175,8 @@ public final class InflationRateCalculation
     return accrualPeriods.build();
   }
 
-  // creates the rate observation
-  private RateObservation createRateObservation(SchedulePeriod period) {
+  // creates the rate observation.
+  public RateObservation createRateObservation(SchedulePeriod period) {
     LocalDate endDate = period.getEndDate();
     YearMonth referenceStartMonth = YearMonth.from(period.getStartDate().minus(lag));
     YearMonth referenceEndMonth = YearMonth.from(endDate.minus(lag));

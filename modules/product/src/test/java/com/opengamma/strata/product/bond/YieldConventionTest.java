@@ -28,6 +28,9 @@ public class YieldConventionTest {
         {YieldConvention.US_STREET, "US-Street"},
         {YieldConvention.GERMAN_BONDS, "German-Bonds"},
         {YieldConvention.JAPAN_SIMPLE, "Japan-Simple"},
+      {YieldConvention.US_IL_REAL, "US-I/L-Real"},
+      {YieldConvention.INDEX_LINKED_FLOAT, "Index-Linked-Float"},
+      {YieldConvention.UK_IL_BOND, "UK-I/L-Bond" }
     };
   }
 
