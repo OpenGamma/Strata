@@ -46,6 +46,8 @@ public final class MapStream<K, V>
   /**
    * Returns a stream over the entries in the map.
    *
+   * @param <K>  the key type
+   * @param <V>  the value type
    * @param map a map
    * @return a stream over the entries in the map
    */
@@ -57,6 +59,8 @@ public final class MapStream<K, V>
    * Returns a stream of map entries where the values are taken from a collection and the keys are created by
    * applying a function to each value.
    *
+   * @param <K>  the key type
+   * @param <V>  the value type
    * @param collection  the collection of values
    * @param keyFunction  a function which returns the key for a value
    * @return a stream of map entries derived from the values in the collection
@@ -69,6 +73,8 @@ public final class MapStream<K, V>
    * Returns a stream of map entries where the values are taken from a stream and the keys are created by
    * applying a function to each value.
    *
+   * @param <K>  the key type
+   * @param <V>  the value type
    * @param stream  the stream of values
    * @param keyFunction  a function which returns the key for a value
    * @return a stream of map entries derived from the values in the stream

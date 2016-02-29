@@ -139,6 +139,7 @@ public interface MarketDataMappings {
    *   <li>The market data contains a data for the ID</li>
    * </ul>
    *
+   * @param <T>  the market data type
    * @param key  a market data key
    * @param marketData  a set of market data
    * @return a box containing values for the specified ID if available

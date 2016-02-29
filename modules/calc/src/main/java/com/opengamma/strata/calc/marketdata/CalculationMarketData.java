@@ -90,6 +90,7 @@ public interface CalculationMarketData {
   /**
    * Returns a box containing values for the specified ID if available.
    *
+   * @param <T>  the market data type
    * @param key  the key identifying the item of market data
    * @return a box containing values for the specified ID if available
    */

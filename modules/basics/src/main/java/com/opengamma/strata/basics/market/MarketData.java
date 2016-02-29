@@ -73,6 +73,7 @@ public interface MarketData {
   /**
    * Returns a value for the specified ID if available.
    *
+   * @param <T>  the market data type
    * @param key  the key identifying the item of market data
    * @return a value for the specified ID if available
    */

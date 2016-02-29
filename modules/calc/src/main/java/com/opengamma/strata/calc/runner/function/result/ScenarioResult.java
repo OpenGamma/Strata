@@ -53,6 +53,7 @@ public interface ScenarioResult<T> {
    * <p>
    * The function is passed the scenario index and returns the value for that index.
    * 
+   * @param <T>  the result type
    * @param size  the number of elements
    * @param valueFunction  the function used to obtain each value
    * @return an instance initialized using the function

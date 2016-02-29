@@ -51,6 +51,7 @@ public interface CalculationEnvironment {
   /**
    * Returns a box containing values for the specified ID if available.
    *
+   * @param <T>  the market data type
    * @param id  the ID identifying the item of market data
    * @return a box containing values for the specified ID if available
    */

@@ -180,6 +180,7 @@ public class TestHelper {
   /**
    * Asserts that the object can be serialized and deserialized via a string using Joda-Convert.
    * 
+   * @param <T>  the type
    * @param cls  the effective type
    * @param base  the object to be tested
    */
@@ -498,6 +499,7 @@ public class TestHelper {
   /**
    * Test an enum for the primary purpose of increasing test coverage.
    * 
+   * @param <E>  the enum type
    * @param clazz  the class to test
    */
   public static <E extends Enum<E>> void coverEnum(Class<E> clazz) {
