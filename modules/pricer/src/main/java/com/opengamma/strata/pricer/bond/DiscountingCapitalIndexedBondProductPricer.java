@@ -6,9 +6,11 @@
 package com.opengamma.strata.pricer.bond;
 
 
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MONTHS;
+
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Function;
 
@@ -639,7 +641,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       } else {
         throw new IllegalArgumentException("The rate observation " + obs.toString() + " is not supported.");
       }
-      double nbMonth = Math.abs(ChronoUnit.MONTHS.between(endFixingMonth2, lastKnownFixingMonth));
+      double nbMonth = Math.abs(MONTHS.between(endFixingMonth2, lastKnownFixingMonth));
       double u = Math.sqrt(1d / (1d + 0.03));
       double a = indexRatio * Math.pow(u, nbMonth / 6d);
       if (nbCoupon == 1) {
@@ -1186,8 +1188,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   //-------------------------------------------------------------------------
   private double ratioPeriodToNextCoupon(CapitalIndexedBondPaymentPeriod period, LocalDate settlementDate) {
-    double nbDayToSpot = ChronoUnit.DAYS.between(settlementDate, period.getUnadjustedEndDate());
-    double nbDaysPeriod = ChronoUnit.DAYS.between(period.getUnadjustedEndDate(), period.getUnadjustedStartDate());
+    double nbDayToSpot = DAYS.between(settlementDate, period.getUnadjustedEndDate());
+    double nbDaysPeriod = DAYS.between(period.getUnadjustedEndDate(), period.getUnadjustedStartDate());
     return nbDayToSpot / nbDaysPeriod;
   }
 
@@ -1215,7 +1217,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return couponIndex;
   }
 
-  public double indexRatio(CapitalIndexedBond product, RatesProvider ratesProvider, LocalDate settlementDate) {
+  double indexRatio(CapitalIndexedBond product, RatesProvider ratesProvider, LocalDate settlementDate) {
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
         ratesProvider.getValuationDate() : settlementDate;
     RateObservation modifiedObservation =
