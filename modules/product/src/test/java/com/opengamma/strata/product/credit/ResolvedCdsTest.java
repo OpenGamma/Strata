@@ -23,8 +23,7 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.date.BusinessDayAdjuster;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
 
 /**
@@ -32,8 +31,6 @@ import com.opengamma.strata.basics.schedule.Frequency;
  */
 @Test
 public class ResolvedCdsTest {
-
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
@@ -67,7 +64,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY.resolve(REF_DATA)))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
         .referenceInformation(SingleNameReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())
@@ -86,7 +83,7 @@ public class ResolvedCdsTest {
         .coupon(.00100)
         .startDate(date(2014, 3, 20))
         .endDate(date(2019, 6, 20))
-        .businessDayAdjuster(BusinessDayAdjuster.of(FOLLOWING, USNY.resolve(REF_DATA)))
+        .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USNY))
         .referenceInformation(IndexReferenceInformationTest.sut())
         .payAccruedOnDefault(true)
         .paymentInterval(Frequency.P3M.getPeriod())

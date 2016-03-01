@@ -127,7 +127,7 @@ public final class Cds
         .coupon(coupon)
         .startDate(startDate)
         .endDate(endDate)
-        .businessDayAdjuster(businessDayAdjustment.resolve(refData))
+        .businessDayAdjustment(businessDayAdjustment)
         .referenceInformation(referenceInformation)
         .payAccruedOnDefault(payAccruedOnDefault)
         .paymentInterval(paymentInterval)

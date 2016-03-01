@@ -279,8 +279,8 @@ public class IsdaCdsHelper {
           product.getStubConvention(),
           PROTECT_START,
           recoveryRate,
-          product.getBusinessDayAdjuster().getConvention(),
-          product.getBusinessDayAdjuster().getCalendar(),
+          product.getBusinessDayAdjustment().getConvention(),
+          product.getBusinessDayAdjustment().getCalendar().resolve(REF_DATA),
           product.getAccrualDayCount(),
           CURVE_DAY_COUNT);
 

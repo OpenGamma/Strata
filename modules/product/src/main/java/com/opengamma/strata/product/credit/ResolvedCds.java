@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjuster;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -95,10 +95,10 @@ public final class ResolvedCds
   @PropertyDefinition(validate = "notNull")
   public final LocalDate endDate;
   /**
-   * The business day adjuster to apply to the start and end dates.
+   * The business day adjustment to apply to the start and end dates.
    */
   @PropertyDefinition(validate = "notNull")
-  public final BusinessDayAdjuster businessDayAdjuster;
+  public final BusinessDayAdjustment businessDayAdjustment;
   /**
    * The reference against which protection applies.
    * <p>
@@ -177,7 +177,7 @@ public final class ResolvedCds
       double coupon,
       LocalDate startDate,
       LocalDate endDate,
-      BusinessDayAdjuster businessDayAdjuster,
+      BusinessDayAdjustment businessDayAdjustment,
       ReferenceInformation referenceInformation,
       boolean payAccruedOnDefault,
       Period paymentInterval,
@@ -191,7 +191,7 @@ public final class ResolvedCds
     JodaBeanUtils.notNull(coupon, "coupon");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
-    JodaBeanUtils.notNull(businessDayAdjuster, "businessDayAdjuster");
+    JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
     JodaBeanUtils.notNull(referenceInformation, "referenceInformation");
     JodaBeanUtils.notNull(payAccruedOnDefault, "payAccruedOnDefault");
     JodaBeanUtils.notNull(paymentInterval, "paymentInterval");
@@ -203,7 +203,7 @@ public final class ResolvedCds
     this.coupon = coupon;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.businessDayAdjuster = businessDayAdjuster;
+    this.businessDayAdjustment = businessDayAdjustment;
     this.referenceInformation = referenceInformation;
     this.payAccruedOnDefault = payAccruedOnDefault;
     this.paymentInterval = paymentInterval;
@@ -299,11 +299,11 @@ public final class ResolvedCds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day adjuster to apply to the start and end dates.
+   * Gets the business day adjustment to apply to the start and end dates.
    * @return the value of the property, not null
    */
-  public BusinessDayAdjuster getBusinessDayAdjuster() {
-    return businessDayAdjuster;
+  public BusinessDayAdjustment getBusinessDayAdjustment() {
+    return businessDayAdjustment;
   }
 
   //-----------------------------------------------------------------------
@@ -399,7 +399,7 @@ public final class ResolvedCds
           JodaBeanUtils.equal(coupon, other.coupon) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
-          JodaBeanUtils.equal(businessDayAdjuster, other.businessDayAdjuster) &&
+          JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
           JodaBeanUtils.equal(referenceInformation, other.referenceInformation) &&
           (payAccruedOnDefault == other.payAccruedOnDefault) &&
           JodaBeanUtils.equal(paymentInterval, other.paymentInterval) &&
@@ -420,7 +420,7 @@ public final class ResolvedCds
     hash = hash * 31 + JodaBeanUtils.hashCode(coupon);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjuster);
+    hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(referenceInformation);
     hash = hash * 31 + JodaBeanUtils.hashCode(payAccruedOnDefault);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentInterval);
@@ -441,7 +441,7 @@ public final class ResolvedCds
     buf.append("coupon").append('=').append(coupon).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("businessDayAdjuster").append('=').append(businessDayAdjuster).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
     buf.append("referenceInformation").append('=').append(referenceInformation).append(',').append(' ');
     buf.append("payAccruedOnDefault").append('=').append(payAccruedOnDefault).append(',').append(' ');
     buf.append("paymentInterval").append('=').append(paymentInterval).append(',').append(' ');
@@ -494,10 +494,10 @@ public final class ResolvedCds
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", ResolvedCds.class, LocalDate.class);
     /**
-     * The meta-property for the {@code businessDayAdjuster} property.
+     * The meta-property for the {@code businessDayAdjustment} property.
      */
-    private final MetaProperty<BusinessDayAdjuster> businessDayAdjuster = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjuster", ResolvedCds.class, BusinessDayAdjuster.class);
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", ResolvedCds.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code referenceInformation} property.
      */
@@ -544,7 +544,7 @@ public final class ResolvedCds
         "coupon",
         "startDate",
         "endDate",
-        "businessDayAdjuster",
+        "businessDayAdjustment",
         "referenceInformation",
         "payAccruedOnDefault",
         "paymentInterval",
@@ -574,8 +574,8 @@ public final class ResolvedCds
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -1677084584:  // businessDayAdjuster
-          return businessDayAdjuster;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -2117930783:  // referenceInformation
           return referenceInformation;
         case -43782841:  // payAccruedOnDefault
@@ -659,11 +659,11 @@ public final class ResolvedCds
     }
 
     /**
-     * The meta-property for the {@code businessDayAdjuster} property.
+     * The meta-property for the {@code businessDayAdjustment} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BusinessDayAdjuster> businessDayAdjuster() {
-      return businessDayAdjuster;
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
     }
 
     /**
@@ -738,8 +738,8 @@ public final class ResolvedCds
           return ((ResolvedCds) bean).getStartDate();
         case -1607727319:  // endDate
           return ((ResolvedCds) bean).getEndDate();
-        case -1677084584:  // businessDayAdjuster
-          return ((ResolvedCds) bean).getBusinessDayAdjuster();
+        case -1065319863:  // businessDayAdjustment
+          return ((ResolvedCds) bean).getBusinessDayAdjustment();
         case -2117930783:  // referenceInformation
           return ((ResolvedCds) bean).getReferenceInformation();
         case -43782841:  // payAccruedOnDefault
@@ -781,7 +781,7 @@ public final class ResolvedCds
     private double coupon;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BusinessDayAdjuster businessDayAdjuster;
+    private BusinessDayAdjustment businessDayAdjustment;
     private ReferenceInformation referenceInformation;
     private boolean payAccruedOnDefault;
     private Period paymentInterval;
@@ -807,7 +807,7 @@ public final class ResolvedCds
       this.coupon = beanToCopy.getCoupon();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.businessDayAdjuster = beanToCopy.getBusinessDayAdjuster();
+      this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
       this.referenceInformation = beanToCopy.getReferenceInformation();
       this.payAccruedOnDefault = beanToCopy.isPayAccruedOnDefault();
       this.paymentInterval = beanToCopy.getPaymentInterval();
@@ -833,8 +833,8 @@ public final class ResolvedCds
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -1677084584:  // businessDayAdjuster
-          return businessDayAdjuster;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
         case -2117930783:  // referenceInformation
           return referenceInformation;
         case -43782841:  // payAccruedOnDefault
@@ -875,8 +875,8 @@ public final class ResolvedCds
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
           break;
-        case -1677084584:  // businessDayAdjuster
-          this.businessDayAdjuster = (BusinessDayAdjuster) newValue;
+        case -1065319863:  // businessDayAdjustment
+          this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case -2117930783:  // referenceInformation
           this.referenceInformation = (ReferenceInformation) newValue;
@@ -938,7 +938,7 @@ public final class ResolvedCds
           coupon,
           startDate,
           endDate,
-          businessDayAdjuster,
+          businessDayAdjustment,
           referenceInformation,
           payAccruedOnDefault,
           paymentInterval,
@@ -1031,13 +1031,13 @@ public final class ResolvedCds
     }
 
     /**
-     * Sets the business day adjuster to apply to the start and end dates.
-     * @param businessDayAdjuster  the new value, not null
+     * Sets the business day adjustment to apply to the start and end dates.
+     * @param businessDayAdjustment  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder businessDayAdjuster(BusinessDayAdjuster businessDayAdjuster) {
-      JodaBeanUtils.notNull(businessDayAdjuster, "businessDayAdjuster");
-      this.businessDayAdjuster = businessDayAdjuster;
+    public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
+      JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
+      this.businessDayAdjustment = businessDayAdjustment;
       return this;
     }
 
@@ -1135,7 +1135,7 @@ public final class ResolvedCds
       buf.append("coupon").append('=').append(JodaBeanUtils.toString(coupon)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("businessDayAdjuster").append('=').append(JodaBeanUtils.toString(businessDayAdjuster)).append(',').append(' ');
+      buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
       buf.append("referenceInformation").append('=').append(JodaBeanUtils.toString(referenceInformation)).append(',').append(' ');
       buf.append("payAccruedOnDefault").append('=').append(JodaBeanUtils.toString(payAccruedOnDefault)).append(',').append(' ');
       buf.append("paymentInterval").append('=').append(JodaBeanUtils.toString(paymentInterval)).append(',').append(' ');
