@@ -48,8 +48,7 @@ public class DefaultMarketDataMappingsTest {
         .put(LocalDate.of(2011, 3, 9), 2)
         .put(LocalDate.of(2011, 3, 10), 3)
         .build();
-    calculationEnvironment = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    calculationEnvironment = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(new TestId("1", marketDataFeed), "one")
         .addValue(new TestSimpleId("2", marketDataFeed), "two")
         .addValue(new TestObservableId("3", marketDataFeed), 3d)

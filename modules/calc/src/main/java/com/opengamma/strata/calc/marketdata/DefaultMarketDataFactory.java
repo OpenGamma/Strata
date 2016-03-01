@@ -126,7 +126,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataConfig marketDataConfig,
       ScenarioDefinition scenarioDefinition) {
 
-    MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder().valuationDate(suppliedData.getValuationDate());
+    MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder(suppliedData.getValuationDate());
     MarketEnvironment builtData = dataBuilder.build();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.

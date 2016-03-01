@@ -100,8 +100,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
@@ -124,8 +123,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
@@ -149,8 +147,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
@@ -172,7 +169,7 @@ public class CalculationTaskTest {
       throw new RuntimeException("This is a failure");
     }, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -185,7 +182,7 @@ public class CalculationTaskTest {
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -198,7 +195,7 @@ public class CalculationTaskTest {
   public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
     TestFunction fn = new TestFunction();
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_EMPTY);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -212,7 +209,7 @@ public class CalculationTaskTest {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
 
@@ -227,7 +224,7 @@ public class CalculationTaskTest {
   public void execute() {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -242,8 +239,7 @@ public class CalculationTaskTest {
       throw new IllegalArgumentException("foo");
     });
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -257,7 +253,7 @@ public class CalculationTaskTest {
     SupplierFunction<Result<ScenarioResult<String>>> fn =
         SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();
@@ -271,7 +267,7 @@ public class CalculationTaskTest {
     SupplierFunction<Result<String>> fn =
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    CalculationEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResult calculationResult = task.execute(marketData);
     Result<?> result = calculationResult.getResult();

@@ -142,8 +142,7 @@ public class SwapPricingWithCalibrationExample {
     ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> fixings = FixingSeriesCsvLoader.load(FIXINGS_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketSnapshot = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
         .addValues(quotes)
         .addTimeSeries(fixings)
         .build();

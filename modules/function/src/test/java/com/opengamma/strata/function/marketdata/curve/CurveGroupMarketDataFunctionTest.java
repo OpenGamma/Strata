@@ -112,8 +112,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(valuationDate)
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup =
@@ -158,8 +157,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(valuationDate)
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
 
@@ -245,8 +243,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     LocalDate valuationDate = date(2011, 3, 8);
     CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate));
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(valuationDate)
+    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
         .build();
 
@@ -334,8 +331,7 @@ public class CurveGroupMarketDataFunctionTest {
         pointsKey2b, 0.2d);
     CurveInputs curveInputs1 = CurveInputs.of(marketDataMap1, DefaultCurveMetadata.of("curve1"));
     CurveInputs curveInputs2 = CurveInputs.of(marketDataMap2, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
         .build();
@@ -346,8 +342,7 @@ public class CurveGroupMarketDataFunctionTest {
         FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
         pointsKey2a, 0.2d);
     CurveInputs badCurveInputs = CurveInputs.of(badMarketDataMap, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment badMarketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment badMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
         .build();

@@ -208,8 +208,7 @@ public class MarketDataNodeTest {
     assertThat(root1).isEqualTo(expected1);
 
     MarketEnvironment suppliedData =
-        MarketEnvironment.builder()
-            .valuationDate(date(2011, 3, 8))
+        MarketEnvironment.builder(date(2011, 3, 8))
             .addValue(new TestIdB("1"), new TestMarketDataB())
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();

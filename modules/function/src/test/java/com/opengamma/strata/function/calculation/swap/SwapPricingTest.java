@@ -118,8 +118,7 @@ public class SwapPricingTest {
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
-    MarketEnvironment suppliedData = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment suppliedData = MarketEnvironment.builder(VAL_DATE)
         .addValue(CurveGroupId.of(CURVE_GROUP_NAME), CURVE_GROUP)
         .build();
 

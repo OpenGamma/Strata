@@ -63,8 +63,7 @@ public class FxRateMarketDataFunctionTest {
   public void build() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, marketData, config());
@@ -75,8 +74,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildInverse() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), marketData, config());
@@ -87,8 +85,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildScenario() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofScenarioValues(1.1d, 1.2d, 1.3d);
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, marketData, config());

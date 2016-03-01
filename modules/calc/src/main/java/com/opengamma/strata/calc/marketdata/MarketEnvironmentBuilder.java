@@ -45,9 +45,29 @@ public final class MarketEnvironmentBuilder {
   private final Map<MarketDataId<?>, Failure> timeSeriesFailures = new HashMap<>();
 
   /**
-   * Creates an empty builder.
+   * Creates a builder pre-populated with the valuation date.
+   *
+   * @param valuationDate  the valuation date associated with the market data
    */
-  MarketEnvironmentBuilder() {
+  MarketEnvironmentBuilder(LocalDate valuationDate) {
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
+    updateScenarioCount(this.valuationDate);
+  }
+
+  /**
+   * Creates a builder pre-populated with the valuation date.
+   *
+   * @param valuationDate  the valuation date associated with the market data
+   */
+  MarketEnvironmentBuilder(MarketDataBox<LocalDate> valuationDate) {
+    ArgChecker.notNull(valuationDate, "valuationDate");
+
+    if (valuationDate.getScenarioCount() == 0) {
+      throw new IllegalArgumentException("Valuation date must not be empty");
+    }
+    updateScenarioCount(valuationDate);
+    this.valuationDate = valuationDate;
   }
 
   /**
@@ -275,36 +295,6 @@ public final class MarketEnvironmentBuilder {
       timeSeriesFailures.put(id, result.getFailure());
       timeSeries.remove(id);
     }
-    return this;
-  }
-
-  /**
-   * Sets the valuation date associated with the market data, replacing the existing valuation date.
-   *
-   * @param valuationDate  the valuation date associated with the market data
-   * @return this builder
-   */
-  public MarketEnvironmentBuilder valuationDate(LocalDate valuationDate) {
-    ArgChecker.notNull(valuationDate, "valuationDate");
-    this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
-    updateScenarioCount(this.valuationDate);
-    return this;
-  }
-
-  /**
-   * Sets the valuation date associated with the market data, replacing the existing valuation date.
-   *
-   * @param valuationDate  the valuation date associated with the market data
-   * @return this builder
-   */
-  public MarketEnvironmentBuilder valuationDate(MarketDataBox<LocalDate> valuationDate) {
-    ArgChecker.notNull(valuationDate, "valuationDate");
-
-    if (valuationDate.getScenarioCount() == 0) {
-      throw new IllegalArgumentException("Valuation date must not be empty");
-    }
-    updateScenarioCount(valuationDate);
-    this.valuationDate = valuationDate;
     return this;
   }
 

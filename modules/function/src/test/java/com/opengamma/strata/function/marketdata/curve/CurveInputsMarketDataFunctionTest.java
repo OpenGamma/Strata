@@ -160,8 +160,7 @@ public class CurveInputsMarketDataFunctionTest {
     QuoteId idB = QuoteId.of(StandardId.of("test", "b"));
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)

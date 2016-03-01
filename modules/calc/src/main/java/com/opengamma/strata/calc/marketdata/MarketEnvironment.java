@@ -94,12 +94,23 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an empty mutable builder for building a new instance of {@code MarketEnvironment}.
+   * Returns a mutable builder, with the valuation date set, for building a new instance of {@code MarketEnvironment}.
    *
-   * @return an empty mutable builder for building a new instance of {@code MarketEnvironment}
+   * @param valuationDate  the valuation date associated with the market data
+   * @return an mutable builder for building a new instance of {@code MarketEnvironment}
    */
-  public static MarketEnvironmentBuilder builder() {
-    return new MarketEnvironmentBuilder();
+  public static MarketEnvironmentBuilder builder(LocalDate valuationDate) {
+    return new MarketEnvironmentBuilder(valuationDate);
+  }
+
+  /**
+   * Returns a mutable builder, with the valuation date set, for building a new instance of {@code MarketEnvironment}.
+   *
+   * @param valuationDate  the valuation date associated with the market data
+   * @return an mutable builder for building a new instance of {@code MarketEnvironment}
+   */
+  public static MarketEnvironmentBuilder builder(MarketDataBox<LocalDate> valuationDate) {
+    return new MarketEnvironmentBuilder(valuationDate);
   }
 
   /**
@@ -118,7 +129,7 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
    * @return an empty set of market data
    */
   public static MarketEnvironment empty(LocalDate valuationDate) {
-    return builder().valuationDate(valuationDate).build();
+    return builder(valuationDate).build();
   }
 
   //-------------------------------------------------------------------------

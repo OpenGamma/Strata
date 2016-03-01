@@ -48,8 +48,7 @@ public class SingleScenarioResultTest {
         FxRate.of(Currency.GBP, Currency.USD, 1.61),
         FxRate.of(Currency.GBP, Currency.USD, 1.62),
         FxRate.of(Currency.GBP, Currency.USD, 1.63));
-    CalculationEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
