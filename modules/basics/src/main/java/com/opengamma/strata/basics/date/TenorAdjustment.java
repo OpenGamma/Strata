@@ -51,7 +51,7 @@ import com.opengamma.strata.basics.market.Resolvable;
  */
 @BeanDefinition
 public final class TenorAdjustment
-    implements Resolvable<TenorAdjuster>, ImmutableBean, Serializable {
+    implements Resolvable<DateAdjuster>, ImmutableBean, Serializable {
 
   /**
    * The tenor to be added.
@@ -146,7 +146,7 @@ public final class TenorAdjustment
    * <p>
    * Step one, use {@link PeriodAdditionConvention#adjust(LocalDate, Period, HolidayCalendar)} to add the period.
    * <p>
-   * Step two, use {@link BusinessDayAdjuster#adjust(LocalDate)} to adjust the result of step one.
+   * Step two, use {@link BusinessDayAdjustment#adjust(LocalDate, ReferenceData)} to adjust the result of step one.
    * 
    * @param date  the date to adjust
    * @param refData  the reference data, used to find the holiday calendar
@@ -161,7 +161,7 @@ public final class TenorAdjustment
   /**
    * Resolves this adjustment using the specified reference data, returning an adjuster.
    * <p>
-   * This returns a {@link TenorAdjuster} that performs the same calculation as this adjustment.
+   * This returns a {@link DateAdjuster} that performs the same calculation as this adjustment.
    * It binds the holiday calendar, looked up from the reference data, into the result.
    * As such, there is no need to pass the reference data in again.
    * 
@@ -169,23 +169,7 @@ public final class TenorAdjustment
    * @return the adjuster, bound to a specific holiday calendar
    */
   @Override
-  public TenorAdjuster resolve(ReferenceData refData) {
-    return new TenorAdjuster(tenor, additionConvention, adjustment.resolve(refData));
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning a date adjuster.
-   * <p>
-   * This returns a {@link TenorAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * See {@link #resolve(ReferenceData)} for an equivalent method that returns a bean.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the date adjuster, bound to a specific holiday calendar
-   */
-  public DateAdjuster toDateAdjuster(ReferenceData refData) {
+  public DateAdjuster resolve(ReferenceData refData) {
     HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
     BusinessDayConvention bda = adjustment.getConvention();
     Period period = tenor.getPeriod();

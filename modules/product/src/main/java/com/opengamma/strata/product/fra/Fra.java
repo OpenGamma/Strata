@@ -232,7 +232,7 @@ public final class Fra
   //-------------------------------------------------------------------------
   @Override
   public ResolvedFra resolve(ReferenceData refData) {
-    DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).toDateAdjuster(refData);
+    DateAdjuster bda = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).resolve(refData);
     LocalDate start = bda.adjust(startDate);
     LocalDate end = bda.adjust(endDate);
     return ResolvedFra.builder()

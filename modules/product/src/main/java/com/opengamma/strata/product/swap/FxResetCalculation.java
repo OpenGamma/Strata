@@ -124,7 +124,7 @@ public final class FxResetCalculation
    * @throws RuntimeException if the calculation is invalid
    */
   Function<SchedulePeriod, FxReset> resolve(ReferenceData refData) {
-    DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);
+    DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     return period -> buildFxReset(period, fixingDateAdjuster, refData);
   }
 

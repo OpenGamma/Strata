@@ -287,7 +287,7 @@ public final class IborRateCalculation
     List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule.getPeriods());
     // resolve against reference data once
-    DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);
+    DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     Function<SchedulePeriod, Schedule> resetScheduleBuilder =
         getResetPeriods().map(rp -> rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
     // build accrual periods

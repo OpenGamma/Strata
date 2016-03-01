@@ -39,7 +39,7 @@ import com.opengamma.strata.basics.market.Resolvable;
  */
 @BeanDefinition
 public final class BusinessDayAdjustment
-    implements Resolvable<BusinessDayAdjuster>, ImmutableBean, Serializable {
+    implements Resolvable<DateAdjuster>, ImmutableBean, Serializable {
 
   /**
    * An instance that performs no adjustment.
@@ -95,7 +95,7 @@ public final class BusinessDayAdjustment
   /**
    * Resolves this adjustment using the specified reference data, returning an adjuster.
    * <p>
-   * This returns a {@link BusinessDayAdjuster} that performs the same calculation as this adjustment.
+   * This returns a {@link DateAdjuster} that performs the same calculation as this adjustment.
    * It binds the holiday calendar, looked up from the reference data, into the result.
    * As such, there is no need to pass the reference data in again.
    * 
@@ -103,23 +103,7 @@ public final class BusinessDayAdjustment
    * @return the adjuster, bound to a specific holiday calendar
    */
   @Override
-  public BusinessDayAdjuster resolve(ReferenceData refData) {
-    return new BusinessDayAdjuster(convention, calendar.resolve(refData));
-  }
-
-  /**
-   * Resolves this adjustment using the specified reference data, returning a date adjuster.
-   * <p>
-   * This returns a {@link BusinessDayAdjuster} that performs the same calculation as this adjustment.
-   * It binds the holiday calendar, looked up from the reference data, into the result.
-   * As such, there is no need to pass the reference data in again.
-   * <p>
-   * See {@link #resolve(ReferenceData)} for an equivalent method that returns a bean.
-   * 
-   * @param refData  the reference data, used to find the holiday calendar
-   * @return the date adjuster, bound to a specific holiday calendar
-   */
-  public DateAdjuster toDateAdjuster(ReferenceData refData) {
+  public DateAdjuster resolve(ReferenceData refData) {
     HolidayCalendar holCal = calendar.resolve(refData);
     return date -> convention.adjust(date, holCal);
   }

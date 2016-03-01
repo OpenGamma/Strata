@@ -165,7 +165,7 @@ public final class KnownAmountSwapLeg
     // resolve amount schedule against payment schedule
     List<Double> amounts = amount.resolveValues(resolvedPayments.getPeriods());
     // resolve against reference data once
-    DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().toDateAdjuster(refData);
+    DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().resolve(refData);
     // build up payment periods using schedule
     ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
     for (int index = 0; index < resolvedPayments.size(); index++) {

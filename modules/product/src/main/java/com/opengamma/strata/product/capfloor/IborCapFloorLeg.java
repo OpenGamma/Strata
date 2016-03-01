@@ -193,8 +193,8 @@ public final class IborCapFloorLeg
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
-    DateAdjuster paymentDateAdjuster = paymentDateOffset.toDateAdjuster(refData);
-    DateAdjuster fixingDateAdjuster = calculation.getFixingDateOffset().toDateAdjuster(refData);
+    DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
+    DateAdjuster fixingDateAdjuster = calculation.getFixingDateOffset().resolve(refData);
 
     ImmutableList.Builder<IborCapletFloorletPeriod> periodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {

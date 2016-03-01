@@ -154,7 +154,7 @@ public final class PaymentSchedule
     boolean rollForwards = !accrualSchedule.getInitialStub().isPresent();
     Schedule paySchedule = accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
     if (businessDayAdjustment != null) {
-      return paySchedule.toAdjusted(businessDayAdjustment.toDateAdjuster(refData));
+      return paySchedule.toAdjusted(businessDayAdjustment.resolve(refData));
     }
     return paySchedule;
   }
@@ -185,7 +185,7 @@ public final class PaymentSchedule
 
     List<Double> notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule.getPeriods());
     // resolve against reference data once
-    DateAdjuster paymentDateAdjuster = paymentDateOffset.toDateAdjuster(refData);
+    DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     Function<SchedulePeriod, FxReset> fxResetFn =
         notionalSchedule.getFxReset().map(calc -> calc.resolve(refData)).orElse(p -> null);
     // build up payment periods using schedule

@@ -94,7 +94,7 @@ public final class ImmutableFxIndex
     LocalDate maturityBusinessDay = maturityDateCalendar().resolve(refData).nextOrSame(maturityDate);
     // find the fixing date iteratively
     HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
-    DateAdjuster maturityFromFixing = maturityDateOffset.toDateAdjuster(refData);
+    DateAdjuster maturityFromFixing = maturityDateOffset.resolve(refData);
     LocalDate fixingDate = maturityBusinessDay;
     while (fixingCal.isHoliday(fixingDate) || maturityFromFixing.adjust(fixingDate).isAfter(maturityBusinessDay)) {
       fixingDate = fixingDate.minusDays(1);

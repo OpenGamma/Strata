@@ -69,7 +69,6 @@ public class DaysAdjustmentTest {
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 17));  // Sun
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
-    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 17));  // Sun
   }
 
   public void test_ofCalendarDays2_oneDay() {
@@ -93,7 +92,6 @@ public class DaysAdjustmentTest {
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 18));  // Mon
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
-    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 18));  // Mon
   }
 
   public void test_ofCalendarDays2_null() {
@@ -122,7 +120,6 @@ public class DaysAdjustmentTest {
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base, REF_DATA), date(2014, 8, 19));  // Tue
     assertEquals(test.resolve(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
-    assertEquals(test.toDateAdjuster(REF_DATA).adjust(base), date(2014, 8, 19));  // Tue
   }
 
   public void test_ofBusinessDays2_null() {
@@ -155,7 +152,6 @@ public class DaysAdjustmentTest {
     LocalDate base = date(2014, 8, 15);  // Fri
     assertEquals(test.adjust(base, refData), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
     assertEquals(test.resolve(refData).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
-    assertEquals(test.toDateAdjuster(refData).adjust(base), date(2014, 8, 22));  // Fri (3 days gives Wed, following moves to Fri)
   }
 
   public void test_ofBusinessDays3_null() {

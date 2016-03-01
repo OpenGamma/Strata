@@ -256,8 +256,8 @@ public final class CmsLeg
     List<Double> cap = getCapSchedule().isPresent() ? capSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> floor = getFloorSchedule().isPresent() ? floorSchedule.resolveValues(adjustedSchedule.getPeriods()) : null;
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
-    DateAdjuster fixingDateAdjuster = fixingDateOffset.toDateAdjuster(refData);
-    DateAdjuster paymentDateAdjuster = paymentDateOffset.toDateAdjuster(refData);
+    DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
+    DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     ImmutableList.Builder<CmsPeriod> cmsPeriodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);

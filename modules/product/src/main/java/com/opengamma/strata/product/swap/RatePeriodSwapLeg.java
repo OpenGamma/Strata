@@ -230,7 +230,7 @@ public final class RatePeriodSwapLeg
    */
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
-    DateAdjuster paymentDateAdjuster = paymentBusinessDayAdjustment.toDateAdjuster(refData);
+    DateAdjuster paymentDateAdjuster = paymentBusinessDayAdjustment.resolve(refData);
     ImmutableList<RatePaymentPeriod> adjusted = paymentPeriods.stream()
         .map(pp -> pp.adjustPaymentDate(paymentDateAdjuster))
         .collect(toImmutableList());
