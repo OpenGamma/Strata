@@ -159,7 +159,7 @@ public final class FixedCouponBond
   public ResolvedFixedCouponBond resolve(ReferenceData refData) {
     Schedule adjustedSchedule = periodicSchedule.createSchedule(refData);
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
-    DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.toDateAdjuster(refData);
+    DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
 
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
@@ -189,7 +189,7 @@ public final class FixedCouponBond
         .fixedRate(fixedRate)
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
-        .settlementDateOffset(settlementDateOffset.resolve(refData))
+        .settlementDateOffset(settlementDateOffset)
         .build();
   }
 

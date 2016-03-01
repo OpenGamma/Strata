@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -132,16 +133,18 @@ public class DiscountingFixedCouponBondTradePricer {
    * 
    * @param trade  the trade
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValueFromCleanPrice(
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider,
+      ReferenceData refData,
       double cleanPrice) {
 
     ResolvedFixedCouponBond product = trade.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -177,6 +180,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * 
    * @param trade  the trade
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @param cleanPrice  the clean price
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -186,13 +190,14 @@ public class DiscountingFixedCouponBondTradePricer {
   public CurrencyAmount presentValueFromCleanPriceWithZSpread(
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider,
+      ReferenceData refData,
       double cleanPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
     ResolvedFixedCouponBond product = trade.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = product.getLegalEntityId();

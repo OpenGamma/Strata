@@ -100,7 +100,7 @@ public class FixedCouponBondTest {
     FixedCouponBond base = sut();
     ResolvedFixedCouponBond resolved = base.resolve(REF_DATA);
     assertEquals(resolved.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(resolved.getSettlementDateOffset(), DATE_OFFSET.resolve(REF_DATA));
+    assertEquals(resolved.getSettlementDateOffset(), DATE_OFFSET);
     assertEquals(resolved.getYieldConvention(), YIELD_CONVENTION);
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = resolved.getPeriodicPayments();
     int expNum = 20;

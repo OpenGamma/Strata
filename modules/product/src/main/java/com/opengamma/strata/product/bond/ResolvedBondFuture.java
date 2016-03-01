@@ -16,7 +16,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
-import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -127,20 +126,6 @@ public final class ResolvedBondFuture
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.rounding(Rounding.none());
-  }
-
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (!builder.deliveryBasket.isEmpty()) {
-      if (builder.firstNoticeDate != null && builder.firstDeliveryDate == null) {
-        ResolvedFixedCouponBond product = builder.deliveryBasket.get(0).getFirst();
-        builder.firstDeliveryDate = product.getSettlementDateOffset().adjust(builder.firstNoticeDate);
-      }
-      if (builder.lastNoticeDate != null && builder.lastDeliveryDate == null) {
-        ResolvedFixedCouponBond product = builder.deliveryBasket.get(0).getFirst();
-        builder.lastDeliveryDate = product.getSettlementDateOffset().adjust(builder.lastNoticeDate);
-      }
-    }
   }
 
   @ImmutableValidator
@@ -747,7 +732,6 @@ public final class ResolvedBondFuture
 
     @Override
     public ResolvedBondFuture build() {
-      preBuild(this);
       return new ResolvedBondFuture(
           deliveryBasket,
           conversionFactor,

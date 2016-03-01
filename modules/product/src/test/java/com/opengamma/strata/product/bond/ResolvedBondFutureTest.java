@@ -31,6 +31,8 @@ public class ResolvedBondFutureTest {
         .conversionFactor(base.getConversionFactor())
         .firstNoticeDate(base.getFirstNoticeDate())
         .lastNoticeDate(base.getLastNoticeDate())
+        .firstDeliveryDate(base.getFirstDeliveryDate())
+        .lastDeliveryDate(base.getLastDeliveryDate())
         .lastTradeDate(base.getLastTradeDate())
         .rounding(base.getRounding())
         .build();

@@ -11,6 +11,7 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
@@ -161,14 +162,16 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param bond  the product
    * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @return the dirty price of the fixed coupon bond security
    */
   public double dirtyPriceFromCurves(
       ResolvedFixedCouponBond bond,
       StandardId securityId,
-      LegalEntityDiscountingProvider provider) {
+      LegalEntityDiscountingProvider provider,
+      ReferenceData refData) {
 
-    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     return dirtyPriceFromCurves(bond, securityId, provider, settlementDate);
   }
 
@@ -208,6 +211,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param bond  the product
    * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -217,11 +221,12 @@ public class DiscountingFixedCouponBondProductPricer {
       ResolvedFixedCouponBond bond,
       StandardId securityId,
       LegalEntityDiscountingProvider provider,
+      ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     return dirtyPriceFromCurvesWithZSpread(bond, securityId, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
   }
 
@@ -299,6 +304,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param bond  the product
    * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @param dirtyPrice  the dirtyPrice
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -308,6 +314,7 @@ public class DiscountingFixedCouponBondProductPricer {
       ResolvedFixedCouponBond bond,
       StandardId securityId,
       LegalEntityDiscountingProvider provider,
+      ReferenceData refData,
       double dirtyPrice,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -315,7 +322,8 @@ public class DiscountingFixedCouponBondProductPricer {
     final Function<Double, Double> residual = new Function<Double, Double>() {
       @Override
       public Double apply(final Double z) {
-        return dirtyPriceFromCurvesWithZSpread(bond, securityId, provider, z, compoundedRateType, periodsPerYear) - dirtyPrice;
+        return dirtyPriceFromCurvesWithZSpread(
+            bond, securityId, provider, refData, z, compoundedRateType, periodsPerYear) - dirtyPrice;
       }
     };
     double[] range = ROOT_BRACKETER.getBracketedPoints(residual, -0.01, 0.01); // Starting range is [-1%, 1%]
@@ -408,14 +416,16 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param bond  the product
    * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @return the dirty price value curve sensitivity of the security
    */
   public PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
       StandardId securityId,
-      LegalEntityDiscountingProvider provider) {
+      LegalEntityDiscountingProvider provider,
+      ReferenceData refData) {
 
-    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     return dirtyPriceSensitivity(bond, securityId, provider, settlementDate);
   }
 
@@ -450,6 +460,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param bond  the product
    * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
+   * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
@@ -459,11 +470,12 @@ public class DiscountingFixedCouponBondProductPricer {
       ResolvedFixedCouponBond bond,
       StandardId securityId,
       LegalEntityDiscountingProvider provider,
+      ReferenceData refData,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate());
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
     return dirtyPriceSensitivityWithZspread(bond, securityId, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
   }
 
