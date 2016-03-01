@@ -7,6 +7,7 @@ package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +94,7 @@ public final class CurveCurrencyParameterSensitivities
    * @return the sensitivities instance
    */
   public static CurveCurrencyParameterSensitivities of(CurveCurrencyParameterSensitivity... sensitivities) {
-    return new CurveCurrencyParameterSensitivities(ImmutableList.copyOf(sensitivities));
+    return of(Arrays.asList(sensitivities));
   }
 
   /**
