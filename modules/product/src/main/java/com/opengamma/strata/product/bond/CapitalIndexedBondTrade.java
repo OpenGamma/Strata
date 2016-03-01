@@ -65,9 +65,9 @@ public final class CapitalIndexedBondTrade
   @PropertyDefinition
   private final long quantity;
   /**
-   * The upfront fee payment of the bond trade.
+   * The settlement of the bond trade.
    * <p>
-   * The payment sign should be compatible with the product quantity, 
+   * The payment sign should be compatible with the product notional and trade quantity, 
    * thus the payment is negative for positive quantity and positive for negative quantity.
    * <p>
    * This is effectively a fixed amount payment once inflation rate is fixed. 
@@ -223,9 +223,9 @@ public final class CapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the upfront fee payment of the bond trade.
+   * Gets the settlement of the bond trade.
    * <p>
-   * The payment sign should be compatible with the product quantity,
+   * The payment sign should be compatible with the product notional and trade quantity,
    * thus the payment is negative for positive quantity and positive for negative quantity.
    * <p>
    * This is effectively a fixed amount payment once inflation rate is fixed.
@@ -559,9 +559,9 @@ public final class CapitalIndexedBondTrade
     }
 
     /**
-     * Sets the upfront fee payment of the bond trade.
+     * Sets the settlement of the bond trade.
      * <p>
-     * The payment sign should be compatible with the product quantity,
+     * The payment sign should be compatible with the product notional and trade quantity,
      * thus the payment is negative for positive quantity and positive for negative quantity.
      * <p>
      * This is effectively a fixed amount payment once inflation rate is fixed.

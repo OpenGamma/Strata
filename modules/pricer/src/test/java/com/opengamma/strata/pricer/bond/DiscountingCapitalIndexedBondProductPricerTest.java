@@ -565,6 +565,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .build();
   private static final LocalDate START_USD = LocalDate.of(2010, 7, 15);
   private static final LocalDate END_USD = LocalDate.of(2020, 7, 15);
+  private static final DaysAdjustment SETTLE_OFFSET_US = DaysAdjustment.ofBusinessDays(1, USNY);
   private static final PeriodicSchedule SCHEDULE_US =
       PeriodicSchedule.of(START_USD, END_USD, FREQUENCY, BUSINESS_ADJUST, StubConvention.NONE, RollConventions.NONE);
   private static final CapitalIndexedBond PRODUCT_US = CapitalIndexedBond.builder()
@@ -574,7 +575,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .rateCalculation(RATE_CALC_US)
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(US_IL_REAL)
-      .settlementDateOffset(SETTLE_OFFSET)
+      .settlementDateOffset(SETTLE_OFFSET_US)
       .periodicSchedule(SCHEDULE_US)
       .startIndexValue(START_INDEX_US)
       .build();
@@ -587,8 +588,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     assertEquals(computed, 1.06, 1.e-2);
     double computedSmall =
-        PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, LocalDate.of(2020, 2, 3), 0.0);
-    assertEquals(computedSmall, 1.0, 1.e-2);
+        PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, 0.0);
+    assertEquals(computedSmall, 1.05, 1.e-2);
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_US, standardSettle, dirtyPrice);
     assertEquals(computed, cleanPrice);
@@ -631,9 +632,16 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
+  public void test_accruedInterest_us() {
+    double accPositive = PRICER.accruedInterest(PRODUCT_US, LocalDate.of(2016, 7, 14));
+    assertEquals(accPositive, 6216d, 1.0);
+    double accZero = PRICER.accruedInterest(PRODUCT_US, LocalDate.of(2016, 7, 15));
+    assertEquals(accZero, 0d);
+  }
+
   //-------------------------------------------------------------------------
   private static final ImmutableRatesProvider RATES_PROVS_GB = CapitalIndexedBondCurveDataSet.getRatesProviderGb(
-      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE));
+      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE)); // curve is inaccurate, used for fixing price index
   private static final LegalEntityDiscountingProvider ISSUER_PROVS_GB =
       CapitalIndexedBondCurveDataSet.getLegalEntityDiscountingProviderGb(VAL_DATE);
 
@@ -650,6 +658,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final LocalDate END_GOV = LocalDate.of(2020, 4, 16);
   private static final BusinessDayAdjustment BUSINESS_ADJUST_GOV =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO);
+  private static final DaysAdjustment SETTLE_OFFSET_GB = DaysAdjustment.ofBusinessDays(1, GBLO);
   private static final PeriodicSchedule SCHEDULE_GOV =
       PeriodicSchedule.of(START_GOV, END_GOV, FREQUENCY, BUSINESS_ADJUST_GOV, StubConvention.NONE, RollConventions.NONE);
   private static final BusinessDayAdjustment EX_COUPON_ADJ_GOV =
@@ -662,7 +671,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .rateCalculation(RATE_CALC_GOV)
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(INDEX_LINKED_FLOAT)
-      .settlementDateOffset(SETTLE_OFFSET)
+      .settlementDateOffset(SETTLE_OFFSET_GB)
       .periodicSchedule(SCHEDULE_GOV)
       .exCouponPeriod(EX_COUPON_GOV)
       .startIndexValue(START_INDEX_GOV)
@@ -671,13 +680,32 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       UnitSecurity.builder(PRODUCT_GOV).standardId(SECURITY_ID).build();
   private static final double YIELD_GOV = -0.01532;
 
+  private static final double START_INDEX_GOV_OP = 81.3;
+  private static final LocalDate START_GOV_OP = LocalDate.of(1983, 1, 26);
+  private static final LocalDate END_GOV_OP = LocalDate.of(2016, 7, 26);
+  private static final PeriodicSchedule SCHEDULE_GOV_OP = PeriodicSchedule.of(
+      START_GOV_OP, END_GOV_OP, FREQUENCY, BUSINESS_ADJUST_GOV, StubConvention.NONE, RollConventions.NONE);
+  private static final CapitalIndexedBond PRODUCT_GOV_OP = CapitalIndexedBond.builder()
+      .notional(NTNL)
+      .currency(GBP)
+      .dayCount(ACT_ACT_ICMA)
+      .rateCalculation(RATE_CALC_GOV)
+      .legalEntityId(LEGAL_ENTITY)
+      .yieldConvention(INDEX_LINKED_FLOAT)
+      .settlementDateOffset(SETTLE_OFFSET_GB)
+      .periodicSchedule(SCHEDULE_GOV_OP)
+      .exCouponPeriod(EX_COUPON_GOV)
+      .startIndexValue(START_INDEX_GOV_OP)
+      .build();
+  private static final double YIELD_GOV_OP = -0.0244;
+
   public void test_priceFromRealYield_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     assertEquals(computed, 3.60, 2.e-2);
-    double computedOnePeriod =
-        PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, LocalDate.of(2019, 12, 3), YIELD_GOV);
-    assertEquals(computedOnePeriod, 2.85, 2.e-2);
+    double computedOnePeriod = PRICER.cleanPriceFromRealYield(
+        PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP.getSettlementDateOffset().adjust(VAL_DATE), YIELD_GOV_OP);
+    assertEquals(computedOnePeriod, 3.21, 5.e-2);
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
         PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
@@ -688,7 +716,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_ukGov() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cvComputed =
@@ -709,7 +737,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_ukGov() {
-    LocalDate standardSettle = PRODUCT.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
@@ -719,8 +747,17 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
+  public void test_accruedInterest_ukGov() {
+    double accPositive = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 7));
+    assertEquals(accPositive, 11885d, 1.0);
+    double accNegative = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 8));
+    assertEquals(accNegative, -546.44, 1.0e-2);
+    double accZero = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 16));
+    assertEquals(accZero, 0d);
+  }
+
   //-------------------------------------------------------------------------
-  private static final double START_INDEX_CORP = 217.95;
+  private static final double START_INDEX_CORP = 216.52;
   private static final double CPN_VALUE_CORP = 0.00625 * 0.5;
   private static final ValueSchedule CPN_CORP = ValueSchedule.of(CPN_VALUE_CORP);
   private static final InflationRateCalculation RATE_CALC_CORP = InflationRateCalculation.builder()
@@ -746,7 +783,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .rateCalculation(RATE_CALC_CORP)
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(UK_IL_BOND)
-      .settlementDateOffset(SETTLE_OFFSET)
+      .settlementDateOffset(SETTLE_OFFSET_GB)
       .periodicSchedule(SCHEDULE_CORP)
       .exCouponPeriod(EX_COUPON_CORP)
       .startIndexValue(START_INDEX_CORP)
@@ -802,6 +839,15 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         SECURITY_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
+  }
+
+  public void test_accruedInterest_ukCor() {
+    double accPositive = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 13));
+    assertEquals(accPositive, 2971d, 1.0);
+    double accNegative = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 14));
+    assertEquals(accNegative, -137.37, 1.0e-2);
+    double accZero = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 22));
+    assertEquals(accZero, 0d);
   }
 
   //-------------------------------------------------------------------------
@@ -869,4 +915,5 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
                 security, p, issuerRatesProvider, zSpread, compoundedRateType, periodsPerYear)));
     return sensi1.combinedWith(sensi2);
   }
+
 }

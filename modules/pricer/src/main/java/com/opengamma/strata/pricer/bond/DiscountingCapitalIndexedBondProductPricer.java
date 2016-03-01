@@ -85,7 +85,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the period pricer
+   * Obtains the period pricer. 
    * 
    * @return the period pricer
    */
@@ -481,7 +481,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the dirty price sensitivity of the bond security.
    * <p>
-   * The dirty price sensitivity of the security is the sensitivity of the present value to
+   * The dirty price sensitivity of the security is the sensitivity of the dirty price value to
    * the underlying curves.
    * 
    * @param security  the security to price
@@ -525,7 +525,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the dirty price sensitivity of the bond security with z-spread.
    * <p>
-   * The dirty price sensitivity of the security is the sensitivity of the present value to
+   * The dirty price sensitivity of the security is the sensitivity of the dirty price value to
    * the underlying curves.
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
@@ -601,6 +601,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
       LocalDate settlementDate,
       double yield) {
 
+    ArgChecker.isTrue(settlementDate.isBefore(product.getPeriodicSchedule().getEndDate()),
+        "settlement date must be before end date");
     Schedule scheduleAdjusted = product.getPeriodicSchedule().createSchedule();
     Schedule scheduleUnadjusted = scheduleAdjusted.toUnadjusted();
     List<Double> coupon = product.getRateCalculation().getGearing().orElse(ValueSchedule.ALWAYS_1)
@@ -633,22 +635,22 @@ public class DiscountingCapitalIndexedBondProductPricer {
       LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(product.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
       double indexRatio = ts.getLatestValue() / product.getStartIndexValue();
-      YearMonth endFixingMonth2 = null;
+      YearMonth endFixingMonth = null;
       if (obs instanceof InflationEndInterpolatedRateObservation) {
-        endFixingMonth2 = ((InflationEndInterpolatedRateObservation) obs).getReferenceEndInterpolationMonth();
+        endFixingMonth = ((InflationEndInterpolatedRateObservation) obs).getReferenceEndInterpolationMonth();
       } else if (obs instanceof InflationEndMonthRateObservation) {
-        endFixingMonth2 = ((InflationEndMonthRateObservation) obs).getReferenceEndMonth();
+        endFixingMonth = ((InflationEndMonthRateObservation) obs).getReferenceEndMonth();
       } else {
         throw new IllegalArgumentException("The rate observation " + obs.toString() + " is not supported.");
       }
-      double nbMonth = Math.abs(MONTHS.between(endFixingMonth2, lastKnownFixingMonth));
-      double u = Math.sqrt(1d / (1d + 0.03));
+      double nbMonth = Math.abs(MONTHS.between(endFixingMonth, lastKnownFixingMonth));
+      double u = Math.sqrt(1d / 1.03);
       double a = indexRatio * Math.pow(u, nbMonth / 6d);
+      double firstCashFlow = firstYearFraction * realRate * indexRatio;
       if (nbCoupon == 1) {
-        return Math.pow(u * v, factorToNextCoupon(scheduleUnadjusted, product.getDayCount(), settlementDate) + 1d) *
-            (realRate + 1d) * a / u;
+        return (realRate + 1d) * a / u *
+            Math.pow(u * v, ratioPeriodToNextCoupon(expanded.getPeriodicPayments().get(couponIndex), settlementDate));
       } else {
-        double firstCashFlow = firstYearFraction * realRate * indexRatio;
         double secondYearFraction =
             scheduleUnadjusted.getPeriod(couponIndex  + 1).yearFraction(product.getDayCount(), scheduleUnadjusted);
         double secondCashFlow = secondYearFraction * realRate * indexRatio;
@@ -959,7 +961,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param product  the product to price
    * @param settlementDate  the settlement date
    * @param cleanPrice  the clean real price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double dirtyRealPriceFromCleanRealPrice(
       CapitalIndexedBond product,
@@ -976,7 +978,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param product  the product to price
    * @param settlementDate  the settlement date
    * @param dirtyPrice  the dirty real price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double cleanRealPriceFromDirtyRealPrice(
       CapitalIndexedBond product,
@@ -994,7 +996,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param cleanPrice  the clean nominal price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double dirtyNominalPriceFromCleanNominalPrice(
       CapitalIndexedBond product,
@@ -1014,7 +1016,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param dirtyPrice  the dirty nominal price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double cleanNominalPriceFromDirtyNominalPrice(
       CapitalIndexedBond product,
@@ -1036,7 +1038,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param nominalPrice  the nominal price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double realPriceFromNominalPrice(
       CapitalIndexedBond product,
@@ -1057,7 +1059,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param realPrice  the real price
-   * @return the present value of the bond product
+   * @return the price of the bond product
    */
   public double nominalPriceFromRealPrice(
       CapitalIndexedBond product,
