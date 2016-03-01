@@ -45,8 +45,7 @@ public class OvernightIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(groupId, curveGroup)
         .build();
     OvernightIndexCurveMarketDataFunction builder = new OvernightIndexCurveMarketDataFunction();
@@ -71,8 +70,7 @@ public class OvernightIndexCurveMarketDataFunctionTest {
         .name(CurveGroupName.of("groupName"))
         .forwardCurves(curveMap)
         .build();
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(groupId, curveGroup)
         .build();
     OvernightIndexCurveMarketDataFunction builder = new OvernightIndexCurveMarketDataFunction();
@@ -116,8 +114,7 @@ public class OvernightIndexCurveMarketDataFunctionTest {
         .forwardCurves(curveMap2)
         .build();
 
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(groupId1, curveGroup1)
         .addValue(groupId2, curveGroup2)
         .build();

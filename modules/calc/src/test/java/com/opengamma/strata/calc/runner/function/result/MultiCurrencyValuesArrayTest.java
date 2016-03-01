@@ -150,8 +150,7 @@ public class MultiCurrencyValuesArrayTest {
         FxRate.of(Currency.USD, Currency.CAD, 1.31),
         FxRate.of(Currency.USD, Currency.CAD, 1.32));
     MarketDataBox<FxRate> eurCadRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.CAD, 1.4));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.CAD), gbpCadRate)
         .addValue(FxRateId.of(Currency.EUR, Currency.CAD), eurCadRate)
         .addValue(FxRateId.of(Currency.USD, Currency.CAD), usdCadRate)
@@ -172,8 +171,7 @@ public class MultiCurrencyValuesArrayTest {
         FxRate.of(Currency.GBP, Currency.USD, 1.51),
         FxRate.of(Currency.GBP, Currency.USD, 1.52));
     MarketDataBox<FxRate> eurGbpRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.GBP, 0.7));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketEnvironment = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), gbpUsdRate)
         .addValue(FxRateId.of(Currency.EUR, Currency.GBP), eurGbpRate)
         .build();

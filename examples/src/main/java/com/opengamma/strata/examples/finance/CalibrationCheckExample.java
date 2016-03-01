@@ -168,8 +168,7 @@ public class CalibrationCheckExample {
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketSnapshot = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
         .addValues(quotes)
         .build();
 

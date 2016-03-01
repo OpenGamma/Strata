@@ -47,7 +47,7 @@ public class DiscountCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
     DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
     MarketDataBox<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
@@ -65,7 +65,7 @@ public class DiscountCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.AUD, curve1, Currency.GBP, curve2),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(VAL_DATE).addValue(groupId, curveGroup).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
     DiscountCurveMarketDataFunction builder = new DiscountCurveMarketDataFunction();
 
     MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
@@ -99,8 +99,7 @@ public class DiscountCurveMarketDataFunctionTest {
         ImmutableMap.of(Currency.CHF, curve3, Currency.USD, curve4),
         ImmutableMap.of());
 
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(groupId1, curveGroup1)
         .addValue(groupId2, curveGroup2)
         .build();
@@ -135,8 +134,7 @@ public class DiscountCurveMarketDataFunctionTest {
         CurveGroupName.of("curveGroup"),
         ImmutableMap.of(Currency.GBP, curve),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
         .addValue(groupId, curveGroup)
         .build();
     DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();

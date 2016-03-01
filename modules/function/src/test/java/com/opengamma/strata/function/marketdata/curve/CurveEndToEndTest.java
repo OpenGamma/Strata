@@ -178,8 +178,7 @@ public class CurveEndToEndTest {
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
-    MarketEnvironment knownMarketData = MarketEnvironment.builder()
-        .valuationDate(date(2011, 3, 8))
+    MarketEnvironment knownMarketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValues(parRateData)
         .build();
 

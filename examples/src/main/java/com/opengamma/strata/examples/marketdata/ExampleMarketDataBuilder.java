@@ -189,7 +189,7 @@ public abstract class ExampleMarketDataBuilder {
    * @return the snapshot
    */
   public MarketEnvironment buildSnapshot(LocalDate marketDataDate) {
-    MarketEnvironmentBuilder builder = MarketEnvironment.builder().valuationDate(marketDataDate);
+    MarketEnvironmentBuilder builder = MarketEnvironment.builder(marketDataDate);
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadQuotes(builder, marketDataDate);

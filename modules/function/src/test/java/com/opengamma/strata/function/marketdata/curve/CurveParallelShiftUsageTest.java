@@ -45,8 +45,7 @@ public class CurveParallelShiftUsageTest {
         CurveNameFilter.of(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
     DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(TestHelper.date(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);

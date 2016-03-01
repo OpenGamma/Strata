@@ -45,7 +45,7 @@ public class MarketEnvironmentTest {
    * Tests the special handling of {@link NoMatchingRuleId}
    */
   public void handleNoMatchingRulesId() {
-    MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
     NoMatchingRuleId id = NoMatchingRuleId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data rules were available to build the market data for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
@@ -55,7 +55,7 @@ public class MarketEnvironmentTest {
    * Tests the special handling of {@link MissingMappingId}
    */
   public void handleMissingMappingsId() {
-    MarketEnvironment marketData = MarketEnvironment.builder().valuationDate(date(2011, 3, 8)).build();
+    MarketEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
     MissingMappingId id = MissingMappingId.of(TestObservableKey.of("1"));
     String msgRegex = "No market data mapping found for.*";
     assertThrows(() -> marketData.getValue(id), IllegalArgumentException.class, msgRegex);
@@ -68,8 +68,7 @@ public class MarketEnvironmentTest {
     TestObservableId id = TestObservableId.of("1");
     String failureMessage = "Something went wrong";
     MarketEnvironment marketData = MarketEnvironment
-        .builder()
-        .valuationDate(date(2011, 3, 8))
+        .builder(date(2011, 3, 8))
         .addResult(id, Result.failure(FailureReason.ERROR, failureMessage))
         .build();
 
@@ -94,8 +93,7 @@ public class MarketEnvironmentTest {
         .put(date(2011, 3, 10), 30)
         .build();
 
-    MarketEnvironment marketData = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
         .addValue(TEST_ID1, 1d)
@@ -109,10 +107,6 @@ public class MarketEnvironmentTest {
     assertThat(marketData.findValue(TEST_ID2)).isEmpty();
     assertThat(marketData.getValue(TEST_ID1).getSingleValue()).isEqualTo(1d);
     assertThat(marketData.getTimeSeries(TEST_ID2)).isEqualTo(timeSeries2);
-  }
-
-  public void valuationDateRequired() {
-    assertThrowsIllegalArg(() -> MarketEnvironment.builder().build(), "Valuation date must be specified");
   }
 
   public void mergedWith() {
@@ -140,8 +134,7 @@ public class MarketEnvironmentTest {
         .put(date(2011, 3, 10), 300)
         .build();
 
-    MarketEnvironment marketData1 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
@@ -149,8 +142,7 @@ public class MarketEnvironmentTest {
         .addResult(TEST_ID4, Result.failure(FailureReason.ERROR, "foo"))
         .build();
 
-    MarketEnvironment marketData2 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 10))
+    MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 10))
         .addTimeSeries(TEST_ID2, timeSeries2a)
         .addTimeSeries(TEST_ID3, timeSeries3)
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(21.0, 21.1, 21.2))
@@ -159,8 +151,7 @@ public class MarketEnvironmentTest {
         .build();
 
     // marketData1 values should be in the merged data when the same ID is present in both
-    MarketEnvironment expected = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment expected = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
         .addTimeSeries(TEST_ID3, timeSeries3)
@@ -174,13 +165,11 @@ public class MarketEnvironmentTest {
   }
 
   public void mergedWithIncompatibleScenarioCount() {
-    MarketEnvironment marketData1 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
         .build();
 
-    MarketEnvironment marketData2 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
@@ -188,18 +177,15 @@ public class MarketEnvironmentTest {
   }
 
   public void mergedWithReceiverHasOneScenario() {
-    MarketEnvironment marketData1 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .build();
 
-    MarketEnvironment marketData2 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
-    MarketEnvironment expected = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment expected = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
@@ -208,18 +194,15 @@ public class MarketEnvironmentTest {
   }
 
   public void mergedWithOtherHasOneScenario() {
-    MarketEnvironment marketData1 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
-    MarketEnvironment marketData2 = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .build();
 
-    MarketEnvironment expected = MarketEnvironment.builder()
-        .valuationDate(LocalDate.of(2011, 3, 8))
+    MarketEnvironment expected = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();

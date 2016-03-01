@@ -180,8 +180,7 @@ public class CalibrationXCcyCheckExample {
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketSnapshot = MarketEnvironment.builder()
-        .valuationDate(VAL_DATE)
+    MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
         .addValues(quotes)
         .addValues(fxRates)
         .build();
