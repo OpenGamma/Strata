@@ -641,7 +641,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   //-------------------------------------------------------------------------
   private static final ImmutableRatesProvider RATES_PROVS_GB = CapitalIndexedBondCurveDataSet.getRatesProviderGb(
-      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE)); // curve is inaccurate, used for fixing price index
+      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE));
   private static final LegalEntityDiscountingProvider ISSUER_PROVS_GB =
       CapitalIndexedBondCurveDataSet.getLegalEntityDiscountingProviderGb(VAL_DATE);
 
@@ -705,7 +705,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertEquals(computed, 3.60, 2.e-2);
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(
         PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP.getSettlementDateOffset().adjust(VAL_DATE), YIELD_GOV_OP);
-    assertEquals(computedOnePeriod, 3.21, 5.e-2);
+    assertEquals(computedOnePeriod, 3.21, 4.e-2);
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
         PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);

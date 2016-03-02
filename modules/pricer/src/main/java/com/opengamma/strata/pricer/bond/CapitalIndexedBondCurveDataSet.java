@@ -53,6 +53,7 @@ public class CapitalIndexedBondCurveDataSet {
   private static final InterpolatedNodalCurve ISSUER_CURVE;
   private static final InterpolatedNodalCurve REPO_CURVE;
   private static final InterpolatedNodalCurve CPI_CURVE;
+  private static final InterpolatedNodalCurve RPI_CURVE;
   static {
     DoubleArray timeIssuer = DoubleArray.of(0.2493150684931507, 0.4986301369863014, 0.9397260273972603,
         1.9760386256456322, 4.975342465753425, 9.850355565536344);
@@ -78,6 +79,12 @@ public class CapitalIndexedBondCurveDataSet {
         391.08797576744865, 431.7913437911175);
     CurveMetadata metaCpi = Curves.prices("cpiCurve");
     CPI_CURVE = InterpolatedNodalCurve.of(metaCpi, timeCpi, valueCpi, INTERPOLATOR);
+    DoubleArray timeRpi = DoubleArray.of(10, 22, 34, 46, 58, 70, 82, 94, 106, 118, 142);
+    DoubleArray valueRpi = DoubleArray.of(263.49967737807305, 270.2383424030053, 277.34957060924364, 284.992794643866,
+        293.2359607153748, 302.0252215004671, 311.3482439082226, 321.10465920118116, 331.44556112285863,
+        342.4913522908549, 366.076015086898);
+    CurveMetadata metaRpi = Curves.prices("rpiCurve");
+    RPI_CURVE = InterpolatedNodalCurve.of(metaRpi, timeRpi, valueRpi, INTERPOLATOR);
   }
 
   /**
@@ -109,7 +116,7 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderGb(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(GB_RPI, valuationDate, CPI_CURVE, timeSeries);
+    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(GB_RPI, valuationDate, RPI_CURVE, timeSeries);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
