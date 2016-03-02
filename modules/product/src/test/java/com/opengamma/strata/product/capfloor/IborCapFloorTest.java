@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -39,6 +40,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 @Test
 public class IborCapFloorTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate START = LocalDate.of(2011, 3, 17);
   private static final LocalDate END = LocalDate.of(2016, 3, 17);
   private static final IborRateCalculation RATE_CALCULATION = IborRateCalculation.of(EUR_EURIBOR_3M);
@@ -85,18 +87,18 @@ public class IborCapFloorTest {
     assertEquals(test.getPayLeg().get(), PAY_LEG);
   }
 
-  public void test_expand_oneLeg() {
+  public void test_resolve_oneLeg() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG);
-    ExpandedIborCapFloor test = base.expand();
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.expand());
+    ResolvedIborCapFloor test = base.resolve(REF_DATA);;
+    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
     assertEquals(test.getPayLeg().isPresent(), false);
   }
 
-  public void test_expand_twoLegs() {
+  public void test_resolve_twoLegs() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
-    ExpandedIborCapFloor test = base.expand();
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.expand());
-    assertEquals(test.getPayLeg().get(), PAY_LEG.expand());
+    ResolvedIborCapFloor test = base.resolve(REF_DATA);;
+    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
+    assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

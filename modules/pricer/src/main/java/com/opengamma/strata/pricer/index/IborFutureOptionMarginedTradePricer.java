@@ -14,8 +14,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
-import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.IborFutureOptionTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureOption;
+import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
 
 /**
  * Pricer for Ibor future option trades with daily margin.
@@ -47,17 +48,17 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The price of the trade is the price on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the price of the product, in decimal form
    */
   public double price(
-      IborFutureOptionTrade trade,
+      ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider) {
 
-    return getProductPricer().price(trade.getSecurity().getProduct(), ratesProvider, futureProvider);
+    return getProductPricer().price(trade.getProduct(), ratesProvider, futureProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -66,19 +67,19 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
    * @param currentOptionPrice  the option price on the valuation date
    * @param lastClosingPrice  the last closing price
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      IborFutureOptionTrade trade,
+      ResolvedIborFutureOptionTrade trade,
       LocalDate valuationDate,
       double currentOptionPrice,
       double lastClosingPrice) {
 
-    IborFutureOption option = trade.getProduct();
+    ResolvedIborFutureOption option = trade.getProduct();
     Optional<LocalDate> tradeDateOpt = trade.getTradeInfo().getTradeDate();
     ArgChecker.isTrue(tradeDateOpt.isPresent(), "trade date not present");
     double priceIndex = getProductPricer().marginIndex(option, currentOptionPrice);
@@ -99,14 +100,14 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @param lastClosingPrice  the last closing price
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      IborFutureOptionTrade trade,
+      ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider,
       double lastClosingPrice) {
@@ -122,17 +123,17 @@ public abstract class IborFutureOptionMarginedTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
-      IborFutureOptionTrade trade,
+      ResolvedIborFutureOptionTrade trade,
       RatesProvider ratesProvider,
       IborFutureProvider futureProvider) {
 
-    IborFutureOption product = trade.getProduct();
+    ResolvedIborFutureOption product = trade.getProduct();
     PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
     PointSensitivities marginIndexSensi = getProductPricer().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());

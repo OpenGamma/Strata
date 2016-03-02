@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Provides access to the measures needed to perform curve calibration for a single type of trade.
@@ -18,7 +18,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * 
  * @param <T> the trade type
  */
-public interface CalibrationMeasure<T extends Trade> {
+public interface CalibrationMeasure<T extends ResolvedTrade> {
 
   /**
    * Gets the trade type of the calibrator.

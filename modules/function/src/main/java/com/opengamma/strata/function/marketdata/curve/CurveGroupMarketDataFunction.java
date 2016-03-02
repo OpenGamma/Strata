@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -91,8 +92,9 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   @Override
   public MarketDataBox<CurveGroup> build(
       CurveGroupId id,
+      MarketDataConfig marketDataConfig,
       CalculationEnvironment marketData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
     // create the calibrator, using the configured RootFinderConfig if found
     RootFinderConfig rfc = marketDataConfig.find(RootFinderConfig.class).orElse(RootFinderConfig.standard());
@@ -102,7 +104,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     // calibrate
     CurveGroupName groupName = id.getName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-    return buildCurveGroup(groupDefn, calibrator, marketData, id.getMarketDataFeed());
+    return buildCurveGroup(groupDefn, calibrator, marketData, refData, id.getMarketDataFeed());
   }
 
   @Override
@@ -117,6 +119,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param groupDefn  the definition of the curve group
    * @param calibrator  the calibrator
    * @param marketData  the market data containing any values required to build the curve group
+   * @param refData  the reference data, used for resolving trades
    * @param feed  the market data feed that is the source of the observable data
    * @return a result containing the curve group or details of why it couldn't be built
    */
@@ -124,6 +127,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveGroupDefinition groupDefn,
       CurveCalibrator calibrator,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       MarketDataFeed feed) {
 
     // find and combine all the input data
@@ -137,8 +141,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     boolean multipleValues = inputBoxes.stream().anyMatch(MarketDataBox::isScenarioValue);
 
     return multipleValues ?
-        buildMultipleCurveGroups(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes) :
-        buildSingleCurveGroup(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes);
+        buildMultipleCurveGroups(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes, refData) :
+        buildSingleCurveGroup(groupDefn, calibrator, marketData.getValuationDate(), inputBoxes, refData);
   }
 
   // calibrates when there are multiple groups
@@ -146,7 +150,8 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveGroupDefinition groupDefn,
       CurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
-      List<MarketDataBox<CurveInputs>> inputBoxes) {
+      List<MarketDataBox<CurveInputs>> inputBoxes,
+      ReferenceData refData) {
 
     int scenarioCount = scenarioCount(valuationDateBox, inputBoxes);
     ImmutableList.Builder<CurveGroup> builder = ImmutableList.builder();
@@ -155,7 +160,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       List<CurveInputs> curveInputsList = inputsForScenario(inputBoxes, i);
       LocalDate valuationDate = valuationDateBox.getValue(scenarioCount);
       MarketData inputs = inputsByKey(valuationDate, curveInputsList);
-      builder.add(buildGroup(groupDefn, calibrator, valuationDate, inputs));
+      builder.add(buildGroup(groupDefn, calibrator, valuationDate, inputs, refData));
     }
     ImmutableList<CurveGroup> curveGroups = builder.build();
     return MarketDataBox.ofScenarioValues(curveGroups);
@@ -172,12 +177,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveGroupDefinition groupDefn,
       CurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
-      List<MarketDataBox<CurveInputs>> inputBoxes) {
+      List<MarketDataBox<CurveInputs>> inputBoxes,
+      ReferenceData refData) {
 
     List<CurveInputs> inputs = inputBoxes.stream().map(MarketDataBox::getSingleValue).collect(toImmutableList());
     LocalDate valuationDate = valuationDateBox.getValue(0);
     MarketData inputValues = inputsByKey(valuationDate, inputs);
-    CurveGroup curveGroup = buildGroup(groupDefn, calibrator, valuationDateBox.getSingleValue(), inputValues);
+    CurveGroup curveGroup = buildGroup(groupDefn, calibrator, valuationDateBox.getSingleValue(), inputValues, refData);
     return MarketDataBox.ofSingleValue(curveGroup);
   }
 
@@ -217,13 +223,15 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveGroupDefinition groupDefn,
       CurveCalibrator calibrator,
       LocalDate valuationDate,
-      MarketData marketData) {
+      MarketData marketData,
+      ReferenceData refData) {
 
     // perform the calibration
     ImmutableRatesProvider calibratedProvider = calibrator.calibrate(
         groupDefn,
         valuationDate,
         marketData,
+        refData,
         ImmutableMap.of());
 
     return CurveGroup.of(

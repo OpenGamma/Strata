@@ -12,11 +12,7 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
-import org.joda.convert.FromString;
-import org.joda.convert.ToString;
-
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.collect.range.LocalDateRange;
 
@@ -27,47 +23,18 @@ import com.opengamma.strata.collect.range.LocalDateRange;
  * This class encapsulates that knowledge, with each day treated as a holiday or a business day.
  * Weekends are effectively treated as a special kind of holiday.
  * <p>
- * The most common implementations are provided in {@link HolidayCalendars}.
- * Additional implementations may be added using {@link ImmutableHolidayCalendar},
- * or by directly implementing this interface.
+ * Applications should refer to holidays using {@link HolidayCalendarId}.
+ * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
+ * to a {@link HolidayCalendar} before the holiday data methods can be accessed.
+ * See {@link HolidayCalendarIds} for a standard set of identifiers available in {@link ReferenceData#standard()}.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
+ * 
+ * @see ImmutableHolidayCalendar
  */
 public interface HolidayCalendar
     extends Named {
 
-  /**
-   * Obtains an instance from the specified unique name.
-   * <p>
-   * The unique name identifies a calendar in an underlying source of calendars.
-   * The calendar itself is looked up on demand when required.
-   * <p>
-   * It is possible to combine two or more calendars using the '+' symbol.
-   * For example, 'GBLO+USNY' will combine the separate 'GBLO' and 'USNY' calendars.
-   * 
-   * @param uniqueName  the unique name of the calendar
-   * @return the holiday calendar
-   * @throws IllegalArgumentException if the name is not known
-   */
-  @FromString
-  public static HolidayCalendar of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
-    return HolidayCalendars.of(uniqueName);
-  }
-
-  /**
-   * Gets the extended enum helper.
-   * <p>
-   * This helper allows instances of the calendar to be looked up.
-   * It also provides the complete set of available instances.
-   * 
-   * @return the extended enum helper
-   */
-  public static ExtendedEnum<HolidayCalendar> extendedEnum() {
-    return HolidayCalendars.ENUM_LOOKUP;
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Checks if the specified date is a holiday.
    * <p>
@@ -127,7 +94,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate shift(LocalDate date, int amount) {
-    ArgChecker.notNull(date, "date");
     LocalDate adjusted = date;
     if (amount > 0) {
       for (int i = 0; i < amount; i++) {
@@ -151,7 +117,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate next = plusDays(date, 1);
     return isHoliday(next) ? next(next) : next;
   }
@@ -168,7 +133,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate nextOrSame(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isHoliday(date) ? next(date) : date;
   }
 
@@ -183,7 +147,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate previous(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate previous = plusDays(date, -1);
     return isHoliday(previous) ? previous(previous) : previous;
   }
@@ -200,7 +163,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate previousOrSame(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isHoliday(date) ? previous(date) : date;
   }
 
@@ -225,7 +187,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate nextSameOrLastInMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate nextOrSame = nextOrSame(date);
     return (nextOrSame.getMonthValue() != date.getMonthValue() ? previous(date) : nextOrSame);
   }
@@ -241,7 +202,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the date is outside the supported range
    */
   public default boolean isLastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return isBusinessDay(date) && next(date).getMonthValue() != date.getMonthValue();
   }
 
@@ -255,7 +215,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the date is outside the supported range
    */
   public default LocalDate lastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     return previousOrSame(date.withDayOfMonth(date.lengthOfMonth()));
   }
 
@@ -286,7 +245,6 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default int daysBetween(LocalDateRange dateRange) {
-    ArgChecker.notNull(dateRange, "dateRange");
     return Math.toIntExact(dateRange.stream()
         .filter(this::isBusinessDay)
         .count());
@@ -303,27 +261,37 @@ public interface HolidayCalendar
    * @return the combined calendar
    * @throws IllegalArgumentException if unable to combine the calendars
    */
-  public default HolidayCalendar combineWith(HolidayCalendar other) {
-    ArgChecker.notNull(other, "other");
+  public default HolidayCalendar combinedWith(HolidayCalendar other) {
     if (this.equals(other)) {
       return this;
     }
     if (other == HolidayCalendars.NO_HOLIDAYS) {
       return this;
     }
-    return new HolidayCalendars.Combined(this, other);
+    return new CombinedHolidayCalendar(this, other);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name that uniquely identifies this calendar.
+   * Gets the identifier for the calendar.
    * <p>
-   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * This identifier is used to locate the index in {@link ReferenceData}.
    * 
-   * @return the unique name
+   * @return the identifier
    */
-  @ToString
+  public abstract HolidayCalendarId getId();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name that identifies this calendar.
+   * <p>
+   * This is the name associated with the {@linkplain HolidayCalendarId identifier}.
+   * 
+   * @return the name
+   */
   @Override
-  public abstract String getName();
+  public default String getName() {
+    return getId().getName();
+  }
 
 }

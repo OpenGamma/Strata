@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -25,7 +27,7 @@ public interface ReferenceData {
    * Obtains an instance from a map of reference data.
    * <p>
    * Each entry in the map is a unit of reference data, keyed by the matching identifier.
-   * For example, a {@code HolidayCalendarId} associated with a {@code HolidayCalendar}.
+   * For example, a {@link HolidayCalendarId} associated with a {@link HolidayCalendar}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
    *
@@ -35,6 +37,18 @@ public interface ReferenceData {
    */
   public static ReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
     return ImmutableReferenceData.of(values);
+  }
+
+  /**
+   * Obtains an instance of standard reference data.
+   * <p>
+   * Standard reference data is built into Strata and provides common holiday calendars and indices.
+   * In most cases, production usage of Strata will not rely on this source of reference data.
+   *
+   * @return standard reference data
+   */
+  public static ReferenceData standard() {
+    return StandardReferenceData.INSTANCE;
   }
 
   /**

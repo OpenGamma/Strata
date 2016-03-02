@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.PricingRules;
@@ -23,6 +24,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 @Test
 public class DefaultCalculationRunnerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final TestTarget TARGET = new TestTarget();
 
   //-------------------------------------------------------------------------
@@ -43,8 +45,8 @@ public class DefaultCalculationRunnerTest {
 
     // use of try-with-resources checks class is AutoCloseable
     try (CalculationRunner test = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
-      assertThat(test.calculateSingleScenario(rules, targets, columns, marketData).get(0, 0).isFailure()).isTrue();
-      assertThat(test.calculateMultipleScenarios(rules, targets, columns, marketData).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculateSingleScenario(rules, targets, columns, marketData, REF_DATA).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculateMultipleScenarios(rules, targets, columns, marketData, REF_DATA).get(0, 0).isFailure()).isTrue();
     }
   }
 

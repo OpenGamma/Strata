@@ -5,21 +5,15 @@
  */
 package com.opengamma.strata.product.fx;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -28,45 +22,52 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class FxNdfTradeTest {
 
-  private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
-  private static final double NOTIONAL = 100_000_000;
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
-  private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
-  private static final FxNdf PRODUCT = FxNdf.builder()
-      .agreedFxRate(FX_RATE)
-      .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-      .index(GBP_USD_WM)
-      .paymentDate(PAYMENT_DATE)
-      .build();
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final FxNdf PRODUCT = FxNdfTest.sut();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
 
-  public void test_builder() {
-    FxNdfTrade test = FxNdfTrade.builder()
-        .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
-        .build();
+  //-------------------------------------------------------------------------
+  public void test_of() {
+    FxNdfTrade test = FxNdfTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
   }
 
+  public void test_builder() {
+    FxNdfTrade test = sut();
+    assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    FxNdfTrade test = sut();
+    ResolvedFxNdfTrade expected = ResolvedFxNdfTrade.of(TRADE_INFO, PRODUCT.resolve(REF_DATA));
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    FxNdfTrade test1 = FxNdfTrade.builder()
-        .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
-        .build();
-    coverImmutableBean(test1);
-    FxNdfTrade test2 = FxNdfTrade.builder()
-        .product(PRODUCT)
-        .build();
-    coverBeanEquals(test1, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    FxNdfTrade test = FxNdfTrade.builder()
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FxNdfTrade sut() {
+    return FxNdfTrade.builder()
         .product(PRODUCT)
         .tradeInfo(TRADE_INFO)
         .build();
-    assertSerialization(test);
+  }
+
+  static FxNdfTrade sut2() {
+    return FxNdfTrade.builder()
+        .product(PRODUCT)
+        .build();
   }
 
 }

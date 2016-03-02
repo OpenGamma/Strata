@@ -11,14 +11,14 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An overnight index, such as Sonia or Eonia.
+ * An Overnight index, such as Sonia or Eonia.
  * <p>
  * An index represented by this class relates to lending over one night.
  * The rate typically refers to "Today/Tomorrow" but might refer to "Tomorrow/Next".
@@ -70,20 +70,13 @@ public interface OvernightIndex
   public abstract DayCount getDayCount();
 
   /**
-   * Gets the fixing calendar of the index.
+   * Gets the calendar that determines which dates are fixing dates.
    * <p>
    * The rate will be fixed on each business day in this calendar.
    * 
-   * @return the currency pair of the index
+   * @return the calendar used to determine the fixing dates of the index
    */
-  public abstract HolidayCalendar getFixingCalendar();
-
-  /**
-   * Gets the tenor of the index.
-   * 
-   * @return the tenor
-   */
-  public abstract Tenor getTenor();
+  public abstract HolidayCalendarId getFixingCalendar();
 
   //-------------------------------------------------------------------------
   /**
@@ -96,9 +89,10 @@ public interface OvernightIndex
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the publication date
    */
-  public abstract LocalDate calculatePublicationFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculatePublicationFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the effective date from the fixing date.
@@ -110,9 +104,10 @@ public interface OvernightIndex
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the effective date
    */
-  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculateEffectiveFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the maturity date from the fixing date.
@@ -124,9 +119,10 @@ public interface OvernightIndex
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the maturity date
    */
-  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate);
+  public abstract LocalDate calculateMaturityFromFixing(LocalDate fixingDate, ReferenceData refData);
 
   /**
    * Calculates the fixing date from the effective date.
@@ -138,9 +134,10 @@ public interface OvernightIndex
    * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the fixing date
    */
-  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate);
+  public abstract LocalDate calculateFixingFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
   /**
    * Calculates the maturity date from the effective date.
@@ -152,9 +149,10 @@ public interface OvernightIndex
    * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
+   * @param refData  the reference data, used to resolve the holiday calendar
    * @return the maturity date
    */
-  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate);
+  public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
   //-----------------------------------------------------------------------
   /**

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
@@ -43,6 +44,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class DefaultCalculationTaskRunnerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final TestTarget TARGET = new TestTarget();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
   private static final Set<Measure> MEASURES = ImmutableSet.of(Measures.PRESENT_VALUE);
@@ -62,13 +64,13 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
-    Results results1 = test.calculateSingleScenario(tasks, marketData);
+    Results results1 = test.calculateSingleScenario(tasks, marketData, REF_DATA);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.empty(VAL_DATE);
-    Results results2 = test.calculateMultipleScenarios(tasks, scenarioMarketData);
+    Results results2 = test.calculateMultipleScenarios(tasks, scenarioMarketData, REF_DATA);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -88,7 +90,7 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
-    assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData));
+    assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData, REF_DATA));
   }
 
   /**
@@ -106,14 +108,14 @@ public class DefaultCalculationTaskRunnerTest {
     Listener listener = new Listener();
 
     CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
-    test.calculateSingleScenarioAsync(tasks, marketData, listener);
+    test.calculateSingleScenarioAsync(tasks, marketData, REF_DATA, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
     CalculationEnvironment scenarioMarketData = MarketEnvironment.empty(VAL_DATE);
-    test.calculateMultipleScenariosAsync(tasks, scenarioMarketData, listener);
+    test.calculateMultipleScenariosAsync(tasks, scenarioMarketData, REF_DATA, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string
@@ -152,7 +154,8 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
@@ -189,7 +192,8 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       return ImmutableMap.of(measure, Result.success(result));
     }

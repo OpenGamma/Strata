@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -26,7 +27,7 @@ import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
-import com.opengamma.strata.product.swaption.ExpandedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
@@ -98,17 +99,18 @@ public class SwaptionCalculationFunction
   public Map<Measure, Result<?>> calculate(
       SwaptionTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
     // expand the trade once for all measures and all scenarios
-    ExpandedSwaption product = trade.getProduct().expand();
+    ResolvedSwaptionTrade resolved = trade.resolve(refData);
     IborIndex index = trade.getProduct().getIndex();
     SwaptionVolatilitiesKey volKey = SwaptionVolatilitiesKey.of(index);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, product, scenarioMarketData, volKey));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData, volKey));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -118,8 +120,7 @@ public class SwaptionCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      SwaptionTrade trade,
-      ExpandedSwaption product,
+      ResolvedSwaptionTrade trade,
       CalculationMarketData scenarioMarketData,
       SwaptionVolatilitiesKey volKey) {
 
@@ -127,15 +128,14 @@ public class SwaptionCalculationFunction
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, product, scenarioMarketData, volKey));
+    return Result.of(() -> calculator.calculate(trade, scenarioMarketData, volKey));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        SwaptionTrade trade,
-        ExpandedSwaption product,
+        ResolvedSwaptionTrade trade,
         CalculationMarketData marketData,
         SwaptionVolatilitiesKey volatilityKey);
   }

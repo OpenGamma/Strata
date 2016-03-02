@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -171,7 +172,8 @@ public class CalculationTasksTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));

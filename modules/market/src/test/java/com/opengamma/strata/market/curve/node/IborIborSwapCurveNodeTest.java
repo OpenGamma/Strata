@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -42,6 +43,7 @@ import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 @Test
 public class IborIborSwapCurveNodeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final IborIborSwapTemplate TEMPLATE =
       IborIborSwapTemplate.of(Period.ZERO, TENOR_10Y, IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M);
@@ -104,8 +106,8 @@ public class IborIborSwapCurveNodeTest {
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
-    SwapTrade trade = node.trade(tradeDate, marketData);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD);
+    SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
@@ -115,7 +117,7 @@ public class IborIborSwapCurveNodeTest {
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -130,7 +132,7 @@ public class IborIborSwapCurveNodeTest {
   public void test_metadata_end() {
     IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
@@ -140,7 +142,7 @@ public class IborIborSwapCurveNodeTest {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     IborIborSwapCurveNode node =
         IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
-    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE);
+    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -150,7 +152,7 @@ public class IborIborSwapCurveNodeTest {
         IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), fixingExpected);
     assertEquals(metadata.getLabel(), node.getLabel());
   }

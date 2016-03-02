@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product.fx;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -15,7 +13,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -24,44 +22,53 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class FxSwapTradeTest {
 
-  private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
-  private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
-  private static final CurrencyAmount USD_P1550 = CurrencyAmount.of(USD, 1_550);
-  private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
-  private static final FxSingle NEAR_LEG = FxSingle.of(GBP_P1000, USD_M1600, date(2011, 11, 21));
-  private static final FxSingle FAR_LEG = FxSingle.of(GBP_M1000, USD_P1550, date(2011, 12, 21));
-  private static final FxSwap PRODUCT = FxSwap.of(NEAR_LEG, FAR_LEG);
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final FxSwap PRODUCT = FxSwapTest.sut();
+  private static final FxSwap PRODUCT2 = FxSwapTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2011, 11, 14)).build();
 
   //-------------------------------------------------------------------------
+  public void test_of() {
+    FxSwapTrade test = FxSwapTrade.of(TRADE_INFO, PRODUCT);
+    assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
+  }
+
   public void test_builder() {
-    FxSwapTrade test = FxSwapTrade.builder()
-        .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
-        .build();
+    FxSwapTrade test = sut();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
   //-------------------------------------------------------------------------
+  public void test_resolve() {
+    FxSwapTrade test = sut();
+    ResolvedFxSwapTrade expected = ResolvedFxSwapTrade.of(TRADE_INFO, PRODUCT.resolve(REF_DATA));
+    assertEquals(test.resolve(REF_DATA), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    FxSwapTrade test1 = FxSwapTrade.builder()
-        .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
-        .build();
-    coverImmutableBean(test1);
-    FxSwapTrade test2 = FxSwapTrade.builder()
-        .product(FxSwap.ofForwardPoints(USD_M1600, GBP, 0.85, -0.05, date(2011, 11, 28), date(2011, 12, 28)))
-        .build();
-    coverBeanEquals(test1, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    FxSwapTrade test = FxSwapTrade.builder()
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FxSwapTrade sut() {
+    return FxSwapTrade.builder()
         .product(PRODUCT)
         .tradeInfo(TRADE_INFO)
         .build();
-    assertSerialization(test);
+  }
+
+  static FxSwapTrade sut2() {
+    return FxSwapTrade.builder()
+        .product(PRODUCT2)
+        .build();
   }
 
 }

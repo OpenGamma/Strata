@@ -30,10 +30,10 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.capfloor.IborCapFloor;
-import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
  * Test {@link BlackIborCapFloorTradePricer}.
@@ -47,12 +47,12 @@ public class BlackIborCapFloorTradePricerTest {
   private static final LocalDate END = LocalDate.of(2020, 10, 21);
   private static final double STRIKE_VALUE = 0.0105;
   private static final ValueSchedule STRIKE = ValueSchedule.of(STRIKE_VALUE);
-  private static final IborCapFloorLeg CAP_LEG =
+  private static final ResolvedIborCapFloorLeg CAP_LEG =
       IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE, NOTIONAL, CALL, RECEIVE);
-  private static final SwapLeg PAY_LEG =
+  private static final ResolvedSwapLeg PAY_LEG =
       IborCapFloorDataSet.createFixedPayLeg(EUR_EURIBOR_3M, START, END, 0.0015, NOTIONAL_VALUE, PAY);
-  private static final IborCapFloor CAP_TWO_LEGS = IborCapFloor.of(CAP_LEG, PAY_LEG);
-  private static final IborCapFloor CAP_ONE_LEG = IborCapFloor.of(CAP_LEG);
+  private static final ResolvedIborCapFloor CAP_TWO_LEGS = ResolvedIborCapFloor.of(CAP_LEG, PAY_LEG);
+  private static final ResolvedIborCapFloor CAP_ONE_LEG = ResolvedIborCapFloor.of(CAP_LEG);
 
   // valuation before start
   private static final ZonedDateTime VALUATION = dateUtc(2015, 8, 20);
@@ -62,11 +62,11 @@ public class BlackIborCapFloorTradePricerTest {
       .createBlackVolatilitiesProvider(VALUATION, EUR_EURIBOR_6M);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION.toLocalDate()).build();
   private static final Payment PREMIUM = Payment.of(EUR, -NOTIONAL_VALUE * 0.19, VALUATION.toLocalDate());
-  private static final IborCapFloorTrade TRADE_PAYLEG = IborCapFloorTrade.builder()
+  private static final ResolvedIborCapFloorTrade TRADE_PAYLEG = ResolvedIborCapFloorTrade.builder()
       .product(CAP_TWO_LEGS)
       .tradeInfo(TRADE_INFO)
       .build();
-  private static final IborCapFloorTrade TRADE_PREMIUM = IborCapFloorTrade.builder()
+  private static final ResolvedIborCapFloorTrade TRADE_PREMIUM = ResolvedIborCapFloorTrade.builder()
       .product(CAP_ONE_LEG)
       .premium(PREMIUM)
       .tradeInfo(TradeInfo.EMPTY)

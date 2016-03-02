@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.range.LocalDateRange;
 
@@ -43,10 +44,10 @@ import com.opengamma.strata.collect.range.LocalDateRange;
  * Internally, the class uses a range to determine the valid range of dates.
  * Only dates between the start of the earliest year and the end of the latest year can be queried.
  * <p>
- * In most cases, applications should refer to calendars by name, using {@link HolidayCalendar#of(String)}.
- * The named calendar will typically be resolved to an instance of this class.
- * As such, it is recommended to use the {@code HolidayCalendar} interface in application
- * code rather than directly referring to this class.
+ * Applications should refer to holidays using {@link HolidayCalendarId}.
+ * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
+ * to a {@link HolidayCalendar} before the holiday data methods can be accessed.
+ * See {@link HolidayCalendarIds} for a standard set of identifiers available in {@link ReferenceData#standard()}.
  */
 @BeanDefinition(builderScope = "private")
 public final class ImmutableHolidayCalendar
@@ -60,10 +61,10 @@ public final class ImmutableHolidayCalendar
   // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the common case
 
   /**
-   * The calendar name.
+   * The identifier, such as 'GBLO'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final String name;
+  private final HolidayCalendarId id;
   /**
    * The set of holiday dates.
    * <p>
@@ -104,20 +105,16 @@ public final class ImmutableHolidayCalendar
    * <p>
    * The weekend days may both be the same.
    * 
-   * @param name  the calendar name
+   * @param id  the identifier
    * @param holidays  the set of holiday dates
    * @param firstWeekendDay  the first weekend day
    * @param secondWeekendDay  the second weekend day, may be same as first
    * @return the holiday calendar
    */
   public static ImmutableHolidayCalendar of(
-      String name, Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
-    ArgChecker.notNull(name, "name");
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.notNull(firstWeekendDay, "firstWeekendDay");
-    ArgChecker.notNull(secondWeekendDay, "secondWeekendDay");
+      HolidayCalendarId id, Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
     ImmutableSet<DayOfWeek> weekendDays = Sets.immutableEnumSet(firstWeekendDay, secondWeekendDay);
-    return new ImmutableHolidayCalendar(name, ImmutableSortedSet.copyOf(holidays), weekendDays);
+    return new ImmutableHolidayCalendar(id, ImmutableSortedSet.copyOf(holidays), weekendDays);
   }
 
   /**
@@ -129,17 +126,37 @@ public final class ImmutableHolidayCalendar
    * <p>
    * The weekend days may be empty, in which case the holiday dates should contain any weekends.
    * 
-   * @param name  the calendar name
+   * @param id  the identifier
    * @param holidays  the set of holiday dates
    * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
    * @return the holiday calendar
    */
   public static ImmutableHolidayCalendar of(
-      String name, Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
-    ArgChecker.notNull(name, "name");
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.noNulls(weekendDays, "weekendDays");
-    return new ImmutableHolidayCalendar(name, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
+      HolidayCalendarId id, Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
+    return new ImmutableHolidayCalendar(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
+  }
+
+  /**
+   * Obtains a combined holiday calendar instance.
+   * <p>
+   * This combines the two input calendars.
+   * It is intended for up-front occasional use rather than continuous use, as it is relatively slow.
+   * 
+   * @param cal1  the first calendar
+   * @param cal2  the second calendar
+   * @return the combined calendar
+   */
+  public static ImmutableHolidayCalendar combined(ImmutableHolidayCalendar cal1, ImmutableHolidayCalendar cal2) {
+    // do not override combinedWith(), as this is too slow
+    if (cal1 == cal2) {
+      return ArgChecker.notNull(cal1, "cal1");
+    }
+    LocalDateRange newRange = cal1.range.union(cal2.range);  // exception if no overlap
+    ImmutableSortedSet<LocalDate> newHolidays =
+        ImmutableSortedSet.copyOf(Iterables.concat(cal1.holidays, cal2.holidays))
+            .subSet(newRange.getStart(), newRange.getEndExclusive());
+    ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(cal1.weekendDays, cal2.weekendDays));
+    return new ImmutableHolidayCalendar(cal1.id.combinedWith(cal2.id), newHolidays, newWeekends);
   }
 
   //-------------------------------------------------------------------------
@@ -151,11 +168,11 @@ public final class ImmutableHolidayCalendar
    * @param weekendDays  the set of weekend days, validated non-null
    */
   @ImmutableConstructor
-  private ImmutableHolidayCalendar(String name, SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays) {
-    ArgChecker.notNull(name, "name");
+  private ImmutableHolidayCalendar(HolidayCalendarId id, SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays) {
+    ArgChecker.notNull(id, "id");
     ArgChecker.notNull(holidays, "holidays");
     ArgChecker.notNull(weekendDays, "weekendDays");
-    this.name = name;
+    this.id = id;
     this.holidays = ImmutableSortedSet.copyOfSorted(holidays);
     this.weekendDays = Sets.immutableEnumSet(weekendDays);
     if (holidays.isEmpty()) {
@@ -224,7 +241,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public boolean isHoliday(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -247,7 +263,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate shift(LocalDate date, int amount) {
-    ArgChecker.notNull(date, "date");
     try {
       if (amount > 0) {
         // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
@@ -269,7 +284,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
       return shiftNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 1);
@@ -308,7 +322,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate previous(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: minus one to start from previous day
       return shiftPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 1, -1);
@@ -347,7 +360,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate nextSameOrLastInMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // day-of-month: no alteration as method is one-based and same is valid
       return shiftNextSameLast(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
@@ -388,7 +400,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public boolean isLastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -407,7 +418,6 @@ public final class ImmutableHolidayCalendar
   //-------------------------------------------------------------------------
   @Override
   public LocalDate lastBusinessDayOfMonth(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -426,42 +436,19 @@ public final class ImmutableHolidayCalendar
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayCalendar combineWith(HolidayCalendar other) {
-    ArgChecker.notNull(other, "other");
-    if (this.equals(other)) {
-      return this;
-    }
-    if (other == HolidayCalendars.NO_HOLIDAYS) {
-      return this;
-    }
-    if (other instanceof ImmutableHolidayCalendar) {
-      ImmutableHolidayCalendar otherCal = (ImmutableHolidayCalendar) other;
-      LocalDateRange newRange = range.union(otherCal.range);  // exception if no overlap
-      ImmutableSortedSet<LocalDate> newHolidays =
-          ImmutableSortedSet.copyOf(Iterables.concat(holidays, otherCal.holidays))
-              .subSet(newRange.getStart(), newRange.getEndExclusive());
-      ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(weekendDays, otherCal.weekendDays));
-      String combinedName = name + "+" + otherCal.name;
-      return new ImmutableHolidayCalendar(combinedName, newHolidays, newWeekends);
-    }
-    return HolidayCalendar.super.combineWith(other);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj instanceof ImmutableHolidayCalendar) {
-      return name.equals(((ImmutableHolidayCalendar) obj).name);
+      return id.equals(((ImmutableHolidayCalendar) obj).id);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return id.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -472,7 +459,7 @@ public final class ImmutableHolidayCalendar
    */
   @Override
   public String toString() {
-    return getName();
+    return "HolidayCalendar[" + getName() + ']';
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -511,12 +498,12 @@ public final class ImmutableHolidayCalendar
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendar name.
+   * Gets the identifier, such as 'GBLO'.
    * @return the value of the property, not null
    */
   @Override
-  public String getName() {
-    return name;
+  public HolidayCalendarId getId() {
+    return id;
   }
 
   //-----------------------------------------------------------------------
@@ -552,10 +539,10 @@ public final class ImmutableHolidayCalendar
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", ImmutableHolidayCalendar.class, String.class);
+    private final MetaProperty<HolidayCalendarId> id = DirectMetaProperty.ofImmutable(
+        this, "id", ImmutableHolidayCalendar.class, HolidayCalendarId.class);
     /**
      * The meta-property for the {@code holidays} property.
      */
@@ -573,7 +560,7 @@ public final class ImmutableHolidayCalendar
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name",
+        "id",
         "holidays",
         "weekendDays");
 
@@ -586,8 +573,8 @@ public final class ImmutableHolidayCalendar
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case -510663909:  // holidays
           return holidays;
         case 563236190:  // weekendDays
@@ -613,11 +600,11 @@ public final class ImmutableHolidayCalendar
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code id} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
-      return name;
+    public MetaProperty<HolidayCalendarId> id() {
+      return id;
     }
 
     /**
@@ -640,8 +627,8 @@ public final class ImmutableHolidayCalendar
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((ImmutableHolidayCalendar) bean).getName();
+        case 3355:  // id
+          return ((ImmutableHolidayCalendar) bean).getId();
         case -510663909:  // holidays
           return ((ImmutableHolidayCalendar) bean).getHolidays();
         case 563236190:  // weekendDays
@@ -667,7 +654,7 @@ public final class ImmutableHolidayCalendar
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ImmutableHolidayCalendar> {
 
-    private String name;
+    private HolidayCalendarId id;
     private SortedSet<LocalDate> holidays = ImmutableSortedSet.of();
     private Set<DayOfWeek> weekendDays = ImmutableSet.of();
 
@@ -681,8 +668,8 @@ public final class ImmutableHolidayCalendar
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case 3355:  // id
+          return id;
         case -510663909:  // holidays
           return holidays;
         case 563236190:  // weekendDays
@@ -696,8 +683,8 @@ public final class ImmutableHolidayCalendar
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          this.name = (String) newValue;
+        case 3355:  // id
+          this.id = (HolidayCalendarId) newValue;
           break;
         case -510663909:  // holidays
           this.holidays = (SortedSet<LocalDate>) newValue;
@@ -738,7 +725,7 @@ public final class ImmutableHolidayCalendar
     @Override
     public ImmutableHolidayCalendar build() {
       return new ImmutableHolidayCalendar(
-          name,
+          id,
           holidays,
           weekendDays);
     }
@@ -748,7 +735,7 @@ public final class ImmutableHolidayCalendar
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("ImmutableHolidayCalendar.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
       buf.append("holidays").append('=').append(JodaBeanUtils.toString(holidays)).append(',').append(' ');
       buf.append("weekendDays").append('=').append(JodaBeanUtils.toString(weekendDays));
       buf.append('}');

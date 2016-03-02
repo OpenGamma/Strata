@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.product.capfloor.IborCapFloorProduct;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 
 /**
  * Pricer for cap/floor trades in log-normal or Black model.
@@ -24,7 +24,7 @@ public class BlackIborCapFloorTradePricer
   /**
    * Creates an instance. 
    * 
-   * @param productPricer  the pricer for {@link IborCapFloorProduct}
+   * @param productPricer  the pricer for {@link ResolvedIborCapFloor}
    * @param paymentPricer  the pricer for {@link Payment}
    */
   public BlackIborCapFloorTradePricer(

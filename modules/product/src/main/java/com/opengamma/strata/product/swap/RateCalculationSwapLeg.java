@@ -28,8 +28,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 
@@ -105,43 +108,18 @@ public final class RateCalculationSwapLeg
     return calculation.getType();
   }
 
-  /**
-   * Gets the accrual start date of the leg.
-   * <p>
-   * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
-   * <p>
-   * Defined as the effective date by the 2006 ISDA definitions article 3.2.
-   * 
-   * @return the start date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getStartDate() {
-    return accrualSchedule.getAdjustedStartDate();
+  public AdjustableDate getStartDate() {
+    return accrualSchedule.calculatedStartDate();
   }
 
-  /**
-   * Gets the accrual end date of the leg.
-   * <p>
-   * This is the last accrual date in the leg, often known as the termination date.
-   * This date has been typically adjusted to be a valid business day.
-   * <p>
-   * Defined as the termination date by the 2006 ISDA definitions article 3.3.
-   * 
-   * @return the end date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getEndDate() {
-    return accrualSchedule.getAdjustedEndDate();
+  public AdjustableDate getEndDate() {
+    return accrualSchedule.calculatedEndDate();
   }
 
-  /**
-   * Gets the currency of the swap leg.
-   * 
-   * @return the currency
-   */
   @Override
   @DerivedProperty
   public Currency getCurrency() {
@@ -155,27 +133,29 @@ public final class RateCalculationSwapLeg
   }
 
   /**
-   * Converts this swap leg to the equivalent {@code ExpandedSwapLeg}.
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
-   * An {@link ExpandedSwapLeg} represents the same data as this leg, but with
+   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
    * a complete schedule of dates defined using {@link RatePaymentPeriod}.
    * 
-   * @return the equivalent expanded swap leg
-   * @throws RuntimeException if unable to expand due to an invalid swap schedule or definition
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
    */
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = accrualSchedule.createSchedule();
-    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
-    List<RateAccrualPeriod> accrualPeriods = calculation.expand(resolvedAccruals, resolvedPayments);
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
+    List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
-        resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive);
-    return ExpandedSwapLeg.builder()
+        resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive, refData);
+    LocalDate startDate = accrualPeriods.get(0).getStartDate();
+    return ResolvedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
-        .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))
+        .paymentEvents(notionalSchedule.createEvents(payPeriods, startDate, refData))
         .build();
   }
 
@@ -399,13 +379,13 @@ public final class RateCalculationSwapLeg
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", RateCalculationSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", RateCalculationSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", RateCalculationSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", RateCalculationSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -525,7 +505,7 @@ public final class RateCalculationSwapLeg
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -533,7 +513,7 @@ public final class RateCalculationSwapLeg
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 

@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
@@ -253,9 +254,10 @@ public final class ImmutableIborFixingDepositConvention
       Period depositPeriod,
       BuySell buySell,
       double notional,
-      double fixedRate) {
+      double fixedRate,
+      ReferenceData refData) {
 
-    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate startDate = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate endDate = startDate.plus(depositPeriod);
     return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }

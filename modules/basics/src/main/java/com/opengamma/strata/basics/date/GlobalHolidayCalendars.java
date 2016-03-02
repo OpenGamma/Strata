@@ -194,7 +194,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2011, 4, 29));  // royal wedding
     holidays.add(date(1999, 12, 31));  // millennium
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.GBLO, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -229,7 +229,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(1999, 12, 31));  // millennium
     applyBridging(holidays);
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.FRPA, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -256,7 +256,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(1999, 12, 31));  // millennium
     holidays.add(date(2000, 1, 3));  // millennium
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.CHZU, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -291,7 +291,7 @@ final class GlobalHolidayCalendars {
       }
     }
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("EUTA", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.EUTA, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -360,7 +360,7 @@ final class GlobalHolidayCalendars {
       }
     }
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("USGS", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.USGS, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -375,7 +375,7 @@ final class GlobalHolidayCalendars {
       usCommon(holidays, year, false, true, 1986);
     }
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("USNY", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.USNY, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -387,7 +387,7 @@ final class GlobalHolidayCalendars {
       usCommon(holidays, year, false, true, 1986);
     }
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("NYFD", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.NYFD, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -472,7 +472,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2007, 1, 2));  // Death of Gerald Ford
     holidays.add(date(2012, 10, 30));  // Hurricane Sandy
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("NYSE", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.NYSE, holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -573,7 +573,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(1990, 11, 12));  // enthrone akihito
     holidays.add(date(1993, 6, 9));  // marriage naruhito
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of("JPTO", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.JPTO, holidays, SATURDAY, SUNDAY);
   }
 
   // extra day between two other holidays, appears to exclude weekends

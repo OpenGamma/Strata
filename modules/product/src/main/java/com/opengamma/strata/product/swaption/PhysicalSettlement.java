@@ -18,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Defines the settlement type and settlement method of swaptions.
@@ -25,14 +26,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * The settlement type is {@link SettlementType#PHYSICAL}. This means that the two
  * parties enter into the actual interest rate swap at the expiry date of the option. 
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class PhysicalSettlement
     implements SwaptionSettlement, ImmutableBean, Serializable {
 
   /**
    * Default instance.
    */
-  public static final PhysicalSettlement DEFAULT = builder().build();
+  public static final PhysicalSettlement DEFAULT = new PhysicalSettlement();
 
   @Override
   public SettlementType getSettlementType() {
@@ -57,14 +58,6 @@ public final class PhysicalSettlement
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static PhysicalSettlement.Builder builder() {
-    return new PhysicalSettlement.Builder();
-  }
 
   private PhysicalSettlement() {
   }
@@ -133,7 +126,7 @@ public final class PhysicalSettlement
     }
 
     @Override
-    public PhysicalSettlement.Builder builder() {
+    public BeanBuilder<? extends PhysicalSettlement> builder() {
       return new PhysicalSettlement.Builder();
     }
 
@@ -154,7 +147,7 @@ public final class PhysicalSettlement
   /**
    * The bean-builder for {@code PhysicalSettlement}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<PhysicalSettlement> {
+  private static final class Builder extends DirectFieldsBeanBuilder<PhysicalSettlement> {
 
     /**
      * Restricted constructor.

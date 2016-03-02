@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -38,6 +40,7 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -46,6 +49,9 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * Vague performance test.
  */
 public class SwapPricePerformance {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard()
+      .combinedWith(ImmutableReferenceData.of(CalendarUSD.NYC, CalendarUSD.NYC_CALENDAR));
 
   public static void main(String[] args) throws Exception {
     System.out.println("Go");
@@ -104,7 +110,8 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor1mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(TRADE1, USD, PROVIDER);
+    ResolvedSwapTrade resolved = TRADE1.resolve(REF_DATA);
+    CurrencyAmount pv = pricer.presentValue(resolved, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -138,7 +145,8 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(TRADE2, USD, PROVIDER);
+    ResolvedSwapTrade resolved = TRADE2.resolve(REF_DATA);
+    CurrencyAmount pv = pricer.presentValue(resolved, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -172,7 +180,8 @@ public class SwapPricePerformance {
 
   public double test_VanillaFixedVsLibor3mSwapWithFixing() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(TRADE3, USD, PROVIDER);
+    ResolvedSwapTrade resolved = TRADE3.resolve(REF_DATA);
+    CurrencyAmount pv = pricer.presentValue(resolved, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -223,7 +232,8 @@ public class SwapPricePerformance {
 
   public double test_BasisLibor3mVsLibor6mSwapWithSpread() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(TRADE4, USD, PROVIDER);
+    ResolvedSwapTrade resolved = TRADE4.resolve(REF_DATA);
+    CurrencyAmount pv = pricer.presentValue(resolved, USD, PROVIDER);
     return pv.getAmount();
   }
 
@@ -274,7 +284,8 @@ public class SwapPricePerformance {
 
   public double test_BasisCompoundedLibor1mVsLibor3mSwap() {
     DiscountingSwapTradePricer pricer = swapPricer();
-    CurrencyAmount pv = pricer.presentValue(TRADE5, USD, PROVIDER);
+    ResolvedSwapTrade resolved = TRADE5.resolve(REF_DATA);
+    CurrencyAmount pv = pricer.presentValue(resolved, USD, PROVIDER);
     return pv.getAmount();
   }
 

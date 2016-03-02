@@ -10,8 +10,8 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
 
 /**
@@ -33,7 +33,7 @@ enum StandardIsdaYieldCurveConventions
       2,
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.SAT_SUN),
+      HolidayCalendarIds.SAT_SUN),
   /**
    * The ISDA EUR curve.
    */
@@ -45,7 +45,7 @@ enum StandardIsdaYieldCurveConventions
       2,
       Frequency.P12M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.SAT_SUN),
+      HolidayCalendarIds.SAT_SUN),
   /**
    * The ISDA GBP curve.
    */
@@ -57,7 +57,7 @@ enum StandardIsdaYieldCurveConventions
       2,
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.SAT_SUN),
+      HolidayCalendarIds.SAT_SUN),
   /**
    * The ISDA CHF curve.
    */
@@ -69,7 +69,7 @@ enum StandardIsdaYieldCurveConventions
       2,
       Frequency.P12M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.SAT_SUN),
+      HolidayCalendarIds.SAT_SUN),
   /**
    * The ISDA JPY curve.
    */
@@ -81,7 +81,7 @@ enum StandardIsdaYieldCurveConventions
       2,
       Frequency.P6M,
       BusinessDayConventions.MODIFIED_FOLLOWING,
-      HolidayCalendars.JPTO);
+      HolidayCalendarIds.JPTO);
 
   private final String name;
   private final Currency currency;
@@ -90,7 +90,7 @@ enum StandardIsdaYieldCurveConventions
   private final int spotDays;
   private final Frequency fixedPaymentFrequency;
   private final BusinessDayConvention badDayConvention;
-  private final HolidayCalendar holidayCalendar;
+  private final HolidayCalendarId holidayCalendar;
 
   // create
   StandardIsdaYieldCurveConventions(String name,
@@ -100,7 +100,7 @@ enum StandardIsdaYieldCurveConventions
       int spotDays,
       Frequency fixedPaymentFrequency,
       BusinessDayConvention badDayConvention,
-      HolidayCalendar holidayCalendar) {
+      HolidayCalendarId holidayCalendar) {
 
     this.name = name;
     this.currency = currency;
@@ -143,7 +143,7 @@ enum StandardIsdaYieldCurveConventions
   }
 
   @Override
-  public HolidayCalendar getHolidayCalendar() {
+  public HolidayCalendarId getHolidayCalendar() {
     return holidayCalendar;
   }
 

@@ -25,8 +25,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -41,12 +42,13 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 
@@ -55,6 +57,9 @@ import com.opengamma.strata.product.swap.SwapLeg;
  */
 @Test
 public class DiscountingDeliverableSwapFutureProductPricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // curves
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final LocalDate VAL_DATE = LocalDate.of(2012, 9, 20);
@@ -76,7 +81,7 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
       .build();
   // underlying swap
   private static final NotionalSchedule UNIT_NOTIONAL = NotionalSchedule.of(USD, 1d);
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CALENDAR);
   private static final LocalDate START = LocalDate.of(2012, 12, 19);
@@ -121,15 +126,17 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
           .build())
       .build();
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
+  private static final ResolvedSwap RSWAP = SWAP.resolve(REF_DATA);
+
   // deliverable swap future
   private static final LocalDate LAST_TRADE = LocalDate.of(2012, 12, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2012, 12, 19);
   private static final double NOTIONAL = 100000;
-  private static final DeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
+  private static final ResolvedDeliverableSwapFuture FUTURE = ResolvedDeliverableSwapFuture.builder()
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .underlyingSwap(SWAP)
+      .underlyingSwap(SWAP.resolve(REF_DATA))
       .build();
   // calculators
   private static final double TOL = 1.0e-13;
@@ -142,7 +149,7 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_price() {
     double computed = PRICER.price(FUTURE, PROVIDER);
-    double pvSwap = PRICER.getSwapPricer().presentValue(SWAP, PROVIDER).getAmount(USD).getAmount();
+    double pvSwap = PRICER.getSwapPricer().presentValue(RSWAP, PROVIDER).getAmount(USD).getAmount();
     double yc = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, DELIVERY);
     double df = Math.exp(-USD_DSC.yValue(yc) * yc);
     double expected = 1d + pvSwap / df;

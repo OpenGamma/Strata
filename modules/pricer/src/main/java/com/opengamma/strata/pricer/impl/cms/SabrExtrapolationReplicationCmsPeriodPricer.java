@@ -33,10 +33,9 @@ import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionVolatilities;
 import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.cms.CmsPeriodType;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
 
@@ -157,8 +156,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       return CurrencyAmount.zero(ccy);
     }
     SwapIndex index = cmsPeriod.getIndex();
-    Swap swap = cmsPeriod.getUnderlyingSwap();
-    ExpandedSwap expandedSwap = swap.expand();
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -190,11 +188,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
       }
     }
-    double forward = swapPricer.parRate(expandedSwap, provider);
+    double forward = swapPricer.parRate(swap, provider);
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
-        cmsPeriod, expandedSwap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
+        cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     double strikePart = factor * intProv.k(strikeCpn) * intProv.bs(strikeCpn);
     double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
@@ -238,8 +236,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       return PointSensitivityBuilder.none();
     }
     SwapIndex index = cmsPeriod.getIndex();
-    Swap swap = cmsPeriod.getUnderlyingSwap();
-    ExpandedSwap expandedSwap = swap.expand();
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -272,11 +269,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
       }
     }
-    double forward = swapPricer.parRate(expandedSwap, provider);
+    double forward = swapPricer.parRate(swap, provider);
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsDeltaIntegrantProvider intProv = new CmsDeltaIntegrantProvider(
-        cmsPeriod, expandedSwap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
+        cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
     RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL, NUM_ITER);
@@ -307,7 +304,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     deltaPD *= cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     double strikePart = dfPayment * intProv.k(strikeCpn) * (n[1] * bs[0] + n[0] * bs[1]);
     double deltaFwd = (strikePart + integralPart) * cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
-    PointSensitivityBuilder sensiFwd = swapPricer.parRateSensitivity(expandedSwap, provider).multipliedBy(deltaFwd);
+    PointSensitivityBuilder sensiFwd = swapPricer.parRateSensitivity(swap, provider).multipliedBy(deltaFwd);
     PointSensitivityBuilder sensiDf = provider.discountFactors(ccy)
         .zeroRatePointSensitivity(cmsPeriod.getPaymentDate()).multipliedBy(deltaPD);
     return sensiFwd.combinedWith(sensiDf);
@@ -328,8 +325,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     Currency ccy = cmsPeriod.getCurrency();
     SwapIndex index = cmsPeriod.getIndex();
-    Swap swap = cmsPeriod.getUnderlyingSwap();
-    ExpandedSwap expandedSwap = swap.expand();
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -352,11 +348,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
     double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
     double strikeCpn = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? -shift : cmsPeriod.getStrike();
-    double forward = swapPricer.parRate(expandedSwap, provider);
+    double forward = swapPricer.parRate(swap, provider);
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
-        cmsPeriod, expandedSwap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
+        cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     double factor2 = factor * intProv.k(strikeCpn);
     double[] strikePartPrice = intProv.getSabrExtrapolation()
@@ -405,8 +401,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     if (provider.getValuationDate().isAfter(cmsPeriod.getPaymentDate())) {
       return 0d;
     }
-    Swap swap = cmsPeriod.getUnderlyingSwap();
-    ExpandedSwap expandedSwap = swap.expand();
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
     ZonedDateTime valuationDate = swaptionVolatilities.getValuationDateTime();
     LocalDate fixingDate = cmsPeriod.getFixingDate();
@@ -435,11 +430,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
       }
     }
-    double forward = swapPricer.parRate(expandedSwap, provider);
+    double forward = swapPricer.parRate(swap, provider);
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
-        cmsPeriod, expandedSwap, swaptionVolatilities, forward, strike, expiryTime, tenor, cutOffStrike, eta);
+        cmsPeriod, swap, swaptionVolatilities, forward, strike, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment * intProv.g(forward) / intProv.h(forward);
     double absoluteTolerance = 1.0E-9;
     RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL_STRIKE, NUM_ITER);
@@ -564,7 +559,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     public CmsIntegrantProvider(
         CmsPeriod cmsPeriod,
-        ExpandedSwap swap,
+        ResolvedSwap swap,
         SabrParametersSwaptionVolatilities swaptionVolatilities,
         double forward,
         double strike,
@@ -573,7 +568,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         double cutOffStrike,
         double eta) {
 
-      ExpandedSwapLeg fixedLeg = swap.getLegs(SwapLegType.FIXED).get(0);
+      ResolvedSwapLeg fixedLeg = swap.getLegs(SwapLegType.FIXED).get(0);
       this.nbFixedPeriod = fixedLeg.getPaymentPeriods().size();
       this.nbFixedPaymentYear = (int) Math.round(1d /
           ((RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0)).getAccrualPeriods().get(0).getYearFraction());
@@ -752,7 +747,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     public CmsDeltaIntegrantProvider(
         CmsPeriod cmsPeriod,
-        ExpandedSwap swap,
+        ResolvedSwap swap,
         SabrParametersSwaptionVolatilities swaptionVolatilities,
         double forward,
         double strike,

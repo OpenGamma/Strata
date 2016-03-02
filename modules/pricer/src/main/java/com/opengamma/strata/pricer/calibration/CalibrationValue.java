@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.List;
 import java.util.function.Function;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Provides the calibration value.
@@ -25,7 +25,7 @@ class CalibrationValue
   /**
    * The trades.
    */
-  private final List<Trade> trades;
+  private final List<ResolvedTrade> trades;
   /**
    * The calibration measures.
    */
@@ -43,7 +43,7 @@ class CalibrationValue
    * @param providerGenerator  the provider generator, used to create child providers
    */
   CalibrationValue(
-      List<Trade> trades,
+      List<ResolvedTrade> trades,
       CalibrationMeasures measures,
       RatesProviderGenerator providerGenerator) {
 

@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link BulletPayment}.
@@ -29,6 +30,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 @Test
 public class BulletPaymentTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount GBP_M1000 = CurrencyAmount.of(GBP, -1_000);
   private static final CurrencyAmount USD_P1600 = CurrencyAmount.of(USD, 1_600);
@@ -57,22 +59,24 @@ public class BulletPaymentTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expandToPayment_pay() {
+  public void test_resolve_pay() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.PAY)
         .value(GBP_P1000)
         .date(AdjustableDate.of(DATE_2015_06_30))
         .build();
-    assertEquals(test.expandToPayment(), Payment.of(GBP_M1000, DATE_2015_06_30));
+    ResolvedBulletPayment expected = ResolvedBulletPayment.of(Payment.of(GBP_M1000, DATE_2015_06_30));
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
-  public void test_expandToPayment_receive() {
+  public void test_resolve_receive() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.RECEIVE)
         .value(GBP_P1000)
         .date(AdjustableDate.of(DATE_2015_06_30))
         .build();
-    assertEquals(test.expandToPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
+    ResolvedBulletPayment expected = ResolvedBulletPayment.of(Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertEquals(test.resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

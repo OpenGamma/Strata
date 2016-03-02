@@ -5,15 +5,16 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+
 import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ObservableId;
@@ -44,9 +45,7 @@ final class CurveTestUtils {
 
   private static final String TEST_SCHEME = "test";
 
-  private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(
-      BusinessDayConventions.FOLLOWING,
-      HolidayCalendars.GBLO);
+  private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
 
   private static final IborRateSwapLegConvention FLOATING_CONVENTION =
       IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M);

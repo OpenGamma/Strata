@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -57,8 +58,11 @@ public class DeliverableSwapFuturePricingExample {
 
   // obtains the data and calculates the grid of results
   private static void calculate(CalculationRunner runner) {
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // the trades that will have measures calculated
-    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2());
+    List<Trade> trades = ImmutableList.of(createTrade1(refData), createTrade2(refData));
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
@@ -80,7 +84,7 @@ public class DeliverableSwapFuturePricingExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
@@ -96,9 +100,9 @@ public class DeliverableSwapFuturePricingExample {
 
   //-----------------------------------------------------------------------  
   // create a trade
-  private static Trade createTrade1() {
+  private static Trade createTrade1(ReferenceData refData) {
     Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
-        LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02).getProduct();
+        LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()
         .lastTradeDate(LocalDate.of(2015, 3, 16))
@@ -124,9 +128,9 @@ public class DeliverableSwapFuturePricingExample {
   }
 
   // create a trade
-  private static Trade createTrade2() {
+  private static Trade createTrade2(ReferenceData refData) {
     Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
-        LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02).getProduct();
+        LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()
         .lastTradeDate(LocalDate.of(2015, 6, 15))

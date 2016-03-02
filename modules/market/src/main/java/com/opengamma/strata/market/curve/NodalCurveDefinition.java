@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 
@@ -74,9 +75,10 @@ public interface NodalCurveDefinition {
    * The size of the parameter-level metadata will match the number of parameters of this curve.
    *
    * @param valuationDate  the valuation date
+   * @param refData  the reference data
    * @return the metadata
    */
-  public abstract CurveMetadata metadata(LocalDate valuationDate);
+  public abstract CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData);
 
   /**
    * Creates the curve from an array of parameter values.

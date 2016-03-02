@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -23,8 +24,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.bond.BondFuture;
-import com.opengamma.strata.product.bond.BondFutureTrade;
+import com.opengamma.strata.product.bond.ResolvedBondFuture;
+import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
 
 /**
  * Test {@link DiscountingBondFutureTradePricer}.
@@ -32,9 +33,11 @@ import com.opengamma.strata.product.bond.BondFutureTrade;
 @Test
 public class DiscountingBondFutureTradetPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // product and trade
-  private static final BondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT_USD;
-  private static final BondFutureTrade FUTURE_TRADE = BondDataSets.FUTURE_TRADE_USD;
+  private static final ResolvedBondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT_USD.resolve(REF_DATA);
+  private static final ResolvedBondFutureTrade FUTURE_TRADE = BondDataSets.FUTURE_TRADE_USD.resolve(REF_DATA);
   private static final double REFERENCE_PRICE = BondDataSets.REFERENCE_PRICE_USD;
   private static final double NOTIONAL = BondDataSets.NOTIONAL_USD;
   private static final long QUANTITY = BondDataSets.QUANTITY_USD;

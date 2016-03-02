@@ -14,9 +14,9 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -31,6 +31,7 @@ import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Curve calibrator.
@@ -154,6 +155,7 @@ public final class CurveCalibrator {
    * @param curveGroupDefn  the curve group definition
    * @param valuationDate  the validation date
    * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trades
    * @param timeSeries  the time-series
    * @return the rates provider resulting from the calibration
    */
@@ -161,13 +163,14 @@ public final class CurveCalibrator {
       CurveGroupDefinition curveGroupDefn,
       LocalDate valuationDate,
       MarketData marketData,
+      ReferenceData refData,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
 
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(new MarketDataFxRateProvider(marketData))
         .timeSeries(timeSeries)
         .build();
-    return calibrate(ImmutableList.of(curveGroupDefn), knownData, marketData);
+    return calibrate(ImmutableList.of(curveGroupDefn), knownData, marketData, refData);
   }
 
   /**
@@ -181,12 +184,14 @@ public final class CurveCalibrator {
    * @param allGroupsDefn  the curve group definitions
    * @param knownData  the starting data for the calibration
    * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trades
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
-      MarketData marketData) {
+      MarketData marketData,
+      ReferenceData refData) {
 
     // perform calibration one group at a time, building up the result by mutating these variables
     ImmutableRatesProvider providerCombined = knownData;
@@ -194,7 +199,7 @@ public final class CurveCalibrator {
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
       // combine all data in the group into flat lists
-      ImmutableList<Trade> trades = groupDefn.trades(knownData.getValuationDate(), marketData);
+      ImmutableList<ResolvedTrade> trades = groupDefn.resolvedTrades(knownData.getValuationDate(), marketData, refData);
       ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(knownData.getValuationDate(), marketData);
       ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefn);
       ImmutableList<CurveParameterSize> orderPrevAndGroup = ImmutableList.<CurveParameterSize>builder()
@@ -203,7 +208,7 @@ public final class CurveCalibrator {
           .build();
 
       // calibrate
-      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn);
+      RatesProviderGenerator providerGenerator = ImmutableRatesProviderGenerator.of(providerCombined, groupDefn, refData);
       DoubleArray calibratedGroupParams = calibrateGroup(providerGenerator, trades, initialGuesses, orderGroup);
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
@@ -228,7 +233,7 @@ public final class CurveCalibrator {
   // calibrates a single group
   private DoubleArray calibrateGroup(
       RatesProviderGenerator providerGenerator,
-      ImmutableList<Trade> trades,
+      ImmutableList<ResolvedTrade> trades,
       ImmutableList<Double> initialGuesses,
       ImmutableList<CurveParameterSize> curveOrder) {
 
@@ -247,7 +252,7 @@ public final class CurveCalibrator {
   // this uses, but does not alter, data from previous groups
   private ImmutableMap<CurveName, JacobianCalibrationMatrix> updateJacobiansForGroup(
       ImmutableRatesProvider provider,
-      ImmutableList<Trade> trades,
+      ImmutableList<ResolvedTrade> trades,
       ImmutableList<CurveParameterSize> orderGroup,
       ImmutableList<CurveParameterSize> orderPrev,
       ImmutableList<CurveParameterSize> orderAll,
@@ -294,7 +299,7 @@ public final class CurveCalibrator {
 
   // calculate the derivatives
   private DoubleMatrix derivatives(
-      ImmutableList<Trade> trades,
+      ImmutableList<ResolvedTrade> trades,
       ImmutableRatesProvider provider,
       ImmutableList<CurveParameterSize> orderAll,
       int totalParamsAll) {

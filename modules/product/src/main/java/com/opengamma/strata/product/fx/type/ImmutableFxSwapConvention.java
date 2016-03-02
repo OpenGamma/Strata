@@ -118,6 +118,7 @@ public final class ImmutableFxSwapConvention
       DaysAdjustment spotDateOffset,
       BusinessDayAdjustment businessDayAdjustment) {
 
+    ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
     return ImmutableFxSwapConvention.builder()
         .currencyPair(currencyPair)
         .spotDateOffset(spotDateOffset)
@@ -160,8 +161,6 @@ public final class ImmutableFxSwapConvention
 
     ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
     double amount1 = BuySell.BUY.normalize(notional);
-    LocalDate startDateAdjusted = getBusinessDayAdjustment().adjust(startDate);
-    LocalDate endDateAdjusted = getBusinessDayAdjustment().adjust(endDate);
     return FxSwapTrade.builder()
         .tradeInfo(TradeInfo.builder()
             .tradeDate(tradeDate).build())
@@ -170,8 +169,9 @@ public final class ImmutableFxSwapConvention
             currencyPair.getCounter(),
             nearFxRate,
             farLegForwardPoints,
-            startDateAdjusted,
-            endDateAdjusted))
+            startDate,
+            endDate,
+            getBusinessDayAdjustment()))
         .build();
   }
 

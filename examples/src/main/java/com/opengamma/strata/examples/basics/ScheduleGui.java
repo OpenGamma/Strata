@@ -15,8 +15,9 @@ import org.joda.beans.MetaProperty;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
@@ -54,6 +55,9 @@ import javafx.util.Callback;
  * It is not intended to be used in a production environment.
  */
 public class ScheduleGui extends Application {
+
+  // the reference data to use
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Launch GUI, no arguments needed.
@@ -121,21 +125,21 @@ public class ScheduleGui extends Application {
     bdcInp.setValue(BusinessDayConventions.MODIFIED_FOLLOWING);
 
     Label holidayLbl = new Label("Holidays:");
-    ChoiceBox<HolidayCalendar> holidayInp = new ChoiceBox<>(
+    ChoiceBox<HolidayCalendarId> holidayInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
-            HolidayCalendars.CHZU,
-            HolidayCalendars.GBLO,
-            HolidayCalendars.EUTA,
-            HolidayCalendars.FRPA,
-            HolidayCalendars.JPTO,
-            HolidayCalendars.NYFD,
-            HolidayCalendars.NYSE,
-            HolidayCalendars.USNY,
-            HolidayCalendars.USGS,
-            HolidayCalendars.NO_HOLIDAYS,
-            HolidayCalendars.SAT_SUN));
+            HolidayCalendarIds.CHZU,
+            HolidayCalendarIds.GBLO,
+            HolidayCalendarIds.EUTA,
+            HolidayCalendarIds.FRPA,
+            HolidayCalendarIds.JPTO,
+            HolidayCalendarIds.NYFD,
+            HolidayCalendarIds.NYSE,
+            HolidayCalendarIds.USNY,
+            HolidayCalendarIds.USGS,
+            HolidayCalendarIds.NO_HOLIDAYS,
+            HolidayCalendarIds.SAT_SUN));
     holidayLbl.setLabelFor(holidayInp);
-    holidayInp.setValue(HolidayCalendars.GBLO);
+    holidayInp.setValue(HolidayCalendarIds.GBLO);
 
     TableView<SchedulePeriod> resultGrid = new TableView<>();
     TableColumn<SchedulePeriod, LocalDate> unadjustedCol = new TableColumn<>("Unadjusted dates");
@@ -185,7 +189,7 @@ public class ScheduleGui extends Application {
       Frequency freq = freqInp.getValue();
       StubConvention stub = stubInp.getValue();
       RollConvention roll = rollInp.getValue();
-      HolidayCalendar holCal = holidayInp.getValue();
+      HolidayCalendarId holCal = holidayInp.getValue();
       BusinessDayConvention bdc = bdcInp.getValue();
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(bdc, holCal);
       PeriodicSchedule defn = PeriodicSchedule.builder()
@@ -197,7 +201,7 @@ public class ScheduleGui extends Application {
           .rollConvention(roll)
           .build();
       try {
-        Schedule schedule = defn.createSchedule();
+        Schedule schedule = defn.createSchedule(REF_DATA);
         System.out.println(schedule);
         resultGrid.setItems(FXCollections.observableArrayList(schedule.getPeriods()));
       } catch (ScheduleException ex) {

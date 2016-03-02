@@ -18,12 +18,12 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.product.cms.CmsLeg;
 import com.opengamma.strata.product.cms.CmsPeriod;
-import com.opengamma.strata.product.cms.ExpandedCmsLeg;
+import com.opengamma.strata.product.cms.ResolvedCmsLeg;
 
 /**
  * Pricer for for CMS legs by swaption replication on a SABR formula with extrapolation.
  * <p>
- * This function provides the ability to price {@link ExpandedCmsLeg}. 
+ * This function provides the ability to price {@link ResolvedCmsLeg}. 
  * One must apply {@code expand()} in order to price {@link CmsLeg}. 
  */
 public class SabrExtrapolationReplicationCmsLegPricer {
@@ -55,7 +55,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      ExpandedCmsLeg cmsLeg,
+      ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
@@ -79,7 +79,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      ExpandedCmsLeg cmsLeg,
+      ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
@@ -103,7 +103,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @return the present value sensitivity
    */
   public SwaptionSabrSensitivities presentValueSensitivitySabrParameter(
-      ExpandedCmsLeg cmsLeg,
+      ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
@@ -128,7 +128,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @return the present value sensitivity
    */
   public double presentValueSensitivityStrike(
-      ExpandedCmsLeg cmsLeg,
+      ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
@@ -149,7 +149,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * @return the current cash
    */
   public CurrencyAmount currentCash(
-      ExpandedCmsLeg cmsLeg,
+      ResolvedCmsLeg cmsLeg,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 

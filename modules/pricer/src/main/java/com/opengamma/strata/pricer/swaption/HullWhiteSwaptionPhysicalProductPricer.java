@@ -22,14 +22,13 @@ import com.opengamma.strata.pricer.impl.rate.swap.CashFlowEquivalentCalculator;
 import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.PaymentEventPricer;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.PaymentEvent;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swaption.ExpandedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;
-import com.opengamma.strata.product.swaption.SwaptionProduct;
 
 /**
  * Pricer for swaption with physical settlement in Hull-White one factor model with piecewise constant volatility.
@@ -73,24 +72,23 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * <p>
    * The result is expressed using the currency of the swapion.
    * 
-   * @param swaption  the product to price
+   * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
    * @return the present value of the swaption product
    */
   public CurrencyAmount presentValue(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
-    LocalDate expiryDate = expanded.getExpiryDate();
+    validate(swaption, ratesProvider, hwProvider);
+    ResolvedSwap swap = swaption.getUnderlying();
+    LocalDate expiryDate = swaption.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return CurrencyAmount.of(swap.getLegs().get(0).getCurrency(), 0d);
     }
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[] discountedCashFlow = new double[nPayments];
@@ -106,20 +104,20 @@ public class HullWhiteSwaptionPhysicalProductPricer {
     for (int loopcf = 0; loopcf < nPayments; loopcf++) {
       pv += discountedCashFlow[loopcf] * NORMAL.getCDF(omega * (kappa + alpha[loopcf]));
     }
-    return CurrencyAmount.of(cashFlowEquiv.getCurrency(), pv * (expanded.getLongShort().isLong() ? 1d : -1d));
+    return CurrencyAmount.of(cashFlowEquiv.getCurrency(), pv * (swaption.getLongShort().isLong() ? 1d : -1d));
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the swaption product.
    * 
-   * @param swaption  the product to price
+   * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
    * @return the currency exposure of the swaption product
    */
   public MultiCurrencyAmount currencyExposure(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
@@ -133,20 +131,19 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param swaption  the product to price
+   * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
    * @return the present value curve sensitivity of the swaption product
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
-    LocalDate expiryDate = expanded.getExpiryDate();
+    validate(swaption, ratesProvider, hwProvider);
+    ResolvedSwap swap = swaption.getUnderlying();
+    LocalDate expiryDate = swaption.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
@@ -174,31 +171,30 @@ public class HullWhiteSwaptionPhysicalProductPricer {
             .multipliedBy(cdf * ratesProvider.discountFactor(payment.getCurrency(), payment.getPaymentDate())));
       }
     }
-    return expanded.getLongShort().isLong() ? point : point.multipliedBy(-1d);
+    return swaption.getLongShort().isLong() ? point : point.multipliedBy(-1d);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value sensitivity to piecewise constant volatility parameters of the Hull-White model.
    * 
-   * @param swaption  the product to price
+   * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
    * @return the present value Hull-White model parameter sensitivity of the swaption product
    */
   public DoubleArray presentValueSensitivityHullWhiteParameter(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, hwProvider);
-    ExpandedSwap swap = expanded.getUnderlying();
-    LocalDate expiryDate = expanded.getExpiryDate();
+    validate(swaption, ratesProvider, hwProvider);
+    ResolvedSwap swap = swaption.getUnderlying();
+    LocalDate expiryDate = swaption.getExpiryDate();
     if (expiryDate.isBefore(ratesProvider.getValuationDate())) { // Option has expired already
       return DoubleArray.EMPTY;
     }
-    ExpandedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
+    ResolvedSwapLeg cashFlowEquiv = CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, ratesProvider);
     int nPayments = cashFlowEquiv.getPaymentEvents().size();
     double[] alpha = new double[nPayments];
     double[][] alphaAdjoint = new double[nPayments][];
@@ -218,7 +214,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
       return DoubleArray.filled(nParams);
     }
     double[] pvSensi = new double[nParams];
-    double sign = (expanded.getLongShort().isLong() ? 1d : -1d);
+    double sign = (swaption.getLongShort().isLong() ? 1d : -1d);
     for (int i = 0; i < nParams; ++i) {
       for (int loopcf = 0; loopcf < nPayments; loopcf++) {
         pvSensi[i] += sign * discountedCashFlow[loopcf] * NORMAL.getPDF(omega * (kappa + alpha[loopcf])) *
@@ -230,7 +226,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
 
   //-------------------------------------------------------------------------
   // validate that the rates and volatilities providers are coherent
-  private void validate(ExpandedSwaption swaption, RatesProvider ratesProvider,
+  private void validate(ResolvedSwaption swaption, RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
     ArgChecker.isTrue(hwProvider.getValuationDateTime().toLocalDate().equals(ratesProvider.getValuationDate()),
         "Hull-White model data and rate data should be for the same date");

@@ -20,18 +20,16 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.SwapProduct;
 import com.opengamma.strata.product.swaption.CashSettlement;
 import com.opengamma.strata.product.swaption.CashSettlementMethod;
-import com.opengamma.strata.product.swaption.ExpandedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.SettlementType;
-import com.opengamma.strata.product.swaption.SwaptionProduct;
 
 /**
  * Pricer for swaption with par yield curve method of cash settlement based on volatilities.
@@ -52,7 +50,8 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    */
   public static final VolatilitySwaptionCashParYieldProductPricer DEFAULT =
       new VolatilitySwaptionCashParYieldProductPricer(DiscountingSwapProductPricer.DEFAULT);
-  /** 
+
+  /**
    * Pricer for {@link SwapProduct}. 
    */
   private final DiscountingSwapProductPricer swapPricer;
@@ -88,26 +87,25 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value of the swaption
    */
   public CurrencyAmount presentValue(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
     double forward = swapPricer.parRate(underlying, ratesProvider);
-    double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
+    double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double price = numeraire * swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), price * expanded.getLongShort().sign());
+    return CurrencyAmount.of(fixedLeg.getCurrency(), price * swaption.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +120,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value of the swaption
    */
   public MultiCurrencyAmount currencyExposure(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
@@ -139,15 +137,14 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the implied volatility associated with the swaption
    */
   public double impliedVolatility(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     ArgChecker.isTrue(expiry >= 0d, "Option must be before expiry to compute an implied volatility");
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double strike = calculateStrike(fixedLeg);
@@ -170,26 +167,25 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value delta of the swaption
    */
   public CurrencyAmount presentValueDelta(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
+    double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double delta = numeraire * swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * expanded.getLongShort().sign());
+    return CurrencyAmount.of(fixedLeg.getCurrency(), delta * swaption.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -207,26 +203,25 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value gamma of the swaption
    */
   public CurrencyAmount presentValueGamma(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
+    double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double gamma = numeraire * swaptionVolatilities.priceGamma(expiry, tenor, putCall, strike, forward, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * expanded.getLongShort().sign());
+    return CurrencyAmount.of(fixedLeg.getCurrency(), gamma * swaption.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -244,26 +239,25 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value theta of the swaption
    */
   public CurrencyAmount presentValueTheta(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
+    double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double theta = numeraire * swaptionVolatilities.priceTheta(expiry, tenor, putCall, strike, forward, volatility);
-    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * expanded.getLongShort().sign());
+    return CurrencyAmount.of(fixedLeg.getCurrency(), theta * swaption.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
@@ -279,22 +273,21 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the present value curve sensitivity of the swap product
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    double expiry = swaptionVolatilities.relativeTime(expanded.getExpiryDateTime());
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
     double annuityCash = getSwapPricer().getLegPricer().annuityCash(fixedLeg, forward);
     double annuityCashDr = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
-    LocalDate settlementDate = ((CashSettlement) expanded.getSwaptionSettlement()).getSettlementDate();
+    LocalDate settlementDate = ((CashSettlement) swaption.getSwaptionSettlement()).getSettlementDate();
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), settlementDate);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -306,7 +299,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     PointSensitivityBuilder forwardSensi = getSwapPricer().parRateSensitivity(underlying, ratesProvider);
     PointSensitivityBuilder discountSettleSensi =
         ratesProvider.discountFactors(fixedLeg.getCurrency()).zeroRatePointSensitivity(settlementDate);
-    double sign = expanded.getLongShort().sign();
+    double sign = swaption.getLongShort().sign();
     return forwardSensi.multipliedBy(sign * discountSettle * (annuityCash * delta + annuityCashDr * price))
         .combinedWith(discountSettleSensi.multipliedBy(sign * annuityCash * price));
   }
@@ -323,16 +316,15 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the point sensitivity to the volatility
    */
   public SwaptionSensitivity presentValueSensitivityVolatility(
-      SwaptionProduct swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    ExpandedSwaption expanded = swaption.expand();
-    validate(expanded, ratesProvider, swaptionVolatilities);
-    ZonedDateTime expiryDateTime = expanded.getExpiryDateTime();
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    ZonedDateTime expiryDateTime = swaption.getExpiry();
     double expiry = swaptionVolatilities.relativeTime(expiryDateTime);
-    ExpandedSwap underlying = expanded.getUnderlying();
-    ExpandedSwapLeg fixedLeg = fixedLeg(underlying);
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     double strike = calculateStrike(fixedLeg);
     if (expiry < 0d) { // Option has expired already
@@ -340,7 +332,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
           swaptionVolatilities.getConvention(), expiryDateTime, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double numeraire = calculateNumeraire(expanded, fixedLeg, forward, ratesProvider);
+    double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
     double vega = numeraire * swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility);
@@ -351,27 +343,27 @@ public class VolatilitySwaptionCashParYieldProductPricer {
         strike,
         forward,
         fixedLeg.getCurrency(),
-        vega * expanded.getLongShort().sign());
+        vega * swaption.getLongShort().sign());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the numeraire, used to multiply the results.
    * 
-   * @param expanded  the swap
+   * @param swaption  the swap
    * @param fixedLeg  the fixed leg
    * @param forward  the forward rate
    * @param ratesProvider  the rates provider
    * @return the numeraire
    */
   protected double calculateNumeraire(
-      ExpandedSwaption expanded,
-      ExpandedSwapLeg fixedLeg,
+      ResolvedSwaption swaption,
+      ResolvedSwapLeg fixedLeg,
       double forward,
       RatesProvider ratesProvider) {
 
     double annuityCash = swapPricer.getLegPricer().annuityCash(fixedLeg, forward);
-    CashSettlement cashSettlement = (CashSettlement) expanded.getSwaptionSettlement();
+    CashSettlement cashSettlement = (CashSettlement) swaption.getSwaptionSettlement();
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), cashSettlement.getSettlementDate());
     return Math.abs(annuityCash * discountSettle);
   }
@@ -382,7 +374,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param fixedLeg  the fixed leg
    * @return the strike
    */
-  protected double calculateStrike(ExpandedSwapLeg fixedLeg) {
+  protected double calculateStrike(ResolvedSwapLeg fixedLeg) {
     PaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "Payment period must be RatePaymentPeriod");
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
@@ -398,10 +390,10 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swap  the swap
    * @return the fixed leg
    */
-  protected ExpandedSwapLeg fixedLeg(ExpandedSwap swap) {
+  protected ResolvedSwapLeg fixedLeg(ResolvedSwap swap) {
     ArgChecker.isFalse(swap.isCrossCurrency(), "Swap must be single currency");
     // find fixed leg
-    List<ExpandedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
+    List<ResolvedSwapLeg> fixedLegs = swap.getLegs(SwapLegType.FIXED);
     if (fixedLegs.isEmpty()) {
       throw new IllegalArgumentException("Swap must contain a fixed leg");
     }
@@ -417,7 +409,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaptionVolatilities  the volatilities
    */
   protected void validate(
-      ExpandedSwaption swaption,
+      ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
@@ -431,7 +423,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * 
    * @param swaption  the swaption
    */
-  protected void validateSwaption(ExpandedSwaption swaption) {
+  protected void validateSwaption(ResolvedSwaption swaption) {
     ArgChecker.isFalse(swaption.getUnderlying().isCrossCurrency(), "Underlying swap must be single currency");
     ArgChecker.isTrue(swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH),
         "Swaption must be cash settlement");

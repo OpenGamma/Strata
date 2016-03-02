@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -21,14 +21,15 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_EUR;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_EXPANDED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_EXPANDED_SWAP_LEG_REC_GBP;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.INFLATION_FIXED_SWAP_LEG_PAY_GBP;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.INFLATION_FIXED_SWAP_LEG_PAY_GBP_FIXED_RATE;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.INFLATION_MONTHLY_SWAP_LEG_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL_EXCHANGE_PAY_GBP;
@@ -61,6 +62,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -87,16 +89,15 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
@@ -112,6 +113,7 @@ import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 @Test
 public class DiscountingSwapProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final RatesProvider MOCK_PROV = new MockRatesProvider(RatesProviderDataSets.VAL_DATE_2014_01_22);
 
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
@@ -147,10 +149,10 @@ public class DiscountingSwapProductPricerTest {
   private static final double NOTIONAL_SWAP = 100_000_000;
   private static final SwapTrade SWAP_USD_FIXED_6M_LIBOR_3M_5Y = FixedIborSwapTemplate
       .of(Period.ZERO, TENOR_5Y, USD_FIXED_6M_LIBOR_3M)
-      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE);
+      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE, REF_DATA);
   private static final SwapTrade SWAP_USD_LIBOR_3M_LIBOR_6M_5Y = IborIborSwapTemplate
       .of(Period.ZERO, TENOR_5Y, CONV_USD_LIBOR3M_LIBOR6M)
-      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD);
+      .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD, REF_DATA);
   
   private static final DiscountingSwapProductPricer SWAP_PRODUCT_PRICER = DiscountingSwapProductPricer.DEFAULT;
   private static final DiscountingSwapTradePricer SWAP_TRADE_PRICER = DiscountingSwapTradePricer.DEFAULT;
@@ -190,11 +192,10 @@ public class DiscountingSwapProductPricerTest {
         .thenReturn(-pvNotional);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ExpandedSwap expanded = SWAP.expand();
-    double pvbp = pricerLeg.pvbp(FIXED_EXPANDED_SWAP_LEG_PAY, mockProv);
+    double pvbp = pricerLeg.pvbp(FIXED_SWAP_LEG_PAY, mockProv);
     double parRateExpected1 = -(pvCpnIbor + -pvNotional + pvNotional) / pvbp;
     double parRateExpected2 = fwdRate;
-    double parRateComputed = pricerSwap.parRate(expanded, mockProv);
+    double parRateComputed = pricerSwap.parRate(SWAP, mockProv);
     assertEquals(parRateComputed, parRateExpected1, TOLERANCE_RATE);
     assertEquals(parRateComputed, parRateExpected2, TOLERANCE_RATE);
   }
@@ -222,17 +223,14 @@ public class DiscountingSwapProductPricerTest {
         .thenReturn(pvNotionalUsd);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    double pvbp = pricerLeg.pvbp(FIXED_EXPANDED_SWAP_LEG_PAY_USD, mockProv);
+    double pvbp = pricerLeg.pvbp(FIXED_SWAP_LEG_PAY_USD, mockProv);
     double parRateExpected = -((pvCpnIborGbp + pvNotionalGbp) * fxGbpUsd + pvNotionalUsd) / pvbp;
-    double parRateComputed = pricerSwap.parRate(expanded, mockProv);
+    double parRateComputed = pricerSwap.parRate(SWAP, mockProv);
     assertEquals(parRateComputed, parRateExpected, TOLERANCE_RATE);
   }
 
   public void test_parRate_bothLegFloating() {
-    Swap swap = Swap.builder()
-        .legs(IBOR_EXPANDED_SWAP_LEG_REC_GBP, IBOR_EXPANDED_SWAP_LEG_REC_GBP)
-        .build();
+    ResolvedSwap swap = ResolvedSwap.of(IBOR_SWAP_LEG_REC_GBP, IBOR_SWAP_LEG_REC_GBP);
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
@@ -249,7 +247,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
     double parRateComputed = pricerSwap.parRate(SWAP_INFLATION, prov);
-    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -267,14 +265,15 @@ public class DiscountingSwapProductPricerTest {
             .rate(ValueSchedule.of(parRateComputed))
             .dayCount(DayCounts.ONE_ONE) // year fraction is always 1.
             .build())
-        .build();
-    Swap swapWithParRate = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg).build();
+        .build()
+        .resolve(REF_DATA);
+    ResolvedSwap swapWithParRate = ResolvedSwap.of(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg);
     double pvWithParRate = pricerSwap.presentValue(swapWithParRate, prov).getAmount(GBP).getAmount();
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
 
   public void test_parRate_inflation_periodic() {
-    SwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -291,8 +290,9 @@ public class DiscountingSwapProductPricerTest {
             .rate(ValueSchedule.of(0.04))
             .dayCount(DayCounts.ACT_365F)
             .build())
-        .build();
-    Swap swap = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg).build();
+        .build()
+        .resolve(REF_DATA);
+    ResolvedSwap swap = ResolvedSwap.of(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLeg);
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
@@ -301,7 +301,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
     double parRateComputed = pricerSwap.parRate(swap, prov);
-    SwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -318,8 +318,9 @@ public class DiscountingSwapProductPricerTest {
             .rate(ValueSchedule.of(parRateComputed))
             .dayCount(DayCounts.ACT_365F)
             .build())
-        .build();
-    Swap swapWithParRate = Swap.builder().legs(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLegWithParRate).build();
+        .build()
+        .resolve(REF_DATA);
+    ResolvedSwap swapWithParRate = ResolvedSwap.of(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, fixedLegWithParRate);
     double pvWithParRate = pricerSwap.presentValue(swapWithParRate, prov).getAmount(GBP).getAmount();
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
@@ -338,14 +339,13 @@ public class DiscountingSwapProductPricerTest {
         .thenReturn(-30d);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ExpandedSwap expanded = SWAP.expand();
-    assertEquals(pricerSwap.presentValue(expanded, MOCK_PROV), MultiCurrencyAmount.of(GBP, 505d));
+    assertEquals(pricerSwap.presentValue(SWAP, MOCK_PROV), MultiCurrencyAmount.of(GBP, 505d));
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
         pricerTrade.presentValue(SWAP_TRADE, MOCK_PROV),
-        pricerSwap.presentValue(expanded, MOCK_PROV));
+        pricerSwap.presentValue(SWAP, MOCK_PROV));
   }
 
   public void test_presentValue_crossCurrency() {
@@ -358,14 +358,13 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(GBP, 1000d), CurrencyAmount.of(USD, -500d));
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(pricerSwap.presentValue(expanded, MOCK_PROV), expected);
+    assertEquals(pricerSwap.presentValue(SWAP_CROSS_CURRENCY, MOCK_PROV), expected);
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
         pricerTrade.presentValue(SWAP_TRADE_CROSS_CURRENCY, MOCK_PROV),
-        pricerSwap.presentValue(expanded, MOCK_PROV));
+        pricerSwap.presentValue(SWAP_CROSS_CURRENCY, MOCK_PROV));
   }
 
   public void test_presentValue_withCurrency_crossCurrency() {
@@ -378,14 +377,13 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     CurrencyAmount expected = CurrencyAmount.of(USD, 1000d * MockRatesProvider.RATE - 500d);
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(pricerSwap.presentValue(expanded, USD, MOCK_PROV), expected);
+    assertEquals(pricerSwap.presentValue(SWAP_CROSS_CURRENCY, USD, MOCK_PROV), expected);
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
         pricerTrade.presentValue(SWAP_TRADE_CROSS_CURRENCY, USD, MOCK_PROV),
-        pricerSwap.presentValue(expanded, USD, MOCK_PROV));
+        pricerSwap.presentValue(SWAP_CROSS_CURRENCY, USD, MOCK_PROV));
   }
 
   public void test_presentValue_inflation() {
@@ -396,9 +394,8 @@ public class DiscountingSwapProductPricerTest {
         .priceIndexValues(map)
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
-    LocalDate paymentDate = SWAP_INFLATION.getLegs().get(0).expand().getPaymentPeriods().get(0).getPaymentDate();
-    double fixedRate = ((FixedRateCalculation) INFLATION_FIXED_SWAP_LEG_PAY_GBP.getCalculation())
-        .getRate().getInitialValue();
+    LocalDate paymentDate = SWAP_INFLATION.getLegs().get(0).getPaymentPeriods().get(0).getPaymentDate();
+    double fixedRate = INFLATION_FIXED_SWAP_LEG_PAY_GBP_FIXED_RATE;
     MultiCurrencyAmount pvComputed = pricerSwap.presentValue(SWAP_INFLATION, prov);
     double pvExpected = (-(CONSTANT_INDEX / START_INDEX - 1.0) + Math.pow(1 + fixedRate, 5) - 1.0)
         * NOTIONAL * prov.discountFactor(GBP, paymentDate);
@@ -416,14 +413,13 @@ public class DiscountingSwapProductPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ExpandedSwap expanded = SWAP.expand();
-    assertEquals(pricerSwap.forecastValue(expanded, MOCK_PROV), MultiCurrencyAmount.of(GBP, 500d));
+    assertEquals(pricerSwap.forecastValue(SWAP, MOCK_PROV), MultiCurrencyAmount.of(GBP, 500d));
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
         pricerTrade.forecastValue(SWAP_TRADE, MOCK_PROV),
-        pricerSwap.forecastValue(expanded, MOCK_PROV));
+        pricerSwap.forecastValue(SWAP, MOCK_PROV));
   }
 
   public void test_forecastValue_crossCurrency() {
@@ -436,14 +432,13 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(GBP, 1000d), CurrencyAmount.of(USD, -500d));
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    assertEquals(pricerSwap.forecastValue(expanded, MOCK_PROV), expected);
+    assertEquals(pricerSwap.forecastValue(SWAP_CROSS_CURRENCY, MOCK_PROV), expected);
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
     assertEquals(
         pricerTrade.forecastValue(SWAP_TRADE_CROSS_CURRENCY, MOCK_PROV),
-        pricerSwap.forecastValue(expanded, MOCK_PROV));
+        pricerSwap.forecastValue(SWAP_CROSS_CURRENCY, MOCK_PROV));
   }
 
   public void test_forecastValue_inflation() {
@@ -455,8 +450,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP.getDiscountCurves())
         .build();
     MultiCurrencyAmount fvComputed = pricerSwap.forecastValue(SWAP_INFLATION, prov);
-    double fixedRate = ((FixedRateCalculation) INFLATION_FIXED_SWAP_LEG_PAY_GBP.getCalculation())
-        .getRate().getInitialValue();
+    double fixedRate = INFLATION_FIXED_SWAP_LEG_PAY_GBP_FIXED_RATE;
     double fvExpected = (-(CONSTANT_INDEX / START_INDEX - 1.0) + Math.pow(1.0 + fixedRate, 5) - 1.0) * NOTIONAL;
     assertTrue(fvComputed.getCurrencies().size() == 1);
     assertEquals(fvComputed.getAmount(GBP).getAmount(), fvExpected, NOTIONAL * TOLERANCE_RATE);
@@ -496,28 +490,25 @@ public class DiscountingSwapProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_parRateSensitivity_singleCurrency() {
-    ExpandedSwap expanded = SWAP.expand();
-    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(SWAP, RATES_GBP).build();
     CurveCurrencyParameterSensitivities prAd = RATES_GBP.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        RATES_GBP, p -> CurrencyAmount.of(GBP, SWAP_PRODUCT_PRICER.parRate(expanded, p)));
+        RATES_GBP, p -> CurrencyAmount.of(GBP, SWAP_PRODUCT_PRICER.parRate(SWAP, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
   public void test_parRateSensitivity_crossCurrency() {
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP_USD).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(SWAP_CROSS_CURRENCY, RATES_GBP_USD).build();
     CurveCurrencyParameterSensitivities prAd = RATES_GBP_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
-        RATES_GBP_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parRate(expanded, p)));
+        RATES_GBP_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parRate(SWAP_CROSS_CURRENCY, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     // ibor leg
-    IborRateSensitivity fwdSense =
-        IborRateSensitivity.of(GBP_LIBOR_3M, IBOR_RATE_OBSERVATION.getFixingDate(), GBP, 140.0);
+    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_OBSERVATION, GBP, 140.0);
     ZeroRateSensitivity dscSense =
         ZeroRateSensitivity.of(GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), -162.0);
     PointSensitivityBuilder sensiFloating = fwdSense.combinedWith(dscSense);
@@ -525,7 +516,7 @@ public class DiscountingSwapProductPricerTest {
     PointSensitivityBuilder sensiFixed =
         ZeroRateSensitivity.of(GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), 152.0);
     // events
-    Currency ccy = IBOR_EXPANDED_SWAP_LEG_REC_GBP.getCurrency();
+    Currency ccy = IBOR_SWAP_LEG_REC_GBP.getCurrency();
     LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
     PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, paymentDateEvent, -134.0);
     PointSensitivities expected = sensiFloating.build()
@@ -535,13 +526,13 @@ public class DiscountingSwapProductPricerTest {
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockPeriod.presentValueSensitivity(IBOR_EXPANDED_SWAP_LEG_REC_GBP.getPaymentPeriods().get(0), MOCK_PROV))
+    when(mockPeriod.presentValueSensitivity(IBOR_SWAP_LEG_REC_GBP.getPaymentPeriods().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiFloating.build().toMutable());
-    when(mockPeriod.presentValueSensitivity(FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentPeriods().get(0), MOCK_PROV))
+    when(mockPeriod.presentValueSensitivity(FIXED_SWAP_LEG_PAY.getPaymentPeriods().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiFixed.build().toMutable());
-    when(mockEvent.presentValueSensitivity(IBOR_EXPANDED_SWAP_LEG_REC_GBP.getPaymentEvents().get(0), MOCK_PROV))
+    when(mockEvent.presentValueSensitivity(IBOR_SWAP_LEG_REC_GBP.getPaymentEvents().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiEvent.build().toMutable());
-    when(mockEvent.presentValueSensitivity(FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentEvents().get(0), MOCK_PROV))
+    when(mockEvent.presentValueSensitivity(FIXED_SWAP_LEG_PAY.getPaymentEvents().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiEvent.build().toMutable());
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
@@ -567,7 +558,8 @@ public class DiscountingSwapProductPricerTest {
     PointSensitivityBuilder pvSensiComputed = pricerSwap.presentValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder pvSensiInflationLeg =
         pricerLeg.presentValueSensitivity(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, prov);
-    PointSensitivityBuilder pvSensiFixedLeg = pricerLeg.presentValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
+    PointSensitivityBuilder pvSensiFixedLeg =
+        pricerLeg.presentValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
     PointSensitivityBuilder pvSensiExpected = pvSensiFixedLeg.combinedWith(pvSensiInflationLeg);
     assertTrue(pvSensiComputed.build().normalized()
         .equalWithTolerance(pvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
@@ -576,8 +568,7 @@ public class DiscountingSwapProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
     // ibor leg
-    PointSensitivityBuilder sensiFloating =
-        IborRateSensitivity.of(GBP_LIBOR_3M, IBOR_RATE_OBSERVATION.getFixingDate(), GBP, 140.0);
+    PointSensitivityBuilder sensiFloating = IborRateSensitivity.of(IBOR_RATE_OBSERVATION, GBP, 140.0);
     // fixed leg
     PointSensitivityBuilder sensiFixed = PointSensitivityBuilder.none();
     // events
@@ -586,13 +577,13 @@ public class DiscountingSwapProductPricerTest {
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
-    when(mockPeriod.forecastValueSensitivity(IBOR_EXPANDED_SWAP_LEG_REC_GBP.getPaymentPeriods().get(0), MOCK_PROV))
+    when(mockPeriod.forecastValueSensitivity(IBOR_SWAP_LEG_REC_GBP.getPaymentPeriods().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiFloating.build().toMutable());
-    when(mockPeriod.forecastValueSensitivity(FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentPeriods().get(0), MOCK_PROV))
+    when(mockPeriod.forecastValueSensitivity(FIXED_SWAP_LEG_PAY.getPaymentPeriods().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiFixed.build().toMutable());
-    when(mockEvent.forecastValueSensitivity(IBOR_EXPANDED_SWAP_LEG_REC_GBP.getPaymentEvents().get(0), MOCK_PROV))
+    when(mockEvent.forecastValueSensitivity(IBOR_SWAP_LEG_REC_GBP.getPaymentEvents().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiEvent.build().toMutable());
-    when(mockEvent.forecastValueSensitivity(FIXED_EXPANDED_SWAP_LEG_PAY.getPaymentEvents().get(0), MOCK_PROV))
+    when(mockEvent.forecastValueSensitivity(FIXED_SWAP_LEG_PAY.getPaymentEvents().get(0), MOCK_PROV))
         .thenAnswer(t -> sensiEvent.build().toMutable());
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
@@ -618,7 +609,8 @@ public class DiscountingSwapProductPricerTest {
     PointSensitivityBuilder fvSensiComputed = pricerSwap.forecastValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder fvSensiInflationLeg =
         pricerLeg.forecastValueSensitivity(INFLATION_MONTHLY_SWAP_LEG_REC_GBP, prov);
-    PointSensitivityBuilder fvSensiFixedLeg = pricerLeg.forecastValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
+    PointSensitivityBuilder fvSensiFixedLeg =
+        pricerLeg.forecastValueSensitivity(INFLATION_FIXED_SWAP_LEG_PAY_GBP, prov);
     PointSensitivityBuilder fvSensiExpected = fvSensiFixedLeg.combinedWith(fvSensiInflationLeg);
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(fvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
@@ -642,9 +634,8 @@ public class DiscountingSwapProductPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
 
-    CashFlows computed = pricerSwap.cashFlows(expanded, mockProv);
+    CashFlows computed = pricerSwap.cashFlows(SWAP_CROSS_CURRENCY, mockProv);
     CashFlow flowGBP = CashFlow.ofForecastValue(IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), GBP, fvGBP, df1);
     CashFlow flowUSD = CashFlow.ofForecastValue(FIXED_RATE_PAYMENT_PERIOD_PAY_USD.getPaymentDate(), USD, fvUSD, df2);
     CashFlows expected = CashFlows.of(ImmutableList.of(flowGBP, flowUSD));
@@ -652,7 +643,7 @@ public class DiscountingSwapProductPricerTest {
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
-    assertEquals(pricerTrade.cashFlows(SWAP_TRADE, MOCK_PROV), pricerSwap.cashFlows(expanded, MOCK_PROV));
+    assertEquals(pricerTrade.cashFlows(SWAP_TRADE, MOCK_PROV), pricerSwap.cashFlows(SWAP, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -677,7 +668,7 @@ public class DiscountingSwapProductPricerTest {
 
     assertEquals(explain.get(ExplainKey.LEGS).get().size(), 2);
     ExplainMap explainLeg0 = explain.get(ExplainKey.LEGS).get().get(0);
-    ExpandedSwapLeg leg0 = (ExpandedSwapLeg) SWAP.getLegs().get(0);
+    ResolvedSwapLeg leg0 = SWAP.getLegs().get(0);
     double fv0 = pricerLeg.forecastValue(leg0, MOCK_PROV).getAmount();
     assertEquals(explainLeg0.get(ExplainKey.ENTRY_TYPE).get(), "Leg");
     assertEquals(explainLeg0.get(ExplainKey.ENTRY_INDEX).get().intValue(), 0);
@@ -688,7 +679,7 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(explainLeg0.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), leg0.getCurrency());
     assertEquals(explainLeg0.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fv0, TOLERANCE_RATE);
     ExplainMap explainLeg1 = explain.get(ExplainKey.LEGS).get().get(1);
-    ExpandedSwapLeg leg1 = (ExpandedSwapLeg) SWAP.getLegs().get(0);
+    ResolvedSwapLeg leg1 = SWAP.getLegs().get(0);
     double fv1 = pricerLeg.forecastValue(leg1, MOCK_PROV).getAmount();
     assertEquals(explainLeg1.get(ExplainKey.ENTRY_TYPE).get(), "Leg");
     assertEquals(explainLeg1.get(ExplainKey.ENTRY_INDEX).get().intValue(), 1);
@@ -700,35 +691,36 @@ public class DiscountingSwapProductPricerTest {
   
   //-------------------------------------------------------------------------
   public void par_spread_fixed_ibor() {
-    double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct(), MULTI_USD);
+    double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().resolve(REF_DATA), MULTI_USD);
     SwapTrade swap0 = FixedIborSwapTemplate
         .of(Period.ZERO, TENOR_5Y, USD_FIXED_6M_LIBOR_3M)
-        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE + ps);
-    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
+        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, FIXED_RATE + ps, REF_DATA);
+    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct().resolve(REF_DATA), USD, MULTI_USD);
     assertEquals(pv0.getAmount(),  0, TOLERANCE_PV);
   }
 
   public void par_spread_ibor_ibor() {
-    double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct(), MULTI_USD);
+    double ps = SWAP_PRODUCT_PRICER.parSpread(SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().resolve(REF_DATA), MULTI_USD);
     SwapTrade swap0 = IborIborSwapTemplate
         .of(Period.ZERO, TENOR_5Y, CONV_USD_LIBOR3M_LIBOR6M)
-        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD + ps);
-    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
+        .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD + ps, REF_DATA);
+    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct().resolve(REF_DATA), USD, MULTI_USD);
     assertEquals(pv0.getAmount(), 0, TOLERANCE_PV);
   }
 
   public void par_spread_ibor_cmp_ibor() {
-    SwapTrade trade = USD_LIBOR_3M_LIBOR_6M.createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
-    double ps = SWAP_PRODUCT_PRICER.parSpread(trade.getProduct(), MULTI_USD);
+    SwapTrade trade = USD_LIBOR_3M_LIBOR_6M
+        .createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD, REF_DATA);
+    double ps = SWAP_PRODUCT_PRICER.parSpread(trade.getProduct().resolve(REF_DATA), MULTI_USD);
     SwapTrade swap0 = USD_LIBOR_3M_LIBOR_6M
-        .createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + ps);
-    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct(), USD, MULTI_USD);
+        .createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + ps, REF_DATA);
+    CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct().resolve(REF_DATA), USD, MULTI_USD);
     assertEquals(pv0.getAmount(), 0, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void par_spread_sensitivity_fixed_ibor() {
-    ExpandedSwap expanded = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().expand();
+    ResolvedSwap expanded = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.getProduct().resolve(REF_DATA);
     PointSensitivities point = SWAP_PRODUCT_PRICER.parSpreadSensitivity(expanded, MULTI_USD).build();
     CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
@@ -737,7 +729,7 @@ public class DiscountingSwapProductPricerTest {
   }
 
   public void par_spread_sensitivity_ibor_ibor() {
-    ExpandedSwap expanded = SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().expand();
+    ResolvedSwap expanded = SWAP_USD_LIBOR_3M_LIBOR_6M_5Y.getProduct().resolve(REF_DATA);
     PointSensitivities point = SWAP_PRODUCT_PRICER.parSpreadSensitivity(expanded, MULTI_USD).build();
     CurveCurrencyParameterSensitivities prAd = MULTI_USD.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
@@ -747,22 +739,20 @@ public class DiscountingSwapProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currencyExposure_singleCurrency() {
-    ExpandedSwap expanded = SWAP.expand();
-    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(SWAP, RATES_GBP).build();
     MultiCurrencyAmount expected = RATES_GBP.currencyExposure(point)
-        .plus(SWAP_PRODUCT_PRICER.presentValue(expanded, RATES_GBP));
-    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(expanded, RATES_GBP);
+        .plus(SWAP_PRODUCT_PRICER.presentValue(SWAP, RATES_GBP));
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(SWAP, RATES_GBP);
     assertEquals(computed, expected);
     MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currencyExposure(SWAP_TRADE, RATES_GBP);
     assertEquals(fromTrade, computed);
   }
 
   public void test_currencyExposure_crossCurrency() {
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(expanded, RATES_GBP_USD).build();
+    PointSensitivities point = SWAP_PRODUCT_PRICER.parRateSensitivity(SWAP_CROSS_CURRENCY, RATES_GBP_USD).build();
     MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point)
-        .plus(SWAP_PRODUCT_PRICER.presentValue(expanded, RATES_GBP_USD));
-    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(expanded, RATES_GBP_USD);
+        .plus(SWAP_PRODUCT_PRICER.presentValue(SWAP_CROSS_CURRENCY, RATES_GBP_USD));
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currencyExposure(SWAP_CROSS_CURRENCY, RATES_GBP_USD);
     assertEquals(computed, expected);
     MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currencyExposure(SWAP_TRADE_CROSS_CURRENCY, RATES_GBP_USD);
     assertEquals(fromTrade, computed);
@@ -770,16 +760,16 @@ public class DiscountingSwapProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_currentCash_zero() {
-    ExpandedSwap expanded = SWAP_CROSS_CURRENCY.expand();
-    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(expanded, RATES_GBP_USD);
+    MultiCurrencyAmount computed = SWAP_PRODUCT_PRICER.currentCash(SWAP_CROSS_CURRENCY, RATES_GBP_USD);
     assertEquals(computed, MultiCurrencyAmount.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD)));
     MultiCurrencyAmount fromTrade = SWAP_TRADE_PRICER.currentCash(SWAP_TRADE_CROSS_CURRENCY, RATES_GBP_USD);
     assertEquals(fromTrade, computed);
   }
 
   public void test_currentCash_onPayment() {
-    SwapTrade trade = GBP_FIXED_1Y_LIBOR_3M.createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD);
-    ExpandedSwap expanded = trade.getProduct().expand();
+    ResolvedSwapTrade trade = GBP_FIXED_1Y_LIBOR_3M
+        .createTrade(MULTI_USD.getValuationDate(), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD, REF_DATA).resolve(REF_DATA);
+    ResolvedSwap expanded = trade.getProduct();
     ImmutableRatesProvider prov =
         RatesProviderDataSets.MULTI_GBP.toBuilder(expanded.getLegs().get(0).getPaymentPeriods().get(2).getPaymentDate())
             .timeSeries(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(LocalDate.of(2016, 10, 24), 0.003))
@@ -797,7 +787,8 @@ public class DiscountingSwapProductPricerTest {
   public void three_leg_swap() {
     ThreeLegBasisSwapConvention conv = ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M;
     LocalDate tradeDate = LocalDate.of(2014, 1, 22);
-    Swap swap = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD).getProduct();
+    ResolvedSwap swap = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD, REF_DATA)
+        .getProduct().resolve(REF_DATA);
     // pv
     MultiCurrencyAmount pvComputed = SWAP_PRODUCT_PRICER.presentValue(swap, MULTI_EUR);
     DiscountingSwapLegPricer legPricer = SWAP_PRODUCT_PRICER.getLegPricer();
@@ -813,7 +804,8 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvPointComputed, pvPointExpected);
     // par rate
     double parRate = SWAP_PRODUCT_PRICER.parRate(swap, MULTI_EUR);
-    Swap swapParRate = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate).getProduct();
+    ResolvedSwap swapParRate = conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, parRate, REF_DATA)
+        .getProduct().resolve(REF_DATA);
     MultiCurrencyAmount pvParRate = SWAP_PRODUCT_PRICER.presentValue(swapParRate, MULTI_EUR);
     assertEquals(pvParRate, MultiCurrencyAmount.of(EUR, 0d));
     // par rate sensitivity
@@ -824,8 +816,9 @@ public class DiscountingSwapProductPricerTest {
     assertTrue(parRateSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_RATE_DELTA));
     // par spread
     double parSpread = SWAP_PRODUCT_PRICER.parSpread(swap, MULTI_EUR);
-    Swap swapParSpread =
-        conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread).getProduct();
+    ResolvedSwap swapParSpread =
+        conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread, REF_DATA)
+            .getProduct().resolve(REF_DATA);
     MultiCurrencyAmount pvParSpread = SWAP_PRODUCT_PRICER.presentValue(swapParSpread, MULTI_EUR);
     assertEquals(pvParSpread, MultiCurrencyAmount.of(EUR, 0d));
     // par spread sensitivity

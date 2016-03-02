@@ -11,17 +11,18 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.impl.capfloor.VolatilityIborCapletFloorletPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.capfloor.ExpandedIborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 
 /**
  * Pricer for cap/floor legs based on volatilities.
  * <p>
- * This function provides the ability to price {@link ExpandedIborCapFloorLeg}. 
+ * This function provides the ability to price {@link ResolvedIborCapFloorLeg}. 
  * One must apply {@code expand()} in order to price {@link IborCapFloorLeg}. 
  * <p>
- * The pricing methodologies are defined in individual implementations of the volatilities, {@link IborCapletFloorletVolatilities}. 
+ * The pricing methodologies are defined in individual implementations of the
+ * volatilities, {@link IborCapletFloorletVolatilities}. 
  */
 public class VolatilityIborCapFloorLegPricer {
 
@@ -58,7 +59,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -82,7 +83,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value delta
    */
   public CurrencyAmount presentValueDelta(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -106,7 +107,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value gamma
    */
   public CurrencyAmount presentValueGamma(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -130,7 +131,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value theta
    */
   public CurrencyAmount presentValueTheta(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -154,7 +155,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value curve sensitivity 
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -178,7 +179,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the present value volatility sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivityVolatility(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
@@ -199,7 +200,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @return the current cash
    */
   public CurrencyAmount currentCash(
-      ExpandedIborCapFloorLeg capFloorLeg,
+      ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 

@@ -30,13 +30,15 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.deposit.ExpandedIborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 
 /**
@@ -147,10 +149,10 @@ public final class IborFixingDepositCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -159,21 +161,28 @@ public final class IborFixingDepositCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    ExpandedIborFixingDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
+    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
     return deposit.getEndDate();
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    ExpandedIborFixingDeposit deposit = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d).getProduct().expand();
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
+    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
     return deposit.getFloatingRate().getFixingDate();
   }
 
   @Override
-  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+  }
+
+  @Override
+  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

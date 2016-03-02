@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.PeriodAdditionConvention;
 import com.opengamma.strata.basics.date.PeriodAdditionConventions;
 import com.opengamma.strata.basics.date.Tenor;
@@ -117,19 +117,19 @@ final class IborIndexCsvLookup
     String name = row.getField(NAME_FIELD);
     Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
     DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(row.getField(FIXING_CALENDAR_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
     int offsetDays = Integer.parseInt(row.getField(OFFSET_DAYS_FIELD));
-    HolidayCalendar offsetCal = HolidayCalendar.of(row.getField(OFFSET_CALENDAR_FIELD));
-    HolidayCalendar effectiveCal = HolidayCalendar.of(row.getField(EFFECTIVE_DATE_CALENDAR_FIELD));
+    HolidayCalendarId offsetCal = HolidayCalendarId.of(row.getField(OFFSET_CALENDAR_FIELD));
+    HolidayCalendarId effectiveCal = HolidayCalendarId.of(row.getField(EFFECTIVE_DATE_CALENDAR_FIELD));
     Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
     PeriodAdditionConvention tenorConvention = PeriodAdditionConvention.of(row.getField(TENOR_CONVENTION_FIELD));
     LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
     ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
     // interpret CSV
     DaysAdjustment fixingOffset = DaysAdjustment.ofBusinessDays(
-        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalize();
+        -offsetDays, offsetCal, BusinessDayAdjustment.of(PRECEDING, fixingCal)).normalized();
     DaysAdjustment effectiveOffset = DaysAdjustment.ofBusinessDays(
-        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalize();
+        offsetDays, offsetCal, BusinessDayAdjustment.of(FOLLOWING, effectiveCal)).normalized();
     BusinessDayAdjustment adj = BusinessDayAdjustment.of(
         isEndOfMonth(tenorConvention) ? MODIFIED_FOLLOWING : FOLLOWING,
         effectiveCal);

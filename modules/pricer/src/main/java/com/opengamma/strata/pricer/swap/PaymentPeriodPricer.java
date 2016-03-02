@@ -44,7 +44,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The payment date of the period should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the present value of the period
    */
@@ -56,7 +56,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The present value sensitivity of the period is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the period
    */
@@ -72,7 +72,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The payment date of the period should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the forecast value of the period
    */
@@ -84,7 +84,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * The forecast value sensitivity of the period is the sensitivity of the forecast value to
    * the underlying curves.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the forecast value curve sensitivity of the period
    */
@@ -99,7 +99,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * payments for which there is rate, the value is 0. In absence of compounding on
    * the period, this measure is equivalent to the traditional PVBP.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the present value of a basis point
    */
@@ -111,7 +111,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * This calculate the sensitivity of the present value of a basis point (pvbp) quantity
    * to the underlying curves.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the present value of a basis point sensitivity
    */
@@ -127,7 +127,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * It is intended that this method is called only with the period where the
    * valuation date is after the start date and before or equal to the end date.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the accrued interest of the period
    */
@@ -139,7 +139,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
    * <p>
    * This adds information to the {@link ExplainMapBuilder} to aid understanding of the calculation.
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @param builder  the builder to populate
    */
@@ -152,7 +152,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
   /**
    * Calculates the currency exposure of a single payment period. 
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the currency exposure
    */
@@ -161,7 +161,7 @@ public interface PaymentPeriodPricer<T extends PaymentPeriod> {
   /**
    * Calculates the current cash of a single payment period. 
    * 
-   * @param period  the period to price
+   * @param period  the period
    * @param provider  the rates provider
    * @return the current cash
    */

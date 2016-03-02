@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.collect.id.StandardId;
@@ -422,7 +423,12 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public MarketDataBox<Double> build(TestIdA id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
+    public MarketDataBox<Double> build(
+        TestIdA id,
+        MarketDataConfig marketDataConfig,
+        CalculationEnvironment marketData,
+        ReferenceData refData) {
+
       throw new UnsupportedOperationException("build not implemented");
     }
 
@@ -450,8 +456,9 @@ public class MarketDataNodeTest {
     @Override
     public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
+        MarketDataConfig marketDataConfig,
         CalculationEnvironment marketData,
-        MarketDataConfig marketDataConfig) {
+        ReferenceData refData) {
 
       throw new UnsupportedOperationException("build not implemented");
     }

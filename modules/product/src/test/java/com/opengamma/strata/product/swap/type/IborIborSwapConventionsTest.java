@@ -21,9 +21,10 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -34,6 +35,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  */
 @Test
 public class IborIborSwapConventionsTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
@@ -129,9 +132,9 @@ public class IborIborSwapConventionsTest {
   @Test(dataProvider = "stubIbor")
   public void test_stub_ibor(IborIborSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
-    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
-    ExpandedSwap swapExpanded = swap.getProduct().expand();
-    LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
+    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01, REF_DATA);
+    ResolvedSwap swapResolved = swap.getProduct().resolve(REF_DATA);
+    LocalDate endDate = swapResolved.getLeg(PayReceive.PAY).get().getEndDate();
     assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
     assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
   }

@@ -25,8 +25,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.OvernightIndexObservation;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -44,13 +47,19 @@ public final class OvernightAveragedRateObservation
    * The Overnight index.
    * <p>
    * The rate to be paid is based on this index.
-   * It will be a well known market index such as 'USD-FED-FUND'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    */
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
-   * The first date in the fixing period.
+   * The resolved calendar that the index uses.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final HolidayCalendar fixingCalendar;
+  /**
+   * The fixing date associated with the start date of the accrual period.
    * <p>
+   * This is also the first fixing date.
    * The overnight rate is observed from this date onwards.
    * <p>
    * In general, the fixing dates and accrual dates are the same for an overnight index.
@@ -60,10 +69,9 @@ public final class OvernightAveragedRateObservation
   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
   /**
-   * The last date in the fixing period.
+   * The fixing date associated with the end date of the accrual period.
    * <p>
-   * The overnight rate is observed until this date.
-   * The last fixing date will be one business day before this date.
+   * The overnight rate is accrued until the maturity date associated with this date.
    * <p>
    * In general, the fixing dates and accrual dates are the same for an overnight index.
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
@@ -93,39 +101,52 @@ public final class OvernightAveragedRateObservation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code OvernightAveragedRateObservation} from an index and period dates
+   * Creates an instance from an index and accrual period dates
+   * <p>
+   * The dates represent the accrual period.
    * <p>
    * No rate cut-off applies.
    * 
    * @param index  the index
-   * @param startDate  the first date of the period
-   * @param endDate  the last date of the period
-   * @return the Overnight compounded rate
-   */
-  public static OvernightAveragedRateObservation of(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
-    return of(index, startDate, endDate, 0);
-  }
-
-  /**
-   * Creates an {@code OvernightAveragedRateObservation} from an index, period dates and rate cut-off.
-   * <p>
-   * Rate cut-off applies if the cut-off is 2 or greater.
-   * 
-   * @param index  the index
-   * @param startDate  the first date of the period
-   * @param endDate  the last date of the period
-   * @param rateCutOffDays  the rate cut-off days offset, not negative
-   * @return the Overnight compounded rate
+   * @param startDate  the first date of the accrual period
+   * @param endDate  the last date of the accrual period
+   * @param refData  the reference data to use when resolving holiday calendars
+   * @return the rate observation
    */
   public static OvernightAveragedRateObservation of(
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate,
-      int rateCutOffDays) {
+      ReferenceData refData) {
+
+    return of(index, startDate, endDate, 0, refData);
+  }
+
+  /**
+   * Creates an instance from an index, accrual period dates and rate cut-off.
+   * <p>
+   * Rate cut-off applies if the cut-off is 2 or greater.
+   * A value of 0 or 1 should be used if no cut-off applies.
+   * 
+   * @param index  the index
+   * @param startDate  the first date of the accrual period
+   * @param endDate  the last date of the accrual period
+   * @param rateCutOffDays  the rate cut-off days offset, not negative or zero
+   * @param refData  the reference data to use when resolving holiday calendars
+   * @return the rate observation
+   */
+  public static OvernightAveragedRateObservation of(
+      OvernightIndex index,
+      LocalDate startDate,
+      LocalDate endDate,
+      int rateCutOffDays,
+      ReferenceData refData) {
+
     return OvernightAveragedRateObservation.builder()
         .index(index)
-        .startDate(startDate)
-        .endDate(endDate)
+        .fixingCalendar(index.getFixingCalendar().resolve(refData))
+        .startDate(index.calculateFixingFromEffective(startDate, refData))
+        .endDate(index.calculateFixingFromEffective(endDate, refData))
         .rateCutOffDays(rateCutOffDays)
         .build();
   }
@@ -137,9 +158,110 @@ public final class OvernightAveragedRateObservation
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the publication date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The publication date is the date on which the fixed rate is actually published.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @return the publication date
+   */
+  public LocalDate calculatePublicationFromFixing(LocalDate fixingDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getPublicationDateOffset());
+  }
+
+  /**
+   * Calculates the effective date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The effective date is the date on which the implied deposit starts.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @return the effective date
+   */
+  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getEffectiveDateOffset());
+  }
+
+  /**
+   * Calculates the maturity date from the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The maturity date is the date on which the implied deposit ends.
+   * <p>
+   * No error is thrown if the input date is not a valid fixing date.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
+   * 
+   * @param fixingDate  the fixing date
+   * @return the maturity date
+   */
+  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getEffectiveDateOffset() + 1);
+  }
+
+  /**
+   * Calculates the fixing date from the effective date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * The effective date is the date on which the implied deposit starts.
+   * <p>
+   * No error is thrown if the input date is not a valid effective date.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
+   * 
+   * @param effectiveDate  the effective date
+   * @return the fixing date
+   */
+  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -index.getEffectiveDateOffset());
+  }
+
+  /**
+   * Calculates the maturity date from the effective date.
+   * <p>
+   * The effective date is the date on which the implied deposit starts.
+   * The maturity date is the date on which the implied deposit ends.
+   * <p>
+   * No error is thrown if the input date is not a valid effective date.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
+   * 
+   * @param effectiveDate  the effective date
+   * @return the maturity date
+   */
+  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
+    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), 1);
+  }
+
+  /**
+   * Creates an observation object for the specified fixing date.
+   * 
+   * @param fixingDate  the fixing date
+   * @return the index observation
+   */
+  public OvernightIndexObservation observeOn(LocalDate fixingDate) {
+    LocalDate publicationDate = calculatePublicationFromFixing(fixingDate);
+    LocalDate effectiveDate = calculateEffectiveFromFixing(fixingDate);
+    LocalDate maturityDate = calculateMaturityFromEffective(effectiveDate);
+    return OvernightIndexObservation.builder()
+        .index(getIndex())
+        .fixingDate(fixingDate)
+        .publicationDate(publicationDate)
+        .effectiveDate(effectiveDate)
+        .maturityDate(maturityDate)
+        .yearFraction(getIndex().getDayCount().yearFraction(effectiveDate, maturityDate))
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    builder.add(index);
+    builder.add(getIndex());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -171,14 +293,17 @@ public final class OvernightAveragedRateObservation
 
   private OvernightAveragedRateObservation(
       OvernightIndex index,
+      HolidayCalendar fixingCalendar,
       LocalDate startDate,
       LocalDate endDate,
       int rateCutOffDays) {
     JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     ArgChecker.notNegative(rateCutOffDays, "rateCutOffDays");
     this.index = index;
+    this.fixingCalendar = fixingCalendar;
     this.startDate = startDate;
     this.endDate = endDate;
     this.rateCutOffDays = rateCutOffDays;
@@ -205,7 +330,7 @@ public final class OvernightAveragedRateObservation
    * Gets the Overnight index.
    * <p>
    * The rate to be paid is based on this index.
-   * It will be a well known market index such as 'USD-FED-FUND'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
   public OvernightIndex getIndex() {
@@ -214,8 +339,18 @@ public final class OvernightAveragedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first date in the fixing period.
+   * Gets the resolved calendar that the index uses.
+   * @return the value of the property, not null
+   */
+  public HolidayCalendar getFixingCalendar() {
+    return fixingCalendar;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the fixing date associated with the start date of the accrual period.
    * <p>
+   * This is also the first fixing date.
    * The overnight rate is observed from this date onwards.
    * <p>
    * In general, the fixing dates and accrual dates are the same for an overnight index.
@@ -229,10 +364,9 @@ public final class OvernightAveragedRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the last date in the fixing period.
+   * Gets the fixing date associated with the end date of the accrual period.
    * <p>
-   * The overnight rate is observed until this date.
-   * The last fixing date will be one business day before this date.
+   * The overnight rate is accrued until the maturity date associated with this date.
    * <p>
    * In general, the fixing dates and accrual dates are the same for an overnight index.
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
@@ -283,6 +417,7 @@ public final class OvernightAveragedRateObservation
     if (obj != null && obj.getClass() == this.getClass()) {
       OvernightAveragedRateObservation other = (OvernightAveragedRateObservation) obj;
       return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fixingCalendar, other.fixingCalendar) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
           (rateCutOffDays == other.rateCutOffDays);
@@ -294,6 +429,7 @@ public final class OvernightAveragedRateObservation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingCalendar);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateCutOffDays);
@@ -302,9 +438,10 @@ public final class OvernightAveragedRateObservation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("OvernightAveragedRateObservation{");
     buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixingCalendar").append('=').append(fixingCalendar).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
@@ -328,6 +465,11 @@ public final class OvernightAveragedRateObservation
     private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", OvernightAveragedRateObservation.class, OvernightIndex.class);
     /**
+     * The meta-property for the {@code fixingCalendar} property.
+     */
+    private final MetaProperty<HolidayCalendar> fixingCalendar = DirectMetaProperty.ofImmutable(
+        this, "fixingCalendar", OvernightAveragedRateObservation.class, HolidayCalendar.class);
+    /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
@@ -348,6 +490,7 @@ public final class OvernightAveragedRateObservation
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
+        "fixingCalendar",
         "startDate",
         "endDate",
         "rateCutOffDays");
@@ -363,6 +506,8 @@ public final class OvernightAveragedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 394230283:  // fixingCalendar
+          return fixingCalendar;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -398,6 +543,14 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
+     * The meta-property for the {@code fixingCalendar} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<HolidayCalendar> fixingCalendar() {
+      return fixingCalendar;
+    }
+
+    /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
@@ -427,6 +580,8 @@ public final class OvernightAveragedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((OvernightAveragedRateObservation) bean).getIndex();
+        case 394230283:  // fixingCalendar
+          return ((OvernightAveragedRateObservation) bean).getFixingCalendar();
         case -2129778896:  // startDate
           return ((OvernightAveragedRateObservation) bean).getStartDate();
         case -1607727319:  // endDate
@@ -455,6 +610,7 @@ public final class OvernightAveragedRateObservation
   public static final class Builder extends DirectFieldsBeanBuilder<OvernightAveragedRateObservation> {
 
     private OvernightIndex index;
+    private HolidayCalendar fixingCalendar;
     private LocalDate startDate;
     private LocalDate endDate;
     private int rateCutOffDays;
@@ -471,6 +627,7 @@ public final class OvernightAveragedRateObservation
      */
     private Builder(OvernightAveragedRateObservation beanToCopy) {
       this.index = beanToCopy.getIndex();
+      this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.rateCutOffDays = beanToCopy.getRateCutOffDays();
@@ -482,6 +639,8 @@ public final class OvernightAveragedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
+        case 394230283:  // fixingCalendar
+          return fixingCalendar;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -498,6 +657,9 @@ public final class OvernightAveragedRateObservation
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           this.index = (OvernightIndex) newValue;
+          break;
+        case 394230283:  // fixingCalendar
+          this.fixingCalendar = (HolidayCalendar) newValue;
           break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
@@ -542,6 +704,7 @@ public final class OvernightAveragedRateObservation
     public OvernightAveragedRateObservation build() {
       return new OvernightAveragedRateObservation(
           index,
+          fixingCalendar,
           startDate,
           endDate,
           rateCutOffDays);
@@ -552,7 +715,7 @@ public final class OvernightAveragedRateObservation
      * Sets the Overnight index.
      * <p>
      * The rate to be paid is based on this index.
-     * It will be a well known market index such as 'USD-FED-FUND'.
+     * It will be a well known market index such as 'GBP-SONIA'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
@@ -563,8 +726,20 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
-     * Sets the first date in the fixing period.
+     * Sets the resolved calendar that the index uses.
+     * @param fixingCalendar  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixingCalendar(HolidayCalendar fixingCalendar) {
+      JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
+      this.fixingCalendar = fixingCalendar;
+      return this;
+    }
+
+    /**
+     * Sets the fixing date associated with the start date of the accrual period.
      * <p>
+     * This is also the first fixing date.
      * The overnight rate is observed from this date onwards.
      * <p>
      * In general, the fixing dates and accrual dates are the same for an overnight index.
@@ -580,10 +755,9 @@ public final class OvernightAveragedRateObservation
     }
 
     /**
-     * Sets the last date in the fixing period.
+     * Sets the fixing date associated with the end date of the accrual period.
      * <p>
-     * The overnight rate is observed until this date.
-     * The last fixing date will be one business day before this date.
+     * The overnight rate is accrued until the maturity date associated with this date.
      * <p>
      * In general, the fixing dates and accrual dates are the same for an overnight index.
      * However, in the case of a Tomorrow/Next index, the fixing period is one business day
@@ -625,9 +799,10 @@ public final class OvernightAveragedRateObservation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("OvernightAveragedRateObservation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));

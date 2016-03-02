@@ -44,7 +44,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the present value of the event
    */
@@ -56,7 +56,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The present value sensitivity of the event is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the event
    */
@@ -72,7 +72,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The payment date of the event should not be in the past.
    * The result of this method for payment dates in the past is undefined.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the forecast value of the event
    */
@@ -84,7 +84,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * The forecast value sensitivity of the event is the sensitivity of the forecast value to
    * the underlying curves.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the forecast value curve sensitivity of the event
    */
@@ -96,7 +96,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
    * <p>
    * This adds information to the {@link ExplainMapBuilder} to aid understanding of the calculation.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @param builder  the builder to populate
    */
@@ -109,7 +109,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
   /**
    * Calculates the currency exposure of a single payment event.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the currency exposure
    */
@@ -118,7 +118,7 @@ public interface PaymentEventPricer<T extends PaymentEvent> {
   /**
    * Calculates the current cash of a single payment event.
    * 
-   * @param event  the event to price
+   * @param event  the event
    * @param provider  the rates provider
    * @return the current cash
    */

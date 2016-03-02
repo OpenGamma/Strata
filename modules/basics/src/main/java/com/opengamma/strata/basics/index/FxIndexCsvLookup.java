@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
@@ -88,9 +88,9 @@ final class FxIndexCsvLookup
     String name = row.getField(NAME_FIELD);
     Currency baseCurrency = Currency.parse(row.getField(BASE_CURRENCY_FIELD));
     Currency counterCurrency = Currency.parse(row.getField(COUNTER_CURRENCY_FIELD));
-    HolidayCalendar fixingCal = HolidayCalendar.of(row.getField(FIXING_CALENDAR_FIELD));
+    HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
     int maturityDays = Integer.parseInt(row.getField(MATURITY_DAYS_FIELD));
-    HolidayCalendar maturityCal = HolidayCalendar.of(row.getField(MATURITY_CALENDAR_FIELD));
+    HolidayCalendarId maturityCal = HolidayCalendarId.of(row.getField(MATURITY_CALENDAR_FIELD));
     // build result
     return ImmutableFxIndex.builder()
         .name(name)

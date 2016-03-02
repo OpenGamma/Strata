@@ -36,10 +36,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Provides the definition of how to calibrate a group of curves.
@@ -178,11 +179,12 @@ public final class CurveGroupDefinition
    * This method returns a list of metadata, one for each curve definition.
    *
    * @param valuationDate  the valuation date
+   * @param refData  the reference data
    * @return the metadata
    */
-  public ImmutableList<CurveMetadata> metadata(LocalDate valuationDate) {
+  public ImmutableList<CurveMetadata> metadata(LocalDate valuationDate, ReferenceData refData) {
     return curveDefinitionsByName.values().stream()
-        .map(curveDef -> curveDef.metadata(valuationDate))
+        .map(curveDef -> curveDef.metadata(valuationDate, refData))
         .collect(toImmutableList());
   }
 
@@ -191,7 +193,7 @@ public final class CurveGroupDefinition
    * Gets the total number of parameters in the group.
    * <p>
    * This returns the total number of parameters in the group, which equals the number of nodes.
-   * The result of {@link #trades(LocalDate, MarketData)} and
+   * The result of {@link #resolvedTrades(LocalDate, MarketData, ReferenceData)}, and
    * {@link #initialGuesses(LocalDate, MarketData)} will be of this size.
    * 
    * @return the number of parameters
@@ -208,12 +210,17 @@ public final class CurveGroupDefinition
    *
    * @param valuationDate  the valuation date used when calibrating the curve
    * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trades
    * @return the list of all trades
    */
-  public ImmutableList<Trade> trades(LocalDate valuationDate, MarketData marketData) {
+  public ImmutableList<ResolvedTrade> resolvedTrades(
+      LocalDate valuationDate,
+      MarketData marketData,
+      ReferenceData refData) {
+
     return curveDefinitionsByName.values().stream()
         .flatMap(curveDef -> curveDef.getNodes().stream())
-        .map(node -> node.trade(valuationDate, marketData))
+        .map(node -> node.resolvedTrade(valuationDate, marketData, refData))
         .collect(toImmutableList());
   }
 

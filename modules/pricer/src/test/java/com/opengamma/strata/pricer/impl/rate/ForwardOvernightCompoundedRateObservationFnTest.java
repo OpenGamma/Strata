@@ -21,6 +21,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.OvernightIndexObservation;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
@@ -48,13 +50,44 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
 @Test
 public class ForwardOvernightCompoundedRateObservationFnTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
   private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2015, 1, 31); // Accrual dates irrelevant for the rate
   private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
   private static final LocalDate FIXING_END_DATE = date(2015, 1, 15); // 1w only to decrease data
+  private static final LocalDate FIXING_FINAL_DATE = date(2015, 1, 14);
   private static final LocalDate[] FIXING_DATES = new LocalDate[] {
-      date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9),
-      date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
+      date(2015, 1, 7),
+      date(2015, 1, 8),
+      date(2015, 1, 9),
+      date(2015, 1, 12),
+      date(2015, 1, 13),
+      date(2015, 1, 14),
+      date(2015, 1, 15)};
+  private static final OvernightIndexObservation[] USD_OBS = new OvernightIndexObservation[] {
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 7), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 8), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 9), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 12), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 13), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 14), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 15), REF_DATA)};
+  private static final OvernightIndexObservation[] GBP_OBS = new OvernightIndexObservation[] {
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 7), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 8), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 9), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 12), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 13), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 14), REF_DATA),
+      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 15), REF_DATA)};
+  private static final OvernightIndexObservation[] CHF_OBS = new OvernightIndexObservation[] {
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 7), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 8), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 9), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 12), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 13), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 14), REF_DATA),
+      OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 15), REF_DATA)};
   private static final double[] FIXING_RATES = {
       0.0012, 0.0023, 0.0034,
       0.0045, 0.0056, 0.0067, 0.0078};
@@ -72,13 +105,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     double rateCmp = 0.0123;
-    when(mockRates.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
+    when(mockRates.periodRate(USD_OBS[1], FIXING_END_DATE)).thenReturn(rateCmp);
     double rateExpected = rateCmp;
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -101,24 +134,23 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   public void rateFedFundNoCutOffForwardSensitivity() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     double rateCmp = 0.0123;
-    when(mockRates.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
-    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_START_DATE,
-        FIXING_END_DATE, USD_FED_FUND.getCurrency(), 1.0);
-    when(mockRates.periodRatePointSensitivity(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(
+    when(mockRates.periodRate(USD_OBS[1], FIXING_END_DATE)).thenReturn(rateCmp);
+    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_END_DATE, 1.0);
+    when(mockRates.periodRatePointSensitivity(USD_OBS[1], FIXING_END_DATE)).thenReturn(
         rateSensitivity);
     OvernightIndexRates mockRatesUp = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvUp = new SimpleRatesProvider(mockRatesUp);
-    when(mockRatesUp.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(
+    when(mockRatesUp.periodRate(USD_OBS[1], FIXING_END_DATE)).thenReturn(
         rateCmp + EPS_FD);
     OvernightIndexRates mockRatesDw = mock(OvernightIndexRates.class);
     SimpleRatesProvider simpleProvDw = new SimpleRatesProvider(mockRatesDw);
-    when(mockRatesDw.periodRate(FIXING_START_DATE, FIXING_END_DATE)).thenReturn(
+    when(mockRatesDw.periodRate(USD_OBS[1], FIXING_END_DATE)).thenReturn(
         rateCmp - EPS_FD);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -128,8 +160,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
-      PointSensitivityBuilder sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          FIXING_START_DATE, FIXING_END_DATE, USD_FED_FUND.getCurrency(), sensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -142,27 +174,26 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     for (int i = 0; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double investmentFactor = 1.0;
     double afNonCutoff = 0.0;
     for (int i = 1; i < 5; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNonCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNonCutoff;
-    when(mockRates.periodRate(FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE)))
-        .thenReturn(rateCmp);
+    when(mockRates.periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp);
     LocalDate fixingCutOff = FIXING_DATES[5];
-    LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
+    LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff, REF_DATA);
     double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDate);
     double rateExpected = ((1.0 + rateCmp * afNonCutoff) * (1.0d + FORWARD_RATES[4] * afCutOff) - 1.0d)
         / (afNonCutoff + afCutOff);
@@ -178,7 +209,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   public void rateFedFund2CutOffForwardSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -208,43 +239,35 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       }
     }
     for (int i = 0; i < nFixings; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
-      when(mockRatesPeriodUp.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
-      when(mockRatesPeriodDw.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
-      LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
-      LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
-      PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[i],
-          fixingEndDate, USD_FED_FUND.getCurrency(), 1.0);
-      when(mockRates.ratePointSensitivity(FIXING_DATES[i])).thenReturn(rateSensitivity);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
+      when(mockRatesPeriodUp.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
+      when(mockRatesPeriodDw.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
+      LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i], REF_DATA);
+      LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate, REF_DATA);
+      PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.ofPeriod(USD_OBS[i], fixingEndDate, 1.0);
+      when(mockRates.ratePointSensitivity(USD_OBS[i])).thenReturn(rateSensitivity);
       for (int j = 0; j < nFixings; ++j) {
-        when(mockRatesUp[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesUp[j][i]);
-        when(mockRatesDw[j].rate(FIXING_DATES[i])).thenReturn(forwardRatesDw[j][i]);
+        when(mockRatesUp[j].rate(USD_OBS[i])).thenReturn(forwardRatesUp[j][i]);
+        when(mockRatesDw[j].rate(USD_OBS[i])).thenReturn(forwardRatesDw[j][i]);
       }
     }
     double investmentFactor = 1.0;
     double afNonCutoff = 0.0;
     for (int i = 1; i < 5; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNonCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNonCutoff;
-    when(mockRates.periodRate(FIXING_START_DATE,
-        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
-    when(mockRatesPeriodUp.periodRate(
-        FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp + EPS_FD);
-    when(mockRatesPeriodDw.periodRate(
-        FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp - EPS_FD);
-    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_START_DATE,
-        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), USD_FED_FUND.getCurrency(), 1.0);
-    when(mockRates.periodRatePointSensitivity(
-        FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateSensitivity);
+    when(mockRates.periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp);
+    when(mockRatesPeriodUp.periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp + EPS_FD);
+    when(mockRatesPeriodDw.periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp - EPS_FD);
+    PointSensitivityBuilder rateSensitivity = OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_FINAL_DATE, 1.0);
+    when(mockRates.periodRatePointSensitivity(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateSensitivity);
     for (int i = 0; i < nFixings; ++i) {
-      when(mockRatesUp[i].periodRate(
-          FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
-      when(mockRatesDw[i].periodRate(
-          FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
+      when(mockRatesUp[i].periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp);
+      when(mockRatesDw[i].periodRate(USD_OBS[1], FIXING_FINAL_DATE)).thenReturn(rateCmp);
     }
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -258,18 +281,17 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
         double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp[i]);
         double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw[i]);
         double cutoffSensitivity = 0.5 * (rateUp - rateDw) / EPS_FD; // [4] is nonzero 
-        LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i]);
-        LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate);
+        LocalDate fixingStartDate = USD_FED_FUND.calculateEffectiveFromFixing(FIXING_DATES[i], REF_DATA);
+        LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate, REF_DATA);
         sensitivityBuilderExpected1 = cutoffSensitivity == 0.0 ? sensitivityBuilderExpected1
-            : sensitivityBuilderExpected1.combinedWith(OvernightRateSensitivity.of(USD_FED_FUND,
-                FIXING_DATES[i], fixingEndDate, USD_FED_FUND.getCurrency(), cutoffSensitivity));
+            : sensitivityBuilderExpected1.combinedWith(
+                OvernightRateSensitivity.ofPeriod(USD_OBS[i], fixingEndDate, cutoffSensitivity));
       }
       double ratePeriodUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodUp);
       double ratePeriodDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodDw);
       double periodSensitivity = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
-      PointSensitivityBuilder sensitivityBuilderExpected2 = OvernightRateSensitivity.of(USD_FED_FUND,
-          FIXING_START_DATE, USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE), USD_FED_FUND.getCurrency(),
-          periodSensitivity);
+      PointSensitivityBuilder sensitivityBuilderExpected2 =
+          OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_FINAL_DATE, periodSensitivity);
       PointSensitivityBuilder sensitivityBuilderExpected = sensitivityBuilderExpected1
           .combinedWith(sensitivityBuilderExpected2);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
@@ -284,7 +306,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -295,25 +317,24 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = 2; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = 2; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     LocalDate fixingknown = FIXING_DATES[1];
-    LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+    LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
     double afKnown = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
     double investmentFactor = 1.0;
     double afNoCutoff = 0.0;
     for (int i = 2; i < 6; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp);
+    when(mockRates.periodRate(USD_OBS[2], FIXING_END_DATE)).thenReturn(rateCmp);
     double rateExpected = ((1.0d + FIXING_RATES[1] * afKnown) * (1.0 + rateCmp * afNoCutoff) - 1.0d)
         / (afKnown + afNoCutoff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -328,7 +349,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -348,22 +369,17 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double investmentFactor = 1.0;
     double afNoCutoff = 0.0;
     for (int i = 2; i < 6; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp);
-    when(mockRatesUp.periodRate(
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp + EPS_FD);
-    when(mockRatesDw.periodRate(
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(rateCmp - EPS_FD);
-    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE),
-        FIXING_END_DATE, USD_FED_FUND.getCurrency(), 1.0d);
-    when(mockRates.periodRatePointSensitivity(
-        USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE)).thenReturn(periodSensitivity);
+    when(mockRates.periodRate(USD_OBS[2], FIXING_END_DATE)).thenReturn(rateCmp);
+    when(mockRatesUp.periodRate(USD_OBS[2], FIXING_END_DATE)).thenReturn(rateCmp + EPS_FD);
+    when(mockRatesDw.periodRate(USD_OBS[2], FIXING_END_DATE)).thenReturn(rateCmp - EPS_FD);
+    PointSensitivityBuilder periodSensitivity = OvernightRateSensitivity.ofPeriod(USD_OBS[2], FIXING_END_DATE, 1.0d);
+    when(mockRates.periodRatePointSensitivity(USD_OBS[2], FIXING_END_DATE)).thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -371,9 +387,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
-      PointSensitivityBuilder sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE), FIXING_END_DATE, USD_FED_FUND.getCurrency(),
-          sensitivityExpected);
+      PointSensitivityBuilder sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(USD_OBS[2], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -381,12 +396,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   /** No cutoff period and two already fixed ON rate. ON index is SONIA. */
   public void rateSonia0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -398,16 +414,16 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(GBP_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < GBP_OBS.length; i++) {
+      when(mockRates.rate(GBP_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < lastFixing - 1; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = GBP_SONIA.calculateMaturityFromEffective(fixingknown);
+      LocalDate endDateKnown = GBP_SONIA.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = GBP_SONIA.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
@@ -415,13 +431,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double afNoCutoff = 0.0d;
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactorNoCutoff - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
+    when(mockRates.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
     double rateExpected = (investmentFactorKnown * (1.0 + rateCmp * afNoCutoff) - 1.0d)
         / (afKnown + afNoCutoff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -437,7 +453,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -458,21 +474,17 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double afNoCutoff = 0.0d;
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactorNoCutoff - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(
-        FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
-    when(mockRatesUp.periodRate(
-        FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
-    when(mockRatesDw.periodRate(
-        FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(GBP_SONIA, FIXING_DATES[lastFixing],
-        FIXING_DATES[6], GBP_SONIA.getCurrency(), 1.0d);
-    when(mockRates.periodRatePointSensitivity(FIXING_DATES[lastFixing], FIXING_DATES[6]))
+    when(mockRates.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
+    when(mockRatesUp.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
+    when(mockRatesDw.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.ofPeriod(GBP_OBS[lastFixing], FIXING_DATES[6], 1.0d);
+    when(mockRates.periodRatePointSensitivity(GBP_OBS[lastFixing], FIXING_DATES[6]))
         .thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -481,8 +493,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
-      OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(GBP_SONIA,
-          FIXING_DATES[lastFixing], FIXING_DATES[6], GBP_SONIA.getCurrency(), sensitivityExpected);
+      OvernightRateSensitivity sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(GBP_OBS[lastFixing], FIXING_DATES[6], sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -490,12 +502,17 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   /** No cutoff period and two already fixed ON rate. ON index is TOIS (with a effective offset of 1; TN rate). */
   public void rateTois0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=1, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
-    OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
+    OvernightCompoundedRateObservation ro = OvernightCompoundedRateObservation.of(
+        CHF_TOIS,
+        CHF_TOIS.calculateEffectiveFromFixing(FIXING_START_DATE, REF_DATA),
+        CHF_TOIS.calculateEffectiveFromFixing(FIXING_END_DATE, REF_DATA),
+        0,
+        REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -507,17 +524,17 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(CHF_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < CHF_OBS.length; i++) {
+      when(mockRates.rate(CHF_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 1; i < lastFixing; i++) {
       LocalDate fixingknown = FIXING_DATES[i];
-      LocalDate startDateKnown = CHF_TOIS.calculateEffectiveFromFixing(fixingknown);
-      LocalDate endDateKnown = CHF_TOIS.calculateMaturityFromEffective(startDateKnown);
+      LocalDate startDateKnown = CHF_TOIS.calculateEffectiveFromFixing(fixingknown, REF_DATA);
+      LocalDate endDateKnown = CHF_TOIS.calculateMaturityFromEffective(startDateKnown, REF_DATA);
       double af = CHF_TOIS.getDayCount().yearFraction(startDateKnown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + af * FIXING_RATES[i];
@@ -526,17 +543,16 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
       LocalDate fixing = FIXING_DATES[i];
-      LocalDate startDate = CHF_TOIS.calculateEffectiveFromFixing(fixing);
-      LocalDate endDate = CHF_TOIS.calculateMaturityFromEffective(startDate);
+      LocalDate startDate = CHF_TOIS.calculateEffectiveFromFixing(fixing, REF_DATA);
+      LocalDate endDate = CHF_TOIS.calculateMaturityFromEffective(startDate, REF_DATA);
       double af = CHF_TOIS.getDayCount().yearFraction(startDate, endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactorNoCutoff - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(
-        CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
-        .thenReturn(rateCmp);
+    LocalDate dateMat = CHF_TOIS.calculateMaturityFromFixing(FIXING_DATES[5], REF_DATA);
+    OvernightIndexObservation obs = OvernightIndexObservation.of(CHF_TOIS, FIXING_DATES[lastFixing], REF_DATA);
+    when(mockRates.periodRate(obs, dateMat)).thenReturn(rateCmp);
     double rateExpected = (investmentFactorKnown * (1.0 + rateCmp * afNoCutoff) - 1.0d)
         / (afKnown + afNoCutoff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -551,8 +567,12 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   public void rateTois0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=1, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
-    OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
+    OvernightCompoundedRateObservation ro = OvernightCompoundedRateObservation.of(
+        CHF_TOIS,
+        CHF_TOIS.calculateEffectiveFromFixing(FIXING_START_DATE, REF_DATA),
+        CHF_TOIS.calculateEffectiveFromFixing(FIXING_END_DATE, REF_DATA),
+        0,
+        REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -574,31 +594,20 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
       LocalDate fixing = FIXING_DATES[i];
-      LocalDate startDate = CHF_TOIS.calculateEffectiveFromFixing(fixing);
-      LocalDate endDate = CHF_TOIS.calculateMaturityFromEffective(startDate);
+      LocalDate startDate = CHF_TOIS.calculateEffectiveFromFixing(fixing, REF_DATA);
+      LocalDate endDate = CHF_TOIS.calculateMaturityFromEffective(startDate, REF_DATA);
       double af = CHF_TOIS.getDayCount().yearFraction(startDate, endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactorNoCutoff - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(
-        CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
-        .thenReturn(rateCmp);
-    when(mockRatesUp.periodRate(
-        CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
-        .thenReturn(rateCmp + EPS_FD);
-    when(mockRatesDw.periodRate(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
-        .thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(CHF_TOIS, CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])),
-        CHF_TOIS.getCurrency(), 1.0d);
-    when(mockRates.periodRatePointSensitivity(
-        CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]),
-        CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5]))))
-        .thenReturn(periodSensitivity);
+    LocalDate dateMat = CHF_TOIS.calculateMaturityFromFixing(FIXING_DATES[5], REF_DATA);
+    OvernightIndexObservation obs = OvernightIndexObservation.of(CHF_TOIS, FIXING_DATES[lastFixing], REF_DATA);
+    when(mockRates.periodRate(obs, dateMat)).thenReturn(rateCmp);
+    when(mockRatesUp.periodRate(obs, dateMat)).thenReturn(rateCmp + EPS_FD);
+    when(mockRatesDw.periodRate(obs, dateMat)).thenReturn(rateCmp - EPS_FD);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.ofPeriod(obs, dateMat, 1.0d);
+    when(mockRates.periodRatePointSensitivity(obs, dateMat)).thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -606,10 +615,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
-      OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(CHF_TOIS,
-          CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[lastFixing]), CHF_TOIS.calculateMaturityFromEffective(CHF_TOIS.calculateEffectiveFromFixing(FIXING_DATES[5])),
-          CHF_TOIS.getCurrency(),
-          sensitivityExpected);
+      OvernightRateSensitivity sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(obs, dateMat, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
       assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
@@ -617,12 +624,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   /** No cutoff and two already fixed ON rate. ON index is Fed Fund. */
   public void rateFedFund0CutOffValuation2() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -634,16 +642,16 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < lastFixing - 1; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
@@ -651,13 +659,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double investmentFactor = 1.0;
     double afNoCutoff = 0.0;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
+    when(mockRates.periodRate(USD_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
     double rateExpected = (investmentFactorKnown * (1.0 + rateCmp * afNoCutoff) - 1.0d)
         / (afKnown + afNoCutoff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -673,7 +681,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -694,20 +702,18 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     double investmentFactor = 1.0;
     double afNoCutoff = 0.0;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afNoCutoff;
-    when(mockRates.periodRate(FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
-    when(mockRatesUp.periodRate(
-        FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
-    when(mockRatesDw.periodRate(
-        FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.of(USD_FED_FUND, FIXING_DATES[lastFixing],
-        FIXING_DATES[6], USD_FED_FUND.getCurrency(), 1.0d);
-    when(mockRates.periodRatePointSensitivity(FIXING_DATES[lastFixing], FIXING_DATES[6])).thenReturn(periodSensitivity);
+    when(mockRates.periodRate(USD_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
+    when(mockRatesUp.periodRate(USD_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
+    when(mockRatesDw.periodRate(USD_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
+    OvernightRateSensitivity periodSensitivity =
+        OvernightRateSensitivity.ofPeriod(USD_OBS[lastFixing], FIXING_DATES[6], 1.0d);
+    when(mockRates.periodRatePointSensitivity(USD_OBS[lastFixing], FIXING_DATES[6])).thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       when(mockRatesUp.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -715,9 +721,8 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       double rateUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvUp);
       double rateDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvDw);
       double sensitivityExpected = 0.5 * (rateUp - rateDw) / EPS_FD;
-      OvernightRateSensitivity sensitivityBuilderExpected = OvernightRateSensitivity.of(USD_FED_FUND,
-          FIXING_DATES[lastFixing],
-          FIXING_DATES[6], USD_FED_FUND.getCurrency(), sensitivityExpected);
+      OvernightRateSensitivity sensitivityBuilderExpected =
+          OvernightRateSensitivity.ofPeriod(USD_OBS[lastFixing], FIXING_DATES[6], sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
@@ -731,7 +736,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -743,16 +748,16 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < 5; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
@@ -771,7 +776,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -795,7 +800,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -807,16 +812,16 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < 5; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
@@ -835,7 +840,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -859,7 +864,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 14), date(2015, 1, 15), date(2015, 1, 16)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -871,22 +876,22 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < 4; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
     }
     LocalDate fixingknown = FIXING_DATES[5];
-    LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+    LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
     double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
     afKnown += af;
     investmentFactorKnown *= 1.0d + FIXING_RATES[4] * af; //Cutoff
@@ -903,7 +908,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 14), date(2015, 1, 15), date(2015, 1, 16)};
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
@@ -927,7 +932,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate valuationDate = date(2015, 1, 13);
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(valuationDate, mockRates);
@@ -940,10 +945,10 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     }
     when(mockRates.getFixings()).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
-      when(mockRates.rate(FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
+      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
     assertThrows(
         () -> OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv),
@@ -972,7 +977,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
     DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
@@ -997,7 +1002,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
     DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightCompoundedRateObservation ro =
-        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(

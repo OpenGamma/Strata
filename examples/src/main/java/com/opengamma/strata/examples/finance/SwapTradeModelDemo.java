@@ -16,8 +16,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -28,7 +29,6 @@ import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -36,6 +36,7 @@ import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentRelativeTo;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -69,7 +70,7 @@ public class SwapTradeModelDemo {
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(LocalDate.of(2014, 2, 12))
         .endDate(LocalDate.of(2016, 7, 31))
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.GBLO))
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.GBLO))
         .frequency(Frequency.P3M)
         .stubConvention(StubConvention.LONG_INITIAL)
         .rollConvention(RollConventions.EOM)
@@ -81,7 +82,7 @@ public class SwapTradeModelDemo {
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P6M)
         .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendarIds.GBLO))
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
@@ -103,15 +104,15 @@ public class SwapTradeModelDemo {
                 ValueStep.of(LocalDate.of(2015, 1, 31), ValueAdjustment.ofReplace(0.007))))
             .build())
         .build();
-    // an ExpandedSwapLeg has all the dates of the cash flows
+    // a ResolvedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
-    ExpandedSwapLeg expandedLeg = swapLeg.expand();
+    ResolvedSwapLeg resolvedLeg = swapLeg.resolve(ReferenceData.standard());
 
     System.out.println("===== Fixed =====");
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
-    System.out.println("===== Fixed expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
+    System.out.println("===== Fixed resolved =====");
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(resolvedLeg));
     System.out.println();
   }
 
@@ -125,7 +126,7 @@ public class SwapTradeModelDemo {
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(LocalDate.of(2014, 2, 12))
         .endDate(LocalDate.of(2016, 7, 31))
-        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.GBLO))
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.GBLO))
         .frequency(Frequency.P6M)
         .stubConvention(StubConvention.LONG_INITIAL)
         .rollConvention(RollConventions.EOM)
@@ -137,7 +138,7 @@ public class SwapTradeModelDemo {
     PaymentSchedule paymentSchedule = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P6M)
         .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendarIds.GBLO))
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
     // - in this simple case the notional is 1 million GBP and does not change
@@ -156,18 +157,18 @@ public class SwapTradeModelDemo {
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .index(IborIndices.GBP_LIBOR_6M)
             .fixingRelativeTo(FixingRelativeTo.PERIOD_START)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.GBLO))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendarIds.GBLO))
             .build())
         .build();
-    // an ExpandedSwapLeg has all the dates of the cash flows
+    // a ResolvedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
-    ExpandedSwapLeg expandedLeg = swapLeg.expand();
+    ResolvedSwapLeg resolvedLeg = swapLeg.resolve(ReferenceData.standard());
 
     System.out.println("===== Floating =====");
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(swapLeg));
     System.out.println();
-    System.out.println("===== Floating expanded =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(expandedLeg));
+    System.out.println("===== Floating resolved =====");
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(resolvedLeg));
     System.out.println();
   }
 
@@ -180,7 +181,7 @@ public class SwapTradeModelDemo {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
             .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
@@ -200,7 +201,7 @@ public class SwapTradeModelDemo {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
             .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
@@ -226,10 +227,10 @@ public class SwapTradeModelDemo {
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m pay leg =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(payLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(payLeg.resolve(ReferenceData.standard())));
     System.out.println();
     System.out.println("===== Vanilla fixed vs Libor3m receive leg =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(receiveLeg.expand()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(receiveLeg.resolve(ReferenceData.standard())));
     System.out.println();
   }
 

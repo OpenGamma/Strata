@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.sensitivity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -29,6 +28,7 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Point sensitivity to a rate from an Ibor index curve.
@@ -40,15 +40,12 @@ public final class IborRateSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The index of the curve for which the sensitivity is computed.
+   * The Ibor rate observation.
+   * <p>
+   * This includes the index and fixing date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex index;
-  /**
-   * The fixing date that was looked up on the curve.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
+  private final IborRateObservation observation;
   /**
    * The currency of the sensitivity.
    */
@@ -62,35 +59,43 @@ public final class IborRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on the index.
+   * Obtains an instance from the observation and sensitivity value.
    * <p>
    * The currency is defaulted from the index.
    * 
-   * @param index  the index of the curve
-   * @param fixingDate  the fixing date
+   * @param observation  the rate observation, including the fixing date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
-  public static IborRateSensitivity of(IborIndex index, LocalDate fixingDate, double sensitivity) {
-    return new IborRateSensitivity(index, fixingDate, index.getCurrency(), sensitivity);
+  public static IborRateSensitivity of(IborRateObservation observation, double sensitivity) {
+    return new IborRateSensitivity(observation, observation.getIndex().getCurrency(), sensitivity);
   }
 
   /**
-   * Obtains an instance based on the index, specifying the sensitivity currency.
+   * Obtains an instance from the observation and sensitivity value,
+   * specifying the currency of the value.
    * 
-   * @param index  the index of the curve
-   * @param fixingDate  the fixing date
+   * @param observation  the rate observation, including the fixing date
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static IborRateSensitivity of(
-      IborIndex index,
-      LocalDate fixingDate,
+      IborRateObservation observation,
       Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new IborRateSensitivity(index, fixingDate, sensitivityCurrency, sensitivity);
+    return new IborRateSensitivity(observation, sensitivityCurrency, sensitivity);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the Ibor index that the sensitivity refers to.
+   * 
+   * @return the Ibor index
+   */
+  public IborIndex getIndex() {
+    return observation.getIndex();
   }
 
   //-------------------------------------------------------------------------
@@ -99,12 +104,12 @@ public final class IborRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new IborRateSensitivity(index, fixingDate, currency, sensitivity);
+    return new IborRateSensitivity(observation, currency, sensitivity);
   }
 
   @Override
   public IborRateSensitivity withSensitivity(double sensitivity) {
-    return new IborRateSensitivity(index, fixingDate, currency, sensitivity);
+    return new IborRateSensitivity(observation, currency, sensitivity);
   }
 
   @Override
@@ -112,9 +117,9 @@ public final class IborRateSensitivity
     if (other instanceof IborRateSensitivity) {
       IborRateSensitivity otherIbor = (IborRateSensitivity) other;
       return ComparisonChain.start()
-          .compare(index.toString(), otherIbor.index.toString())
+          .compare(getIndex().toString(), otherIbor.getIndex().toString())
           .compare(currency, otherIbor.currency)
-          .compare(fixingDate, otherIbor.fixingDate)
+          .compare(observation.getFixingDate(), otherIbor.observation.getFixingDate())
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
@@ -128,12 +133,12 @@ public final class IborRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public IborRateSensitivity multipliedBy(double factor) {
-    return new IborRateSensitivity(index, fixingDate, currency, sensitivity * factor);
+    return new IborRateSensitivity(observation, currency, sensitivity * factor);
   }
 
   @Override
   public IborRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new IborRateSensitivity(index, fixingDate, currency, operator.applyAsDouble(sensitivity));
+    return new IborRateSensitivity(observation, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -171,15 +176,12 @@ public final class IborRateSensitivity
   private static final long serialVersionUID = 1L;
 
   private IborRateSensitivity(
-      IborIndex index,
-      LocalDate fixingDate,
+      IborRateObservation observation,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
+    JodaBeanUtils.notNull(observation, "observation");
     JodaBeanUtils.notNull(currency, "currency");
-    this.index = index;
-    this.fixingDate = fixingDate;
+    this.observation = observation;
     this.currency = currency;
     this.sensitivity = sensitivity;
   }
@@ -201,20 +203,13 @@ public final class IborRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the curve for which the sensitivity is computed.
+   * Gets the Ibor rate observation.
+   * <p>
+   * This includes the index and fixing date.
    * @return the value of the property, not null
    */
-  public IborIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the fixing date that was looked up on the curve.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
+  public IborRateObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -245,8 +240,7 @@ public final class IborRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborRateSensitivity other = (IborRateSensitivity) obj;
-      return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
+      return JodaBeanUtils.equal(observation, other.observation) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
@@ -256,8 +250,7 @@ public final class IborRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
@@ -265,10 +258,9 @@ public final class IborRateSensitivity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("IborRateSensitivity{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
+    buf.append("observation").append('=').append(observation).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
@@ -286,15 +278,10 @@ public final class IborRateSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborRateSensitivity.class, IborIndex.class);
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", IborRateSensitivity.class, LocalDate.class);
+    private final MetaProperty<IborRateObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", IborRateSensitivity.class, IborRateObservation.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -310,8 +297,7 @@ public final class IborRateSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
-        "fixingDate",
+        "observation",
         "currency",
         "sensitivity");
 
@@ -324,10 +310,8 @@ public final class IborRateSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
         case 575402001:  // currency
           return currency;
         case 564403871:  // sensitivity
@@ -353,19 +337,11 @@ public final class IborRateSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
+    public MetaProperty<IborRateObservation> observation() {
+      return observation;
     }
 
     /**
@@ -388,10 +364,8 @@ public final class IborRateSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((IborRateSensitivity) bean).getIndex();
-        case 1255202043:  // fixingDate
-          return ((IborRateSensitivity) bean).getFixingDate();
+        case 122345516:  // observation
+          return ((IborRateSensitivity) bean).getObservation();
         case 575402001:  // currency
           return ((IborRateSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
@@ -417,8 +391,7 @@ public final class IborRateSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IborRateSensitivity> {
 
-    private IborIndex index;
-    private LocalDate fixingDate;
+    private IborRateObservation observation;
     private Currency currency;
     private double sensitivity;
 
@@ -432,10 +405,8 @@ public final class IborRateSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
         case 575402001:  // currency
           return currency;
         case 564403871:  // sensitivity
@@ -448,11 +419,8 @@ public final class IborRateSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (IborIndex) newValue;
-          break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
+        case 122345516:  // observation
+          this.observation = (IborRateObservation) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -493,8 +461,7 @@ public final class IborRateSensitivity
     @Override
     public IborRateSensitivity build() {
       return new IborRateSensitivity(
-          index,
-          fixingDate,
+          observation,
           currency,
           sensitivity);
     }
@@ -502,10 +469,9 @@ public final class IborRateSensitivity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("IborRateSensitivity.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');

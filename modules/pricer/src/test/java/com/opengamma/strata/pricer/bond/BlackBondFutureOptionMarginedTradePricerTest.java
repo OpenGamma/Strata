@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -46,17 +47,22 @@ import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSe
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.bond.BondFutureOption;
-import com.opengamma.strata.product.bond.BondFutureOptionTrade;
+import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
+import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 
 /**
  * Test {@link BlackBondFutureOptionMarginedTradePricer}.
  */
 @Test
 public class BlackBondFutureOptionMarginedTradePricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // product and trade
-  private static final BondFutureOption OPTION_PRODUCT = BondDataSets.FUTURE_OPTION_PRODUCT_EUR_115;
-  private static final BondFutureOptionTrade OPTION_TRADE = BondDataSets.FUTURE_OPTION_TRADE_EUR;
+  private static final ResolvedBondFutureOption OPTION_PRODUCT =
+      BondDataSets.FUTURE_OPTION_PRODUCT_EUR_115.resolve(REF_DATA);
+  private static final ResolvedBondFutureOptionTrade OPTION_TRADE =
+      BondDataSets.FUTURE_OPTION_TRADE_EUR.resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID = BondDataSets.FUTURE_SECURITY_ID_EUR;
   private static final double NOTIONAL = BondDataSets.NOTIONAL_EUR;
   private static final long QUANTITY = BondDataSets.QUANTITY_EUR;
@@ -92,7 +98,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       InterpolatedNodalSurface.of(METADATA, TIME, MONEYNESS, VOL, INTERPOLATOR_2D);
   private static final LocalDate VAL_DATE = RATE_PROVIDER.getValuationDate();
   private static final LocalTime VAL_TIME = LocalTime.of(0, 0);
-  private static final ZoneId ZONE = OPTION_PRODUCT.getExpiryZone();
+  private static final ZoneId ZONE = OPTION_PRODUCT.getExpiry().getZone();
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
   private static final BlackVolatilityExpLogMoneynessBondFutureProvider VOL_PROVIDER =
       BlackVolatilityExpLogMoneynessBondFutureProvider.of(SURFACE, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);

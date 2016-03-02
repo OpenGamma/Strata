@@ -28,7 +28,10 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.product.Product;
 
 /**
  * A credit default swap (CDS), including single-name and index swaps.
@@ -45,7 +48,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
  */
 @BeanDefinition
 public final class Cds
-    implements CdsProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedCds>, ImmutableBean, Serializable {
 
   /**
    * Whether the CDS is buy or sell.
@@ -105,17 +108,8 @@ public final class Cds
   private final boolean payAccruedOnDefault;
 
   //-------------------------------------------------------------------------
-  /**
-   * Expands this CDS.
-   * <p>
-   * Expanding a CDS causes the dates to be adjusted according to the relevant
-   * holiday calendar. Other one-off calculations may also be performed.
-   * 
-   * @return the equivalent expanded CDS
-   * @throws RuntimeException if unable to expand due to an invalid definition
-   */
   @Override
-  public ExpandedCds expand() {
+  public ResolvedCds resolve(ReferenceData refData) {
     Period paymentInterval = getFeeLeg().getPeriodicPayments().getPaymentFrequency().getPeriod();
     StubConvention stubConvention = getFeeLeg().getPeriodicPayments().getStubConvention();
     DayCount accrualDayCount = getFeeLeg().getPeriodicPayments().getDayCount();
@@ -125,7 +119,7 @@ public final class Cds
     double notional = getFeeLeg().getPeriodicPayments().getNotional().getAmount();
     Currency currency = getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
 
-    return ExpandedCds
+    return ResolvedCds
         .builder()
         .buySellProtection(buySellProtection)
         .currency(currency)
@@ -134,6 +128,7 @@ public final class Cds
         .startDate(startDate)
         .endDate(endDate)
         .businessDayAdjustment(businessDayAdjustment)
+        .referenceInformation(referenceInformation)
         .payAccruedOnDefault(payAccruedOnDefault)
         .paymentInterval(paymentInterval)
         .stubConvention(stubConvention)

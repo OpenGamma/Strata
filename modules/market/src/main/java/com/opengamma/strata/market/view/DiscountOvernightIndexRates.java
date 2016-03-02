@@ -26,7 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -123,36 +125,37 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(LocalDate fixingDate) {
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (!publicationDate.isAfter(getValuationDate())) {
-      return historicRate(fixingDate, publicationDate);
+  public double rate(OvernightIndexObservation observation) {
+    if (!observation.getPublicationDate().isAfter(getValuationDate())) {
+      return historicRate(observation);
     }
-    return forwardRate(fixingDate);
+    return forwardRate(observation);
   }
 
   // historic rate
-  private double historicRate(LocalDate fixingDate, LocalDate publicationDate) {
+  private double historicRate(OvernightIndexObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
-    } else if (publicationDate.isBefore(getValuationDate())) { // the fixing is required
+    } else if (observation.getPublicationDate().isBefore(getValuationDate())) { // the fixing is required
       if (fixings.isEmpty()) {
         throw new IllegalArgumentException(
             Messages.format("Unable to get fixing for {} on date {}, no time-series supplied", index, fixingDate));
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return forwardRate(fixingDate);
+      return forwardRate(observation);
     }
   }
 
   // forward rate
-  private double forwardRate(LocalDate fixingDate) {
-    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
-    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    return simplyCompoundForwardRate(fixingStartDate, fixingEndDate, fixingYearFraction);
+  private double forwardRate(OvernightIndexObservation observation) {
+    LocalDate effectiveDate = observation.getEffectiveDate();
+    LocalDate maturityDate = observation.getMaturityDate();
+    DayCount dayCount = observation.getIndex().getDayCount();
+    double accrualFactor = dayCount.yearFraction(effectiveDate, maturityDate);
+    return simplyCompoundForwardRate(effectiveDate, maturityDate, accrualFactor);
   }
 
   // compounded from discount factors
@@ -162,39 +165,44 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate) {
+  public PointSensitivityBuilder ratePointSensitivity(OvernightIndexObservation observation) {
     LocalDate valuationDate = getValuationDate();
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
+    LocalDate fixingDate = observation.getFixingDate();
+    LocalDate publicationDate = observation.getPublicationDate();
     if (publicationDate.isBefore(valuationDate) ||
         (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    LocalDate fixingEndDate = index.calculateMaturityFromFixing(fixingDate);
-    return OvernightRateSensitivity.of(index, fixingDate, fixingEndDate, index.getCurrency(), 1d);
+    return OvernightRateSensitivity.of(observation, 1d);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double periodRate(LocalDate startDate, LocalDate endDate) {
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderOrEqual(getValuationDate(), startDate, "valuationDate", "startDate");
-    double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
-    return simplyCompoundForwardRate(startDate, endDate, fixingYearFraction);
+  public double periodRate(OvernightIndexObservation startDateObservation, LocalDate endDate) {
+    LocalDate effectiveDate = startDateObservation.getEffectiveDate();
+    ArgChecker.inOrderNotEqual(effectiveDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(getValuationDate(), effectiveDate, "valuationDate", "startDate");
+    double accrualFactor = startDateObservation.getIndex().getDayCount().yearFraction(effectiveDate, endDate);
+    return simplyCompoundForwardRate(effectiveDate, endDate, accrualFactor);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate) {
+  public PointSensitivityBuilder periodRatePointSensitivity(
+      OvernightIndexObservation startDateObservation,
+      LocalDate endDate) {
+
+    LocalDate startDate = startDateObservation.getEffectiveDate();
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(getValuationDate(), startDate, "valuationDate", "startDate");
-    return OvernightRateSensitivity.of(index, startDate, endDate, index.getCurrency(), 1d);
+    return OvernightRateSensitivity.ofPeriod(startDateObservation, endDate, 1d);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity) {
     OvernightIndex index = pointSensitivity.getIndex();
-    LocalDate startDate = index.calculateEffectiveFromFixing(pointSensitivity.getFixingDate());
+    LocalDate startDate = pointSensitivity.getObservation().getEffectiveDate();
     LocalDate endDate = pointSensitivity.getEndDate();
     double accrualFactor = index.getDayCount().yearFraction(startDate, endDate);
     double forwardBar = pointSensitivity.getSensitivity();

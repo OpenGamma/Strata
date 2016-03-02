@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -33,7 +34,12 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
   }
 
   @Override
-  public MarketDataBox<FxRate> build(FxRateId id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
+  public MarketDataBox<FxRate> build(
+      FxRateId id,
+      MarketDataConfig marketDataConfig,
+      CalculationEnvironment marketData,
+      ReferenceData refData) {
+
     FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class);
     Optional<QuoteKey> optional = fxRateConfig.getObservableRateKey(id.getPair());
     MarketDataFeed feed = id.getMarketDataFeed();

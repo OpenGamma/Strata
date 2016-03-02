@@ -28,6 +28,7 @@ import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -162,16 +163,18 @@ public final class SimpleIborIndexRates
     return curve.getParameterCount();
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public double rate(LocalDate fixingDate) {
-    if (!fixingDate.isAfter(getValuationDate())) {
-      return historicRate(fixingDate);
+  public double rate(IborRateObservation observation) {
+    if (!observation.getFixingDate().isAfter(getValuationDate())) {
+      return historicRate(observation);
     }
-    return rateIgnoringTimeSeries(fixingDate);
+    return rateIgnoringTimeSeries(observation);
   }
 
   // historic rate
-  private double historicRate(LocalDate fixingDate) {
+  private double historicRate(IborRateObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
       return fixedRate.getAsDouble();
@@ -182,37 +185,38 @@ public final class SimpleIborIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return rateIgnoringTimeSeries(fixingDate);
+      return rateIgnoringTimeSeries(observation);
     }
   }
 
   @Override
-  public double rateIgnoringTimeSeries(LocalDate fixingDate) {
-    LocalDate maturity = index.calculateMaturityFromFixing(fixingDate);
-    double relativeYearFraction = relativeYearFraction(maturity);
+  public double rateIgnoringTimeSeries(IborRateObservation observation) {
+    double relativeYearFraction = relativeYearFraction(observation.getMaturityDate());
     return curve.yValue(relativeYearFraction);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate) {
+  public PointSensitivityBuilder ratePointSensitivity(IborRateObservation observation) {
+    LocalDate fixingDate = observation.getFixingDate();
     LocalDate valuationDate = getValuationDate();
     if (fixingDate.isBefore(valuationDate) ||
         (fixingDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
-    return IborRateSensitivity.of(index, fixingDate, 1d);
+    return IborRateSensitivity.of(observation, 1d);
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(LocalDate fixingDate) {
-    return IborRateSensitivity.of(index, fixingDate, 1d);
+  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborRateObservation observation) {
+    return IborRateSensitivity.of(observation, 1d);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
-    LocalDate fixingDate = pointSensitivity.getFixingDate();
-    LocalDate maturity = index.calculateMaturityFromFixing(fixingDate);
-    double relativeYearFraction = relativeYearFraction(maturity);
+    LocalDate maturityDate = pointSensitivity.getObservation().getMaturityDate();
+    double relativeYearFraction = relativeYearFraction(maturityDate);
     CurveUnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
     CurveCurrencyParameterSensitivity sensitivity =  
         unitSensitivity.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
@@ -224,6 +228,7 @@ public final class SimpleIborIndexRates
     return withCurve(curve.applyPerturbation(perturbation));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a new instance with a different curve.
    * 
@@ -234,7 +239,7 @@ public final class SimpleIborIndexRates
     return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
   
-  // calculate the relative time between the valuation date and the specified date
+  // calculate the relative time between the valuation date and the specified date using the day count of the curve
   private double relativeYearFraction(LocalDate date) {
     return dayCount.relativeYearFraction(valuationDate, date);
   }

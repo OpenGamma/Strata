@@ -28,11 +28,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
@@ -129,11 +131,11 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
-    LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate);
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate, refData);
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(referenceDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(referenceDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (label.isEmpty()) {
       return YearMonthCurveNodeMetadata.of(nodeDate, YearMonth.from(referenceDate));
     }
@@ -141,20 +143,25 @@ public final class IborFutureCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate referenceDate) {
-    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate);
+  private LocalDate calculateEnd(LocalDate referenceDate, ReferenceData refData) {
+    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, refData);
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    IborFutureTrade trade = template.createTrade(valuationDate, 1, 1, 0);
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    IborFutureTrade trade = template.createTrade(valuationDate, 1, 1, 0, refData);
     return trade.getProduct().getFixingDate();
   }
 
   @Override
-  public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public IborFutureTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double price = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, 1L, 1d, price);
+    return template.createTrade(valuationDate, 1L, 1d, price, refData);
+  }
+
+  @Override
+  public ResolvedIborFutureTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

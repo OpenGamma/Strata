@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveInfoType;
@@ -121,14 +122,18 @@ public final class InterpolatedNodalCurveDefinition
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveMetadata metadata(LocalDate valuationDate) {
-    return metadata(valuationDate, ImmutableMap.of());
+  public CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    return metadata(valuationDate, refData, ImmutableMap.of());
   }
 
   // creates the metadata with optional calibration info
-  private CurveMetadata metadata(LocalDate valuationDate, Map<CurveInfoType<?>, Object> additionalInfo) {
+  private CurveMetadata metadata(
+      LocalDate valuationDate,
+      ReferenceData refData,
+      Map<CurveInfoType<?>, Object> additionalInfo) {
+
     List<CurveParameterMetadata> nodeMetadata = nodes.stream()
-        .map(node -> node.metadata(valuationDate))
+        .map(node -> node.metadata(valuationDate, refData))
         .collect(toImmutableList());
     return DefaultCurveMetadata.builder()
         .curveName(name)

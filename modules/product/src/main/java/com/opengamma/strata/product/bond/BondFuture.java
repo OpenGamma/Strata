@@ -12,13 +12,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
-import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -31,11 +31,16 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolutionException;
-import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.LinkResolvable;
+import com.opengamma.strata.collect.id.LinkResolver;
+import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityLink;
@@ -50,7 +55,7 @@ import com.opengamma.strata.product.SecurityLink;
 @SuppressWarnings("unchecked")
 @BeanDefinition
 public final class BondFuture
-    implements Product, LinkResolvable<BondFuture>, ImmutableBean, Serializable {
+    implements Product, LinkResolvable<BondFuture>, Resolvable<ResolvedBondFuture>, ImmutableBean, Serializable {
 
   /**
    * The basket of deliverable bonds.
@@ -97,19 +102,21 @@ public final class BondFuture
    * The first delivery date.
    * <p>
    * The first date on which the underlying is delivered. 
-   * If not specified, this is computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first  element of the delivery basket.
+   * <p>
+   * If not specified, thw date will be computed from {@code firstNoticeDate} by using
+   * {@code settlementDateOffset} in the first element of the delivery basket.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "optional")
   private final LocalDate firstDeliveryDate;
   /**
    * The last notice date.
    * <p>
    * The last date on which the underlying is delivered. 
-   * If not specified, this is computed from {@code lastNoticeDate} by using
+   * <p>
+   * If not specified, the date will be computed from {@code lastNoticeDate} by using
    * {@code settlementDateOffset} in the first element of the delivery basket.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "optional")
   private final LocalDate lastDeliveryDate;
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
@@ -128,58 +135,26 @@ public final class BondFuture
     builder.rounding(Rounding.none());
   }
 
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (!builder.deliveryBasket.isEmpty()) {
-      if (builder.firstNoticeDate != null && builder.firstDeliveryDate == null) {
-        FixedCouponBond product = builder.deliveryBasket.get(0).resolvedTarget().getProduct();
-        builder.firstDeliveryDate = product.getSettlementDateOffset().adjust(builder.firstNoticeDate);
-      }
-      if (builder.lastNoticeDate != null && builder.lastDeliveryDate == null) {
-        FixedCouponBond product = builder.deliveryBasket.get(0).resolvedTarget().getProduct();
-        builder.lastDeliveryDate = product.getSettlementDateOffset().adjust(builder.lastNoticeDate);
-      }
-    }
-  }
-
   @ImmutableValidator
   private void validate() {
     int size = deliveryBasket.size();
     ArgChecker.isTrue(size == conversionFactor.size(),
         "The delivery basket size should be the same as the conversion factor size");
     ArgChecker.inOrderOrEqual(firstNoticeDate, lastNoticeDate, "firstNoticeDate", "lastNoticeDate");
-    ArgChecker.inOrderOrEqual(firstDeliveryDate, lastDeliveryDate, "firstDeliveryDate", "lastDeliveryDate");
-    ArgChecker.inOrderOrEqual(firstNoticeDate, firstDeliveryDate, "firstNoticeDate", "firstDeliveryDate");
-    ArgChecker.inOrderOrEqual(lastNoticeDate, lastDeliveryDate, "lastNoticeDate", "lastDeliveryDate");
+    if (firstDeliveryDate != null && lastDeliveryDate != null) {
+      ArgChecker.inOrderOrEqual(firstDeliveryDate, lastDeliveryDate, "firstDeliveryDate", "lastDeliveryDate");
+      ArgChecker.inOrderOrEqual(firstNoticeDate, firstDeliveryDate, "firstNoticeDate", "firstDeliveryDate");
+      ArgChecker.inOrderOrEqual(lastNoticeDate, lastDeliveryDate, "lastNoticeDate", "lastDeliveryDate");
+    }
     if (size > 1) {
       ImmutableList<FixedCouponBond> bondsList = getBondProductBasket();
       double notional = getNotional();
       Currency currency = getCurrency();
       for (int i = 1; i < size; ++i) {
         ArgChecker.isTrue(bondsList.get(i).getNotional() == notional);
-        ArgChecker.isTrue(bondsList.get(i).getCurrency() == currency);
+        ArgChecker.isTrue(bondsList.get(i).getCurrency().equals(currency));
       }
     }
-  }
-
-  /**
-   * Returns a future where all links to underlying bonds have been resolved.
-   * <p>
-   * This method examines the future and resolves any links.
-   * The result is fully resolved with all data available for use.
-   * <p>
-   * An exception is thrown if a link cannot be resolved.
-   * 
-   * @param resolver  the resolver to use
-   * @return the fully resolved trade
-   * @throws LinkResolutionException if a link cannot be resolved
-   */
-  @Override
-  public BondFuture resolveLinks(LinkResolver resolver) {
-    ImmutableList<SecurityLink<FixedCouponBond>> resolved = deliveryBasket.stream()
-        .map(link -> link.resolveLinks(resolver))
-        .collect(toImmutableList());
-    return toBuilder().deliveryBasket(resolved).build();
   }
 
   //-------------------------------------------------------------------------
@@ -227,6 +202,47 @@ public final class BondFuture
         .collect(toImmutableList());
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a future where all links to underlying bonds have been resolved.
+   * <p>
+   * This method examines the future and resolves any links.
+   * The result is fully resolved with all data available for use.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
+   * 
+   * @param resolver  the resolver to use
+   * @return the fully resolved trade
+   * @throws LinkResolutionException if a link cannot be resolved
+   */
+  @Override
+  public BondFuture resolveLinks(LinkResolver resolver) {
+    ImmutableList<SecurityLink<FixedCouponBond>> resolved = deliveryBasket.stream()
+        .map(link -> link.resolveLinks(resolver))
+        .collect(toImmutableList());
+    return toBuilder().deliveryBasket(resolved).build();
+  }
+
+  @Override
+  public ResolvedBondFuture resolve(ReferenceData refData) {
+    // TODO: remove list of pairs
+    List<Pair<ResolvedFixedCouponBond, StandardId>> basket = deliveryBasket.stream()
+        .map(link -> Pair.of(link.resolvedTarget().getProduct().resolve(refData), link.resolvedTarget().getStandardId()))
+        .collect(toImmutableList());
+    FixedCouponBond product0 = deliveryBasket.get(0).resolvedTarget().getProduct();
+    DaysAdjustment settleOffset = product0.getSettlementDateOffset();
+    return ResolvedBondFuture.builder()
+        .deliveryBasket(basket)
+        .conversionFactor(conversionFactor)
+        .lastTradeDate(lastTradeDate)
+        .firstNoticeDate(firstNoticeDate)
+        .lastNoticeDate(lastNoticeDate)
+        .firstDeliveryDate(firstDeliveryDate != null ? firstDeliveryDate : settleOffset.adjust(firstNoticeDate, refData))
+        .lastDeliveryDate(lastDeliveryDate != null ? lastDeliveryDate : settleOffset.adjust(lastNoticeDate, refData))
+        .rounding(rounding)
+        .build();
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -268,8 +284,6 @@ public final class BondFuture
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(firstNoticeDate, "firstNoticeDate");
     JodaBeanUtils.notNull(lastNoticeDate, "lastNoticeDate");
-    JodaBeanUtils.notNull(firstDeliveryDate, "firstDeliveryDate");
-    JodaBeanUtils.notNull(lastDeliveryDate, "lastDeliveryDate");
     JodaBeanUtils.notNull(rounding, "rounding");
     this.deliveryBasket = ImmutableList.copyOf(deliveryBasket);
     this.conversionFactor = ImmutableList.copyOf(conversionFactor);
@@ -363,12 +377,13 @@ public final class BondFuture
    * Gets the first delivery date.
    * <p>
    * The first date on which the underlying is delivered.
-   * If not specified, this is computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first  element of the delivery basket.
-   * @return the value of the property, not null
+   * <p>
+   * If not specified, thw date will be computed from {@code firstNoticeDate} by using
+   * {@code settlementDateOffset} in the first element of the delivery basket.
+   * @return the optional value of the property, not null
    */
-  public LocalDate getFirstDeliveryDate() {
-    return firstDeliveryDate;
+  public Optional<LocalDate> getFirstDeliveryDate() {
+    return Optional.ofNullable(firstDeliveryDate);
   }
 
   //-----------------------------------------------------------------------
@@ -376,12 +391,13 @@ public final class BondFuture
    * Gets the last notice date.
    * <p>
    * The last date on which the underlying is delivered.
-   * If not specified, this is computed from {@code lastNoticeDate} by using
+   * <p>
+   * If not specified, the date will be computed from {@code lastNoticeDate} by using
    * {@code settlementDateOffset} in the first element of the delivery basket.
-   * @return the value of the property, not null
+   * @return the optional value of the property, not null
    */
-  public LocalDate getLastDeliveryDate() {
-    return lastDeliveryDate;
+  public Optional<LocalDate> getLastDeliveryDate() {
+    return Optional.ofNullable(lastDeliveryDate);
   }
 
   //-----------------------------------------------------------------------
@@ -646,9 +662,9 @@ public final class BondFuture
         case -1060668964:  // lastNoticeDate
           return ((BondFuture) bean).getLastNoticeDate();
         case 1755448466:  // firstDeliveryDate
-          return ((BondFuture) bean).getFirstDeliveryDate();
+          return ((BondFuture) bean).firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
-          return ((BondFuture) bean).getLastDeliveryDate();
+          return ((BondFuture) bean).lastDeliveryDate;
         case -142444:  // rounding
           return ((BondFuture) bean).getRounding();
       }
@@ -698,8 +714,8 @@ public final class BondFuture
       this.lastTradeDate = beanToCopy.getLastTradeDate();
       this.firstNoticeDate = beanToCopy.getFirstNoticeDate();
       this.lastNoticeDate = beanToCopy.getLastNoticeDate();
-      this.firstDeliveryDate = beanToCopy.getFirstDeliveryDate();
-      this.lastDeliveryDate = beanToCopy.getLastDeliveryDate();
+      this.firstDeliveryDate = beanToCopy.firstDeliveryDate;
+      this.lastDeliveryDate = beanToCopy.lastDeliveryDate;
       this.rounding = beanToCopy.getRounding();
     }
 
@@ -788,7 +804,6 @@ public final class BondFuture
 
     @Override
     public BondFuture build() {
-      preBuild(this);
       return new BondFuture(
           deliveryBasket,
           conversionFactor,
@@ -896,13 +911,13 @@ public final class BondFuture
      * Sets the first delivery date.
      * <p>
      * The first date on which the underlying is delivered.
-     * If not specified, this is computed from {@code firstNoticeDate} by using
-     * {@code settlementDateOffset} in the first  element of the delivery basket.
-     * @param firstDeliveryDate  the new value, not null
+     * <p>
+     * If not specified, thw date will be computed from {@code firstNoticeDate} by using
+     * {@code settlementDateOffset} in the first element of the delivery basket.
+     * @param firstDeliveryDate  the new value
      * @return this, for chaining, not null
      */
     public Builder firstDeliveryDate(LocalDate firstDeliveryDate) {
-      JodaBeanUtils.notNull(firstDeliveryDate, "firstDeliveryDate");
       this.firstDeliveryDate = firstDeliveryDate;
       return this;
     }
@@ -911,13 +926,13 @@ public final class BondFuture
      * Sets the last notice date.
      * <p>
      * The last date on which the underlying is delivered.
-     * If not specified, this is computed from {@code lastNoticeDate} by using
+     * <p>
+     * If not specified, the date will be computed from {@code lastNoticeDate} by using
      * {@code settlementDateOffset} in the first element of the delivery basket.
-     * @param lastDeliveryDate  the new value, not null
+     * @param lastDeliveryDate  the new value
      * @return this, for chaining, not null
      */
     public Builder lastDeliveryDate(LocalDate lastDeliveryDate) {
-      JodaBeanUtils.notNull(lastDeliveryDate, "lastDeliveryDate");
       this.lastDeliveryDate = lastDeliveryDate;
       return this;
     }

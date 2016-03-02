@@ -18,7 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingDeliverableSwapFutureTradePricer;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
 
 /**
  * Multi-scenario measure calculations for Deliverable Swap Future trades.
@@ -44,7 +44,7 @@ class DeliverableSwapFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
     return CurrencyValuesArray.of(
@@ -54,11 +54,11 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.presentValue(trade, provider, price);
   }
@@ -66,7 +66,7 @@ class DeliverableSwapFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
@@ -76,7 +76,7 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
@@ -87,7 +87,7 @@ class DeliverableSwapFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       CalculationMarketData marketData) {
 
     return ScenarioResult.of(
@@ -97,7 +97,7 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);

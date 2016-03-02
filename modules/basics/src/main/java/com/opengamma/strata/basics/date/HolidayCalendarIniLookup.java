@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
 import com.opengamma.strata.collect.io.ResourceConfig;
@@ -37,7 +38,7 @@ import com.opengamma.strata.collect.named.NamedLookup;
 /**
  * Loads holiday calendar implementations from CSV.
  * <p>
- * These will be accessed using {@link HolidayCalendar#of(String)}.
+ * These will form the standard holiday calendars available in {@link ReferenceData#standard()}.
  */
 final class HolidayCalendarIniLookup
     implements NamedLookup<HolidayCalendar> {
@@ -128,7 +129,7 @@ final class HolidayCalendarIniLookup
       }
     }
     // build result
-    return ImmutableHolidayCalendar.of(calendarName, holidays, weekends);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends);
   }
 
   // parse weekend format, such as 'Sat,Sun'

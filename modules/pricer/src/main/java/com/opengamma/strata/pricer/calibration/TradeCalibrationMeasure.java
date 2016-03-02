@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -19,12 +18,13 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
-import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.fx.FxSwapTrade;
-import com.opengamma.strata.product.index.IborFutureTrade;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
  * Provides calibration measures for a single type of trade based on functions.
@@ -33,66 +33,69 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * 
  * @param <T> the trade type
  */
-public class TradeCalibrationMeasure<T extends Trade>
+public class TradeCalibrationMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**
-   * The calibrator for {@link FraTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedFraTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<FraTrade> FRA_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedFraTrade> FRA_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "FraParSpreadDiscounting",
-          FraTrade.class,
+          ResolvedFraTrade.class,
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
 
   /**
-   * The calibrator for {@link IborFutureTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedIborFutureTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<IborFutureTrade> IBOR_FUTURE_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedIborFutureTrade> IBOR_FUTURE_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "IborFutureParSpreadDiscounting",
-          IborFutureTrade.class,
+          ResolvedIborFutureTrade.class,
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.parSpread(trade, p, 0.0),
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.parSpreadSensitivity(trade, p));
 
   /**
-   * The calibrator for {@link SwapTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedSwapTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<SwapTrade> SWAP_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedSwapTrade> SWAP_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "SwapParSpreadDiscounting",
-          SwapTrade.class,
+          ResolvedSwapTrade.class,
           (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p).build());
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parSpreadSensitivity(
+              trade.getProduct(), p).build());
 
   /**
-   * The calibrator for {@link IborFixingDepositTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedIborFixingDepositTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<IborFixingDepositTrade> IBOR_FIXING_DEPOSIT_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedIborFixingDepositTrade> IBOR_FIXING_DEPOSIT_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "IborFixingDepositParSpreadDiscounting",
-          IborFixingDepositTrade.class,
+          ResolvedIborFixingDepositTrade.class,
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parSpreadSensitivity(
+              trade.getProduct(), p));
 
   /**
-   * The calibrator for {@link TermDepositTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedTermDepositTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<TermDepositTrade> TERM_DEPOSIT_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedTermDepositTrade> TERM_DEPOSIT_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "TermDepositParSpreadDiscounting",
-          TermDepositTrade.class,
+          ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
-          (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
+              (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parSpreadSensitivity(
+              trade.getProduct(), p));
 
   /**
-   * The calibrator for {@link FxSwapTrade} using par spread discounting.
+   * The calibrator for {@link ResolvedFxSwapTrade} using par spread discounting.
    */
-  public static final TradeCalibrationMeasure<FxSwapTrade> FX_SWAP_PAR_SPREAD =
+  public static final TradeCalibrationMeasure<ResolvedFxSwapTrade> FX_SWAP_PAR_SPREAD =
       TradeCalibrationMeasure.of(
           "FxSwapParSpreadDiscounting",
-          FxSwapTrade.class,
+          ResolvedFxSwapTrade.class,
           (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpread(trade.getProduct(), p),
           (trade, p) -> DiscountingFxSwapProductPricer.DEFAULT.parSpreadSensitivity(trade.getProduct(), p));
 
@@ -127,7 +130,7 @@ public class TradeCalibrationMeasure<T extends Trade>
    * @param sensitivityFn  the function for calculating the sensitivity
    * @return the calibrator
    */
-  public static <R extends Trade> TradeCalibrationMeasure<R> of(
+  public static <R extends ResolvedTrade> TradeCalibrationMeasure<R> of(
       String name,
       Class<R> tradeType,
       ToDoubleBiFunction<R, RatesProvider> valueFn,

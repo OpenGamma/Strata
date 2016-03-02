@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -43,7 +44,8 @@ public class MissingConfigCalculationFunction
   public Map<Measure, Result<?>> calculate(
       CalculationTarget target,
       Set<Measure> measures,
-      CalculationMarketData marketData) {
+      CalculationMarketData marketData,
+      ReferenceData refData) {
 
     throw new IllegalStateException(Messages.format(
         "No rule configured for measures {} on '{}'", measures, target.getClass().getSimpleName()));

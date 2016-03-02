@@ -14,6 +14,8 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -93,7 +95,9 @@ public interface FxSwapConvention
    * @param notional  the notional amount, in the first currency of the currency pair
    * @param nearFxRate  the FX rate for the near leg
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
   public default FxSwapTrade createTrade(
       LocalDate tradeDate,
@@ -102,9 +106,10 @@ public interface FxSwapConvention
       BuySell buySell,
       double notional,
       double nearFxRate,
-      double farLegForwardPoints) {
+      double farLegForwardPoints,
+      ReferenceData refData) {
 
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate startDate = spotValue.plus(periodToNear);
     LocalDate endDate = spotValue.plus(periodToFar);
     return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
@@ -141,10 +146,12 @@ public interface FxSwapConvention
    * Calculates the spot date from the trade date.
    * 
    * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
    * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return getSpotDateOffset().adjust(tradeDate, refData);
   }
 
   //-------------------------------------------------------------------------

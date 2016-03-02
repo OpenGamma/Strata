@@ -8,8 +8,8 @@ package com.opengamma.strata.product.fx.type;
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -25,8 +25,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 
@@ -36,8 +38,9 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 @Test
 public class FxSwapTemplateTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyPair EUR_USD = CurrencyPair.of(Currency.EUR, Currency.USD);
-  private static final HolidayCalendar EUTA_USNY = EUTA.combineWith(USNY);
+  private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA_USNY);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, EUTA_USNY);
   private static final ImmutableFxSwapConvention CONVENTION = ImmutableFxSwapConvention.of(EUR_USD, PLUS_TWO_DAYS);
@@ -75,12 +78,13 @@ public class FxSwapTemplateTest {
   public void test_createTrade() {
     FxSwapTemplate base = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 10, 29);
-    FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS);
-    LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate);
-    LocalDate nearDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(NEAR_PERIOD));
-    LocalDate farDate = CONVENTION.getBusinessDayAdjustment().adjust(spotDate.plus(FAR_PERIOD));
-    FxSwap expected = FxSwap
-        .ofForwardPoints(CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate);
+    FxSwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_EUR, FX_RATE_NEAR, FX_RATE_PTS, REF_DATA);
+    LocalDate spotDate = PLUS_TWO_DAYS.adjust(tradeDate, REF_DATA);
+    LocalDate nearDate = spotDate.plus(NEAR_PERIOD);
+    LocalDate farDate = spotDate.plus(FAR_PERIOD);
+    BusinessDayAdjustment bda = CONVENTION.getBusinessDayAdjustment();
+    FxSwap expected = FxSwap.ofForwardPoints(
+        CurrencyAmount.of(EUR, NOTIONAL_EUR), USD, FX_RATE_NEAR, FX_RATE_PTS, nearDate, farDate, bda);
     assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }

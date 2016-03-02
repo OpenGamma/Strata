@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -30,6 +31,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class FunctionConfigTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Measure MEASURE = Measures.PRESENT_VALUE;
   private static final Set<Measure> MEASURES = ImmutableSet.of(MEASURE);
   private static final CalculationMarketData MARKET_DATA = mock(CalculationMarketData.class);
@@ -38,7 +40,7 @@ public class FunctionConfigTest {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionNoParams.class);
     @SuppressWarnings("unchecked")
     CalculationFunction<TestTarget> function = config.createFunction();
-    Map<Measure, Result<?>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("foo"), MEASURES, MARKET_DATA, REF_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FOO"));
   }
@@ -50,7 +52,7 @@ public class FunctionConfigTest {
             .addArgument("str", "Foo")
             .build();
     CalculationFunction<TestTarget> function = config.createFunction();
-    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA, REF_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
@@ -58,7 +60,7 @@ public class FunctionConfigTest {
   public void createFunctionWithConstructorArgsPassedIn() {
     FunctionConfig<TestTarget> config = FunctionConfig.of(TestFunctionWithParams.class);
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("count", 2, "str", "Foo"));
-    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA, REF_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
@@ -69,7 +71,7 @@ public class FunctionConfigTest {
             .addArgument("count", 2)
             .build();
     CalculationFunction<TestTarget> function = config.createFunction(ImmutableMap.of("str", "Foo"));
-    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA);
+    Map<Measure, Result<?>> result = function.calculate(new TestTarget("Bar"), MEASURES, MARKET_DATA, REF_DATA);
     assertThat(result.get(MEASURE).isSuccess()).isTrue();
     assertThat(result.get(MEASURE).getValue()).isEqualTo(ScenarioResult.of("FooBarFooBar"));
   }
@@ -132,7 +134,8 @@ public class FunctionConfigTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of(target.str.toUpperCase(Locale.ENGLISH));
       return ImmutableMap.of(MEASURE, Result.success(array));
@@ -170,7 +173,8 @@ public class FunctionConfigTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of(Strings.repeat(str + target.str, count));
       return ImmutableMap.of(MEASURE, Result.success(array));
@@ -203,7 +207,8 @@ public class FunctionConfigTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("");
       return ImmutableMap.of(MEASURE, Result.success(array));
@@ -239,7 +244,8 @@ public class FunctionConfigTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("");
       return ImmutableMap.of(MEASURE, Result.success(array));

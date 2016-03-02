@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.sensitivity;
 
 import java.io.Serializable;
-import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -29,6 +28,7 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 
 /**
  * Point sensitivity to a rate from a price index curve.
@@ -40,15 +40,12 @@ public final class InflationRateSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The index of the curve for which the sensitivity is computed.
+   * The Price index observation.
+   * <p>
+   * This includes the index and fixing month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PriceIndex index;
-  /**
-   * The reference month for the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final YearMonth referenceMonth;
+  private final PriceIndexObservation observation;
   /**
    * The currency of the sensitivity.
    */
@@ -62,35 +59,43 @@ public final class InflationRateSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on the index.
+   * Obtains an instance from the observation and sensitivity value.
    * <p>
    * The currency is defaulted from the index.
    * 
-   * @param index  the index of prices
-   * @param referenceMonth  the reference month for the index
+   * @param observation  the rate observation, including the fixing date
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
-  public static InflationRateSensitivity of(PriceIndex index, YearMonth referenceMonth, double sensitivity) {
-    return new InflationRateSensitivity(index, referenceMonth, index.getCurrency(), sensitivity);
+  public static InflationRateSensitivity of(PriceIndexObservation observation, double sensitivity) {
+    return new InflationRateSensitivity(observation, observation.getCurrency(), sensitivity);
   }
 
   /**
-   * Obtains an instance based on the index, specifying the sensitivity currency.
+   * Obtains an instance from the observation and sensitivity value,
+   * specifying the currency of the value.
    * 
-   * @param index  the index of prices
-   * @param referenceMonth  the reference month for the index
+   * @param observation  the rate observation, including the fixing date
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static InflationRateSensitivity of(
-      PriceIndex index,
-      YearMonth referenceMonth,
+      PriceIndexObservation observation,
       Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new InflationRateSensitivity(index, referenceMonth, sensitivityCurrency, sensitivity);
+    return new InflationRateSensitivity(observation, sensitivityCurrency, sensitivity);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the Ibor index that the sensitivity refers to.
+   * 
+   * @return the Ibor index
+   */
+  public PriceIndex getIndex() {
+    return observation.getIndex();
   }
 
   //-------------------------------------------------------------------------
@@ -99,12 +104,12 @@ public final class InflationRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new InflationRateSensitivity(index, referenceMonth, currency, sensitivity);
+    return new InflationRateSensitivity(observation, currency, sensitivity);
   }
 
   @Override
   public InflationRateSensitivity withSensitivity(double sensitivity) {
-    return new InflationRateSensitivity(index, referenceMonth, currency, sensitivity);
+    return new InflationRateSensitivity(observation, currency, sensitivity);
   }
 
   @Override
@@ -112,9 +117,9 @@ public final class InflationRateSensitivity
     if (other instanceof InflationRateSensitivity) {
       InflationRateSensitivity otherInflation = (InflationRateSensitivity) other;
       return ComparisonChain.start()
-          .compare(index.toString(), otherInflation.index.toString())
+          .compare(getIndex().toString(), otherInflation.getIndex().toString())
           .compare(currency, otherInflation.currency)
-          .compare(referenceMonth, otherInflation.referenceMonth)
+          .compare(observation.getFixingMonth(), otherInflation.observation.getFixingMonth())
           .result();
     }
     return getClass().getSimpleName().compareTo(other.getClass().getSimpleName());
@@ -128,12 +133,12 @@ public final class InflationRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public InflationRateSensitivity multipliedBy(double factor) {
-    return new InflationRateSensitivity(index, referenceMonth, currency, sensitivity * factor);
+    return new InflationRateSensitivity(observation, currency, sensitivity * factor);
   }
 
   @Override
   public InflationRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
-    return new InflationRateSensitivity(index, referenceMonth, currency, operator.applyAsDouble(sensitivity));
+    return new InflationRateSensitivity(observation, currency, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -171,15 +176,12 @@ public final class InflationRateSensitivity
   private static final long serialVersionUID = 1L;
 
   private InflationRateSensitivity(
-      PriceIndex index,
-      YearMonth referenceMonth,
+      PriceIndexObservation observation,
       Currency currency,
       double sensitivity) {
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(referenceMonth, "referenceMonth");
+    JodaBeanUtils.notNull(observation, "observation");
     JodaBeanUtils.notNull(currency, "currency");
-    this.index = index;
-    this.referenceMonth = referenceMonth;
+    this.observation = observation;
     this.currency = currency;
     this.sensitivity = sensitivity;
   }
@@ -201,20 +203,13 @@ public final class InflationRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index of the curve for which the sensitivity is computed.
+   * Gets the Price index observation.
+   * <p>
+   * This includes the index and fixing month.
    * @return the value of the property, not null
    */
-  public PriceIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the reference month for the index.
-   * @return the value of the property, not null
-   */
-  public YearMonth getReferenceMonth() {
-    return referenceMonth;
+  public PriceIndexObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -245,8 +240,7 @@ public final class InflationRateSensitivity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationRateSensitivity other = (InflationRateSensitivity) obj;
-      return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(referenceMonth, other.referenceMonth) &&
+      return JodaBeanUtils.equal(observation, other.observation) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
     }
@@ -256,8 +250,7 @@ public final class InflationRateSensitivity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceMonth);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
     return hash;
@@ -265,10 +258,9 @@ public final class InflationRateSensitivity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("InflationRateSensitivity{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("referenceMonth").append('=').append(referenceMonth).append(',').append(' ');
+    buf.append("observation").append('=').append(observation).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
@@ -286,15 +278,10 @@ public final class InflationRateSensitivity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", InflationRateSensitivity.class, PriceIndex.class);
-    /**
-     * The meta-property for the {@code referenceMonth} property.
-     */
-    private final MetaProperty<YearMonth> referenceMonth = DirectMetaProperty.ofImmutable(
-        this, "referenceMonth", InflationRateSensitivity.class, YearMonth.class);
+    private final MetaProperty<PriceIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", InflationRateSensitivity.class, PriceIndexObservation.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -310,8 +297,7 @@ public final class InflationRateSensitivity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
-        "referenceMonth",
+        "observation",
         "currency",
         "sensitivity");
 
@@ -324,10 +310,8 @@ public final class InflationRateSensitivity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case -1916745227:  // referenceMonth
-          return referenceMonth;
+        case 122345516:  // observation
+          return observation;
         case 575402001:  // currency
           return currency;
         case 564403871:  // sensitivity
@@ -353,19 +337,11 @@ public final class InflationRateSensitivity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PriceIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code referenceMonth} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<YearMonth> referenceMonth() {
-      return referenceMonth;
+    public MetaProperty<PriceIndexObservation> observation() {
+      return observation;
     }
 
     /**
@@ -388,10 +364,8 @@ public final class InflationRateSensitivity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((InflationRateSensitivity) bean).getIndex();
-        case -1916745227:  // referenceMonth
-          return ((InflationRateSensitivity) bean).getReferenceMonth();
+        case 122345516:  // observation
+          return ((InflationRateSensitivity) bean).getObservation();
         case 575402001:  // currency
           return ((InflationRateSensitivity) bean).getCurrency();
         case 564403871:  // sensitivity
@@ -417,8 +391,7 @@ public final class InflationRateSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<InflationRateSensitivity> {
 
-    private PriceIndex index;
-    private YearMonth referenceMonth;
+    private PriceIndexObservation observation;
     private Currency currency;
     private double sensitivity;
 
@@ -432,10 +405,8 @@ public final class InflationRateSensitivity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case -1916745227:  // referenceMonth
-          return referenceMonth;
+        case 122345516:  // observation
+          return observation;
         case 575402001:  // currency
           return currency;
         case 564403871:  // sensitivity
@@ -448,11 +419,8 @@ public final class InflationRateSensitivity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (PriceIndex) newValue;
-          break;
-        case -1916745227:  // referenceMonth
-          this.referenceMonth = (YearMonth) newValue;
+        case 122345516:  // observation
+          this.observation = (PriceIndexObservation) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -493,8 +461,7 @@ public final class InflationRateSensitivity
     @Override
     public InflationRateSensitivity build() {
       return new InflationRateSensitivity(
-          index,
-          referenceMonth,
+          observation,
           currency,
           sensitivity);
     }
@@ -502,10 +469,9 @@ public final class InflationRateSensitivity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("InflationRateSensitivity.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("referenceMonth").append('=').append(JodaBeanUtils.toString(referenceMonth)).append(',').append(' ');
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');

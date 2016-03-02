@@ -12,14 +12,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.deposit.ExpandedIborFixingDeposit;
-import com.opengamma.strata.product.deposit.IborFixingDeposit;
-import com.opengamma.strata.product.deposit.IborFixingDepositProduct;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 
 /**
  * The methods associated to the pricing of Ibor fixing deposit by discounting.
  * <p>
- * This function provides the ability to price a {@link IborFixingDeposit}. Those products are synthetic deposits
+ * This function provides the ability to price {@link ResolvedIborFixingDeposit}. Those products are synthetic deposits
  * which are used for curve calibration purposes; they should not be used as actual trades.
  */
 public class DiscountingIborFixingDepositProductPricer {
@@ -42,12 +40,11 @@ public class DiscountingIborFixingDepositProductPricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the present value of the product
    */
-  public CurrencyAmount presentValue(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public CurrencyAmount presentValue(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     Currency currency = deposit.getCurrency();
     if (provider.getValuationDate().isAfter(deposit.getEndDate())) {
       return CurrencyAmount.of(currency, 0.0d);
@@ -65,12 +62,11 @@ public class DiscountingIborFixingDepositProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public PointSensitivities presentValueSensitivity(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     double forwardRate = forwardRate(deposit, provider);
     DiscountFactors discountFactors = provider.discountFactors(deposit.getCurrency());
     double discountFactor = discountFactors.discountFactor(deposit.getEndDate());
@@ -86,12 +82,11 @@ public class DiscountingIborFixingDepositProductPricer {
   /**
    * Calculates the deposit fair rate given the start and end time and the accrual factor.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the par rate
    */
-  public double parRate(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public double parRate(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     return forwardRate(deposit, provider);
   }
 
@@ -99,12 +94,11 @@ public class DiscountingIborFixingDepositProductPricer {
   /**
    * Calculates the deposit fair rate sensitivity to the curves.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the par rate curve sensitivity
    */
-  public PointSensitivities parRateSensitivity(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public PointSensitivities parRateSensitivity(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     return forwardRateSensitivity(deposit, provider).build();
   }
 
@@ -112,40 +106,38 @@ public class DiscountingIborFixingDepositProductPricer {
   /**
    * Calculates the spread to be added to the deposit rate to have a zero present value.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the par spread
    */
-  public double parSpread(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public double parSpread(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     return forwardRate(deposit, provider) - deposit.getFixedRate();
   }
 
   /**
    * Calculates the par spread curve sensitivity.
    * 
-   * @param product  the product to price
+   * @param deposit  the product
    * @param provider  the rates provider
    * @return the par spread curve sensitivity
    */
-  public PointSensitivities parSpreadSensitivity(IborFixingDepositProduct product, RatesProvider provider) {
-    ExpandedIborFixingDeposit deposit = product.expand();
+  public PointSensitivities parSpreadSensitivity(ResolvedIborFixingDeposit deposit, RatesProvider provider) {
     return forwardRateSensitivity(deposit, provider).build();
   }
 
   //-------------------------------------------------------------------------
   // query the forward rate
-  private double forwardRate(ExpandedIborFixingDeposit product, RatesProvider provider) {
+  private double forwardRate(ResolvedIborFixingDeposit product, RatesProvider provider) {
     IborIndexRates rates = provider.iborIndexRates(product.getFloatingRate().getIndex());
     // The IborFixingDeposit are fictitious instruments to anchor the beginning of the IborIndex forward curve. 
     // By using the 'rateIgnoringTimeSeries' method (instead of 'rate') we ensure that only the forward curve is involved.
-    return rates.rateIgnoringTimeSeries(product.getFloatingRate().getFixingDate());
+    return rates.rateIgnoringTimeSeries(product.getFloatingRate());
   }
 
   // query the forward rate sensitivity
-  private PointSensitivityBuilder forwardRateSensitivity(ExpandedIborFixingDeposit product, RatesProvider provider) {
+  private PointSensitivityBuilder forwardRateSensitivity(ResolvedIborFixingDeposit product, RatesProvider provider) {
     IborIndexRates rates = provider.iborIndexRates(product.getFloatingRate().getIndex());
-    return rates.rateIgnoringTimeSeriesPointSensitivity(product.getFloatingRate().getFixingDate());
+    return rates.rateIgnoringTimeSeriesPointSensitivity(product.getFloatingRate());
   }
 
 }

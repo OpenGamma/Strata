@@ -14,14 +14,14 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
-import com.opengamma.strata.product.bond.BondFutureOption;
-import com.opengamma.strata.product.bond.BondFutureOptionTrade;
+import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
+import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
  * Pricer for bond future option trades with daily margin.
  * <p>
- * This function provides the ability to price an {@link BondFutureOptionTrade}.
+ * This function provides the ability to price an {@link ResolvedBondFutureOptionTrade}.
  * The option must be based on {@linkplain FutureOptionPremiumStyle#DAILY_MARGIN daily margin}.
  * <p>
  * Implementations must be immutable and thread-safe functions.
@@ -48,16 +48,17 @@ public abstract class BondFutureOptionMarginedTradePricer {
    * <p>
    * The price of the trade is the price on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the price of the product, in decimal form
    */
   public double price(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider futureProvider) {
-    return getProductPricer().price(trade.getSecurity().getProduct(), ratesProvider, futureProvider);
+
+    return getProductPricer().price(trade.getProduct(), ratesProvider, futureProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -66,18 +67,19 @@ public abstract class BondFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
    * @param currentOptionPrice  the option price on the valuation date
    * @param lastClosingPrice  the last closing price
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LocalDate valuationDate,
       double currentOptionPrice,
       double lastClosingPrice) {
-    BondFutureOption option = trade.getProduct();
+
+    ResolvedBondFutureOption option = trade.getProduct();
     Optional<LocalDate> tradeDateOpt = trade.getTradeInfo().getTradeDate();
     ArgChecker.isTrue(tradeDateOpt.isPresent(), "trade date not present");
     double priceIndex = getProductPricer().marginIndex(option, currentOptionPrice);
@@ -98,17 +100,18 @@ public abstract class BondFutureOptionMarginedTradePricer {
    * <p>
    * The present value of the product is the value on the valuation date.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @param lastClosingPrice  the last closing price
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider futureProvider,
       double lastClosingPrice) {
+
     double price = price(trade, ratesProvider, futureProvider);
     return presentValue(trade, ratesProvider.getValuationDate(), price, lastClosingPrice);
   }
@@ -120,16 +123,17 @@ public abstract class BondFutureOptionMarginedTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider futureProvider) {
-    BondFutureOption product = trade.getProduct();
+
+    ResolvedBondFutureOption product = trade.getProduct();
     PointSensitivities priceSensi = getProductPricer().priceSensitivity(product, ratesProvider, futureProvider);
     PointSensitivities marginIndexSensi = getProductPricer().marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
@@ -139,17 +143,18 @@ public abstract class BondFutureOptionMarginedTradePricer {
   /**
    * Calculates the currency exposure of the bond future option trade.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider
    * @param futureProvider  the provider of future/option pricing data
    * @param lastClosingPrice  the last closing price
    * @return the currency exposure of the bond future option trade
    */
   public MultiCurrencyAmount currencyExposure(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider futureProvider,
       double lastClosingPrice) {
+
     double price = price(trade, ratesProvider, futureProvider);
     return currencyExposure(trade, ratesProvider.getValuationDate(), price, lastClosingPrice);
   }
@@ -157,17 +162,18 @@ public abstract class BondFutureOptionMarginedTradePricer {
   /**
    * Calculates the currency exposure of the bond future option trade from the current option price.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param valuationDate  the valuation date; required to asses if the trade or last closing price should be used
    * @param currentOptionPrice  the option price on the valuation date
    * @param lastClosingPrice  the last closing price
    * @return the currency exposure of the bond future option trade
    */
   public MultiCurrencyAmount currencyExposure(
-      BondFutureOptionTrade trade,
+      ResolvedBondFutureOptionTrade trade,
       LocalDate valuationDate,
       double currentOptionPrice,
       double lastClosingPrice) {
+
     return MultiCurrencyAmount.of(presentValue(trade, valuationDate, currentOptionPrice, lastClosingPrice));
   }
 

@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_20;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
@@ -21,6 +21,7 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.credit.CdsTestUtils;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -33,6 +34,8 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  */
 @Test
 public class CdsConventionTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -76,19 +79,19 @@ public class CdsConventionTest {
 
   public void test_adjusted_start_date() {
     CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 19)), date(2014, 6, 20));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 20)), date(2014, 6, 20));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 21)), date(2014, 9, 22));
-    assertEquals(sut.calculateAdjustedStartDate(date(2014, 10, 16)), date(2014, 9, 22));
+    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 19), REF_DATA), date(2014, 6, 20));
+    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 20), REF_DATA), date(2014, 6, 20));
+    assertEquals(sut.calculateAdjustedStartDate(date(2014, 9, 21), REF_DATA), date(2014, 9, 22));
+    assertEquals(sut.calculateAdjustedStartDate(date(2014, 10, 16), REF_DATA), date(2014, 9, 22));
   }
 
   public void test_adjusted_settle_date() {
     CdsConvention sut = CdsConventions.USD_NORTH_AMERICAN;
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 19)), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 20)), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 21)), date(2014, 9, 24));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 22)), date(2014, 9, 25));
-    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 10, 16)), date(2014, 10, 21));
+    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 19), REF_DATA), date(2014, 9, 24));
+    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 20), REF_DATA), date(2014, 9, 24));
+    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 21), REF_DATA), date(2014, 9, 24));
+    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 9, 22), REF_DATA), date(2014, 9, 25));
+    assertEquals(sut.calculateAdjustedSettleDate(date(2014, 10, 16), REF_DATA), date(2014, 10, 21));
   }
 
   public void test_unadjusted_step_in_date() {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.examples.regression;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 
 import java.time.LocalDate;
@@ -18,11 +19,11 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
@@ -59,6 +60,8 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 @Test
 public class SwapReportRegressionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   /**
    * Tests the full set of results against a golden copy.
    */
@@ -86,9 +89,10 @@ public class SwapReportRegressionTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.getRequirements();
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, MarketDataConfig.empty());
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
         valuationDate,
@@ -111,12 +115,12 @@ public class SwapReportRegressionTest {
         .startDate(LocalDate.of(2006, 2, 24))
         .endDate(LocalDate.of(2011, 2, 24))
         .frequency(Frequency.P3M)
-        .businessDayAdjustment(BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendars.USNY))
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
         .build();
 
     PaymentSchedule payment = PaymentSchedule.builder()
         .paymentFrequency(Frequency.P3M)
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.USNY))
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendarIds.USNY))
         .build();
 
     SwapLeg payLeg = RateCalculationSwapLeg.builder()

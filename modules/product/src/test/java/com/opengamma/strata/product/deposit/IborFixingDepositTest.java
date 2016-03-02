@@ -8,7 +8,7 @@ package com.opengamma.strata.product.deposit;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -32,6 +33,7 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class IborFixingDepositTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BuySell SELL = BuySell.SELL;
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 19);
@@ -101,7 +103,7 @@ public class IborFixingDepositTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     IborFixingDeposit base = IborFixingDeposit.builder()
         .buySell(SELL)
         .notional(NOTIONAL)
@@ -111,11 +113,11 @@ public class IborFixingDepositTest {
         .index(GBP_LIBOR_6M)
         .fixedRate(RATE)
         .build();
-    ExpandedIborFixingDeposit test = base.expand();
-    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE);
+    ResolvedIborFixingDeposit test = base.resolve(REF_DATA);
+    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE, REF_DATA);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
     IborRateObservation expectedObservation = IborRateObservation.of(
-        GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE));
+        GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE, REF_DATA), REF_DATA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), expectedEndDate);

@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curves;
@@ -124,14 +125,14 @@ public class ForwardInflationInterpolatedRateObservationFnTest {
     double rateEndIntUp = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndIntUp);
     double rateEndIntDw = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, provEndIntDw);
 
-    PointSensitivityBuilder sensSrt =
-        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH, 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
-    PointSensitivityBuilder sensSrtInt =
-        InflationRateSensitivity.of(GB_RPIX, REF_START_MONTH_INTERP, 0.5 * (rateSrtIntUp - rateSrtIntDw) / EPS_FD);
-    PointSensitivityBuilder sensEnd =
-        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH, 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
-    PointSensitivityBuilder sensEndInt =
-        InflationRateSensitivity.of(GB_RPIX, REF_END_MONTH_INTERP, 0.5 * (rateEndIntUp - rateEndIntDw) / EPS_FD);
+    PointSensitivityBuilder sensSrt = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REF_START_MONTH), 0.5 * (rateSrtUp - rateSrtDw) / EPS_FD);
+    PointSensitivityBuilder sensSrtInt = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REF_START_MONTH_INTERP), 0.5 * (rateSrtIntUp - rateSrtIntDw) / EPS_FD);
+    PointSensitivityBuilder sensEnd = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REF_END_MONTH), 0.5 * (rateEndUp - rateEndDw) / EPS_FD);
+    PointSensitivityBuilder sensEndInt = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPIX, REF_END_MONTH_INTERP), 0.5 * (rateEndIntUp - rateEndIntDw) / EPS_FD);
     PointSensitivityBuilder sensiExpected =
         sensSrt.combinedWith(sensSrtInt).combinedWith(sensEnd).combinedWith(sensEndInt);
 

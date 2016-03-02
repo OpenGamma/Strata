@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -207,23 +208,25 @@ public interface CdsConvention
    * Gets the adjusted start date.
    * 
    * @param valuationDate  the valuation date
+   * @param refData  the reference data to use
    * @return adjusted start date
    */
-  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedStartDate(LocalDate valuationDate, ReferenceData refData) {
     return getBusinessDayAdjustment().adjust(
-        calculateUnadjustedAccrualStartDate(valuationDate));
+        calculateUnadjustedAccrualStartDate(valuationDate), refData);
   }
 
   /**
    * Gets the adjusted settlement date.
    * 
    * @param valuationDate  the valuation date
+   * @param refData  the reference data to use
    * @return unadjusted settle date
    */
-  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate) {
+  public default LocalDate calculateAdjustedSettleDate(LocalDate valuationDate, ReferenceData refData) {
     DaysAdjustment daysAdjustment = DaysAdjustment.ofBusinessDays(
         getSettleLagDays(), getBusinessDayAdjustment().getCalendar(), getBusinessDayAdjustment());
-    return daysAdjustment.adjust(valuationDate);
+    return daysAdjustment.adjust(valuationDate, refData);
   }
 
   /**

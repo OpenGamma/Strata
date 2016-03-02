@@ -9,18 +9,22 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
+
 /**
  * Test {@link IsdaYieldCurveConvention}.
  */
 @Test
 public class IsdaYieldCurveConventionTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -39,7 +43,7 @@ public class IsdaYieldCurveConventionTest {
   //-------------------------------------------------------------------------
   public void test_spot_date_from_valuation_date() {
     IsdaYieldCurveConvention sut = IsdaYieldCurveConventions.USD_ISDA;
-    assertEquals(sut.getSpotDateAsOf(date(2014, 9, 19)), date(2014, 9, 23));
+    assertEquals(sut.calculateSpotDateFromTradeDate(date(2014, 9, 19), REF_DATA), date(2014, 9, 23));
   }
 
 }

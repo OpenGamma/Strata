@@ -32,8 +32,8 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.pricer.impl.capfloor.NormalIborCapletFloorletPeriodPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.product.capfloor.ExpandedIborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 
 /**
  * Test {@link NormalIborCapFloorLegPricer}.
@@ -47,10 +47,10 @@ public class NormalIborCapFloorLegPricerTest {
   private static final ValueSchedule NOTIONAL = ValueSchedule.of(NOTIONAL_VALUE);
   private static final LocalDate START = LocalDate.of(2011, 3, 17);
   private static final LocalDate END = LocalDate.of(2016, 3, 17);
-  private static final ExpandedIborCapFloorLeg CAP =
-      IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE_SCHEDULE, NOTIONAL, CALL, RECEIVE).expand();
-  private static final ExpandedIborCapFloorLeg FLOOR =
-      IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE_SCHEDULE, NOTIONAL, PUT, PAY).expand();
+  private static final ResolvedIborCapFloorLeg CAP =
+      IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE_SCHEDULE, NOTIONAL, CALL, RECEIVE);
+  private static final ResolvedIborCapFloorLeg FLOOR =
+      IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE_SCHEDULE, NOTIONAL, PUT, PAY);
 
   // valuation before start
   private static final ZonedDateTime VALUATION = dateUtc(2011, 1, 20);

@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -43,6 +42,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
@@ -72,15 +72,16 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
-import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
-import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
@@ -97,6 +98,9 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   private static final CurveInterpolator INTERPOLATOR_LINEAR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR_FLAT = CurveExtrapolators.FLAT;
   private static final DayCount CURVE_DC = ACT_365F;
+
+  // reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String SCHEME = "CALIBRATION";
 
@@ -370,91 +374,91 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
-    ImmutableRatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
+    ImmutableRatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     assertPresentValue(result);
   }
 
   public void calibration_present_value_threeGroups() {
     ImmutableRatesProvider result =
-        CALIBRATOR.calibrate(ImmutableList.of(GROUP_1, GROUP_2, GROUP_3), KNOWN_DATA, ALL_QUOTES);
+        CALIBRATOR.calibrate(ImmutableList.of(GROUP_1, GROUP_2, GROUP_3), KNOWN_DATA, ALL_QUOTES, REF_DATA);
     assertPresentValue(result);
   }
 
   private void assertPresentValue(ImmutableRatesProvider result) {
     // Test PV USD;
-    List<Trade> usdTrades = new ArrayList<>();
+    List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (CurveNode USD_DSC_NODE : USD_DSC_NODES) {
-      usdTrades.add(USD_DSC_NODE.trade(VAL_DATE, ALL_QUOTES));
+      usdTrades.add(USD_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < 2; i++) {
-      CurrencyAmount pvDep = DEPO_PRICER
-          .presentValue(((TermDepositTrade) usdTrades.get(i)).getProduct(), result);
+      CurrencyAmount pvDep = DEPO_PRICER.presentValue(
+          ((ResolvedTermDepositTrade) usdTrades.get(i)).getProduct(), result);
       assertEquals(pvDep.getAmount(), 0.0, TOLERANCE_PV);
     }
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
-      MultiCurrencyAmount pvOis = SWAP_PRICER
-          .presentValue(((SwapTrade) usdTrades.get(2 + i)).getProduct(), result);
+      MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
+          ((ResolvedSwapTrade) usdTrades.get(2 + i)).getProduct(), result);
       assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV USD Fwd3
-    List<Trade> fwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < USD_FWD3_NB_NODES; i++) {
-      fwd3Trades.add(USD_FWD3_NODES[i].trade(VAL_DATE, ALL_QUOTES));
+      fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
-    CurrencyAmount pvFixing =
-        FIXING_PRICER.presentValue(((IborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result);
+    CurrencyAmount pvFixing = FIXING_PRICER.presentValue(
+        ((ResolvedIborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result);
     assertEquals(pvFixing.getAmount(), 0.0, TOLERANCE_PV);
     // FRA
     for (int i = 0; i < USD_FWD3_NB_FRA_NODES; i++) {
-      CurrencyAmount pvFra =
-          FRA_PRICER.presentValue(((FraTrade) fwd3Trades.get(i + 1)), result);
+      CurrencyAmount pvFra = FRA_PRICER.presentValue(
+          ((ResolvedFraTrade) fwd3Trades.get(i + 1)), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < USD_FWD3_NB_IRS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) fwd3Trades.get(i + 1 + USD_FWD3_NB_FRA_NODES)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((ResolvedSwapTrade) fwd3Trades.get(i + 1 + USD_FWD3_NB_FRA_NODES)).getProduct(), result);
       assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test DSC EUR;
-    List<Trade> eurTrades = new ArrayList<>();
+    List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (CurveNode EUR_DSC_NODE : EUR_DSC_NODES) {
-      eurTrades.add(EUR_DSC_NODE.trade(VAL_DATE, ALL_QUOTES));
+      eurTrades.add(EUR_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // FX
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
-      MultiCurrencyAmount pvFx = FX_PRICER
-          .presentValue(((FxSwapTrade) eurTrades.get(i)).getProduct(), result);
+      MultiCurrencyAmount pvFx = FX_PRICER.presentValue(
+          ((ResolvedFxSwapTrade) eurTrades.get(i)).getProduct(), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
     // XCCY
     for (int i = 0; i < EUR_DSC_NB_XCCY_NODES; i++) {
-      MultiCurrencyAmount pvFx = SWAP_PRICER
-          .presentValue(((SwapTrade) eurTrades.get(EUR_DSC_NB_FX_NODES + i)).getProduct(), result);
+      MultiCurrencyAmount pvFx = SWAP_PRICER.presentValue(
+          ((ResolvedSwapTrade) eurTrades.get(EUR_DSC_NB_FX_NODES + i)).getProduct(), result);
       assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
     }
     // Test PV EUR Fwd3
-    List<Trade> eurFwd3Trades = new ArrayList<>();
+    List<ResolvedTrade> eurFwd3Trades = new ArrayList<>();
     for (int i = 0; i < EUR_FWD3_NB_NODES; i++) {
-      eurFwd3Trades.add(EUR_FWD3_NODES[i].trade(VAL_DATE, ALL_QUOTES));
+      eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
-    CurrencyAmount eurPvFixing =
-        FIXING_PRICER.presentValue(((IborFixingDepositTrade) eurFwd3Trades.get(0)).getProduct(), result);
+    CurrencyAmount eurPvFixing = FIXING_PRICER.presentValue(
+        ((ResolvedIborFixingDepositTrade) eurFwd3Trades.get(0)).getProduct(), result);
     assertEquals(eurPvFixing.getAmount(), 0.0, TOLERANCE_PV);
     // FRA
     for (int i = 0; i < EUR_FWD3_NB_FRA_NODES; i++) {
-      CurrencyAmount pvFra =
-          FRA_PRICER.presentValue(((FraTrade) eurFwd3Trades.get(i + 1)), result);
+      CurrencyAmount pvFra = FRA_PRICER.presentValue(
+          ((ResolvedFraTrade) eurFwd3Trades.get(i + 1)), result);
       assertEquals(pvFra.getAmount(), 0.0, TOLERANCE_PV);
     }
     // IRS
     for (int i = 0; i < EUR_FWD3_NB_IRS_NODES; i++) {
-      MultiCurrencyAmount pvIrs = SWAP_PRICER
-          .presentValue(((SwapTrade) eurFwd3Trades.get(i + 1 + EUR_FWD3_NB_FRA_NODES)).getProduct(), result);
+      MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
+          ((ResolvedSwapTrade) eurFwd3Trades.get(i + 1 + EUR_FWD3_NB_FRA_NODES)).getProduct(), result);
       assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
     }
   }
@@ -462,7 +466,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<ImmutableMarketData, ImmutableRatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, marketData, TS);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, marketData, REF_DATA, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -472,9 +476,10 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     double notional = 100_000_000.0;
     double fx = 1.1111;
     double fxPts = 0.0012;
-    FxSwapTrade trade = EUR_USD
-        .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts);
-    ImmutableRatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, TS);
+    ResolvedFxSwapTrade trade = EUR_USD
+        .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts, REF_DATA)
+        .resolve(REF_DATA);
+    ImmutableRatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts);
     CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);

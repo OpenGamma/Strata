@@ -56,7 +56,7 @@ public class ForwardIborAveragedRateObservationFn
 
   // Compute the rate adjusted by the weight for one IborAverageFixing.
   private double weightedRate(IborAveragedFixing fixing, IborIndexRates rates) {
-    double rate = fixing.getFixedRate().orElse(rates.rate(fixing.getFixingDate()));
+    double rate = fixing.getFixedRate().orElse(rates.rate(fixing.getObservation()));
     return rate * fixing.getWeight();
   }
 
@@ -83,7 +83,7 @@ public class ForwardIborAveragedRateObservationFn
       double totalWeight,
       IborIndexRates rates) {
 
-    return rates.ratePointSensitivity(fixing.getFixingDate())
+    return rates.ratePointSensitivity(fixing.getObservation())
         .multipliedBy(fixing.getWeight() / totalWeight);
   }
 
@@ -99,9 +99,9 @@ public class ForwardIborAveragedRateObservationFn
     for (IborAveragedFixing fixing : observation.getFixings()) {
       builder.addListEntry(ExplainKey.OBSERVATIONS, child -> child
           .put(ExplainKey.ENTRY_TYPE, "IborIndexObservation")
-          .put(ExplainKey.FIXING_DATE, fixing.getFixingDate())
+          .put(ExplainKey.FIXING_DATE, fixing.getObservation().getFixingDate())
           .put(ExplainKey.INDEX, observation.getIndex())
-          .put(ExplainKey.INDEX_VALUE, fixing.getFixedRate().orElse(rates.rate(fixing.getFixingDate())))
+          .put(ExplainKey.INDEX_VALUE, fixing.getFixedRate().orElse(rates.rate(fixing.getObservation())))
           .put(ExplainKey.WEIGHT, fixing.getWeight()));
     }
     double rate = rate(observation, startDate, endDate, provider);

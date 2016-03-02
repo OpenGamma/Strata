@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.runner;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
@@ -84,10 +85,14 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * The grid will contain a row for each target and a column for each measure.
    * 
    * @param tasks  the calculation tasks to invoke
-   * @param marketData  market data to be used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the tasks and market data
    */
-  public abstract Results calculateSingleScenario(CalculationTasks tasks, CalculationEnvironment marketData);
+  public abstract Results calculateSingleScenario(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      ReferenceData refData);
 
   /**
    * Performs calculations for multiple scenarios, each with a different set of market data.
@@ -97,10 +102,14 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * Each cell will contain multiple results, one for each scenario.
    * 
    * @param tasks  the calculation tasks to invoke
-   * @param marketData  the market data used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the tasks and market data
    */
-  public abstract Results calculateMultipleScenarios(CalculationTasks tasks, CalculationEnvironment marketData);
+  public abstract Results calculateMultipleScenarios(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
@@ -112,12 +121,14 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * the aggregate they can be garbage collected.
    * 
    * @param tasks  the calculation tasks to invoke
-   * @param marketData  market data to be used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateSingleScenarioAsync(
       CalculationTasks tasks,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener);
 
   /**
@@ -129,12 +140,14 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * the aggregate they can be garbage collected.
    * 
    * @param tasks  the calculation tasks to invoke
-   * @param marketData  the market data used in the calculations
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
   public abstract void calculateMultipleScenariosAsync(
       CalculationTasks tasks,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener);
 
   //-------------------------------------------------------------------------

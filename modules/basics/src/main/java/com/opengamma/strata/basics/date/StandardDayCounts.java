@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.LocalDateUtils.doy;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Standard day count convention implementations.
@@ -369,9 +368,6 @@ enum StandardDayCounts implements DayCount {
 
   @Override
   public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
     if (secondDate.isBefore(firstDate)) {
       throw new IllegalArgumentException("Dates must be in time-line order");
     }
@@ -381,9 +377,6 @@ enum StandardDayCounts implements DayCount {
   @Override
   public double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
     // override to avoid duplicate null checks
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
     if (secondDate.isBefore(firstDate)) {
       return -calculateYearFraction(secondDate, firstDate, scheduleInfo);
     }

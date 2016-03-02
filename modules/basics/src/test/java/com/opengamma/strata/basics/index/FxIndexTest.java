@@ -7,7 +7,8 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_CHF_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -24,13 +25,15 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link FxIndex}.
  */
 @Test
 public class FxIndexTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
@@ -79,38 +82,38 @@ public class FxIndexTest {
   //-------------------------------------------------------------------------
   public void test_ecb_eur_gbp_dates() {
     FxIndex test = FxIndices.EUR_GBP_ECB;
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13)), date(2014, 10, 15));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15)), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA), date(2014, 10, 13));
     // weekend
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16)), date(2014, 10, 20));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 20)), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17)), date(2014, 10, 21));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 21)), date(2014, 10, 17));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA), date(2014, 10, 20));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 20), REF_DATA), date(2014, 10, 16));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA), date(2014, 10, 21));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 21), REF_DATA), date(2014, 10, 17));
     // input date is Sunday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19)), date(2014, 10, 22));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19)), date(2014, 10, 16));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA), date(2014, 10, 22));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 16));
     // skip maturity over EUR (1st May) and GBP (5th May) holiday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 4, 30)), date(2014, 5, 6));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 5, 6)), date(2014, 4, 30));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 4, 30), REF_DATA), date(2014, 5, 6));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 5, 6), REF_DATA), date(2014, 4, 30));
   }
 
   public void test_dates() {
     FxIndex test = ImmutableFxIndex.builder()
         .name("Test")
         .currencyPair(CurrencyPair.of(EUR, GBP))
-        .fixingCalendar(HolidayCalendars.NO_HOLIDAYS)
+        .fixingCalendar(NO_HOLIDAYS)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(2))
         .build();
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13)), date(2014, 10, 15));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15)), date(2014, 10, 13));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA), date(2014, 10, 13));
     // weekend
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16)), date(2014, 10, 18));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 18)), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17)), date(2014, 10, 19));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19)), date(2014, 10, 17));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA), date(2014, 10, 18));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 18), REF_DATA), date(2014, 10, 16));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA), date(2014, 10, 19));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 17));
     // input date is Sunday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19)), date(2014, 10, 21));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19)), date(2014, 10, 17));
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA), date(2014, 10, 21));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 17));
   }
 
   //-------------------------------------------------------------------------

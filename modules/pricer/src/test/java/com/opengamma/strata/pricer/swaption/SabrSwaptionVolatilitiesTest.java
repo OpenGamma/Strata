@@ -170,9 +170,9 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_surfaceCurrencyParameterSensitivity_multi() {
-    double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56 };
-    double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0 };
-    double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18 };
+    double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56};
+    double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0};
+    double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18};
     SabrParametersSwaptionVolatilities prov =
         SabrParametersSwaptionVolatilities.of(PARAM, CONV, DATE_TIME, ACT_ACT_ISDA);
     for (int i = 0; i < NB_TEST; i++) {

@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -31,6 +32,7 @@ import com.opengamma.strata.market.id.OvernightIndexCurveId;
 @Test
 public class OvernightIndexCurveMarketDataFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("group name");
 
   /**
@@ -50,7 +52,7 @@ public class OvernightIndexCurveMarketDataFunctionTest {
         .build();
     OvernightIndexCurveMarketDataFunction builder = new OvernightIndexCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result = builder.build(curveId, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result = builder.build(curveId, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(curve));
   }
 
@@ -75,10 +77,10 @@ public class OvernightIndexCurveMarketDataFunctionTest {
         .build();
     OvernightIndexCurveMarketDataFunction builder = new OvernightIndexCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result1 = builder.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result2 = builder.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
   }
 
@@ -121,16 +123,16 @@ public class OvernightIndexCurveMarketDataFunctionTest {
 
     OvernightIndexCurveMarketDataFunction builder = new OvernightIndexCurveMarketDataFunction();
 
-    MarketDataBox<Curve> result1 = builder.build(curveId1, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result1 = builder.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
 
-    MarketDataBox<Curve> result2 = builder.build(curveId2, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result2 = builder.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
 
-    MarketDataBox<Curve> result3 = builder.build(curveId3, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result3 = builder.build(curveId3, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result3).isEqualTo(MarketDataBox.ofSingleValue(curve3));
 
-    MarketDataBox<Curve> result4 = builder.build(curveId4, marketData, MarketDataConfig.empty());
+    MarketDataBox<Curve> result4 = builder.build(curveId4, MarketDataConfig.empty(), marketData, REF_DATA);
     assertThat(result4).isEqualTo(MarketDataBox.ofSingleValue(curve4));
   }
 

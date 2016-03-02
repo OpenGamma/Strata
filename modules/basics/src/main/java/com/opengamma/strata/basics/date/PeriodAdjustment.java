@@ -25,7 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 
 /**
  * An adjustment that alters a date by adding a period of calendar days, months and years.
@@ -47,22 +48,16 @@ import com.opengamma.strata.collect.ArgChecker;
  * For example, a rule represented by this class might be: "the end date is 5 years after
  * the start date, with end-of-month rule based on the last business day of the month,
  * adjusted to be a valid London business day using the 'ModifiedFollowing' convention".
- * 
- * <h4>Usage</h4>
- * {@code PeriodAdjustment} implements {@code TemporalAdjuster} allowing it to directly adjust a date:
- * <pre>
- *  LocalDate adjusted = baseDate.with(periodAdjustment);
- * </pre>
  */
 @BeanDefinition
 public final class PeriodAdjustment
-    implements ImmutableBean, DateAdjuster, Serializable {
+    implements Resolvable<DateAdjuster>, ImmutableBean, Serializable {
 
   /**
    * An instance that performs no adjustment.
    */
-  public static final PeriodAdjustment NONE = new PeriodAdjustment(
-      Period.ZERO, PeriodAdditionConventions.NONE, BusinessDayAdjustment.NONE);
+  public static final PeriodAdjustment NONE =
+      new PeriodAdjustment(Period.ZERO, PeriodAdditionConventions.NONE, BusinessDayAdjustment.NONE);
 
   /**
    * The period to be added.
@@ -94,7 +89,7 @@ public final class PeriodAdjustment
   /**
    * Obtains an instance that can adjust a date by the specified period.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When adjusting a date, the specified period is added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * 
    * @param period  the period to add to the input date
@@ -111,7 +106,7 @@ public final class PeriodAdjustment
    * Obtains an instance that can adjust a date by the specified period using the
    * last day of month convention.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When adjusting a date, the specified period is added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
@@ -128,7 +123,7 @@ public final class PeriodAdjustment
    * Obtains an instance that can adjust a date by the specified period using the
    * last business day of month convention.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When adjusting a date, the specified period is added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
@@ -153,16 +148,37 @@ public final class PeriodAdjustment
   /**
    * Adjusts the date, adding the period and then applying the business day adjustment.
    * <p>
-   * The addition is performed by the {@link PeriodAdditionConvention}.
+   * The calculation is performed in two steps.
+   * <p>
+   * Step one, use {@link PeriodAdditionConvention#adjust(LocalDate, Period, HolidayCalendar)} to add the period.
+   * <p>
+   * Step two, use {@link BusinessDayAdjustment#adjust(LocalDate, ReferenceData)} to adjust the result of step one.
    * 
    * @param date  the date to adjust
-   * @return the adjusted temporal
+   * @param refData  the reference data, used to find the holiday calendar
+   * @return the adjusted date
+   */
+  public LocalDate adjust(LocalDate date, ReferenceData refData) {
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
+    BusinessDayConvention bda = adjustment.getConvention();
+    return bda.adjust(additionConvention.adjust(date, period, holCal), holCal);
+  }
+
+  /**
+   * Resolves this adjustment using the specified reference data, returning an adjuster.
+   * <p>
+   * This returns a {@link DateAdjuster} that performs the same calculation as this adjustment.
+   * It binds the holiday calendar, looked up from the reference data, into the result.
+   * As such, there is no need to pass the reference data in again.
+   * 
+   * @param refData  the reference data, used to find the holiday calendar
+   * @return the adjuster, bound to a specific holiday calendar
    */
   @Override
-  public LocalDate adjust(LocalDate date) {
-    ArgChecker.notNull(date, "date");
-    LocalDate unadjusted = additionConvention.adjust(date, period, adjustment.getCalendar());
-    return adjustment.adjust(unadjusted);
+  public DateAdjuster resolve(ReferenceData refData) {
+    HolidayCalendar holCal = adjustment.getCalendar().resolve(refData);
+    BusinessDayConvention bda = adjustment.getConvention();
+    return date -> bda.adjust(additionConvention.adjust(date, period, holCal), holCal);
   }
 
   //-------------------------------------------------------------------------

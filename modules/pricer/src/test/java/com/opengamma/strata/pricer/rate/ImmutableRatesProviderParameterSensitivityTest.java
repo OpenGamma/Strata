@@ -26,6 +26,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.index.FxIndexObservation;
+import com.opengamma.strata.basics.index.OvernightIndexObservation;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
@@ -46,6 +50,7 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
+import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Tests related to {@link ImmutableRatesProvider} for the computation of curve parameters sensitivities.
@@ -53,6 +58,7 @@ import com.opengamma.strata.pricer.datasets.StandardDataSets;
 @Test
 public class ImmutableRatesProviderParameterSensitivityTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 22);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final Currency USD = Currency.USD;
@@ -71,21 +77,29 @@ public class ImmutableRatesProviderParameterSensitivityTest {
   private static final PointSensitivities POINT_ZERO_4 =
       PointSensitivities.of(ZeroRateSensitivity.of(EUR, DATE_1, USD, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_1 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, AMOUNT_1));
+      PointSensitivities.of(
+          IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_1, REF_DATA), AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_2 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_3, AMOUNT_1));
+      PointSensitivities.of(
+          IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_3, REF_DATA), AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_3 =
-      PointSensitivities.of(IborRateSensitivity.of(USD_LIBOR_3M, DATE_1, EUR, AMOUNT_1));
+      PointSensitivities.of(
+          IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE_1, REF_DATA), EUR, AMOUNT_1));
   private static final PointSensitivities POINT_IBOR_4 =
-      PointSensitivities.of(IborRateSensitivity.of(EUR_EURIBOR_3M, DATE_1, EUR, AMOUNT_1));
+      PointSensitivities.of(
+          IborRateSensitivity.of(IborRateObservation.of(EUR_EURIBOR_3M, DATE_1, REF_DATA), EUR, AMOUNT_1));
   private static final PointSensitivities POINT_ON_1 =
-      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_1, AMOUNT_1));
+      PointSensitivities.of(
+          OvernightRateSensitivity.of(OvernightIndexObservation.of(USD_FED_FUND, DATE_1, REF_DATA), AMOUNT_1));
   private static final PointSensitivities POINT_ON_2 =
-      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_1, DATE_2, USD, AMOUNT_1));
+      PointSensitivities.of(
+          OvernightRateSensitivity.ofPeriod(OvernightIndexObservation.of(USD_FED_FUND, DATE_1, REF_DATA), DATE_2, USD, AMOUNT_1));
   private static final PointSensitivities POINT_ON_3 =
-      PointSensitivities.of(OvernightRateSensitivity.of(USD_FED_FUND, DATE_2, DATE_3, USD, AMOUNT_1));
+      PointSensitivities.of(
+          OvernightRateSensitivity.ofPeriod(OvernightIndexObservation.of(USD_FED_FUND, DATE_2, REF_DATA), DATE_3, USD, AMOUNT_1));
   private static final PointSensitivities POINT_ON_4 =
-      PointSensitivities.of(OvernightRateSensitivity.of(EUR_EONIA, DATE_1, AMOUNT_1));
+      PointSensitivities.of(
+          OvernightRateSensitivity.of(OvernightIndexObservation.of(EUR_EONIA, DATE_1, REF_DATA), AMOUNT_1));
   private static final PointSensitivities[] POINTS = new PointSensitivities[] {
       POINT_ZERO_1, POINT_ZERO_2, POINT_ZERO_3, POINT_ZERO_4,
       POINT_IBOR_1, POINT_IBOR_2, POINT_IBOR_3, POINT_IBOR_4,
@@ -150,29 +164,30 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD_DOWN)
         .build();
-    LocalDate matuirtyDate = GBP_USD_WM.calculateMaturityFromFixing(VAL_DATE);
+    LocalDate matuirtyDate = GBP_USD_WM.calculateMaturityFromFixing(VAL_DATE, REF_DATA);
     double maturityTime = DAY_COUNT.relativeYearFraction(VAL_DATE, matuirtyDate);
     // GBP based
-    PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(GBP, VAL_DATE);
-    FxIndexSensitivity sensiBuildExpGBP = FxIndexSensitivity.of(GBP_USD_WM, GBP, VAL_DATE, USD, 1.0);
+    FxIndexObservation obs = FxIndexObservation.of(GBP_USD_WM, VAL_DATE, REF_DATA);
+    PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(obs, GBP);
+    FxIndexSensitivity sensiBuildExpGBP = FxIndexSensitivity.of(obs, GBP, USD, 1.0);
     assertTrue(sensiBuildCmpGBP.equals(sensiBuildExpGBP));
-    double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(GBP, VAL_DATE) -
-        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(GBP, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
-    double sense_usd1 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(GBP, VAL_DATE) -
-        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(GBP, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
+        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd1 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
+        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, matuirtyDate, USD, sense_gbp1);
     sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, matuirtyDate, USD, sense_usd1));
     CurveCurrencyParameterSensitivities paramSensiCmpGBP = test.curveParameterSensitivity(sensiBuildCmpGBP.build().normalized());
     CurveCurrencyParameterSensitivities paramSensiExpGBP = test.curveParameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertTrue(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD));
     // USD based
-    PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(USD, VAL_DATE);
-    FxIndexSensitivity sensiBuildExpUSD = FxIndexSensitivity.of(GBP_USD_WM, USD, VAL_DATE, GBP, 1.0);
+    PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(obs, USD);
+    FxIndexSensitivity sensiBuildExpUSD = FxIndexSensitivity.of(obs, USD, GBP, 1.0);
     assertTrue(sensiBuildCmpUSD.equals(sensiBuildExpUSD));
-    double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(USD, VAL_DATE) -
-        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(USD, VAL_DATE)) / EPS_FD * (-maturityTime * GBP_DSC);
-    double sense_usd2 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(USD, VAL_DATE) -
-        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(USD, VAL_DATE)) / EPS_FD * (-maturityTime * USD_DSC);
+    double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
+        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double sense_usd2 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
+        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, matuirtyDate, GBP, sense_gbp2);
     sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, matuirtyDate, GBP, sense_usd2));
     CurveCurrencyParameterSensitivities paramSensiCmpUSD = test.curveParameterSensitivity(sensiBuildCmpUSD.build().normalized());
@@ -199,11 +214,14 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
     double pointSensiValue = 2.5;
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
-    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(GB_RPI, refMonth, pointSensiValue);
+    InflationRateSensitivity pointSensi = InflationRateSensitivity.of(
+        PriceIndexObservation.of(GB_RPI, refMonth), pointSensiValue);
     CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
     DoubleArray sensiComputed = computed.getSensitivities().get(0).getSensitivity();
+
+    InflationRateSensitivity pointSensi1 = InflationRateSensitivity.of(PriceIndexObservation.of(GB_RPI, refMonth), 1);
     DoubleArray sensiExpectedUnit =
-        provider.priceIndexValues(GB_RPI).unitParameterSensitivity(refMonth).getSensitivities().get(0).getSensitivity();
+        provider.priceIndexValues(GB_RPI).curveParameterSensitivity(pointSensi1).getSensitivities().get(0).getSensitivity();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 

@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -30,7 +31,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -144,15 +145,16 @@ public class SwapCalculationFunction
   public Map<Measure, Result<?>> calculate(
       SwapTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
-    // expand the trade once for all measures and all scenarios
-    ExpandedSwap product = trade.getProduct().expand();
+    // resolve the trade once for all measures and all scenarios
+    ResolvedSwapTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, product, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -162,23 +164,21 @@ public class SwapCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      SwapTrade trade,
-      ExpandedSwap product,
+      ResolvedSwapTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, product, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        SwapTrade trade,
-        ExpandedSwap product,
+        ResolvedSwapTrade trade,
         CalculationMarketData marketData);
   }
 

@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import com.google.common.reflect.TypeToken;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.IdentifiableBean;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
@@ -35,12 +36,14 @@ import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
- * Test IborFutureOptionSecurityTrade.
+ * Test {@link IborFutureOptionTrade}.
  */
 @Test
 public class IborFutureOptionTradeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   private static final long QUANTITY = 35;
   private static final double INITIAL_PRICE = 0.015;
   private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future1");
@@ -89,12 +92,12 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder_resolvable() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+        .tradeInfo(TRADE_INFO)
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(QUANTITY)
         .initialPrice(INITIAL_PRICE)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), RESOLVABLE_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getInitialPrice(), OptionalDouble.of(INITIAL_PRICE));
@@ -103,11 +106,11 @@ public class IborFutureOptionTradeTest {
 
   public void test_builder_resolved() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+        .tradeInfo(TRADE_INFO)
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), PARTLY_RESOLVED_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getInitialPrice(), OptionalDouble.empty());
@@ -179,29 +182,46 @@ public class IborFutureOptionTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
+  public void test_resolve() {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-        .securityLink(PARTLY_RESOLVED_OPTION_LINK)
-        .quantity(QUANTITY)
+        .tradeInfo(TRADE_INFO)
+        .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .initialPrice(INITIAL_PRICE)
+        .quantity(QUANTITY)
         .build();
-    coverImmutableBean(test);
-    IborFutureOptionTrade test2 = IborFutureOptionTrade.builder()
-        .securityLink(RESOLVABLE_OPTION_LINK)
-        .quantity(100)
-        .build();
-    coverBeanEquals(test, test2);
+    ResolvedIborFutureOptionTrade resolved = test.resolve(REF_DATA);
+    assertEquals(resolved.getTradeInfo(), TRADE_INFO);
+    assertEquals(resolved.getProduct(), RESOLVED_OPTION.resolve(REF_DATA));
+    assertEquals(resolved.getSecurityStandardId(), OPTION_ID);
+    assertEquals(resolved.getQuantity(), QUANTITY);
+    assertEquals(resolved.getInitialPrice(), OptionalDouble.of(INITIAL_PRICE));
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    IborFutureOptionTrade test = IborFutureOptionTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static IborFutureOptionTrade sut() {
+    return IborFutureOptionTrade.builder()
+        .tradeInfo(TRADE_INFO)
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)
         .initialPrice(INITIAL_PRICE)
         .build();
-    assertSerialization(test);
+  }
+
+  IborFutureOptionTrade sut2() {
+    return IborFutureOptionTrade.builder()
+        .securityLink(RESOLVABLE_OPTION_LINK)
+        .quantity(100)
+        .build();
   }
 
 }

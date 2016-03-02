@@ -15,6 +15,8 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -118,7 +120,9 @@ public interface XCcyIborIborSwapConvention
    * @param notionalSpreadLeg  the notional amount for the spread leg
    * @param notionalFlatLeg  the notional amount for the flat leg
    * @param spread  the spread, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
   public default SwapTrade createTrade(
       LocalDate tradeDate,
@@ -126,9 +130,10 @@ public interface XCcyIborIborSwapConvention
       BuySell buySell,
       double notionalSpreadLeg,
       double notionalFlatLeg,
-      double spread) {
+      double spread,
+      ReferenceData refData) {
 
-    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
+    return createTrade(tradeDate, Period.ZERO, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread, refData);
   }
 
   /**
@@ -149,7 +154,9 @@ public interface XCcyIborIborSwapConvention
    * @param notionalSpreadLeg  the notional amount for the spread leg
    * @param notionalFlatLeg  the notional amount for the flat leg
    * @param spread  the spread, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
   public default SwapTrade createTrade(
       LocalDate tradeDate,
@@ -158,9 +165,10 @@ public interface XCcyIborIborSwapConvention
       BuySell buySell,
       double notionalSpreadLeg,
       double notionalFlatLeg,
-      double spread) {
+      double spread,
+      ReferenceData refData) {
 
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
+    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate startDate = spotValue.plus(periodToStart);
     LocalDate endDate = startDate.plus(tenor.getPeriod());
     return toTrade(tradeDate, startDate, endDate, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
@@ -198,10 +206,12 @@ public interface XCcyIborIborSwapConvention
    * Calculates the spot date from the trade date.
    * 
    * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
    * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return getSpotDateOffset().adjust(tradeDate, refData);
   }
 
   //-------------------------------------------------------------------------

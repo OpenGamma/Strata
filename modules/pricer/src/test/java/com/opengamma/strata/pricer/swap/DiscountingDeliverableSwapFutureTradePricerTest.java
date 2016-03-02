@@ -26,8 +26,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -43,17 +44,15 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 
@@ -62,6 +61,9 @@ import com.opengamma.strata.product.swap.SwapLeg;
  */
 @Test
 public class DiscountingDeliverableSwapFutureTradePricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // curves
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final LocalDate VAL_DATE = LocalDate.of(2013, 3, 28);
@@ -83,7 +85,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
       .build();
   // underlying swap
   private static final NotionalSchedule UNIT_NOTIONAL = NotionalSchedule.of(USD, 1d);
-  private static final HolidayCalendar CALENDAR = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CALENDAR);
   private static final LocalDate START = LocalDate.of(2013, 6, 19);
@@ -132,25 +134,22 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);
   private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
   private static final double NOTIONAL = 100000;
-  private static final DeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
+  private static final ResolvedDeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
       .underlyingSwap(SWAP)
-      .build();
-  private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity
-      .builder(FUTURE)
-      .standardId(DSF_ID)
-      .build();
-  private static final SecurityLink<DeliverableSwapFuture> DSF_SECURITY_LINK = SecurityLink.resolved(DSF_SECURITY);
+      .build()
+      .resolve(REF_DATA);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
+  private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
   private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
-  private static final DeliverableSwapFutureTrade FUTURE_TRADE = DeliverableSwapFutureTrade.builder()
-      .quantity(QUANTITY)
-      .securityLink(DSF_SECURITY_LINK)
+  private static final ResolvedDeliverableSwapFutureTrade FUTURE_TRADE = ResolvedDeliverableSwapFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
+      .product(FUTURE)
+      .securityStandardId(DSF_ID)
+      .quantity(QUANTITY)
       .tradePrice(TRADE_PRICE)
       .build();
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0;

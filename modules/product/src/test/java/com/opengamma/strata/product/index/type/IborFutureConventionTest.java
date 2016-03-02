@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -32,6 +33,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 @Test
 public class IborFutureConventionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1M = 1_000_000d;
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment
       .of(BusinessDayConventions.FOLLOWING, USD_LIBOR_3M.getEffectiveDateOffset().getCalendar());
@@ -73,7 +75,7 @@ public class IborFutureConventionTest {
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
     long quantity = 3;
     double price = 0.99;
-    IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price);
+    IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
     assertEquals(trade.getInitialPrice(), price);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
     assertEquals(trade.getQuantity(), quantity);

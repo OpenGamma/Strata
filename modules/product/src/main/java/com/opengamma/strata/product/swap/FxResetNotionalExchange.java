@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -85,27 +86,21 @@ public final class FxResetNotionalExchange
   @PropertyDefinition
   private final double notional;
   /**
-   * The FX index used to obtain the FX reset rate.
+   * The FX index observation.
    * <p>
-   * This is the index of FX used to obtain the FX reset rate.
+   * This defines the observation of the index used to obtain the FX reset rate.
+   * <p>
    * An FX index is a daily rate of exchange between two currencies.
    * Note that the order of the currencies in the index does not matter, as the
    * conversion direction is fully defined by the currency of the reference amount.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxIndex index;
-  /**
-   * The date of the FX reset fixing.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
+  private final FxIndexObservation observation;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
+    FxIndex index = observation.getIndex();
     if (!index.getCurrencyPair().contains(referenceCurrency)) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -124,6 +119,7 @@ public final class FxResetNotionalExchange
    */
   @Override
   public Currency getCurrency() {
+    FxIndex index = observation.getIndex();
     Currency indexBase = index.getCurrencyPair().getBase();
     Currency indexCounter = index.getCurrencyPair().getCounter();
     return (referenceCurrency.equals(indexBase) ? indexCounter : indexBase);
@@ -178,17 +174,14 @@ public final class FxResetNotionalExchange
       LocalDate paymentDate,
       Currency referenceCurrency,
       double notional,
-      FxIndex index,
-      LocalDate fixingDate) {
+      FxIndexObservation observation) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
+    JodaBeanUtils.notNull(observation, "observation");
     this.paymentDate = paymentDate;
     this.referenceCurrency = referenceCurrency;
     this.notional = notional;
-    this.index = index;
-    this.fixingDate = fixingDate;
+    this.observation = observation;
     validate();
   }
 
@@ -250,28 +243,17 @@ public final class FxResetNotionalExchange
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the FX index used to obtain the FX reset rate.
+   * Gets the FX index observation.
    * <p>
-   * This is the index of FX used to obtain the FX reset rate.
+   * This defines the observation of the index used to obtain the FX reset rate.
+   * <p>
    * An FX index is a daily rate of exchange between two currencies.
    * Note that the order of the currencies in the index does not matter, as the
    * conversion direction is fully defined by the currency of the reference amount.
    * @return the value of the property, not null
    */
-  public FxIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date of the FX reset fixing.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
+  public FxIndexObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -293,8 +275,7 @@ public final class FxResetNotionalExchange
       return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
           JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(fixingDate, other.fixingDate);
+          JodaBeanUtils.equal(observation, other.observation);
     }
     return false;
   }
@@ -305,20 +286,18 @@ public final class FxResetNotionalExchange
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FxResetNotionalExchange{");
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
     buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
     buf.append('}');
     return buf.toString();
   }
@@ -349,15 +328,10 @@ public final class FxResetNotionalExchange
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", FxResetNotionalExchange.class, Double.TYPE);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<FxIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FxResetNotionalExchange.class, FxIndex.class);
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", FxResetNotionalExchange.class, LocalDate.class);
+    private final MetaProperty<FxIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", FxResetNotionalExchange.class, FxIndexObservation.class);
     /**
      * The meta-properties.
      */
@@ -366,8 +340,7 @@ public final class FxResetNotionalExchange
         "paymentDate",
         "referenceCurrency",
         "notional",
-        "index",
-        "fixingDate");
+        "observation");
 
     /**
      * Restricted constructor.
@@ -384,10 +357,8 @@ public final class FxResetNotionalExchange
           return referenceCurrency;
         case 1585636160:  // notional
           return notional;
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -433,19 +404,11 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
+    public MetaProperty<FxIndexObservation> observation() {
+      return observation;
     }
 
     //-----------------------------------------------------------------------
@@ -458,10 +421,8 @@ public final class FxResetNotionalExchange
           return ((FxResetNotionalExchange) bean).getReferenceCurrency();
         case 1585636160:  // notional
           return ((FxResetNotionalExchange) bean).getNotional();
-        case 100346066:  // index
-          return ((FxResetNotionalExchange) bean).getIndex();
-        case 1255202043:  // fixingDate
-          return ((FxResetNotionalExchange) bean).getFixingDate();
+        case 122345516:  // observation
+          return ((FxResetNotionalExchange) bean).getObservation();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -486,8 +447,7 @@ public final class FxResetNotionalExchange
     private LocalDate paymentDate;
     private Currency referenceCurrency;
     private double notional;
-    private FxIndex index;
-    private LocalDate fixingDate;
+    private FxIndexObservation observation;
 
     /**
      * Restricted constructor.
@@ -503,8 +463,7 @@ public final class FxResetNotionalExchange
       this.paymentDate = beanToCopy.getPaymentDate();
       this.referenceCurrency = beanToCopy.getReferenceCurrency();
       this.notional = beanToCopy.getNotional();
-      this.index = beanToCopy.getIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
+      this.observation = beanToCopy.getObservation();
     }
 
     //-----------------------------------------------------------------------
@@ -517,10 +476,8 @@ public final class FxResetNotionalExchange
           return referenceCurrency;
         case 1585636160:  // notional
           return notional;
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -538,11 +495,8 @@ public final class FxResetNotionalExchange
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case 100346066:  // index
-          this.index = (FxIndex) newValue;
-          break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
+        case 122345516:  // observation
+          this.observation = (FxIndexObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -580,8 +534,7 @@ public final class FxResetNotionalExchange
           paymentDate,
           referenceCurrency,
           notional,
-          index,
-          fixingDate);
+          observation);
     }
 
     //-----------------------------------------------------------------------
@@ -631,45 +584,31 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the FX index used to obtain the FX reset rate.
+     * Sets the FX index observation.
      * <p>
-     * This is the index of FX used to obtain the FX reset rate.
+     * This defines the observation of the index used to obtain the FX reset rate.
+     * <p>
      * An FX index is a daily rate of exchange between two currencies.
      * Note that the order of the currencies in the index does not matter, as the
      * conversion direction is fully defined by the currency of the reference amount.
-     * @param index  the new value, not null
+     * @param observation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(FxIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the date of the FX reset fixing.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
+    public Builder observation(FxIndexObservation observation) {
+      JodaBeanUtils.notNull(observation, "observation");
+      this.observation = observation;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FxResetNotionalExchange.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate));
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
       buf.append('}');
       return buf.toString();
     }

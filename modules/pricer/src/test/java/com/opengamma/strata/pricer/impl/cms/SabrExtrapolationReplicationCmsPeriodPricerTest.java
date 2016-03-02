@@ -20,8 +20,10 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -45,10 +47,12 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.cms.CmsPeriod;
-import com.opengamma.strata.product.swap.ExpandedSwap;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Test {@link SabrExtrapolationReplicationCmsPeriodPricer}.
@@ -56,6 +60,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 @Test
 public class SabrExtrapolationReplicationCmsPeriodPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION = LocalDate.of(2010, 8, 18);
   private static final LocalDate FIXING = LocalDate.of(2020, 4, 24);
   private static final ZonedDateTime FIXING_TIME = 
@@ -669,6 +674,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .notional(notional)
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
   }
 
@@ -685,6 +691,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
         .caplet(strike)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
   }
 
@@ -701,7 +708,17 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .paymentDate(PAYMENT)
         .yearFraction(ACC_FACTOR)
         .floorlet(strike)
+        .underlyingSwap(createUnderlyingSwap(FIXING))
         .build();
+  }
+
+  // creates and resolves the underlying swap
+  private static ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
+    FixedIborSwapConvention conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
+    LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, REF_DATA);
+    LocalDate maturityDate = effectiveDate.plus(EUR_EURIBOR_1100_5Y.getTemplate().getTenor());
+    Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();
+    return swap.resolve(REF_DATA);
   }
 
   //-------------------------------------------------------------------------
@@ -713,7 +730,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   public void integrant_internal() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
-    ExpandedSwap expanded = CAPLET.getUnderlyingSwap().expand();
+    ResolvedSwap expanded = CAPLET.getUnderlyingSwap();
     double tenor = VOLATILITIES_SHIFT.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
     double theta = VOLATILITIES_SHIFT.relativeTime(
         CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
@@ -744,7 +761,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   public void test_presentValue_replication_cap() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
-    ExpandedSwap expanded = CAPLET.getUnderlyingSwap().expand();
+    ResolvedSwap expanded = CAPLET.getUnderlyingSwap();
     double tenor = VOLATILITIES.tenor(effectiveDate, CAPLET.getUnderlyingSwap().getEndDate());
     double theta = VOLATILITIES.relativeTime(
         CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
@@ -780,7 +797,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
 
     public CmsIntegrantProvider(
         CmsPeriod cmsPeriod,
-        ExpandedSwap swap,
+        ResolvedSwap swap,
         double strike,
         double tenor,
         double timeToExpiry,
@@ -790,7 +807,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         double cutOffStrike,
         double mu) {
 
-      ExpandedSwapLeg fixedLeg = swap.getLegs(SwapLegType.FIXED).get(0);
+      ResolvedSwapLeg fixedLeg = swap.getLegs(SwapLegType.FIXED).get(0);
       this.nbFixedPeriod = fixedLeg.getPaymentPeriods().size();
       this.eta = eta;
       SabrInterestRateParameters params = swaptionVolatilities.getParameters();

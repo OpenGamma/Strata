@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
@@ -150,17 +151,18 @@ public final class StubCalculation
    * 
    * @param fixingDate  the fixing date
    * @param defaultIndex  the default index to use if the stub has no rules
+   * @param refData  the reference data
    * @return the rate observation
    */
-  RateObservation createRateObservation(LocalDate fixingDate, IborIndex defaultIndex) {
+  RateObservation createRateObservation(LocalDate fixingDate, IborIndex defaultIndex, ReferenceData refData) {
     if (isInterpolated()) {
-      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
+      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate, refData);
     } else if (isFloatingRate()) {
-      return IborRateObservation.of(index, fixingDate);
+      return IborRateObservation.of(index, fixingDate, refData);
     } else if (isFixedRate()) {
       return FixedRateObservation.of(fixedRate);
     } else {
-      return IborRateObservation.of(defaultIndex, fixingDate);
+      return IborRateObservation.of(defaultIndex, fixingDate, refData);
     }
   }
 

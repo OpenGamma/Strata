@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.MissingDataAwareObservableFunction;
@@ -113,17 +114,19 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   @Override
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
+      MarketDataConfig marketDataConfig,
       CalculationEnvironment suppliedData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
-    return buildMarketData(requirements, suppliedData, marketDataConfig, ScenarioDefinition.empty());
+    return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
   }
 
   @Override
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
-      CalculationEnvironment suppliedData,
       MarketDataConfig marketDataConfig,
+      CalculationEnvironment suppliedData,
+      ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 
     MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder(suppliedData.getValuationDate());
@@ -201,7 +204,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableSet());
 
       Map<MarketDataId<?>, Result<MarketDataBox<?>>> nonObservableResults =
-          buildNonObservableData(nonObservableIds, marketDataConfig, marketData);
+          buildNonObservableData(nonObservableIds, marketDataConfig, marketData, refData);
 
       MapStream.of(nonObservableResults).forEach((id, result) -> addResult(id, result, scenarioDefinition, dataBuilder));
 
@@ -225,15 +228,17 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * Builds items of non-observable market data using a market data function.
    *
    * @param id  ID of the market data that should be built
-   * @param suppliedData  existing set of market data that contains any data required to build the values
    * @param marketDataConfig  configuration specifying how the market data should be built
+   * @param suppliedData  existing set of market data that contains any data required to build the values
+   * @param refData  the reference data, used to resolve trades
    * @return a result containing the market data or details of why it wasn't built
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
+      MarketDataConfig marketDataConfig,
       MarketEnvironment suppliedData,
-      MarketDataConfig marketDataConfig) {
+      ReferenceData refData) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
     // are mainly a useful guide for implementors as they constrain the method type signatures.
@@ -248,16 +253,18 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     if (marketDataFunction == null) {
       throw new IllegalStateException("No market data function available for market data ID of type " + idClass.getName());
     }
-    return Result.of(() -> marketDataFunction.build(id, suppliedData, marketDataConfig));
+    return Result.of(() -> marketDataFunction.build(id, marketDataConfig, suppliedData, refData));
   }
 
   @SuppressWarnings("unchecked")
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      MarketEnvironment marketData) {
+      MarketEnvironment marketData,
+      ReferenceData refData) {
 
-    return ids.stream().collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketData, marketDataConfig)));
+    return ids.stream()
+        .collect(toImmutableMap(id -> id, id -> buildNonObservableData(id, marketDataConfig, marketData, refData)));
   }
 
   /**

@@ -14,7 +14,8 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendars;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test.
@@ -22,7 +23,8 @@ import com.opengamma.strata.basics.date.HolidayCalendars;
 @Test
 public class CdsJapanTest extends IsdaBaseTest {
 
-  private static final HolidayCalendar TYO_CAL = HolidayCalendars.JPTO;
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final HolidayCalendar TYO_CAL = HolidayCalendarIds.JPTO.resolve(REF_DATA);
   private static final MarketQuoteConverter CONVERTER = new MarketQuoteConverter();
   private static final CdsAnalyticFactory FACTORY = new CdsAnalyticFactory(0.35).with(TYO_CAL);
   private static final FiniteDifferenceSpreadSensitivityCalculator CS01_CAL = new FiniteDifferenceSpreadSensitivityCalculator();

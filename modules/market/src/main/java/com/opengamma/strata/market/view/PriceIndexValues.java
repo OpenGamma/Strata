@@ -5,14 +5,12 @@
  */
 package com.opengamma.strata.market.view;
 
-import java.time.YearMonth;
-
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -71,38 +69,26 @@ public interface PriceIndexValues
    * or the estimated rate if the fixing month is after the valuation month.
    * If the month equals the valuation month, then the best available value is returned.
    * 
-   * @param fixingMonth  the fixing month to query the rate for
+   * @param observation  the rate observation, including the fixing month
    * @return the value of the index, either historic or forward
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double value(YearMonth fixingMonth);
+  public abstract double value(PriceIndexObservation observation);
 
   /**
    * Calculates the point sensitivity of the historic or forward value at the specified fixing month.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward value.
    * If a time-series was used, then there is no sensitivity.
-   * The sensitivity refers to the result of {@link #value(YearMonth)}.
+   * The sensitivity refers to the result of {@link #value(PriceIndexObservation)}.
    * 
-   * @param month  the month to find the sensitivity for
+   * @param observation  the rate observation, including the fixing month
    * @return the point sensitivity of the value
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder valuePointSensitivity(YearMonth month);
+  public abstract PointSensitivityBuilder valuePointSensitivity(PriceIndexObservation observation);
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the unit parameter sensitivity of the forward value at the specified fixing month.
-   * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #value(YearMonth)}.
-   * 
-   * @param month  the month to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(YearMonth month);
-
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>

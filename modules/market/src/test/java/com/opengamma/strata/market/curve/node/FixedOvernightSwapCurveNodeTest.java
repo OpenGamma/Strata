@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -43,6 +44,7 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 @Test
 public class FixedOvernightSwapCurveNodeTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final FixedOvernightSwapTemplate TEMPLATE =
       FixedOvernightSwapTemplate.of(TENOR_10Y, FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS);
@@ -102,8 +104,8 @@ public class FixedOvernightSwapCurveNodeTest {
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
     MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_KEY, rate).build();
-    SwapTrade trade = node.trade(tradeDate, marketData);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD);
+    SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
@@ -113,7 +115,7 @@ public class FixedOvernightSwapCurveNodeTest {
     double rate = 0.035;
     QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
     MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(key, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData));
+    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -130,7 +132,7 @@ public class FixedOvernightSwapCurveNodeTest {
   public void test_metadata_end() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    CurveParameterMetadata metadata = node.metadata(valuationDate);
+    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
     assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
     assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
@@ -141,7 +143,7 @@ public class FixedOvernightSwapCurveNodeTest {
     FixedOvernightSwapCurveNode node =
         FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate);
+    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -149,7 +151,7 @@ public class FixedOvernightSwapCurveNodeTest {
   public void test_metadata_last_fixing() {
     FixedOvernightSwapCurveNode node =
         FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
-    assertThrowsWithCause(() -> node.metadata(VAL_DATE), UnsupportedOperationException.class);
+    assertThrowsWithCause(() -> node.metadata(VAL_DATE, REF_DATA), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

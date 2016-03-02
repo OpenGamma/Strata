@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -30,6 +31,8 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 
 public class TestCalculator implements Calculator {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private TestCalculator() {
   }
@@ -82,7 +85,7 @@ public class TestCalculator implements Calculator {
     ImmutableList<Trade> trades = ImmutableList.of(tradeSource.apply());
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService());
-    return runner.calculateSingleScenario(rules, trades, columns, marketSnapshot);
+    return runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, REF_DATA);
   }
 
   public static Calculator of() {

@@ -15,9 +15,9 @@ import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionCashParYieldProductPricer;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPricer;
-import com.opengamma.strata.product.swaption.ExpandedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.SettlementType;
-import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Multi-scenario measure calculations for Swap trades.
@@ -43,11 +43,11 @@ final class SwaptionMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      SwaptionTrade trade,
-      ExpandedSwaption product,
+      ResolvedSwaptionTrade trade,
       CalculationMarketData marketData,
       SwaptionVolatilitiesKey volKey) {
 
+    ResolvedSwaption product = trade.getProduct();
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
         i -> calculatePresentValue(product, marketData.scenario(i), volKey));
@@ -55,7 +55,7 @@ final class SwaptionMeasureCalculations {
 
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
-      ExpandedSwaption product,
+      ResolvedSwaption product,
       MarketData marketData,
       SwaptionVolatilitiesKey volKey) {
 

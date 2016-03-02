@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.basics.schedule;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
@@ -32,7 +30,6 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 
 /**
  * Test {@link Schedule}.
@@ -421,8 +418,8 @@ public class ScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.toAdjusted(BusinessDayAdjustment.NONE), test);
-    assertEquals(test.toAdjusted(BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)), Schedule.builder()
+    assertEquals(test.toAdjusted(date -> date), test);
+    assertEquals(test.toAdjusted(date -> date.equals(JUN_15) ? JUN_16 : date), Schedule.builder()
         .periods(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17), period2)
         .frequency(P3M)
         .rollConvention(DAY_17)

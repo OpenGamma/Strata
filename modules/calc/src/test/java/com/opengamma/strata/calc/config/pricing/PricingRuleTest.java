@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -138,7 +139,8 @@ public class PricingRuleTest {
     public Map<Measure, Result<?>> calculate(
         TestTrade1 target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("foo");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
@@ -168,7 +170,8 @@ public class PricingRuleTest {
     public Map<Measure, Result<?>> calculate(
         TestTrade1 target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("foo");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));

@@ -18,7 +18,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -54,6 +53,10 @@ import com.opengamma.strata.product.rate.IborRateObservation;
  * <p>
  * If start date and end date of the period, and payment date are not specified, a standard caplet/floorlet is created 
  * based on the data and convention in {@code rateObservation},  i.e., the Ibor is fixed in advance and paid in arrears.
+ * <p>
+ * An {@code IborCapletFloorletPeriod} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition
 public final class IborCapletFloorletPeriod
@@ -160,45 +163,18 @@ public final class IborCapletFloorletPeriod
       if (builder.currency == null) {
         builder.currency = index.getCurrency();
       }
-      if (builder.startDate == null) {
-        builder.startDate = index.calculateEffectiveFromFixing(builder.rateObservation.getFixingDate());
-      }
-      if (builder.endDate == null) {
-        builder.endDate = index.calculateMaturityFromEffective(builder.startDate);
-        builder.yearFraction = index.getDayCount().relativeYearFraction(builder.startDate, builder.endDate);
-      }
-      if (builder.paymentDate == null) {
-        builder.paymentDate = builder.endDate;
-      }
     }
-  }
-
-  @ImmutableConstructor
-  private IborCapletFloorletPeriod(
-      Currency currency,
-      double notional,
-      LocalDate startDate,
-      LocalDate endDate,
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      double yearFraction,
-      LocalDate paymentDate,
-      Double caplet,
-      Double floorlet,
-      IborRateObservation rateObservation) {
-    this.rateObservation = ArgChecker.notNull(rateObservation, "rateObservation");
-    this.currency = currency;
-    this.notional = notional;
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.unadjustedStartDate = firstNonNull(unadjustedStartDate, startDate);
-    this.unadjustedEndDate = firstNonNull(unadjustedEndDate, endDate);
-    this.yearFraction = yearFraction;
-    this.paymentDate = paymentDate;
-    this.caplet = caplet;
-    this.floorlet = floorlet;
-    ArgChecker.isTrue(this.getCaplet().isPresent() != this.getFloorlet().isPresent(),
-        "one of caplet and floorlet should be empty");
+    if (builder.paymentDate == null) {
+      builder.paymentDate = builder.endDate;
+    }
+    if (builder.unadjustedStartDate == null) {
+      builder.unadjustedStartDate = builder.startDate;
+    }
+    if (builder.unadjustedEndDate == null) {
+      builder.unadjustedEndDate = builder.endDate;
+    }
+    ArgChecker.isFalse(builder.caplet != null && builder.floorlet != null, "Only caplet or floorlet must be set, not both");
+    ArgChecker.isFalse(builder.caplet == null && builder.floorlet == null, "Either caplet or floorlet must be set");
   }
 
   //-------------------------------------------------------------------------
@@ -274,6 +250,39 @@ public final class IborCapletFloorletPeriod
    */
   public static IborCapletFloorletPeriod.Builder builder() {
     return new IborCapletFloorletPeriod.Builder();
+  }
+
+  private IborCapletFloorletPeriod(
+      Currency currency,
+      double notional,
+      LocalDate startDate,
+      LocalDate endDate,
+      LocalDate unadjustedStartDate,
+      LocalDate unadjustedEndDate,
+      double yearFraction,
+      LocalDate paymentDate,
+      Double caplet,
+      Double floorlet,
+      IborRateObservation rateObservation) {
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
+    JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
+    JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
+    JodaBeanUtils.notNull(paymentDate, "paymentDate");
+    JodaBeanUtils.notNull(rateObservation, "rateObservation");
+    this.currency = currency;
+    this.notional = notional;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.unadjustedStartDate = unadjustedStartDate;
+    this.unadjustedEndDate = unadjustedEndDate;
+    this.yearFraction = yearFraction;
+    this.paymentDate = paymentDate;
+    this.caplet = caplet;
+    this.floorlet = floorlet;
+    this.rateObservation = rateObservation;
   }
 
   @Override

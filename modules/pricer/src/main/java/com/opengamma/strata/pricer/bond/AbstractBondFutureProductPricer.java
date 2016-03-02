@@ -6,13 +6,13 @@
 package com.opengamma.strata.pricer.bond;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.product.bond.BondFuture;
-import com.opengamma.strata.product.bond.BondFutureTrade;
+import com.opengamma.strata.product.bond.ResolvedBondFuture;
+import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
 
 /**
  * Base pricer for bond futures.
  * <p>
- * This function provides common code used when pricing an {@link BondFutureTrade}.
+ * This function provides common code used when pricing an {@link ResolvedBondFutureTrade}.
  */
 public abstract class AbstractBondFutureProductPricer {
 
@@ -33,7 +33,7 @@ public abstract class AbstractBondFutureProductPricer {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  protected double marginIndex(BondFuture future, double price) {
+  protected double marginIndex(ResolvedBondFuture future, double price) {
     return price * future.getNotional();
   }
 
@@ -48,7 +48,7 @@ public abstract class AbstractBondFutureProductPricer {
    * @param priceSensitivity  the price sensitivity of the product
    * @return the index sensitivity
    */
-  protected PointSensitivities marginIndexSensitivity(BondFuture future, PointSensitivities priceSensitivity) {
+  protected PointSensitivities marginIndexSensitivity(ResolvedBondFuture future, PointSensitivities priceSensitivity) {
     return priceSensitivity.multipliedBy(future.getNotional());
   }
 

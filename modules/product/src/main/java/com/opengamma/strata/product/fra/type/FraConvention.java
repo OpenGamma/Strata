@@ -14,6 +14,8 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -113,21 +115,18 @@ public interface FraConvention
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default FraTrade createTrade(
+  public abstract FraTrade createTrade(
       LocalDate tradeDate,
       Period periodToStart,
       Period periodToEnd,
       BuySell buySell,
       double notional,
-      double fixedRate) {
-
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate);
-    LocalDate startDate = spotValue.plus(periodToStart);
-    LocalDate endDate = spotValue.plus(periodToEnd);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
-  }
+      double fixedRate,
+      ReferenceData refData);
 
   /**
    * Creates a trade based on this convention.
@@ -140,6 +139,7 @@ public interface FraConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
+   * @param paymentDate  the payment date
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount, in the payment currency of the template
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -149,6 +149,7 @@ public interface FraConvention
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
+      LocalDate paymentDate,
       BuySell buySell,
       double notional,
       double fixedRate);
@@ -158,10 +159,12 @@ public interface FraConvention
    * Calculates the spot date from the trade date.
    * 
    * @param tradeDate  the trade date
+   * @param refData  the reference data, used to resolve the date
    * @return the spot date
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate) {
-    return getSpotDateOffset().adjust(tradeDate);
+  public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return getSpotDateOffset().adjust(tradeDate, refData);
   }
 
   //-------------------------------------------------------------------------

@@ -36,7 +36,7 @@ public class HolidayCalendarIniLookupTest {
     assertTrue(test.isHoliday(date(2015, 12, 25)));
     assertTrue(test.isHoliday(date(2016, 1, 1)));
     assertEquals(test.getName(), "TEST-VALID");
-    assertEquals(test.toString(), "TEST-VALID");
+    assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
   }
 
   public void test_valid2() {
@@ -50,7 +50,7 @@ public class HolidayCalendarIniLookupTest {
     assertTrue(test.isHoliday(date(2015, 12, 25)));
     assertTrue(test.isHoliday(date(2016, 1, 1)));
     assertEquals(test.getName(), "TEST-VALID");
-    assertEquals(test.toString(), "TEST-VALID");
+    assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
   }
 
   public void test_valid1equals2() {

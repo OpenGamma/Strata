@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link FxNdf}.
@@ -28,11 +29,13 @@ import com.opengamma.strata.basics.currency.FxRate;
 @Test
 public class FxNdfTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final double NOTIONAL = 100_000_000;
   private static final CurrencyAmount CURRENCY_NOTIONAL = CurrencyAmount.of(GBP, NOTIONAL);
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2015, 3, 19);
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
     FxNdf test = FxNdf.builder()
         .agreedFxRate(FX_RATE)
@@ -83,48 +86,46 @@ public class FxNdfTest {
         .build());
   }
 
-  public void test_expand() {
-    FxNdf base = FxNdf.builder()
-        .agreedFxRate(FX_RATE)
-        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(GBP_USD_WM)
-        .paymentDate(PAYMENT_DATE)
-        .build();
-    ExpandedFxNdf expanded = base.expand();
-    assertEquals(expanded.getAgreedFxRate(), FX_RATE);
-    assertEquals(expanded.getIndex(), GBP_USD_WM);
-    assertEquals(expanded.getNonDeliverableCurrency(), USD);
-    assertEquals(expanded.getPaymentDate(), PAYMENT_DATE);
-    assertEquals(expanded.getSettlementCurrency(), GBP);
-    assertEquals(expanded.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
-    assertEquals(expanded.getSettlementNotional(), NOTIONAL);
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    FxNdf base = sut();
+    ResolvedFxNdf resolved = base.resolve(REF_DATA);
+    assertEquals(resolved.getAgreedFxRate(), FX_RATE);
+    assertEquals(resolved.getIndex(), GBP_USD_WM);
+    assertEquals(resolved.getNonDeliverableCurrency(), USD);
+    assertEquals(resolved.getPaymentDate(), PAYMENT_DATE);
+    assertEquals(resolved.getSettlementCurrency(), GBP);
+    assertEquals(resolved.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
+    assertEquals(resolved.getSettlementNotional(), NOTIONAL);
   }
 
+  //-------------------------------------------------------------------------
   public void coverage() {
-    FxNdf test1 = FxNdf.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static FxNdf sut() {
+    return FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
         .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
-    coverImmutableBean(test1);
-    FxNdf test2 = FxNdf.builder()
+  }
+
+  FxNdf sut2() {
+    return FxNdf.builder()
         .agreedFxRate(FX_RATE)
         .settlementCurrencyNotional(CurrencyAmount.of(USD, -NOTIONAL))
         .index(GBP_USD_WM)
         .paymentDate(PAYMENT_DATE)
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    FxNdf test = FxNdf.builder()
-        .agreedFxRate(FX_RATE)
-        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(GBP_USD_WM)
-        .paymentDate(PAYMENT_DATE)
-        .build();
-    assertSerialization(test);
   }
 
 }

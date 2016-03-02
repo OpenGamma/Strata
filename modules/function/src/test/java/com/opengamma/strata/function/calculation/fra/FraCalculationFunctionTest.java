@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -47,6 +48,7 @@ import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.fra.FraDummyData;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
 
 /**
  * Test {@link FraCalculationFunction}.
@@ -55,6 +57,8 @@ import com.opengamma.strata.product.fra.FraTrade;
 public class FraCalculationFunctionTest {
 
   public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
@@ -92,15 +96,16 @@ public class FraCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
-    double expectedParRate = pricer.parRate(TRADE.getProduct(), provider);
-    double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(TRADE.getProduct(), provider);
-    CashFlows expectedCashFlows = pricer.cashFlows(TRADE.getProduct(), provider);
+    ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    double expectedParRate = pricer.parRate(resolved, provider);
+    double expectedParSpread = pricer.parSpread(resolved, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE, Measures.PAR_RATE, Measures.PAR_SPREAD, Measures.EXPLAIN_PRESENT_VALUE, Measures.CASH_FLOWS);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -120,13 +125,14 @@ public class FraCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
+    ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(

@@ -12,11 +12,12 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
-import com.opengamma.strata.product.index.IborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
 
 /**
  * Test {@link DiscountingIborFutureTradePricer}.
@@ -24,8 +25,9 @@ import com.opengamma.strata.product.index.IborFuture;
 @Test
 public class DiscountingIborFutureProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final DiscountingIborFutureProductPricer PRICER = DiscountingIborFutureProductPricer.DEFAULT;
-  private static final IborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE;
+  private static final ResolvedIborFuture FUTURE = IborFutureDummyData.IBOR_FUTURE.resolve(REF_DATA);
 
   private static final double RATE = 0.045;
   private static final double TOLERANCE_PRICE = 1.0e-9;
@@ -36,7 +38,7 @@ public class DiscountingIborFutureProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(FUTURE.getFixingDate())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
 
     assertEquals(PRICER.price(FUTURE, prov), 1.0 - RATE, TOLERANCE_PRICE);
   }
@@ -48,7 +50,7 @@ public class DiscountingIborFutureProductPricerTest {
     prov.setIborRates(mockIbor);
 
     PointSensitivities sensiExpected =
-        PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIndex(), FUTURE.getFixingDate(), -1.0d));
+        PointSensitivities.of(IborRateSensitivity.of(FUTURE.getObservation(), -1d));
     PointSensitivities sensiComputed = PRICER.priceSensitivity(FUTURE, prov);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }

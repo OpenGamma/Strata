@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -27,6 +28,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
 /**
  * Perform calculations on a single {@code IborFutureTrade} for each of a set of scenarios.
@@ -99,12 +101,16 @@ public class IborFutureCalculationFunction
   public Map<Measure, Result<?>> calculate(
       IborFutureTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
+
+    // resolve the trade once for all measures and all scenarios
+    ResolvedIborFutureTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -114,7 +120,7 @@ public class IborFutureCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -128,7 +134,7 @@ public class IborFutureCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        IborFutureTrade trade,
+        ResolvedIborFutureTrade trade,
         CalculationMarketData marketData);
   }
 

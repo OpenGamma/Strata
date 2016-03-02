@@ -10,8 +10,8 @@ import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
-import com.opengamma.strata.product.bond.BondFuture;
-import com.opengamma.strata.product.bond.BondFutureOption;
+import com.opengamma.strata.product.bond.ResolvedBondFuture;
+import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
@@ -34,7 +34,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
   /**
    * Creates an instance.
    * 
-   * @param futurePricer  the pricer for {@link BondFutureOption}
+   * @param futurePricer  the pricer for {@link ResolvedBondFutureOption}
    */
   public BlackBondFutureOptionMarginedProductPricer(
       DiscountingBondFutureProductPricer futurePricer) {
@@ -59,13 +59,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the price of the product, in decimal form
    */
   public double price(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -79,24 +79,24 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * The price of the option is the price on the valuation date.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the price of the underlying future
    * @return the price of the product, in decimal form
    */
   public double price(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingLink().getStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    BondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(
         futureOption.getExpiry(), future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -107,7 +107,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
   @Override
   double price(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider volatilityProvider) {
 
@@ -125,13 +125,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -145,24 +145,24 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * The delta of the product is the sensitivity of the option price to the future price.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingLink().getStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    BondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -180,13 +180,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the price curve sensitivity of the product
    */
   public double gammaStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -200,24 +200,24 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * The gamma of the product is the sensitivity of the option delta to the future price.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double gammaStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingLink().getStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    BondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -234,13 +234,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the price curve sensitivity of the product
    */
   public double theta(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -254,24 +254,24 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * The theta of the product is minus of the option price sensitivity to the time to expiry.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public double theta(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingLink().getStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    BondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -288,13 +288,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivityStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -310,14 +310,14 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * The price sensitivity of the product is the sensitivity of the price to the underlying curves.
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name. 
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the price of the underlying future
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivityStickyStrike(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
@@ -330,7 +330,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
   @Override
   PointSensitivities priceSensitivity(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BondFutureProvider volatilityProvider) {
 
@@ -346,13 +346,13 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * <p>
    * This calculates the underlying future price using the future pricer.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @return the sensitivity
    */
   public BondFutureOptionSensitivity priceSensitivityBlackVolatility(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider) {
 
@@ -364,37 +364,37 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
    * Calculates the price sensitivity to the Black volatility used for the pricing of the bond future option
    * based on the price of the underlying future.
    * 
-   * @param futureOption  the option product to price
+   * @param futureOption  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the provider of Black volatility
    * @param futurePrice  the underlying future price
    * @return the sensitivity
    */
   public BondFutureOptionSensitivity priceSensitivityBlackVolatility(
-      BondFutureOption futureOption,
+      ResolvedBondFutureOption futureOption,
       LegalEntityDiscountingProvider ratesProvider,
       BlackVolatilityBondFutureProvider volatilityProvider,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingLink().getStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    BondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlying();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
     double vega = BlackFormulaRepository.vega(futurePrice, strike, timeToExpiry, volatility);
-    return BondFutureOptionSensitivity.of(futureOption.getUnderlyingLink().getStandardId(),
+    return BondFutureOptionSensitivity.of(futureOption.getUnderlyingSecurityStandardId(),
         futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice, future.getCurrency(), vega);
   }
 
   //-------------------------------------------------------------------------
   // calculate the price of the underlying future
-  private double futurePrice(BondFutureOption futureOption, LegalEntityDiscountingProvider ratesProvider) {
-    BondFuture future = futureOption.getUnderlying();
+  private double futurePrice(ResolvedBondFutureOption futureOption, LegalEntityDiscountingProvider ratesProvider) {
+    ResolvedBondFuture future = futureOption.getUnderlying();
     return futurePricer.price(future, ratesProvider);
   }
 

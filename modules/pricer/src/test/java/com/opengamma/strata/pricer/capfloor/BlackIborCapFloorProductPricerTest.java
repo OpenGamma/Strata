@@ -27,9 +27,9 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
-import com.opengamma.strata.product.capfloor.IborCapFloor;
-import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
  * Test {@link BlackIborCapFloorProductPricer}.
@@ -43,12 +43,12 @@ public class BlackIborCapFloorProductPricerTest {
   private static final LocalDate END = LocalDate.of(2020, 10, 21);
   private static final double STRIKE_VALUE = 0.0105;
   private static final ValueSchedule STRIKE = ValueSchedule.of(STRIKE_VALUE);
-  private static final IborCapFloorLeg CAP_LEG =
+  private static final ResolvedIborCapFloorLeg CAP_LEG =
       IborCapFloorDataSet.createCapFloorLeg(EUR_EURIBOR_3M, START, END, STRIKE, NOTIONAL, CALL, RECEIVE);
-  private static final SwapLeg PAY_LEG =
+  private static final ResolvedSwapLeg PAY_LEG =
       IborCapFloorDataSet.createFixedPayLeg(EUR_EURIBOR_3M, START, END, 0.0015, NOTIONAL_VALUE, PAY);
-  private static final IborCapFloor CAP_TWO_LEGS = IborCapFloor.of(CAP_LEG, PAY_LEG);
-  private static final IborCapFloor CAP_ONE_LEG = IborCapFloor.of(CAP_LEG);
+  private static final ResolvedIborCapFloor CAP_TWO_LEGS = ResolvedIborCapFloor.of(CAP_LEG, PAY_LEG);
+  private static final ResolvedIborCapFloor CAP_ONE_LEG = ResolvedIborCapFloor.of(CAP_LEG);
 
   // valuation before start
   private static final ZonedDateTime VALUATION = dateUtc(2015, 8, 20);
@@ -77,7 +77,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValue() {
     MultiCurrencyAmount computed1 = PRICER.presentValue(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValue(CAP_TWO_LEGS, RATES, VOLS);
-    CurrencyAmount cap = PRICER_CAP_LEG.presentValue(CAP_LEG.expand(), RATES, VOLS);
+    CurrencyAmount cap = PRICER_CAP_LEG.presentValue(CAP_LEG, RATES, VOLS);
     CurrencyAmount pay = PRICER_PAY_LEG.presentValue(PAY_LEG, RATES);
     assertEquals(computed1, MultiCurrencyAmount.of(cap));
     assertEquals(computed2, MultiCurrencyAmount.of(cap.plus(pay)));
@@ -86,7 +86,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValueDelta() {
     MultiCurrencyAmount computed1 = PRICER.presentValueDelta(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueDelta(CAP_TWO_LEGS, RATES, VOLS);
-    CurrencyAmount cap = PRICER_CAP_LEG.presentValueDelta(CAP_LEG.expand(), RATES, VOLS);
+    CurrencyAmount cap = PRICER_CAP_LEG.presentValueDelta(CAP_LEG, RATES, VOLS);
     assertEquals(computed1, MultiCurrencyAmount.of(cap));
     assertEquals(computed2, MultiCurrencyAmount.of(cap));
   }
@@ -94,7 +94,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValueGamma() {
     MultiCurrencyAmount computed1 = PRICER.presentValueGamma(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueGamma(CAP_TWO_LEGS, RATES, VOLS);
-    CurrencyAmount cap = PRICER_CAP_LEG.presentValueGamma(CAP_LEG.expand(), RATES, VOLS);
+    CurrencyAmount cap = PRICER_CAP_LEG.presentValueGamma(CAP_LEG, RATES, VOLS);
     assertEquals(computed1, MultiCurrencyAmount.of(cap));
     assertEquals(computed2, MultiCurrencyAmount.of(cap));
   }
@@ -102,7 +102,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValueTheta() {
     MultiCurrencyAmount computed1 = PRICER.presentValueTheta(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueTheta(CAP_TWO_LEGS, RATES, VOLS);
-    CurrencyAmount cap = PRICER_CAP_LEG.presentValueTheta(CAP_LEG.expand(), RATES, VOLS);
+    CurrencyAmount cap = PRICER_CAP_LEG.presentValueTheta(CAP_LEG, RATES, VOLS);
     assertEquals(computed1, MultiCurrencyAmount.of(cap));
     assertEquals(computed2, MultiCurrencyAmount.of(cap));
   }
@@ -110,7 +110,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivity(CAP_LEG.expand(), RATES, VOLS);
+    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivity(CAP_LEG, RATES, VOLS);
     PointSensitivityBuilder pay = PRICER_PAY_LEG.presentValueSensitivity(PAY_LEG, RATES);
     assertEquals(computed1, cap);
     assertEquals(computed2, cap.combinedWith(pay));
@@ -119,7 +119,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_presentValueSensitivityVolatility() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityVolatility(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityVolatility(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityVolatility(CAP_LEG.expand(), RATES, VOLS);
+    PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityVolatility(CAP_LEG, RATES, VOLS);
     assertEquals(computed1, cap);
     assertEquals(computed2, cap);
   }
@@ -147,7 +147,7 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_currentCash_onPay() {
     MultiCurrencyAmount cc1 = PRICER.currentCash(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount cc2 = PRICER.currentCash(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
-    CurrencyAmount ccCap = PRICER_CAP_LEG.currentCash(CAP_LEG.expand(), RATES_PAY, VOLS_PAY);
+    CurrencyAmount ccCap = PRICER_CAP_LEG.currentCash(CAP_LEG, RATES_PAY, VOLS_PAY);
     CurrencyAmount ccPay = PRICER_PAY_LEG.currentCash(PAY_LEG, RATES_PAY);
     assertEquals(cc1, MultiCurrencyAmount.of(ccCap));
     assertEquals(cc2, MultiCurrencyAmount.of(ccCap).plus(ccPay));

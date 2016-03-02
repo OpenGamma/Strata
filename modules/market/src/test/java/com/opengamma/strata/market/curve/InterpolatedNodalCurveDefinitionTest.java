@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -35,9 +36,10 @@ import com.opengamma.strata.market.key.QuoteKey;
 @Test
 public class InterpolatedNodalCurveDefinitionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 9, 9);
-  private static final LocalDate DATE1 = GBLO.nextOrSame(VAL_DATE.plusMonths(2));
-  private static final LocalDate DATE2 = GBLO.nextOrSame(VAL_DATE.plusMonths(4));
+  private static final LocalDate DATE1 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(2));
+  private static final LocalDate DATE2 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(4));
   private static final CurveName CURVE_NAME = CurveName.of("Test");
   private static final ImmutableList<DummyFraCurveNode> NODES = ImmutableList.of(
       DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))),
@@ -82,9 +84,9 @@ public class InterpolatedNodalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
-        .parameterMetadata(NODES.get(0).metadata(VAL_DATE), NODES.get(1).metadata(VAL_DATE))
+        .parameterMetadata(NODES.get(0).metadata(VAL_DATE, REF_DATA), NODES.get(1).metadata(VAL_DATE, REF_DATA))
         .build();
-    assertEquals(test.metadata(VAL_DATE), expected);
+    assertEquals(test.metadata(VAL_DATE, REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +106,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
-        .parameterMetadata(NODES.get(0).metadata(VAL_DATE), NODES.get(1).metadata(VAL_DATE))
+        .parameterMetadata(NODES.get(0).metadata(VAL_DATE, REF_DATA), NODES.get(1).metadata(VAL_DATE, REF_DATA))
         .build();
     InterpolatedNodalCurve expected = InterpolatedNodalCurve.builder()
         .metadata(metadata)

@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -95,9 +96,13 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   @Override
-  public Results calculateSingleScenario(CalculationTasks tasks, CalculationEnvironment marketData) {
+  public Results calculateSingleScenario(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      ReferenceData refData) {
+
     // perform the calculations
-    Results results = calculateMultipleScenarios(tasks, marketData);
+    Results results = calculateMultipleScenarios(tasks, marketData, refData);
 
     // unwrap the results
     // since there is only one scenario it is not desirable to return scenario result containers
@@ -138,9 +143,13 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   }
 
   @Override
-  public Results calculateMultipleScenarios(CalculationTasks tasks, CalculationEnvironment marketData) {
+  public Results calculateMultipleScenarios(
+      CalculationTasks tasks,
+      CalculationEnvironment marketData,
+      ReferenceData refData) {
+
     Listener listener = new Listener(tasks.getColumns());
-    calculateMultipleScenariosAsync(tasks, marketData, listener);
+    calculateMultipleScenariosAsync(tasks, marketData, refData, listener);
     return listener.result();
   }
 
@@ -148,28 +157,35 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   public void calculateSingleScenarioAsync(
       CalculationTasks tasks,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener) {
 
     // the listener is decorated to unwrap ScenarioResults containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
-    calculateMultipleScenariosAsync(tasks, marketData, unwrappingListener);
+    calculateMultipleScenariosAsync(tasks, marketData, refData, unwrappingListener);
   }
 
   @Override
   public void calculateMultipleScenariosAsync(
       CalculationTasks tasks,
       CalculationEnvironment marketData,
+      ReferenceData refData,
       CalculationListener listener) {
 
     List<CalculationTask> taskList = tasks.getTasks();
     Consumer<CalculationResult> consumer = consumerFactory.create(listener, taskList.size());
-    taskList.stream().forEach(task -> runTask(task, marketData, consumer));
+    taskList.stream().forEach(task -> runTask(task, marketData, refData, consumer));
   }
 
   // submits a task to the executor to be run
-  private void runTask(CalculationTask task, CalculationEnvironment marketData, Consumer<CalculationResult> consumer) {
+  private void runTask(
+      CalculationTask task,
+      CalculationEnvironment marketData,
+      ReferenceData refData,
+      Consumer<CalculationResult> consumer) {
+
     // the result of the task is passed to consumer.accept()
-    CompletableFuture.supplyAsync(() -> task.execute(marketData), executor).thenAccept(consumer::accept);
+    CompletableFuture.supplyAsync(() -> task.execute(marketData, refData), executor).thenAccept(consumer::accept);
   }
 
   //-------------------------------------------------------------------------

@@ -8,6 +8,7 @@ package com.opengamma.strata.market.view;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.OvernightIndex;
+import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.Perturbation;
@@ -120,11 +121,11 @@ public interface OvernightIndexRates
    * If the fixing date equals the valuation date, then the best available rate is returned.
    * The reference period for the underlying deposit is computed from the index conventions.
    * 
-   * @param fixingDate  the fixing date to query the rate for
+   * @param observation  the rate observation, including the fixing date
    * @return the rate of the index, either historic or forward
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double rate(LocalDate fixingDate);
+  public abstract double rate(OvernightIndexObservation observation);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
@@ -132,13 +133,13 @@ public interface OvernightIndexRates
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
    * If a time-series was used, then there is no sensitivity.
    * Otherwise, the sensitivity has the value 1.
-   * The sensitivity refers to the result of {@link #rate(LocalDate)}.
+   * The sensitivity refers to the result of {@link #rate(OvernightIndexObservation)}.
    * 
-   * @param fixingDate  the fixing date to find the sensitivity for
+   * @param observation  the rate observation, including the fixing date
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder ratePointSensitivity(LocalDate fixingDate);
+  public abstract PointSensitivityBuilder ratePointSensitivity(OvernightIndexObservation observation);
 
   //-------------------------------------------------------------------------
   /**
@@ -151,25 +152,27 @@ public interface OvernightIndexRates
    * overnight rate. When data related to the overnight index rate are stored based on the fixing date and not
    * the start and end date of the period, the call may return an {@code IllegalArgumentException}.
    * 
-   * @param startDate  the start or effective date of the period on which the rate is computed
+   * @param startDateObservation  the rate observation for the start of the period
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double periodRate(LocalDate startDate, LocalDate endDate);
+  public abstract double periodRate(OvernightIndexObservation startDateObservation, LocalDate endDate);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing period.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
-   * The sensitivity refers to the result of {@link #periodRate(LocalDate, LocalDate)}.
+   * The sensitivity refers to the result of {@link #periodRate(OvernightIndexObservation, LocalDate)}.
    * 
-   * @param startDate  the start or effective date of the period on which the rate is computed
+   * @param startDateObservation  the rate observation for the start of the period
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the point sensitivity of the rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract PointSensitivityBuilder periodRatePointSensitivity(LocalDate startDate, LocalDate endDate);
+  public abstract PointSensitivityBuilder periodRatePointSensitivity(
+      OvernightIndexObservation startDateObservation,
+      LocalDate endDate);
 
   //-------------------------------------------------------------------------
   /**

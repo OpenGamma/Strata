@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -50,6 +51,7 @@ import com.opengamma.strata.product.fra.type.FraTemplate;
 @Test
 public class CurveInputsMarketDataFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
 
   /**
@@ -168,7 +170,7 @@ public class CurveInputsMarketDataFunctionTest {
 
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curveDefn.getName(), MarketDataFeed.NONE);
-    MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketData, marketDataConfig);
+    MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketDataConfig, marketData, REF_DATA);
 
     CurveInputs curveInputs = result.getSingleValue();
     assertThat(curveInputs.getMarketData().get(idA.toMarketDataKey())).isEqualTo(1d);
@@ -176,9 +178,9 @@ public class CurveInputsMarketDataFunctionTest {
     assertThat(curveInputs.getMarketData().get(idC.toMarketDataKey())).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
-        node1x4.metadata(VAL_DATE),
-        node2x5.metadata(VAL_DATE),
-        node3x6.metadata(VAL_DATE));
+        node1x4.metadata(VAL_DATE, REF_DATA),
+        node2x5.metadata(VAL_DATE, REF_DATA),
+        node3x6.metadata(VAL_DATE, REF_DATA));
     assertThat(curveInputs.getCurveMetadata().getParameterMetadata()).hasValue(expectedMetadata);
   }
 
@@ -191,7 +193,7 @@ public class CurveInputsMarketDataFunctionTest {
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     MarketEnvironment emptyData = MarketEnvironment.empty();
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, MarketDataConfig.empty()),
+        () -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No configuration found of type .*");
   }
@@ -208,7 +210,7 @@ public class CurveInputsMarketDataFunctionTest {
     MarketEnvironment emptyData = MarketEnvironment.empty();
 
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, marketDataConfig),
+        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No curve named .*");}
 
@@ -243,7 +245,7 @@ public class CurveInputsMarketDataFunctionTest {
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), MarketDataFeed.NONE);
 
     assertThrows(
-        () -> marketDataFunction.build(curveInputsId, emptyData, marketDataConfig),
+        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
         IllegalArgumentException.class,
         "No market data available for .*");
   }

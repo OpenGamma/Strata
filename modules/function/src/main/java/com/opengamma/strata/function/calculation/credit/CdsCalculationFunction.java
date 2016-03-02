@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -30,9 +31,9 @@ import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
 import com.opengamma.strata.market.key.IsdaYieldCurveInputsKey;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.credit.ExpandedCds;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.ReferenceInformation;
+import com.opengamma.strata.product.credit.ResolvedCdsTrade;
 import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
 
 /**
@@ -145,15 +146,16 @@ public class CdsCalculationFunction
   public Map<Measure, Result<?>> calculate(
       CdsTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
-    // expand the trade once for all measures and all scenarios
-    ExpandedCds product = trade.getProduct().expand();
+    // resolve the trade once for all measures and all scenarios
+    ResolvedCdsTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, product, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -163,23 +165,21 @@ public class CdsCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      CdsTrade trade,
-      ExpandedCds product,
+      ResolvedCdsTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, product, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        CdsTrade trade,
-        ExpandedCds product,
+        ResolvedCdsTrade trade,
         CalculationMarketData marketData);
   }
 

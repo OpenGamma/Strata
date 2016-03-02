@@ -31,7 +31,11 @@ import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -116,32 +120,16 @@ public final class KnownAmountSwapLeg
     return SwapLegType.FIXED;
   }
 
-  /**
-   * Gets the accrual start date of the leg.
-   * <p>
-   * This is the first accrual date in the leg, often known as the effective date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the start date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getStartDate() {
-    return accrualSchedule.getAdjustedStartDate();
+  public AdjustableDate getStartDate() {
+    return accrualSchedule.calculatedStartDate();
   }
 
-  /**
-   * Gets the accrual end date of the leg.
-   * <p>
-   * This is the last accrual date in the leg, often known as the termination date.
-   * This date has typically been adjusted to be a valid business day.
-   * 
-   * @return the end date of the period
-   */
   @Override
   @DerivedProperty
-  public LocalDate getEndDate() {
-    return accrualSchedule.getAdjustedEndDate();
+  public AdjustableDate getEndDate() {
+    return accrualSchedule.calculatedEndDate();
   }
 
   @Override
@@ -150,20 +138,22 @@ public final class KnownAmountSwapLeg
   }
 
   /**
-   * Converts this swap leg to the equivalent {@code ExpandedSwapLeg}.
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
-   * An {@link ExpandedSwapLeg} represents the same data as this leg, but with
+   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
    * a complete schedule of dates defined using {@link KnownAmountPaymentPeriod}.
    * 
-   * @return the equivalent expanded swap leg
-   * @throws RuntimeException if unable to expand due to an invalid swap schedule or definition
+   * @param refData  the reference data to use when resolving
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
    */
   @Override
-  public ExpandedSwapLeg expand() {
-    Schedule resolvedAccruals = accrualSchedule.createSchedule();
-    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
-    List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments);
-    return ExpandedSwapLeg.builder()
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
+    List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
+    return ResolvedSwapLeg.builder()
         .type(getType())
         .payReceive(payReceive)
         .paymentPeriods(payPeriods)
@@ -171,15 +161,17 @@ public final class KnownAmountSwapLeg
   }
 
   // create the payment period
-  private List<PaymentPeriod> createPaymentPeriods(Schedule resolvedPayments) {
+  private List<PaymentPeriod> createPaymentPeriods(Schedule resolvedPayments, ReferenceData refData) {
     // resolve amount schedule against payment schedule
     List<Double> amounts = amount.resolveValues(resolvedPayments.getPeriods());
+    // resolve against reference data once
+    DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().resolve(refData);
     // build up payment periods using schedule
     ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
     for (int index = 0; index < resolvedPayments.size(); index++) {
       SchedulePeriod paymentPeriod = resolvedPayments.getPeriod(index);
-      LocalDate paymentDate = paymentSchedule.getPaymentDateOffset().adjust(
-          paymentSchedule.getPaymentRelativeTo().selectBaseDate(paymentPeriod));
+      LocalDate baseDate = paymentSchedule.getPaymentRelativeTo().selectBaseDate(paymentPeriod);
+      LocalDate paymentDate = paymentDateAdjuster.adjust(baseDate);
       double amount = payReceive.normalize(amounts.get(index));
       Payment payment = Payment.of(CurrencyAmount.of(currency, amount), paymentDate);
       paymentPeriods.add(KnownAmountPaymentPeriod.of(payment, paymentPeriod));
@@ -416,13 +408,13 @@ public final class KnownAmountSwapLeg
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", KnownAmountSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
+        this, "startDate", KnownAmountSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", KnownAmountSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
+        this, "endDate", KnownAmountSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-properties.
      */
@@ -534,7 +526,7 @@ public final class KnownAmountSwapLeg
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -542,7 +534,7 @@ public final class KnownAmountSwapLeg
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 

@@ -13,12 +13,14 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
 /**
  * Pricer for for Ibor future trades.
  * <p>
- * This function provides the ability to price a {@link IborFutureTrade} based on Hull-White one-factor model with 
- * piecewise constant volatility.  
+ * This function provides the ability to price a {@link IborFutureTrade} based on
+ * Hull-White one-factor model with piecewise constant volatility.  
  * <p> 
  * Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
@@ -64,10 +66,11 @@ public class HullWhiteIborFutureTradePricer
    * @return the price of the trade, in decimal form
    */
   public double price(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
-    return productPricer.price(trade.getSecurity().getProduct(), ratesProvider, hwProvider);
+
+    return productPricer.price(trade.getProduct(), ratesProvider, hwProvider);
   }
 
   /**
@@ -83,10 +86,11 @@ public class HullWhiteIborFutureTradePricer
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
       double lastMarginPrice) {
+
     double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastMarginPrice);
     double price = price(trade, ratesProvider, hwProvider);
     return presentValue(trade, price, referencePrice);
@@ -104,10 +108,11 @@ public class HullWhiteIborFutureTradePricer
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
-    IborFuture product = trade.getSecurity().getProduct();
+
+    ResolvedIborFuture product = trade.getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, ratesProvider, hwProvider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
@@ -122,10 +127,11 @@ public class HullWhiteIborFutureTradePricer
    * @return the present value parameter sensitivity of the trade
    */
   public DoubleArray presentValueSensitivityHullWhiteParameter(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
-    IborFuture product = trade.getSecurity().getProduct();
+
+    ResolvedIborFuture product = trade.getProduct();
     DoubleArray hwSensi = productPricer.priceSensitivityHullWhiteParameter(product, ratesProvider, hwProvider);
     hwSensi = hwSensi.multipliedBy(product.getNotional() * product.getAccrualFactor() * trade.getQuantity());
     return hwSensi;
@@ -146,10 +152,11 @@ public class HullWhiteIborFutureTradePricer
    * @return the par spread.
    */
   public double parSpread(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
       double lastMarginPrice) {
+
     double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastMarginPrice);
     return price(trade, ratesProvider, hwProvider) - referencePrice;
   }
@@ -166,10 +173,10 @@ public class HullWhiteIborFutureTradePricer
    * @return the par spread curve sensitivity of the trade
    */
   public PointSensitivities parSpreadSensitivity(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
-    return productPricer.priceSensitivity(trade.getSecurity().getProduct(), ratesProvider, hwProvider);
+    return productPricer.priceSensitivity(trade.getProduct(), ratesProvider, hwProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +193,7 @@ public class HullWhiteIborFutureTradePricer
   * @return the currency exposure of the trade
   */
   public MultiCurrencyAmount currencyExposure(
-      IborFutureTrade trade,
+      ResolvedIborFutureTrade trade,
       RatesProvider provider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider,
       double lastMarginPrice) {

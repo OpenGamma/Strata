@@ -28,13 +28,17 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.Product;
 
 /**
  * A fixed coupon bond.
@@ -54,7 +58,7 @@ import com.opengamma.strata.collect.id.StandardId;
  */
 @BeanDefinition
 public final class FixedCouponBond
-    implements FixedCouponBondProduct, ImmutableBean, Serializable {
+    implements Product, Resolvable<ResolvedFixedCouponBond>, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the product.
@@ -152,20 +156,21 @@ public final class FixedCouponBond
 
   //-------------------------------------------------------------------------
   @Override
-  public ExpandedFixedCouponBond expand() {
-    Schedule adjustedSchedule = periodicSchedule.createSchedule();
+  public ResolvedFixedCouponBond resolve(ReferenceData refData) {
+    Schedule adjustedSchedule = periodicSchedule.createSchedule(refData);
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
+    DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
+
     ImmutableList.Builder<FixedCouponBondPaymentPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      SchedulePeriod unadjustedPeriod = SchedulePeriod.of(period.getUnadjustedStartDate(),
-          period.getUnadjustedEndDate());
+      SchedulePeriod unadjustedPeriod = unadjustedSchedule.getPeriod(i);
       accrualPeriods.add(FixedCouponBondPaymentPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())
           .unadjustedEndDate(period.getUnadjustedEndDate())
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .detachmentDate(exCouponPeriod.adjust(period.getEndDate()))
+          .detachmentDate(exCouponPeriodAdjuster.adjust(period.getEndDate()))
           .notional(notional)
           .currency(currency)
           .fixedRate(fixedRate)
@@ -175,10 +180,13 @@ public final class FixedCouponBond
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = accrualPeriods.build();
     FixedCouponBondPaymentPeriod lastPeriod = periodicPayments.get(periodicPayments.size() - 1);
     Payment nominalPayment = Payment.of(CurrencyAmount.of(currency, notional), lastPeriod.getPaymentDate());
-    return ExpandedFixedCouponBond.builder()
+    return ResolvedFixedCouponBond.builder()
         .legalEntityId(legalEntityId)
         .nominalPayment(nominalPayment)
         .periodicPayments(ImmutableList.copyOf(periodicPayments))
+        .frequency(periodicSchedule.getFrequency())
+        .rollConvention(periodicSchedule.calculatedRollConvention())
+        .fixedRate(fixedRate)
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
         .settlementDateOffset(settlementDateOffset)

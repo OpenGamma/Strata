@@ -8,22 +8,21 @@ package com.opengamma.strata.pricer.calibration;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
-import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.index.IborFutureTrade;
-import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.calibration.CalibrationMeasure;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
+import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
  * Provides market quote measures for a single type of trade based on functions.
@@ -32,56 +31,58 @@ import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
  * 
  * @param <T> the trade type
  */
-public class MarketQuoteMeasure<T extends Trade>
+public class MarketQuoteMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
 
   /**
-   * The measure for {@link FraTrade} using par rate discounting.
+   * The measure for {@link ResolvedFraTrade} using par rate discounting.
    */
-  public static final MarketQuoteMeasure<FraTrade> FRA_MQ =
+  public static final MarketQuoteMeasure<ResolvedFraTrade> FRA_MQ =
       MarketQuoteMeasure.of(
           "FraParRateDiscounting",
-          FraTrade.class,
+          ResolvedFraTrade.class,
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRate(trade.getProduct(), p),
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
 
   /**
-   * The measure for {@link IborFutureTrade} using price discounting.
+   * The measure for {@link ResolvedIborFutureTrade} using price discounting.
    */
-  public static final MarketQuoteMeasure<IborFutureTrade> IBOR_FUTURE_MQ =
+  public static final MarketQuoteMeasure<ResolvedIborFutureTrade> IBOR_FUTURE_MQ =
       MarketQuoteMeasure.of(
           "IborFuturePriceDiscounting",
-          IborFutureTrade.class,
+          ResolvedIborFutureTrade.class,
           (trade, p) -> DiscountingIborFutureProductPricer.DEFAULT.price(trade.getProduct(), p),
           (trade, p) -> DiscountingIborFutureProductPricer.DEFAULT.priceSensitivity(trade.getProduct(), p));
 
   /**
-   * The measure for {@link SwapTrade} using par rate discounting. Apply only to swap with a fixed leg.
+   * The measure for {@link ResolvedSwapTrade} using par rate discounting. Apply only to swap with a fixed leg.
    */
-  public static final MarketQuoteMeasure<SwapTrade> SWAP_MQ =
+  public static final MarketQuoteMeasure<ResolvedSwapTrade> SWAP_MQ =
       MarketQuoteMeasure.of( // Market quote
           "SwapParRateDiscounting",
-          SwapTrade.class,
+          ResolvedSwapTrade.class,
           (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p).build());
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRateSensitivity(
+              trade.getProduct(), p).build());
 
   /**
-   * The measure for {@link IborFixingDepositTrade} using par rate discounting.
+   * The measure for {@link ResolvedIborFixingDepositTrade} using par rate discounting.
    */
-  public static final MarketQuoteMeasure<IborFixingDepositTrade> IBOR_FIXING_DEPOSIT_MQ =
+  public static final MarketQuoteMeasure<ResolvedIborFixingDepositTrade> IBOR_FIXING_DEPOSIT_MQ =
       MarketQuoteMeasure.of(
           "IborFixingDepositParRateDiscounting",
-          IborFixingDepositTrade.class,
+          ResolvedIborFixingDepositTrade.class,
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
+          (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.parRateSensitivity(
+              trade.getProduct(), p));
 
   /**
-   * The measure for {@link TermDepositTrade} using par rate discounting.
+   * The measure for {@link ResolvedTermDepositTrade} using par rate discounting.
    */
-  public static final MarketQuoteMeasure<TermDepositTrade> TERM_DEPOSIT_MQ =
+  public static final MarketQuoteMeasure<ResolvedTermDepositTrade> TERM_DEPOSIT_MQ =
       MarketQuoteMeasure.of(
           "TermDepositParRateDiscounting",
-          TermDepositTrade.class,
+          ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRate(trade.getProduct(), p),
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.parRateSensitivity(trade.getProduct(), p));
 
@@ -116,7 +117,7 @@ public class MarketQuoteMeasure<T extends Trade>
    * @param sensitivityFn  the function for calculating the sensitivity
    * @return the calibrator
    */
-  public static <R extends Trade> MarketQuoteMeasure<R> of(
+  public static <R extends ResolvedTrade> MarketQuoteMeasure<R> of(
       String name,
       Class<R> tradeType,
       ToDoubleBiFunction<R, RatesProvider> valueFn,

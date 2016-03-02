@@ -217,7 +217,6 @@ public final class Tenor
    * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor of(Period period) {
-    ArgChecker.notNull(period, "period");
     int days = period.getDays();
     long months = period.toTotalMonths();
     if (months == 0 && days != 0) {
@@ -290,7 +289,6 @@ public final class Tenor
    */
   @FromString
   public static Tenor parse(String toParse) {
-    ArgChecker.notNull(toParse, "toParse");
     String prefixed = toParse.startsWith("P") ? toParse : "P" + toParse;
     try {
       return Tenor.of(Period.parse(prefixed));

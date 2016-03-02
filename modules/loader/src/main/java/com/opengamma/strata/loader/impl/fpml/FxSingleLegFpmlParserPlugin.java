@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.collect.io.XmlElement;
@@ -137,7 +137,7 @@ final class FxSingleLegFpmlParserPlugin
     String primarySource = primarySourceEl.getChild("rateSource").getContent();
     String primaryPage = primarySourceEl.findChild("rateSourcePage").map(e -> e.getContent()).orElse("");
     LocalTime time = document.parseTime(sourceEl.getChild("fixingTime").getChild("hourMinuteTime"));  // required for our model
-    HolidayCalendar calendar = document.parseBusinessCenter(sourceEl.getChild("fixingTime").getChild("businessCenter"));
+    HolidayCalendarId calendar = document.parseBusinessCenter(sourceEl.getChild("fixingTime").getChild("businessCenter"));
     FxIndex index = ImmutableFxIndex.builder()
         .name(primarySource + "/" + primaryPage + "/" + time)
         .currencyPair(CurrencyPair.of(curr1, curr2))

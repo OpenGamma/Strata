@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -30,6 +31,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * Sets of market data used in FX tests.
  */
 public class RatesProviderFxDataSets {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /** Wednesday. */
   public static final LocalDate VAL_DATE_2014_01_22 = RatesProviderDataSets.VAL_DATE_2014_01_22;
@@ -112,7 +115,7 @@ public class RatesProviderFxDataSets {
         .fxRateProvider(FX_MATRIX)
         .timeSeries(
             fxIndex,
-            LocalDateDoubleTimeSeries.of(fxIndex.calculateFixingFromMaturity(valuationDate), spotRate))
+            LocalDateDoubleTimeSeries.of(fxIndex.calculateFixingFromMaturity(valuationDate, REF_DATA), spotRate))
         .build();
   }
 

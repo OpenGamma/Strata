@@ -35,7 +35,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 
 /**
@@ -44,8 +46,8 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 @BeanDefinition
 public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
-  public static final SwapLeg MOCK_GBP1 = new MockSwapLeg(FIXED, PAY, date(2012, 1, 15), date(2012, 8, 15), GBP);
-  public static final ExpandedSwapLeg MOCK_EXPANDED_GBP1 = ExpandedSwapLeg.builder()
+  public static final SwapLeg MOCK_GBP1 = MockSwapLeg.of(FIXED, PAY, date(2012, 1, 15), date(2012, 8, 15), GBP);
+  public static final ResolvedSwapLeg MOCK_EXPANDED_GBP1 = ResolvedSwapLeg.builder()
       .type(FIXED)
       .payReceive(PAY)
       .paymentPeriods(RatePaymentPeriod.builder()
@@ -60,9 +62,9 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           .currency(GBP)
           .build())
       .build();
-  public static final SwapLeg MOCK_GBP2 = new MockSwapLeg(FIXED, PAY, date(2012, 1, 15), date(2012, 6, 15), GBP);
-  public static final SwapLeg MOCK_USD1 = new MockSwapLeg(IBOR, RECEIVE, date(2012, 1, 15), date(2012, 8, 15), USD);
-  public static final ExpandedSwapLeg MOCK_EXPANDED_USD1 = ExpandedSwapLeg.builder()
+  public static final SwapLeg MOCK_GBP2 = MockSwapLeg.of(FIXED, PAY, date(2012, 1, 15), date(2012, 6, 15), GBP);
+  public static final SwapLeg MOCK_USD1 = MockSwapLeg.of(IBOR, RECEIVE, date(2012, 1, 15), date(2012, 8, 15), USD);
+  public static final ResolvedSwapLeg MOCK_EXPANDED_USD1 = ResolvedSwapLeg.builder()
       .type(IBOR)
       .payReceive(RECEIVE)
       .paymentPeriods(RatePaymentPeriod.builder()
@@ -83,9 +85,9 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   @PropertyDefinition(overrideGet = true)
   private final PayReceive payReceive;
   @PropertyDefinition(overrideGet = true)
-  private final LocalDate startDate;
+  private final AdjustableDate startDate;
   @PropertyDefinition(overrideGet = true)
-  private final LocalDate endDate;
+  private final AdjustableDate endDate;
   @PropertyDefinition(overrideGet = true)
   private final Currency currency;
 
@@ -95,7 +97,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
       LocalDate startDate,
       LocalDate endDate,
       Currency currency) {
-    return new MockSwapLeg(type, payReceive, startDate, endDate, currency);
+    return new MockSwapLeg(type, payReceive, AdjustableDate.of(startDate), AdjustableDate.of(endDate), currency);
   }
 
   @Override
@@ -103,7 +105,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   }
 
   @Override
-  public ExpandedSwapLeg expand() {
+  public ResolvedSwapLeg resolve(ReferenceData refData) {
     if (this == MOCK_GBP1) {
       return MOCK_EXPANDED_GBP1;
     }
@@ -143,8 +145,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   private MockSwapLeg(
       SwapLegType type,
       PayReceive payReceive,
-      LocalDate startDate,
-      LocalDate endDate,
+      AdjustableDate startDate,
+      AdjustableDate endDate,
       Currency currency) {
     this.type = type;
     this.payReceive = payReceive;
@@ -194,7 +196,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
    * @return the value of the property
    */
   @Override
-  public LocalDate getStartDate() {
+  public AdjustableDate getStartDate() {
     return startDate;
   }
 
@@ -204,7 +206,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
    * @return the value of the property
    */
   @Override
-  public LocalDate getEndDate() {
+  public AdjustableDate getEndDate() {
     return endDate;
   }
 
@@ -290,13 +292,13 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", MockSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", MockSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", MockSwapLeg.class, LocalDate.class);
+    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", MockSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -372,7 +374,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> startDate() {
+    public MetaProperty<AdjustableDate> startDate() {
       return startDate;
     }
 
@@ -380,7 +382,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endDate() {
+    public MetaProperty<AdjustableDate> endDate() {
       return endDate;
     }
 
@@ -429,8 +431,8 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
 
     private SwapLegType type;
     private PayReceive payReceive;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private AdjustableDate startDate;
+    private AdjustableDate endDate;
     private Currency currency;
 
     /**
@@ -480,10 +482,10 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           this.payReceive = (PayReceive) newValue;
           break;
         case -2129778896:  // startDate
-          this.startDate = (LocalDate) newValue;
+          this.startDate = (AdjustableDate) newValue;
           break;
         case -1607727319:  // endDate
-          this.endDate = (LocalDate) newValue;
+          this.endDate = (AdjustableDate) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -554,7 +556,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      * @param startDate  the new value
      * @return this, for chaining, not null
      */
-    public Builder startDate(LocalDate startDate) {
+    public Builder startDate(AdjustableDate startDate) {
       this.startDate = startDate;
       return this;
     }
@@ -564,7 +566,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
      * @param endDate  the new value
      * @return this, for chaining, not null
      */
-    public Builder endDate(LocalDate endDate) {
+    public Builder endDate(AdjustableDate endDate) {
       this.endDate = endDate;
       return this;
     }

@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -39,13 +38,10 @@ public final class IborAveragedFixing
     implements ImmutableBean, Serializable {
 
   /**
-   * The fixing date to use to determine a rate for the reset period.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
+   * The Ibor index observation to use to determine a rate for the reset period.
    */
   @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
+  private final IborRateObservation observation;
   /**
    * The fixed rate for the fixing date, optional.
    * A 5% rate will be expressed as 0.05.
@@ -71,23 +67,23 @@ public final class IborAveragedFixing
   /**
    * Creates a {@code IborAveragedFixing} from the fixing date with a weight of 1.
    * 
-   * @param fixingDate  the fixing date
-   * @return the fixing information
+   * @param observation  the Ibor observation
+   * @return the unweighted fixing information
    */
-  public static IborAveragedFixing of(LocalDate fixingDate) {
-    return of(fixingDate, null);
+  public static IborAveragedFixing of(IborRateObservation observation) {
+    return of(observation, null);
   }
 
   /**
    * Creates a {@code IborAveragedFixing} from the fixing date with a weight of 1.
    * 
-   * @param fixingDate  the fixing date
+   * @param observation  the Ibor observation
    * @param fixedRate  the fixed rate for the fixing date, optional, may be null
-   * @return the fixing information
+   * @return the unweighted fixing information
    */
-  public static IborAveragedFixing of(LocalDate fixingDate, Double fixedRate) {
+  public static IborAveragedFixing of(IborRateObservation observation, Double fixedRate) {
     return IborAveragedFixing.builder()
-        .fixingDate(fixingDate)
+        .observation(observation)
         .fixedRate(fixedRate)
         .build();
   }
@@ -99,16 +95,16 @@ public final class IborAveragedFixing
    * This implements the standard approach to average weights, which is to set each
    * weight to the actual number of days between the start and end of the reset period.
    * 
-   * @param fixingDate  the fixing date
+   * @param observation  the Ibor observation
    * @param startDate  the start date of the reset period
    * @param endDate  the end date of the reset period
-   * @return the fixing information
+   * @return the weighted fixing information
    */
   public static IborAveragedFixing ofDaysInResetPeriod(
-      LocalDate fixingDate,
+      IborRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    return ofDaysInResetPeriod(fixingDate, startDate, endDate, null);
+    return ofDaysInResetPeriod(observation, startDate, endDate, null);
   }
 
   /**
@@ -118,22 +114,22 @@ public final class IborAveragedFixing
    * This implements the standard approach to average weights, which is to set each
    * weight to the actual number of days between the start and end of the reset period.
    * 
-   * @param fixingDate  the fixing date
+   * @param observation  the Ibor observation
    * @param startDate  the start date of the reset period
    * @param endDate  the end date of the reset period
    * @param fixedRate  the fixed rate for the fixing date, optional, may be null
-   * @return the fixing information
+   * @return the weighted fixing information
    */
   public static IborAveragedFixing ofDaysInResetPeriod(
-      LocalDate fixingDate,
+      IborRateObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       Double fixedRate) {
-    ArgChecker.notNull(fixingDate, "fixingDate");
+    ArgChecker.notNull(observation, "observation");
     ArgChecker.notNull(startDate, "startDate");
     ArgChecker.notNull(endDate, "endDate");
     return IborAveragedFixing.builder()
-        .fixingDate(fixingDate)
+        .observation(observation)
         .fixedRate(fixedRate)
         .weight(endDate.toEpochDay() - startDate.toEpochDay())
         .build();
@@ -173,11 +169,11 @@ public final class IborAveragedFixing
   }
 
   private IborAveragedFixing(
-      LocalDate fixingDate,
+      IborRateObservation observation,
       Double fixedRate,
       double weight) {
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
-    this.fixingDate = fixingDate;
+    JodaBeanUtils.notNull(observation, "observation");
+    this.observation = observation;
     this.fixedRate = fixedRate;
     this.weight = weight;
   }
@@ -199,14 +195,11 @@ public final class IborAveragedFixing
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date to use to determine a rate for the reset period.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
+   * Gets the Ibor index observation to use to determine a rate for the reset period.
    * @return the value of the property, not null
    */
-  public LocalDate getFixingDate() {
-    return fixingDate;
+  public IborRateObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -253,7 +246,7 @@ public final class IborAveragedFixing
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborAveragedFixing other = (IborAveragedFixing) obj;
-      return JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
+      return JodaBeanUtils.equal(observation, other.observation) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(weight, other.weight);
     }
@@ -263,7 +256,7 @@ public final class IborAveragedFixing
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(weight);
     return hash;
@@ -273,7 +266,7 @@ public final class IborAveragedFixing
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborAveragedFixing{");
-    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
+    buf.append("observation").append('=').append(observation).append(',').append(' ');
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
     buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
     buf.append('}');
@@ -291,10 +284,10 @@ public final class IborAveragedFixing
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code fixingDate} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", IborAveragedFixing.class, LocalDate.class);
+    private final MetaProperty<IborRateObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", IborAveragedFixing.class, IborRateObservation.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -310,7 +303,7 @@ public final class IborAveragedFixing
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "fixingDate",
+        "observation",
         "fixedRate",
         "weight");
 
@@ -323,8 +316,8 @@ public final class IborAveragedFixing
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
         case 747425396:  // fixedRate
           return fixedRate;
         case -791592328:  // weight
@@ -350,11 +343,11 @@ public final class IborAveragedFixing
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code fixingDate} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
+    public MetaProperty<IborRateObservation> observation() {
+      return observation;
     }
 
     /**
@@ -377,8 +370,8 @@ public final class IborAveragedFixing
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1255202043:  // fixingDate
-          return ((IborAveragedFixing) bean).getFixingDate();
+        case 122345516:  // observation
+          return ((IborAveragedFixing) bean).getObservation();
         case 747425396:  // fixedRate
           return ((IborAveragedFixing) bean).fixedRate;
         case -791592328:  // weight
@@ -404,7 +397,7 @@ public final class IborAveragedFixing
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborAveragedFixing> {
 
-    private LocalDate fixingDate;
+    private IborRateObservation observation;
     private Double fixedRate;
     private double weight;
 
@@ -420,7 +413,7 @@ public final class IborAveragedFixing
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IborAveragedFixing beanToCopy) {
-      this.fixingDate = beanToCopy.getFixingDate();
+      this.observation = beanToCopy.getObservation();
       this.fixedRate = beanToCopy.fixedRate;
       this.weight = beanToCopy.getWeight();
     }
@@ -429,8 +422,8 @@ public final class IborAveragedFixing
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 122345516:  // observation
+          return observation;
         case 747425396:  // fixedRate
           return fixedRate;
         case -791592328:  // weight
@@ -443,8 +436,8 @@ public final class IborAveragedFixing
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
+        case 122345516:  // observation
+          this.observation = (IborRateObservation) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -485,23 +478,20 @@ public final class IborAveragedFixing
     @Override
     public IborAveragedFixing build() {
       return new IborAveragedFixing(
-          fixingDate,
+          observation,
           fixedRate,
           weight);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the fixing date to use to determine a rate for the reset period.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
+     * Sets the Ibor index observation to use to determine a rate for the reset period.
+     * @param observation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
+    public Builder observation(IborRateObservation observation) {
+      JodaBeanUtils.notNull(observation, "observation");
+      this.observation = observation;
       return this;
     }
 
@@ -540,7 +530,7 @@ public final class IborAveragedFixing
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("IborAveragedFixing.Builder{");
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
       buf.append('}');

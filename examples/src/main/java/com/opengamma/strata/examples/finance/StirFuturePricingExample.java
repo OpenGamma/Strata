@@ -12,6 +12,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -52,8 +53,11 @@ public class StirFuturePricingExample {
 
   // obtains the data and calculates the grid of results
   private static void calculate(CalculationRunner runner) {
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // the trades that will have measures calculated
-    List<Trade> trades = ImmutableList.of(createTrade1(), createTrade2());
+    List<Trade> trades = ImmutableList.of(createTrade1(refData), createTrade2(refData));
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
@@ -76,7 +80,7 @@ public class StirFuturePricingExample {
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
-    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(
@@ -92,9 +96,9 @@ public class StirFuturePricingExample {
 
   //-----------------------------------------------------------------------  
   // create a trade
-  private static Trade createTrade1() {
+  private static Trade createTrade1(ReferenceData refData) {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998);
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
@@ -109,9 +113,9 @@ public class StirFuturePricingExample {
   }
 
   // create a trade
-  private static Trade createTrade2() {
+  private static Trade createTrade2(ReferenceData refData) {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996);
+        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
     return trade.toBuilder()
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))

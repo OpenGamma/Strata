@@ -25,6 +25,8 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
@@ -36,6 +38,7 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -46,6 +49,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class SwapCrossCurrencyEnd2EndTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard()
+      .combinedWith(ImmutableReferenceData.of(CalendarUSD.NYC, CalendarUSD.NYC_CALENDAR));
   private static final IborIndex EUR_EURIBOR_3M = IborIndices.EUR_EURIBOR_3M;
   private static final IborIndex USD_LIBOR_3M = IborIndices.USD_LIBOR_3M;
   private static final FxIndex EUR_USD_WM = FxIndices.EUR_USD_WM;
@@ -109,10 +114,11 @@ public class SwapCrossCurrencyEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    ResolvedSwapTrade trade = SwapTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
-        .build();
+        .build()
+        .resolve(REF_DATA);
 
     double pvUsdExpected = 431944.6868;
     double pvEurExpected = -731021.1778;
@@ -179,10 +185,11 @@ public class SwapCrossCurrencyEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    ResolvedSwapTrade trade = SwapTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
-        .build();
+        .build()
+        .resolve(REF_DATA);
 
     double pvUsdExpected = 518623.5163;
     double pvEurExpected = -731021.1778;

@@ -10,7 +10,7 @@ import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertEqualsBean;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -36,8 +36,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.rate.FixedRateObservation;
@@ -48,6 +50,7 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 @Test
 public class SwapTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double RATE = 0.01d;
   private static final double NOTIONAL = 100_000d;
 
@@ -112,19 +115,19 @@ public class SwapTest {
   public void test_getStartDate() {
     SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
     SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
-    assertEquals(Swap.of(leg1).getStartDate(), date(2015, 6, 29));
-    assertEquals(Swap.of(leg2).getStartDate(), date(2015, 6, 30));
-    assertEquals(Swap.of(leg1, leg2).getStartDate(), date(2015, 6, 29));
-    assertEquals(Swap.of(leg2, leg1).getStartDate(), date(2015, 6, 29));
+    assertEquals(Swap.of(leg1).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
+    assertEquals(Swap.of(leg2).getStartDate(), AdjustableDate.of(date(2015, 6, 30)));
+    assertEquals(Swap.of(leg1, leg2).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
+    assertEquals(Swap.of(leg2, leg1).getStartDate(), AdjustableDate.of(date(2015, 6, 29)));
   }
 
   public void test_getEndDate() {
     SwapLeg leg1 = MockSwapLeg.of(FIXED, PAY, date(2015, 6, 29), date(2017, 6, 30), Currency.USD);
     SwapLeg leg2 = MockSwapLeg.of(FIXED, RECEIVE, date(2015, 6, 30), date(2017, 6, 29), Currency.USD);
-    assertEquals(Swap.of(leg1).getEndDate(), date(2017, 6, 30));
-    assertEquals(Swap.of(leg2).getEndDate(), date(2017, 6, 29));
-    assertEquals(Swap.of(leg1, leg2).getEndDate(), date(2017, 6, 30));
-    assertEquals(Swap.of(leg2, leg1).getEndDate(), date(2017, 6, 30));
+    assertEquals(Swap.of(leg1).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
+    assertEquals(Swap.of(leg2).getEndDate(), AdjustableDate.of(date(2017, 6, 29)));
+    assertEquals(Swap.of(leg1, leg2).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
+    assertEquals(Swap.of(leg2, leg1).getEndDate(), AdjustableDate.of(date(2017, 6, 30)));
   }
 
   //-------------------------------------------------------------------------
@@ -142,14 +145,14 @@ public class SwapTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     Swap test = Swap.builder()
         .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
         .build();
-    assertEquals(test.expand(), ExpandedSwap.of(MOCK_EXPANDED_GBP1, MOCK_EXPANDED_USD1));
+    assertEquals(test.resolve(REF_DATA), ResolvedSwap.of(MOCK_EXPANDED_GBP1, MOCK_EXPANDED_USD1));
   }
 
-  public void test_expand_unadjustedAccrualAdjustedPayment() {
+  public void test_resolve_unadjustedAccrualAdjustedPayment() {
     Swap test = Swap.builder()
         .legs(RateCalculationSwapLeg.builder()
             .payReceive(RECEIVE)
@@ -224,14 +227,14 @@ public class SwapTest {
         .currency(GBP)
         .notional(NOTIONAL)
         .build();
-    ExpandedSwap expected = ExpandedSwap.builder()
-        .legs(ExpandedSwapLeg.builder()
+    ResolvedSwap expected = ResolvedSwap.builder()
+        .legs(ResolvedSwapLeg.builder()
             .paymentPeriods(pp1, pp2, pp3, pp4)
             .payReceive(RECEIVE)
             .type(FIXED)
             .build())
         .build();
-    assertEqualsBean(test.expand(), expected);
+    assertEqualsBean(test.resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------

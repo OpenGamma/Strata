@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -164,6 +165,9 @@ public class CalibrationCheckExample {
 
   // calculates the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> calculate(CalculationRunner runner) {
+    // the reference data, such as holidays and securities
+    ReferenceData refData = ReferenceData.standard();
+
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
@@ -189,7 +193,7 @@ public class CalibrationCheckExample {
         .flatMap(defn -> defn.getNodes().stream())
         // IborFixingDeposit is not a real trade, so there is no appropriate comparison
         .filter(node -> !(node instanceof IborFixingDepositCurveNode))
-        .map(node -> node.trade(VAL_DATE, marketData))
+        .map(node -> node.trade(VAL_DATE, marketData, refData))
         .collect(toImmutableList());
 
     // the columns, specifying the measures to be calculated
@@ -215,8 +219,9 @@ public class CalibrationCheckExample {
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, marketSnapshot, marketDataConfig);
-    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData);
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
+    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
     return Pair.of(trades, results);
   }
 

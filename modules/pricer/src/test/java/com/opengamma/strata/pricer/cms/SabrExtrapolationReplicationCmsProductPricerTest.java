@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -34,21 +35,25 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
-import com.opengamma.strata.product.cms.Cms;
 import com.opengamma.strata.product.cms.CmsLeg;
+import com.opengamma.strata.product.cms.ResolvedCms;
+import com.opengamma.strata.product.cms.ResolvedCmsLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
-import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
  * Test {@link SabrExtrapolationReplicationCmsProductPricer}.
  */
 @Test
 public class SabrExtrapolationReplicationCmsProductPricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // CMS products
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_5Y;
   private static final LocalDate START = LocalDate.of(2015, 10, 21);
@@ -61,14 +66,15 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
   private static final double NOTIONAL_VALUE = 1.0e6;
   private static final ValueSchedule NOTIONAL = ValueSchedule.of(NOTIONAL_VALUE);
   private static final ValueSchedule CAP = ValueSchedule.of(0.0145);
-  private static final CmsLeg CMS_LEG = CmsLeg.builder()
+  private static final ResolvedCmsLeg CMS_LEG = CmsLeg.builder()
       .index(INDEX)
       .notional(NOTIONAL)
       .payReceive(RECEIVE)
       .paymentSchedule(SCHEDULE_EUR)
       .capSchedule(CAP)
-      .build();
-  private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE_EUR)
       .calculation(
@@ -77,9 +83,10 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
           PaymentSchedule.builder().paymentFrequency(FREQUENCY).paymentDateOffset(DaysAdjustment.NONE).build())
       .notionalSchedule(
           NotionalSchedule.of(CurrencyAmount.of(EUR, NOTIONAL_VALUE)))
-      .build();
-  private static final Cms CMS_TWO_LEGS = Cms.of(CMS_LEG, PAY_LEG);
-  private static final Cms CMS_ONE_LEG = Cms.of(CMS_LEG);
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedCms CMS_TWO_LEGS = ResolvedCms.of(CMS_LEG, PAY_LEG);
+  private static final ResolvedCms CMS_ONE_LEG = ResolvedCms.of(CMS_LEG);
   // providers
   private static final LocalDate VALUATION = LocalDate.of(2015, 8, 18);
   private static final ImmutableRatesProvider RATES_PROVIDER =
@@ -110,7 +117,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
   public void test_presentValue() {
     MultiCurrencyAmount pv1 = PRODUCT_PRICER.presentValue(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount pv2 = PRODUCT_PRICER.presentValue(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
-    CurrencyAmount pvCms = CMS_LEG_PRICER.presentValue(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
+    CurrencyAmount pvCms = CMS_LEG_PRICER.presentValue(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvPay = SWAP_LEG_PRICER.presentValue(PAY_LEG, RATES_PROVIDER);
     assertEquals(pv1, MultiCurrencyAmount.of(pvCms));
     assertEquals(pv2, MultiCurrencyAmount.of(pvCms).plus(pvPay));
@@ -120,7 +127,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     PointSensitivityBuilder pt1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder pt2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptCms =
-        CMS_LEG_PRICER.presentValueSensitivity(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
+        CMS_LEG_PRICER.presentValueSensitivity(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptPay = SWAP_LEG_PRICER.presentValueSensitivity(PAY_LEG, RATES_PROVIDER);
     assertEquals(pt1, ptCms);
     assertEquals(pt2, ptCms.combinedWith(ptPay));
@@ -132,7 +139,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     SwaptionSabrSensitivities pt2 =
         PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     SwaptionSabrSensitivities ptCms =
-        CMS_LEG_PRICER.presentValueSensitivitySabrParameter(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
+        CMS_LEG_PRICER.presentValueSensitivitySabrParameter(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
     assertEquals(pt1, ptCms);
     assertEquals(pt2, ptCms);
   }
@@ -140,7 +147,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
   public void test_presentValueSensitivityStrike() {
     double sensi1 = PRODUCT_PRICER.presentValueSensitivityStrike(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     double sensi2 = PRODUCT_PRICER.presentValueSensitivityStrike(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
-    double sensiCms = CMS_LEG_PRICER.presentValueSensitivityStrike(CMS_LEG.expand(), RATES_PROVIDER, VOLATILITIES);
+    double sensiCms = CMS_LEG_PRICER.presentValueSensitivityStrike(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
     assertEquals(sensi1, sensiCms);
     assertEquals(sensi2, sensiCms);
   }
@@ -168,7 +175,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
   public void test_currentCash_onPay() {
     MultiCurrencyAmount cc1 = PRODUCT_PRICER.currentCash(CMS_ONE_LEG, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     MultiCurrencyAmount cc2 = PRODUCT_PRICER.currentCash(CMS_TWO_LEGS, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    CurrencyAmount ccCms = CMS_LEG_PRICER.currentCash(CMS_LEG.expand(), RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
+    CurrencyAmount ccCms = CMS_LEG_PRICER.currentCash(CMS_LEG, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     CurrencyAmount ccPay = SWAP_LEG_PRICER.currentCash(PAY_LEG, RATES_PROVIDER_ON_PAY);
     assertEquals(cc1, MultiCurrencyAmount.of(ccCms));
     assertEquals(cc2, MultiCurrencyAmount.of(ccCms).plus(ccPay));

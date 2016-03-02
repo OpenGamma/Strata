@@ -11,12 +11,13 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
 
 /**
  * Pricer implementation for deliverable swap futures.
  * <p>
- * This function provides the ability to price a {@link DeliverableSwapFutureTrade}.
+ * This function provides the ability to price a {@link ResolvedDeliverableSwapFutureTrade}.
  */
 public class DiscountingDeliverableSwapFutureTradePricer
     extends AbstractDeliverableSwapFutureTradePricer {
@@ -54,12 +55,12 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * <p>
   * The price of the trade is the price on the valuation date.
   * 
-  * @param trade  the trade to price
+  * @param trade  the trade
   * @param provider  the rates provider
   * @return the price of the trade, in decimal form
   */
-  public double price(DeliverableSwapFutureTrade trade, RatesProvider provider) {
-    return productPricer.price(trade.getSecurity().getProduct(), provider);
+  public double price(ResolvedDeliverableSwapFutureTrade trade, RatesProvider provider) {
+    return productPricer.price(trade.getProduct(), provider);
   }
 
   /**
@@ -67,13 +68,17 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * <p>
   * The present value of the product is the value on the valuation date.
   * 
-  * @param trade  the trade to price
+  * @param trade  the trade
   * @param provider  the rates provider
   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
   *   the trade price before any margining has taken place and the price used for the last margining otherwise.
   * @return the present value
   */
-  public CurrencyAmount presentValue(DeliverableSwapFutureTrade trade, RatesProvider provider, double referencePrice) {
+  public CurrencyAmount presentValue(
+      ResolvedDeliverableSwapFutureTrade trade,
+      RatesProvider provider,
+      double referencePrice) {
+
     double price = price(trade, provider);
     return presentValue(trade, price, referencePrice);
   }
@@ -84,12 +89,12 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * The present value sensitivity of the trade is the sensitivity of the present value to
   * the underlying curves.
   * 
-  * @param trade  the trade to price
+  * @param trade  the trade
   * @param provider  the rates provider
   * @return the present value curve sensitivity of the trade
   */
-  public PointSensitivities presentValueSensitivity(DeliverableSwapFutureTrade trade, RatesProvider provider) {
-    DeliverableSwapFuture product = trade.getProduct();
+  public PointSensitivities presentValueSensitivity(ResolvedDeliverableSwapFutureTrade trade, RatesProvider provider) {
+    ResolvedDeliverableSwapFuture product = trade.getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
@@ -100,14 +105,14 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * <p>
   * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.  
   * 
-  * @param trade  the trade to price
+  * @param trade  the trade
   * @param provider  the rates provider
   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
   *   the trade price before any margining has taken place and the price used for the last margining otherwise.
   * @return the currency exposure of the trade
   */
   public MultiCurrencyAmount currencyExposure(
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       RatesProvider provider,
       double referencePrice) {
 

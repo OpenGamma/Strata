@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -39,6 +40,7 @@ import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 
 /**
@@ -124,10 +126,10 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -136,22 +138,27 @@ public final class FxSwapCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0);
-    return trade.getProduct().getFarLeg().getPaymentDate();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
+    return trade.getProduct().getFarLeg().resolve(refData).getPaymentDate();
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
   }
 
   @Override
-  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     FxRate fxRate = marketData.getValue(fxKey());
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsKey);
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
+  }
+
+  @Override
+  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

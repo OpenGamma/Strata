@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -32,6 +33,7 @@ import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
 import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
 
 /**
  * Perform calculations on a single {@code DeliverableSwapFutureTrade} for each of a set of scenarios.
@@ -115,12 +117,16 @@ public class DeliverableSwapFutureCalculationFunction
   public Map<Measure, Result<?>> calculate(
       DeliverableSwapFutureTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
+
+    // resolve the trade once for all measures and all scenarios
+    ResolvedDeliverableSwapFutureTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -130,7 +136,7 @@ public class DeliverableSwapFutureCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      DeliverableSwapFutureTrade trade,
+      ResolvedDeliverableSwapFutureTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -144,7 +150,7 @@ public class DeliverableSwapFutureCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        DeliverableSwapFutureTrade trade,
+        ResolvedDeliverableSwapFutureTrade trade,
         CalculationMarketData marketData);
   }
 

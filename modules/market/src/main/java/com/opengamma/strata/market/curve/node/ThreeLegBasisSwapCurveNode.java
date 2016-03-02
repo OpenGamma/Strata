@@ -30,13 +30,15 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -151,10 +153,10 @@ public final class ThreeLegBasisSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -162,17 +164,17 @@ public final class ThreeLegBasisSwapCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
-    return trade.getProduct().getEndDate();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
     // Select the 'second' Ibor leg, i.e. the flat floating leg
-    ExpandedSwapLeg iborLegExpanded = iborLeg.expand();
+    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
     List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
     int nbPeriods = periods.size();
     RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
@@ -183,9 +185,14 @@ public final class ThreeLegBasisSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote);
+    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote, refData);
+  }
+
+  @Override
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

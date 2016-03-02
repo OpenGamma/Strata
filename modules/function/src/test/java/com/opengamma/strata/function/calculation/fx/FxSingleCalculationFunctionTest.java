@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -45,6 +46,7 @@ import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSingle;
 
 /**
  * Test {@link FxSingleCalculationFunction}.
@@ -52,6 +54,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 @Test
 public class FxSingleCalculationFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final FxSingle PRODUCT = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
@@ -90,11 +93,12 @@ public class FxSingleCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    MultiCurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
-    double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(TRADE.getProduct(), provider);
-    MultiCurrencyAmount expectedCash = pricer.currentCash(TRADE.getProduct(), provider.getValuationDate());
-    FxRate expectedForwardFx = pricer.forwardFxRate(TRADE.getProduct(), provider);
+    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
+    MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    double expectedParSpread = pricer.parSpread(resolved, provider);
+    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(resolved, provider);
+    MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider.getValuationDate());
+    FxRate expectedForwardFx = pricer.forwardFxRate(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -103,7 +107,7 @@ public class FxSingleCalculationFunctionTest {
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
         Measures.FORWARD_FX_RATE);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -123,13 +127,14 @@ public class FxSingleCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
+    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(

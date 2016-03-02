@@ -43,7 +43,7 @@ public final class ImmutablePriceIndex
   /**
    * The index name, such as 'GB-HICP'.
    */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String name;
   /**
    * The region of the index.
@@ -122,7 +122,7 @@ public final class ImmutablePriceIndex
       Country region,
       Currency currency,
       Frequency publicationFrequency) {
-    JodaBeanUtils.notEmpty(name, "name");
+    JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(region, "region");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(publicationFrequency, "publicationFrequency");
@@ -150,7 +150,7 @@ public final class ImmutablePriceIndex
   //-----------------------------------------------------------------------
   /**
    * Gets the index name, such as 'GB-HICP'.
-   * @return the value of the property, not empty
+   * @return the value of the property, not null
    */
   @Override
   public String getName() {
@@ -435,11 +435,11 @@ public final class ImmutablePriceIndex
     //-----------------------------------------------------------------------
     /**
      * Sets the index name, such as 'GB-HICP'.
-     * @param name  the new value, not empty
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notEmpty(name, "name");
+      JodaBeanUtils.notNull(name, "name");
       this.name = name;
       return this;
     }

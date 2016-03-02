@@ -126,8 +126,8 @@ public class DiscountingRatePaymentPeriodPricer
     // inefficient to use Optional.orElse because double primitive type would be boxed
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
-      return rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getObservation().getIndex());
+      return rates.rate(fxReset.getObservation(), fxReset.getReferenceCurrency());
     } else {
       return 1d;
     }
@@ -282,8 +282,8 @@ public class DiscountingRatePaymentPeriodPricer
   private PointSensitivityBuilder fxRateSensitivity(RatePaymentPeriod paymentPeriod, RatesProvider provider) {
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
-      return rates.ratePointSensitivity(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getObservation().getIndex());
+      return rates.ratePointSensitivity(fxReset.getObservation(), fxReset.getReferenceCurrency());
     }
     return PointSensitivityBuilder.none();
   }
@@ -406,8 +406,8 @@ public class DiscountingRatePaymentPeriodPricer
       paymentPeriod.getFxReset().ifPresent(fxReset -> {
         builder.addListEntry(ExplainKey.OBSERVATIONS, child -> {
           child.put(ExplainKey.ENTRY_TYPE, "FxObservation");
-          child.put(ExplainKey.INDEX, fxReset.getIndex());
-          child.put(ExplainKey.FIXING_DATE, fxReset.getFixingDate());
+          child.put(ExplainKey.INDEX, fxReset.getObservation().getIndex());
+          child.put(ExplainKey.FIXING_DATE, fxReset.getObservation().getFixingDate());
           child.put(ExplainKey.INDEX_VALUE, fxRate);
         });
       });
@@ -458,16 +458,16 @@ public class DiscountingRatePaymentPeriodPricer
     double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
     if (period.getFxReset().isPresent()) {
       FxReset fxReset = period.getFxReset().get();
-      FxIndexRates rates = provider.fxIndexRates(fxReset.getIndex());
-      if (!fxReset.getFixingDate().isAfter(provider.getValuationDate()) &&
-          rates.getFixings().get(fxReset.getFixingDate()).isPresent()) {
-        double fxRate = rates.rate(fxReset.getReferenceCurrency(), fxReset.getFixingDate());
+      LocalDate fixingDate = fxReset.getObservation().getFixingDate();
+      FxIndexRates rates = provider.fxIndexRates(fxReset.getObservation().getIndex());
+      if (!fixingDate.isAfter(provider.getValuationDate()) &&
+          rates.getFixings().get(fixingDate).isPresent()) {
+        double fxRate = rates.rate(fxReset.getObservation(), fxReset.getReferenceCurrency());
         return MultiCurrencyAmount.of(period.getCurrency(),
             accrualWithNotional(period, period.getNotional() * fxRate * df, provider));
       }
-      LocalDate maturityDate = rates.getIndex().calculateMaturityFromFixing(fxReset.getFixingDate());
       double fxRateSpotSensitivity = rates.getFxForwardRates()
-          .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), maturityDate);
+          .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), fxReset.getObservation().getMaturityDate());
       return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
           accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider));
     }

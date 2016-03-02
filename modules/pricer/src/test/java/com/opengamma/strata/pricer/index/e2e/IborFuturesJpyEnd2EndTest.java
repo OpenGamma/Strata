@@ -17,9 +17,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.DoubleArrayMath;
@@ -36,12 +37,10 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.index.IborFuture;
-import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedIborFuture;
+import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
 /**
  * End to end test on JPY-dominated trades.
@@ -51,6 +50,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 @Test
 public class IborFuturesJpyEnd2EndTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double ONE_PERCENT = 1.0E-2;
   private static final double ONE_BASIS_POINT = 1.0E-4;
   private static final double HUNDRED = 100d;
@@ -61,7 +61,7 @@ public class IborFuturesJpyEnd2EndTest {
   private static final long QUANTITY = 1L;
   private static final Rounding ROUNDING = Rounding.ofFractionalDecimalPlaces(2, 2);
   private static final IborIndex TIBOR_EUROYEN_3M = IborIndices.JPY_TIBOR_EUROYEN_3M;
-  private static final HolidayCalendar CALENDAR = TIBOR_EUROYEN_3M.getFixingCalendar();
+  private static final HolidayCalendarId CALENDAR = TIBOR_EUROYEN_3M.getFixingCalendar();
   // curve
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double[] TIMES_FWD = new double[] {0.25956284153005466, 0.3442622950819672, 0.4262295081967213,
@@ -86,113 +86,103 @@ public class IborFuturesJpyEnd2EndTest {
       .build();
   // futures in March 2016
   private static final LocalDate REFERENCE_MAR = RollConventions.IMM.adjust(LocalDate.of(2016, 3, 1));
-  private static final LocalDate LAST_TRADE_MAR = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR);
-  private static final IborFuture FUTURE_PRODUCT_MAR = IborFuture.builder()
+  private static final LocalDate LAST_TRADE_MAR = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR, REF_DATA);
+  private static final ResolvedIborFuture FUTURE_PRODUCT_MAR = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_MAR)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build();
+      .build().
+      resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID_MAR = StandardId.of("OG-Ticker", "EUROYEN3M-FUT-MAR");
-  private static final Security<IborFuture> FUTURE_SECURITY_MAR =
-      UnitSecurity.builder(FUTURE_PRODUCT_MAR)
-          .standardId(FUTURE_SECURITY_ID_MAR)
-          .build();
   private static final double REF_PRICE_MAR = 99.9d;
-  private static final IborFutureTrade FUTURE_TRADE_MAR = IborFutureTrade.builder()
+  private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR = ResolvedIborFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
-      .securityLink(SecurityLink.resolved(FUTURE_SECURITY_MAR))
+      .product(FUTURE_PRODUCT_MAR)
+      .securityStandardId(FUTURE_SECURITY_ID_MAR)
       .initialPrice(REF_PRICE_MAR * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in June 2016
   private static final LocalDate REFERENCE_JUN = RollConventions.IMM.adjust(LocalDate.of(2016, 6, 1));
-  private static final LocalDate LAST_TRADE_JUN = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN);
-  private static final IborFuture FUTURE_PRODUCT_JUN = IborFuture.builder()
+  private static final LocalDate LAST_TRADE_JUN = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN, REF_DATA);
+  private static final ResolvedIborFuture FUTURE_PRODUCT_JUN = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_JUN)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build();
+      .build().
+      resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID_JUN = StandardId.of("OG-Ticker", "EUROYEN3M-FUT-JUN");
-  private static final Security<IborFuture> FUTURE_SECURITY_JUN =
-      UnitSecurity.builder(FUTURE_PRODUCT_JUN)
-          .standardId(FUTURE_SECURITY_ID_JUN)
-          .build();
   private static final double REF_PRICE_JUN = 100d;
-  private static final IborFutureTrade FUTURE_TRADE_JUN = IborFutureTrade.builder()
+  private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN = ResolvedIborFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
-      .securityLink(SecurityLink.resolved(FUTURE_SECURITY_JUN))
+      .product(FUTURE_PRODUCT_JUN)
+      .securityStandardId(FUTURE_SECURITY_ID_JUN)
       .initialPrice(REF_PRICE_JUN * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in September 2016
   private static final LocalDate REFERENCE_SEP = RollConventions.IMM.adjust(LocalDate.of(2016, 9, 1));
-  private static final LocalDate LAST_TRADE_SEP = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_SEP);
-  private static final IborFuture FUTURE_PRODUCT_SEP = IborFuture.builder()
+  private static final LocalDate LAST_TRADE_SEP = DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_SEP, REF_DATA);
+  private static final ResolvedIborFuture FUTURE_PRODUCT_SEP = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_SEP)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build();
+      .build().
+      resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID_SEP = StandardId.of("OG-Ticker", "EUROYEN3M-FUT-SEP");
-  private static final Security<IborFuture> FUTURE_SECURITY_SEP =
-      UnitSecurity.builder(FUTURE_PRODUCT_SEP)
-          .standardId(FUTURE_SECURITY_ID_SEP)
-          .build();
   private static final double REF_PRICE_SEP = 100.075d;
-  private static final IborFutureTrade FUTURE_TRADE_SEP = IborFutureTrade.builder()
+  private static final ResolvedIborFutureTrade FUTURE_TRADE_SEP = ResolvedIborFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
-      .securityLink(SecurityLink.resolved(FUTURE_SECURITY_SEP))
+      .product(FUTURE_PRODUCT_SEP)
+      .securityStandardId(FUTURE_SECURITY_ID_SEP)
       .initialPrice(REF_PRICE_SEP * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in June 2017
   private static final LocalDate REFERENCE_JUN_MID = RollConventions.IMM.adjust(LocalDate.of(2017, 6, 1));
   private static final LocalDate LAST_TRADE_JUN_MID =
-      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN_MID);
-  private static final IborFuture FUTURE_PRODUCT_JUN_MID = IborFuture.builder()
+      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_JUN_MID, REF_DATA);
+  private static final ResolvedIborFuture FUTURE_PRODUCT_JUN_MID = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_JUN_MID)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build();
+      .build().
+      resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID_JUN_MID = StandardId.of("OG-Ticker", "EUROYEN3M-FUT-JUN_MID");
-  private static final Security<IborFuture> FUTURE_SECURITY_JUN_MID =
-      UnitSecurity.builder(FUTURE_PRODUCT_JUN_MID)
-          .standardId(FUTURE_SECURITY_ID_JUN_MID)
-          .build();
   private static final double REF_PRICE_JUN_MID = 100.165d;
-  private static final IborFutureTrade FUTURE_TRADE_JUN_MID = IborFutureTrade.builder()
+  private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN_MID = ResolvedIborFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
-      .securityLink(SecurityLink.resolved(FUTURE_SECURITY_JUN_MID))
+      .product(FUTURE_PRODUCT_JUN_MID)
+      .securityStandardId(FUTURE_SECURITY_ID_JUN_MID)
       .initialPrice(REF_PRICE_JUN_MID * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in March 2020
   private static final LocalDate REFERENCE_MAR_LONG = RollConventions.IMM.adjust(LocalDate.of(2020, 3, 1));
   private static final LocalDate LAST_TRADE_MAR_LONG =
-      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR_LONG);
-  private static final IborFuture FUTURE_PRODUCT_MAR_LONG = IborFuture.builder()
+      DaysAdjustment.ofBusinessDays(-2, CALENDAR).adjust(REFERENCE_MAR_LONG, REF_DATA);
+  private static final ResolvedIborFuture FUTURE_PRODUCT_MAR_LONG = IborFuture.builder()
       .currency(JPY)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_MAR_LONG)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build();
+      .build().
+      resolve(REF_DATA);
   private static final StandardId FUTURE_SECURITY_ID_MAR_LONG = StandardId.of("OG-Ticker", "EUROYEN3M-FUT-MAR_LONG");
-  private static final Security<IborFuture> FUTURE_SECURITY_MAR_LONG =
-      UnitSecurity.builder(FUTURE_PRODUCT_MAR_LONG)
-          .standardId(FUTURE_SECURITY_ID_MAR_LONG)
-          .build();
   private static final double REF_PRICE_MAR_LONG = 99.815d;
-  private static final IborFutureTrade FUTURE_TRADE_MAR_LONG = IborFutureTrade.builder()
+  private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR_LONG = ResolvedIborFutureTrade.builder()
       .tradeInfo(TRADE_INFO)
-      .securityLink(SecurityLink.resolved(FUTURE_SECURITY_MAR_LONG))
+      .product(FUTURE_PRODUCT_MAR_LONG)
+      .securityStandardId(FUTURE_SECURITY_ID_MAR_LONG)
       .initialPrice(REF_PRICE_MAR_LONG * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();

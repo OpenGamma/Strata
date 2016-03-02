@@ -34,6 +34,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityLink;
@@ -129,11 +130,12 @@ public final class ImmutableIborFutureConvention
       int sequenceNumber,
       long quantity,
       double notional,
-      double price) {
+      double price,
+      ReferenceData refData) {
 
-    LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber);
+    LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber, refData);
     double accrualFactor = index.getTenor().get(ChronoUnit.MONTHS) / 12.0;
-    LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate);
+    LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
     IborFuture underlying = IborFuture.builder()
         .index(index)
         .accrualFactor(accrualFactor)
@@ -150,10 +152,15 @@ public final class ImmutableIborFutureConvention
   }
 
   @Override
-  public LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, Period minimumPeriod, int sequenceNumber) {
+  public LocalDate calculateReferenceDateFromTradeDate(
+      LocalDate tradeDate,
+      Period minimumPeriod,
+      int sequenceNumber,
+      ReferenceData refData) {
+
     LocalDate earliestDate = tradeDate.plus(minimumPeriod);
     LocalDate referenceDate = dateSequence.nthOrSame(earliestDate, sequenceNumber);
-    return businessDayAdjustment.adjust(referenceDate);
+    return businessDayAdjustment.adjust(referenceDate, refData);
   }
 
   //-------------------------------------------------------------------------

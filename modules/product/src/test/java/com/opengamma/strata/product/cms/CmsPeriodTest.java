@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.product.cms;
 
-import static com.opengamma.strata.basics.currency.Currency.CHF;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -21,15 +21,19 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Test {@link CmsPeriod}.
  */
 @Test
 public class CmsPeriodTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final SwapIndex INDEX = SwapIndices.GBP_LIBOR_1100_15Y;
   private static final LocalDate FIXING = LocalDate.of(2015, 10, 16);
   private static final LocalDate START = LocalDate.of(2015, 10, 22);
@@ -41,21 +45,8 @@ public class CmsPeriodTest {
   private static final double NOTIONAL = 1.0e6;
   private static final double YEAR_FRACTION = 1.005;
 
-  public void test_builder_full() {
-    CmsPeriod testCaplet = CmsPeriod.builder()
-        .caplet(STRIKE)
-        .currency(GBP)
-        .startDate(START)
-        .endDate(END)
-        .unadjustedStartDate(START_UNADJUSTED)
-        .unadjustedEndDate(END_UNADJUSTED)
-        .fixingDate(FIXING)
-        .paymentDate(PAYMENT)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
+  public void test_builder_cap() {
+    CmsPeriod testCaplet = sutCap();
     assertEquals(testCaplet.getCaplet().getAsDouble(), STRIKE);
     assertFalse(testCaplet.getFloorlet().isPresent());
     assertEquals(testCaplet.getCmsPeriodType(), CmsPeriodType.CAPLET);
@@ -71,25 +62,10 @@ public class CmsPeriodTest {
     assertEquals(testCaplet.getYearFraction(), YEAR_FRACTION);
     assertEquals(testCaplet.getDayCount(), ACT_360);
     assertEquals(testCaplet.getStrike(), STRIKE);
-    LocalDate swapEffectiveDate = INDEX.getTemplate().getConvention().calculateSpotDateFromTradeDate(FIXING);
-    LocalDate swapMaturityDate = swapEffectiveDate.plus(INDEX.getTemplate().getTenor());
-    Swap underlyingSwap = INDEX.getTemplate().getConvention()
-        .toTrade(swapEffectiveDate, swapEffectiveDate, swapMaturityDate, BuySell.BUY, 1d, 1d).getProduct();
-    assertEquals(testCaplet.getUnderlyingSwap(), underlyingSwap);
-    CmsPeriod testFloorlet = CmsPeriod.builder()
-        .floorlet(STRIKE)
-        .currency(GBP)
-        .startDate(START)
-        .endDate(END)
-        .unadjustedStartDate(START_UNADJUSTED)
-        .unadjustedEndDate(END_UNADJUSTED)
-        .fixingDate(FIXING)
-        .paymentDate(PAYMENT)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
+  }
+
+  public void test_builder_floor() {
+    CmsPeriod testFloorlet = sutFloor();
     assertFalse(testFloorlet.getCaplet().isPresent());
     assertEquals(testFloorlet.getFloorlet().getAsDouble(), STRIKE);
     assertEquals(testFloorlet.getCmsPeriodType(), CmsPeriodType.FLOORLET);
@@ -105,20 +81,10 @@ public class CmsPeriodTest {
     assertEquals(testFloorlet.getYearFraction(), YEAR_FRACTION);
     assertEquals(testFloorlet.getDayCount(), ACT_360);
     assertEquals(testFloorlet.getStrike(), STRIKE);
-    assertEquals(testFloorlet.getUnderlyingSwap(), underlyingSwap);
-    CmsPeriod testCoupon = CmsPeriod.builder()
-        .currency(GBP)
-        .startDate(START)
-        .endDate(END)
-        .unadjustedStartDate(START_UNADJUSTED)
-        .unadjustedEndDate(END_UNADJUSTED)
-        .fixingDate(FIXING)
-        .paymentDate(PAYMENT)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
+  }
+
+  public void test_builder_coupon() {
+    CmsPeriod testCoupon = sutCoupon();
     assertFalse(testCoupon.getCaplet().isPresent());
     assertFalse(testCoupon.getFloorlet().isPresent());
     assertEquals(testCoupon.getCmsPeriodType(), CmsPeriodType.COUPON);
@@ -134,88 +100,6 @@ public class CmsPeriodTest {
     assertEquals(testCoupon.getYearFraction(), YEAR_FRACTION);
     assertEquals(testCoupon.getDayCount(), ACT_360);
     assertEquals(testCoupon.getStrike(), 0d);
-    assertEquals(testCoupon.getUnderlyingSwap(), underlyingSwap);
-  }
-
-  public void test_builder_min() {
-    CmsPeriod testCaplet = CmsPeriod.builder()
-        .caplet(STRIKE)
-        .startDate(START)
-        .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
-    assertEquals(testCaplet.getCaplet().getAsDouble(), STRIKE);
-    assertFalse(testCaplet.getFloorlet().isPresent());
-    assertEquals(testCaplet.getCmsPeriodType(), CmsPeriodType.CAPLET);
-    assertEquals(testCaplet.getCurrency(), GBP);
-    assertEquals(testCaplet.getStartDate(), START);
-    assertEquals(testCaplet.getEndDate(), END);
-    assertEquals(testCaplet.getUnadjustedStartDate(), START);
-    assertEquals(testCaplet.getUnadjustedEndDate(), END);
-    assertEquals(testCaplet.getFixingDate(), START);
-    assertEquals(testCaplet.getPaymentDate(), END);
-    assertEquals(testCaplet.getIndex(), INDEX);
-    assertEquals(testCaplet.getNotional(), NOTIONAL);
-    assertEquals(testCaplet.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testCaplet.getDayCount(), ACT_360);
-    assertEquals(testCaplet.getStrike(), STRIKE);
-    assertEquals(testCaplet.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
-    CmsPeriod testFloorlet = CmsPeriod.builder()
-        .floorlet(STRIKE)
-        .startDate(START)
-        .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
-    assertFalse(testFloorlet.getCaplet().isPresent());
-    assertEquals(testFloorlet.getFloorlet().getAsDouble(), STRIKE);
-    assertEquals(testFloorlet.getCmsPeriodType(), CmsPeriodType.FLOORLET);
-    assertEquals(testFloorlet.getCurrency(), GBP);
-    assertEquals(testFloorlet.getStartDate(), START);
-    assertEquals(testFloorlet.getEndDate(), END);
-    assertEquals(testFloorlet.getUnadjustedStartDate(), START);
-    assertEquals(testFloorlet.getUnadjustedEndDate(), END);
-    assertEquals(testFloorlet.getFixingDate(), START);
-    assertEquals(testFloorlet.getPaymentDate(), END);
-    assertEquals(testFloorlet.getIndex(), INDEX);
-    assertEquals(testFloorlet.getNotional(), NOTIONAL);
-    assertEquals(testFloorlet.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testFloorlet.getDayCount(), ACT_360);
-    assertEquals(testFloorlet.getStrike(), STRIKE);
-    assertEquals(testFloorlet.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
-    CmsPeriod testCoupon = CmsPeriod.builder()
-        .currency(GBP)
-        .startDate(START)
-        .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
-    assertFalse(testCoupon.getCaplet().isPresent());
-    assertFalse(testCoupon.getFloorlet().isPresent());
-    assertEquals(testCoupon.getCmsPeriodType(), CmsPeriodType.COUPON);
-    assertEquals(testCoupon.getCurrency(), GBP);
-    assertEquals(testCoupon.getStartDate(), START);
-    assertEquals(testCoupon.getEndDate(), END);
-    assertEquals(testCoupon.getUnadjustedStartDate(), START);
-    assertEquals(testCoupon.getUnadjustedEndDate(), END);
-    assertEquals(testCoupon.getFixingDate(), START);
-    assertEquals(testCoupon.getPaymentDate(), END);
-    assertEquals(testCoupon.getIndex(), INDEX);
-    assertEquals(testCoupon.getNotional(), NOTIONAL);
-    assertEquals(testCoupon.getYearFraction(), YEAR_FRACTION);
-    assertEquals(testCoupon.getDayCount(), ACT_360);
-    assertEquals(testCoupon.getStrike(), 0d);
-    assertEquals(testCoupon.getUnderlyingSwap(), INDEX.getTemplate().getConvention()
-        .toTrade(START, START, START.plus(INDEX.getTemplate().getTenor()), BuySell.BUY, 1d, 1d).getProduct());
   }
 
   public void test_builder_nonNullCapFloor() {
@@ -233,40 +117,93 @@ public class CmsPeriodTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CmsPeriod test1 = CmsPeriod.builder()
-        .caplet(STRIKE)
-        .startDate(START)
-        .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build();
-    coverImmutableBean(test1);
-    CmsPeriod test2 = CmsPeriod.builder()
-        .floorlet(STRIKE)
-        .currency(CHF)
-        .startDate(LocalDate.of(2014, 11, 22))
-        .endDate(LocalDate.of(2015, 11, 22))
-        .index(SwapIndices.EUR_EURIBOR_1100_5Y)
-        .notional(1.0e7)
-        .yearFraction(0.51)
-        .dayCount(ACT_365F)
-        .build();
-    coverBeanEquals(test1, test2);
+    coverImmutableBean(sutCap());
+    coverBeanEquals(sutCap(), sut2());
   }
 
   public void test_serialization() {
-    CmsPeriod test = CmsPeriod.builder()
-        .caplet(STRIKE)
+    assertSerialization(sutCap());
+  }
+
+  //-------------------------------------------------------------------------
+  static CmsPeriod sutCap() {
+    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
+    return CmsPeriod.builder()
+        .currency(GBP)
+        .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
+        .unadjustedStartDate(START_UNADJUSTED)
+        .unadjustedEndDate(END_UNADJUSTED)
         .yearFraction(YEAR_FRACTION)
+        .paymentDate(PAYMENT)
+        .fixingDate(FIXING)
+        .caplet(STRIKE)
         .dayCount(ACT_360)
+        .index(INDEX)
+        .underlyingSwap(swap)
         .build();
-    assertSerialization(test);
+  }
+
+  static CmsPeriod sutFloor() {
+    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
+    return CmsPeriod.builder()
+        .currency(GBP)
+        .notional(NOTIONAL)
+        .startDate(START)
+        .endDate(END)
+        .unadjustedStartDate(START_UNADJUSTED)
+        .unadjustedEndDate(END_UNADJUSTED)
+        .yearFraction(YEAR_FRACTION)
+        .paymentDate(PAYMENT)
+        .fixingDate(FIXING)
+        .floorlet(STRIKE)
+        .dayCount(ACT_360)
+        .index(INDEX)
+        .underlyingSwap(swap)
+        .build();
+  }
+
+  static CmsPeriod sutCoupon() {
+    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
+    return CmsPeriod.builder()
+        .currency(GBP)
+        .notional(NOTIONAL)
+        .startDate(START)
+        .endDate(END)
+        .unadjustedStartDate(START_UNADJUSTED)
+        .unadjustedEndDate(END_UNADJUSTED)
+        .yearFraction(YEAR_FRACTION)
+        .paymentDate(PAYMENT)
+        .fixingDate(FIXING)
+        .dayCount(ACT_360)
+        .index(INDEX)
+        .underlyingSwap(swap)
+        .build();
+  }
+
+  static CmsPeriod sut2() {
+    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    ResolvedSwap swap = conv.toTrade(FIXING.plusDays(1), START.plusDays(1), END.plusDays(1), BuySell.BUY, 1d, 1d)
+        .getProduct().resolve(REF_DATA);
+    return CmsPeriod.builder()
+        .currency(EUR)
+        .notional(NOTIONAL + 1)
+        .startDate(START.plusDays(1))
+        .endDate(END.plusDays(1))
+        .unadjustedStartDate(START_UNADJUSTED.plusDays(1))
+        .unadjustedEndDate(END_UNADJUSTED.plusDays(1))
+        .yearFraction(YEAR_FRACTION + 0.01)
+        .paymentDate(PAYMENT.plusDays(1))
+        .fixingDate(FIXING.plusDays(1))
+        .floorlet(STRIKE)
+        .dayCount(ACT_365F)
+        .index(SwapIndices.EUR_EURIBOR_1100_5Y)
+        .underlyingSwap(swap)
+        .build();
   }
 
 }

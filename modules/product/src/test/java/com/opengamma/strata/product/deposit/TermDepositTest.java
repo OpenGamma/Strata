@@ -10,7 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link TermDeposit}.
@@ -30,6 +31,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 @Test
 public class TermDepositTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BuySell SELL = BuySell.SELL;
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 19);
@@ -74,7 +76,7 @@ public class TermDepositTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_expand() {
+  public void test_resolve() {
     TermDeposit base = TermDeposit.builder()
         .buySell(SELL)
         .startDate(START_DATE)
@@ -85,8 +87,8 @@ public class TermDepositTest {
         .currency(GBP)
         .rate(RATE)
         .build();
-    ExpandedTermDeposit test = base.expand();
-    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE);
+    ResolvedTermDeposit test = base.resolve(REF_DATA);
+    LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE, REF_DATA);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), expectedEndDate);

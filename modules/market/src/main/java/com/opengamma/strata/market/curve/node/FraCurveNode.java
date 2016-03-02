@@ -30,13 +30,15 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
-import com.opengamma.strata.product.fra.ExpandedFra;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
@@ -139,10 +141,10 @@ public final class FraCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateEnd(valuationDate, refData),
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
@@ -151,23 +153,28 @@ public final class FraCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
-    ExpandedFra expandedFra = trade.getProduct().expand();
-    return expandedFra.getEndDate();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return resolvedFra.getEndDate();
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
-    ExpandedFra expandedFra = trade.getProduct().expand();
-    return ((IborRateObservation) expandedFra.getFloatingRate()).getFixingDate();
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return ((IborRateObservation) resolvedFra.getFloatingRate()).getFixingDate();
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public FraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+  }
+
+  @Override
+  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

@@ -29,11 +29,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
@@ -148,9 +150,9 @@ public final class FixedOvernightSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate) {
+  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
-        () -> calculateEnd(valuationDate),
+        () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate));
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
@@ -159,9 +161,9 @@ public final class FixedOvernightSwapCurveNode
   }
 
   // calculate the end date
-  private LocalDate calculateEnd(LocalDate valuationDate) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1);
-    return trade.getProduct().getEndDate();
+  private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
@@ -170,9 +172,14 @@ public final class FixedOvernightSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData) {
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateKey) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate);
+    return template.createTrade(valuationDate, BuySell.BUY, 1, fixedRate, refData);
+  }
+
+  @Override
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override

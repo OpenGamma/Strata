@@ -19,12 +19,12 @@ import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
-import com.opengamma.strata.product.credit.ExpandedCds;
+import com.opengamma.strata.product.credit.ResolvedCds;
 
 /**
  * Pricer for for CDS products using the ISDA methodology.
  * <p>
- * This function provides the ability to price a {@link ExpandedCds}.
+ * This function provides the ability to price a {@link ResolvedCds}.
  * Both single name and index swaps can be priced.
  */
 public class IsdaCdsPricer {
@@ -55,7 +55,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount presentValue(
-      ExpandedCds product,
+      ResolvedCds product,
       NodalCurve yieldCurve,
       NodalCurve creditCurve,
       LocalDate valuationDate,
@@ -79,7 +79,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount presentValue(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -106,7 +106,7 @@ public class IsdaCdsPricer {
    * @return par rate for the credit default swap
    */
   public double parRate(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -236,7 +236,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount ir01ParallelPar(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -268,7 +268,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount ir01ParallelZero(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -300,7 +300,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurveCurrencyParameterSensitivities ir01BucketedPar(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -339,7 +339,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurveCurrencyParameterSensitivities ir01BucketedZero(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -380,7 +380,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount cs01ParallelPar(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -413,7 +413,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount cs01ParallelHazard(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -445,7 +445,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurveCurrencyParameterSensitivities cs01BucketedPar(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -483,7 +483,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurveCurrencyParameterSensitivities cs01BucketedHazard(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -523,7 +523,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount recovery01(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,
@@ -550,7 +550,7 @@ public class IsdaCdsPricer {
    * @return present value of fee leg and any up front fee
    */
   public CurrencyAmount jumpToDefault(
-      ExpandedCds product,
+      ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
       LocalDate valuationDate,

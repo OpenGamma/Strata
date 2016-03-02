@@ -28,7 +28,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
@@ -37,13 +39,17 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 @Test
 public class RatePaymentPeriodTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_03_30 = date(2014, 3, 30);
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
-  private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 28));
-  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
-  private static final FxReset FX_RESET_USD = FxReset.of(GBP_USD_WM, USD, date(2014, 3, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 28), REF_DATA);
+  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 =
+      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28), REF_DATA);
+  private static final FxReset FX_RESET_USD =
+      FxReset.of(FxIndexObservation.of(GBP_USD_WM, date(2014, 3, 28), REF_DATA), USD);
   private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_03_30)
       .endDate(DATE_2014_06_30)
@@ -115,6 +121,7 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(), Optional.of(FX_RESET_USD));
     assertEquals(test.getNotional(), 1000d, 0d);
+    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, 1000d));
     assertEquals(test.isCompoundingApplicable(), false);
   }
 

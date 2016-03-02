@@ -12,7 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -25,6 +25,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
  * Perform calculations on a single {@code BulletPaymentTrade} for each of a set of scenarios.
@@ -95,15 +96,16 @@ public class BulletPaymentCalculationFunction
   public Map<Measure, Result<?>> calculate(
       BulletPaymentTrade trade,
       Set<Measure> measures,
-      CalculationMarketData scenarioMarketData) {
+      CalculationMarketData scenarioMarketData,
+      ReferenceData refData) {
 
-    // expand the trade once for all measures and all scenarios
-    Payment payment = trade.getProduct().expandToPayment();
+    // resolve the trade once for all measures and all scenarios
+    ResolvedBulletPaymentTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, trade, payment, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -113,23 +115,21 @@ public class BulletPaymentCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      BulletPaymentTrade trade,
-      Payment product,
+      ResolvedBulletPaymentTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, product, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
   }
 
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        BulletPaymentTrade trade,
-        Payment product,
+        ResolvedBulletPaymentTrade trade,
         CalculationMarketData marketData);
   }
 

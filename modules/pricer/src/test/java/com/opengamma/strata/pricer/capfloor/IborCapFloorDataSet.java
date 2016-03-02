@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 
 import java.time.LocalDate;
 
@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -25,17 +26,20 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
  * Data set of Ibor cap/floor securities. 
  */
 public class IborCapFloorDataSet {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BUSINESS_ADJ = BusinessDayAdjustment.of(
       BusinessDayConventions.MODIFIED_FOLLOWING, EUTA);
 
@@ -54,7 +58,7 @@ public class IborCapFloorDataSet {
    * @param payRec  pay or receive
    * @return the instance
    */
-  public static IborCapFloorLeg createCapFloorLeg(
+  public static ResolvedIborCapFloorLeg createCapFloorLeg(
       IborIndex index,
       LocalDate startDate,
       LocalDate endDate,
@@ -74,7 +78,8 @@ public class IborCapFloorDataSet {
           .notional(notionalSchedule)
           .paymentSchedule(paySchedule)
           .payReceive(payRec)
-          .build();
+          .build()
+          .resolve(REF_DATA);
     }
     return IborCapFloorLeg.builder()
         .calculation(rateCalculation)
@@ -82,7 +87,8 @@ public class IborCapFloorDataSet {
         .notional(notionalSchedule)
         .paymentSchedule(paySchedule)
         .payReceive(payRec)
-        .build();
+        .build()
+        .resolve(REF_DATA);
   }
 
   /**
@@ -99,7 +105,7 @@ public class IborCapFloorDataSet {
    * @param payRec  pay or receive 
    * @return the instance
    */
-  public static RateCalculationSwapLeg createFixedPayLeg(
+  public static ResolvedSwapLeg createFixedPayLeg(
       IborIndex index,
       LocalDate startDate,
       LocalDate endDate,
@@ -119,7 +125,8 @@ public class IborCapFloorDataSet {
             PaymentSchedule.builder().paymentFrequency(frequency).paymentDateOffset(DaysAdjustment.NONE).build())
         .notionalSchedule(
             NotionalSchedule.of(CurrencyAmount.of(EUR, notional)))
-        .build();
+        .build()
+        .resolve(REF_DATA);
   }
 
 }

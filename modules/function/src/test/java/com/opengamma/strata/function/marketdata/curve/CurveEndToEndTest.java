@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRules;
@@ -80,7 +81,7 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
-import com.opengamma.strata.product.fra.ExpandedFra;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -93,6 +94,8 @@ public class CurveEndToEndTest {
 
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
   private static final double PV_TOLERANCE = 5e-10;
+  /** The reference data. */
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * End-to-end test for curve calibration and round-tripping that uses the {@link MarketDataFactory}
@@ -132,11 +135,11 @@ public class CurveEndToEndTest {
 
     // Build the trades from the node instruments
     MarketData quotes = ImmutableMarketData.builder(valuationDate).addValuesById(parRateData).build();
-    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes);
-    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes);
-    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes);
-    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotes);
-    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotes);
+    Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes, REF_DATA);
+    Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes, REF_DATA);
+    Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes, REF_DATA);
+    Trade swap2yTrade = swap2yNode.trade(valuationDate, quotes, REF_DATA);
+    Trade swap3yTrade = swap3yNode.trade(valuationDate, quotes, REF_DATA);
 
     List<Trade> trades = ImmutableList.of(fra3x6Trade, fra6x9Trade, swap1yTrade, swap2yTrade, swap3yTrade);
 
@@ -185,9 +188,10 @@ public class CurveEndToEndTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
     MarketDataRequirements reqs = tasks.getRequirements();
-    MarketEnvironment enhancedMarketData = marketDataFactory().buildMarketData(reqs, knownMarketData, marketDataConfig);
+    MarketEnvironment enhancedMarketData = marketDataFactory()
+        .buildMarketData(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData);
+    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
     results.getItems().stream().forEach(this::checkPvIsZero);
   }
@@ -264,9 +268,10 @@ public class CurveEndToEndTest {
     public Map<Measure, Result<?>> calculate(
         FraTrade trade,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
-      ExpandedFra product = trade.getProduct().expand();
+      ResolvedFra product = trade.getProduct().resolve(refData);
       CurrencyValuesArray pv = marketData.scenarios()
           .map(MarketDataRatesProvider::of)
           .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))

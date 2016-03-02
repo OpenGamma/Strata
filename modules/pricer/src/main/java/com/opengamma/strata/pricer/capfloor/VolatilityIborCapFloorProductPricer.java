@@ -12,17 +12,17 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
-import com.opengamma.strata.product.capfloor.ExpandedIborCapFloor;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.capfloor.IborCapFloorProduct;
+import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
  * Pricer for cap/floor products based on volatilities.
  * <p>
- * This function provides the ability to price {@link IborCapFloorProduct}. 
+ * This function provides the ability to price {@link ResolvedIborCapFloor}. 
  * <p>
- * The pricing methodologies are defined in individual implementations of the volatilities, {@link IborCapletFloorletVolatilities}. 
+ * The pricing methodologies are defined in individual implementations of the
+ * volatilities, {@link IborCapletFloorletVolatilities}. 
  */
 public class VolatilityIborCapFloorProductPricer {
 
@@ -69,17 +69,16 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value
    */
   public MultiCurrencyAmount presentValue(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
-    ExpandedIborCapFloor expanded = capFloor.expand();
     CurrencyAmount pvCapFloorLeg =
-        capFloorLegPricer.presentValue(expanded.getCapFloorLeg(), ratesProvider, volatilities);
-    if (!expanded.getPayLeg().isPresent()) {
+        capFloorLegPricer.presentValue(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+    if (!capFloor.getPayLeg().isPresent()) {
       return MultiCurrencyAmount.of(pvCapFloorLeg);
     }
-    CurrencyAmount pvPayLeg = payLegPricer.presentValue(expanded.getPayLeg().get(), ratesProvider);
+    CurrencyAmount pvPayLeg = payLegPricer.presentValue(capFloor.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(pvCapFloorLeg).plus(pvPayLeg);
   }
 
@@ -97,12 +96,12 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value delta
    */
   public MultiCurrencyAmount presentValueDelta(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     CurrencyAmount pvCapFloorLeg =
-        capFloorLegPricer.presentValueDelta(capFloor.expand().getCapFloorLeg(), ratesProvider, volatilities);
+        capFloorLegPricer.presentValueDelta(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
@@ -120,12 +119,12 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value gamma
    */
   public MultiCurrencyAmount presentValueGamma(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     CurrencyAmount pvCapFloorLeg =
-        capFloorLegPricer.presentValueGamma(capFloor.expand().getCapFloorLeg(), ratesProvider, volatilities);
+        capFloorLegPricer.presentValueGamma(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
@@ -143,12 +142,12 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value theta
    */
   public MultiCurrencyAmount presentValueTheta(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     CurrencyAmount pvCapFloorLeg =
-        capFloorLegPricer.presentValueTheta(capFloor.expand().getCapFloorLeg(), ratesProvider, volatilities);
+        capFloorLegPricer.presentValueTheta(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
     return MultiCurrencyAmount.of(pvCapFloorLeg);
   }
 
@@ -163,18 +162,17 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
-    ExpandedIborCapFloor expanded = capFloor.expand();
     PointSensitivityBuilder pvSensiCapFloorLeg =
-        capFloorLegPricer.presentValueSensitivity(expanded.getCapFloorLeg(), ratesProvider, volatilities);
-    if (!expanded.getPayLeg().isPresent()) {
+        capFloorLegPricer.presentValueSensitivity(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+    if (!capFloor.getPayLeg().isPresent()) {
       return pvSensiCapFloorLeg;
     }
     PointSensitivityBuilder pvSensiPayLeg =
-        payLegPricer.presentValueSensitivity(expanded.getPayLeg().get(), ratesProvider);
+        payLegPricer.presentValueSensitivity(capFloor.getPayLeg().get(), ratesProvider);
     return pvSensiCapFloorLeg.combinedWith(pvSensiPayLeg);
   }
 
@@ -190,12 +188,12 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the present value sensitivity
    */
   public PointSensitivityBuilder presentValueSensitivityVolatility(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     return capFloorLegPricer.presentValueSensitivityVolatility(
-        capFloor.expand().getCapFloorLeg(), ratesProvider, volatilities);
+        capFloor.getCapFloorLeg(), ratesProvider, volatilities);
   }
 
   //-------------------------------------------------------------------------
@@ -208,17 +206,16 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
-    ExpandedIborCapFloor expanded = capFloor.expand();
     CurrencyAmount ceCapFloorLeg =
-        capFloorLegPricer.presentValue(expanded.getCapFloorLeg(), ratesProvider, volatilities);
-    if (!expanded.getPayLeg().isPresent()) {
+        capFloorLegPricer.presentValue(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+    if (!capFloor.getPayLeg().isPresent()) {
       return MultiCurrencyAmount.of(ceCapFloorLeg);
     }
-    MultiCurrencyAmount cePayLeg = payLegPricer.currencyExposure(expanded.getPayLeg().get(), ratesProvider);
+    MultiCurrencyAmount cePayLeg = payLegPricer.currencyExposure(capFloor.getPayLeg().get(), ratesProvider);
     return cePayLeg.plus(ceCapFloorLeg);
   }
 
@@ -231,17 +228,16 @@ public class VolatilityIborCapFloorProductPricer {
    * @return the current cash
    */
   public MultiCurrencyAmount currentCash(
-      IborCapFloorProduct capFloor,
+      ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
-    ExpandedIborCapFloor expanded = capFloor.expand();
     CurrencyAmount ccCapFloorLeg =
-        capFloorLegPricer.currentCash(expanded.getCapFloorLeg(), ratesProvider, volatilities);
-    if (!expanded.getPayLeg().isPresent()) {
+        capFloorLegPricer.currentCash(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+    if (!capFloor.getPayLeg().isPresent()) {
       return MultiCurrencyAmount.of(ccCapFloorLeg);
     }
-    CurrencyAmount ccPayLeg = payLegPricer.currentCash(expanded.getPayLeg().get(), ratesProvider);
+    CurrencyAmount ccPayLeg = payLegPricer.currentCash(capFloor.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCapFloorLeg);
   }
 

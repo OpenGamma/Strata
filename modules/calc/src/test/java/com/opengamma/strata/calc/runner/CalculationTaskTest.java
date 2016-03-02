@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -56,6 +57,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class CalculationTaskTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final MarketDataMappings MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
   private static final ReportingCurrency REPORTING_CURRENCY_EMPTY = ReportingCurrency.NATURAL;
   private static final ReportingCurrency REPORTING_CURRENCY_USD = ReportingCurrency.of(Currency.USD);
@@ -109,7 +111,7 @@ public class CalculationTaskTest {
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(expectedArray);
   }
@@ -132,7 +134,7 @@ public class CalculationTaskTest {
 
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(GBP, values);
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(expectedArray);
   }
@@ -156,7 +158,7 @@ public class CalculationTaskTest {
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(expectedArray);
   }
@@ -171,7 +173,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasFailureMessageMatching("This is a failure");
   }
@@ -184,7 +186,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(ScenarioResult.of("bar"));
   }
@@ -197,7 +199,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_EMPTY);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(ScenarioResult.of("bar"));
   }
@@ -213,7 +215,7 @@ public class CalculationTaskTest {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasFailureMessageMatching("Failed to convert value .* to currency USD");
   }
@@ -226,7 +228,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(ScenarioResult.of("foo"));
   }
@@ -241,7 +243,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).isFailure(FailureReason.ERROR).hasFailureMessageMatching("foo");
   }
@@ -255,7 +257,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).hasValue(ScenarioResult.of("foo"));
   }
@@ -269,7 +271,7 @@ public class CalculationTaskTest {
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
-    CalculationResult calculationResult = task.execute(marketData);
+    CalculationResult calculationResult = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResult.getResult();
     assertThat(result).isFailure(FailureReason.NOT_APPLICABLE).hasFailureMessageMatching("bar");
   }
@@ -328,7 +330,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
@@ -373,7 +376,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       Result<CurrencyValuesArray> result = Result.success(supplier.get());
       return ImmutableMap.of(Measures.PRESENT_VALUE, result, Measures.PRESENT_VALUE_MULTI_CCY, result);
@@ -416,7 +420,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       T obj = supplier.get();
       if (obj instanceof Result<?>) {
@@ -454,7 +459,8 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
-        CalculationMarketData marketData) {
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
       throw new UnsupportedOperationException("calculate not implemented");
     }

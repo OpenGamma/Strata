@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.runner.NoMatchingRuleId;
@@ -35,7 +36,12 @@ public final class NoMatchingRulesMarketDataFunction implements MarketDataFuncti
 
   @SuppressWarnings("unchecked")
   @Override
-  public MarketDataBox build(MarketDataId id, CalculationEnvironment marketData, MarketDataConfig marketDataConfig) {
+  public MarketDataBox build(
+      MarketDataId id,
+      MarketDataConfig marketDataConfig,
+      CalculationEnvironment marketData,
+      ReferenceData refData) {
+
     throw new IllegalArgumentException(
         "No market data rules were available to build the market data for key " + ((NoMatchingRuleId) id).getKey());
   }

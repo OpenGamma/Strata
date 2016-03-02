@@ -23,8 +23,9 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.product.swap.ExpandedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -35,6 +36,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  */
 @Test
 public class FixedOvernightSwapConventionsTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   @DataProvider(name = "spotLag")
   static Object[][] data_spot_lag() {
@@ -154,9 +157,9 @@ public class FixedOvernightSwapConventionsTest {
   @Test(dataProvider = "stubOn")
   public void test_stub_overnight(FixedOvernightSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
-    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01);
-    ExpandedSwap swapExpanded = swap.getProduct().expand();
-    LocalDate endDate = swapExpanded.getLeg(PayReceive.PAY).get().getEndDate();
+    SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01, REF_DATA);
+    ResolvedSwap swapResolved = swap.getProduct().resolve(REF_DATA);
+    LocalDate endDate = swapResolved.getLeg(PayReceive.PAY).get().getEndDate();
     assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
     assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
   }

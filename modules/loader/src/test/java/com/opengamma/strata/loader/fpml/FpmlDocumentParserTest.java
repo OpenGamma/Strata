@@ -19,12 +19,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.CHZU;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.FRPA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.SAT_SUN;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.CHF_LIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
@@ -61,10 +61,14 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
@@ -92,7 +96,6 @@ import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.ExpandedSwapLeg;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -104,6 +107,7 @@ import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.StubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -114,7 +118,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FpmlDocumentParserTest {
 
-  private static final HolidayCalendar GBLO_USNY = GBLO.combineWith(USNY);
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
 
   //-------------------------------------------------------------------------
   public void bulletPayment() {
@@ -499,11 +504,11 @@ public class FpmlDocumentParserTest {
             .firstRegularStartDate(date(1995, 12, 14))
             .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
             .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN))
-            .frequency(Frequency.ofYears(1))
+            .frequency(Frequency.P12M)
             .rollConvention(RollConvention.ofDayOfMonth(14))
             .build())
         .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.ofYears(1))
+            .paymentFrequency(Frequency.P12M)
             .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN)))
             .build())
         .notionalSchedule(notional)
@@ -512,7 +517,12 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.06))
             .build())
         .build();
-    ExpandedSwapLeg expandedPayLeg = payLeg.expand();
+    ImmutableReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(
+        HolidayCalendarIds.GBLO, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.SAT_SUN, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendars.NO_HOLIDAYS));
+    ResolvedSwapLeg expandedPayLeg = payLeg.resolve(refData);
     assertEquals(expandedPayLeg.getPaymentPeriods().size(), 10);
     assertIborPaymentPeriod(expandedPayLeg, 0, "1995-06-14", "1995-01-16", "1995-06-14", 50000000d, "1995-01-12");
     assertIborPaymentPeriod(expandedPayLeg, 1, "1995-12-14", "1995-06-14", "1995-12-14", 50000000d, "1995-06-12");
@@ -524,7 +534,7 @@ public class FpmlDocumentParserTest {
     assertIborPaymentPeriod(expandedPayLeg, 7, "1998-12-14", "1998-06-15", "1998-12-14", 20000000d, "1998-06-11");
     assertIborPaymentPeriod(expandedPayLeg, 8, "1999-06-14", "1998-12-14", "1999-06-14", 10000000d, "1998-12-10");
     assertIborPaymentPeriod(expandedPayLeg, 9, "1999-12-14", "1999-06-14", "1999-12-14", 10000000d, "1999-06-10");
-    ExpandedSwapLeg expandedRecLeg = recLeg.expand();
+    ResolvedSwapLeg expandedRecLeg = recLeg.resolve(refData);
     assertEquals(expandedRecLeg.getPaymentPeriods().size(), 5);
     assertFixedPaymentPeriod(expandedRecLeg, 0, "1995-12-14", "1995-01-16", "1995-12-14", 50000000d, 0.06d);
     assertFixedPaymentPeriod(expandedRecLeg, 1, "1996-12-16", "1995-12-14", "1996-12-16", 40000000d, 0.06d);
@@ -637,7 +647,13 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.0585))
             .build())
         .build();
-    ExpandedSwapLeg expandedRecLeg = recLeg.expand();
+    ImmutableReferenceData refData = ImmutableReferenceData.of(ImmutableMap.of(
+        HolidayCalendarIds.GBLO, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.EUTA, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.USNY, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.SAT_SUN, HolidayCalendars.SAT_SUN,
+        HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendars.NO_HOLIDAYS));
+    ResolvedSwapLeg expandedRecLeg = recLeg.resolve(refData);
     assertEquals(expandedRecLeg.getPaymentPeriods().size(), 4);
     assertIborPaymentPeriodCpd(expandedRecLeg, 0, 0, "2000-11-03", "2000-04-27", "2000-07-27", 100000000d, "2000-04-25");
     assertIborPaymentPeriodCpd(expandedRecLeg, 0, 1, "2000-11-03", "2000-07-27", "2000-10-27", 100000000d, "2000-07-25");
@@ -648,7 +664,7 @@ public class FpmlDocumentParserTest {
     // final cashflow dates do not match with GBLO, USNY, GBLO+USNY or SAT_SUN
 //    assertIborPaymentPeriodCpd(expandedRecLeg, 3, 0, "2002-05-06", "2001-10-29", "2002-01-29", 100000000d, "2001-10-25");
 //    assertIborPaymentPeriodCpd(expandedRecLeg, 3, 1, "2002-05-06", "2002-01-29", "2002-04-29", 100000000d, "2002-01-25");
-    ExpandedSwapLeg expandedPayLeg = payLeg.expand();
+    ResolvedSwapLeg expandedPayLeg = payLeg.resolve(refData);
     assertEquals(expandedPayLeg.getPaymentPeriods().size(), 4);
     assertFixedPaymentPeriod(expandedPayLeg, 0, "2000-11-03", "2000-04-27", "2000-10-27", 100000000d, 0.0585d);
     assertFixedPaymentPeriod(expandedPayLeg, 1, "2001-05-04", "2000-10-27", "2001-04-27", 100000000d, 0.0585d);
@@ -1096,7 +1112,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.getFpmlRoot(), rootEl);
     assertEquals(test.getParties(), ImmutableListMultimap.of());
     assertEquals(test.getReferences(), ImmutableMap.of());
@@ -1111,7 +1127,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.convertFrequency("1", "M"), Frequency.P1M);
     assertEquals(test.convertFrequency("12", "M"), Frequency.P12M);
     assertEquals(test.convertFrequency("1", "Y"), Frequency.P12M);
@@ -1124,7 +1140,7 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableMap.of("href", "foo"), ImmutableList.of(tradeHeaderEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocument test =
-        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard());
+        new FpmlDocument(rootEl, ImmutableMap.of(), FpmlPartySelector.any(), FpmlTradeInfoParserPlugin.standard(), REF_DATA);
     assertEquals(test.convertIndexTenor("1", "M"), Tenor.TENOR_1M);
     assertEquals(test.convertIndexTenor("12", "M"), Tenor.TENOR_12M);
     assertEquals(test.convertIndexTenor("1", "Y"), Tenor.TENOR_12M);
@@ -1133,7 +1149,7 @@ public class FpmlDocumentParserTest {
 
   //-------------------------------------------------------------------------
   private void assertIborPaymentPeriod(
-      ExpandedSwapLeg expandedPayLeg,
+      ResolvedSwapLeg expandedPayLeg,
       int index,
       String paymentDateStr,
       String startDateStr,
@@ -1158,7 +1174,7 @@ public class FpmlDocumentParserTest {
   }
 
   private void assertIborPaymentPeriodCpd(
-      ExpandedSwapLeg expandedPayLeg,
+      ResolvedSwapLeg expandedPayLeg,
       int paymentIndex,
       int accrualIndex,
       String paymentDateStr,
@@ -1184,7 +1200,7 @@ public class FpmlDocumentParserTest {
   }
 
   private void assertFixedPaymentPeriod(
-      ExpandedSwapLeg expandedPayLeg,
+      ResolvedSwapLeg expandedPayLeg,
       int index,
       String paymentDateStr,
       String startDateStr,

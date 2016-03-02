@@ -23,6 +23,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -44,6 +45,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 
@@ -67,6 +69,8 @@ public class TermDepositCalculationFunctionTest {
           .rate(0.002)
           .build())
       .build();
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getEndDate().minusDays(7);
 
@@ -99,16 +103,17 @@ public class TermDepositCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(TRADE.getProduct(), provider);
-    double expectedParRate = pricer.parRate(TRADE.getProduct(), provider);
-    double expectedParSpread = pricer.parSpread(TRADE.getProduct(), provider);
+    ResolvedTermDeposit resolved = TRADE.getProduct().resolve(REF_DATA);
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    double expectedParRate = pricer.parRate(resolved, provider);
+    double expectedParSpread = pricer.parSpread(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
         Measures.PRESENT_VALUE_MULTI_CCY,
         Measures.PAR_RATE,
         Measures.PAR_SPREAD);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -124,13 +129,14 @@ public class TermDepositCalculationFunctionTest {
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(TRADE.getProduct(), provider);
+    ResolvedTermDeposit resolved = TRADE.getProduct().resolve(REF_DATA);
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md))
+    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(

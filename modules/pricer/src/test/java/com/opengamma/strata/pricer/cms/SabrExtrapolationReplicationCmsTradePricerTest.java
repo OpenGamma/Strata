@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendars.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -37,22 +38,26 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.cms.Cms;
 import com.opengamma.strata.product.cms.CmsLeg;
-import com.opengamma.strata.product.cms.CmsTrade;
+import com.opengamma.strata.product.cms.ResolvedCms;
+import com.opengamma.strata.product.cms.ResolvedCmsLeg;
+import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
-import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
  * Test {@link SabrExtrapolationReplicationCmsTradePricer}.
  */
 @Test
 public class SabrExtrapolationReplicationCmsTradePricerTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   // trades
   private static final LocalDate VALUATION = LocalDate.of(2015, 8, 18);
   private static final SwapIndex INDEX = SwapIndices.EUR_EURIBOR_1100_5Y;
@@ -66,29 +71,36 @@ public class SabrExtrapolationReplicationCmsTradePricerTest {
   private static final double NOTIONAL_VALUE = 1.0e6;
   private static final ValueSchedule NOTIONAL = ValueSchedule.of(NOTIONAL_VALUE);
   private static final ValueSchedule CAP = ValueSchedule.of(0.0125);
-  private static final CmsLeg CMS_LEG = CmsLeg.builder()
+  private static final ResolvedCmsLeg CMS_LEG = CmsLeg.builder()
       .index(INDEX)
       .notional(NOTIONAL)
       .payReceive(RECEIVE)
       .paymentSchedule(SCHEDULE_EUR)
       .capSchedule(CAP)
-      .build();
-  private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedSwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE_EUR)
-      .calculation(
-          FixedRateCalculation.of(0.01, ACT_360))
+      .calculation(FixedRateCalculation.of(0.01, ACT_360))
       .paymentSchedule(
           PaymentSchedule.builder().paymentFrequency(FREQUENCY).paymentDateOffset(DaysAdjustment.NONE).build())
       .notionalSchedule(
           NotionalSchedule.of(CurrencyAmount.of(EUR, NOTIONAL_VALUE)))
-      .build();
-  private static final Cms CMS_TWO_LEGS = Cms.of(CMS_LEG, PAY_LEG);
-  private static final Cms CMS_ONE_LEG = Cms.of(CMS_LEG);
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedCms CMS_TWO_LEGS = ResolvedCms.of(CMS_LEG, PAY_LEG);
+  private static final ResolvedCms CMS_ONE_LEG = ResolvedCms.of(CMS_LEG);
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.03 * NOTIONAL_VALUE), VALUATION);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION).build();
-  private static final CmsTrade CMS_TRADE = CmsTrade.builder().product(CMS_TWO_LEGS).tradeInfo(TRADE_INFO).build();
-  private static final CmsTrade CMS_TRADE_PREMIUM = CmsTrade.builder().product(CMS_ONE_LEG).premium(PREMIUM).build();
+  private static final ResolvedCmsTrade CMS_TRADE = ResolvedCmsTrade.builder()
+      .product(CMS_TWO_LEGS)
+      .tradeInfo(TRADE_INFO)
+      .build();
+  private static final ResolvedCmsTrade CMS_TRADE_PREMIUM = ResolvedCmsTrade.builder()
+      .product(CMS_ONE_LEG)
+      .premium(PREMIUM)
+      .build();
   // providers
   private static final ImmutableRatesProvider RATES_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(VALUATION);

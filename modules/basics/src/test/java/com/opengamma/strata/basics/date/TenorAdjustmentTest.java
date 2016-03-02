@@ -22,16 +22,19 @@ import java.time.Period;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ReferenceData;
+
 /**
  * Test {@link TenorAdjustment}.
  */
 @Test
 public class TenorAdjustmentTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final PeriodAdditionConvention PAC_NONE = PeriodAdditionConventions.NONE;
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.SAT_SUN);
 
   //-------------------------------------------------------------------------
   public void test_of_additionConventionNone() {
@@ -90,12 +93,8 @@ public class TenorAdjustmentTest {
   @Test(dataProvider = "adjust")
   public void test_adjust(int months, LocalDate date, LocalDate expected) {
     TenorAdjustment test = TenorAdjustment.of(Tenor.ofMonths(months), LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.adjust(date), expected);
-  }
-
-  public void test_adjust_null() {
-    TenorAdjustment test = TenorAdjustment.of(TENOR_3M, LAST_DAY, BDA_FOLLOW_SAT_SUN);
-    assertThrowsIllegalArg(() -> test.adjust(null));
+    assertEquals(test.adjust(date, REF_DATA), expected);
+    assertEquals(test.resolve(REF_DATA).adjust(date), expected);
   }
 
   //-------------------------------------------------------------------------
