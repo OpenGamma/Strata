@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -41,7 +42,7 @@ public final class IborAveragedFixing
    * The Ibor index observation to use to determine a rate for the reset period.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation observation;
+  private final IborIndexObservation observation;
   /**
    * The fixed rate for the fixing date, optional.
    * A 5% rate will be expressed as 0.05.
@@ -70,7 +71,7 @@ public final class IborAveragedFixing
    * @param observation  the Ibor observation
    * @return the unweighted fixing information
    */
-  public static IborAveragedFixing of(IborRateObservation observation) {
+  public static IborAveragedFixing of(IborIndexObservation observation) {
     return of(observation, null);
   }
 
@@ -81,7 +82,7 @@ public final class IborAveragedFixing
    * @param fixedRate  the fixed rate for the fixing date, optional, may be null
    * @return the unweighted fixing information
    */
-  public static IborAveragedFixing of(IborRateObservation observation, Double fixedRate) {
+  public static IborAveragedFixing of(IborIndexObservation observation, Double fixedRate) {
     return IborAveragedFixing.builder()
         .observation(observation)
         .fixedRate(fixedRate)
@@ -101,7 +102,7 @@ public final class IborAveragedFixing
    * @return the weighted fixing information
    */
   public static IborAveragedFixing ofDaysInResetPeriod(
-      IborRateObservation observation,
+      IborIndexObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
     return ofDaysInResetPeriod(observation, startDate, endDate, null);
@@ -121,7 +122,7 @@ public final class IborAveragedFixing
    * @return the weighted fixing information
    */
   public static IborAveragedFixing ofDaysInResetPeriod(
-      IborRateObservation observation,
+      IborIndexObservation observation,
       LocalDate startDate,
       LocalDate endDate,
       Double fixedRate) {
@@ -169,7 +170,7 @@ public final class IborAveragedFixing
   }
 
   private IborAveragedFixing(
-      IborRateObservation observation,
+      IborIndexObservation observation,
       Double fixedRate,
       double weight) {
     JodaBeanUtils.notNull(observation, "observation");
@@ -198,7 +199,7 @@ public final class IborAveragedFixing
    * Gets the Ibor index observation to use to determine a rate for the reset period.
    * @return the value of the property, not null
    */
-  public IborRateObservation getObservation() {
+  public IborIndexObservation getObservation() {
     return observation;
   }
 
@@ -286,8 +287,8 @@ public final class IborAveragedFixing
     /**
      * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<IborRateObservation> observation = DirectMetaProperty.ofImmutable(
-        this, "observation", IborAveragedFixing.class, IborRateObservation.class);
+    private final MetaProperty<IborIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", IborAveragedFixing.class, IborIndexObservation.class);
     /**
      * The meta-property for the {@code fixedRate} property.
      */
@@ -346,7 +347,7 @@ public final class IborAveragedFixing
      * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> observation() {
+    public MetaProperty<IborIndexObservation> observation() {
       return observation;
     }
 
@@ -397,7 +398,7 @@ public final class IborAveragedFixing
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborAveragedFixing> {
 
-    private IborRateObservation observation;
+    private IborIndexObservation observation;
     private Double fixedRate;
     private double weight;
 
@@ -437,7 +438,7 @@ public final class IborAveragedFixing
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 122345516:  // observation
-          this.observation = (IborRateObservation) newValue;
+          this.observation = (IborIndexObservation) newValue;
           break;
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
@@ -489,7 +490,7 @@ public final class IborAveragedFixing
      * @param observation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder observation(IborRateObservation observation) {
+    public Builder observation(IborIndexObservation observation) {
       JodaBeanUtils.notNull(observation, "observation");
       this.observation = observation;
       return this;

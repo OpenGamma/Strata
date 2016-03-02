@@ -81,7 +81,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     double strike = OPTION.getStrikePrice();
@@ -99,7 +99,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 1.0 - RATE;
     double optionPriceExpected = OPTION_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
@@ -112,7 +112,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     double strike = OPTION.getStrikePrice();
@@ -131,7 +131,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 1.0 - RATE;
     double optionDeltaExpected =
@@ -145,7 +145,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     PointSensitivities futurePriceSensitivity =
@@ -161,7 +161,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     PointSensitivities futurePriceSensitivity = OPTION_PRICER.getFuturePricer()
         .priceSensitivity(OPTION.getUnderlying(), prov);
@@ -180,7 +180,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     double strike = OPTION.getStrikePrice();
@@ -194,7 +194,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
         OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertEquals(optionVegaComputed.getSensitivity(), optionVegaExpected, TOLERANCE_PRICE);
     assertEquals(optionVegaComputed.getExpiry(), OPTION.getExpiry());
-    assertEquals(optionVegaComputed.getFixingDate(), OPTION.getUnderlying().getObservation().getFixingDate());
+    assertEquals(optionVegaComputed.getFixingDate(), OPTION.getUnderlying().getIborRate().getObservation().getFixingDate());
     assertEquals(optionVegaComputed.getStrikePrice(), OPTION.getStrikePrice());
     assertEquals(optionVegaComputed.getFuturePrice(), futurePrice);
   }
@@ -203,7 +203,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 1.0 - RATE;
     IborFutureOptionSensitivity optionVegaExpected = OPTION_PRICER.priceSensitivityNormalVolatility(

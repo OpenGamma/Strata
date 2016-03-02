@@ -16,6 +16,7 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
@@ -25,7 +26,8 @@ import com.opengamma.strata.basics.market.ReferenceData;
 public class IborAveragedFixingTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS =
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
 
   //-------------------------------------------------------------------------
   public void test_of_date() {

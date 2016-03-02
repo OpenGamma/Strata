@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -27,43 +28,36 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
- * Information about a single observation of an Overnight index.
+ * Defines the observation of a rate of interest from a single Ibor index.
  * <p>
- * Observing an Overnight index requires knowledge of the index, fixing date,
- * publication date, effective date and maturity date.
+ * An interest rate determined directly from an Ibor index.
+ * For example, a rate determined from 'GBP-LIBOR-3M' on a single fixing date.
  */
-@BeanDefinition
-public final class OvernightIndexObservation
+@BeanDefinition(builderScope = "private", constructorScope = "package")
+public final class IborIndexObservation
     implements IndexObservation, ImmutableBean, Serializable {
 
   /**
-   * The Overnight index.
+   * The Ibor index.
    * <p>
-   * The rate will be queried from this index.
+   * The rate to be paid is based on this index.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final OvernightIndex index;
+  private final IborIndex index;
   /**
    * The date of the index fixing.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link OvernightIndex#getFixingCalendar()}.
+   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
   /**
-   * The date that the rate implied by the fixing date is published.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculatePublicationFromFixing(LocalDate, ReferenceData)}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate publicationDate;
-  /**
    * The effective date of the investment implied by the fixing date.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
+   * This must be equal to {@link IborIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate effectiveDate;
@@ -71,7 +65,7 @@ public final class OvernightIndexObservation
    * The maturity date of the investment implied by the fixing date.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
+   * This must be equal to {@link IborIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate maturityDate;
@@ -87,7 +81,7 @@ public final class OvernightIndexObservation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code IborRateObservation} from an index and fixing date.
+   * Creates an instance from an index and fixing date.
    * <p>
    * The reference data is used to find the maturity date from the fixing date.
    * 
@@ -96,23 +90,20 @@ public final class OvernightIndexObservation
    * @param refData  the reference data to use when resolving holiday calendars
    * @return the rate observation
    */
-  public static OvernightIndexObservation of(OvernightIndex index, LocalDate fixingDate, ReferenceData refData) {
-    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate, refData);
+  public static IborIndexObservation of(
+      IborIndex index,
+      LocalDate fixingDate,
+      ReferenceData refData) {
+
     LocalDate effectiveDate = index.calculateEffectiveFromFixing(fixingDate, refData);
     LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate, refData);
-    return OvernightIndexObservation.builder()
-        .index(index)
-        .fixingDate(fixingDate)
-        .publicationDate(publicationDate)
-        .effectiveDate(effectiveDate)
-        .maturityDate(maturityDate)
-        .yearFraction(index.getDayCount().yearFraction(effectiveDate, maturityDate))
-        .build();
+    double yearFraction = index.getDayCount().yearFraction(effectiveDate, maturityDate);
+    return new IborIndexObservation(index, fixingDate, effectiveDate, maturityDate, yearFraction);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the Overnight index.
+   * Gets the currency of the Ibor index.
    * 
    * @return the currency of the index
    */
@@ -120,65 +111,18 @@ public final class OvernightIndexObservation
     return index.getCurrency();
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Compares this observation to another based on the index and fixing date.
-   * <p>
-   * The publication, effective and maturity dates are ignored.
-   * 
-   * @param obj  the other observation
-   * @return true if equal
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OvernightIndexObservation other = (OvernightIndexObservation) obj;
-      return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(fixingDate, other.fixingDate);
-    }
-    return false;
-  }
-
-  /**
-   * Returns a hash code based on the index and fixing date.
-   * <p>
-   * The maturity date is ignored.
-   * 
-   * @return the hash code
-   */
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + index.hashCode();
-    return hash * 31 + fixingDate.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return new StringBuilder(64)
-        .append("OvernightIndexObservation[")
-        .append(index)
-        .append(" on ")
-        .append(fixingDate)
-        .append(']')
-        .toString();
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code OvernightIndexObservation}.
+   * The meta-bean for {@code IborIndexObservation}.
    * @return the meta-bean, not null
    */
-  public static OvernightIndexObservation.Meta meta() {
-    return OvernightIndexObservation.Meta.INSTANCE;
+  public static IborIndexObservation.Meta meta() {
+    return IborIndexObservation.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(OvernightIndexObservation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborIndexObservation.Meta.INSTANCE);
   }
 
   /**
@@ -187,37 +131,34 @@ public final class OvernightIndexObservation
   private static final long serialVersionUID = 1L;
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * Creates an instance.
+   * @param index  the value of the property, not null
+   * @param fixingDate  the value of the property, not null
+   * @param effectiveDate  the value of the property, not null
+   * @param maturityDate  the value of the property, not null
+   * @param yearFraction  the value of the property, not null
    */
-  public static OvernightIndexObservation.Builder builder() {
-    return new OvernightIndexObservation.Builder();
-  }
-
-  private OvernightIndexObservation(
-      OvernightIndex index,
+  IborIndexObservation(
+      IborIndex index,
       LocalDate fixingDate,
-      LocalDate publicationDate,
       LocalDate effectiveDate,
       LocalDate maturityDate,
       double yearFraction) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(fixingDate, "fixingDate");
-    JodaBeanUtils.notNull(publicationDate, "publicationDate");
     JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
     JodaBeanUtils.notNull(maturityDate, "maturityDate");
     JodaBeanUtils.notNull(yearFraction, "yearFraction");
     this.index = index;
     this.fixingDate = fixingDate;
-    this.publicationDate = publicationDate;
     this.effectiveDate = effectiveDate;
     this.maturityDate = maturityDate;
     this.yearFraction = yearFraction;
   }
 
   @Override
-  public OvernightIndexObservation.Meta metaBean() {
-    return OvernightIndexObservation.Meta.INSTANCE;
+  public IborIndexObservation.Meta metaBean() {
+    return IborIndexObservation.Meta.INSTANCE;
   }
 
   @Override
@@ -232,13 +173,14 @@ public final class OvernightIndexObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Overnight index.
+   * Gets the Ibor index.
    * <p>
-   * The rate will be queried from this index.
+   * The rate to be paid is based on this index.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
   @Override
-  public OvernightIndex getIndex() {
+  public IborIndex getIndex() {
     return index;
   }
 
@@ -247,7 +189,7 @@ public final class OvernightIndexObservation
    * Gets the date of the index fixing.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link OvernightIndex#getFixingCalendar()}.
+   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {
@@ -256,22 +198,10 @@ public final class OvernightIndexObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date that the rate implied by the fixing date is published.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculatePublicationFromFixing(LocalDate, ReferenceData)}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getPublicationDate() {
-    return publicationDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the effective date of the investment implied by the fixing date.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
+   * This must be equal to {@link IborIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
    * @return the value of the property, not null
    */
   public LocalDate getEffectiveDate() {
@@ -283,7 +213,7 @@ public final class OvernightIndexObservation
    * Gets the maturity date of the investment implied by the fixing date.
    * <p>
    * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link OvernightIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
+   * This must be equal to {@link IborIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
    * @return the value of the property, not null
    */
   public LocalDate getMaturityDate() {
@@ -304,17 +234,49 @@ public final class OvernightIndexObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IborIndexObservation other = (IborIndexObservation) obj;
+      return JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
+          JodaBeanUtils.equal(effectiveDate, other.effectiveDate) &&
+          JodaBeanUtils.equal(maturityDate, other.maturityDate) &&
+          JodaBeanUtils.equal(yearFraction, other.yearFraction);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(effectiveDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(maturityDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("IborIndexObservation{");
+    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(effectiveDate).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(maturityDate).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+    buf.append('}');
+    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code OvernightIndexObservation}.
+   * The meta-bean for {@code IborIndexObservation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -325,33 +287,28 @@ public final class OvernightIndexObservation
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", OvernightIndexObservation.class, OvernightIndex.class);
+    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", IborIndexObservation.class, IborIndex.class);
     /**
      * The meta-property for the {@code fixingDate} property.
      */
     private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", OvernightIndexObservation.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code publicationDate} property.
-     */
-    private final MetaProperty<LocalDate> publicationDate = DirectMetaProperty.ofImmutable(
-        this, "publicationDate", OvernightIndexObservation.class, LocalDate.class);
+        this, "fixingDate", IborIndexObservation.class, LocalDate.class);
     /**
      * The meta-property for the {@code effectiveDate} property.
      */
     private final MetaProperty<LocalDate> effectiveDate = DirectMetaProperty.ofImmutable(
-        this, "effectiveDate", OvernightIndexObservation.class, LocalDate.class);
+        this, "effectiveDate", IborIndexObservation.class, LocalDate.class);
     /**
      * The meta-property for the {@code maturityDate} property.
      */
     private final MetaProperty<LocalDate> maturityDate = DirectMetaProperty.ofImmutable(
-        this, "maturityDate", OvernightIndexObservation.class, LocalDate.class);
+        this, "maturityDate", IborIndexObservation.class, LocalDate.class);
     /**
      * The meta-property for the {@code yearFraction} property.
      */
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", OvernightIndexObservation.class, Double.TYPE);
+        this, "yearFraction", IborIndexObservation.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -359,7 +316,6 @@ public final class OvernightIndexObservation
         this, null,
         "index",
         "fixingDate",
-        "publicationDate",
         "effectiveDate",
         "maturityDate",
         "yearFraction");
@@ -377,8 +333,6 @@ public final class OvernightIndexObservation
           return index;
         case 1255202043:  // fixingDate
           return fixingDate;
-        case 1470566394:  // publicationDate
-          return publicationDate;
         case -930389515:  // effectiveDate
           return effectiveDate;
         case -414641441:  // maturityDate
@@ -390,13 +344,13 @@ public final class OvernightIndexObservation
     }
 
     @Override
-    public OvernightIndexObservation.Builder builder() {
-      return new OvernightIndexObservation.Builder();
+    public BeanBuilder<? extends IborIndexObservation> builder() {
+      return new IborIndexObservation.Builder();
     }
 
     @Override
-    public Class<? extends OvernightIndexObservation> beanType() {
-      return OvernightIndexObservation.class;
+    public Class<? extends IborIndexObservation> beanType() {
+      return IborIndexObservation.class;
     }
 
     @Override
@@ -409,7 +363,7 @@ public final class OvernightIndexObservation
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<OvernightIndex> index() {
+    public MetaProperty<IborIndex> index() {
       return index;
     }
 
@@ -419,14 +373,6 @@ public final class OvernightIndexObservation
      */
     public MetaProperty<LocalDate> fixingDate() {
       return fixingDate;
-    }
-
-    /**
-     * The meta-property for the {@code publicationDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> publicationDate() {
-      return publicationDate;
     }
 
     /**
@@ -458,17 +404,15 @@ public final class OvernightIndexObservation
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          return ((OvernightIndexObservation) bean).getIndex();
+          return ((IborIndexObservation) bean).getIndex();
         case 1255202043:  // fixingDate
-          return ((OvernightIndexObservation) bean).getFixingDate();
-        case 1470566394:  // publicationDate
-          return ((OvernightIndexObservation) bean).getPublicationDate();
+          return ((IborIndexObservation) bean).getFixingDate();
         case -930389515:  // effectiveDate
-          return ((OvernightIndexObservation) bean).getEffectiveDate();
+          return ((IborIndexObservation) bean).getEffectiveDate();
         case -414641441:  // maturityDate
-          return ((OvernightIndexObservation) bean).getMaturityDate();
+          return ((IborIndexObservation) bean).getMaturityDate();
         case -1731780257:  // yearFraction
-          return ((OvernightIndexObservation) bean).getYearFraction();
+          return ((IborIndexObservation) bean).getYearFraction();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -486,13 +430,12 @@ public final class OvernightIndexObservation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code OvernightIndexObservation}.
+   * The bean-builder for {@code IborIndexObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<OvernightIndexObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IborIndexObservation> {
 
-    private OvernightIndex index;
+    private IborIndex index;
     private LocalDate fixingDate;
-    private LocalDate publicationDate;
     private LocalDate effectiveDate;
     private LocalDate maturityDate;
     private double yearFraction;
@@ -503,19 +446,6 @@ public final class OvernightIndexObservation
     private Builder() {
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(OvernightIndexObservation beanToCopy) {
-      this.index = beanToCopy.getIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
-      this.publicationDate = beanToCopy.getPublicationDate();
-      this.effectiveDate = beanToCopy.getEffectiveDate();
-      this.maturityDate = beanToCopy.getMaturityDate();
-      this.yearFraction = beanToCopy.getYearFraction();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
@@ -524,8 +454,6 @@ public final class OvernightIndexObservation
           return index;
         case 1255202043:  // fixingDate
           return fixingDate;
-        case 1470566394:  // publicationDate
-          return publicationDate;
         case -930389515:  // effectiveDate
           return effectiveDate;
         case -414641441:  // maturityDate
@@ -541,13 +469,10 @@ public final class OvernightIndexObservation
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 100346066:  // index
-          this.index = (OvernightIndex) newValue;
+          this.index = (IborIndex) newValue;
           break;
         case 1255202043:  // fixingDate
           this.fixingDate = (LocalDate) newValue;
-          break;
-        case 1470566394:  // publicationDate
-          this.publicationDate = (LocalDate) newValue;
           break;
         case -930389515:  // effectiveDate
           this.effectiveDate = (LocalDate) newValue;
@@ -589,109 +514,22 @@ public final class OvernightIndexObservation
     }
 
     @Override
-    public OvernightIndexObservation build() {
-      return new OvernightIndexObservation(
+    public IborIndexObservation build() {
+      return new IborIndexObservation(
           index,
           fixingDate,
-          publicationDate,
           effectiveDate,
           maturityDate,
           yearFraction);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the Overnight index.
-     * <p>
-     * The rate will be queried from this index.
-     * @param index  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder index(OvernightIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the date of the index fixing.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * Valid business days are defined by {@link OvernightIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
-      return this;
-    }
-
-    /**
-     * Sets the date that the rate implied by the fixing date is published.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link OvernightIndex#calculatePublicationFromFixing(LocalDate, ReferenceData)}.
-     * @param publicationDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder publicationDate(LocalDate publicationDate) {
-      JodaBeanUtils.notNull(publicationDate, "publicationDate");
-      this.publicationDate = publicationDate;
-      return this;
-    }
-
-    /**
-     * Sets the effective date of the investment implied by the fixing date.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link OvernightIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
-     * @param effectiveDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder effectiveDate(LocalDate effectiveDate) {
-      JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-      this.effectiveDate = effectiveDate;
-      return this;
-    }
-
-    /**
-     * Sets the maturity date of the investment implied by the fixing date.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link OvernightIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
-     * @param maturityDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder maturityDate(LocalDate maturityDate) {
-      JodaBeanUtils.notNull(maturityDate, "maturityDate");
-      this.maturityDate = maturityDate;
-      return this;
-    }
-
-    /**
-     * Sets the year fraction of the investment implied by the fixing date.
-     * <p>
-     * This is calculated using the day count of the index.
-     * It represents the fraction of the year between the effective date and the maturity date.
-     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-     * @param yearFraction  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder yearFraction(double yearFraction) {
-      JodaBeanUtils.notNull(yearFraction, "yearFraction");
-      this.yearFraction = yearFraction;
-      return this;
-    }
-
-    //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
-      buf.append("OvernightIndexObservation.Builder{");
+      StringBuilder buf = new StringBuilder(192);
+      buf.append("IborIndexObservation.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
-      buf.append("publicationDate").append('=').append(JodaBeanUtils.toString(publicationDate)).append(',').append(' ');
       buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(effectiveDate)).append(',').append(' ');
       buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(maturityDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));

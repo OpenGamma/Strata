@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -33,6 +34,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -195,6 +197,7 @@ public final class IborCapFloorLeg
     List<Double> notionals = notional.resolveValues(adjustedSchedule.getPeriods());
     DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     DateAdjuster fixingDateAdjuster = calculation.getFixingDateOffset().resolve(refData);
+    Function<LocalDate, IborIndexObservation> obsFn = calculation.getIndex().resolve(refData);
 
     ImmutableList.Builder<IborCapletFloorletPeriod> periodsBuild = ImmutableList.builder();
     for (int i = 0; i < adjustedSchedule.size(); i++) {
@@ -203,14 +206,13 @@ public final class IborCapFloorLeg
       LocalDate fixingDate = fixingDateAdjuster.adjust(
           (calculation.getFixingRelativeTo().equals(FixingRelativeTo.PERIOD_START)) ?
               period.getStartDate() : period.getEndDate());
-      IborRateObservation observation = IborRateObservation.of(calculation.getIndex(), fixingDate, refData);
       double signedNotional = payReceive.normalize(notionals.get(i));
       periodsBuild.add(IborCapletFloorletPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())
           .unadjustedEndDate(period.getUnadjustedEndDate())
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .rateObservation(observation)
+          .iborRate(IborRateObservation.of(obsFn.apply(fixingDate)))
           .paymentDate(paymentDate)
           .notional(signedNotional)
           .currency(currency)

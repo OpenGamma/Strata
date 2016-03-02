@@ -38,7 +38,7 @@ public class DiscountingIborFutureProductPricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     assertEquals(PRICER.price(FUTURE, prov), 1.0 - RATE, TOLERANCE_PRICE);
   }
@@ -50,7 +50,7 @@ public class DiscountingIborFutureProductPricerTest {
     prov.setIborRates(mockIbor);
 
     PointSensitivities sensiExpected =
-        PointSensitivities.of(IborRateSensitivity.of(FUTURE.getObservation(), -1d));
+        PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIborRate().getObservation(), -1d));
     PointSensitivities sensiComputed = PRICER.priceSensitivity(FUTURE, prov);
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
   }

@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.index;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -71,7 +72,8 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
+    IborIndexObservation obs = future.getIborRate().getObservation();
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(obs);
     double parRate = parRate(future, ratesProvider, hwProvider);
     return forward - parRate;
   }
@@ -92,10 +94,11 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
-    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
-    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
-    double fixingYearFraction = future.getObservation().getYearFraction();
+    IborIndexObservation obs = future.getIborRate().getObservation();
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(obs);
+    LocalDate fixingStartDate = obs.getEffectiveDate();
+    LocalDate fixingEndDate = obs.getMaturityDate();
+    double fixingYearFraction = obs.getYearFraction();
     double convexity = hwProvider.futuresConvexityFactor(future.getLastTradeDate(), fixingStartDate, fixingEndDate);
     return convexity * forward - (1d - convexity) / fixingYearFraction;
   }
@@ -115,10 +118,11 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
-    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
+    IborIndexObservation obs = future.getIborRate().getObservation();
+    LocalDate fixingStartDate = obs.getEffectiveDate();
+    LocalDate fixingEndDate = obs.getMaturityDate();
     double convexity = hwProvider.futuresConvexityFactor(future.getLastTradeDate(), fixingStartDate, fixingEndDate);
-    IborRateSensitivity sensi = IborRateSensitivity.of(future.getObservation(), -convexity);
+    IborRateSensitivity sensi = IborRateSensitivity.of(obs, -convexity);
     // The sensitivity should be to no currency or currency XXX. To avoid useless conversion, the dimension-less 
     // price sensitivity is reported in the future currency.
     return PointSensitivities.of(sensi);
@@ -137,10 +141,11 @@ public class HullWhiteIborFutureProductPricer extends AbstractIborFutureProductP
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
-    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(future.getObservation());
-    LocalDate fixingStartDate = future.getObservation().getEffectiveDate();
-    LocalDate fixingEndDate = future.getObservation().getMaturityDate();
-    double fixingYearFraction = future.getObservation().getYearFraction();
+    IborIndexObservation obs = future.getIborRate().getObservation();
+    double forward = ratesProvider.iborIndexRates(future.getIndex()).rate(obs);
+    LocalDate fixingStartDate = obs.getEffectiveDate();
+    LocalDate fixingEndDate = obs.getMaturityDate();
+    double fixingYearFraction = obs.getYearFraction();
     DoubleArray convexityDeriv = hwProvider.futuresConvexityFactorAdjoint(
         future.getLastTradeDate(), fixingStartDate, fixingEndDate).getDerivatives();
     convexityDeriv = convexityDeriv.multipliedBy(-forward - 1d / fixingYearFraction);

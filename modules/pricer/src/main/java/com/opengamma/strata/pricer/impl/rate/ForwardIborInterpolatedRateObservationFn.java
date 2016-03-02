@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -15,7 +16,6 @@ import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing
@@ -46,8 +46,8 @@ public class ForwardIborInterpolatedRateObservationFn
       LocalDate endDate,
       RatesProvider provider) {
 
-    IborRateObservation obs1 = observation.getShortObservation();
-    IborRateObservation obs2 = observation.getLongObservation();
+    IborIndexObservation obs1 = observation.getShortObservation();
+    IborIndexObservation obs2 = observation.getLongObservation();
     IborIndexRates rates1 = provider.iborIndexRates(obs1.getIndex());
     IborIndexRates rates2 = provider.iborIndexRates(obs2.getIndex());
 
@@ -65,8 +65,8 @@ public class ForwardIborInterpolatedRateObservationFn
       RatesProvider provider) {
 
     // computes the dates related to the underlying deposits associated to the indices
-    IborRateObservation obs1 = observation.getShortObservation();
-    IborRateObservation obs2 = observation.getLongObservation();
+    IborIndexObservation obs1 = observation.getShortObservation();
+    IborIndexObservation obs2 = observation.getLongObservation();
     DoublesPair weights = weights(obs1, obs2, endDate);
     double totalWeight = weights.getFirst() + weights.getSecond();
 
@@ -87,8 +87,8 @@ public class ForwardIborInterpolatedRateObservationFn
       RatesProvider provider,
       ExplainMapBuilder builder) {
 
-    IborRateObservation obs1 = observation.getShortObservation();
-    IborRateObservation obs2 = observation.getLongObservation();
+    IborIndexObservation obs1 = observation.getShortObservation();
+    IborIndexObservation obs2 = observation.getLongObservation();
     double rate1 = provider.iborIndexRates(obs1.getIndex()).rate(obs1);
     double rate2 = provider.iborIndexRates(obs2.getIndex()).rate(obs2);
     DoublesPair weights = weights(obs1, obs2, endDate);
@@ -110,7 +110,7 @@ public class ForwardIborInterpolatedRateObservationFn
   }
 
   // computes the weights related to the two indices
-  private DoublesPair weights(IborRateObservation obs1, IborRateObservation obs2, LocalDate endDate) {
+  private DoublesPair weights(IborIndexObservation obs1, IborIndexObservation obs2, LocalDate endDate) {
     // weights: linear interpolation on the number of days between the fixing date and the maturity dates of the 
     //   actual coupons on one side and the maturity dates of the underlying deposit on the other side.
     long fixingEpochDay = obs1.getFixingDate().toEpochDay();

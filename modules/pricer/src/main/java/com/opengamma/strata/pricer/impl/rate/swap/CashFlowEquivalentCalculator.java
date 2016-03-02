@@ -17,17 +17,18 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.FixedRateObservation;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ResolvedSwap;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
@@ -81,7 +82,7 @@ public final class CashFlowEquivalentCalculator {
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount();
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      IborRateObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation());
+      IborIndexObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation()).getObservation();
       IborIndex index = obs.getIndex();
       LocalDate fixingStartDate = obs.getEffectiveDate();
       double fixingYearFraction = obs.getYearFraction();
@@ -180,7 +181,7 @@ public final class CashFlowEquivalentCalculator {
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount();
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      IborRateObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation());
+      IborIndexObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation()).getObservation();
       IborIndex index = obs.getIndex();
       LocalDate fixingStartDate = obs.getEffectiveDate();
       double fixingYearFraction = obs.getYearFraction();

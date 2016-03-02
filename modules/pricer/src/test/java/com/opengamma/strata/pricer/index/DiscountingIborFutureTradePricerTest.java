@@ -44,7 +44,7 @@ public class DiscountingIborFutureTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     assertEquals(PRICER_TRADE.price(FUTURE_TRADE, prov), 1.0 - RATE, TOLERANCE_PRICE);
   }
@@ -55,7 +55,7 @@ public class DiscountingIborFutureTradePricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get().plusDays(1));
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - lastClosingPrice;
     double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
@@ -67,7 +67,7 @@ public class DiscountingIborFutureTradePricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get());
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - FUTURE_TRADE.getInitialPrice();
@@ -81,7 +81,7 @@ public class DiscountingIborFutureTradePricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get().plusDays(1));
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 1.025;
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
@@ -97,7 +97,7 @@ public class DiscountingIborFutureTradePricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     prov.setValuationDate(FUTURE_TRADE.getTradeInfo().getTradeDate().get());
-    when(mockIbor.rate(FUTURE.getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 1.025;
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;

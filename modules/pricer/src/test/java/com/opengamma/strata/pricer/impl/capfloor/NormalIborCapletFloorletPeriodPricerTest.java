@@ -67,7 +67,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
       .endDate(RATE_OBS.getMaturityDate())
       .yearFraction(RATE_OBS.getYearFraction())
       .notional(NOTIONAL)
-      .rateObservation(RATE_OBS)
+      .iborRate(RATE_OBS)
       .build();
   private static final IborCapletFloorletPeriod CAPLET_SHORT = IborCapletFloorletPeriod.builder()
       .caplet(STRIKE)
@@ -75,7 +75,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
       .endDate(RATE_OBS.getMaturityDate())
       .yearFraction(RATE_OBS.getYearFraction())
       .notional(-NOTIONAL)
-      .rateObservation(RATE_OBS)
+      .iborRate(RATE_OBS)
       .build();
   private static final IborCapletFloorletPeriod FLOORLET_LONG = IborCapletFloorletPeriod.builder()
       .floorlet(STRIKE)
@@ -83,7 +83,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
       .endDate(RATE_OBS.getMaturityDate())
       .yearFraction(RATE_OBS.getYearFraction())
       .notional(NOTIONAL)
-      .rateObservation(RATE_OBS)
+      .iborRate(RATE_OBS)
       .build();
   private static final IborCapletFloorletPeriod FLOORLET_SHORT = IborCapletFloorletPeriod.builder()
       .floorlet(STRIKE)
@@ -91,7 +91,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
       .endDate(RATE_OBS.getMaturityDate())
       .yearFraction(RATE_OBS.getYearFraction())
       .notional(-NOTIONAL)
-      .rateObservation(RATE_OBS)
+      .iborRate(RATE_OBS)
       .build();
   private static final RateAccrualPeriod IBOR_PERIOD = RateAccrualPeriod.builder()
       .startDate(CAPLET_LONG.getStartDate())
@@ -171,7 +171,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   public void test_presentValue_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES, VOLS);
-    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS.getObservation());
     double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
     double volatility = VOLS.volatility(expiry, STRIKE, forward);
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
@@ -250,7 +250,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   public void test_presentValueDelta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, VOLS);
-    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS.getObservation());
     double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
     double volatility = VOLS.volatility(expiry, STRIKE, forward);
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
@@ -300,7 +300,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   public void test_presentValueGamma_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueGamma(FLOORLET_SHORT, RATES, VOLS);
-    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS.getObservation());
     double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
     double volatility = VOLS.volatility(expiry, STRIKE, forward);
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
@@ -338,7 +338,7 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   public void test_presentValueTheta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueTheta(FLOORLET_SHORT, RATES, VOLS);
-    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_OBS.getObservation());
     double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
     double volatility = VOLS.volatility(expiry, STRIKE, forward);
     double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());

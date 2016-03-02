@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -33,7 +34,6 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link DiscountIborIndexRates}.
@@ -46,9 +46,9 @@ public class DiscountIborIndexRatesTest {
   private static final LocalDate DATE_BEFORE = date(2015, 6, 3);
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
 
-  private static final IborRateObservation GBP_LIBOR_3M_VAL = IborRateObservation.of(GBP_LIBOR_3M, DATE_VAL, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_BEFORE = IborRateObservation.of(GBP_LIBOR_3M, DATE_BEFORE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_AFTER = IborRateObservation.of(GBP_LIBOR_3M, DATE_AFTER, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_VAL = IborIndexObservation.of(GBP_LIBOR_3M, DATE_VAL, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_BEFORE = IborIndexObservation.of(GBP_LIBOR_3M, DATE_BEFORE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_AFTER = IborIndexObservation.of(GBP_LIBOR_3M, DATE_AFTER, REF_DATA);
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final DayCount CURVE_DAY_COUNT = ACT_ACT_ISDA;

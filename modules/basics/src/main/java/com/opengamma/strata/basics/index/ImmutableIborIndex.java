@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -27,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendar;
@@ -162,6 +164,28 @@ public final class ImmutableIborIndex
       cal = fixingCalendar;
     }
     return cal.resolve(refData);
+  }
+
+  @Override
+  public Function<LocalDate, IborIndexObservation> resolve(ReferenceData refData) {
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    DateAdjuster effectiveAdjuster = effectiveDateOffset.resolve(refData);
+    DateAdjuster maturityAdjuster = maturityDateOffset.resolve(refData);
+    return fixingDate -> create(fixingDate, fixingCal, effectiveAdjuster, maturityAdjuster);
+  }
+
+  // creates an observation
+  private IborIndexObservation create(
+      LocalDate fixingDate,
+      HolidayCalendar fixingCal,
+      DateAdjuster effectiveAdjuster,
+      DateAdjuster maturityAdjuster) {
+
+    LocalDate fixingBusinessDay = fixingCal.nextOrSame(fixingDate);
+    LocalDate effectiveDate = effectiveAdjuster.adjust(fixingBusinessDay);
+    LocalDate maturityDate = maturityAdjuster.adjust(effectiveDate);
+    double yearFraction = dayCount.yearFraction(effectiveDate, maturityDate);
+    return new IborIndexObservation(this, fixingDate, effectiveDate, maturityDate, yearFraction);
   }
 
   //-------------------------------------------------------------------------

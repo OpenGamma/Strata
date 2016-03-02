@@ -83,6 +83,8 @@ public class IborIndexTest {
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+    // resolve
+    assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 13)), IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
   }
 
   public void test_usdLibor3m() {
@@ -124,6 +126,8 @@ public class IborIndexTest {
     // fixing time and zone
     assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
         date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+    // resolve
+    assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 27)), IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
   }
 
   public void test_euibor3m() {

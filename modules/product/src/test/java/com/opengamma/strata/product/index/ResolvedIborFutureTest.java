@@ -47,7 +47,7 @@ public class ResolvedIborFutureTest {
         .currency(GBP)
         .notional(NOTIONAL_1)
         .accrualFactor(ACCRUAL_FACTOR_2M)
-        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
+        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(test.getCurrency(), GBP);
@@ -56,13 +56,13 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), ROUNDING);
-    assertEquals(test.getObservation(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
+    assertEquals(test.getIborRate(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
   }
 
   public void test_builder_defaults() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .currency(GBP)
-        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
+        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .build();
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), 0.0);
@@ -70,7 +70,7 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE_1);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getObservation(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
+    assertEquals(test.getIborRate(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA));
   }
 
   public void test_builder_noObservation() {
@@ -84,7 +84,7 @@ public class ResolvedIborFutureTest {
   public void test_builder_noCurrency() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .notional(NOTIONAL_1)
-        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
+        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(GBP, test.getCurrency());
@@ -105,7 +105,7 @@ public class ResolvedIborFutureTest {
     return ResolvedIborFuture.builder()
         .currency(GBP)
         .notional(NOTIONAL_1)
-        .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
+        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
         .rounding(ROUNDING)
         .build();
   }
@@ -115,7 +115,7 @@ public class ResolvedIborFutureTest {
         .currency(USD)
         .notional(NOTIONAL_2)
         .accrualFactor(ACCRUAL_FACTOR_3M)
-        .observation(IborRateObservation.of(USD_LIBOR_3M, LAST_TRADE_DATE_2, REF_DATA))
+        .iborRate(IborRateObservation.of(USD_LIBOR_3M, LAST_TRADE_DATE_2, REF_DATA))
         .rounding(ROUNDING)
         .build();
   }

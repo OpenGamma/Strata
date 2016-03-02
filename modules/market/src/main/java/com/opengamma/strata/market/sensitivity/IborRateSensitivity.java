@@ -28,7 +28,7 @@ import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 
 /**
  * Point sensitivity to a rate from an Ibor index curve.
@@ -40,12 +40,12 @@ public final class IborRateSensitivity
     implements PointSensitivity, PointSensitivityBuilder, ImmutableBean, Serializable {
 
   /**
-   * The Ibor rate observation.
+   * The Ibor index observation.
    * <p>
    * This includes the index and fixing date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation observation;
+  private final IborIndexObservation observation;
   /**
    * The currency of the sensitivity.
    */
@@ -67,7 +67,7 @@ public final class IborRateSensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
-  public static IborRateSensitivity of(IborRateObservation observation, double sensitivity) {
+  public static IborRateSensitivity of(IborIndexObservation observation, double sensitivity) {
     return new IborRateSensitivity(observation, observation.getIndex().getCurrency(), sensitivity);
   }
 
@@ -81,7 +81,7 @@ public final class IborRateSensitivity
    * @return the point sensitivity object
    */
   public static IborRateSensitivity of(
-      IborRateObservation observation,
+      IborIndexObservation observation,
       Currency sensitivityCurrency,
       double sensitivity) {
 
@@ -176,7 +176,7 @@ public final class IborRateSensitivity
   private static final long serialVersionUID = 1L;
 
   private IborRateSensitivity(
-      IborRateObservation observation,
+      IborIndexObservation observation,
       Currency currency,
       double sensitivity) {
     JodaBeanUtils.notNull(observation, "observation");
@@ -203,12 +203,12 @@ public final class IborRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Ibor rate observation.
+   * Gets the Ibor index observation.
    * <p>
    * This includes the index and fixing date.
    * @return the value of the property, not null
    */
-  public IborRateObservation getObservation() {
+  public IborIndexObservation getObservation() {
     return observation;
   }
 
@@ -280,8 +280,8 @@ public final class IborRateSensitivity
     /**
      * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<IborRateObservation> observation = DirectMetaProperty.ofImmutable(
-        this, "observation", IborRateSensitivity.class, IborRateObservation.class);
+    private final MetaProperty<IborIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", IborRateSensitivity.class, IborIndexObservation.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -340,7 +340,7 @@ public final class IborRateSensitivity
      * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> observation() {
+    public MetaProperty<IborIndexObservation> observation() {
       return observation;
     }
 
@@ -391,7 +391,7 @@ public final class IborRateSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<IborRateSensitivity> {
 
-    private IborRateObservation observation;
+    private IborIndexObservation observation;
     private Currency currency;
     private double sensitivity;
 
@@ -420,7 +420,7 @@ public final class IborRateSensitivity
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 122345516:  // observation
-          this.observation = (IborRateObservation) newValue;
+          this.observation = (IborIndexObservation) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;

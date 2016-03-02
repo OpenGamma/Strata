@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -28,7 +29,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
 * Test.
@@ -42,8 +42,8 @@ public class ForwardIborInterpolatedRateObservationFnTest {
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 11, 2);
   private static final double RATE3 = 0.0123d;
   private static final double RATE6 = 0.0234d;
-  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_6M_OBS = IborRateObservation.of(GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS = IborIndexObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_6M_OBS = IborIndexObservation.of(GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
   private static final IborRateSensitivity SENSITIVITY3 = IborRateSensitivity.of(GBP_LIBOR_3M_OBS, 1d);
   private static final IborRateSensitivity SENSITIVITY6 = IborRateSensitivity.of(GBP_LIBOR_6M_OBS, 1d);
   private static final double TOLERANCE_RATE = 1.0E-10;

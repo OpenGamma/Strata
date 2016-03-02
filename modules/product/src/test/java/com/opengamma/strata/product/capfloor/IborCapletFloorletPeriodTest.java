@@ -50,7 +50,7 @@ public class IborCapletFloorletPeriodTest {
         .endDate(END)
         .yearFraction(YEAR_FRACTION)
         .caplet(STRIKE)
-        .rateObservation(RATE_OBSERVATION)
+        .iborRate(RATE_OBSERVATION)
         .build();
     assertEquals(test.getCaplet().getAsDouble(), STRIKE);
     assertEquals(test.getFloorlet().isPresent(), false);
@@ -60,7 +60,7 @@ public class IborCapletFloorletPeriodTest {
     assertEquals(test.getPaymentDate(), test.getEndDate());
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getRateObservation(), RATE_OBSERVATION);
+    assertEquals(test.getIborRate(), RATE_OBSERVATION);
     assertEquals(test.getIndex(), EUR_EURIBOR_3M);
     assertEquals(test.getFixingDateTime(), FIXING_TIME_ZONE);
     assertEquals(test.getPutCall(), PutCall.CALL);
@@ -80,7 +80,7 @@ public class IborCapletFloorletPeriodTest {
         .yearFraction(YEAR_FRACTION)
         .currency(GBP)
         .floorlet(STRIKE)
-        .rateObservation(RATE_OBSERVATION)
+        .iborRate(RATE_OBSERVATION)
         .build();
     assertEquals(test.getFloorlet().getAsDouble(), STRIKE);
     assertEquals(test.getCaplet().isPresent(), false);
@@ -92,7 +92,7 @@ public class IborCapletFloorletPeriodTest {
     assertEquals(test.getPaymentDate(), PAYMENT);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getRateObservation(), RATE_OBSERVATION);
+    assertEquals(test.getIborRate(), RATE_OBSERVATION);
     assertEquals(test.getIndex(), EUR_EURIBOR_3M);
     assertEquals(test.getFixingDateTime(), FIXING_TIME_ZONE);
     assertEquals(test.getPutCall(), PutCall.PUT);
@@ -108,14 +108,14 @@ public class IborCapletFloorletPeriodTest {
     // cap and floor missing
     assertThrowsIllegalArg(() -> IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
-        .rateObservation(RATE_OBSERVATION)
+        .iborRate(RATE_OBSERVATION)
         .build());
     // cap and floor present
     assertThrowsIllegalArg(() -> IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .caplet(STRIKE)
         .floorlet(STRIKE)
-        .rateObservation(RATE_OBSERVATION)
+        .iborRate(RATE_OBSERVATION)
         .build());
   }
 
@@ -136,7 +136,7 @@ public class IborCapletFloorletPeriodTest {
         .startDate(START)
         .endDate(END)
         .caplet(STRIKE)
-        .rateObservation(RATE_OBSERVATION)
+        .iborRate(RATE_OBSERVATION)
         .build();
   }
 
@@ -146,7 +146,7 @@ public class IborCapletFloorletPeriodTest {
         .startDate(START.plusDays(1))
         .endDate(END.plusDays(1))
         .floorlet(STRIKE)
-        .rateObservation(IborRateObservation.of(USD_LIBOR_6M, LocalDate.of(2013, 2, 15), REF_DATA))
+        .iborRate(IborRateObservation.of(USD_LIBOR_6M, LocalDate.of(2013, 2, 15), REF_DATA))
         .build();
   }
 

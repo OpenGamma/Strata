@@ -17,9 +17,6 @@ import com.opengamma.strata.basics.index.Index;
  * <p>
  * Each implementation contains the necessary information to observe the rate.
  * <p>
- * This is a marker interface, see implementations such as {@link IborRateObservation} and
- * {@link OvernightCompoundedRateObservation} for more information.
- * <p>
  * Implementations must be immutable and thread-safe beans.
  */
 public interface RateObservation {

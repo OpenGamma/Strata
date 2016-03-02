@@ -68,7 +68,7 @@ public class DiscountingIborFixingDepositProductPricerTest {
   //-------------------------------------------------------------------------
   public void present_value_no_fixing() {
     double discountFactor = IMM_PROV_NOFIX.discountFactor(EUR, END_DATE);
-    double forwardRate = IMM_PROV_NOFIX.iborIndexRates(EUR_EURIBOR_6M).rate(RDEPOSIT.getFloatingRate());
+    double forwardRate = IMM_PROV_NOFIX.iborIndexRates(EUR_EURIBOR_6M).rate(RDEPOSIT.getFloatingRate().getObservation());
     CurrencyAmount computed = PRICER.presentValue(RDEPOSIT, IMM_PROV_NOFIX);
     double expected = NOTIONAL * discountFactor * (RATE - forwardRate) * RDEPOSIT.getYearFraction();
     assertEquals(computed.getCurrency(), EUR);

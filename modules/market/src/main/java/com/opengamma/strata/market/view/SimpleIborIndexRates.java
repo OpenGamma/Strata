@@ -7,13 +7,28 @@ package com.opengamma.strata.market.view;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.OptionalDouble;
+import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -28,23 +43,6 @@ import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.product.rate.IborRateObservation;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.OptionalDouble;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * An Ibor index curve providing rates directly from a forward rates curve.
@@ -165,7 +163,7 @@ public final class SimpleIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(IborRateObservation observation) {
+  public double rate(IborIndexObservation observation) {
     if (!observation.getFixingDate().isAfter(getValuationDate())) {
       return historicRate(observation);
     }
@@ -173,7 +171,7 @@ public final class SimpleIborIndexRates
   }
 
   // historic rate
-  private double historicRate(IborRateObservation observation) {
+  private double historicRate(IborIndexObservation observation) {
     LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
@@ -190,14 +188,14 @@ public final class SimpleIborIndexRates
   }
 
   @Override
-  public double rateIgnoringTimeSeries(IborRateObservation observation) {
+  public double rateIgnoringTimeSeries(IborIndexObservation observation) {
     double relativeYearFraction = relativeYearFraction(observation.getMaturityDate());
     return curve.yValue(relativeYearFraction);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(IborRateObservation observation) {
+  public PointSensitivityBuilder ratePointSensitivity(IborIndexObservation observation) {
     LocalDate fixingDate = observation.getFixingDate();
     LocalDate valuationDate = getValuationDate();
     if (fixingDate.isBefore(valuationDate) ||
@@ -208,7 +206,7 @@ public final class SimpleIborIndexRates
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborRateObservation observation) {
+  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborIndexObservation observation) {
     return IborRateSensitivity.of(observation, 1d);
   }
 

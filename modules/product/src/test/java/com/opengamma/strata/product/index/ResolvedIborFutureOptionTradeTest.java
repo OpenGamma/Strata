@@ -43,7 +43,7 @@ public class ResolvedIborFutureOptionTradeTest {
   private static final ResolvedIborFuture FUTURE = ResolvedIborFuture.builder()
       .currency(Currency.USD)
       .notional(1_000_000d)
-      .observation(IborRateObservation.of(USD_LIBOR_3M, date(2015, 3, 16), REF_DATA))
+      .iborRate(IborRateObservation.of(USD_LIBOR_3M, date(2015, 3, 16), REF_DATA))
       .build();
   private static final ResolvedIborFutureOption OPTION = ResolvedIborFutureOption.builder()
       .putCall(CALL)

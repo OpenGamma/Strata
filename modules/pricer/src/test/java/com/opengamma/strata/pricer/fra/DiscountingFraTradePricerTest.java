@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -56,7 +57,7 @@ public class DiscountingFraTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     RATES_PROVIDER = new SimpleRatesProvider(VAL_DATE, mockDf);
     RATES_PROVIDER.setIborRates(mockIbor);
-    IborRateObservation obs = (IborRateObservation) RFRA.getFloatingRate();
+    IborIndexObservation obs = ((IborRateObservation) RFRA.getFloatingRate()).getObservation();
     IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
     when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
     when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
