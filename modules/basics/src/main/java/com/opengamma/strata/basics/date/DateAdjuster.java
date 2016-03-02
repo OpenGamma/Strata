@@ -10,8 +10,6 @@ import java.time.LocalDate;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 
-import com.opengamma.strata.collect.ArgChecker;
-
 /**
  * Functional interface that can adjust a date.
  * <p>
@@ -49,7 +47,6 @@ public interface DateAdjuster
   @Override
   public default Temporal adjustInto(Temporal temporal) {
     // conversion to LocalDate ensures that other calendar systems are ignored
-    ArgChecker.notNull(temporal, "temporal");
     return temporal.with(adjust(LocalDate.from(temporal)));
   }
 

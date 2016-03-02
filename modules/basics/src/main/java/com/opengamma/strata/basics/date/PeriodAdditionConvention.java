@@ -11,7 +11,6 @@ import java.time.Period;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -39,7 +38,6 @@ public interface PeriodAdditionConvention
    */
   @FromString
   public static PeriodAdditionConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 

@@ -7,7 +7,6 @@ package com.opengamma.strata.basics.date;
 
 import com.google.common.base.Splitter;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
@@ -75,7 +74,6 @@ public final class HolidayCalendars {
    * @return the holiday calendar
    */
   public static HolidayCalendar of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     if (uniqueName.contains("+")) {
       return Splitter.on('+').splitToList(uniqueName).stream()
           .map(HolidayCalendars::of)

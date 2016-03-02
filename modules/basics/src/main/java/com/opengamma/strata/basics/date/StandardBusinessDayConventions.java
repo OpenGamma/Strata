@@ -23,9 +23,7 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   NO_ADJUST("NoAdjust") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
-      return date;
+      return ArgChecker.notNull(date, "date");
     }
   },
 
@@ -33,8 +31,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   FOLLOWING("Following") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       return calendar.nextOrSame(date);
     }
   },
@@ -43,8 +39,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   MODIFIED_FOLLOWING("ModifiedFollowing") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       return calendar.nextSameOrLastInMonth(date);
     }
   },
@@ -53,8 +47,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   MODIFIED_FOLLOWING_BI_MONTHLY("ModifiedFollowingBiMonthly") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       LocalDate adjusted = calendar.nextOrSame(date);
       if (adjusted.getMonthValue() != date.getMonthValue() ||
           (adjusted.getDayOfMonth() > 15 && date.getDayOfMonth() <= 15)) {
@@ -68,8 +60,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   PRECEDING("Preceding") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       return calendar.previousOrSame(date);
     }
   },
@@ -78,8 +68,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   MODIFIED_PRECEDING("ModifiedPreceding") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       LocalDate adjusted = calendar.previousOrSame(date);
       if (adjusted.getMonth() != date.getMonth()) {
         adjusted = calendar.next(date);
@@ -92,8 +80,6 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
   NEAREST("Nearest") {
     @Override
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(calendar, "calendar");
       if (calendar.isBusinessDay(date)) {
         return date;
       }

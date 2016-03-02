@@ -113,10 +113,6 @@ public final class ImmutableHolidayCalendar
    */
   public static ImmutableHolidayCalendar of(
       HolidayCalendarId id, Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.notNull(firstWeekendDay, "firstWeekendDay");
-    ArgChecker.notNull(secondWeekendDay, "secondWeekendDay");
     ImmutableSet<DayOfWeek> weekendDays = Sets.immutableEnumSet(firstWeekendDay, secondWeekendDay);
     return new ImmutableHolidayCalendar(id, ImmutableSortedSet.copyOf(holidays), weekendDays);
   }
@@ -137,9 +133,6 @@ public final class ImmutableHolidayCalendar
    */
   public static ImmutableHolidayCalendar of(
       HolidayCalendarId id, Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.noNulls(weekendDays, "weekendDays");
     return new ImmutableHolidayCalendar(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
   }
 
@@ -155,10 +148,8 @@ public final class ImmutableHolidayCalendar
    */
   public static ImmutableHolidayCalendar combined(ImmutableHolidayCalendar cal1, ImmutableHolidayCalendar cal2) {
     // do not override combinedWith(), as this is too slow
-    ArgChecker.notNull(cal1, "cal1");
-    ArgChecker.notNull(cal2, "cal2");
     if (cal1 == cal2) {
-      return cal1;
+      return ArgChecker.notNull(cal1, "cal1");
     }
     LocalDateRange newRange = cal1.range.union(cal2.range);  // exception if no overlap
     ImmutableSortedSet<LocalDate> newHolidays =

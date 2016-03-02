@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
@@ -91,18 +92,18 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY));
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(TEST_ID, null, SATURDAY, SUNDAY));
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null, SUNDAY));
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, null));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, null, SATURDAY, SUNDAY));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null, SUNDAY));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, null));
   }
 
   public void test_of_IterableIterable_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays));
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(TEST_ID, null, weekendDays));
-    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, null, weekendDays));
+    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null));
   }
 
   //-------------------------------------------------------------------------

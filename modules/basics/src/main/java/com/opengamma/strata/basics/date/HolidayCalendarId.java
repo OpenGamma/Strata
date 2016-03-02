@@ -176,12 +176,11 @@ public final class HolidayCalendarId
    * @return the combined holiday calendar identifier
    */
   public HolidayCalendarId combinedWith(HolidayCalendarId other) {
-    ArgChecker.notNull(other, "other");
     if (this == other) {
       return this;
     }
     if (this == HolidayCalendarIds.NO_HOLIDAYS) {
-      return other;
+      return ArgChecker.notNull(other, "other");
     }
     if (other == HolidayCalendarIds.NO_HOLIDAYS) {
       return this;

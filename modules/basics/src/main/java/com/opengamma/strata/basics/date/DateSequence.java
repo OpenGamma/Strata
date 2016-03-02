@@ -42,7 +42,6 @@ public interface DateSequence
    */
   @FromString
   public static DateSequence of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
@@ -69,7 +68,6 @@ public interface DateSequence
    * @throws IllegalArgumentException if there are no more sequence dates
    */
   public default LocalDate next(LocalDate date) {
-    ArgChecker.notNull(date, "date");
     LocalDate next = plusDays(date, 1);
     return nextOrSame(next);
   }

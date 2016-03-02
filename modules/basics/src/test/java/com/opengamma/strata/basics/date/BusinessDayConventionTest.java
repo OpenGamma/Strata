@@ -57,24 +57,6 @@ public class BusinessDayConventionTest {
   private static final LocalDate MON_2014_11_17 = LocalDate.of(2014, 11, 17);
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "types")
-  static Object[][] data_types() {
-    StandardBusinessDayConventions[] conv = StandardBusinessDayConventions.values();
-    Object[][] result = new Object[conv.length][];
-    for (int i = 0; i < conv.length; i++) {
-      result[i] = new Object[] {conv[i]};
-    }
-    return result;
-  }
-
-  @Test(dataProvider = "types")
-  public void test_null(BusinessDayConvention type) {
-    assertThrowsIllegalArg(() -> type.adjust(null, HolidayCalendars.NO_HOLIDAYS));
-    assertThrowsIllegalArg(() -> type.adjust(FRI_2014_11_14, null));
-    assertThrowsIllegalArg(() -> type.adjust(null, null));
-  }
-
-  //-------------------------------------------------------------------------
   @DataProvider(name = "convention")
   static Object[][] data_convention() {
     return new Object[][] {

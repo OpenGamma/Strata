@@ -30,6 +30,7 @@ import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -70,9 +71,9 @@ public class DayCountTest {
 
   @Test(dataProvider = "types")
   public void test_null(DayCount type) {
-    assertThrowsIllegalArg(() -> type.yearFraction(null, JAN_01));
-    assertThrowsIllegalArg(() -> type.yearFraction(JAN_01, null));
-    assertThrowsIllegalArg(() -> type.yearFraction(null, null));
+    assertThrowsRuntime(() -> type.yearFraction(null, JAN_01));
+    assertThrowsRuntime(() -> type.yearFraction(JAN_01, null));
+    assertThrowsRuntime(() -> type.yearFraction(null, null));
   }
 
   @Test(dataProvider = "types")
@@ -808,7 +809,7 @@ public class DayCountTest {
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> DayCount.of(null));
+    assertThrowsRuntime(() -> DayCount.of(null));
   }
 
   //-------------------------------------------------------------------------

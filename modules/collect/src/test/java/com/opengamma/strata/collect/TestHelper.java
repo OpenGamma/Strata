@@ -254,11 +254,25 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code RuntimeException}.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrowsRuntime(() -> new Foo(null));
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   */
+  public static void assertThrowsRuntime(AssertRunnable runner) {
+    assertThrows(runner, RuntimeException.class);
+  }
+
+  /**
    * Asserts that the lambda-based code throws an {@code IllegalArgumentException}.
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() -> new Foo(null));
+   *  assertThrowsIllegalArg(() -> new Foo(null));
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
@@ -273,7 +287,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() -> new Foo(null), "Foo constructor argument must not be null");
+   *  assertThrowsIllegalArg(() -> new Foo(null), "Foo constructor argument must not be null");
    * </pre>
    *
    * @param runner  the lambda containing the code to test
@@ -289,7 +303,7 @@ public class TestHelper {
    * <p>
    * For example:
    * <pre>
-   *  assertThrows(() ->
+   *  assertThrowsWithCause(() ->
    *    executeSql("INSERT DATA THAT ALREADY EXISTS"), SQLIntegrityConstraintViolationException.class);
    * </pre>
    *

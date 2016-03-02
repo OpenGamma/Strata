@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -40,7 +39,6 @@ public interface BusinessDayConvention
    */
   @FromString
   public static BusinessDayConvention of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 

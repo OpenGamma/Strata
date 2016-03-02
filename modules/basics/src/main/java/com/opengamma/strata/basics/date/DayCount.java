@@ -12,7 +12,6 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -39,7 +38,6 @@ public interface DayCount
    */
   @FromString
   public static DayCount of(String uniqueName) {
-    ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
 
@@ -148,9 +146,6 @@ public interface DayCount
    * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public default double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
     if (secondDate.isBefore(firstDate)) {
       return -yearFraction(secondDate, firstDate, scheduleInfo);
     }
