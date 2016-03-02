@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -25,6 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DateAdjuster;
+import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -99,13 +102,42 @@ public final class IborRateObservation
 
     LocalDate effectiveDate = index.calculateEffectiveFromFixing(fixingDate, refData);
     LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate, refData);
-    return IborRateObservation.builder()
-        .index(index)
-        .fixingDate(fixingDate)
-        .effectiveDate(effectiveDate)
-        .maturityDate(maturityDate)
-        .yearFraction(index.getDayCount().yearFraction(effectiveDate, maturityDate))
-        .build();
+    double yearFraction = index.getDayCount().yearFraction(effectiveDate, maturityDate);
+    return new IborRateObservation(index, fixingDate, effectiveDate, maturityDate, yearFraction);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a function capable of producing {@code IborRateObservation} instances.
+   * <p>
+   * The resulting function is bound to the specified index and reference data.
+   * The function will convert a fixing date, which must be valid according to
+   * the fixing calendar, to an observation.
+   * 
+   * @param index  the index
+   * @param refData  the reference data to use when resolving holiday calendars
+   * @return the rate observation
+   */
+  public static Function<LocalDate, IborRateObservation> bind(IborIndex index, ReferenceData refData) {
+    HolidayCalendar fixingCal = index.getFixingCalendar().resolve(refData);
+    DateAdjuster effectiveAdjuster = index.getEffectiveDateOffset().resolve(refData);
+    DateAdjuster maturityAdjuster = index.getMaturityDateOffset().resolve(refData);
+    return fixingDate -> create(index, fixingDate, fixingCal, effectiveAdjuster, maturityAdjuster);
+  }
+
+  // creates an instance
+  private static IborRateObservation create(
+      IborIndex index,
+      LocalDate fixingDate,
+      HolidayCalendar fixingCal,
+      DateAdjuster effectiveAdjuster,
+      DateAdjuster maturityAdjuster) {
+
+    LocalDate fixingBusinessDay = fixingCal.nextOrSame(fixingDate);
+    LocalDate effectiveDate = effectiveAdjuster.adjust(fixingBusinessDay);
+    LocalDate maturityDate = maturityAdjuster.adjust(effectiveDate);
+    double yearFraction = index.getDayCount().yearFraction(effectiveDate, maturityDate);
+    return new IborRateObservation(index, fixingDate, effectiveDate, maturityDate, yearFraction);
   }
 
   //-----------------------------------------------------------------------
