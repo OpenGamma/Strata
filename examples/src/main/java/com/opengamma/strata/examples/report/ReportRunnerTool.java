@@ -199,7 +199,7 @@ public class ReportRunnerTool implements AutoCloseable {
       throw new IllegalArgumentException("No trades found. Please check the input portfolio or trade ID filter.");
     }
 
-    // the reference data, such as holidays, indices and securities
+    // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results

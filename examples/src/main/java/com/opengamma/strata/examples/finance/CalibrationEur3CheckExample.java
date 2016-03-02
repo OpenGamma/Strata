@@ -167,7 +167,7 @@ public class CalibrationEur3CheckExample {
 
   // calculates the PV results for the instruments used in calibration from the config
   private static Pair<List<Trade>, Results> calculate(CalculationRunner runner) {
-    // the reference data, such as holidays, indices and securities
+    // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // load quotes

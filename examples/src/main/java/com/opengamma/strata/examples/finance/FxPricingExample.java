@@ -86,7 +86,7 @@ public class FxPricingExample {
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
-    // the reference data, such as holidays, indices and securities
+    // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results

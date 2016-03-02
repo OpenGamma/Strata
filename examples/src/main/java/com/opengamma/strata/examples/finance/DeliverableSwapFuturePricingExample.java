@@ -58,7 +58,7 @@ public class DeliverableSwapFuturePricingExample {
 
   // obtains the data and calculates the grid of results
   private static void calculate(CalculationRunner runner) {
-    // the reference data, such as holidays, indices and securities
+    // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // the trades that will have measures calculated
