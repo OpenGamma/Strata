@@ -18,7 +18,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -38,7 +37,6 @@ import com.opengamma.strata.pricer.impl.bond.DiscountingCapitalIndexedBondPaymen
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.YieldConvention;
@@ -49,7 +47,7 @@ import com.opengamma.strata.product.rate.RateObservation;
 /**
  * Pricer for capital indexed bond products.
  * <p>
- * This function provides the ability to price a {@link CapitalIndexedBond}.
+ * This function provides the ability to price a {@link ResolvedCapitalIndexedBond}.
  */
 public class DiscountingCapitalIndexedBondProductPricer {
 
@@ -106,40 +104,39 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * Coupon payments of the product are considered based on the valuation date. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @return the present value of the product
    */
   public CurrencyAmount presentValue(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    return presentValue(product, ratesProvider, issuerDiscountFactorsProvider, ratesProvider.getValuationDate());
+    return presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, ratesProvider.getValuationDate());
   }
 
   // calculate the present value
   CurrencyAmount presentValue(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     IssuerCurveDiscountFactors issuerDiscountFactors = issuerDiscountFactorsProvider.issuerCurveDiscountFactors(
-        product.getLegalEntityId(), product.getCurrency());
+        bond.getLegalEntityId(), bond.getCurrency());
     double pvNominal =
-        periodPricer.presentValue(expanded.getNominalPayment(), ratesProvider, issuerDiscountFactors);
+        periodPricer.presentValue(bond.getNominalPayment(), ratesProvider, issuerDiscountFactors);
     double pvCoupon = 0d;
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((product.getExCouponPeriod().getDays() != 0 && period.getDetachmentDate().isAfter(referenceDate)) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(referenceDate))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if ((bond.hasExCouponPeriod() && period.getDetachmentDate().isAfter(referenceDate)) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(referenceDate))) {
         pvCoupon += periodPricer.presentValue(period, ratesProvider, issuerDiscountFactors);
       }
     }
-    return CurrencyAmount.of(product.getCurrency(), pvCoupon + pvNominal);
+    return CurrencyAmount.of(bond.getCurrency(), pvCoupon + pvNominal);
   }
 
   /**
@@ -151,7 +148,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or
    * periodic compounded rates of the issuer discounting curve. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -160,7 +157,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the present value of the bond product
    */
   public CurrencyAmount presentValueWithZSpread(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       double zSpread,
@@ -168,13 +165,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    return presentValueWithZSpread(product, ratesProvider, issuerDiscountFactorsProvider,
+    return presentValueWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         ratesProvider.getValuationDate(), zSpread, compoundedRateType, periodsPerYear);
   }
 
   // calculate the present value
   CurrencyAmount presentValueWithZSpread(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate,
@@ -182,20 +179,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     IssuerCurveDiscountFactors issuerDiscountFactors = issuerDiscountFactorsProvider.issuerCurveDiscountFactors(
-        product.getLegalEntityId(), product.getCurrency());
+        bond.getLegalEntityId(), bond.getCurrency());
     double pvNominal = periodPricer.presentValueWithZSpread(
-            expanded.getNominalPayment(), ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear);
+        bond.getNominalPayment(), ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear);
     double pvCoupon = 0d;
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((product.getExCouponPeriod().getDays() != 0 && period.getDetachmentDate().isAfter(referenceDate)) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(referenceDate))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if ((bond.hasExCouponPeriod() && period.getDetachmentDate().isAfter(referenceDate)) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(referenceDate))) {
         pvCoupon += periodPricer.presentValueWithZSpread(
             period, ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear);
       }
     }
-    return CurrencyAmount.of(product.getCurrency(), pvCoupon + pvNominal);
+    return CurrencyAmount.of(bond.getCurrency(), pvCoupon + pvNominal);
   }
 
   //-------------------------------------------------------------------------
@@ -205,38 +201,37 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @return the present value curve sensitivity of the product
    */
   public PointSensitivityBuilder presentValueSensitivity(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider
       issuerDiscountFactorsProvider) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     return presentValueSensitivity(
-        product, ratesProvider, issuerDiscountFactorsProvider, ratesProvider.getValuationDate());
+        bond, ratesProvider, issuerDiscountFactorsProvider, ratesProvider.getValuationDate());
   }
 
   // calculate the present value sensitivity
   PointSensitivityBuilder presentValueSensitivity(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     IssuerCurveDiscountFactors issuerDiscountFactors = issuerDiscountFactorsProvider.issuerCurveDiscountFactors(
-        product.getLegalEntityId(), product.getCurrency());
+        bond.getLegalEntityId(), bond.getCurrency());
     PointSensitivityBuilder pointNominal =
-        periodPricer.presentValueSensitivity(expanded.getNominalPayment(), ratesProvider, issuerDiscountFactors);
+        periodPricer.presentValueSensitivity(bond.getNominalPayment(), ratesProvider, issuerDiscountFactors);
     PointSensitivityBuilder pointCoupon = PointSensitivityBuilder.none();
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((product.getExCouponPeriod().getDays() != 0 && period.getDetachmentDate().isAfter(referenceDate)) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(referenceDate))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if ((bond.hasExCouponPeriod() && period.getDetachmentDate().isAfter(referenceDate)) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(referenceDate))) {
         pointCoupon = pointCoupon.combinedWith(
             periodPricer.presentValueSensitivity(period, ratesProvider, issuerDiscountFactors));
       }
@@ -253,7 +248,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or
    * periodic compounded rates of the issuer discounting curve. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -262,7 +257,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the present value curve sensitivity of the product
    */
   public PointSensitivityBuilder presentValueSensitivityWithZSpread(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       double zSpread,
@@ -270,13 +265,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    return presentValueSensitivityWithZSpread(product, ratesProvider, issuerDiscountFactorsProvider,
+    return presentValueSensitivityWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         ratesProvider.getValuationDate(), zSpread, compoundedRateType, periodsPerYear);
   }
 
   // calculate the present value sensitivity
   PointSensitivityBuilder presentValueSensitivityWithZSpread(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate,
@@ -284,15 +279,14 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     IssuerCurveDiscountFactors issuerDiscountFactors = issuerDiscountFactorsProvider.issuerCurveDiscountFactors(
-        product.getLegalEntityId(), product.getCurrency());
+        bond.getLegalEntityId(), bond.getCurrency());
     PointSensitivityBuilder pointNominal = periodPricer.presentValueSensitivityWithZSpread(
-        expanded.getNominalPayment(), ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear);
+        bond.getNominalPayment(), ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear);
     PointSensitivityBuilder pointCoupon = PointSensitivityBuilder.none();
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((product.getExCouponPeriod().getDays() != 0 && period.getDetachmentDate().isAfter(referenceDate)) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(referenceDate))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if ((bond.hasExCouponPeriod() && period.getDetachmentDate().isAfter(referenceDate)) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(referenceDate))) {
         pointCoupon = pointCoupon.combinedWith(periodPricer.presentValueSensitivityWithZSpread(
             period, ratesProvider, issuerDiscountFactors, zSpread, compoundedRateType, periodsPerYear));
       }
@@ -304,19 +298,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the currency exposure of the bond product.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param referenceDate  the reference date
    * @return the currency exposure of the product 
    */
   public MultiCurrencyAmount currencyExposure(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate) {
 
-    return MultiCurrencyAmount.of(presentValue(product, ratesProvider, issuerDiscountFactorsProvider, referenceDate));
+    return MultiCurrencyAmount.of(presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, referenceDate));
   }
 
   /**
@@ -325,7 +319,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or
    * periodic compounded rates of the issuer discounting curve. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param referenceDate  the reference date
@@ -335,7 +329,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the currency exposure of the product 
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate referenceDate,
@@ -343,31 +337,30 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    return MultiCurrencyAmount.of(presentValueWithZSpread(product, ratesProvider, issuerDiscountFactorsProvider,
+    return MultiCurrencyAmount.of(presentValueWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         referenceDate, zSpread, compoundedRateType, periodsPerYear));
   }
 
   /**
    * Calculates the current cash of the bond product.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @return the current cash of the product 
    */
   public CurrencyAmount currentCash(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate) {
 
     LocalDate valuationDate = ratesProvider.getValuationDate();
-    Currency currency = product.getCurrency();
+    Currency currency = bond.getCurrency();
     CurrencyAmount currentCash = CurrencyAmount.zero(currency);
     if (settlementDate.isBefore(valuationDate)) {
-      ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-      double cashCoupon = product.getExCouponPeriod().getDays() != 0 ? 0d :
-          currentCashPayment(expanded, ratesProvider, valuationDate);
-      CapitalIndexedBondPaymentPeriod nominal = expanded.getNominalPayment();
+      double cashCoupon = bond.hasExCouponPeriod() ? 0d :
+          currentCashPayment(bond, ratesProvider, valuationDate);
+      CapitalIndexedBondPaymentPeriod nominal = bond.getNominalPayment();
       double cashNominal = nominal.getPaymentDate().isEqual(valuationDate) ?
           periodPricer.forecastValue(nominal, ratesProvider) : 0d;
       currentCash = currentCash.plus(CurrencyAmount.of(currency, cashCoupon + cashNominal));
@@ -376,12 +369,12 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   private double currentCashPayment(
-      ResolvedCapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate valuationDate) {
 
     double cash = 0d;
-    for (CapitalIndexedBondPaymentPeriod period : product.getPeriodicPayments()) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
       if (period.getPaymentDate().isEqual(valuationDate)) {
         cash += periodPricer.forecastValue(period, ratesProvider);
       }
@@ -395,36 +388,36 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @return the dirty price of the bond security
    */
   public double dirtyNominalPriceFromCurves(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
-    return dirtyNominalPriceFromCurves(security, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    return dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
   }
 
   // calculate the dirty price
   double dirtyNominalPriceFromCurves(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate) {
 
-    CapitalIndexedBond product = security.getProduct();
-    CurrencyAmount pv = presentValue(product, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
-    StandardId securityId = security.getStandardId();
-    StandardId legalEntityId = product.getLegalEntityId();
+    CurrencyAmount pv = presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    StandardId legalEntityId = bond.getLegalEntityId();
     double df = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        securityId, legalEntityId, product.getCurrency()).discountFactor(settlementDate);
-    double notional = product.getNotional();
+        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+    double notional = bond.getNotional();
     return pv.getAmount() / (df * notional);
   }
 
@@ -436,7 +429,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -445,7 +439,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the dirty price of the bond security
    */
   public double dirtyNominalPriceFromCurvesWithZSpread(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       double zSpread,
@@ -453,15 +448,15 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
-    return dirtyNominalPriceFromCurvesWithZSpread(security, ratesProvider, issuerDiscountFactorsProvider,
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    return dirtyNominalPriceFromCurvesWithZSpread(bond, securityId, ratesProvider, issuerDiscountFactorsProvider,
         settlementDate, zSpread, compoundedRateType, periodsPerYear);
   }
 
   // calculate the dirty price
   double dirtyNominalPriceFromCurvesWithZSpread(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate,
@@ -469,15 +464,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    CapitalIndexedBond product = security.getProduct();
     CurrencyAmount pv = presentValueWithZSpread(
-        product, ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType,
+        bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType,
         periodsPerYear);
-    StandardId securityId = security.getStandardId();
-    StandardId legalEntityId = product.getLegalEntityId();
+    StandardId legalEntityId = bond.getLegalEntityId();
     double df = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        securityId, legalEntityId, product.getCurrency()).discountFactor(settlementDate);
-    double notional = product.getNotional();
+        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+    double notional = bond.getNotional();
     return pv.getAmount() / (df * notional);
   }
 
@@ -488,39 +481,39 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The dirty price sensitivity of the security is the sensitivity of the dirty price value to
    * the underlying curves.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @return the dirty price curve sensitivity of the security
    */
   public PointSensitivityBuilder dirtyNominalPriceSensitivity(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
-    return dirtyNominalPriceSensitivity(security, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    return dirtyNominalPriceSensitivity(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
   }
 
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyNominalPriceSensitivity(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate) {
 
-    CapitalIndexedBond product = security.getProduct();
-    double notional = product.getNotional();
-    CurrencyAmount pv = presentValue(product, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
-    StandardId securityId = security.getStandardId();
-    StandardId legalEntityId = product.getLegalEntityId();
+    double notional = bond.getNotional();
+    CurrencyAmount pv = presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, product.getCurrency());
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(settlementDate);
     PointSensitivityBuilder pvSensi = presentValueSensitivity(
-        product, ratesProvider, issuerDiscountFactorsProvider, settlementDate).multipliedBy(1d / (df * notional));
+        bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate).multipliedBy(1d / (df * notional));
     RepoCurveZeroRateSensitivity dfSensi = discountFactors
         .zeroRatePointSensitivity(settlementDate).multipliedBy(-pv.getAmount() / (df * df * notional));
     return pvSensi.combinedWith(dfSensi);
@@ -535,7 +528,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -544,7 +538,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the dirty price curve sensitivity of the security
    */
   public PointSensitivityBuilder dirtyNominalPriceSensitivityWithZSpread(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       double zSpread,
@@ -552,15 +547,22 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     return dirtyNominalPriceSensitivityWithZSpread(
-        security, ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
+        bond,
+        securityId,
+        ratesProvider,
+        issuerDiscountFactorsProvider,
+        settlementDate,
+        zSpread,
+        compoundedRateType,
+        periodsPerYear);
   }
 
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyNominalPriceSensitivityWithZSpread(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate,
@@ -568,17 +570,15 @@ public class DiscountingCapitalIndexedBondProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    CapitalIndexedBond product = security.getProduct();
-    double notional = product.getNotional();
+    double notional = bond.getNotional();
     CurrencyAmount pv = presentValueWithZSpread(
-        product, ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType,
+        bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType,
         periodsPerYear);
-    StandardId securityId = security.getStandardId();
-    StandardId legalEntityId = product.getLegalEntityId();
+    StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, product.getCurrency());
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(settlementDate);
-    PointSensitivityBuilder pvSensi = presentValueSensitivityWithZSpread(product, ratesProvider, issuerDiscountFactorsProvider,
+    PointSensitivityBuilder pvSensi = presentValueSensitivityWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         settlementDate, zSpread, compoundedRateType, periodsPerYear).multipliedBy(1d / (df * notional));
     RepoCurveZeroRateSensitivity dfSensi = discountFactors
         .zeroRatePointSensitivity(settlementDate).multipliedBy(-pv.getAmount() / df / df / notional);
@@ -593,27 +593,27 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the yield
    * @return the dirty price of the product 
    */
   public double dirtyPriceFromRealYield(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    ArgChecker.isTrue(settlementDate.isBefore(product.getPeriodicSchedule().getEndDate()),
+    ArgChecker.isTrue(settlementDate.isBefore(bond.getPeriodicSchedule().getEndDate()),
         "settlement date must be before end date");
-    Schedule scheduleAdjusted = product.getPeriodicSchedule().createSchedule(REF_DATA);
+    Schedule scheduleAdjusted = bond.getPeriodicSchedule().createSchedule(REF_DATA);
     Schedule scheduleUnadjusted = scheduleAdjusted.toUnadjusted();
-    List<Double> coupon = product.getRateCalculation().getGearing().orElse(ValueSchedule.ALWAYS_1)
+    List<Double> coupon = bond.getRateCalculation().getGearing().orElse(ValueSchedule.ALWAYS_1)
         .resolveValues(scheduleAdjusted.getPeriods());
     int nbCoupon = scheduleAdjusted.getPeriods().size() - couponIndex(scheduleUnadjusted, settlementDate);
-    double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
-    YieldConvention yieldConvention = product.getYieldConvention();
+    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+    YieldConvention yieldConvention = bond.getYieldConvention();
     if (yieldConvention.equals(YieldConvention.US_IL_REAL)) {
       double pvAtFirstCoupon;
       double cpnRate = coupon.get(0);
@@ -625,20 +625,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
         pvAtFirstCoupon = cpnRate * nbCoupon + 1d;
       }
       return pvAtFirstCoupon /
-          (1d + factorToNextCoupon(scheduleUnadjusted, product.getDayCount(), settlementDate) * yield / couponPerYear);
+          (1d + factorToNextCoupon(scheduleUnadjusted, bond.getDayCount(), settlementDate) * yield / couponPerYear);
     }
 
     int couponIndex = couponIndex(scheduleUnadjusted, settlementDate);
     double realRate = coupon.get(couponIndex);
     double firstYearFraction =
-        scheduleUnadjusted.getPeriod(couponIndex).yearFraction(product.getDayCount(), scheduleUnadjusted);
+        scheduleUnadjusted.getPeriod(couponIndex).yearFraction(bond.getDayCount(), scheduleUnadjusted);
     double v = 1d / (1d + yield / couponPerYear);
     if (yieldConvention.equals(YieldConvention.INDEX_LINKED_FLOAT)) {
-      ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-      RateObservation obs = expanded.getPeriodicPayments().get(couponIndex).getRateObservation();
-      LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(product.getRateCalculation().getIndex()).getFixings();
+      RateObservation obs = bond.getPeriodicPayments().get(couponIndex).getRateObservation();
+      LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
-      double indexRatio = ts.getLatestValue() / product.getStartIndexValue();
+      double indexRatio = ts.getLatestValue() / bond.getStartIndexValue();
       YearMonth endFixingMonth = null;
       if (obs instanceof InflationEndInterpolatedRateObservation) {
         endFixingMonth = ((InflationEndInterpolatedRateObservation) obs).getEndSecondObservation().getFixingMonth();
@@ -651,12 +650,12 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double u = Math.sqrt(1d / 1.03);
       double a = indexRatio * Math.pow(u, nbMonth / 6d);
       double firstCashFlow = firstYearFraction * realRate * indexRatio * couponPerYear;
-      double rs = ratioPeriodToNextCoupon(expanded.getPeriodicPayments().get(couponIndex), settlementDate);
+      double rs = ratioPeriodToNextCoupon(bond.getPeriodicPayments().get(couponIndex), settlementDate);
       if (nbCoupon == 1) {
         return (realRate + 1d) * a / u * Math.pow(u * v, rs);
       } else {
         double secondYearFraction =
-            scheduleUnadjusted.getPeriod(couponIndex  + 1).yearFraction(product.getDayCount(), scheduleUnadjusted);
+            scheduleUnadjusted.getPeriod(couponIndex + 1).yearFraction(bond.getDayCount(), scheduleUnadjusted);
         double secondCashFlow = secondYearFraction * realRate * indexRatio * couponPerYear;
         double vn = Math.pow(v, nbCoupon - 1);
         double pvAtFirstCoupon =
@@ -665,15 +664,14 @@ public class DiscountingCapitalIndexedBondProductPricer {
       }
     }
     if (yieldConvention.equals(YieldConvention.UK_IL_BOND)) {
-      ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-      double indexRatio = indexRatio(product, ratesProvider, settlementDate);
-      double rs = ratioPeriodToNextCoupon(expanded.getPeriodicPayments().get(couponIndex), settlementDate);
+      double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
+      double rs = ratioPeriodToNextCoupon(bond.getPeriodicPayments().get(couponIndex), settlementDate);
       double firstCashFlow = realRate * indexRatio * firstYearFraction * couponPerYear;
       if (nbCoupon == 1) {
         return Math.pow(v, rs) * (firstCashFlow + 1d);
       } else {
         double secondYearFraction =
-            scheduleUnadjusted.getPeriod(couponIndex + 1).yearFraction(product.getDayCount(), scheduleUnadjusted);
+            scheduleUnadjusted.getPeriod(couponIndex + 1).yearFraction(bond.getDayCount(), scheduleUnadjusted);
         double secondCashFlow = realRate * indexRatio * secondYearFraction * couponPerYear;
         double vn = Math.pow(v, nbCoupon - 1);
         double pvAtFirstCoupon = firstCashFlow + secondCashFlow * v + realRate * v * v * (1d - vn / v) / (1d - v) + vn;
@@ -681,7 +679,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       }
     }
     throw new IllegalArgumentException(
-        "The convention " + product.getYieldConvention().toString() + " is not supported.");
+        "The convention " + bond.getYieldConvention().toString() + " is not supported.");
   }
 
   /**
@@ -691,41 +689,41 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the yield
    * @return the clean price of the product 
    */
   public double cleanPriceFromRealYield(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    double dirtyPrice = dirtyPriceFromRealYield(product, ratesProvider, settlementDate, yield);
-    if (product.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
-      return cleanNominalPriceFromDirtyNominalPrice(product, ratesProvider, settlementDate, dirtyPrice);
+    double dirtyPrice = dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
+    if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+      return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
     }
-    return cleanRealPriceFromDirtyRealPrice(product, settlementDate, dirtyPrice);
+    return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyPrice);
   }
 
   /**
    * Computes the conventional real yield from the dirty price.
    * <p>
    * The input dirty price should be real price or nominal price depending on the yield convention. This is coherent to  
-   * the implementation of {@link #dirtyPriceFromRealYield(CapitalIndexedBond, RatesProvider, LocalDate, double)}.
+   * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
    * The input price and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param dirtyPrice  the bond dirty price
    * @return the yield of the product 
    */
   public double realYieldFromDirtyPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double dirtyPrice) {
@@ -733,7 +731,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     final Function<Double, Double> priceResidual = new Function<Double, Double>() {
       @Override
       public Double apply(Double y) {
-        return dirtyPriceFromRealYield(product, ratesProvider, settlementDate, y) - dirtyPrice;
+        return dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, y) - dirtyPrice;
       }
     };
     double[] range = ROOT_BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);
@@ -746,28 +744,29 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The yield is in the bill yield convention.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @return the yield of the product 
    */
   public double realYieldFromCurves(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     double dirtyPrice;
-    if (product.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
-      dirtyPrice = dirtyNominalPriceFromCurves(security, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+      dirtyPrice = dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     } else {
       double dirtyNominalPrice =
-          dirtyNominalPriceFromCurves(security, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
-      dirtyPrice = realPriceFromNominalPrice(product, ratesProvider, settlementDate, dirtyNominalPrice);
+          dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+      dirtyPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
     }
-    return realYieldFromDirtyPrice(product, ratesProvider, settlementDate, dirtyPrice);
+    return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyPrice);
   }
 
   /**
@@ -775,30 +774,29 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the standard yield
    * @return the dirty price of the product 
    */
   public double dirtyPriceFromStandardYield(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-    Schedule scheduleUnadjusted = product.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
-    int nbCoupon = expanded.getPeriodicPayments().size();
-    double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
+    Schedule scheduleUnadjusted = bond.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
+    int nbCoupon = bond.getPeriodicPayments().size();
+    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
     double factorOnPeriod = 1d + yield / couponPerYear;
     double pvAtFirstCoupon = 0d;
     int pow = 0;
-    double factorToNext = factorToNextCoupon(scheduleUnadjusted, product.getDayCount(), settlementDate);
+    double factorToNext = factorToNextCoupon(scheduleUnadjusted, bond.getDayCount(), settlementDate);
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      CapitalIndexedBondPaymentPeriod period = expanded.getPeriodicPayments().get(loopcpn);
-      if ((product.getExCouponPeriod().getDays() != 0 && !settlementDate.isAfter(period.getDetachmentDate())) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(settlementDate))) {
+      CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(loopcpn);
+      if ((bond.hasExCouponPeriod() && !settlementDate.isAfter(period.getDetachmentDate())) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(settlementDate))) {
         pvAtFirstCoupon += period.getRealCoupon() / Math.pow(factorOnPeriod, pow);
         ++pow;
       }
@@ -815,25 +813,25 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * divided by the clean price. 
    * <p>
    * The clean price here is real price or nominal price depending on the yield convention. This is coherent to 
-   * the implementation of {@link #dirtyPriceFromRealYield(CapitalIndexedBond, RatesProvider, LocalDate, double)}.
+   * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the yield
    * @return the modified duration of the product 
    */
   public double modifiedDurationFromRealYieldFiniteDifference(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    double price = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield);
-    double priceplus = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield + FD_EPS);
-    double priceminus = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield - FD_EPS);
+    double price = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
+    double priceplus = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield + FD_EPS);
+    double priceminus = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield - FD_EPS);
     return -0.5 * (priceplus - priceminus) / (price * FD_EPS);
   }
 
@@ -843,25 +841,25 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The convexity is defined as the second derivative of clean price with respect to yield, divided by the clean price. 
    * <p>
    * The clean price here is real price or nominal price depending on the yield convention. This is coherent to 
-   * the implementation of {@link #dirtyPriceFromRealYield(CapitalIndexedBond, RatesProvider, LocalDate, double)}.
+   * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the yield
    * @return the covexity of the product 
    */
   public double convexityFromRealYieldFiniteDifference(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    double price = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield);
-    double priceplus = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield + FD_EPS);
-    double priceminus = cleanPriceFromRealYield(product, ratesProvider, settlementDate, yield - FD_EPS);
+    double price = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
+    double priceplus = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield + FD_EPS);
+    double priceminus = cleanPriceFromRealYield(bond, ratesProvider, settlementDate, yield - FD_EPS);
     return (priceplus - 2 * price + priceminus) / (price * FD_EPS * FD_EPS);
   }
 
@@ -873,31 +871,30 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the standard yield
    * @return the modified duration of the product 
    */
   public double modifiedDurationFromStandardYield(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-    Schedule scheduleUnadjusted = product.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
-    int nbCoupon = expanded.getPeriodicPayments().size();
-    double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
+    Schedule scheduleUnadjusted = bond.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
+    int nbCoupon = bond.getPeriodicPayments().size();
+    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
     double factorOnPeriod = 1d + yield / couponPerYear;
     double mdAtFirstCoupon = 0d;
     double pvAtFirstCoupon = 0d;
     int pow = 0;
-    double factorToNext = factorToNextCoupon(scheduleUnadjusted, product.getDayCount(), settlementDate);
+    double factorToNext = factorToNextCoupon(scheduleUnadjusted, bond.getDayCount(), settlementDate);
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      CapitalIndexedBondPaymentPeriod period = expanded.getPeriodicPayments().get(loopcpn);
-      if ((product.getExCouponPeriod().getDays() != 0 && !settlementDate.isAfter(period.getDetachmentDate())) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(settlementDate))) {
+      CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(loopcpn);
+      if ((bond.hasExCouponPeriod() && !settlementDate.isAfter(period.getDetachmentDate())) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(settlementDate))) {
         mdAtFirstCoupon += period.getRealCoupon() / Math.pow(factorOnPeriod, pow + 1) *
             (pow + factorToNext) / couponPerYear;
         pvAtFirstCoupon += period.getRealCoupon() / Math.pow(factorOnPeriod, pow);
@@ -918,31 +915,30 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input yield and output are expressed in fraction. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param yield  the standard yield
    * @return the convexity of the product 
    */
   public double convexityFromStandardYield(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double yield) {
 
-    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
-    Schedule scheduleUnadjusted = product.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
-    int nbCoupon = expanded.getPeriodicPayments().size();
-    double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
+    Schedule scheduleUnadjusted = bond.getPeriodicSchedule().createSchedule(REF_DATA).toUnadjusted();
+    int nbCoupon = bond.getPeriodicPayments().size();
+    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
     double factorOnPeriod = 1d + yield / couponPerYear;
     double cvAtFirstCoupon = 0;
     double pvAtFirstCoupon = 0;
     int pow = 0;
-    double factorToNext = factorToNextCoupon(scheduleUnadjusted, product.getDayCount(), settlementDate);
+    double factorToNext = factorToNextCoupon(scheduleUnadjusted, bond.getDayCount(), settlementDate);
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      CapitalIndexedBondPaymentPeriod period = expanded.getPeriodicPayments().get(loopcpn);
-      if ((product.getExCouponPeriod().getDays() != 0 && !settlementDate.isAfter(period.getDetachmentDate())) ||
-          (product.getExCouponPeriod().getDays() == 0 && period.getPaymentDate().isAfter(settlementDate))) {
+      CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(loopcpn);
+      if ((bond.hasExCouponPeriod() && !settlementDate.isAfter(period.getDetachmentDate())) ||
+          (!bond.hasExCouponPeriod() && period.getPaymentDate().isAfter(settlementDate))) {
         cvAtFirstCoupon += period.getRealCoupon() * (pow + factorToNext) * (pow + factorToNext + 1d) /
             (Math.pow(factorOnPeriod, pow + 2) * couponPerYear * couponPerYear);
         pvAtFirstCoupon += period.getRealCoupon() / Math.pow(factorOnPeriod, pow);
@@ -961,75 +957,75 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the dirty real price of the bond from its settlement date and clean real price.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param settlementDate  the settlement date
    * @param cleanPrice  the clean real price
    * @return the price of the bond product
    */
   public double dirtyRealPriceFromCleanRealPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       LocalDate settlementDate,
       double cleanPrice) {
 
-    double notional = product.getNotional();
-    return cleanPrice + accruedInterest(product, settlementDate) / notional;
+    double notional = bond.getNotional();
+    return cleanPrice + accruedInterest(bond, settlementDate) / notional;
   }
 
   /**
    * Calculates the clean real price of the bond from its settlement date and dirty real price.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param settlementDate  the settlement date
    * @param dirtyPrice  the dirty real price
    * @return the price of the bond product
    */
   public double cleanRealPriceFromDirtyRealPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       LocalDate settlementDate,
       double dirtyPrice) {
 
-    double notional = product.getNotional();
-    return dirtyPrice - accruedInterest(product, settlementDate) / notional;
+    double notional = bond.getNotional();
+    return dirtyPrice - accruedInterest(bond, settlementDate) / notional;
   }
 
   /**
    * Calculates the dirty nominal price of the bond from its settlement date and clean nominal price.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param cleanPrice  the clean nominal price
    * @return the price of the bond product
    */
   public double dirtyNominalPriceFromCleanNominalPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double cleanPrice) {
 
-    double notional = product.getNotional();
-    double indexRatio = indexRatio(product, ratesProvider, settlementDate);
-    return cleanPrice + accruedInterest(product, settlementDate) / notional * indexRatio;
+    double notional = bond.getNotional();
+    double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
+    return cleanPrice + accruedInterest(bond, settlementDate) / notional * indexRatio;
   }
 
   /**
    * Calculates the clean nominal price of the bond from its settlement date and dirty nominal price.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param dirtyPrice  the dirty nominal price
    * @return the price of the bond product
    */
   public double cleanNominalPriceFromDirtyNominalPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double dirtyPrice) {
 
-    double notional = product.getNotional();
-    double indexRatio = indexRatio(product, ratesProvider, settlementDate);
-    return dirtyPrice - accruedInterest(product, settlementDate) / notional * indexRatio;
+    double notional = bond.getNotional();
+    double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
+    return dirtyPrice - accruedInterest(bond, settlementDate) / notional * indexRatio;
   }
 
   /**
@@ -1037,19 +1033,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input and output prices are both clean or dirty. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param nominalPrice  the nominal price
    * @return the price of the bond product
    */
   public double realPriceFromNominalPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double nominalPrice) {
 
-    double indexRatio = indexRatio(product, ratesProvider, settlementDate);
+    double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
     return nominalPrice / indexRatio;
   }
 
@@ -1058,19 +1054,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * <p>
    * The input and output prices are both clean or dirty. 
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param settlementDate  the settlement date
    * @param realPrice  the real price
    * @return the price of the bond product
    */
   public double nominalPriceFromRealPrice(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate,
       double realPrice) {
 
-    double indexRatio = indexRatio(product, ratesProvider, settlementDate);
+    double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
     return realPrice * indexRatio;
   }
 
@@ -1084,7 +1080,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * compounded rates of the discounting curve associated to the bond (Issuer Entity)
    * to match the present value.
    * 
-   * @param security  the security
+   * @param bond  the product
+   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanPrice  the clean price
@@ -1093,7 +1090,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the z-spread of the bond security
    */
   public double zSpreadFromCurvesAndCleanPrice(
-      Security<CapitalIndexedBond> security,
+      ResolvedCapitalIndexedBond bond,
+      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       double cleanPrice,
@@ -1101,18 +1099,24 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    CapitalIndexedBond product = security.getProduct();
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     final Function<Double, Double> residual = new Function<Double, Double>() {
       @Override
       public Double apply(Double z) {
         double dirtyPrice = dirtyNominalPriceFromCurvesWithZSpread(
-            security, ratesProvider, issuerDiscountFactorsProvider, settlementDate, z, compoundedRateType, periodsPerYear);
-        if (product.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
-          return cleanNominalPriceFromDirtyNominalPrice(product, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
+            bond,
+            securityId,
+            ratesProvider,
+            issuerDiscountFactorsProvider,
+            settlementDate,
+            z,
+            compoundedRateType,
+            periodsPerYear);
+        if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+          return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
         }
-        double dirtyRealPrice = realPriceFromNominalPrice(product, ratesProvider, settlementDate, dirtyPrice);
-        return cleanRealPriceFromDirtyRealPrice(product, settlementDate, dirtyRealPrice) - cleanPrice;
+        double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
+        return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyRealPrice) - cleanPrice;
       }
     };
     double[] range = ROOT_BRACKETER.getBracketedPoints(residual, -0.5, 0.5); // Starting range is [-1%, 1%]
@@ -1126,7 +1130,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * compounded rates of the discounting curve associated to the bond (Issuer Entity)
    * to match the present value.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param presentValue  the present value
@@ -1135,7 +1139,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * @return the z-spread of the bond product
    */
   public double zSpreadFromCurvesAndPV(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       CurrencyAmount presentValue,
@@ -1143,11 +1147,11 @@ public class DiscountingCapitalIndexedBondProductPricer {
       int periodsPerYear) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
-    LocalDate settlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
+    LocalDate settlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     final Function<Double, Double> residual = new Function<Double, Double>() {
       @Override
       public Double apply(Double z) {
-        return presentValueWithZSpread(product, ratesProvider, issuerDiscountFactorsProvider, settlementDate,
+        return presentValueWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate,
             z, compoundedRateType, periodsPerYear).getAmount() - presentValue.getAmount();
       }
     };
@@ -1159,32 +1163,32 @@ public class DiscountingCapitalIndexedBondProductPricer {
   /**
    * Calculates the accrued interest of the bond with the specified settlement date.
    * 
-   * @param product  the product
+   * @param bond  the product
    * @param settlementDate  the settlement date
    * @return the accrued interest of the product 
    */
-  public double accruedInterest(CapitalIndexedBond product, LocalDate settlementDate) {
-    Schedule scheduleAdjusted = product.getPeriodicSchedule().createSchedule(REF_DATA);
+  public double accruedInterest(ResolvedCapitalIndexedBond bond, LocalDate settlementDate) {
+    Schedule scheduleAdjusted = bond.getPeriodicSchedule().createSchedule(REF_DATA);
     Schedule scheduleUnadjusted = scheduleAdjusted.toUnadjusted();
     if (scheduleUnadjusted.getPeriods().get(0).getStartDate().isAfter(settlementDate)) {
       return 0d;
     }
-    double notional = product.getNotional();
+    double notional = bond.getNotional();
+    CapitalIndexedBondPaymentPeriod period = bond.findPeriod(settlementDate)
+        .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
+
     int couponIndex = couponIndex(scheduleUnadjusted, settlementDate);
     SchedulePeriod schedulePeriod = scheduleUnadjusted.getPeriod(couponIndex);
     LocalDate previousAccrualDate = schedulePeriod.getStartDate();
-    LocalDate paymentDate = scheduleAdjusted.getPeriod(couponIndex).getEndDate();
-
-    double realCoupon = product.getRateCalculation().getGearing().orElse(ValueSchedule.ALWAYS_1)
+    double realCoupon = bond.getRateCalculation().getGearing().orElse(ValueSchedule.ALWAYS_1)
         .resolveValues(scheduleAdjusted.getPeriods()).get(couponIndex);
-    double couponPerYear = product.getPeriodicSchedule().getFrequency().eventsPerYear();
-    double accruedInterest = product.getDayCount()
+    double couponPerYear = bond.getPeriodicSchedule().getFrequency().eventsPerYear();
+    double accruedInterest = bond.getDayCount()
         .yearFraction(previousAccrualDate, settlementDate, scheduleUnadjusted) * realCoupon * couponPerYear * notional;
-    DaysAdjustment exCouponDays = product.getExCouponPeriod();
     double result = 0d;
-    if (exCouponDays.getDays() != 0 && !settlementDate.isBefore(exCouponDays.adjust(paymentDate, REF_DATA))) {
+    if (bond.hasExCouponPeriod() && !settlementDate.isBefore(period.getDetachmentDate())) {
       result = accruedInterest - notional * realCoupon * couponPerYear *
-          schedulePeriod.yearFraction(product.getDayCount(), scheduleUnadjusted);
+          schedulePeriod.yearFraction(bond.getDayCount(), scheduleUnadjusted);
     } else {
       result = accruedInterest;
     }
@@ -1192,9 +1196,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  private double ratioPeriodToNextCoupon(CapitalIndexedBondPaymentPeriod period, LocalDate settlementDate) {
-    double nbDayToSpot = DAYS.between(settlementDate, period.getUnadjustedEndDate());
-    double nbDaysPeriod = DAYS.between(period.getUnadjustedStartDate(), period.getUnadjustedEndDate());
+  private double ratioPeriodToNextCoupon(CapitalIndexedBondPaymentPeriod bond, LocalDate settlementDate) {
+    double nbDayToSpot = DAYS.between(settlementDate, bond.getUnadjustedEndDate());
+    double nbDaysPeriod = DAYS.between(bond.getUnadjustedStartDate(), bond.getUnadjustedEndDate());
     return nbDayToSpot / nbDaysPeriod;
   }
 
@@ -1222,30 +1226,31 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return couponIndex;
   }
 
-  double indexRatio(CapitalIndexedBond product, RatesProvider ratesProvider, LocalDate settlementDate) {
+  double indexRatio(ResolvedCapitalIndexedBond bond, RatesProvider ratesProvider, LocalDate settlementDate) {
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
         ratesProvider.getValuationDate() : settlementDate;
     RateObservation modifiedObservation =
-        product.getRateCalculation().createRateObservation(endReferenceDate, product.getStartIndexValue());
+        bond.getRateCalculation().createRateObservation(endReferenceDate, bond.getStartIndexValue());
     return 1d + periodPricer.getRateObservationFn().rate(
         modifiedObservation,
-        product.getPeriodicSchedule().getStartDate(), // dates not used
-        product.getPeriodicSchedule().getEndDate(),
+        bond.getPeriodicSchedule().getStartDate(), // dates not used
+        bond.getPeriodicSchedule().getEndDate(),
         ratesProvider);
   }
 
   PointSensitivityBuilder indexRatioSensitivity(
-      CapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LocalDate settlementDate) {
+
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
         ratesProvider.getValuationDate() : settlementDate;
     RateObservation modifiedObservation =
-        product.getRateCalculation().createRateObservation(endReferenceDate, product.getStartIndexValue());
+        bond.getRateCalculation().createRateObservation(endReferenceDate, bond.getStartIndexValue());
     return periodPricer.getRateObservationFn().rateSensitivity(
         modifiedObservation,
-        product.getPeriodicSchedule().getStartDate(), // dates not used
-        product.getPeriodicSchedule().getEndDate(),
+        bond.getPeriodicSchedule().getStartDate(), // dates not used
+        bond.getPeriodicSchedule().getEndDate(),
         ratesProvider);
   }
 
@@ -1257,17 +1262,15 @@ public class DiscountingCapitalIndexedBondProductPricer {
   //-------------------------------------------------------------------------
   // compute pv of coupon payment(s) s.t. referenceDate1 < coupon <= referenceDate2
   double presentValueCoupon(
-      ResolvedCapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate1,
-      LocalDate referenceDate2,
-      boolean exCoupon) {
+      LocalDate referenceDate2) {
 
     double pvDiff = 0d;
-    for (CapitalIndexedBondPaymentPeriod period : product.getPeriodicPayments()) {
-      if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
-          (!exCoupon && period.getPaymentDate().isAfter(referenceDate1) && !period.getPaymentDate().isAfter(referenceDate2))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if (period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) {
         pvDiff += periodPricer.presentValue(period, ratesProvider, discountFactors);
       }
     }
@@ -1276,20 +1279,18 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   // compute pv of coupon payment(s) s.t. referenceDate1 < coupon <= referenceDate2
   double presentValueCouponWithZSpread(
-      ResolvedCapitalIndexedBond expanded,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate1,
       LocalDate referenceDate2,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear,
-      boolean exCoupon) {
+      int periodsPerYear) {
 
     double pvDiff = 0d;
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
-          (!exCoupon && period.getPaymentDate().isAfter(referenceDate1) && !period.getPaymentDate().isAfter(referenceDate2))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if (period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) {
         pvDiff += periodPricer.presentValueWithZSpread(
             period, ratesProvider, discountFactors, zSpread, compoundedRateType, periodsPerYear);
       }
@@ -1298,17 +1299,15 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   PointSensitivityBuilder presentValueSensitivityCoupon(
-      ResolvedCapitalIndexedBond product,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate1,
-      LocalDate referenceDate2,
-      boolean exCoupon) {
+      LocalDate referenceDate2) {
 
     PointSensitivityBuilder pvSensiDiff = PointSensitivityBuilder.none();
-    for (CapitalIndexedBondPaymentPeriod period : product.getPeriodicPayments()) {
-      if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
-          (!exCoupon && period.getPaymentDate().isAfter(referenceDate1) && !period.getPaymentDate().isAfter(referenceDate2))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if (period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) {
         pvSensiDiff = pvSensiDiff.combinedWith(periodPricer.presentValueSensitivity(period, ratesProvider, discountFactors));
       }
     }
@@ -1317,20 +1316,18 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
   // compute pv sensitivity of coupon payment(s) s.t. referenceDate1 < coupon <= referenceDate2
   PointSensitivityBuilder presentValueSensitivityCouponWithZSpread(
-      ResolvedCapitalIndexedBond expanded,
+      ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       IssuerCurveDiscountFactors discountFactors,
       LocalDate referenceDate1,
       LocalDate referenceDate2,
       double zSpread,
       CompoundedRateType compoundedRateType,
-      int periodsPerYear,
-      boolean exCoupon) {
+      int periodsPerYear) {
 
     PointSensitivityBuilder pvSensiDiff = PointSensitivityBuilder.none();
-    for (CapitalIndexedBondPaymentPeriod period : expanded.getPeriodicPayments()) {
-      if ((exCoupon && period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) ||
-          (!exCoupon && period.getPaymentDate().isAfter(referenceDate1) && !period.getPaymentDate().isAfter(referenceDate2))) {
+    for (CapitalIndexedBondPaymentPeriod period : bond.getPeriodicPayments()) {
+      if (period.getDetachmentDate().isAfter(referenceDate1) && !period.getDetachmentDate().isAfter(referenceDate2)) {
         pvSensiDiff = pvSensiDiff.combinedWith(periodPricer.presentValueSensitivityWithZSpread(
             period, ratesProvider, discountFactors, zSpread, compoundedRateType, periodsPerYear));
       }
