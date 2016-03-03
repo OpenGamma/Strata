@@ -116,7 +116,7 @@ public final class ImmutableFxIndex
     return fixingDate -> create(fixingDate, fixingCal, maturityAdj);
   }
 
-  // creates an observation, static method to fully capture inputs for lambda
+  // creates an observation
   private FxIndexObservation create(
       LocalDate fixingDate,
       HolidayCalendar fixingCal,
