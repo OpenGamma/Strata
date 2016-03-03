@@ -537,13 +537,13 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   private static final double CLEAN_REAL_FROM_CURVES_ZSPREAD;
   static {
     double dirtyNominal = PRODUCT_PRICER.dirtyNominalPriceFromCurves(
-        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
+        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     double cleanNominal = PRODUCT_PRICER.cleanNominalPriceFromDirtyNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, dirtyNominal);
     CLEAN_REAL_FROM_CURVES = PRODUCT_PRICER.realPriceFromNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, cleanNominal);
     double dirtyNominalZSpread = PRODUCT_PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalZSpread = PRODUCT_PRICER.cleanNominalPriceFromDirtyNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, dirtyNominalZSpread);
     CLEAN_REAL_FROM_CURVES_ZSPREAD = PRODUCT_PRICER.realPriceFromNominalPrice(

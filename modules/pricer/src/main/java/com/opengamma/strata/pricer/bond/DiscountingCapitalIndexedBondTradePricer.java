@@ -233,7 +233,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
@@ -290,7 +290,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
@@ -353,7 +353,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
@@ -411,7 +411,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     ResolvedCapitalIndexedBond bond = trade.getProduct();
-    LocalDate standardSettlementDate = bond.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();

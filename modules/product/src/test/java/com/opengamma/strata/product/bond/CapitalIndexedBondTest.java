@@ -7,7 +7,7 @@ package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.NL_365;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
@@ -83,7 +83,7 @@ public class CapitalIndexedBondTest {
   public void test_builder_full() {
     CapitalIndexedBond test = sut();
     assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_ACT_ICMA);
+    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test.getExCouponPeriod(), EX_COUPON);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getNotional(), NOTIONAL);
@@ -98,7 +98,7 @@ public class CapitalIndexedBondTest {
     CapitalIndexedBond test = CapitalIndexedBond.builder()
         .notional(NOTIONAL)
         .currency(USD)
-        .dayCount(ACT_ACT_ICMA)
+        .dayCount(ACT_ACT_ISDA)
         .rateCalculation(RATE_CALC)
         .legalEntityId(LEGAL_ENTITY)
         .yieldConvention(US_IL_REAL)
@@ -107,7 +107,7 @@ public class CapitalIndexedBondTest {
         .startIndexValue(START_INDEX)
         .build();
     assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_ACT_ICMA);
+    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test.getExCouponPeriod(), DaysAdjustment.NONE);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getNotional(), NOTIONAL);
@@ -123,7 +123,7 @@ public class CapitalIndexedBondTest {
     assertThrowsIllegalArg(() -> CapitalIndexedBond.builder()
         .notional(NOTIONAL)
         .currency(USD)
-        .dayCount(ACT_ACT_ICMA)
+        .dayCount(ACT_ACT_ISDA)
         .rateCalculation(RATE_CALC)
         .exCouponPeriod(EX_COUPON)
         .legalEntityId(LEGAL_ENTITY)
@@ -136,7 +136,7 @@ public class CapitalIndexedBondTest {
     assertThrowsIllegalArg(() -> CapitalIndexedBond.builder()
         .notional(NOTIONAL)
         .currency(USD)
-        .dayCount(ACT_ACT_ICMA)
+        .dayCount(ACT_ACT_ISDA)
         .rateCalculation(RATE_CALC)
         .exCouponPeriod(
             DaysAdjustment.ofCalendarDays(7, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY)))
@@ -168,19 +168,20 @@ public class CapitalIndexedBondTest {
           .realCoupon(COUPONS[i])
           .rateObservation(obs)
           .notional(NOTIONAL)
+          .yearFraction(ACT_ACT_ISDA.yearFraction(unAdjDates[i], unAdjDates[i + 1]))
           .build();
     }
     CapitalIndexedBondPaymentPeriod nominalExp =
         periodic[3].withUnitCoupon(periodic[0].getStartDate(), periodic[0].getUnadjustedStartDate());
     ResolvedCapitalIndexedBond expected = ResolvedCapitalIndexedBond.builder()
-        .dayCount(ACT_ACT_ICMA)
+        .dayCount(ACT_ACT_ISDA)
         .legalEntityId(LEGAL_ENTITY)
         .nominalPayment(nominalExp)
         .periodicPayments(periodic)
+        .frequency(SCHEDULE.getFrequency())
+        .rollConvention(SCHEDULE.calculatedRollConvention())
         .settlementDateOffset(SETTLE_OFFSET)
         .yieldConvention(US_IL_REAL)
-        .notional(base.getNotional())
-        .periodicSchedule(base.getPeriodicSchedule())
         .rateCalculation(base.getRateCalculation())
         .startIndexValue(base.getStartIndexValue())
         .build();
@@ -202,7 +203,7 @@ public class CapitalIndexedBondTest {
     return CapitalIndexedBond.builder()
         .notional(NOTIONAL)
         .currency(USD)
-        .dayCount(ACT_ACT_ICMA)
+        .dayCount(ACT_ACT_ISDA)
         .rateCalculation(RATE_CALC)
         .exCouponPeriod(EX_COUPON)
         .legalEntityId(LEGAL_ENTITY)

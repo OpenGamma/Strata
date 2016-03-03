@@ -237,7 +237,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double computed = PRICER.zSpreadFromCurvesAndPV(
-        PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, pv, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
@@ -245,14 +245,14 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     double computed = PRICER.zSpreadFromCurvesAndPV(
-        PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, pv, CONTINUOUS, 0);
+        PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, CONTINUOUS, 0);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
   //-------------------------------------------------------------------------
   public void test_dirtyNominalPriceFromCurves() {
     double computed = PRICER.dirtyNominalPriceFromCurves(
-        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
+        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
@@ -263,7 +263,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_dirtyNominalPriceFromCurves_exCoupon() {
     double computed = PRICER.dirtyNominalPriceFromCurves(
-        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
+        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
@@ -274,7 +274,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_dirtyNominalPriceFromCurvesWithZSpread() {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
+        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
@@ -285,7 +285,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_dirtyNominalPriceFromCurvesWithZSpread_exCoupon() {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
@@ -296,8 +296,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_dirtyPriceNominalPriceFromCurvesSensitivity() {
-    PointSensitivities point =
-        PRICER.dirtyNominalPriceSensitivity(PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
+    PointSensitivities point = PRICER.dirtyNominalPriceSensitivity(
+        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
     CurveCurrencyParameterSensitivities computed1 = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected =
@@ -306,8 +306,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_dirtyPriceNominalPriceFromCurvesSensitivity_exCoupon() {
-    PointSensitivities point =
-        PRICER.dirtyNominalPriceSensitivity(PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
+    PointSensitivities point = PRICER.dirtyNominalPriceSensitivity(
+        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
     CurveCurrencyParameterSensitivities computed1 = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected =
@@ -317,7 +317,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_dirtyPriceNominalPriceFromCurvesSensitivityWithZSpread() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivityWithZSpread(
-        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        PRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
     CurveCurrencyParameterSensitivities computed1 = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = fdPriceSensitivityWithZSpread(
@@ -327,7 +327,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_dirtyPriceNominalPriceFromCurvesSensitivityWithZSpread_exCoupon() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivityWithZSpread(
-        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0).build();
+        PRODUCT_EX_COUPON, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0).build();
     CurveCurrencyParameterSensitivities computed1 = RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.curveParameterSensitivity(point);
     CurveCurrencyParameterSensitivities expected = fdPriceSensitivityWithZSpread(
@@ -606,8 +606,9 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_realYieldFromCurves_us() {
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
-    double computed = PRICER.realYieldFromCurves(PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US);
-    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US);
+    double computed = PRICER.realYieldFromCurves(PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
+        PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA);
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyRealPrice);
@@ -617,11 +618,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void zSpreadFromCurvesAndCleanPrice_us() {
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle,
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
-        PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_US, SECURITY_ID, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
@@ -723,8 +724,9 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_realYieldFromCurves_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
-    double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB);
-    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB);
+    double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
+        PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
     assertEquals(computed, expected, TOL);
   }
@@ -732,11 +734,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void zSpreadFromCurvesAndCleanPrice_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
-        PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, cleanNominalPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanNominalPrice, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
@@ -814,8 +816,9 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_realYieldFromCurves_ukCor() {
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
-    double computed = PRICER.realYieldFromCurves(PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB);
-    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB);
+    double computed = PRICER.realYieldFromCurves(PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
+        PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyRealPrice);
@@ -825,11 +828,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void zSpreadFromCurvesAndCleanPrice_ukCor() {
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle,
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
-        PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
@@ -884,10 +887,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
     CurveCurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(
         issuerRatesProvider,
-        p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, p)));
+        p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, p, REF_DATA)));
     CurveCurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(
         ratesProvider,
-        p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurves(bond, securityId, p, issuerRatesProvider)));
+        p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurves(bond, securityId, p, issuerRatesProvider, REF_DATA)));
     return sensi1.combinedWith(sensi2);
   }
 
@@ -903,10 +906,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
     CurveCurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(issuerRatesProvider,
         p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-            bond, securityId, ratesProvider, p, zSpread, compoundedRateType, periodsPerYear)));
+            bond, securityId, ratesProvider, p, REF_DATA, zSpread, compoundedRateType, periodsPerYear)));
     CurveCurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(ratesProvider,
         p -> CurrencyAmount.of(USD, PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-            bond, securityId, p, issuerRatesProvider, zSpread, compoundedRateType, periodsPerYear)));
+            bond, securityId, p, issuerRatesProvider, REF_DATA, zSpread, compoundedRateType, periodsPerYear)));
     return sensi1.combinedWith(sensi2);
   }
 
