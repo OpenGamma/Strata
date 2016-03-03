@@ -22,7 +22,7 @@ import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundl
  */
 @Test
 public class SquareLinearCurveInterpolatorTest {
-  
+
   private static final Random RANDOM = new Random(0L);
   private static final CurveInterpolator SQUARE_LINEAR_INTERPOLATOR = SquareLinearCurveInterpolator.INSTANCE;
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
@@ -100,5 +100,5 @@ public class SquareLinearCurveInterpolatorTest {
   public void test_serialization() {
     assertSerialization(SQUARE_LINEAR_INTERPOLATOR);
   }
-  
+
 }
