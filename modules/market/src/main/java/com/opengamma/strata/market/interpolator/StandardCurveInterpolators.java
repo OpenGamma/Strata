@@ -24,6 +24,8 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator LINEAR = LinearCurveInterpolator.INSTANCE;
   // Log linear interpolator.
   public static final CurveInterpolator LOG_LINEAR = LogLinearCurveInterpolator.INSTANCE;
+  // Square linear interpolator.
+  public static final CurveInterpolator SQUARE_LINEAR = SquareLinearCurveInterpolator.INSTANCE;
   // Double quadratic interpolator.
   public static final CurveInterpolator DOUBLE_QUADRATIC = DoubleQuadraticCurveInterpolator.INSTANCE;
   // Log natural cubic interpolation with monotonicity filter.

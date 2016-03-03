@@ -41,6 +41,14 @@ public final class CurveInterpolators {
   public static final CurveInterpolator LOG_LINEAR =
       CurveInterpolator.of(StandardCurveInterpolators.LOG_LINEAR.getName());
   /**
+   * Square linear interpolator.
+   * <p>
+   * The interpolator is used for interpolation on variance for options.
+   * Interpolation is linear on y^2. All values of y must be positive. 
+   */
+  public static final CurveInterpolator SQUARE_LINEAR =
+      CurveInterpolator.of(StandardCurveInterpolators.SQUARE_LINEAR.getName());
+  /**
    * Double quadratic interpolator.
    */
   public static final CurveInterpolator DOUBLE_QUADRATIC =
