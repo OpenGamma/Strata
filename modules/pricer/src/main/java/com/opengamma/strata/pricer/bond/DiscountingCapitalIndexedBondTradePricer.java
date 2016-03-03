@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -22,7 +23,7 @@ import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
-import com.opengamma.strata.product.bond.ExpandedCapitalIndexedBond;
+import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 
 /**
  * Pricer for for capital index bond trades.
@@ -30,6 +31,9 @@ import com.opengamma.strata.product.bond.ExpandedCapitalIndexedBond;
  * This function provides the ability to price a {@link CapitalIndexedBondTrade}.
  */
 public class DiscountingCapitalIndexedBondTradePricer {
+
+  // hard-coded reference data
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /**
    * Default implementation.
@@ -59,7 +63,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanRealPrice  the clean real price
@@ -91,7 +95,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -127,7 +131,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanRealPrice  the clean real price
@@ -156,7 +160,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade. 
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -191,7 +195,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
    * for positive quantity of trade.  
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanRealPrice  the clean real price
@@ -206,7 +210,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     Security<CapitalIndexedBond> security = trade.getSecurity();
     CapitalIndexedBond product = security.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -221,7 +225,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors =
         issuerDiscountFactorsProvider.issuerCurveDiscountFactors(legalEntityId, currency);
-    ExpandedCapitalIndexedBond expanded = product.expand();
+    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     double pvDiff = 0d;
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
@@ -243,7 +247,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic
    * compounded rates of the discounting curve.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -264,7 +268,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     Security<CapitalIndexedBond> security = trade.getSecurity();
     CapitalIndexedBond product = security.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -279,7 +283,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors =
         issuerDiscountFactorsProvider.issuerCurveDiscountFactors(legalEntityId, currency);
-    ExpandedCapitalIndexedBond expanded = product.expand();
+    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     double pvDiff = 0d;
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
@@ -315,7 +319,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The present value sensitivity of the settlement is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanRealPrice  the clean real price
@@ -330,7 +334,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     Security<CapitalIndexedBond> security = trade.getSecurity();
     CapitalIndexedBond product = security.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -348,7 +352,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors issuerDiscountFactors =
         issuerDiscountFactorsProvider.issuerCurveDiscountFactors(legalEntityId, currency);
-    ExpandedCapitalIndexedBond expanded = product.expand();
+    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     PointSensitivityBuilder pvSensiDiff = PointSensitivityBuilder.none();
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
@@ -368,7 +372,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * The present value sensitivity of the settlement is the sensitivity of the present value to
    * the underlying curves.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -389,7 +393,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     Security<CapitalIndexedBond> security = trade.getSecurity();
     CapitalIndexedBond product = security.getProduct();
-    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate());
+    LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
     StandardId securityId = security.getStandardId();
     StandardId legalEntityId = product.getLegalEntityId();
@@ -407,7 +411,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors issuerDiscountFactors =
         issuerDiscountFactorsProvider.issuerCurveDiscountFactors(legalEntityId, currency);
-    ExpandedCapitalIndexedBond expanded = product.expand();
+    ResolvedCapitalIndexedBond expanded = product.resolve(REF_DATA);
     boolean exCoupon = product.getExCouponPeriod().getDays() != 0;
     PointSensitivityBuilder pvSensiDiff = PointSensitivityBuilder.none();
     if (standardSettlementDate.isAfter(tradeSettlementDate)) {
@@ -441,7 +445,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   /**
    * Calculates the currency exposure of the bond trade.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param cleanRealPrice  the clean real price
@@ -459,7 +463,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   /**
    * Calculates the currency exposure of the bond trade with z-spread.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param zSpread  the z-spread
@@ -484,7 +488,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
   /**
    * Calculates the current of the bond trade.
    * 
-   * @param trade  the trade to price
+   * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param realCleanPrice  the real clean price
    * @return the current cash
@@ -496,7 +500,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     LocalDate valuationDate = ratesProvider.getValuationDate();
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
-    CapitalIndexedBondPaymentPeriod settle = trade.getSettlement();
+    CapitalIndexedBondPaymentPeriod settle = trade.resolve(REF_DATA).getSettlement();
     CurrencyAmount cashProduct = productPricer.currentCash(trade.getProduct(), ratesProvider, settlementDate);
     double cashSettle = settle.getPaymentDate().isEqual(valuationDate) ?
         netAmount(trade, ratesProvider, realCleanPrice).getAmount() : 0d;
@@ -520,7 +524,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
+    CapitalIndexedBondPaymentPeriod settlement = trade.resolve(REF_DATA).getSettlement();
     LocalDate paymentDate = settlement.getPaymentDate();
     double notional = trade.getProduct().getNotional();
     double netAmountRealByUnit =
@@ -535,7 +539,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
+    CapitalIndexedBondPaymentPeriod settlement = trade.resolve(REF_DATA).getSettlement();
     double notional = trade.getProduct().getNotional();
     double netAmountRealByUnit =
         realCleanPrice + productPricer.accruedInterest(trade.getProduct(), standardSettlementDate) / notional;
@@ -556,7 +560,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
+    CapitalIndexedBondPaymentPeriod settlement = trade.resolve(REF_DATA).getSettlement();
     LocalDate paymentDate = settlement.getPaymentDate();
     double notional = trade.getProduct().getNotional();
     double netAmountRealByUnit =
@@ -572,7 +576,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
+    CapitalIndexedBondPaymentPeriod settlement = trade.resolve(REF_DATA).getSettlement();
     double notional = trade.getProduct().getNotional();
     double netAmountRealByUnit =
         realCleanPrice + productPricer.accruedInterest(trade.getProduct(), standardSettlementDate) / notional;

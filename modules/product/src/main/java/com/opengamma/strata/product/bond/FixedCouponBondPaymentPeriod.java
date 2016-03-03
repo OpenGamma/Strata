@@ -171,6 +171,11 @@ public final class FixedCouponBondPaymentPeriod
     return getEndDate();
   }
 
+  @Override
+  public CurrencyAmount getNotionalAmount() {
+    return CurrencyAmount.of(currency, notional);
+  }
+
   /**
    * Checks if there is an ex-coupon period.
    * 
@@ -178,11 +183,6 @@ public final class FixedCouponBondPaymentPeriod
    */
   public boolean hasExCouponPeriod() {
     return !detachmentDate.equals(endDate);
-  }
-
-  @Override
-  public CurrencyAmount getNotionalAmount() {
-    return CurrencyAmount.of(currency, notional);
   }
 
   /**

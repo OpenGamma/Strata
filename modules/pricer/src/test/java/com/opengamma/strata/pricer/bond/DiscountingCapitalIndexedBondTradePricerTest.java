@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -54,6 +55,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 @Test
 public class DiscountingCapitalIndexedBondTradePricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   // detachment date (for nonzero ex-coupon days) < valuation date < payment date
   private static final LocalDate VALUATION = LocalDate.of(2014, 7, 13);
   private static final LocalDate PAYMENT = LocalDate.of(2014, 7, 15);
@@ -120,7 +122,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   private static final LocalDate SETTLEMENT_BEFORE = VALUATION.minusWeeks(1);
   private static final LocalDate SETTLEMENT_EARLY = VALUATION;
   private static final LocalDate SETTLEMENT_LATE = LocalDate.of(2015, 2, 19);
-  private static final LocalDate SETTLEMENT_STANDARD = SETTLE_OFFSET.adjust(VALUATION);
+  private static final LocalDate SETTLEMENT_STANDARD = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
   private static final TradeInfo TRADE_INFO_SETTLED = TradeInfo.builder().settlementDate(SETTLEMENT_BEFORE).build();
   private static final TradeInfo TRADE_INFO_EARLY = TradeInfo.builder().settlementDate(SETTLEMENT_EARLY).build();
   private static final TradeInfo TRADE_INFO_LATE = TradeInfo.builder().settlementDate(SETTLEMENT_LATE).build();
@@ -131,16 +133,31 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       UnitSecurity.builder(PRODUCT_EX_COUPON).standardId(SECURITY_ID).build();
   private static final SecurityLink<CapitalIndexedBond> SECURITY_LINK = SecurityLink.resolved(SECURITY);
   private static final SecurityLink<CapitalIndexedBond> SECURITY_LINK_EX_COUPON = SecurityLink.resolved(SECURITY_EX_COUPON);
-  private static final CapitalIndexedBondTrade TRADE_SETTLED =
-      CapitalIndexedBondTrade.of(SECURITY_LINK, TRADE_INFO_SETTLED, QUANTITY);
-  private static final CapitalIndexedBondTrade TRADE_EARLY =
-      CapitalIndexedBondTrade.of(SECURITY_LINK, TRADE_INFO_EARLY, QUANTITY);
-  private static final CapitalIndexedBondTrade TRADE_EX_COUPON_EARLY =
-      CapitalIndexedBondTrade.of(SECURITY_LINK_EX_COUPON, TRADE_INFO_EARLY, QUANTITY);
-  private static final CapitalIndexedBondTrade TRADE_LATE =
-      CapitalIndexedBondTrade.of(SECURITY_LINK, TRADE_INFO_LATE, QUANTITY);
-  private static final CapitalIndexedBondTrade TRADE_STANDARD =
-      CapitalIndexedBondTrade.of(SECURITY_LINK, TRADE_INFO_STANDARD, QUANTITY);
+  private static final CapitalIndexedBondTrade TRADE_SETTLED = CapitalIndexedBondTrade.builder()
+      .securityLink(SECURITY_LINK)
+      .tradeInfo(TRADE_INFO_SETTLED)
+      .quantity(QUANTITY)
+      .build();
+  private static final CapitalIndexedBondTrade TRADE_EARLY = CapitalIndexedBondTrade.builder()
+      .securityLink(SECURITY_LINK)
+      .tradeInfo(TRADE_INFO_EARLY)
+      .quantity(QUANTITY)
+      .build();
+  private static final CapitalIndexedBondTrade TRADE_EX_COUPON_EARLY = CapitalIndexedBondTrade.builder()
+      .securityLink(SECURITY_LINK_EX_COUPON)
+      .tradeInfo(TRADE_INFO_EARLY)
+      .quantity(QUANTITY)
+      .build();
+  private static final CapitalIndexedBondTrade TRADE_LATE = CapitalIndexedBondTrade.builder()
+      .securityLink(SECURITY_LINK)
+      .tradeInfo(TRADE_INFO_LATE)
+      .quantity(QUANTITY)
+      .build();
+  private static final CapitalIndexedBondTrade TRADE_STANDARD = CapitalIndexedBondTrade.builder()
+      .securityLink(SECURITY_LINK)
+      .tradeInfo(TRADE_INFO_STANDARD)
+      .quantity(QUANTITY)
+      .build();
   
   private static final double REAL_CLEAN_PRICE = 1.0203;
 
@@ -158,14 +175,14 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   public void test_netAmount_standard() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER, REAL_CLEAN_PRICE);
     double expected = (REAL_CLEAN_PRICE + PRODUCT_PRICER.accruedInterest(PRODUCT, SETTLEMENT_STANDARD) / NOTIONAL) *
-        PERIOD_PRICER.forecastValue(TRADE_STANDARD.getSettlement(), RATES_PROVIDER);
+        PERIOD_PRICER.forecastValue(TRADE_STANDARD.resolve(REF_DATA).getSettlement(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
   public void test_netAmount_late() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_LATE, RATES_PROVIDER, REAL_CLEAN_PRICE);
     double expected = (REAL_CLEAN_PRICE + PRODUCT_PRICER.accruedInterest(PRODUCT, SETTLEMENT_LATE) / NOTIONAL) *
-        PERIOD_PRICER.forecastValue(TRADE_LATE.getSettlement(), RATES_PROVIDER);
+        PERIOD_PRICER.forecastValue(TRADE_LATE.resolve(REF_DATA).getSettlement(), RATES_PROVIDER);
     assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
   }
 
@@ -199,7 +216,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyAmount computed =
         PRICER.presentValueFromCleanPrice(TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REAL_CLEAN_PRICE);
     CurrencyAmount netAmount = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER, REAL_CLEAN_PRICE);
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(16);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(16);
     double pvDiff = PERIOD_PRICER.presentValue(period, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS) * QUANTITY;
     double expected = -pvDiff + netAmount.getAmount() *
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(SETTLEMENT_STANDARD);
@@ -219,7 +236,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyAmount computed =
         PRICER.presentValueFromCleanPrice(TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REAL_CLEAN_PRICE);
     CurrencyAmount netAmount = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER, REAL_CLEAN_PRICE);
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(17);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(17);
     double pvDiff = PERIOD_PRICER.presentValue(period, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS) * QUANTITY;
     double expected = pvDiff + netAmount.getAmount() *
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(SETTLEMENT_STANDARD);
@@ -239,7 +256,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REAL_CLEAN_PRICE, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount netAmount = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER, REAL_CLEAN_PRICE);
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(16);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(16);
     double pvDiff = PERIOD_PRICER.presentValueWithZSpread(
         period, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0) * QUANTITY;
     double expected = -pvDiff + netAmount.getAmount() *
@@ -260,7 +277,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REAL_CLEAN_PRICE, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount netAmount = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER, REAL_CLEAN_PRICE);
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(17);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(17);
     double pvDiff = PERIOD_PRICER.presentValueWithZSpread(
         period, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0) * QUANTITY;
     double expected = pvDiff + netAmount.getAmount() *

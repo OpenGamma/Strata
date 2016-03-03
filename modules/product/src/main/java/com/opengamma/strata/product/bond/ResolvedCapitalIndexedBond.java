@@ -30,26 +30,34 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
  * A capital indexed bond.
  * <p>
- * A capital indexed bond is a financial instrument that represents a stream of inflation-adjusted payments. 
- * The payments consist two types: periodic coupon payments and nominal payment.
- * All of the payments are adjusted for inflation. 
+ * This is the resolved form of {@link CapitalIndexedBond} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedCapitalIndexedBond} from a {@code CapitalIndexedBond}
+ * using {@link CapitalIndexedBond#resolve(ReferenceData)}.
  * <p>
- * The periodic coupon payments are defined in {@code periodicPayments}, 
- * whereas {@code nominalPayment} separately represents the nominal payments. 
+ * The periodic coupon payments are defined in {@code periodicPayments},
+ * whereas {@code nominalPayment} separately represents the nominal payments.
  * <p>
  * The legal entity of this bond is identified by {@code legalEntityId}.
  * The enum, {@code yieldConvention}, specifies the yield computation convention.
- * The accrued interest must be computed with {@code dayCount}. 
+ * The accrued interest must be computed with {@code dayCount}.
+ * <p>
+ * A {@code ResolvedCapitalIndexedBond} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
 @BeanDefinition
-public final class ExpandedCapitalIndexedBond
-    implements CapitalIndexedBondProduct, ImmutableBean, Serializable {
+public final class ResolvedCapitalIndexedBond
+    implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
    * The nominal payment of the product.
@@ -76,19 +84,19 @@ public final class ExpandedCapitalIndexedBond
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
   /**
-   * The legal entity identifier.
-   * <p>
-   * This identifier is used for the legal entity which issues the bond product. 
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
-  /**
    * Yield convention.
    * <p>
    * The convention defines how to convert from yield to price and inversely.  
    */
   @PropertyDefinition(validate = "notNull")
   private final YieldConvention yieldConvention;
+  /**
+   * The legal entity identifier.
+   * <p>
+   * This identifier is used for the legal entity which issues the bond product. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final StandardId legalEntityId;
   /**
    * The number of days between valuation date and settlement date. 
    * <p>
@@ -97,6 +105,38 @@ public final class ExpandedCapitalIndexedBond
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
+
+  /**
+   * The notional amount, must be positive. 
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double notional;
+  /**
+   * The accrual schedule.
+   * <p>
+   * This is used to define the accrual periods.
+   * These are used directly or indirectly to determine other dates in the product.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final PeriodicSchedule periodicSchedule;
+  /**
+   * The inflation rate calculation.
+   * <p>
+   * The reference index is interpolated index or monthly index.
+   * Real coupons are represented by {@code gearing} in this field.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final InflationRateCalculation rateCalculation;
+  /**
+   * Start index value. 
+   * <p>
+   * The price index value at the start of the bond. 
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  private final double startIndexValue;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
@@ -134,6 +174,28 @@ public final class ExpandedCapitalIndexedBond
   }
 
   /**
+   * The unadjusted start date.
+   * <p>
+   * This is the unadjusted first coupon period date of the bond.
+   * 
+   * @return the unadjusted start date
+   */
+  public LocalDate getUnadjustedStartDate() {
+    return periodicPayments.get(0).getUnadjustedStartDate();
+  }
+
+  /**
+   * The unadjusted end date.
+   * <p>
+   * This is the unadjusted last coupon period date of the bond.
+   * 
+   * @return the unadjusted end date
+   */
+  public LocalDate getUnadjustedEndDate() {
+    return periodicPayments.get(periodicPayments.size() - 1).getUnadjustedEndDate();
+  }
+
+  /**
    * Gets the currency of the product.
    * <p>
    * All payments in the bond will have this currency.
@@ -144,24 +206,27 @@ public final class ExpandedCapitalIndexedBond
     return nominalPayment.getCurrency();
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public ExpandedCapitalIndexedBond expand() {
-    return this;
+  /**
+   * Checks if there is an ex-coupon period.
+   * 
+   * @return true if has an ex-coupon period
+   */
+  public boolean hasExCouponPeriod() {
+    return periodicPayments.get(0).hasExCouponPeriod();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExpandedCapitalIndexedBond}.
+   * The meta-bean for {@code ResolvedCapitalIndexedBond}.
    * @return the meta-bean, not null
    */
-  public static ExpandedCapitalIndexedBond.Meta meta() {
-    return ExpandedCapitalIndexedBond.Meta.INSTANCE;
+  public static ResolvedCapitalIndexedBond.Meta meta() {
+    return ResolvedCapitalIndexedBond.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ExpandedCapitalIndexedBond.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ResolvedCapitalIndexedBond.Meta.INSTANCE);
   }
 
   /**
@@ -173,35 +238,47 @@ public final class ExpandedCapitalIndexedBond
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static ExpandedCapitalIndexedBond.Builder builder() {
-    return new ExpandedCapitalIndexedBond.Builder();
+  public static ResolvedCapitalIndexedBond.Builder builder() {
+    return new ResolvedCapitalIndexedBond.Builder();
   }
 
-  private ExpandedCapitalIndexedBond(
+  private ResolvedCapitalIndexedBond(
       CapitalIndexedBondPaymentPeriod nominalPayment,
       List<CapitalIndexedBondPaymentPeriod> periodicPayments,
       DayCount dayCount,
-      StandardId legalEntityId,
       YieldConvention yieldConvention,
-      DaysAdjustment settlementDateOffset) {
+      StandardId legalEntityId,
+      DaysAdjustment settlementDateOffset,
+      double notional,
+      PeriodicSchedule periodicSchedule,
+      InflationRateCalculation rateCalculation,
+      double startIndexValue) {
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
     JodaBeanUtils.notNull(dayCount, "dayCount");
-    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
+    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
+    ArgChecker.notNegative(notional, "notional");
+    JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
+    JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
+    ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
     this.nominalPayment = nominalPayment;
     this.periodicPayments = ImmutableList.copyOf(periodicPayments);
     this.dayCount = dayCount;
-    this.legalEntityId = legalEntityId;
     this.yieldConvention = yieldConvention;
+    this.legalEntityId = legalEntityId;
     this.settlementDateOffset = settlementDateOffset;
+    this.notional = notional;
+    this.periodicSchedule = periodicSchedule;
+    this.rateCalculation = rateCalculation;
+    this.startIndexValue = startIndexValue;
     validate();
   }
 
   @Override
-  public ExpandedCapitalIndexedBond.Meta metaBean() {
-    return ExpandedCapitalIndexedBond.Meta.INSTANCE;
+  public ResolvedCapitalIndexedBond.Meta metaBean() {
+    return ResolvedCapitalIndexedBond.Meta.INSTANCE;
   }
 
   @Override
@@ -252,17 +329,6 @@ public final class ExpandedCapitalIndexedBond
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the legal entity identifier.
-   * <p>
-   * This identifier is used for the legal entity which issues the bond product.
-   * @return the value of the property, not null
-   */
-  public StandardId getLegalEntityId() {
-    return legalEntityId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets yield convention.
    * <p>
    * The convention defines how to convert from yield to price and inversely.
@@ -270,6 +336,17 @@ public final class ExpandedCapitalIndexedBond
    */
   public YieldConvention getYieldConvention() {
     return yieldConvention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the legal entity identifier.
+   * <p>
+   * This identifier is used for the legal entity which issues the bond product.
+   * @return the value of the property, not null
+   */
+  public StandardId getLegalEntityId() {
+    return legalEntityId;
   }
 
   //-----------------------------------------------------------------------
@@ -282,6 +359,53 @@ public final class ExpandedCapitalIndexedBond
    */
   public DaysAdjustment getSettlementDateOffset() {
     return settlementDateOffset;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount, must be positive.
+   * <p>
+   * The notional expressed here must be positive.
+   * The currency of the notional is specified by {@code currency}.
+   * @return the value of the property
+   */
+  public double getNotional() {
+    return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the accrual schedule.
+   * <p>
+   * This is used to define the accrual periods.
+   * These are used directly or indirectly to determine other dates in the product.
+   * @return the value of the property, not null
+   */
+  public PeriodicSchedule getPeriodicSchedule() {
+    return periodicSchedule;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the inflation rate calculation.
+   * <p>
+   * The reference index is interpolated index or monthly index.
+   * Real coupons are represented by {@code gearing} in this field.
+   * @return the value of the property, not null
+   */
+  public InflationRateCalculation getRateCalculation() {
+    return rateCalculation;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets start index value.
+   * <p>
+   * The price index value at the start of the bond.
+   * @return the value of the property
+   */
+  public double getStartIndexValue() {
+    return startIndexValue;
   }
 
   //-----------------------------------------------------------------------
@@ -299,13 +423,17 @@ public final class ExpandedCapitalIndexedBond
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExpandedCapitalIndexedBond other = (ExpandedCapitalIndexedBond) obj;
+      ResolvedCapitalIndexedBond other = (ResolvedCapitalIndexedBond) obj;
       return JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
           JodaBeanUtils.equal(periodicPayments, other.periodicPayments) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
-          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset);
+          JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
+          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(periodicSchedule, other.periodicSchedule) &&
+          JodaBeanUtils.equal(rateCalculation, other.rateCalculation) &&
+          JodaBeanUtils.equal(startIndexValue, other.startIndexValue);
     }
     return false;
   }
@@ -316,29 +444,37 @@ public final class ExpandedCapitalIndexedBond
     hash = hash * 31 + JodaBeanUtils.hashCode(nominalPayment);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(yieldConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(periodicSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateCalculation);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startIndexValue);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
-    buf.append("ExpandedCapitalIndexedBond{");
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("ResolvedCapitalIndexedBond{");
     buf.append("nominalPayment").append('=').append(nominalPayment).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("periodicSchedule").append('=').append(periodicSchedule).append(',').append(' ');
+    buf.append("rateCalculation").append('=').append(rateCalculation).append(',').append(' ');
+    buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ExpandedCapitalIndexedBond}.
+   * The meta-bean for {@code ResolvedCapitalIndexedBond}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -350,33 +486,53 @@ public final class ExpandedCapitalIndexedBond
      * The meta-property for the {@code nominalPayment} property.
      */
     private final MetaProperty<CapitalIndexedBondPaymentPeriod> nominalPayment = DirectMetaProperty.ofImmutable(
-        this, "nominalPayment", ExpandedCapitalIndexedBond.class, CapitalIndexedBondPaymentPeriod.class);
+        this, "nominalPayment", ResolvedCapitalIndexedBond.class, CapitalIndexedBondPaymentPeriod.class);
     /**
      * The meta-property for the {@code periodicPayments} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableList<CapitalIndexedBondPaymentPeriod>> periodicPayments = DirectMetaProperty.ofImmutable(
-        this, "periodicPayments", ExpandedCapitalIndexedBond.class, (Class) ImmutableList.class);
+        this, "periodicPayments", ResolvedCapitalIndexedBond.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", ExpandedCapitalIndexedBond.class, DayCount.class);
-    /**
-     * The meta-property for the {@code legalEntityId} property.
-     */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", ExpandedCapitalIndexedBond.class, StandardId.class);
+        this, "dayCount", ResolvedCapitalIndexedBond.class, DayCount.class);
     /**
      * The meta-property for the {@code yieldConvention} property.
      */
     private final MetaProperty<YieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
-        this, "yieldConvention", ExpandedCapitalIndexedBond.class, YieldConvention.class);
+        this, "yieldConvention", ResolvedCapitalIndexedBond.class, YieldConvention.class);
+    /**
+     * The meta-property for the {@code legalEntityId} property.
+     */
+    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", ResolvedCapitalIndexedBond.class, StandardId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
-        this, "settlementDateOffset", ExpandedCapitalIndexedBond.class, DaysAdjustment.class);
+        this, "settlementDateOffset", ResolvedCapitalIndexedBond.class, DaysAdjustment.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", ResolvedCapitalIndexedBond.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code periodicSchedule} property.
+     */
+    private final MetaProperty<PeriodicSchedule> periodicSchedule = DirectMetaProperty.ofImmutable(
+        this, "periodicSchedule", ResolvedCapitalIndexedBond.class, PeriodicSchedule.class);
+    /**
+     * The meta-property for the {@code rateCalculation} property.
+     */
+    private final MetaProperty<InflationRateCalculation> rateCalculation = DirectMetaProperty.ofImmutable(
+        this, "rateCalculation", ResolvedCapitalIndexedBond.class, InflationRateCalculation.class);
+    /**
+     * The meta-property for the {@code startIndexValue} property.
+     */
+    private final MetaProperty<Double> startIndexValue = DirectMetaProperty.ofImmutable(
+        this, "startIndexValue", ResolvedCapitalIndexedBond.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -385,9 +541,13 @@ public final class ExpandedCapitalIndexedBond
         "nominalPayment",
         "periodicPayments",
         "dayCount",
-        "legalEntityId",
         "yieldConvention",
-        "settlementDateOffset");
+        "legalEntityId",
+        "settlementDateOffset",
+        "notional",
+        "periodicSchedule",
+        "rateCalculation",
+        "startIndexValue");
 
     /**
      * Restricted constructor.
@@ -404,24 +564,32 @@ public final class ExpandedCapitalIndexedBond
           return periodicPayments;
         case 1905311443:  // dayCount
           return dayCount;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case -1895216418:  // yieldConvention
           return yieldConvention;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
+        case 1585636160:  // notional
+          return notional;
+        case 1847018066:  // periodicSchedule
+          return periodicSchedule;
+        case -521703991:  // rateCalculation
+          return rateCalculation;
+        case -1656407615:  // startIndexValue
+          return startIndexValue;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public ExpandedCapitalIndexedBond.Builder builder() {
-      return new ExpandedCapitalIndexedBond.Builder();
+    public ResolvedCapitalIndexedBond.Builder builder() {
+      return new ResolvedCapitalIndexedBond.Builder();
     }
 
     @Override
-    public Class<? extends ExpandedCapitalIndexedBond> beanType() {
-      return ExpandedCapitalIndexedBond.class;
+    public Class<? extends ResolvedCapitalIndexedBond> beanType() {
+      return ResolvedCapitalIndexedBond.class;
     }
 
     @Override
@@ -455,19 +623,19 @@ public final class ExpandedCapitalIndexedBond
     }
 
     /**
-     * The meta-property for the {@code legalEntityId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> legalEntityId() {
-      return legalEntityId;
-    }
-
-    /**
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
     public MetaProperty<YieldConvention> yieldConvention() {
       return yieldConvention;
+    }
+
+    /**
+     * The meta-property for the {@code legalEntityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<StandardId> legalEntityId() {
+      return legalEntityId;
     }
 
     /**
@@ -478,22 +646,62 @@ public final class ExpandedCapitalIndexedBond
       return settlementDateOffset;
     }
 
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
+    }
+
+    /**
+     * The meta-property for the {@code periodicSchedule} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<PeriodicSchedule> periodicSchedule() {
+      return periodicSchedule;
+    }
+
+    /**
+     * The meta-property for the {@code rateCalculation} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<InflationRateCalculation> rateCalculation() {
+      return rateCalculation;
+    }
+
+    /**
+     * The meta-property for the {@code startIndexValue} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> startIndexValue() {
+      return startIndexValue;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -44199542:  // nominalPayment
-          return ((ExpandedCapitalIndexedBond) bean).getNominalPayment();
+          return ((ResolvedCapitalIndexedBond) bean).getNominalPayment();
         case -367345944:  // periodicPayments
-          return ((ExpandedCapitalIndexedBond) bean).getPeriodicPayments();
+          return ((ResolvedCapitalIndexedBond) bean).getPeriodicPayments();
         case 1905311443:  // dayCount
-          return ((ExpandedCapitalIndexedBond) bean).getDayCount();
-        case 866287159:  // legalEntityId
-          return ((ExpandedCapitalIndexedBond) bean).getLegalEntityId();
+          return ((ResolvedCapitalIndexedBond) bean).getDayCount();
         case -1895216418:  // yieldConvention
-          return ((ExpandedCapitalIndexedBond) bean).getYieldConvention();
+          return ((ResolvedCapitalIndexedBond) bean).getYieldConvention();
+        case 866287159:  // legalEntityId
+          return ((ResolvedCapitalIndexedBond) bean).getLegalEntityId();
         case 135924714:  // settlementDateOffset
-          return ((ExpandedCapitalIndexedBond) bean).getSettlementDateOffset();
+          return ((ResolvedCapitalIndexedBond) bean).getSettlementDateOffset();
+        case 1585636160:  // notional
+          return ((ResolvedCapitalIndexedBond) bean).getNotional();
+        case 1847018066:  // periodicSchedule
+          return ((ResolvedCapitalIndexedBond) bean).getPeriodicSchedule();
+        case -521703991:  // rateCalculation
+          return ((ResolvedCapitalIndexedBond) bean).getRateCalculation();
+        case -1656407615:  // startIndexValue
+          return ((ResolvedCapitalIndexedBond) bean).getStartIndexValue();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -511,16 +719,20 @@ public final class ExpandedCapitalIndexedBond
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ExpandedCapitalIndexedBond}.
+   * The bean-builder for {@code ResolvedCapitalIndexedBond}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ExpandedCapitalIndexedBond> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResolvedCapitalIndexedBond> {
 
     private CapitalIndexedBondPaymentPeriod nominalPayment;
     private List<CapitalIndexedBondPaymentPeriod> periodicPayments = ImmutableList.of();
     private DayCount dayCount;
-    private StandardId legalEntityId;
     private YieldConvention yieldConvention;
+    private StandardId legalEntityId;
     private DaysAdjustment settlementDateOffset;
+    private double notional;
+    private PeriodicSchedule periodicSchedule;
+    private InflationRateCalculation rateCalculation;
+    private double startIndexValue;
 
     /**
      * Restricted constructor.
@@ -532,13 +744,17 @@ public final class ExpandedCapitalIndexedBond
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(ExpandedCapitalIndexedBond beanToCopy) {
+    private Builder(ResolvedCapitalIndexedBond beanToCopy) {
       this.nominalPayment = beanToCopy.getNominalPayment();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
       this.dayCount = beanToCopy.getDayCount();
-      this.legalEntityId = beanToCopy.getLegalEntityId();
       this.yieldConvention = beanToCopy.getYieldConvention();
+      this.legalEntityId = beanToCopy.getLegalEntityId();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
+      this.notional = beanToCopy.getNotional();
+      this.periodicSchedule = beanToCopy.getPeriodicSchedule();
+      this.rateCalculation = beanToCopy.getRateCalculation();
+      this.startIndexValue = beanToCopy.getStartIndexValue();
     }
 
     //-----------------------------------------------------------------------
@@ -551,12 +767,20 @@ public final class ExpandedCapitalIndexedBond
           return periodicPayments;
         case 1905311443:  // dayCount
           return dayCount;
-        case 866287159:  // legalEntityId
-          return legalEntityId;
         case -1895216418:  // yieldConvention
           return yieldConvention;
+        case 866287159:  // legalEntityId
+          return legalEntityId;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
+        case 1585636160:  // notional
+          return notional;
+        case 1847018066:  // periodicSchedule
+          return periodicSchedule;
+        case -521703991:  // rateCalculation
+          return rateCalculation;
+        case -1656407615:  // startIndexValue
+          return startIndexValue;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -575,14 +799,26 @@ public final class ExpandedCapitalIndexedBond
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
-        case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
-          break;
         case -1895216418:  // yieldConvention
           this.yieldConvention = (YieldConvention) newValue;
           break;
+        case 866287159:  // legalEntityId
+          this.legalEntityId = (StandardId) newValue;
+          break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
+          break;
+        case 1847018066:  // periodicSchedule
+          this.periodicSchedule = (PeriodicSchedule) newValue;
+          break;
+        case -521703991:  // rateCalculation
+          this.rateCalculation = (InflationRateCalculation) newValue;
+          break;
+        case -1656407615:  // startIndexValue
+          this.startIndexValue = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -615,14 +851,18 @@ public final class ExpandedCapitalIndexedBond
     }
 
     @Override
-    public ExpandedCapitalIndexedBond build() {
-      return new ExpandedCapitalIndexedBond(
+    public ResolvedCapitalIndexedBond build() {
+      return new ResolvedCapitalIndexedBond(
           nominalPayment,
           periodicPayments,
           dayCount,
-          legalEntityId,
           yieldConvention,
-          settlementDateOffset);
+          legalEntityId,
+          settlementDateOffset,
+          notional,
+          periodicSchedule,
+          rateCalculation,
+          startIndexValue);
     }
 
     //-----------------------------------------------------------------------
@@ -679,19 +919,6 @@ public final class ExpandedCapitalIndexedBond
     }
 
     /**
-     * Sets the legal entity identifier.
-     * <p>
-     * This identifier is used for the legal entity which issues the bond product.
-     * @param legalEntityId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder legalEntityId(StandardId legalEntityId) {
-      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
-      this.legalEntityId = legalEntityId;
-      return this;
-    }
-
-    /**
      * Sets yield convention.
      * <p>
      * The convention defines how to convert from yield to price and inversely.
@@ -701,6 +928,19 @@ public final class ExpandedCapitalIndexedBond
     public Builder yieldConvention(YieldConvention yieldConvention) {
       JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
       this.yieldConvention = yieldConvention;
+      return this;
+    }
+
+    /**
+     * Sets the legal entity identifier.
+     * <p>
+     * This identifier is used for the legal entity which issues the bond product.
+     * @param legalEntityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder legalEntityId(StandardId legalEntityId) {
+      JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+      this.legalEntityId = legalEntityId;
       return this;
     }
 
@@ -718,17 +958,76 @@ public final class ExpandedCapitalIndexedBond
       return this;
     }
 
+    /**
+     * Sets the notional amount, must be positive.
+     * <p>
+     * The notional expressed here must be positive.
+     * The currency of the notional is specified by {@code currency}.
+     * @param notional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      ArgChecker.notNegative(notional, "notional");
+      this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the accrual schedule.
+     * <p>
+     * This is used to define the accrual periods.
+     * These are used directly or indirectly to determine other dates in the product.
+     * @param periodicSchedule  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder periodicSchedule(PeriodicSchedule periodicSchedule) {
+      JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
+      this.periodicSchedule = periodicSchedule;
+      return this;
+    }
+
+    /**
+     * Sets the inflation rate calculation.
+     * <p>
+     * The reference index is interpolated index or monthly index.
+     * Real coupons are represented by {@code gearing} in this field.
+     * @param rateCalculation  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rateCalculation(InflationRateCalculation rateCalculation) {
+      JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
+      this.rateCalculation = rateCalculation;
+      return this;
+    }
+
+    /**
+     * Sets start index value.
+     * <p>
+     * The price index value at the start of the bond.
+     * @param startIndexValue  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder startIndexValue(double startIndexValue) {
+      ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
+      this.startIndexValue = startIndexValue;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
-      buf.append("ExpandedCapitalIndexedBond.Builder{");
+      StringBuilder buf = new StringBuilder(352);
+      buf.append("ResolvedCapitalIndexedBond.Builder{");
       buf.append("nominalPayment").append('=').append(JodaBeanUtils.toString(nominalPayment)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
+      buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("periodicSchedule").append('=').append(JodaBeanUtils.toString(periodicSchedule)).append(',').append(' ');
+      buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation)).append(',').append(' ');
+      buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue));
       buf.append('}');
       return buf.toString();
     }

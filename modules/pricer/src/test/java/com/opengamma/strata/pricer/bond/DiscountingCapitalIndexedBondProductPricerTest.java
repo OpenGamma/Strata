@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.bond;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -51,7 +52,7 @@ import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
-import com.opengamma.strata.product.bond.ExpandedCapitalIndexedBond;
+import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.rate.RateObservation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
@@ -61,6 +62,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 @Test
 public class DiscountingCapitalIndexedBondProductPricerTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL = 10_000_000d;
   private static final double START_INDEX = 198.47742;
   private static final double REAL_COUPON_VALUE = 0.01;
@@ -146,7 +148,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    ExpandedCapitalIndexedBond expanded = PRODUCT.expand();
+    ResolvedCapitalIndexedBond expanded = PRODUCT.resolve(REF_DATA);
     double expected = PERIOD_PRICER.presentValue(expanded.getNominalPayment(), RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS);
     int size = expanded.getPeriodicPayments().size();
     for (int i = 16; i < size; ++i) {
@@ -158,7 +160,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_presentValue_exCoupon() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    ExpandedCapitalIndexedBond expanded = PRODUCT_EX_COUPON.expand();
+    ResolvedCapitalIndexedBond expanded = PRODUCT_EX_COUPON.resolve(REF_DATA);
     double expected = PERIOD_PRICER.presentValue(expanded.getNominalPayment(), RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS);
     int size = expanded.getPeriodicPayments().size();
     for (int i = 17; i < size; ++i) { // in ex-coupon period
@@ -171,7 +173,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_presentValueWithZSpread() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    ExpandedCapitalIndexedBond expanded = PRODUCT.expand();
+    ResolvedCapitalIndexedBond expanded = PRODUCT.resolve(REF_DATA);
     double expected = PERIOD_PRICER.presentValueWithZSpread(expanded.getNominalPayment(), RATES_PROVIDER,
         ISSUER_DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     int size = expanded.getPeriodicPayments().size();
@@ -186,7 +188,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_presentValueWithZSpread_exCoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    ExpandedCapitalIndexedBond expanded = PRODUCT_EX_COUPON.expand();
+    ResolvedCapitalIndexedBond expanded = PRODUCT_EX_COUPON.resolve(REF_DATA);
     double expected = PERIOD_PRICER.presentValueWithZSpread(expanded.getNominalPayment(), RATES_PROVIDER,
         ISSUER_DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0);
     int size = expanded.getPeriodicPayments().size();
@@ -258,7 +260,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_dirtyNominalPriceFromCurves() {
     double computed = PRICER.dirtyNominalPriceFromCurves(SECURITY, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     CapitalIndexedBond product = SECURITY.getProduct();
-    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected =
@@ -269,7 +271,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_dirtyNominalPriceFromCurves_exCoupon() {
     double computed = PRICER.dirtyNominalPriceFromCurves(SECURITY_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     CapitalIndexedBond product = SECURITY_EX_COUPON.getProduct();
-    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected =
@@ -281,7 +283,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CapitalIndexedBond product = SECURITY.getProduct();
-    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected = PRICER.presentValueWithZSpread(product, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement,
@@ -293,7 +295,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CapitalIndexedBond product = SECURITY_EX_COUPON.getProduct();
-    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate settlement = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double df =
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected = PRICER.presentValueWithZSpread(product, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement,
@@ -397,7 +399,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_currentCash_onPayment() {
     CurrencyAmount computed = PRICER.currentCash(PRODUCT, RATES_PROVIDER_ON_PAY, VALUATION_ON_PAY.minusDays(7));
-    double expected = PERIOD_PRICER.forecastValue(PRODUCT.expand().getPeriodicPayments().get(15), RATES_PROVIDER_ON_PAY);
+    double expected = PERIOD_PRICER.forecastValue(PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(15), RATES_PROVIDER_ON_PAY);
     assertEquals(computed.getAmount(), expected);
   }
 
@@ -409,10 +411,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_dirtyPriceFromStandardYield() {
     double yield = 0.0175;
-    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double computed = PRICER.dirtyPriceFromStandardYield(PRODUCT, RATES_PROVIDER, standardSettle, yield);
-    Schedule sch = SCHEDULE.createSchedule().toUnadjusted();
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(16);
+    Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(16);
     double factorPeriod =
         ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate(), sch);
     double factorSpot = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), standardSettle, sch);
@@ -428,7 +430,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDurationFromStandardYield() {
     double yield = 0.0175;
-    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double computed =
         PRICER.modifiedDurationFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield);
     double price = PRICER.dirtyPriceFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield);
@@ -441,7 +443,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_convexityFromStandardYield() {
     double yield = 0.0175;
-    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION);
+    LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
     double computed = PRICER.convexityFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield);
     double md = PRICER.modifiedDurationFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield);
     double up = PRICER.modifiedDurationFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield + EPS);
@@ -460,14 +462,14 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_accruedInterest() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double computed = PRICER.accruedInterest(PRODUCT, refDate);
-    Schedule sch = SCHEDULE.createSchedule().toUnadjusted();
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(16);
+    Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(16);
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     assertEquals(computed, factor * REAL_COUPON_VALUE * NOTIONAL * 2d, TOL * REAL_COUPON_VALUE * NOTIONAL);
   }
 
   public void test_accruedInterest_onPayment() {
-    CapitalIndexedBondPaymentPeriod period = PRODUCT.expand().getPeriodicPayments().get(16);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT.resolve(REF_DATA).getPeriodicPayments().get(16);
     LocalDate refDate = period.getPaymentDate();
     double computed = PRICER.accruedInterest(PRODUCT, refDate);
     assertEquals(computed, 0d, TOL * REAL_COUPON_VALUE * NOTIONAL);
@@ -480,10 +482,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_accruedInterest_exCoupon_in() {
-    CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.expand().getPeriodicPayments().get(16);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.resolve(REF_DATA).getPeriodicPayments().get(16);
     LocalDate refDate = period.getDetachmentDate();
     double computed = PRICER.accruedInterest(PRODUCT_EX_COUPON, refDate);
-    Schedule sch = SCHEDULE.createSchedule().toUnadjusted();
+    Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     double factorTotal =
         ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate(), sch);
@@ -493,9 +495,9 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_accruedInterest_exCoupon_out() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
-    CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.expand().getPeriodicPayments().get(16);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.resolve(REF_DATA).getPeriodicPayments().get(16);
     double computed = PRICER.accruedInterest(PRODUCT_EX_COUPON, refDate);
-    Schedule sch = SCHEDULE.createSchedule().toUnadjusted();
+    Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     assertEquals(computed, factor * REAL_COUPON_VALUE * NOTIONAL * 2d, TOL * REAL_COUPON_VALUE * NOTIONAL);
   }
@@ -584,7 +586,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final double YIELD_US = -0.00189;
 
   public void test_priceFromRealYield_us() {
-    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     assertEquals(computed, 1.06, 1.e-2);
     double computedSmall =
@@ -599,7 +601,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_us() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     double cvComputed =
@@ -612,7 +614,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_realYieldFromCurves_us() {
-    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(SECURITY_US, RATES_PROVS_US, ISSUER_PROVS_US);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(SECURITY_US, RATES_PROVS_US, ISSUER_PROVS_US);
     double dirtyRealPrice =
@@ -622,7 +624,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_us() {
-    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY_US, RATES_PROVS_US, ISSUER_PROVS_US, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle,
@@ -700,11 +702,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final double YIELD_GOV_OP = -0.0244;
 
   public void test_priceFromRealYield_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     assertEquals(computed, 3.60, 2.e-2);
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(
-        PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP.getSettlementDateOffset().adjust(VAL_DATE), YIELD_GOV_OP);
+        PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA), YIELD_GOV_OP);
     assertEquals(computedOnePeriod, 3.21, 4.e-2);
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
@@ -716,7 +718,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_ukGov() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cvComputed =
@@ -729,7 +731,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_realYieldFromCurves_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(SECURITY_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(SECURITY_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
@@ -737,7 +739,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
@@ -793,7 +795,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final double YIELD_CORP = -0.00842;
 
   public void test_priceFromRealYield_ukCorp() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     assertEquals(computed, 1.39, 1.e-2);
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(
@@ -808,7 +810,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_ukCor() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     double cvComputed =
@@ -821,7 +823,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_realYieldFromCurves_ukCor() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(SECURITY_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(SECURITY_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB);
     double dirtyRealPrice =
@@ -831,7 +833,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_ukCor() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         SECURITY_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle,

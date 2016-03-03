@@ -19,6 +19,7 @@ import java.time.YearMonth;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -47,6 +48,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   private static final LocalDate START = LocalDate.of(2008, 1, 14);
   private static final LocalDate END = LocalDate.of(2008, 7, 14);
   private static final YearMonth REF_END = YearMonth.of(2008, 4);
+  private static final PriceIndexObservation OBS = PriceIndexObservation.of(US_CPI_U, REF_END);
+  private static final PriceIndexObservation OBS_PLUS1 = PriceIndexObservation.of(US_CPI_U, REF_END.plusMonths(1));
   private static final double NOTIONAL = 10_000_000d;
   private static final double REAL_COUPON = 0.01d;
   private static final LocalDate DETACHMENT = LocalDate.of(2008, 1, 11);
@@ -136,8 +139,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
     double computedMonthly = PRICER.presentValue(PERIOD_MONTHLY, IRP_BEFORE_START, ICDF_BEFORE_START);
     double computedFvInterp = PRICER.forecastValue(PERIOD_INTERP, IRP_BEFORE_START);
     double computedFvMonthly = PRICER.forecastValue(PERIOD_MONTHLY, IRP_BEFORE_START);
-    double index1 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(REF_END);
-    double index2 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(REF_END.plusMonths(1));
+    double index1 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(OBS);
+    double index2 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(OBS_PLUS1);
     double df = ICDF_BEFORE_START.discountFactor(END);
     double expectedFvInterp = (index1 * WEIGHT + (1d - WEIGHT) * index2) / START_INDEX * REAL_COUPON * NOTIONAL;
     double expectedFvMonthly = index1 / START_INDEX * REAL_COUPON * NOTIONAL;
@@ -150,7 +153,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValue_onFix() {
     double computedInterp = PRICER.presentValue(PERIOD_INTERP, IRP_ON_FIX, ICDF_ON_FIX);
     double computedMonthly = PRICER.presentValue(PERIOD_MONTHLY, IRP_ON_FIX, ICDF_ON_FIX);
-    double index2 = IRP_ON_FIX.priceIndexValues(US_CPI_U).value(REF_END.plusMonths(1));
+    double index2 = IRP_ON_FIX.priceIndexValues(US_CPI_U).value(OBS_PLUS1);
     double df = ICDF_ON_FIX.discountFactor(END);
     double expectedInterp = (INDEX_END_1 * WEIGHT + (1d - WEIGHT) * index2) / START_INDEX * REAL_COUPON * NOTIONAL * df;
     double expectedMonthly = INDEX_END_1 / START_INDEX * REAL_COUPON * NOTIONAL * df;
@@ -181,8 +184,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
         PERIOD_INTERP, IRP_BEFORE_START, ICDF_BEFORE_START, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double computedMonthly = PRICER.presentValueWithZSpread(
         PERIOD_MONTHLY, IRP_BEFORE_START, ICDF_BEFORE_START, Z_SPREAD, CONTINUOUS, 0);
-    double index1 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(REF_END);
-    double index2 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(REF_END.plusMonths(1));
+    double index1 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(OBS);
+    double index2 = IRP_BEFORE_START.priceIndexValues(US_CPI_U).value(OBS_PLUS1);
     double expectedInterp = (index1 * WEIGHT + (1d - WEIGHT) * index2) / START_INDEX * REAL_COUPON * NOTIONAL *
         ICDF_BEFORE_START.getDiscountFactors().discountFactorWithSpread(END, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double expectedMonthly = index1 / START_INDEX * REAL_COUPON * NOTIONAL *
@@ -196,7 +199,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
         PERIOD_INTERP, IRP_ON_FIX, ICDF_ON_FIX, Z_SPREAD, CONTINUOUS, 0);
     double computedMonthly = PRICER.presentValueWithZSpread(
         PERIOD_MONTHLY, IRP_ON_FIX, ICDF_ON_FIX, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    double index2 = IRP_ON_FIX.priceIndexValues(US_CPI_U).value(REF_END.plusMonths(1));
+    double index2 = IRP_ON_FIX.priceIndexValues(US_CPI_U).value(OBS_PLUS1);
     double expectedInterp = (INDEX_END_1 * WEIGHT + (1d - WEIGHT) * index2) / START_INDEX * REAL_COUPON * NOTIONAL *
         ICDF_ON_FIX.getDiscountFactors().discountFactorWithSpread(END, Z_SPREAD, CONTINUOUS, 0);
     double expectedMonthly = INDEX_END_1 / START_INDEX * REAL_COUPON * NOTIONAL *

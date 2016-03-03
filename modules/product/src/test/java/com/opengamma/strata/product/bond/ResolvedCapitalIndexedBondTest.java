@@ -9,8 +9,8 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
 import static com.opengamma.strata.basics.date.DayCounts.NL_365;
-import static com.opengamma.strata.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendars.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -19,7 +19,6 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.bond.YieldConvention.INDEX_LINKED_FLOAT;
 import static com.opengamma.strata.product.bond.YieldConvention.US_IL_REAL;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -29,17 +28,19 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.rate.RateObservation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
- * Test {@link ExpandedCapitalIndexedBond}. 
+ * Test {@link ResolvedCapitalIndexedBond}. 
  */
 @Test
-public class ExpandedCapitalIndexedBondTest {
+public class ResolvedCapitalIndexedBondTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "US-Govt");
   private static final double COUPON = 0.01;
   private static final InflationRateCalculation RATE_CALC = InflationRateCalculation.builder()
@@ -59,8 +60,8 @@ public class ExpandedCapitalIndexedBondTest {
     LocalDate[] unAdjDates = new LocalDate[] {LocalDate.of(2008, 1, 13), LocalDate.of(2008, 7, 13),
       LocalDate.of(2009, 1, 13), LocalDate.of(2009, 7, 13), LocalDate.of(2010, 1, 13) };
     for (int i = 0; i < 4; ++i) {
-      LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i]);
-      LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1]);
+      LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
+      LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);
       RateObservation obs = RATE_CALC.createRateObservation(end, START_INDEX);
       PERIODIC[i] = CapitalIndexedBondPaymentPeriod.builder()
           .currency(USD)
@@ -79,14 +80,7 @@ public class ExpandedCapitalIndexedBondTest {
       PERIODIC[3].withUnitCoupon(PERIODIC[0].getStartDate(), PERIODIC[0].getUnadjustedStartDate());
 
   public void test_builder() {
-    ExpandedCapitalIndexedBond test = ExpandedCapitalIndexedBond.builder()
-        .dayCount(ACT_ACT_ICMA)
-        .legalEntityId(LEGAL_ENTITY)
-        .nominalPayment(NOMINAL)
-        .periodicPayments(PERIODIC)
-        .settlementDateOffset(SETTLE_OFFSET)
-        .yieldConvention(US_IL_REAL)
-        .build();
+    ResolvedCapitalIndexedBond test = sut();
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getDayCount(), ACT_ACT_ICMA);
     assertEquals(test.getStartDate(), PERIODIC[0].getStartDate());
@@ -96,7 +90,6 @@ public class ExpandedCapitalIndexedBondTest {
     assertEquals(test.getPeriodicPayments().toArray(), PERIODIC);
     assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
     assertEquals(test.getYieldConvention(), US_IL_REAL);
-    assertSame(test.expand(), test);
   }
   
   public void test_builder_fail() {
@@ -108,7 +101,7 @@ public class ExpandedCapitalIndexedBondTest {
         .rateObservation(PERIODIC[2].getRateObservation())
         .realCoupon(COUPON)
         .build();
-    assertThrowsIllegalArg(() -> ExpandedCapitalIndexedBond.builder()
+    assertThrowsIllegalArg(() -> ResolvedCapitalIndexedBond.builder()
         .dayCount(ACT_ACT_ICMA)
         .legalEntityId(LEGAL_ENTITY)
         .nominalPayment(NOMINAL)
@@ -120,36 +113,43 @@ public class ExpandedCapitalIndexedBondTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedCapitalIndexedBond test1 = ExpandedCapitalIndexedBond.builder()
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
+  }
+
+  public void test_serialization() {
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static ResolvedCapitalIndexedBond sut() {
+    return ResolvedCapitalIndexedBond.builder()
         .dayCount(ACT_ACT_ICMA)
         .legalEntityId(LEGAL_ENTITY)
         .nominalPayment(NOMINAL)
         .periodicPayments(PERIODIC)
         .settlementDateOffset(SETTLE_OFFSET)
         .yieldConvention(US_IL_REAL)
+        .notional(CapitalIndexedBondTest.sut().getNotional())
+        .periodicSchedule(CapitalIndexedBondTest.sut().getPeriodicSchedule())
+        .rateCalculation(CapitalIndexedBondTest.sut().getRateCalculation())
+        .startIndexValue(CapitalIndexedBondTest.sut().getStartIndexValue())
         .build();
-    coverImmutableBean(test1);
-    ExpandedCapitalIndexedBond test2 = ExpandedCapitalIndexedBond.builder()
+  }
+
+  static ResolvedCapitalIndexedBond sut2() {
+    return ResolvedCapitalIndexedBond.builder()
         .dayCount(NL_365)
         .legalEntityId(StandardId.of("OG-Ticker", "US-Govt1"))
         .nominalPayment(PERIODIC[1].withUnitCoupon(PERIODIC[0].getStartDate(), PERIODIC[0].getUnadjustedStartDate()))
         .periodicPayments(PERIODIC[0], PERIODIC[1])
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .yieldConvention(INDEX_LINKED_FLOAT)
+        .notional(CapitalIndexedBondTest.sut().getNotional())
+        .periodicSchedule(CapitalIndexedBondTest.sut().getPeriodicSchedule())
+        .rateCalculation(CapitalIndexedBondTest.sut().getRateCalculation())
+        .startIndexValue(CapitalIndexedBondTest.sut().getStartIndexValue())
         .build();
-    coverBeanEquals(test1, test2);
   }
 
-  public void test_serialization() {
-    ExpandedCapitalIndexedBond test = ExpandedCapitalIndexedBond.builder()
-        .dayCount(ACT_ACT_ICMA)
-        .legalEntityId(LEGAL_ENTITY)
-        .nominalPayment(NOMINAL)
-        .periodicPayments(PERIODIC)
-        .settlementDateOffset(SETTLE_OFFSET)
-        .yieldConvention(US_IL_REAL)
-        .build();
-    assertSerialization(test);
-  }
-  
 }
