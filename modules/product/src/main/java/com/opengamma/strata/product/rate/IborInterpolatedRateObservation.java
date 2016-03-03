@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
@@ -48,7 +49,7 @@ public final class IborInterpolatedRateObservation
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation shortObservation;
+  private final IborIndexObservation shortObservation;
   /**
    * The longer Ibor index observation.
    * <p>
@@ -56,7 +57,7 @@ public final class IborInterpolatedRateObservation
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation longObservation;
+  private final IborIndexObservation longObservation;
 
   //-------------------------------------------------------------------------
   /**
@@ -77,12 +78,26 @@ public final class IborInterpolatedRateObservation
       ReferenceData refData) {
 
     boolean inOrder = indicesInOrder(index1, index2, fixingDate);
-    IborRateObservation obs1 = IborRateObservation.of(index1, fixingDate, refData);
-    IborRateObservation obs2 = IborRateObservation.of(index2, fixingDate, refData);
+    IborIndexObservation obs1 = IborIndexObservation.of(index1, fixingDate, refData);
+    IborIndexObservation obs2 = IborIndexObservation.of(index2, fixingDate, refData);
     return IborInterpolatedRateObservation.builder()
         .shortObservation(inOrder ? obs1 : obs2)
         .longObservation(inOrder ? obs2 : obs1)
         .build();
+  }
+
+  /**
+   * Creates an instance from the two underlying index observations.
+   * <p>
+   * The two observations must be for two different indexes in the same currency on the same fixing date.
+   * The index with the shorter tenor must be passed as the first argument.
+   * 
+   * @param shortObservation  the short underlying index observation
+   * @param longObservation  the long underlying index observation
+   * @return the rate observation
+   */
+  public static IborInterpolatedRateObservation of(IborIndexObservation shortObservation, IborIndexObservation longObservation) {
+    return new IborInterpolatedRateObservation(shortObservation, longObservation);
   }
 
   //-------------------------------------------------------------------------
@@ -156,8 +171,8 @@ public final class IborInterpolatedRateObservation
   }
 
   private IborInterpolatedRateObservation(
-      IborRateObservation shortObservation,
-      IborRateObservation longObservation) {
+      IborIndexObservation shortObservation,
+      IborIndexObservation longObservation) {
     JodaBeanUtils.notNull(shortObservation, "shortObservation");
     JodaBeanUtils.notNull(longObservation, "longObservation");
     this.shortObservation = shortObservation;
@@ -188,7 +203,7 @@ public final class IborInterpolatedRateObservation
    * It will be a well known market index such as 'GBP-LIBOR-1M'.
    * @return the value of the property, not null
    */
-  public IborRateObservation getShortObservation() {
+  public IborIndexObservation getShortObservation() {
     return shortObservation;
   }
 
@@ -200,7 +215,7 @@ public final class IborInterpolatedRateObservation
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public IborRateObservation getLongObservation() {
+  public IborIndexObservation getLongObservation() {
     return longObservation;
   }
 
@@ -257,13 +272,13 @@ public final class IborInterpolatedRateObservation
     /**
      * The meta-property for the {@code shortObservation} property.
      */
-    private final MetaProperty<IborRateObservation> shortObservation = DirectMetaProperty.ofImmutable(
-        this, "shortObservation", IborInterpolatedRateObservation.class, IborRateObservation.class);
+    private final MetaProperty<IborIndexObservation> shortObservation = DirectMetaProperty.ofImmutable(
+        this, "shortObservation", IborInterpolatedRateObservation.class, IborIndexObservation.class);
     /**
      * The meta-property for the {@code longObservation} property.
      */
-    private final MetaProperty<IborRateObservation> longObservation = DirectMetaProperty.ofImmutable(
-        this, "longObservation", IborInterpolatedRateObservation.class, IborRateObservation.class);
+    private final MetaProperty<IborIndexObservation> longObservation = DirectMetaProperty.ofImmutable(
+        this, "longObservation", IborInterpolatedRateObservation.class, IborIndexObservation.class);
     /**
      * The meta-properties.
      */
@@ -309,7 +324,7 @@ public final class IborInterpolatedRateObservation
      * The meta-property for the {@code shortObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> shortObservation() {
+    public MetaProperty<IborIndexObservation> shortObservation() {
       return shortObservation;
     }
 
@@ -317,7 +332,7 @@ public final class IborInterpolatedRateObservation
      * The meta-property for the {@code longObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> longObservation() {
+    public MetaProperty<IborIndexObservation> longObservation() {
       return longObservation;
     }
 
@@ -350,8 +365,8 @@ public final class IborInterpolatedRateObservation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborInterpolatedRateObservation> {
 
-    private IborRateObservation shortObservation;
-    private IborRateObservation longObservation;
+    private IborIndexObservation shortObservation;
+    private IborIndexObservation longObservation;
 
     /**
      * Restricted constructor.
@@ -385,10 +400,10 @@ public final class IborInterpolatedRateObservation
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -496986608:  // shortObservation
-          this.shortObservation = (IborRateObservation) newValue;
+          this.shortObservation = (IborIndexObservation) newValue;
           break;
         case -684321776:  // longObservation
-          this.longObservation = (IborRateObservation) newValue;
+          this.longObservation = (IborIndexObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -436,7 +451,7 @@ public final class IborInterpolatedRateObservation
      * @param shortObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shortObservation(IborRateObservation shortObservation) {
+    public Builder shortObservation(IborIndexObservation shortObservation) {
       JodaBeanUtils.notNull(shortObservation, "shortObservation");
       this.shortObservation = shortObservation;
       return this;
@@ -450,7 +465,7 @@ public final class IborInterpolatedRateObservation
      * @param longObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder longObservation(IborRateObservation longObservation) {
+    public Builder longObservation(IborIndexObservation longObservation) {
       JodaBeanUtils.notNull(longObservation, "longObservation");
       this.longObservation = longObservation;
       return this;

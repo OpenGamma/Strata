@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.index;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.function.Function;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -91,6 +92,39 @@ public interface IborIndex
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the adjustment applied to the effective date to obtain the fixing date.
+   * <p>
+   * The fixing date is the date on which the index is to be observed.
+   * In most cases, the fixing date is 0 or 2 days before the effective date.
+   * This data structure allows the complex rules of some indices to be represented.
+   * 
+   * @return the fixing date offset
+   */
+  public abstract DaysAdjustment getFixingDateOffset();
+
+  /**
+   * Gets the adjustment applied to the fixing date to obtain the effective date.
+   * <p>
+   * The effective date is the start date of the indexed deposit.
+   * In most cases, the effective date is 0 or 2 days after the fixing date.
+   * This data structure allows the complex rules of some indices to be represented.
+   * 
+   * @return the effective date offset
+   */
+  public abstract DaysAdjustment getEffectiveDateOffset();
+
+  /**
+   * Gets the adjustment applied to the effective date to obtain the maturity date.
+   * <p>
+   * The maturity date is the end date of the indexed deposit and is relative to the effective date.
+   * This data structure allows the complex rules of some indices to be represented.
+   * 
+   * @return the tenor date offset
+   */
+  public abstract TenorAdjustment getMaturityDateOffset();
+
+  //-------------------------------------------------------------------------
+  /**
    * Converts the fixing date-time from the fixing date.
    * <p>
    * The fixing date is the date on which the index is to be observed.
@@ -163,38 +197,22 @@ public interface IborIndex
    */
   public abstract LocalDate calculateMaturityFromEffective(LocalDate effectiveDate, ReferenceData refData);
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
-   * Gets the adjustment applied to the effective date to obtain the fixing date.
+   * Resolves this index using the specified reference data, returning a function.
    * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * In most cases, the fixing date is 0 or 2 days before the effective date.
-   * This data structure allows the complex rules of some indices to be represented.
-   * 
-   * @return the fixing date offset
-   */
-  public abstract DaysAdjustment getFixingDateOffset();
-
-  /**
-   * Gets the adjustment applied to the fixing date to obtain the effective date.
+   * This returns a {@link Function} that converts fixing dates to observations.
+   * It binds the holiday calendar, looked up from the reference data, into the result.
+   * As such, there is no need to pass the reference data in again.
    * <p>
-   * The effective date is the start date of the indexed deposit.
-   * In most cases, the effective date is 0 or 2 days after the fixing date.
-   * This data structure allows the complex rules of some indices to be represented.
+   * This method is intended for use when looping to create multiple instances
+   * of {@code IborIndexObservation}. Implementations of the method are intended
+   * to optimize, avoiding repeated calls to resolve the holiday calendar
    * 
-   * @return the effective date offset
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return a function that converts fixing date to observation
    */
-  public abstract DaysAdjustment getEffectiveDateOffset();
-
-  /**
-   * Gets the adjustment applied to the effective date to obtain the maturity date.
-   * <p>
-   * The maturity date is the end date of the indexed deposit and is relative to the effective date.
-   * This data structure allows the complex rules of some indices to be represented.
-   * 
-   * @return the tenor date offset
-   */
-  public abstract TenorAdjustment getMaturityDateOffset();
+  public abstract Function<LocalDate, IborIndexObservation> resolve(ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

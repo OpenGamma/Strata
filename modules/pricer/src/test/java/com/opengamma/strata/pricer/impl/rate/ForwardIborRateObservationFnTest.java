@@ -37,14 +37,14 @@ public class ForwardIborRateObservationFnTest {
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
   private static final double RATE = 0.0123d;
   private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
-  private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M_OBS, 1d);
+  private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M_OBS.getObservation(), 1d);
 
   public void test_rate() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
 
-    when(mockIbor.rate(GBP_LIBOR_3M_OBS)).thenReturn(RATE);
+    when(mockIbor.rate(GBP_LIBOR_3M_OBS.getObservation())).thenReturn(RATE);
 
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
     assertEquals(obsFn.rate(GBP_LIBOR_3M_OBS, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), RATE);
@@ -67,7 +67,7 @@ public class ForwardIborRateObservationFnTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
 
-    when(mockIbor.ratePointSensitivity(GBP_LIBOR_3M_OBS)).thenReturn(SENSITIVITY);
+    when(mockIbor.ratePointSensitivity(GBP_LIBOR_3M_OBS.getObservation())).thenReturn(SENSITIVITY);
 
     ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
     assertEquals(obsFn.rateSensitivity(GBP_LIBOR_3M_OBS, ACCRUAL_START_DATE, ACCRUAL_END_DATE, prov), SENSITIVITY);

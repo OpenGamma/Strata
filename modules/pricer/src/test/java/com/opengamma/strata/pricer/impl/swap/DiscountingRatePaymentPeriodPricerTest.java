@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -409,11 +410,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
     double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
     for (int i = 0; i < 3; ++i) {
-      IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
-          .getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1d);
-      when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], simpleProv)).thenReturn(iborSense);
-      when(obsFunc.rate(observation, dates[i], dates[i + 1], simpleProv)).thenReturn(rates[i]);
+      IborRateObservation rateObs =
+          (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i).getRateObservation();
+      IborRateSensitivity iborSense = IborRateSensitivity.of(rateObs.getObservation(), 1d);
+      when(obsFunc.rateSensitivity(rateObs, dates[i], dates[i + 1], simpleProv)).thenReturn(iborSense);
+      when(obsFunc.rate(rateObs, dates[i], dates[i + 1], simpleProv)).thenReturn(rates[i]);
     }
     PointSensitivities senseComputed = pricer.presentValueSensitivity(PAYMENT_PERIOD_FLOATING, simpleProv).build();
 
@@ -439,11 +440,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
     double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
     for (int i = 0; i < 3; ++i) {
-      IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
-          .getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1.0d);
-      when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
-      when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
+      IborRateObservation rateObs =
+          (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i).getRateObservation();
+      IborRateSensitivity iborSense = IborRateSensitivity.of(rateObs.getObservation(), 1.0d);
+      when(obsFunc.rateSensitivity(rateObs, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
+      when(obsFunc.rate(rateObs, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
     PointSensitivities senseComputed = pricer.forecastValueSensitivity(PAYMENT_PERIOD_FLOATING, mockProv).build();
 
@@ -473,11 +474,11 @@ public class DiscountingRatePaymentPeriodPricerTest {
     LocalDate[] dates = new LocalDate[] {CPN_DATE_1, CPN_DATE_2, CPN_DATE_3, CPN_DATE_4};
     double[] rates = new double[] {RATE_1, RATE_2, RATE_3};
     for (int i = 0; i < 3; ++i) {
-      IborRateObservation observation =
+      IborRateObservation rateObs =
           (IborRateObservation) period.getAccrualPeriods().get(i).getRateObservation();
-      IborRateSensitivity iborSense = IborRateSensitivity.of(observation, 1.0d);
-      when(obsFunc.rateSensitivity(observation, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
-      when(obsFunc.rate(observation, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
+      IborRateSensitivity iborSense = IborRateSensitivity.of(rateObs.getObservation(), 1.0d);
+      when(obsFunc.rateSensitivity(rateObs, dates[i], dates[i + 1], mockProv)).thenReturn(iborSense);
+      when(obsFunc.rate(rateObs, dates[i], dates[i + 1], mockProv)).thenReturn(rates[i]);
     }
     PointSensitivities senseComputed = pricer.forecastValueSensitivity(period, mockProv).build();
     List<IborRateSensitivity> senseExpectedList = futureFwdSensitivityFD(mockProv, period, obsFunc, EPS_FD);
@@ -610,7 +611,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
       double up = pricerUp.forecastValue(payment, provNew);
       double down = pricerDown.forecastValue(payment, provNew);
       IborRateSensitivity fwdSense =
-          IborRateSensitivity.of(IborRateObservation.of(index, fixingDate, REF_DATA), 0.5 * (up - down) / eps);
+          IborRateSensitivity.of(IborIndexObservation.of(index, fixingDate, REF_DATA), 0.5 * (up - down) / eps);
       forwardRateSensi.add(fwdSense);
     }
     return forwardRateSensi;

@@ -41,6 +41,7 @@ import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -290,7 +291,7 @@ public final class IborRateCalculation
     DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     Function<SchedulePeriod, Schedule> resetScheduleFn =
         getResetPeriods().map(rp -> rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
-    Function<LocalDate, IborRateObservation> iborObservationFn = IborRateObservation.bind(index, refData);
+    Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
@@ -313,7 +314,7 @@ public final class IborRateCalculation
       SchedulePeriod period,
       DateAdjuster fixingDateAdjuster,
       Function<SchedulePeriod, Schedule> resetScheduleFn,
-      Function<LocalDate, IborRateObservation> iborObservationFn,
+      Function<LocalDate, IborIndexObservation> iborObservationFn,
       int scheduleIndex,
       Optional<SchedulePeriod> scheduleInitialStub,
       Optional<SchedulePeriod> scheduleFinalStub,
@@ -340,14 +341,14 @@ public final class IborRateCalculation
       return FixedRateObservation.of(firstRegularRate);
     }
     // simple Ibor
-    return iborObservationFn.apply(fixingDate);
+    return IborRateObservation.of(iborObservationFn.apply(fixingDate));
   }
 
   // reset periods have been specified, which may or may not imply averaging
   private RateObservation createRateObservationWithResetPeriods(
       Schedule resetSchedule,
       DateAdjuster fixingDateAdjuster,
-      Function<LocalDate, IborRateObservation> iborObservationFn,
+      Function<LocalDate, IborIndexObservation> iborObservationFn,
       boolean firstRegular) {
 
     List<IborAveragedFixing> fixings = new ArrayList<>();

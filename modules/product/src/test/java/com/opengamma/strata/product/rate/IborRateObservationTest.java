@@ -15,12 +15,10 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
-import java.util.function.Function;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 
@@ -35,27 +33,15 @@ public class IborRateObservationTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     IborRateObservation test = IborRateObservation.of(USD_LIBOR_3M, date(2016, 2, 18), REF_DATA);
-    IborRateObservation expected = IborRateObservation.builder()
-        .index(USD_LIBOR_3M)
-        .fixingDate(date(2016, 2, 18))
-        .effectiveDate(date(2016, 2, 22))
-        .maturityDate(date(2016, 5, 23))
-        .yearFraction(USD_LIBOR_3M.getDayCount().yearFraction(date(2016, 2, 22), date(2016, 5, 23)))
-        .build();
+    IborIndexObservation obs = IborIndexObservation.of(USD_LIBOR_3M, date(2016, 2, 18), REF_DATA);
+    IborRateObservation expected = IborRateObservation.of(obs);
     assertEquals(test, expected);
     assertEquals(test.getCurrency(), USD);
-  }
-
-  public void test_bind() {
-    Function<LocalDate, IborRateObservation> test = IborRateObservation.bind(USD_LIBOR_3M, REF_DATA);
-    IborRateObservation expected = IborRateObservation.builder()
-        .index(USD_LIBOR_3M)
-        .fixingDate(date(2016, 2, 18))
-        .effectiveDate(date(2016, 2, 22))
-        .maturityDate(date(2016, 5, 23))
-        .yearFraction(USD_LIBOR_3M.getDayCount().yearFraction(date(2016, 2, 22), date(2016, 5, 23)))
-        .build();
-    assertEquals(test.apply(date(2016, 2, 18)), expected);
+    assertEquals(test.getIndex(), obs.getIndex());
+    assertEquals(test.getFixingDate(), obs.getFixingDate());
+    assertEquals(test.getEffectiveDate(), obs.getEffectiveDate());
+    assertEquals(test.getMaturityDate(), obs.getMaturityDate());
+    assertEquals(test.getYearFraction(), obs.getYearFraction());
   }
 
   //-------------------------------------------------------------------------

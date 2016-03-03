@@ -43,7 +43,7 @@ public class ResolvedIborCapFloorLegTest {
       .unadjustedStartDate(LocalDate.of(2011, 3, 17))
       .unadjustedEndDate(LocalDate.of(2011, 6, 17))
       .paymentDate(LocalDate.of(2011, 6, 21))
-      .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 6, 15), REF_DATA))
+      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 6, 15), REF_DATA))
       .yearFraction(0.2556)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_2 = IborCapletFloorletPeriod.builder()
@@ -55,7 +55,7 @@ public class ResolvedIborCapFloorLegTest {
       .unadjustedStartDate(LocalDate.of(2011, 6, 17))
       .unadjustedEndDate(LocalDate.of(2011, 9, 17))
       .paymentDate(LocalDate.of(2011, 9, 21))
-      .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
+      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
       .yearFraction(0.2611)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_3 = IborCapletFloorletPeriod.builder()
@@ -67,7 +67,7 @@ public class ResolvedIborCapFloorLegTest {
       .unadjustedStartDate(LocalDate.of(2011, 9, 17))
       .unadjustedEndDate(LocalDate.of(2011, 12, 17))
       .paymentDate(LocalDate.of(2011, 12, 21))
-      .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 12, 15), REF_DATA))
+      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 12, 15), REF_DATA))
       .yearFraction(0.2528)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_4 = IborCapletFloorletPeriod.builder()
@@ -79,7 +79,7 @@ public class ResolvedIborCapFloorLegTest {
       .unadjustedStartDate(LocalDate.of(2011, 12, 17))
       .unadjustedEndDate(LocalDate.of(2012, 3, 17))
       .paymentDate(LocalDate.of(2012, 3, 21))
-      .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2012, 3, 15), REF_DATA))
+      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2012, 3, 15), REF_DATA))
       .yearFraction(0.2528)
       .build();
 
@@ -107,7 +107,7 @@ public class ResolvedIborCapFloorLegTest {
         .unadjustedStartDate(LocalDate.of(2011, 6, 17))
         .unadjustedEndDate(LocalDate.of(2011, 9, 17))
         .paymentDate(LocalDate.of(2011, 9, 21))
-        .rateObservation(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
+        .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
         .yearFraction(0.2611)
         .build();
     assertThrowsIllegalArg(() -> ResolvedIborCapFloorLeg.builder()
@@ -124,7 +124,7 @@ public class ResolvedIborCapFloorLegTest {
         .unadjustedStartDate(LocalDate.of(2011, 6, 17))
         .unadjustedEndDate(LocalDate.of(2011, 9, 17))
         .paymentDate(LocalDate.of(2011, 9, 21))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
+        .iborRate(IborRateObservation.of(GBP_LIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
         .yearFraction(0.2611)
         .build();
     assertThrowsIllegalArg(() -> ResolvedIborCapFloorLeg.builder()

@@ -22,8 +22,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link ZeroRateSensitivity}.
@@ -64,7 +64,7 @@ public class ZeroRateSensitivityTest {
     ZeroRateSensitivity a2 = ZeroRateSensitivity.of(GBP, DATE, 32d);
     ZeroRateSensitivity b = ZeroRateSensitivity.of(USD, DATE, 32d);
     ZeroRateSensitivity c = ZeroRateSensitivity.of(GBP, DATE2, 32d);
-    IborRateSensitivity other = IborRateSensitivity.of(IborRateObservation.of(GBP_LIBOR_3M, DATE, REF_DATA), 32d);
+    IborRateSensitivity other = IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, DATE, REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

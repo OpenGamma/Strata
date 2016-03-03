@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.amount.CashFlows;
@@ -266,7 +267,7 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA.getStartDate();
-    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    IborIndexObservation obs = IborIndexObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
     PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
@@ -313,7 +314,7 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_NONE.getStartDate();
-    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    IborIndexObservation obs = IborIndexObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
     PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
@@ -356,7 +357,7 @@ public class DiscountingFraProductPricerTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_AFMA.getStartDate();
-    IborRateObservation obs = IborRateObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
+    IborIndexObservation obs = IborIndexObservation.of(FRA.getIndex(), fixingDate, REF_DATA);
     PointSensitivityBuilder sens = IborRateSensitivity.of(obs, 1d);
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
@@ -622,7 +623,7 @@ public class DiscountingFraProductPricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
     prov.setIborRates(mockIbor);
 
-    IborRateObservation obs = (IborRateObservation) fraExp.getFloatingRate();
+    IborIndexObservation obs = ((IborRateObservation) fraExp.getFloatingRate()).getObservation();
     IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
     when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
     when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);

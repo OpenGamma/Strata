@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.Perturbation;
@@ -36,7 +37,6 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * An Ibor index curve providing rates from discount factors.
@@ -123,7 +123,7 @@ public final class DiscountIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public double rate(IborRateObservation observation) {
+  public double rate(IborIndexObservation observation) {
     if (!observation.getFixingDate().isAfter(getValuationDate())) {
       return historicRate(observation);
     }
@@ -131,7 +131,7 @@ public final class DiscountIborIndexRates
   }
 
   // historic rate
-  private double historicRate(IborRateObservation observation) {
+  private double historicRate(IborIndexObservation observation) {
     LocalDate fixingDate = observation.getFixingDate();
     OptionalDouble fixedRate = fixings.get(fixingDate);
     if (fixedRate.isPresent()) {
@@ -148,7 +148,7 @@ public final class DiscountIborIndexRates
   }
 
   @Override
-  public double rateIgnoringTimeSeries(IborRateObservation observation) {
+  public double rateIgnoringTimeSeries(IborIndexObservation observation) {
     LocalDate fixingStartDate = observation.getEffectiveDate();
     LocalDate fixingEndDate = observation.getMaturityDate();
     double accrualFactor = observation.getYearFraction();
@@ -160,7 +160,7 @@ public final class DiscountIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public PointSensitivityBuilder ratePointSensitivity(IborRateObservation observation) {
+  public PointSensitivityBuilder ratePointSensitivity(IborIndexObservation observation) {
     LocalDate fixingDate = observation.getFixingDate();
     LocalDate valuationDate = getValuationDate();
     if (fixingDate.isBefore(valuationDate) ||
@@ -171,7 +171,7 @@ public final class DiscountIborIndexRates
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborRateObservation observation) {
+  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborIndexObservation observation) {
     return IborRateSensitivity.of(observation, 1d);
   }
 

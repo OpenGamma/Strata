@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.index;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -113,6 +114,23 @@ public interface FxIndex
    * @return the fixing date
    */
   public abstract LocalDate calculateFixingFromMaturity(LocalDate maturityDate, ReferenceData refData);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves this index using the specified reference data, returning a function.
+   * <p>
+   * This returns a {@link Function} that converts fixing dates to observations.
+   * It binds the holiday calendar, looked up from the reference data, into the result.
+   * As such, there is no need to pass the reference data in again.
+   * <p>
+   * This method is intended for use when looping to create multiple instances
+   * of {@code FxIndexObservation}. Implementations of the method are intended
+   * to optimize, avoiding repeated calls to resolve the holiday calendar
+   * 
+   * @param refData  the reference data, used to resolve the holiday calendar
+   * @return a function that converts fixing date to observation
+   */
+  public abstract Function<LocalDate, FxIndexObservation> resolve(ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

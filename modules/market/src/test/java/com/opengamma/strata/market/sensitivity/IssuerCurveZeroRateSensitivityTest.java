@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link IssuerCurveZeroRateSensitivity}.
@@ -99,7 +99,7 @@ public class IssuerCurveZeroRateSensitivityTest {
     IssuerCurveZeroRateSensitivity d =
         IssuerCurveZeroRateSensitivity.of(CURRENCY, DATE, LegalEntityGroup.of("ISSUER2"), VALUE);
     IborRateSensitivity other = IborRateSensitivity.of(
-        IborRateObservation.of(GBP_LIBOR_3M, date(2015, 8, 27), REF_DATA), 32d);
+        IborIndexObservation.of(GBP_LIBOR_3M, date(2015, 8, 27), REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);

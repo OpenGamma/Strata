@@ -25,22 +25,23 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.market.ReferenceData;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Information about a single observation of an FX index.
  * <p>
  * Observing an FX index requires knowledge of the index, fixing date and maturity date.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class FxIndexObservation
-    implements ImmutableBean, Serializable {
+    implements IndexObservation, ImmutableBean, Serializable {
 
   /**
    * The FX index.
    * <p>
    * The rate will be queried from this index.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FxIndex index;
   /**
    * The date of the index fixing.
@@ -72,11 +73,7 @@ public final class FxIndexObservation
    */
   public static FxIndexObservation of(FxIndex index, LocalDate fixingDate, ReferenceData refData) {
     LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate, refData);
-    return FxIndexObservation.builder()
-        .index(index)
-        .fixingDate(fixingDate)
-        .maturityDate(maturityDate)
-        .build();
+    return new FxIndexObservation(index, fixingDate, maturityDate);
   }
 
   //-----------------------------------------------------------------------
@@ -155,14 +152,12 @@ public final class FxIndexObservation
   private static final long serialVersionUID = 1L;
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * Creates an instance.
+   * @param index  the value of the property, not null
+   * @param fixingDate  the value of the property, not null
+   * @param maturityDate  the value of the property, not null
    */
-  public static FxIndexObservation.Builder builder() {
-    return new FxIndexObservation.Builder();
-  }
-
-  private FxIndexObservation(
+  FxIndexObservation(
       FxIndex index,
       LocalDate fixingDate,
       LocalDate maturityDate) {
@@ -196,6 +191,7 @@ public final class FxIndexObservation
    * The rate will be queried from this index.
    * @return the value of the property, not null
    */
+  @Override
   public FxIndex getIndex() {
     return index;
   }
@@ -222,15 +218,6 @@ public final class FxIndexObservation
    */
   public LocalDate getMaturityDate() {
     return maturityDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
   }
 
   //-----------------------------------------------------------------------
@@ -287,7 +274,7 @@ public final class FxIndexObservation
     }
 
     @Override
-    public FxIndexObservation.Builder builder() {
+    public BeanBuilder<? extends FxIndexObservation> builder() {
       return new FxIndexObservation.Builder();
     }
 
@@ -355,7 +342,7 @@ public final class FxIndexObservation
   /**
    * The bean-builder for {@code FxIndexObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxIndexObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FxIndexObservation> {
 
     private FxIndex index;
     private LocalDate fixingDate;
@@ -365,16 +352,6 @@ public final class FxIndexObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FxIndexObservation beanToCopy) {
-      this.index = beanToCopy.getIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
-      this.maturityDate = beanToCopy.getMaturityDate();
     }
 
     //-----------------------------------------------------------------------
@@ -440,48 +417,6 @@ public final class FxIndexObservation
           index,
           fixingDate,
           maturityDate);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the FX index.
-     * <p>
-     * The rate will be queried from this index.
-     * @param index  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder index(FxIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the date of the index fixing.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
-      return this;
-    }
-
-    /**
-     * Sets the date of the transfer implied by the fixing date.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link FxIndex#calculateMaturityFromFixing(LocalDate, ReferenceData)}.
-     * @param maturityDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder maturityDate(LocalDate maturityDate) {
-      JodaBeanUtils.notNull(maturityDate, "maturityDate");
-      this.maturityDate = maturityDate;
-      return this;
     }
 
     //-----------------------------------------------------------------------

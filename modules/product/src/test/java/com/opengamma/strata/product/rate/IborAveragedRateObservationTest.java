@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 
@@ -26,8 +27,10 @@ import com.opengamma.strata.basics.market.ReferenceData;
 public class IborAveragedRateObservationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final IborRateObservation GBP_LIBOR_3M_OBS1 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_OBS2 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 30), REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS1 =
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS2 =
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 7, 30), REF_DATA);
 
   ImmutableList<IborAveragedFixing> FIXINGS = ImmutableList.of(
       IborAveragedFixing.of(GBP_LIBOR_3M_OBS1),

@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -30,7 +31,6 @@ import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
 * Test.
@@ -39,11 +39,11 @@ import com.opengamma.strata.product.rate.IborRateObservation;
 public class ForwardIborAveragedRateObservationFnTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final IborRateObservation[] OBSERVATIONS = new IborRateObservation[] {
-      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA),
-      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 7), REF_DATA),
-      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 14), REF_DATA),
-      IborRateObservation.of(GBP_LIBOR_3M, date(2014, 7, 21), REF_DATA)};
+  private static final IborIndexObservation[] OBSERVATIONS = new IborIndexObservation[] {
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA),
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 7, 7), REF_DATA),
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 7, 14), REF_DATA),
+      IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 7, 21), REF_DATA)};
   private static final double[] FIXING_VALUES = {0.0123d, 0.0234d, 0.0345d, 0.0456d};
   private static final double[] WEIGHTS = {0.10d, 0.20d, 0.30d, 0.40d};
   private static final IborRateSensitivity[] SENSITIVITIES = {
@@ -66,7 +66,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     double totalWeightedRate = 0.0d;
     double totalWeight = 0.0d;
     for (int i = 0; i < OBSERVATIONS.length; i++) {
-      IborRateObservation obs = OBSERVATIONS[i];
+      IborIndexObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
           .observation(obs)
           .weight(WEIGHTS[i])
@@ -108,7 +108,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeight = 0.0d;
     for (int i = 0; i < OBSERVATIONS.length; i++) {
-      IborRateObservation obs = OBSERVATIONS[i];
+      IborIndexObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
           .observation(obs)
           .weight(WEIGHTS[i])
@@ -138,7 +138,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     int nDates = OBSERVATIONS.length;
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < nDates; i++) {
-      IborRateObservation obs = OBSERVATIONS[i];
+      IborIndexObservation obs = OBSERVATIONS[i];
       IborAveragedFixing fixing = IborAveragedFixing.builder()
           .observation(obs)
           .weight(WEIGHTS[i])

@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 
@@ -35,13 +36,13 @@ public class IborInterpolatedRateObservationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate FIXING_DATE = date(2014, 6, 30);
-  private static final IborRateObservation GBP_LIBOR_1W_OBS = IborRateObservation.of(GBP_LIBOR_1W, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_1M_OBS = IborRateObservation.of(GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_OBS = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation EUR_EURIBOR_1W_OBS = IborRateObservation.of(EUR_EURIBOR_1W, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation EUR_EURIBOR_2W_OBS = IborRateObservation.of(EUR_EURIBOR_2W, FIXING_DATE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_OBS2 =
-      IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE.plusDays(1), REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_1W_OBS = IborIndexObservation.of(GBP_LIBOR_1W, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_1M_OBS = IborIndexObservation.of(GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS = IborIndexObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation EUR_EURIBOR_1W_OBS = IborIndexObservation.of(EUR_EURIBOR_1W, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation EUR_EURIBOR_2W_OBS = IborIndexObservation.of(EUR_EURIBOR_2W, FIXING_DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBS2 =
+      IborIndexObservation.of(GBP_LIBOR_3M, FIXING_DATE.plusDays(1), REF_DATA);
 
   //-------------------------------------------------------------------------
   public void test_of_monthly() {

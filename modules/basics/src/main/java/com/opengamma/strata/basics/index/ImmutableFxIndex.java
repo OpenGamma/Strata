@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -106,6 +107,24 @@ public final class ImmutableFxIndex
   private HolidayCalendarId maturityDateCalendar() {
     HolidayCalendarId cal = maturityDateOffset.getResultCalendar();
     return (cal == HolidayCalendarIds.NO_HOLIDAYS ? fixingCalendar : cal);
+  }
+
+  @Override
+  public Function<LocalDate, FxIndexObservation> resolve(ReferenceData refData) {
+    HolidayCalendar fixingCal = fixingCalendar.resolve(refData);
+    DateAdjuster maturityAdj = maturityDateOffset.resolve(refData);
+    return fixingDate -> create(fixingDate, fixingCal, maturityAdj);
+  }
+
+  // creates an observation
+  private FxIndexObservation create(
+      LocalDate fixingDate,
+      HolidayCalendar fixingCal,
+      DateAdjuster maturityAdjuster) {
+
+    LocalDate fixingBusinessDay = fixingCal.nextOrSame(fixingDate);
+    LocalDate maturityDate = maturityAdjuster.adjust(fixingBusinessDay);
+    return new FxIndexObservation(this, fixingDate, maturityDate);
   }
 
   //-------------------------------------------------------------------------

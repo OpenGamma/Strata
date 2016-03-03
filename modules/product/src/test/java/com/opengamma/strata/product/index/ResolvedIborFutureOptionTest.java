@@ -42,7 +42,7 @@ public class ResolvedIborFutureOptionTest {
   private static final ResolvedIborFuture IBOR_FUTURE_1 = ResolvedIborFuture.builder()
       .currency(GBP)
       .notional(NOTIONAL_1)
-      .observation(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
+      .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE_1, REF_DATA))
       .rounding(ROUNDING)
       .build();
 

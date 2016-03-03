@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
@@ -438,9 +439,9 @@ public class IborRateCalculationTest {
         .rollConvention(DAY_5)
         .build();
 
-    IborRateObservation obs1 = IborRateObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
-    IborRateObservation obs2 = IborRateObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
-    IborRateObservation obs3 = IborRateObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
+    IborIndexObservation obs1 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
+    IborIndexObservation obs2 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
+    IborIndexObservation obs3 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings1 = ImmutableList.of(
         IborAveragedFixing.ofDaysInResetPeriod(obs1, DATE_01_06, DATE_02_05),
         IborAveragedFixing.ofDaysInResetPeriod(obs2, DATE_02_05, DATE_03_05),
@@ -450,9 +451,9 @@ public class IborRateCalculationTest {
         .rateObservation(IborAveragedRateObservation.of(fixings1))
         .build();
 
-    IborRateObservation obs4 = IborRateObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
-    IborRateObservation obs5 = IborRateObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
-    IborRateObservation obs6 = IborRateObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
+    IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
+    IborIndexObservation obs5 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
+    IborIndexObservation obs6 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings2 = ImmutableList.of(
         IborAveragedFixing.ofDaysInResetPeriod(obs4, DATE_04_07, DATE_05_06),
         IborAveragedFixing.ofDaysInResetPeriod(obs5, DATE_05_06, DATE_06_05),
@@ -486,9 +487,9 @@ public class IborRateCalculationTest {
         .rollConvention(DAY_5)
         .build();
 
-    IborRateObservation obs1 = IborRateObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
-    IborRateObservation obs2 = IborRateObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
-    IborRateObservation obs3 = IborRateObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
+    IborIndexObservation obs1 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
+    IborIndexObservation obs2 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
+    IborIndexObservation obs3 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings1 = ImmutableList.of(
         IborAveragedFixing.ofDaysInResetPeriod(obs1, DATE_01_06, DATE_02_05, 0.028d),
         IborAveragedFixing.ofDaysInResetPeriod(obs2, DATE_02_05, DATE_03_05),
@@ -498,9 +499,9 @@ public class IborRateCalculationTest {
         .rateObservation(IborAveragedRateObservation.of(fixings1))
         .build();
 
-    IborRateObservation obs4 = IborRateObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
-    IborRateObservation obs5 = IborRateObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
-    IborRateObservation obs6 = IborRateObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
+    IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
+    IborIndexObservation obs5 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
+    IborIndexObservation obs6 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings2 = ImmutableList.of(
         IborAveragedFixing.ofDaysInResetPeriod(obs4, DATE_04_07, DATE_05_06),
         IborAveragedFixing.ofDaysInResetPeriod(obs5, DATE_05_06, DATE_06_05),
@@ -533,9 +534,9 @@ public class IborRateCalculationTest {
         .rollConvention(DAY_5)
         .build();
 
-    IborRateObservation obs1 = IborRateObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
-    IborRateObservation obs2 = IborRateObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
-    IborRateObservation obs3 = IborRateObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
+    IborIndexObservation obs1 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_01_02, REF_DATA);
+    IborIndexObservation obs2 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_02_03, REF_DATA);
+    IborIndexObservation obs3 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings1 = ImmutableList.of(
         IborAveragedFixing.of(obs1),
         IborAveragedFixing.of(obs2),
@@ -545,9 +546,9 @@ public class IborRateCalculationTest {
         .rateObservation(IborAveragedRateObservation.of(fixings1))
         .build();
 
-    IborRateObservation obs4 = IborRateObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
-    IborRateObservation obs5 = IborRateObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
-    IborRateObservation obs6 = IborRateObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
+    IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
+    IborIndexObservation obs5 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
+    IborIndexObservation obs6 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings2 = ImmutableList.of(
         IborAveragedFixing.of(obs4),
         IborAveragedFixing.of(obs5),
@@ -586,9 +587,9 @@ public class IborRateCalculationTest {
         .yearFraction(accrual1.yearFraction(ACT_360, schedule))
         .rateObservation(FixedRateObservation.of(0.030d))
         .build();
-    IborRateObservation obs4 = IborRateObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
-    IborRateObservation obs5 = IborRateObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
-    IborRateObservation obs6 = IborRateObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
+    IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
+    IborIndexObservation obs5 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
+    IborIndexObservation obs6 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_06_03, REF_DATA);
     ImmutableList<IborAveragedFixing> fixings2 = ImmutableList.of(
         IborAveragedFixing.ofDaysInResetPeriod(obs4, DATE_04_07, DATE_05_06, 0.028d),
         IborAveragedFixing.ofDaysInResetPeriod(obs5, DATE_05_06, DATE_06_05),

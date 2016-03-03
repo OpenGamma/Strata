@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
@@ -135,7 +136,7 @@ public class DispatchingRateObservationFnTest {
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < fixingDates.length; i++) {
       IborAveragedFixing fixing = IborAveragedFixing.builder()
-          .observation(IborRateObservation.of(GBP_LIBOR_3M, fixingDates[i], REF_DATA))
+          .observation(IborIndexObservation.of(GBP_LIBOR_3M, fixingDates[i], REF_DATA))
           .weight(weights[i])
           .build();
       fixings.add(fixing);
@@ -310,7 +311,7 @@ public class DispatchingRateObservationFnTest {
     IborInterpolatedRateObservation iborInt =
         IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
     IborAveragedRateObservation iborAvg =
-        IborAveragedRateObservation.of(ImmutableList.of(IborAveragedFixing.of(ibor)));
+        IborAveragedRateObservation.of(ImmutableList.of(IborAveragedFixing.of(ibor.getObservation())));
     OvernightCompoundedRateObservation onCpd =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0, REF_DATA);
     OvernightAveragedRateObservation onAvg =

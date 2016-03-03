@@ -42,7 +42,7 @@ public class DiscountingIborFutureProductPricer
    */
   public double price(ResolvedIborFuture future, RatesProvider provider) {
     IborIndexRates rates = provider.iborIndexRates(future.getIndex());
-    double forward = rates.rate(future.getObservation());
+    double forward = rates.rate(future.getIborRate().getObservation());
     return 1.0 - forward;
   }
 
@@ -56,7 +56,7 @@ public class DiscountingIborFutureProductPricer
    * @return the price curve sensitivity of the product
    */
   public PointSensitivities priceSensitivity(ResolvedIborFuture future, RatesProvider provider) {
-    IborRateSensitivity sensi = IborRateSensitivity.of(future.getObservation(), -1d);
+    IborRateSensitivity sensi = IborRateSensitivity.of(future.getIborRate().getObservation(), -1d);
     // The sensitivity should be to no currency or currency XXX. To avoid useless conversion, the dimension-less 
     // price sensitivity is reported in the future currency.
     return PointSensitivities.of(sensi);

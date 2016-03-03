@@ -23,8 +23,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.IborRateObservation;
 
 /**
  * Test {@link IborRateSensitivity}.
@@ -35,10 +35,10 @@ public class IborRateSensitivityTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE = date(2015, 8, 27);
   private static final LocalDate DATE2 = date(2015, 9, 27);
-  private static final IborRateObservation GBP_LIBOR_3M_OBSERVATION =
-      IborRateObservation.of(GBP_LIBOR_3M, DATE, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_OBSERVATION2 =
-      IborRateObservation.of(GBP_LIBOR_3M, DATE2, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBSERVATION =
+      IborIndexObservation.of(GBP_LIBOR_3M, DATE, REF_DATA);
+  private static final IborIndexObservation GBP_LIBOR_3M_OBSERVATION2 =
+      IborIndexObservation.of(GBP_LIBOR_3M, DATE2, REF_DATA);
 
   public void test_of_noCurrency() {
     IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, 32d);
@@ -78,7 +78,7 @@ public class IborRateSensitivityTest {
   public void test_compareKey() {
     IborRateSensitivity a1 = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, 32d);
     IborRateSensitivity a2 = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, 32d);
-    IborRateSensitivity b = IborRateSensitivity.of(IborRateObservation.of(USD_LIBOR_3M, DATE2, REF_DATA), 32d);
+    IborRateSensitivity b = IborRateSensitivity.of(IborIndexObservation.of(USD_LIBOR_3M, DATE2, REF_DATA), 32d);
     IborRateSensitivity c = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, USD, 32d);
     IborRateSensitivity d = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION2, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, DATE2, 32d);
@@ -175,7 +175,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity test = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, 32d);
     coverImmutableBean(test);
     IborRateSensitivity test2 = IborRateSensitivity.of(
-        IborRateObservation.of(USD_LIBOR_3M, DATE2, REF_DATA), USD, 16d);
+        IborIndexObservation.of(USD_LIBOR_3M, DATE2, REF_DATA), USD, 16d);
     coverBeanEquals(test, test2);
   }
 

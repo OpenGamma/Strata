@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -30,16 +31,16 @@ import com.opengamma.strata.basics.currency.Currency;
  * <p>
  * Observing a Price index requires knowledge of the index and fixing date.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class PriceIndexObservation
-    implements ImmutableBean, Serializable {
+    implements IndexObservation, ImmutableBean, Serializable {
 
   /**
    * The FX index.
    * <p>
    * The rate will be queried from this index.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PriceIndex index;
   /**
    * The fixing month.
@@ -60,10 +61,7 @@ public final class PriceIndexObservation
    * @return the rate observation
    */
   public static PriceIndexObservation of(PriceIndex index, YearMonth fixingMonth) {
-    return PriceIndexObservation.builder()
-        .index(index)
-        .fixingMonth(fixingMonth)
-        .build();
+    return new PriceIndexObservation(index, fixingMonth);
   }
 
   //-----------------------------------------------------------------------
@@ -141,14 +139,6 @@ public final class PriceIndexObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static PriceIndexObservation.Builder builder() {
-    return new PriceIndexObservation.Builder();
-  }
-
   private PriceIndexObservation(
       PriceIndex index,
       YearMonth fixingMonth) {
@@ -180,6 +170,7 @@ public final class PriceIndexObservation
    * The rate will be queried from this index.
    * @return the value of the property, not null
    */
+  @Override
   public PriceIndex getIndex() {
     return index;
   }
@@ -193,15 +184,6 @@ public final class PriceIndexObservation
    */
   public YearMonth getFixingMonth() {
     return fixingMonth;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
   }
 
   //-----------------------------------------------------------------------
@@ -250,7 +232,7 @@ public final class PriceIndexObservation
     }
 
     @Override
-    public PriceIndexObservation.Builder builder() {
+    public BeanBuilder<? extends PriceIndexObservation> builder() {
       return new PriceIndexObservation.Builder();
     }
 
@@ -308,7 +290,7 @@ public final class PriceIndexObservation
   /**
    * The bean-builder for {@code PriceIndexObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<PriceIndexObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<PriceIndexObservation> {
 
     private PriceIndex index;
     private YearMonth fixingMonth;
@@ -317,15 +299,6 @@ public final class PriceIndexObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(PriceIndexObservation beanToCopy) {
-      this.index = beanToCopy.getIndex();
-      this.fixingMonth = beanToCopy.getFixingMonth();
     }
 
     //-----------------------------------------------------------------------
@@ -385,33 +358,6 @@ public final class PriceIndexObservation
       return new PriceIndexObservation(
           index,
           fixingMonth);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the FX index.
-     * <p>
-     * The rate will be queried from this index.
-     * @param index  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder index(PriceIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the fixing month.
-     * <p>
-     * The index will be observed for this month.
-     * @param fixingMonth  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingMonth(YearMonth fixingMonth) {
-      JodaBeanUtils.notNull(fixingMonth, "fixingMonth");
-      this.fixingMonth = fixingMonth;
-      return this;
     }
 
     //-----------------------------------------------------------------------

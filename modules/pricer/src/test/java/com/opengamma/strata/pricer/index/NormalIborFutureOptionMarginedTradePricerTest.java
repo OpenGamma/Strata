@@ -116,7 +116,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     double lastClosingPrice = 0.0150;
@@ -133,7 +133,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
@@ -151,7 +151,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     PointSensitivities psProduct =
         OPTION_PRODUCT_PRICER.priceSensitivity(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
@@ -168,7 +168,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
 
     IborFutureOptionSensitivity psProduct =
         OPTION_PRODUCT_PRICER.priceSensitivityNormalVolatility(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);

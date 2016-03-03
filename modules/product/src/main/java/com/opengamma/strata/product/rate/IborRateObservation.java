@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -26,9 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.DateAdjuster;
-import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 
@@ -43,46 +41,10 @@ public final class IborRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
-   * The Ibor index.
-   * <p>
-   * The rate to be paid is based on this index.
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * The underlying index observation.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIndex index;
-  /**
-   * The date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
-  /**
-   * The effective date of the investment implied by the fixing date.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link IborIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate effectiveDate;
-  /**
-   * The maturity date of the investment implied by the fixing date.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link IborIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate maturityDate;
-  /**
-   * The year fraction of the investment implied by the fixing date.
-   * <p>
-   * This is calculated using the day count of the index.
-   * It represents the fraction of the year between the effective date and the maturity date.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final double yearFraction;
+  private final IborIndexObservation observation;
 
   //-------------------------------------------------------------------------
   /**
@@ -95,65 +57,79 @@ public final class IborRateObservation
    * @param refData  the reference data to use when resolving holiday calendars
    * @return the rate observation
    */
-  public static IborRateObservation of(
-      IborIndex index,
-      LocalDate fixingDate,
-      ReferenceData refData) {
-
-    LocalDate effectiveDate = index.calculateEffectiveFromFixing(fixingDate, refData);
-    LocalDate maturityDate = index.calculateMaturityFromEffective(effectiveDate, refData);
-    double yearFraction = index.getDayCount().yearFraction(effectiveDate, maturityDate);
-    return new IborRateObservation(index, fixingDate, effectiveDate, maturityDate, yearFraction);
+  public static IborRateObservation of(IborIndex index, LocalDate fixingDate, ReferenceData refData) {
+    return new IborRateObservation(IborIndexObservation.of(index, fixingDate, refData));
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Creates a function capable of producing {@code IborRateObservation} instances.
-   * <p>
-   * The resulting function is bound to the specified index and reference data.
-   * The function will convert a fixing date, which must be valid according to
-   * the fixing calendar, to an observation.
+   * Creates an instance from the underlying index observation.
    * 
-   * @param index  the index
-   * @param refData  the reference data to use when resolving holiday calendars
+   * @param underlyingObservation  the underlying index observation
    * @return the rate observation
    */
-  public static Function<LocalDate, IborRateObservation> bind(IborIndex index, ReferenceData refData) {
-    HolidayCalendar fixingCal = index.getFixingCalendar().resolve(refData);
-    DateAdjuster effectiveAdjuster = index.getEffectiveDateOffset().resolve(refData);
-    DateAdjuster maturityAdjuster = index.getMaturityDateOffset().resolve(refData);
-    return fixingDate -> create(index, fixingDate, fixingCal, effectiveAdjuster, maturityAdjuster);
-  }
-
-  // creates an instance
-  private static IborRateObservation create(
-      IborIndex index,
-      LocalDate fixingDate,
-      HolidayCalendar fixingCal,
-      DateAdjuster effectiveAdjuster,
-      DateAdjuster maturityAdjuster) {
-
-    LocalDate fixingBusinessDay = fixingCal.nextOrSame(fixingDate);
-    LocalDate effectiveDate = effectiveAdjuster.adjust(fixingBusinessDay);
-    LocalDate maturityDate = maturityAdjuster.adjust(effectiveDate);
-    double yearFraction = index.getDayCount().yearFraction(effectiveDate, maturityDate);
-    return new IborRateObservation(index, fixingDate, effectiveDate, maturityDate, yearFraction);
+  public static IborRateObservation of(IborIndexObservation underlyingObservation) {
+    return new IborRateObservation(underlyingObservation);
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the Ibor index.
+   * 
+   * @return the index
+   */
+  public IborIndex getIndex() {
+    return observation.getIndex();
+  }
+
   /**
    * Gets the currency of the Ibor index.
    * 
    * @return the currency of the index
    */
   public Currency getCurrency() {
-    return index.getCurrency();
+    return getIndex().getCurrency();
+  }
+
+  /**
+   * Gets the fixing date.
+   * 
+   * @return the fixing date
+   */
+  public LocalDate getFixingDate() {
+    return observation.getFixingDate();
+  }
+
+  /**
+   * Gets the effective date.
+   * 
+   * @return the effective date
+   */
+  public LocalDate getEffectiveDate() {
+    return observation.getEffectiveDate();
+  }
+
+  /**
+   * Gets the maturity date.
+   * 
+   * @return the maturity date
+   */
+  public LocalDate getMaturityDate() {
+    return observation.getMaturityDate();
+  }
+
+  /**
+   * Gets the year fraction.
+   * 
+   * @return the year fraction
+   */
+  public double getYearFraction() {
+    return observation.getYearFraction();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    builder.add(index);
+    builder.add(getIndex());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -184,21 +160,9 @@ public final class IborRateObservation
   }
 
   private IborRateObservation(
-      IborIndex index,
-      LocalDate fixingDate,
-      LocalDate effectiveDate,
-      LocalDate maturityDate,
-      double yearFraction) {
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
-    JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-    JodaBeanUtils.notNull(maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(yearFraction, "yearFraction");
-    this.index = index;
-    this.fixingDate = fixingDate;
-    this.effectiveDate = effectiveDate;
-    this.maturityDate = maturityDate;
-    this.yearFraction = yearFraction;
+      IborIndexObservation observation) {
+    JodaBeanUtils.notNull(observation, "observation");
+    this.observation = observation;
   }
 
   @Override
@@ -218,63 +182,11 @@ public final class IborRateObservation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Ibor index.
-   * <p>
-   * The rate to be paid is based on this index.
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * Gets the underlying index observation.
    * @return the value of the property, not null
    */
-  public IborIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the effective date of the investment implied by the fixing date.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link IborIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getEffectiveDate() {
-    return effectiveDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the maturity date of the investment implied by the fixing date.
-   * <p>
-   * This is an adjusted date with any business day rule applied.
-   * This must be equal to {@link IborIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
-   * @return the value of the property, not null
-   */
-  public LocalDate getMaturityDate() {
-    return maturityDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the year fraction of the investment implied by the fixing date.
-   * <p>
-   * This is calculated using the day count of the index.
-   * It represents the fraction of the year between the effective date and the maturity date.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   * @return the value of the property, not null
-   */
-  public double getYearFraction() {
-    return yearFraction;
+  public IborIndexObservation getObservation() {
+    return observation;
   }
 
   //-----------------------------------------------------------------------
@@ -293,11 +205,7 @@ public final class IborRateObservation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborRateObservation other = (IborRateObservation) obj;
-      return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(fixingDate, other.fixingDate) &&
-          JodaBeanUtils.equal(effectiveDate, other.effectiveDate) &&
-          JodaBeanUtils.equal(maturityDate, other.maturityDate) &&
-          JodaBeanUtils.equal(yearFraction, other.yearFraction);
+      return JodaBeanUtils.equal(observation, other.observation);
     }
     return false;
   }
@@ -305,23 +213,15 @@ public final class IborRateObservation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixingDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(effectiveDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(maturityDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("IborRateObservation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(effectiveDate).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(maturityDate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
     buf.append('}');
     return buf.toString();
   }
@@ -337,40 +237,16 @@ public final class IborRateObservation
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborRateObservation.class, IborIndex.class);
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", IborRateObservation.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code effectiveDate} property.
-     */
-    private final MetaProperty<LocalDate> effectiveDate = DirectMetaProperty.ofImmutable(
-        this, "effectiveDate", IborRateObservation.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code maturityDate} property.
-     */
-    private final MetaProperty<LocalDate> maturityDate = DirectMetaProperty.ofImmutable(
-        this, "maturityDate", IborRateObservation.class, LocalDate.class);
-    /**
-     * The meta-property for the {@code yearFraction} property.
-     */
-    private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", IborRateObservation.class, Double.TYPE);
+    private final MetaProperty<IborIndexObservation> observation = DirectMetaProperty.ofImmutable(
+        this, "observation", IborRateObservation.class, IborIndexObservation.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "index",
-        "fixingDate",
-        "effectiveDate",
-        "maturityDate",
-        "yearFraction");
+        "observation");
 
     /**
      * Restricted constructor.
@@ -381,16 +257,8 @@ public final class IborRateObservation
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
-        case -930389515:  // effectiveDate
-          return effectiveDate;
-        case -414641441:  // maturityDate
-          return maturityDate;
-        case -1731780257:  // yearFraction
-          return yearFraction;
+        case 122345516:  // observation
+          return observation;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -412,59 +280,19 @@ public final class IborRateObservation
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code observation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
-    }
-
-    /**
-     * The meta-property for the {@code effectiveDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> effectiveDate() {
-      return effectiveDate;
-    }
-
-    /**
-     * The meta-property for the {@code maturityDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> maturityDate() {
-      return maturityDate;
-    }
-
-    /**
-     * The meta-property for the {@code yearFraction} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> yearFraction() {
-      return yearFraction;
+    public MetaProperty<IborIndexObservation> observation() {
+      return observation;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return ((IborRateObservation) bean).getIndex();
-        case 1255202043:  // fixingDate
-          return ((IborRateObservation) bean).getFixingDate();
-        case -930389515:  // effectiveDate
-          return ((IborRateObservation) bean).getEffectiveDate();
-        case -414641441:  // maturityDate
-          return ((IborRateObservation) bean).getMaturityDate();
-        case -1731780257:  // yearFraction
-          return ((IborRateObservation) bean).getYearFraction();
+        case 122345516:  // observation
+          return ((IborRateObservation) bean).getObservation();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -486,11 +314,7 @@ public final class IborRateObservation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborRateObservation> {
 
-    private IborIndex index;
-    private LocalDate fixingDate;
-    private LocalDate effectiveDate;
-    private LocalDate maturityDate;
-    private double yearFraction;
+    private IborIndexObservation observation;
 
     /**
      * Restricted constructor.
@@ -503,27 +327,15 @@ public final class IborRateObservation
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IborRateObservation beanToCopy) {
-      this.index = beanToCopy.getIndex();
-      this.fixingDate = beanToCopy.getFixingDate();
-      this.effectiveDate = beanToCopy.getEffectiveDate();
-      this.maturityDate = beanToCopy.getMaturityDate();
-      this.yearFraction = beanToCopy.getYearFraction();
+      this.observation = beanToCopy.getObservation();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          return index;
-        case 1255202043:  // fixingDate
-          return fixingDate;
-        case -930389515:  // effectiveDate
-          return effectiveDate;
-        case -414641441:  // maturityDate
-          return maturityDate;
-        case -1731780257:  // yearFraction
-          return yearFraction;
+        case 122345516:  // observation
+          return observation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -532,20 +344,8 @@ public final class IborRateObservation
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 100346066:  // index
-          this.index = (IborIndex) newValue;
-          break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
-          break;
-        case -930389515:  // effectiveDate
-          this.effectiveDate = (LocalDate) newValue;
-          break;
-        case -414641441:  // maturityDate
-          this.maturityDate = (LocalDate) newValue;
-          break;
-        case -1731780257:  // yearFraction
-          this.yearFraction = (Double) newValue;
+        case 122345516:  // observation
+          this.observation = (IborIndexObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -580,95 +380,27 @@ public final class IborRateObservation
     @Override
     public IborRateObservation build() {
       return new IborRateObservation(
-          index,
-          fixingDate,
-          effectiveDate,
-          maturityDate,
-          yearFraction);
+          observation);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the Ibor index.
-     * <p>
-     * The rate to be paid is based on this index.
-     * It will be a well known market index such as 'GBP-LIBOR-3M'.
-     * @param index  the new value, not null
+     * Sets the underlying index observation.
+     * @param observation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(IborIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the date of the index fixing.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * Valid business days are defined by {@link IborIndex#getFixingCalendar()}.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
-      return this;
-    }
-
-    /**
-     * Sets the effective date of the investment implied by the fixing date.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link IborIndex#calculateEffectiveFromFixing(LocalDate, ReferenceData)}.
-     * @param effectiveDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder effectiveDate(LocalDate effectiveDate) {
-      JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
-      this.effectiveDate = effectiveDate;
-      return this;
-    }
-
-    /**
-     * Sets the maturity date of the investment implied by the fixing date.
-     * <p>
-     * This is an adjusted date with any business day rule applied.
-     * This must be equal to {@link IborIndex#calculateMaturityFromEffective(LocalDate, ReferenceData)}.
-     * @param maturityDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder maturityDate(LocalDate maturityDate) {
-      JodaBeanUtils.notNull(maturityDate, "maturityDate");
-      this.maturityDate = maturityDate;
-      return this;
-    }
-
-    /**
-     * Sets the year fraction of the investment implied by the fixing date.
-     * <p>
-     * This is calculated using the day count of the index.
-     * It represents the fraction of the year between the effective date and the maturity date.
-     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-     * @param yearFraction  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder yearFraction(double yearFraction) {
-      JodaBeanUtils.notNull(yearFraction, "yearFraction");
-      this.yearFraction = yearFraction;
+    public Builder observation(IborIndexObservation observation) {
+      JodaBeanUtils.notNull(observation, "observation");
+      this.observation = observation;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("IborRateObservation.Builder{");
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
-      buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(effectiveDate)).append(',').append(' ');
-      buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(maturityDate)).append(',').append(' ');
-      buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+      buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
       buf.append('}');
       return buf.toString();
     }
