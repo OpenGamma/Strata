@@ -135,12 +135,12 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -179,12 +179,12 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.empty();
     }
 

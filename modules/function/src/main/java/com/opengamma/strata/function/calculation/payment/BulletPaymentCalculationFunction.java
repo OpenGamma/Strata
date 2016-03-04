@@ -72,13 +72,13 @@ public class BulletPaymentCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(BulletPaymentTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(BulletPaymentTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(BulletPaymentTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(BulletPaymentTrade trade, Set<Measure> measures, ReferenceData refData) {
     BulletPayment product = trade.getProduct();
 
     Set<DiscountCurveKey> discountCurveKeys =

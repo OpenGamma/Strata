@@ -74,7 +74,7 @@ public class CalculationTaskTest {
             .build();
     CalculationTask task =
         CalculationTask.of(new TestTarget(), Measures.PRESENT_VALUE, 0, 0, new TestFunction(), marketDataMappings, REPORTING_CURRENCY_EMPTY);
-    MarketDataRequirements requirements = task.requirements();
+    MarketDataRequirements requirements = task.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
@@ -282,7 +282,7 @@ public class CalculationTaskTest {
   public void fxConversionRequirements() {
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
     CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    MarketDataRequirements requirements = task.requirements();
+    MarketDataRequirements requirements = task.requirements(REF_DATA);
 
     assertThat(requirements.getNonObservables()).containsOnly(
         FxRateId.of(GBP, USD),
@@ -311,12 +311,12 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -363,12 +363,12 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return naturalCurrency;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.empty();
     }
 
@@ -406,12 +406,12 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.empty();
     }
 
@@ -444,12 +444,12 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.builder()
           .outputCurrencies(GBP, EUR, USD)
           .build();

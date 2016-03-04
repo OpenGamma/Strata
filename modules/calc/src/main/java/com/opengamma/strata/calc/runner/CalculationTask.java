@@ -162,13 +162,14 @@ public final class CalculationTask {
   //-------------------------------------------------------------------------
   /**
    * Returns requirements specifying the market data the function needs to perform its calculations.
-   *
+   * 
+   * @param refData  the reference data
    * @return requirements specifying the market data the function needs to perform its calculations
    */
   @SuppressWarnings("unchecked")
-  public MarketDataRequirements requirements() {
+  public MarketDataRequirements requirements(ReferenceData refData) {
     ImmutableSet<Measure> measures = ImmutableSet.of(getMeasure());
-    FunctionRequirements functionRequirements = function.requirements(target, measures);
+    FunctionRequirements functionRequirements = function.requirements(target, measures, refData);
 
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
 
@@ -180,7 +181,7 @@ public final class CalculationTask {
       requirementsBuilder.addValues(marketDataMappings.getIdForKey(key));
     }
     if (measure.isCurrencyConvertible()) {
-      Currency reportingCurrency = reportingCurrency();
+      Currency reportingCurrency = reportingCurrency(refData);
       // Add requirements for the FX rates needed to convert the output values into the reporting currency
       List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
           .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
@@ -193,15 +194,13 @@ public final class CalculationTask {
     return requirementsBuilder.build();
   }
 
-  /**
-   * Returns an optional containing the first currency from the arguments or empty if both arguments are empty.
-   */
-  private Currency reportingCurrency() {
+  // determines the reporting currency
+  private Currency reportingCurrency(ReferenceData refData) {
     if (reportingCurrency.isSpecific()) {
       return reportingCurrency.getCurrency();
     }
     // this should never throw an exception, because it is only called if the measure is currency-convertible
-    return function.naturalCurrency(target);
+    return function.naturalCurrency(target, refData);
   }
 
   /**
@@ -217,7 +216,7 @@ public final class CalculationTask {
   public CalculationResult execute(CalculationEnvironment scenarioData, ReferenceData refData) {
     CalculationMarketData calculationData = DefaultCalculationMarketData.of(scenarioData, marketDataMappings);
     Result<?> result = Result.wrap(() -> calculate(calculationData, refData));
-    Result<?> converted = convertToReportingCurrency(result, calculationData);
+    Result<?> converted = convertToReportingCurrency(result, calculationData, refData);
     return CalculationResult.of(target, rowIndex, columnIndex, converted);
   }
 
@@ -242,18 +241,26 @@ public final class CalculationTask {
   }
 
   // converts the value, if appropriate
-  private Result<?> convertToReportingCurrency(Result<?> result, CalculationMarketData marketData) {
+  private Result<?> convertToReportingCurrency(
+      Result<?> result,
+      CalculationMarketData marketData,
+      ReferenceData refData) {
+
     // the result is only converted if it is a success and both the measure and value are convertible
     if (result.isSuccess() && measure.isCurrencyConvertible() && result.getValue() instanceof CurrencyConvertible) {
       CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) result.getValue();
-      return performCurrencyConversion(convertible, marketData);
+      return performCurrencyConversion(convertible, marketData, refData);
     }
     return result;
   }
 
   // converts the value
-  private Result<?> performCurrencyConversion(CurrencyConvertible<?> value, CalculationMarketData marketData) {
-    Currency currency = reportingCurrency();
+  private Result<?> performCurrencyConversion(
+      CurrencyConvertible<?> value,
+      CalculationMarketData marketData,
+      ReferenceData refData) {
+
+    Currency currency = reportingCurrency(refData);
     try {
       return Result.success(value.convertedTo(currency, marketData));
     } catch (RuntimeException ex) {

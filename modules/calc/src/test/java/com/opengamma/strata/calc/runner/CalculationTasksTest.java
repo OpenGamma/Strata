@@ -50,6 +50,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class CalculationTasksTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final TestTarget TARGET1 = new TestTarget();
   private static final TestTarget TARGET2 = new TestTarget();
   private static final Set<Measure> MEASURES = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PAR_RATE);
@@ -109,7 +110,7 @@ public class CalculationTasksTest {
 
     CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
 
-    MarketDataRequirements requirements = test.getRequirements();
+    MarketDataRequirements requirements = test.getRequirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
@@ -153,12 +154,12 @@ public class CalculationTasksTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTarget target) {
+    public Currency naturalCurrency(TestTarget trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
