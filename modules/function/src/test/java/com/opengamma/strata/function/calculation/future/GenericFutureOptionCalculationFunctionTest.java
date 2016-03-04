@@ -84,11 +84,11 @@ public class GenericFutureOptionCalculationFunctionTest {
   public void test_requirementsAndCurrency() {
     GenericFutureOptionCalculationFunction function = new GenericFutureOptionCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteKey.of(SEC_ID)));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
-    assertThat(function.naturalCurrency(TRADE)).isEqualTo(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
   public void test_presentValue() {

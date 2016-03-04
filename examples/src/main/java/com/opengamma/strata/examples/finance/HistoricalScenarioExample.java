@@ -132,7 +132,7 @@ public class HistoricalScenarioExample {
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results
-    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
+    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);

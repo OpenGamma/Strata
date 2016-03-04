@@ -80,13 +80,13 @@ public class DeliverableSwapFutureCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(DeliverableSwapFutureTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(DeliverableSwapFutureTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(DeliverableSwapFutureTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(DeliverableSwapFutureTrade trade, Set<Measure> measures, ReferenceData refData) {
     DeliverableSwapFuture product = trade.getProduct();
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
     Set<Index> indices = product.getUnderlyingSwap().allIndices();

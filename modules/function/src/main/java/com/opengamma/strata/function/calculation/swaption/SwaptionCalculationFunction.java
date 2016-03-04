@@ -72,13 +72,13 @@ public class SwaptionCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(SwaptionTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(SwaptionTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(SwaptionTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(SwaptionTrade trade, Set<Measure> measures, ReferenceData refData) {
     Swaption product = trade.getProduct();
 
     IborIndex index = product.getIndex();

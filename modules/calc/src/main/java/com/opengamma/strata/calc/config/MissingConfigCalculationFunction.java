@@ -31,12 +31,12 @@ public class MissingConfigCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(CalculationTarget target) {
+  public Currency naturalCurrency(CalculationTarget trade, ReferenceData refData) {
     throw new IllegalStateException("Function has no currency-convertible measures");
   }
 
   @Override
-  public FunctionRequirements requirements(CalculationTarget target, Set<Measure> measures) {
+  public FunctionRequirements requirements(CalculationTarget target, Set<Measure> measures, ReferenceData refData) {
     return FunctionRequirements.empty();
   }
 
