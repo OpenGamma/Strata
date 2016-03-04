@@ -104,7 +104,7 @@ public class InterpolatorCurveExtrapolatorTest {
     int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
       BoundCurveInterpolator boundInterp =
-          CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(xValues, yValues[k], extrap, extrap);
+          CurveInterpolators.NATURAL_SPLINE.bind(xValues, yValues[k], extrap, extrap);
       Interpolator1D baseInterp = ((StandardBoundCurveInterpolator) boundInterp).getInterpolator();
       Interpolator1DDataBundle baseBundle =
           baseInterp.getDataBundleFromSortedArrays(xValues.toArray(), yValues[k].toArray());
