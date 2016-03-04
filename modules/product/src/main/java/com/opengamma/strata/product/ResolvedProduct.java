@@ -5,10 +5,13 @@
  */
 package com.opengamma.strata.product;
 
+import com.opengamma.strata.basics.market.ReferenceData;
+
 /**
  * A product that has been resolved for pricing.
  * <p>
- * Resolved product contain data about the instrument ready for the pricer.
+ * This is the resolved form of {@link Product}. Applications will typically create
+ * a {@code ResolvedProduct} from a {@code Product} using {@link ReferenceData}.
  * <p>
  * Resolved objects may be bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
