@@ -634,12 +634,13 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final LocalDate VAL_DATE_GB = LocalDate.of(2016, 3, 1);
   private static final ImmutableRatesProvider RATES_PROVS_GB = CapitalIndexedBondCurveDataSet.getRatesProviderGb(
-      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE));
+      VAL_DATE_GB, CapitalIndexedBondCurveDataSet.getTimeSeriesGb(VAL_DATE_GB));
   private static final LegalEntityDiscountingProvider ISSUER_PROVS_GB =
-      CapitalIndexedBondCurveDataSet.getLegalEntityDiscountingProviderGb(VAL_DATE);
+      CapitalIndexedBondCurveDataSet.getLegalEntityDiscountingProviderGb(VAL_DATE_GB);
 
-  private static final double START_INDEX_GOV = 82.6;
+  private static final double START_INDEX_GOV = 82.966;
   private static final double CPN_VALUE_GOV = 0.025 * 0.5;
   private static final ValueSchedule CPN_GOV = ValueSchedule.of(CPN_VALUE_GOV);
   private static final InflationRateCalculation RATE_CALC_GOV = InflationRateCalculation.builder()
@@ -673,7 +674,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_GOV = -0.01532;
 
-  private static final double START_INDEX_GOV_OP = 81.3;
+  private static final double START_INDEX_GOV_OP = 81.623;
   private static final LocalDate START_GOV_OP = LocalDate.of(1983, 1, 26);
   private static final LocalDate END_GOV_OP = LocalDate.of(2016, 7, 26);
   private static final PeriodicSchedule SCHEDULE_GOV_OP = PeriodicSchedule.of(
@@ -694,11 +695,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final double YIELD_GOV_OP = -0.0244;
 
   public void test_priceFromRealYield_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    assertEquals(computed, 3.60, 2.e-2);
-    double computedOnePeriod = PRICER.cleanPriceFromRealYield(
-        PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA), YIELD_GOV_OP);
+    assertEquals(computed, 3.60, 1.e-2);
+    double computedOnePeriod = PRICER.cleanPriceFromRealYield(PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP
+        .getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA), YIELD_GOV_OP);
     assertEquals(computedOnePeriod, 3.21, 4.e-2);
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
@@ -710,7 +711,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_ukGov() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cvComputed =
@@ -723,7 +724,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_realYieldFromCurves_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
@@ -732,7 +733,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_ukGov() {
-    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         PRODUCT_GOV, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
@@ -787,7 +788,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final double YIELD_CORP = -0.00842;
 
   public void test_priceFromRealYield_ukCorp() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     assertEquals(computed, 1.39, 1.e-2);
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(
@@ -802,7 +803,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_modifiedDuration_convexity_ukCor() {
     double eps = 1.0e-5;
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double mdComputed =
         PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     double cvComputed =
@@ -815,7 +816,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_realYieldFromCurves_ukCor() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
@@ -826,7 +827,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void zSpreadFromCurvesAndCleanPrice_ukCor() {
-    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         PRODUCT_CORP, SECURITY_ID, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle,

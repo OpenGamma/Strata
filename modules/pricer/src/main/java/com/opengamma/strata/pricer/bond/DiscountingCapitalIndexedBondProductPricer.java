@@ -629,8 +629,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double realRate = period.getRealCoupon();
     double firstYearFraction = period.getYearFraction();
     double v = 1d / (1d + yield / couponPerYear);
+    double rs = ratioPeriodToNextCoupon(period, settlementDate);
     if (yieldConvention.equals(YieldConvention.INDEX_LINKED_FLOAT)) {
-      RateObservation obs = bond.getPeriodicPayments().get(periodIndex).getRateObservation();
+      RateObservation obs = period.getRateObservation();
       LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
       double indexRatio = ts.getLatestValue() / bond.getStartIndexValue();
@@ -645,11 +646,10 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double nbMonth = Math.abs(MONTHS.between(endFixingMonth, lastKnownFixingMonth));
       double u = Math.sqrt(1d / 1.03);
       double a = indexRatio * Math.pow(u, nbMonth / 6d);
-      double firstCashFlow = firstYearFraction * realRate * indexRatio * couponPerYear;
-      double rs = ratioPeriodToNextCoupon(bond.getPeriodicPayments().get(periodIndex), settlementDate);
       if (nbCoupon == 1) {
         return (realRate + 1d) * a / u * Math.pow(u * v, rs);
       } else {
+        double firstCashFlow = firstYearFraction * realRate * indexRatio * couponPerYear;
         double secondYearFraction = bond.getPeriodicPayments().get(periodIndex + 1).getYearFraction();
         double secondCashFlow = secondYearFraction * realRate * indexRatio * couponPerYear;
         double vn = Math.pow(v, nbCoupon - 1);
@@ -660,7 +660,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
     }
     if (yieldConvention.equals(YieldConvention.UK_IL_BOND)) {
       double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
-      double rs = ratioPeriodToNextCoupon(bond.getPeriodicPayments().get(periodIndex), settlementDate);
       double firstCashFlow = realRate * indexRatio * firstYearFraction * couponPerYear;
       if (nbCoupon == 1) {
         return Math.pow(v, rs) * (firstCashFlow + 1d);
