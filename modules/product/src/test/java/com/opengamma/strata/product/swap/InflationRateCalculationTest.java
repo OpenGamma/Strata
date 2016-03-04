@@ -7,11 +7,15 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
+import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -68,10 +72,10 @@ public class InflationRateCalculationTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    InflationRateCalculation test1 = InflationRateCalculation.of(CH_CPI, 3, false);
+    InflationRateCalculation test1 = InflationRateCalculation.of(CH_CPI, 3, MONTHLY);
     assertEquals(test1.getIndex(), CH_CPI);
     assertEquals(test1.getLag(), Period.ofMonths(3));
-    assertEquals(test1.isInterpolated(), false);
+    assertEquals(test1.getIndexCalculationMethod(), MONTHLY);
     assertEquals(test1.getGearing(), Optional.empty());
     assertEquals(test1.getType(), SwapLegType.INFLATION);
   }
@@ -81,22 +85,22 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     assertEquals(test1.getIndex(), CH_CPI);
     assertEquals(test1.getLag(), Period.ofMonths(3));
-    assertEquals(test1.isInterpolated(), false);
+    assertEquals(test1.getIndexCalculationMethod(), MONTHLY);
     assertEquals(test1.getGearing(), Optional.empty());
     assertEquals(test1.getType(), SwapLegType.INFLATION);
     InflationRateCalculation test2 = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(4))
-        .interpolated(true)
+        .indexCalculationMethod(INTERPOLATED)
         .gearing(GEARING)
         .build();
     assertEquals(test2.getIndex(), GB_HICP);
     assertEquals(test2.getLag(), Period.ofMonths(4));
-    assertEquals(test2.isInterpolated(), true);
+    assertEquals(test2.getIndexCalculationMethod(), INTERPOLATED);
     assertEquals(test2.getGearing().get(), GEARING);
     assertEquals(test2.getType(), SwapLegType.INFLATION);
   }
@@ -121,7 +125,7 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
@@ -133,7 +137,7 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(1.0)
@@ -168,7 +172,7 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
-        .interpolated(true)
+        .indexCalculationMethod(INTERPOLATED)
         .build();
     double weight1 = 1.0 - 5.0 / 31.0;
     double weight2 = 1.0 - 6.0 / 31.0;
@@ -204,12 +208,35 @@ public class InflationRateCalculationTest {
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
+  public void test_createRateObservation_InterpolatedJapan() {
+    LocalDate date1 = LocalDate.of(2013, 3, 9);
+    LocalDate date2 = LocalDate.of(2013, 3, 10);
+    LocalDate date3 = LocalDate.of(2013, 3, 11);
+    InflationRateCalculation test = InflationRateCalculation.builder()
+        .index(JP_CPI_EXF)
+        .lag(Period.ofMonths(3))
+        .indexCalculationMethod(INTERPOLATED_JAPAN)
+        .build();
+    double weight1 = 1.0 - (9.0 + 28.0 - 10.0) / 28.0;
+    double weight2 = 1.0;
+    double weight3 = 1.0 - 1.0 / 31.0;
+    InflationEndInterpolatedRateObservation obs1 = InflationEndInterpolatedRateObservation.of(
+        JP_CPI_EXF, START_INDEX, YearMonth.from(date1).minusMonths(4), weight1);
+    InflationEndInterpolatedRateObservation obs2 = InflationEndInterpolatedRateObservation.of(
+        JP_CPI_EXF, START_INDEX, YearMonth.from(date2).minusMonths(3), weight2);
+    InflationEndInterpolatedRateObservation obs3 = InflationEndInterpolatedRateObservation.of(
+        JP_CPI_EXF, START_INDEX, YearMonth.from(date3).minusMonths(3), weight3);
+    assertEquals(test.createRateObservation(date1, START_INDEX), obs1);
+    assertEquals(test.createRateObservation(date2, START_INDEX), obs2);
+    assertEquals(test.createRateObservation(date3, START_INDEX), obs3);
+  }
+
   //-------------------------------------------------------------------------
   public void test_createRateObservation_Monthly() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     InflationEndMonthRateObservation obs1 = InflationEndMonthRateObservation.of(
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_01_06).minusMonths(3));
@@ -227,7 +254,7 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
-        .interpolated(true)
+        .indexCalculationMethod(INTERPOLATED)
         .build();
     double weight1 = 1.0 - 5.0 / 31.0;
     double weight2 = 1.0 - 6.0 / 31.0;
@@ -248,13 +275,13 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     coverImmutableBean(test1);
     InflationRateCalculation test2 = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(4))
-        .interpolated(true)
+        .indexCalculationMethod(INTERPOLATED)
         .gearing(GEARING)
         .build();
     coverBeanEquals(test1, test2);
@@ -264,7 +291,7 @@ public class InflationRateCalculationTest {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
-        .interpolated(false)
+        .indexCalculationMethod(MONTHLY)
         .build();
     assertSerialization(test1);
   }

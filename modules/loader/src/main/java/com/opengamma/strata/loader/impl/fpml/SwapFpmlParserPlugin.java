@@ -47,6 +47,7 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.PaymentRelativeTo;
 import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateCalculation;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResetSchedule;
@@ -531,7 +532,8 @@ final class SwapFpmlParserPlugin
     builder.lag(document.parsePeriod(inflationEl.getChild("inflationLag")));
     // interpolation
     String interpStr = inflationEl.getChild("interpolationMethod").getContent();
-    builder.interpolated(interpStr.toLowerCase(Locale.ENGLISH).contains("linear"));
+    builder.indexCalculationMethod(interpStr.toLowerCase(Locale.ENGLISH).contains("linear") ?
+        PriceIndexCalculationMethod.INTERPOLATED : PriceIndexCalculationMethod.MONTHLY);
     // gearing
     inflationEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
       builder.gearing(parseSchedule(el, document));

@@ -6,17 +6,26 @@
 package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
+import static com.opengamma.strata.basics.date.DayCounts.NL_365;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
 import static com.opengamma.strata.product.bond.YieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.strata.product.bond.YieldConvention.JAPAN_IL_COMPOUND;
+import static com.opengamma.strata.product.bond.YieldConvention.JAPAN_IL_SIMPLE;
 import static com.opengamma.strata.product.bond.YieldConvention.UK_IL_BOND;
 import static com.opengamma.strata.product.bond.YieldConvention.US_IL_REAL;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -69,7 +78,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .gearing(REAL_COUPON)
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
-      .interpolated(true)
+      .indexCalculationMethod(INTERPOLATED)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
@@ -555,7 +564,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .gearing(CPN_US)
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
-      .interpolated(true)
+      .indexCalculationMethod(INTERPOLATED)
       .build();
   private static final LocalDate START_USD = LocalDate.of(2010, 7, 15);
   private static final LocalDate END_USD = LocalDate.of(2020, 7, 15);
@@ -646,7 +655,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .gearing(CPN_GOV)
       .index(GB_RPI)
       .lag(Period.ofMonths(8))
-      .interpolated(false)
+      .indexCalculationMethod(MONTHLY)
       .build();
   private static final LocalDate START_GOV = LocalDate.of(1983, 10, 16);
   private static final LocalDate END_GOV = LocalDate.of(2020, 4, 16);
@@ -759,7 +768,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .gearing(CPN_CORP)
       .index(GB_RPI)
       .lag(Period.ofMonths(3))
-      .interpolated(true)
+      .indexCalculationMethod(INTERPOLATED)
       .build();
   private static final LocalDate START_CORP = LocalDate.of(2010, 3, 22);
   private static final LocalDate END_CORP = LocalDate.of(2040, 3, 22);
@@ -842,6 +851,183 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double accNegative = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 14));
     assertEquals(accNegative, -137.37, 1.0e-2);
     double accZero = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 22));
+    assertEquals(accZero, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  private static final ImmutableRatesProvider RATES_PROVS_JP = CapitalIndexedBondCurveDataSet.getRatesProviderJp(
+      VAL_DATE, CapitalIndexedBondCurveDataSet.getTimeSeriesJp(VAL_DATE));
+  private static final LegalEntityDiscountingProvider ISSUER_PROVS_JP =
+      CapitalIndexedBondCurveDataSet.getLegalEntityDiscountingProviderJp(VAL_DATE);
+
+  private static final double START_INDEX_JPI = 103.2d;
+  private static final double CPN_VALUE_JPI = 0.001 * 0.5;
+  private static final ValueSchedule CPN_JPI = ValueSchedule.of(CPN_VALUE_JPI);
+  private static final InflationRateCalculation RATE_CALC_JPI = InflationRateCalculation.builder()
+      .gearing(CPN_JPI)
+      .index(JP_CPI_EXF)
+      .lag(Period.ofMonths(3))
+      .indexCalculationMethod(INTERPOLATED_JAPAN)
+      .build();
+  private static final LocalDate START_JPI = LocalDate.of(2015, 3, 10);
+  private static final LocalDate END_JPI = LocalDate.of(2025, 3, 10);
+  private static final BusinessDayAdjustment BUSINESS_ADJUST_JPI =
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO);
+  private static final DaysAdjustment SETTLE_OFFSET_JPI = DaysAdjustment.ofBusinessDays(2, JPTO);
+  private static final PeriodicSchedule SCHEDULE_JPI =
+      PeriodicSchedule
+          .of(START_JPI, END_JPI, FREQUENCY, BUSINESS_ADJUST_JPI, StubConvention.NONE, RollConventions.NONE);
+  private static final ResolvedCapitalIndexedBond PRODUCT_JPI = CapitalIndexedBond.builder()
+      .notional(NTNL)
+      .currency(JPY)
+      .dayCount(NL_365)
+      .rateCalculation(RATE_CALC_JPI)
+      .legalEntityId(LEGAL_ENTITY)
+      .yieldConvention(JAPAN_IL_SIMPLE)
+      .settlementDateOffset(SETTLE_OFFSET_JPI)
+      .periodicSchedule(SCHEDULE_JPI)
+      .startIndexValue(START_INDEX_JPI)
+      .build()
+      .resolve(REF_DATA);
+  private static final double YIELD_JPI = -0.00309;
+
+  public void test_priceFromRealYield_jpi() {
+    LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double computed = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    assertEquals(computed, 1.04, 1.e-2);
+    double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_JPI, standardSettle, dirtyPrice);
+    assertEquals(computed, cleanPrice);
+    double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice);
+    assertEquals(yieldRe, YIELD_JPI, TOL);
+  }
+
+  public void test_modifiedDuration_convexity_jpi() {
+    double eps = 1.0e-5;
+    LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double mdComputed =
+        PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    double cvComputed =
+        PRICER.convexityFromRealYieldFiniteDifference(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    double price = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    double up = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI + eps);
+    double dw = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI - eps);
+    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
+    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+  }
+
+  public void test_realYieldFromCurves_jpi() {
+    LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double computed = PRICER.realYieldFromCurves(PRODUCT_JPI, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
+    double dirtyNominalPrice =
+        PRICER.dirtyNominalPriceFromCurves(PRODUCT_JPI, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
+    double dirtyRealPrice =
+        PRICER.realPriceFromNominalPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyNominalPrice);
+    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyRealPrice);
+    assertEquals(computed, expected, TOL);
+  }
+
+  public void zSpreadFromCurvesAndCleanPrice_jpi() {
+    LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
+        PRODUCT_JPI, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+    double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle,
+        PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyNominalPrice));
+    double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
+        PRODUCT_JPI, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
+    assertEquals(computed, Z_SPREAD, TOL);
+  }
+
+  public void test_accruedInterest_jpi() {
+    double accPositive = PRICER.accruedInterest(PRODUCT_JPI, LocalDate.of(2016, 3, 9));
+    assertEquals(accPositive, 496d, 1.0);
+    double accZero = PRICER.accruedInterest(PRODUCT_JPI, LocalDate.of(2016, 3, 10));
+    assertEquals(accZero, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  private static final double START_INDEX_JPW = 100.0d;
+  private static final double CPN_VALUE_JPW = 0.008 * 0.5;
+  private static final ValueSchedule CPN_JPW = ValueSchedule.of(CPN_VALUE_JPW);
+  private static final InflationRateCalculation RATE_CALC_JPW = InflationRateCalculation.builder()
+      .gearing(CPN_JPW)
+      .index(JP_CPI_EXF)
+      .lag(Period.ofMonths(3))
+      .indexCalculationMethod(INTERPOLATED_JAPAN)
+      .build();
+  private static final LocalDate START_JPW = LocalDate.of(2013, 9, 10);
+  private static final LocalDate END_JPW = LocalDate.of(2023, 9, 10);
+  private static final BusinessDayAdjustment BUSINESS_ADJUST_JPW =
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, JPTO);
+  private static final DaysAdjustment SETTLE_OFFSET_JPW = DaysAdjustment.ofBusinessDays(2, JPTO);
+  private static final PeriodicSchedule SCHEDULE_JPW =
+      PeriodicSchedule
+          .of(START_JPW, END_JPW, FREQUENCY, BUSINESS_ADJUST_JPW, StubConvention.NONE, RollConventions.NONE);
+  private static final ResolvedCapitalIndexedBond PRODUCT_JPW = CapitalIndexedBond.builder()
+      .notional(NTNL)
+      .currency(JPY)
+      .dayCount(NL_365)
+      .rateCalculation(RATE_CALC_JPW)
+      .legalEntityId(LEGAL_ENTITY)
+      .yieldConvention(JAPAN_IL_COMPOUND)
+      .settlementDateOffset(SETTLE_OFFSET_JPW)
+      .periodicSchedule(SCHEDULE_JPW)
+      .startIndexValue(START_INDEX_JPW)
+      .build()
+      .resolve(REF_DATA);
+  private static final double YIELD_JPW = -0.005;
+
+  public void test_priceFromRealYield_jpw() {
+    LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double computed = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    assertEquals(computed, 1.10, 1.e-2);
+    double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_JPW, standardSettle, dirtyPrice);
+    assertEquals(computed, cleanPrice);
+    double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice);
+    assertEquals(yieldRe, YIELD_JPW, TOL);
+  }
+
+  public void test_modifiedDuration_convexity_jpw() {
+    double eps = 1.0e-5;
+    LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double mdComputed =
+        PRICER.modifiedDurationFromRealYieldFiniteDifference(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    double cvComputed =
+        PRICER.convexityFromRealYieldFiniteDifference(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    double price = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    double up = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW + eps);
+    double dw = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW - eps);
+    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
+    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+  }
+
+  public void test_realYieldFromCurves_jpw() {
+    LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double computed = PRICER.realYieldFromCurves(PRODUCT_JPW, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
+        PRODUCT_JPW, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
+    double dirtyRealPrice =
+        PRICER.realPriceFromNominalPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyNominalPrice);
+    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyRealPrice);
+    assertEquals(computed, expected, TOL);
+  }
+
+  public void zSpreadFromCurvesAndCleanPrice_jpw() {
+    LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
+        PRODUCT_JPW, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+    double cleanRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle,
+        PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyNominalPrice));
+    double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
+        PRODUCT_JPW, SECURITY_ID, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
+    assertEquals(computed, Z_SPREAD, TOL);
+  }
+
+  public void test_accruedInterest_jpw() {
+    double accPositive = PRICER.accruedInterest(PRODUCT_JPW, LocalDate.of(2016, 3, 9));
+    assertEquals(accPositive, 3967d, 1.0);
+    double accZero = PRICER.accruedInterest(PRODUCT_JPW, LocalDate.of(2016, 3, 10));
     assertEquals(accZero, 0d);
   }
 

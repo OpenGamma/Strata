@@ -16,6 +16,7 @@ import java.util.function.Function;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
@@ -39,7 +40,7 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation
 import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
 
-/**
+/** 
  * Pricer for capital indexed bond products.
  * <p>
  * This function provides the ability to price a {@link ResolvedCapitalIndexedBond}.
@@ -672,6 +673,22 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(v, rs);
       }
     }
+    if (yieldConvention.equals(YieldConvention.JAPAN_IL_SIMPLE)) {
+      LocalDate maturityDate = bond.getEndDate();
+      double maturity = bond.yearFraction(settlementDate, maturityDate);
+      double cleanPrice = (1d + realRate * couponPerYear * maturity) / (1d + yield * maturity);
+      return dirtyRealPriceFromCleanRealPrice(bond, settlementDate, cleanPrice);
+    }
+    if (yieldConvention.equals(YieldConvention.JAPAN_IL_COMPOUND)) {
+      double pvAtFirstCoupon = 0d;
+      for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+        CapitalIndexedBondPaymentPeriod paymentPeriod = bond.getPeriodicPayments().get(loopcpn + periodIndex);
+        pvAtFirstCoupon += paymentPeriod.getRealCoupon() * Math.pow(v, loopcpn);
+      }
+      pvAtFirstCoupon += Math.pow(v, nbCoupon - 1);
+      double factorToNext = factorToNextCoupon(bond, settlementDate);
+      return pvAtFirstCoupon * Math.pow(v, factorToNext);
+    }
     throw new IllegalArgumentException(
         "The convention " + bond.getYieldConvention().toString() + " is not supported.");
   }
@@ -1175,7 +1192,10 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double realCoupon = period.getRealCoupon();
     double couponPerYear = bond.getFrequency().eventsPerYear();
     double rate = realCoupon * couponPerYear;
-    double accruedInterest = bond.yearFraction(previousAccrualDate, settlementDate) * rate * notional;
+    double accruedInterest = bond.getYieldConvention().equals(YieldConvention.JAPAN_IL_COMPOUND) ||
+        bond.getYieldConvention().equals(YieldConvention.JAPAN_IL_SIMPLE) ?
+        bond.yearFraction(previousAccrualDate, settlementDate, DayCounts.ACT_365F) * rate * notional
+        : bond.yearFraction(previousAccrualDate, settlementDate) * rate * notional;
     double result = 0d;
     if (bond.hasExCouponPeriod() && !settlementDate.isBefore(period.getDetachmentDate())) {
       result = accruedInterest - notional * rate * period.getYearFraction();

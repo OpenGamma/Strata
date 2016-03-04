@@ -276,6 +276,21 @@ public final class ResolvedCapitalIndexedBond
    * @throws IllegalArgumentException if the dates are outside the range of the bond or start is after end
    */
   public double yearFraction(LocalDate startDate, LocalDate endDate) {
+    return yearFraction(startDate, endDate, dayCount);
+  }
+
+  /**
+   * Calculates the year fraction within the specified period and day count.
+   * <p>
+   * Year fractions on bonds are calculated on unadjusted dates.
+   * 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param dayCount the day count
+   * @return the year fraction
+   * @throws IllegalArgumentException if the dates are outside the range of the bond or start is after end
+   */
+  public double yearFraction(LocalDate startDate, LocalDate endDate, DayCount dayCount) {
     ArgChecker.inOrderOrEqual(getUnadjustedStartDate(), startDate, "bond.unadjustedStartDate", "startDate");
     ArgChecker.inOrderOrEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(endDate, getUnadjustedEndDate(), "endDate", "bond.unadjustedEndDate");

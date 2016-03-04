@@ -30,7 +30,9 @@ public class YieldConventionTest {
         {YieldConvention.JAPAN_SIMPLE, "Japan-Simple"},
       {YieldConvention.US_IL_REAL, "US-I/L-Real"},
       {YieldConvention.INDEX_LINKED_FLOAT, "Index-Linked-Float"},
-      {YieldConvention.UK_IL_BOND, "UK-I/L-Bond" }
+      {YieldConvention.UK_IL_BOND, "UK-I/L-Bond" },
+      {YieldConvention.JAPAN_IL_SIMPLE, "Japan-I/L-Simple" },
+      {YieldConvention.JAPAN_IL_COMPOUND, "Japan-I/L-Compound" }
     };
   }
 
