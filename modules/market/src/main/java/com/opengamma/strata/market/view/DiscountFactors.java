@@ -230,6 +230,7 @@ public interface DiscountFactors
    * <p>
    * This is used to convert a single point sensitivity to curve parameter sensitivity.
    * The calculation typically involves multiplying the point and unit sensitivities.
+   * This returns the sensitivity of the value referred in the point sensitivity to the curve parameters.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
