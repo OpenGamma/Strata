@@ -36,6 +36,7 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -202,7 +203,12 @@ public final class ZeroRatePeriodicDiscountFactors
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
-    return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction));
+    double rp = curve.yValue(relativeYearFraction);
+    //    double rc = _compoundingPeriodsPerYear * Math.log(1 + rp / _compoundingPeriodsPerYear);
+    double rcBar = 1.0;
+    double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
+    CurveUnitParameterSensitivity drpdp = curve.yValueParameterSensitivity(relativeYearFraction);
+    return CurveUnitParameterSensitivities.of(drpdp.multipliedBy(rpBar));
   }
 
   @Override

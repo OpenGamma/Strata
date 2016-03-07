@@ -213,10 +213,11 @@ public interface DiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
+   * Calculates the unit parameter sensitivity at the specified fixing date.
    * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
+   * This returns the unit sensitivity of the zero-coupon rate continuously compounded to each parameter on 
+   * the underlying curve at the specified date. The zero-rate continuously compounded is associated to 
+   * the result of {@link #discountFactor(LocalDate)}.
    * 
    * @param date  the date to find the sensitivity for
    * @return the parameter sensitivity

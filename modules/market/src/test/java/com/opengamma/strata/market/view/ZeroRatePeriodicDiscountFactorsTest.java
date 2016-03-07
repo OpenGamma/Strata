@@ -21,6 +21,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
@@ -29,6 +30,7 @@ import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -56,14 +58,17 @@ public class ZeroRatePeriodicDiscountFactorsTest {
       .addInfo(CurveInfoType.COMPOUNDING_PER_YEAR, CMP_PERIOD)
       .build();
 
+  private static final DoubleArray X = DoubleArray.of(0, 5, 10);
+  private static final DoubleArray Y = DoubleArray.of(0.0100, 0.0200, 0.0150);
   private static final InterpolatedNodalCurve CURVE =
-      InterpolatedNodalCurve.of(META_ZERO_PERIODIC, DoubleArray.of(0, 10), DoubleArray.of(0.01, 0.02), INTERPOLATOR);
+      InterpolatedNodalCurve.of(META_ZERO_PERIODIC, X, Y, INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
       InterpolatedNodalCurve.of(META_ZERO_PERIODIC, DoubleArray.of(0, 10), DoubleArray.of(2, 3), INTERPOLATOR);
 
   private static final double SPREAD = 0.05;
   private static final double TOLERANCE_DF = 1.0e-12;
   private static final double TOLERANCE_DELTA = 1.0e-10;
+  private static final double TOLERANCE_DELTA_FD = 1.0e-8;
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -220,10 +225,25 @@ public class ZeroRatePeriodicDiscountFactorsTest {
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    CurveUnitParameterSensitivities sensi = test.unitParameterSensitivity(DATE_AFTER);
+    assertEquals(sensi.getSensitivities().size(), 1);
+    DoubleArray sensi0 =  sensi.getSensitivities().get(0).getSensitivity();
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
+    double shift = 1.0E-6;
+    for (int i = 0; i < X.size(); i++) {
+      DoubleArray yP = Y.with(i, Y.get(i) + shift);
+      InterpolatedNodalCurve curveP =
+          InterpolatedNodalCurve.of(META_ZERO_PERIODIC, X, yP, INTERPOLATOR);
+      double zrP = -Math.log(ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, curveP).discountFactor(DATE_AFTER))
+          / relativeYearFraction;
+      DoubleArray yM = Y.with(i, Y.get(i) - shift);
+      InterpolatedNodalCurve curveM =
+          InterpolatedNodalCurve.of(META_ZERO_PERIODIC, X, yM, INTERPOLATOR);
+      double zrM = -Math.log(ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, curveM).discountFactor(DATE_AFTER))
+          / relativeYearFraction;
+      assertEquals(sensi0.get(i), (zrP - zrM) / (2 * shift), TOLERANCE_DELTA_FD);
+    }
+    
   }
 
   //-------------------------------------------------------------------------

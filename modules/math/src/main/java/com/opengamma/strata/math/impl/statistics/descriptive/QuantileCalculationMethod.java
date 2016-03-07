@@ -17,8 +17,8 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
-   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * This is measured from the bottom, that is, the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations and 1% of the observation are above that level.
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
@@ -37,8 +37,8 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
-   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * This is measured from the bottom, that is, the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations and 1% of the observation are above that level.
    * <p>
    * If index value computed from the level is outside of the sample data range, 
    * {@code IllegalArgumentException} is thrown. 
@@ -57,8 +57,8 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
-   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * This is measured from the bottom, that is, the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations and 1% of the observation are above that level.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation.  
@@ -77,8 +77,8 @@ public abstract class QuantileCalculationMethod {
    * Compute the quantile estimation.
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
-   * This is measured from the bottom, that is, Thus the quantile estimation with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * This is measured from the bottom, that is, the quantile estimation with the level 99% corresponds to 
+   * the smallest 99% observations and 1% of the observation are above that level.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * quantile is computed with flat extrapolation. 
@@ -97,9 +97,9 @@ public abstract class QuantileCalculationMethod {
   /**
    * Compute the expected shortfall.
    * <p>
-   * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
-   * This is measured from the bottom, that is, Thus the expected shortfall with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * The shortfall level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
+   * This is measured from the bottom, that is, the expected shortfall with the level 99% corresponds to 
+   * the average of the smallest 99% of the observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * expected short fall is computed with flat extrapolation.  
@@ -120,7 +120,7 @@ public abstract class QuantileCalculationMethod {
    * <p>
    * The quantile level is in decimal, i.e. 99% = 0.99 and 0 < level < 1 should be satisfied.
    * This is measured from the bottom, that is, Thus the expected shortfall with the level 99% corresponds to 
-   * the smallest 99% observations.
+   * the average of the smallest 99% of the observations.
    * <p>
    * If index value computed from the level is outside of the sample data range, the nearest data point is used, i.e., 
    * expected short fall is computed with flat extrapolation.  
