@@ -110,7 +110,7 @@ public final class ResolvedCapitalIndexedBond
    * The convention defines how to convert from yield to price and inversely.  
    */
   @PropertyDefinition(validate = "notNull")
-  private final YieldConvention yieldConvention;
+  private final CapitalIndexedBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
@@ -373,7 +373,7 @@ public final class ResolvedCapitalIndexedBond
       Frequency frequency,
       RollConvention rollConvention,
       DayCount dayCount,
-      YieldConvention yieldConvention,
+      CapitalIndexedBondYieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset,
       InflationRateCalculation rateCalculation,
@@ -481,7 +481,7 @@ public final class ResolvedCapitalIndexedBond
    * The convention defines how to convert from yield to price and inversely.
    * @return the value of the property, not null
    */
-  public YieldConvention getYieldConvention() {
+  public CapitalIndexedBondYieldConvention getYieldConvention() {
     return yieldConvention;
   }
 
@@ -634,8 +634,8 @@ public final class ResolvedCapitalIndexedBond
     /**
      * The meta-property for the {@code yieldConvention} property.
      */
-    private final MetaProperty<YieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
-        this, "yieldConvention", ResolvedCapitalIndexedBond.class, YieldConvention.class);
+    private final MetaProperty<CapitalIndexedBondYieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
+        this, "yieldConvention", ResolvedCapitalIndexedBond.class, CapitalIndexedBondYieldConvention.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
@@ -765,7 +765,7 @@ public final class ResolvedCapitalIndexedBond
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YieldConvention> yieldConvention() {
+    public MetaProperty<CapitalIndexedBondYieldConvention> yieldConvention() {
       return yieldConvention;
     }
 
@@ -851,7 +851,7 @@ public final class ResolvedCapitalIndexedBond
     private Frequency frequency;
     private RollConvention rollConvention;
     private DayCount dayCount;
-    private YieldConvention yieldConvention;
+    private CapitalIndexedBondYieldConvention yieldConvention;
     private StandardId legalEntityId;
     private DaysAdjustment settlementDateOffset;
     private InflationRateCalculation rateCalculation;
@@ -929,7 +929,7 @@ public final class ResolvedCapitalIndexedBond
           this.dayCount = (DayCount) newValue;
           break;
         case -1895216418:  // yieldConvention
-          this.yieldConvention = (YieldConvention) newValue;
+          this.yieldConvention = (CapitalIndexedBondYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
@@ -1074,7 +1074,7 @@ public final class ResolvedCapitalIndexedBond
      * @param yieldConvention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yieldConvention(YieldConvention yieldConvention) {
+    public Builder yieldConvention(CapitalIndexedBondYieldConvention yieldConvention) {
       JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
       this.yieldConvention = yieldConvention;
       return this;

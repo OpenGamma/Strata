@@ -34,8 +34,8 @@ import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
+import com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
-import com.opengamma.strata.product.bond.YieldConvention;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
 import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
 import com.opengamma.strata.product.rate.RateObservation;
@@ -613,8 +613,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
     CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(periodIndex);
     int nbCoupon = bond.getPeriodicPayments().size() - periodIndex;
     double couponPerYear = bond.getFrequency().eventsPerYear();
-    YieldConvention yieldConvention = bond.getYieldConvention();
-    if (yieldConvention.equals(YieldConvention.US_IL_REAL)) {
+    CapitalIndexedBondYieldConvention yieldConvention = bond.getYieldConvention();
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.US_IL_REAL)) {
       double pvAtFirstCoupon;
       double cpnRate = bond.getPeriodicPayments().get(0).getRealCoupon();
       if (Math.abs(yield) > 1.0E-8) {
@@ -631,7 +631,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double firstYearFraction = period.getYearFraction();
     double v = 1d / (1d + yield / couponPerYear);
     double rs = ratioPeriodToNextCoupon(period, settlementDate);
-    if (yieldConvention.equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
       RateObservation obs = period.getRateObservation();
       LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
@@ -659,7 +659,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(u * v, rs);
       }
     }
-    if (yieldConvention.equals(YieldConvention.UK_IL_BOND)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.UK_IL_BOND)) {
       double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
       double firstCashFlow = realRate * indexRatio * firstYearFraction * couponPerYear;
       if (nbCoupon == 1) {
@@ -672,13 +672,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(v, rs);
       }
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_IL_SIMPLE)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE)) {
       LocalDate maturityDate = bond.getEndDate();
       double maturity = bond.yearFraction(settlementDate, maturityDate);
       double cleanPrice = (1d + realRate * couponPerYear * maturity) / (1d + yield * maturity);
       return dirtyRealPriceFromCleanRealPrice(bond, settlementDate, cleanPrice);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_IL_COMPOUND)) {
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND)) {
       double pvAtFirstCoupon = 0d;
       for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
         CapitalIndexedBondPaymentPeriod paymentPeriod = bond.getPeriodicPayments().get(loopcpn + periodIndex);
@@ -712,7 +712,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double yield) {
 
     double dirtyPrice = dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
-    if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
       return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
     }
     return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyPrice);
@@ -771,7 +771,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     double dirtyPrice;
-    if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
       dirtyPrice = dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     } else {
       double dirtyNominalPrice =
@@ -1123,7 +1123,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
             z,
             compoundedRateType,
             periodsPerYear);
-        if (bond.getYieldConvention().equals(YieldConvention.INDEX_LINKED_FLOAT)) {
+        if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
           return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
         }
         double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
@@ -1191,8 +1191,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double realCoupon = period.getRealCoupon();
     double couponPerYear = bond.getFrequency().eventsPerYear();
     double rate = realCoupon * couponPerYear;
-    double accruedInterest = bond.getYieldConvention().equals(YieldConvention.JAPAN_IL_COMPOUND) ||
-        bond.getYieldConvention().equals(YieldConvention.JAPAN_IL_SIMPLE) ?
+    double accruedInterest = bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND) ||
+        bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE) ?
         bond.yearFraction(previousAccrualDate, settlementDate, DayCounts.ACT_365F) * rate * notional
         : bond.yearFraction(previousAccrualDate, settlementDate) * rate * notional;
     double result = 0d;

@@ -57,9 +57,9 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * Test {@link DiscountingFixedCouponBondTradePricer}.
@@ -103,7 +103,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
       .settlementDate(SETTLE_ON_DETACHMENT)
       .build();
   private static final long QUANTITY = 15L;
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;

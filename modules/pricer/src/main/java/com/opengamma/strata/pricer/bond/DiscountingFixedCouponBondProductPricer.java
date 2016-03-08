@@ -29,8 +29,8 @@ import com.opengamma.strata.pricer.impl.bond.DiscountingFixedCouponBondPaymentPe
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * Pricer for for rate fixed coupon bond products.
@@ -544,21 +544,22 @@ public class DiscountingFixedCouponBondProductPricer {
   public double dirtyPriceFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConvention = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET) ||
+          yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS)) {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
         return (1d + payment.getFixedRate() * payment.getYearFraction()) /
             (1d + factorToNextCoupon(bond, settlementDate) * yield /
                 ((double) bond.getFrequency().eventsPerYear()));
       }
     }
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
-        (yieldConvention.equals(YieldConvention.UK_BUMP_DMO)) ||
-        (yieldConvention.equals(YieldConvention.GERMAN_BONDS))) {
+    if ((yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET)) ||
+        (yieldConvention.equals(FixedCouponBondYieldConvention.UK_BUMP_DMO)) ||
+        (yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS))) {
       return dirtyPriceFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConvention.equals(FixedCouponBondYieldConvention.JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -606,7 +607,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @return the yield of the product 
    */
   public double yieldFromDirtyPrice(ResolvedFixedCouponBond bond, LocalDate settlementDate, double dirtyPrice) {
-    if (bond.getYieldConvention().equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (bond.getYieldConvention().equals(FixedCouponBondYieldConvention.JAPAN_SIMPLE)) {
       double cleanPrice = cleanPriceFromDirtyPrice(bond, settlementDate, dirtyPrice);
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       double maturity = bond.getDayCount().relativeYearFraction(settlementDate, maturityDate);
@@ -642,20 +643,21 @@ public class DiscountingFixedCouponBondProductPricer {
   public double modifiedDurationFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConvention = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET) ||
+          yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factor = factorToNextCoupon(bond, settlementDate);
         return factor / couponPerYear / (1d + factor * yield / couponPerYear);
       }
     }
-    if (yieldConvention.equals(YieldConvention.US_STREET) ||
-        yieldConvention.equals(YieldConvention.UK_BUMP_DMO) ||
-        yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+    if (yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET) ||
+        yieldConvention.equals(FixedCouponBondYieldConvention.UK_BUMP_DMO) ||
+        yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS)) {
       return modifiedDurationFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConvention.equals(FixedCouponBondYieldConvention.JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -718,14 +720,14 @@ public class DiscountingFixedCouponBondProductPricer {
   public double macaulayDurationFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) && (nCoupon == 1)) {
+    FixedCouponBondYieldConvention yieldConvention = bond.getYieldConvention();
+    if ((yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET)) && (nCoupon == 1)) {
       return factorToNextCoupon(bond, settlementDate) /
           bond.getFrequency().eventsPerYear();
     }
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
-        (yieldConvention.equals(YieldConvention.UK_BUMP_DMO)) ||
-        (yieldConvention.equals(YieldConvention.GERMAN_BONDS))) {
+    if ((yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET)) ||
+        (yieldConvention.equals(FixedCouponBondYieldConvention.UK_BUMP_DMO)) ||
+        (yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS))) {
       return modifiedDurationFromYield(bond, settlementDate, yield) *
           (1d + yield / bond.getFrequency().eventsPerYear());
     }
@@ -749,9 +751,10 @@ public class DiscountingFixedCouponBondProductPricer {
   public double convexityFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConvention = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET) ||
+          yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
         double timeToPay = factorToNextCoupon / couponPerYear;
@@ -759,11 +762,12 @@ public class DiscountingFixedCouponBondProductPricer {
         return 2d * timeToPay * timeToPay / (disc * disc);
       }
     }
-    if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.UK_BUMP_DMO) ||
-        yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+    if (yieldConvention.equals(FixedCouponBondYieldConvention.US_STREET) ||
+        yieldConvention.equals(FixedCouponBondYieldConvention.UK_BUMP_DMO) ||
+        yieldConvention.equals(FixedCouponBondYieldConvention.GERMAN_BONDS)) {
       return convexityFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConvention.equals(FixedCouponBondYieldConvention.JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;

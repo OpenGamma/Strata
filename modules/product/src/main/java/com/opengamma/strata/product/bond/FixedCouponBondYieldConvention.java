@@ -17,14 +17,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
- * When calculating accrued interest from the yield, it is necessary to use a formula
- * specific to each yield convention. Accordingly, the computation of price, convexity
- * and duration from the yield should be based on this yield convention. 
+ * When calculating accrued interest, it is necessary to use a formula specific to each 
+ * yield convention. Accordingly, the computation of price, convexity and duration from 
+ * the yield should be based on this yield convention. 
  * <p>
  * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013, 
- * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */
-public enum YieldConvention {
+public enum FixedCouponBondYieldConvention {
 
   /**
    * UK BUMP/DMO method. 
@@ -44,38 +43,13 @@ public enum YieldConvention {
   /**
    * Japan Simple yield. 
    */
-  JAPAN_SIMPLE("Japan-Simple"),
-
-  /**
-   * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
-   */
-  US_IL_REAL("US-I/L-Real"),
-
-  /**
-   * The UK real yield convention. Used for inflation linked GILTS.
-   */
-  INDEX_LINKED_FLOAT("Index-Linked-Float"),
-
-  /**
-   * The UK real yield convention. Used for UK inflation linked corporate bond.
-   */
-  UK_IL_BOND("UK-I/L-Bond"),
-
-  /**
-   * The Japan simple yield convention for inflation index bond.
-   */
-  JAPAN_IL_SIMPLE("Japan-I/L-Simple"),
-
-  /**
-   * The Japan compound yield convention for inflation index bond.
-   */
-  JAPAN_IL_COMPOUND("Japan-I/L-Compound");
+  JAPAN_SIMPLE("Japan-Simple");
 
   // name
   private final String name;
 
   // create
-  private YieldConvention(String name) {
+  private FixedCouponBondYieldConvention(String name) {
     this.name = name;
   }
 
@@ -88,7 +62,7 @@ public enum YieldConvention {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static YieldConvention of(String uniqueName) {
+  public static FixedCouponBondYieldConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
   }
