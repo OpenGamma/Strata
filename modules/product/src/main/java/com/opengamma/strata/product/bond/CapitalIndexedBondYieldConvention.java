@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,38 +13,17 @@ import org.joda.convert.ToString;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A convention defining accrued interest calculation type for a bond security. 
+ * A convention defining accrued interest calculation type for inflation bond securities. 
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
- * When calculating accrued interest from the yield, it is necessary to use a formula
- * specific to each yield convention. Accordingly, the computation of price, convexity
- * and duration from the yield should be based on this yield convention. 
+ * When calculating accrued interest, it is necessary to use a formula specific to each 
+ * yield convention. Accordingly, the computation of price, convexity and duration from 
+ * the yield should be based on this yield convention. 
  * <p>
- * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013, 
  * "Inflation Instruments: Swap Zero-coupon, Year-on-year and Bonds."
  */
-public enum YieldConvention {
-
-  /**
-   * UK BUMP/DMO method. 
-   */
-  UK_BUMP_DMO("UK-Bump-DMO"),
-
-  /**
-   * US Street convention.
-   */
-  US_STREET("US-Street"),
-
-  /**
-   * German bonds. 
-   */
-  GERMAN_BONDS("German-Bonds"),
-
-  /**
-   * Japan Simple yield. 
-   */
-  JAPAN_SIMPLE("Japan-Simple"),
+public enum CapitalIndexedBondYieldConvention {
 
   /**
    * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
@@ -65,7 +44,7 @@ public enum YieldConvention {
   private final String name;
 
   // create
-  private YieldConvention(String name) {
+  private CapitalIndexedBondYieldConvention(String name) {
     this.name = name;
   }
 
@@ -78,7 +57,7 @@ public enum YieldConvention {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static YieldConvention of(String uniqueName) {
+  public static CapitalIndexedBondYieldConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
   }

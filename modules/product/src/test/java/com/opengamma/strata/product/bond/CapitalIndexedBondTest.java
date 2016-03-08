@@ -17,8 +17,8 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.product.bond.YieldConvention.INDEX_LINKED_FLOAT;
-import static com.opengamma.strata.product.bond.YieldConvention.US_IL_REAL;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

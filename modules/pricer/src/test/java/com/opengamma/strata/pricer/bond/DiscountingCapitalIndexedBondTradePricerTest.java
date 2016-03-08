@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
-import static com.opengamma.strata.product.bond.YieldConvention.US_IL_REAL;
+import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

@@ -116,7 +116,7 @@ public final class ResolvedFixedCouponBond
    * The convention defines how to convert from yield to price and inversely.  
    */
   @PropertyDefinition(validate = "notNull")
-  private final YieldConvention yieldConvention;
+  private final FixedCouponBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
@@ -312,7 +312,7 @@ public final class ResolvedFixedCouponBond
       RollConvention rollConvention,
       double fixedRate,
       DayCount dayCount,
-      YieldConvention yieldConvention,
+      FixedCouponBondYieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
@@ -428,7 +428,7 @@ public final class ResolvedFixedCouponBond
    * The convention defines how to convert from yield to price and inversely.
    * @return the value of the property, not null
    */
-  public YieldConvention getYieldConvention() {
+  public FixedCouponBondYieldConvention getYieldConvention() {
     return yieldConvention;
   }
 
@@ -562,8 +562,8 @@ public final class ResolvedFixedCouponBond
     /**
      * The meta-property for the {@code yieldConvention} property.
      */
-    private final MetaProperty<YieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
-        this, "yieldConvention", ResolvedFixedCouponBond.class, YieldConvention.class);
+    private final MetaProperty<FixedCouponBondYieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
+        this, "yieldConvention", ResolvedFixedCouponBond.class, FixedCouponBondYieldConvention.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
@@ -688,7 +688,7 @@ public final class ResolvedFixedCouponBond
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YieldConvention> yieldConvention() {
+    public MetaProperty<FixedCouponBondYieldConvention> yieldConvention() {
       return yieldConvention;
     }
 
@@ -757,7 +757,7 @@ public final class ResolvedFixedCouponBond
     private RollConvention rollConvention;
     private double fixedRate;
     private DayCount dayCount;
-    private YieldConvention yieldConvention;
+    private FixedCouponBondYieldConvention yieldConvention;
     private StandardId legalEntityId;
     private DaysAdjustment settlementDateOffset;
 
@@ -833,7 +833,7 @@ public final class ResolvedFixedCouponBond
           this.dayCount = (DayCount) newValue;
           break;
         case -1895216418:  // yieldConvention
-          this.yieldConvention = (YieldConvention) newValue;
+          this.yieldConvention = (FixedCouponBondYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
@@ -986,7 +986,7 @@ public final class ResolvedFixedCouponBond
      * @param yieldConvention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yieldConvention(YieldConvention yieldConvention) {
+    public Builder yieldConvention(FixedCouponBondYieldConvention yieldConvention) {
       JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
       this.yieldConvention = yieldConvention;
       return this;
