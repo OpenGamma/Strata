@@ -34,12 +34,13 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A fixed coupon bond, resolved for pricing.
@@ -48,20 +49,27 @@ import com.opengamma.strata.product.ResolvedProduct;
  * Applications will typically create a {@code ResolvedFixedCouponBond} from a {@code FixedCouponBond}
  * using {@link FixedCouponBond#resolve(ReferenceData)}.
  * <p>
- * The list of {@link FixedCouponBondPaymentPeriod} represents the periodic coupon payments,  
+ * The list of {@link FixedCouponBondPaymentPeriod} represents the periodic coupon payments,
  * whereas the nominal payment is defined by {@link Payment}.
  * <p>
  * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
- * The enum, {@link YieldConvention}, specifies the yield computation convention.
+ * The enum, {@link FixedCouponBondYieldConvention}, specifies the yield computation convention.
  * <p>
  * A {@code ResolvedFixedCouponBond} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedFixedCouponBond
     implements ResolvedProduct, ImmutableBean, Serializable {
 
+  /**
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
   /**
    * The nominal payment of the product.
    * <p>
@@ -93,16 +101,16 @@ public final class ResolvedFixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final RollConvention rollConvention;
   /**
-   * The fixed coupon rate. 
+   * The fixed coupon rate.
    * <p>
    * The periodic payments are based on this fixed coupon rate.
    */
   @PropertyDefinition
   private final double fixedRate;
   /**
-   * The day count convention applicable. 
+   * The day count convention applicable.
    * <p>
-   * The conversion from dates to a numerical value is made based on this day count. 
+   * The conversion from dates to a numerical value is made based on this day count.
    * For the fixed bond, the day count convention is used to compute accrued interest.
    * <p>
    * Note that the year fraction of a coupon payment is computed based on the unadjusted
@@ -113,24 +121,24 @@ public final class ResolvedFixedCouponBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines how to convert from yield to price and inversely.  
+   * The convention defines how to convert from yield to price and inversely.
    */
   @PropertyDefinition(validate = "notNull")
-  private final YieldConvention yieldConvention;
+  private final FixedCouponBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the fixed coupon bond product. 
+   * This identifier is used for the legal entity that issues the bond.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
-   * The number of days between valuation date and settlement date. 
+   * The number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price. 
+   * This is used to compute clean price.
    * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
    * <p>
-   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds. 
+   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
@@ -263,6 +271,7 @@ public final class ResolvedFixedCouponBond
 
       @Override
       public LocalDate getPeriodEndDate(LocalDate date) {
+        // exception should not occur, because input is validated above
         return periodicPayments.stream()
             .filter(p -> p.contains(date))
             .map(p -> p.getUnadjustedEndDate())
@@ -305,16 +314,31 @@ public final class ResolvedFixedCouponBond
     return new ResolvedFixedCouponBond.Builder();
   }
 
-  private ResolvedFixedCouponBond(
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param nominalPayment  the value of the property, not null
+   * @param periodicPayments  the value of the property, not null
+   * @param frequency  the value of the property, not null
+   * @param rollConvention  the value of the property, not null
+   * @param fixedRate  the value of the property
+   * @param dayCount  the value of the property, not null
+   * @param yieldConvention  the value of the property, not null
+   * @param legalEntityId  the value of the property, not null
+   * @param settlementDateOffset  the value of the property, not null
+   */
+  ResolvedFixedCouponBond(
+      SecurityId securityId,
       Payment nominalPayment,
       List<FixedCouponBondPaymentPeriod> periodicPayments,
       Frequency frequency,
       RollConvention rollConvention,
       double fixedRate,
       DayCount dayCount,
-      YieldConvention yieldConvention,
+      FixedCouponBondYieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
     JodaBeanUtils.notNull(frequency, "frequency");
@@ -323,6 +347,7 @@ public final class ResolvedFixedCouponBond
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
+    this.securityId = securityId;
     this.nominalPayment = nominalPayment;
     this.periodicPayments = ImmutableList.copyOf(periodicPayments);
     this.frequency = frequency;
@@ -347,6 +372,17 @@ public final class ResolvedFixedCouponBond
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
   }
 
   //-----------------------------------------------------------------------
@@ -428,7 +464,7 @@ public final class ResolvedFixedCouponBond
    * The convention defines how to convert from yield to price and inversely.
    * @return the value of the property, not null
    */
-  public YieldConvention getYieldConvention() {
+  public FixedCouponBondYieldConvention getYieldConvention() {
     return yieldConvention;
   }
 
@@ -436,7 +472,7 @@ public final class ResolvedFixedCouponBond
   /**
    * Gets the legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the fixed coupon bond product.
+   * This identifier is used for the legal entity that issues the bond.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -473,7 +509,8 @@ public final class ResolvedFixedCouponBond
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedFixedCouponBond other = (ResolvedFixedCouponBond) obj;
-      return JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
           JodaBeanUtils.equal(periodicPayments, other.periodicPayments) &&
           JodaBeanUtils.equal(frequency, other.frequency) &&
           JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
@@ -489,6 +526,7 @@ public final class ResolvedFixedCouponBond
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(nominalPayment);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
     hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
@@ -503,8 +541,9 @@ public final class ResolvedFixedCouponBond
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("ResolvedFixedCouponBond{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("nominalPayment").append('=').append(nominalPayment).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
     buf.append("frequency").append('=').append(frequency).append(',').append(' ');
@@ -528,6 +567,11 @@ public final class ResolvedFixedCouponBond
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", ResolvedFixedCouponBond.class, SecurityId.class);
     /**
      * The meta-property for the {@code nominalPayment} property.
      */
@@ -562,8 +606,8 @@ public final class ResolvedFixedCouponBond
     /**
      * The meta-property for the {@code yieldConvention} property.
      */
-    private final MetaProperty<YieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
-        this, "yieldConvention", ResolvedFixedCouponBond.class, YieldConvention.class);
+    private final MetaProperty<FixedCouponBondYieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
+        this, "yieldConvention", ResolvedFixedCouponBond.class, FixedCouponBondYieldConvention.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
@@ -579,6 +623,7 @@ public final class ResolvedFixedCouponBond
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "nominalPayment",
         "periodicPayments",
         "frequency",
@@ -598,6 +643,8 @@ public final class ResolvedFixedCouponBond
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -44199542:  // nominalPayment
           return nominalPayment;
         case -367345944:  // periodicPayments
@@ -636,6 +683,14 @@ public final class ResolvedFixedCouponBond
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     /**
      * The meta-property for the {@code nominalPayment} property.
      * @return the meta-property, not null
@@ -688,7 +743,7 @@ public final class ResolvedFixedCouponBond
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<YieldConvention> yieldConvention() {
+    public MetaProperty<FixedCouponBondYieldConvention> yieldConvention() {
       return yieldConvention;
     }
 
@@ -712,6 +767,8 @@ public final class ResolvedFixedCouponBond
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((ResolvedFixedCouponBond) bean).getSecurityId();
         case -44199542:  // nominalPayment
           return ((ResolvedFixedCouponBond) bean).getNominalPayment();
         case -367345944:  // periodicPayments
@@ -751,13 +808,14 @@ public final class ResolvedFixedCouponBond
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedFixedCouponBond> {
 
+    private SecurityId securityId;
     private Payment nominalPayment;
     private List<FixedCouponBondPaymentPeriod> periodicPayments = ImmutableList.of();
     private Frequency frequency;
     private RollConvention rollConvention;
     private double fixedRate;
     private DayCount dayCount;
-    private YieldConvention yieldConvention;
+    private FixedCouponBondYieldConvention yieldConvention;
     private StandardId legalEntityId;
     private DaysAdjustment settlementDateOffset;
 
@@ -772,6 +830,7 @@ public final class ResolvedFixedCouponBond
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResolvedFixedCouponBond beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.nominalPayment = beanToCopy.getNominalPayment();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
       this.frequency = beanToCopy.getFrequency();
@@ -787,6 +846,8 @@ public final class ResolvedFixedCouponBond
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -44199542:  // nominalPayment
           return nominalPayment;
         case -367345944:  // periodicPayments
@@ -814,6 +875,9 @@ public final class ResolvedFixedCouponBond
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case -44199542:  // nominalPayment
           this.nominalPayment = (Payment) newValue;
           break;
@@ -833,7 +897,7 @@ public final class ResolvedFixedCouponBond
           this.dayCount = (DayCount) newValue;
           break;
         case -1895216418:  // yieldConvention
-          this.yieldConvention = (YieldConvention) newValue;
+          this.yieldConvention = (FixedCouponBondYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
           this.legalEntityId = (StandardId) newValue;
@@ -874,6 +938,7 @@ public final class ResolvedFixedCouponBond
     @Override
     public ResolvedFixedCouponBond build() {
       return new ResolvedFixedCouponBond(
+          securityId,
           nominalPayment,
           periodicPayments,
           frequency,
@@ -886,6 +951,19 @@ public final class ResolvedFixedCouponBond
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
     /**
      * Sets the nominal payment of the product.
      * <p>
@@ -986,7 +1064,7 @@ public final class ResolvedFixedCouponBond
      * @param yieldConvention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder yieldConvention(YieldConvention yieldConvention) {
+    public Builder yieldConvention(FixedCouponBondYieldConvention yieldConvention) {
       JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
       this.yieldConvention = yieldConvention;
       return this;
@@ -995,7 +1073,7 @@ public final class ResolvedFixedCouponBond
     /**
      * Sets the legal entity identifier.
      * <p>
-     * This identifier is used for the legal entity which issues the fixed coupon bond product.
+     * This identifier is used for the legal entity that issues the bond.
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1024,8 +1102,9 @@ public final class ResolvedFixedCouponBond
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("ResolvedFixedCouponBond.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("nominalPayment").append('=').append(JodaBeanUtils.toString(nominalPayment)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
       buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');

@@ -47,7 +47,7 @@ public final class TermDepositTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The term deposit product that was agreed when the trade occurred.
    * <p>
@@ -60,24 +60,24 @@ public final class TermDepositTrade
   /**
    * Obtains an instance of a Term Deposit trade.
    * 
-   * @param tradeInfo  the trade info
+   * @param info  the trade info
    * @param product  the product
    * @return the trade
    */
-  public static TermDepositTrade of(TradeInfo tradeInfo, TermDeposit product) {
-    return new TermDepositTrade(tradeInfo, product);
+  public static TermDepositTrade of(TradeInfo info, TermDeposit product) {
+    return new TermDepositTrade(info, product);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedTermDepositTrade resolve(ReferenceData refData) {
     return ResolvedTermDepositTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(info)
         .product(product.resolve(refData))
         .build();
   }
@@ -110,10 +110,10 @@ public final class TermDepositTrade
   }
 
   private TermDepositTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       TermDeposit product) {
     JodaBeanUtils.notNull(product, "product");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.product = product;
   }
 
@@ -140,8 +140,8 @@ public final class TermDepositTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -172,7 +172,7 @@ public final class TermDepositTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TermDepositTrade other = (TermDepositTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product);
     }
     return false;
@@ -181,7 +181,7 @@ public final class TermDepositTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     return hash;
   }
@@ -190,7 +190,7 @@ public final class TermDepositTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TermDepositTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();
@@ -207,10 +207,10 @@ public final class TermDepositTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", TermDepositTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", TermDepositTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -221,7 +221,7 @@ public final class TermDepositTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "product");
 
     /**
@@ -233,8 +233,8 @@ public final class TermDepositTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
       }
@@ -258,11 +258,11 @@ public final class TermDepositTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -277,8 +277,8 @@ public final class TermDepositTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((TermDepositTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((TermDepositTrade) bean).getInfo();
         case -309474065:  // product
           return ((TermDepositTrade) bean).getProduct();
       }
@@ -302,7 +302,7 @@ public final class TermDepositTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<TermDepositTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private TermDeposit product;
 
     /**
@@ -317,7 +317,7 @@ public final class TermDepositTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(TermDepositTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
     }
 
@@ -325,8 +325,8 @@ public final class TermDepositTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         default:
@@ -337,8 +337,8 @@ public final class TermDepositTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (TermDeposit) newValue;
@@ -376,7 +376,7 @@ public final class TermDepositTrade
     @Override
     public TermDepositTrade build() {
       return new TermDepositTrade(
-          tradeInfo,
+          info,
           product);
     }
 
@@ -385,11 +385,11 @@ public final class TermDepositTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -411,7 +411,7 @@ public final class TermDepositTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("TermDepositTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product));
       buf.append('}');
       return buf.toString();

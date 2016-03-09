@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -37,7 +38,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * The rate observed by this instance will be based on two observations of the index,
  * one relative to the accrual start date and one relative to the accrual end date.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class InflationMonthlyRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -72,10 +73,9 @@ public final class InflationMonthlyRateObservation
       YearMonth referenceStartMonth,
       YearMonth referenceEndMonth) {
 
-    return InflationMonthlyRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(index, referenceStartMonth))
-        .endObservation(PriceIndexObservation.of(index, referenceEndMonth))
-        .build();
+    return new InflationMonthlyRateObservation(
+        PriceIndexObservation.of(index, referenceStartMonth),
+        PriceIndexObservation.of(index, referenceEndMonth));
   }
 
   @ImmutableValidator
@@ -120,14 +120,6 @@ public final class InflationMonthlyRateObservation
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static InflationMonthlyRateObservation.Builder builder() {
-    return new InflationMonthlyRateObservation.Builder();
-  }
 
   private InflationMonthlyRateObservation(
       PriceIndexObservation startObservation,
@@ -179,14 +171,6 @@ public final class InflationMonthlyRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -264,7 +248,7 @@ public final class InflationMonthlyRateObservation
     }
 
     @Override
-    public InflationMonthlyRateObservation.Builder builder() {
+    public BeanBuilder<? extends InflationMonthlyRateObservation> builder() {
       return new InflationMonthlyRateObservation.Builder();
     }
 
@@ -322,7 +306,7 @@ public final class InflationMonthlyRateObservation
   /**
    * The bean-builder for {@code InflationMonthlyRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<InflationMonthlyRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<InflationMonthlyRateObservation> {
 
     private PriceIndexObservation startObservation;
     private PriceIndexObservation endObservation;
@@ -331,15 +315,6 @@ public final class InflationMonthlyRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(InflationMonthlyRateObservation beanToCopy) {
-      this.startObservation = beanToCopy.getStartObservation();
-      this.endObservation = beanToCopy.getEndObservation();
     }
 
     //-----------------------------------------------------------------------
@@ -399,35 +374,6 @@ public final class InflationMonthlyRateObservation
       return new InflationMonthlyRateObservation(
           startObservation,
           endObservation);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the observation at the start.
-     * <p>
-     * The inflation rate is the ratio between the start and end observation.
-     * The start month is typically three months before the start of the period.
-     * @param startObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder startObservation(PriceIndexObservation startObservation) {
-      JodaBeanUtils.notNull(startObservation, "startObservation");
-      this.startObservation = startObservation;
-      return this;
-    }
-
-    /**
-     * Sets the observation at the end.
-     * <p>
-     * The inflation rate is the ratio between the start and end observation.
-     * The end month is typically three months before the end of the period.
-     * @param endObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endObservation(PriceIndexObservation endObservation) {
-      JodaBeanUtils.notNull(endObservation, "endObservation");
-      this.endObservation = endObservation;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -16,8 +16,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.collect.id.StandardId;
-
 /**
  * ObservableKey implementation used in tests.
  */

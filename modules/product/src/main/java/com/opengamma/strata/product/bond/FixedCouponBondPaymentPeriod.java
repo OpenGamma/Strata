@@ -55,7 +55,7 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The notional amount, must be positive. 
+   * The notional amount, must be positive.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
@@ -108,7 +108,7 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull")
   private final LocalDate detachmentDate;
   /**
-   * The fixed coupon rate. 
+   * The fixed coupon rate.
    * <p>
    * The single payment is based on this fixed coupon rate.
    */
@@ -171,6 +171,11 @@ public final class FixedCouponBondPaymentPeriod
     return getEndDate();
   }
 
+  @Override
+  public CurrencyAmount getNotionalAmount() {
+    return CurrencyAmount.of(currency, notional);
+  }
+
   /**
    * Checks if there is an ex-coupon period.
    * 
@@ -178,11 +183,6 @@ public final class FixedCouponBondPaymentPeriod
    */
   public boolean hasExCouponPeriod() {
     return !detachmentDate.equals(endDate);
-  }
-
-  @Override
-  public CurrencyAmount getNotionalAmount() {
-    return CurrencyAmount.of(currency, notional);
   }
 
   /**

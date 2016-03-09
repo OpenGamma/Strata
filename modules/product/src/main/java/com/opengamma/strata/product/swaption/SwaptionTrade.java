@@ -47,7 +47,7 @@ public final class SwaptionTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The swaption product that was agreed when the trade occurred.
    * <p>
@@ -68,25 +68,25 @@ public final class SwaptionTrade
   /**
    * Obtains an instance of a Swaption trade.
    * 
-   * @param tradeInfo  the trade info
+   * @param info  the trade info
    * @param product  the product
    * @param premium  the premium
    * @return the trade
    */
-  public static SwaptionTrade of(TradeInfo tradeInfo, Swaption product, Payment premium) {
-    return new SwaptionTrade(tradeInfo, product, premium);
+  public static SwaptionTrade of(TradeInfo info, Swaption product, Payment premium) {
+    return new SwaptionTrade(info, product, premium);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedSwaptionTrade resolve(ReferenceData refData) {
     return ResolvedSwaptionTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(info)
         .product(product.resolve(refData))
         .premium(premium)
         .build();
@@ -120,12 +120,12 @@ public final class SwaptionTrade
   }
 
   private SwaptionTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       Swaption product,
       Payment premium) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.product = product;
     this.premium = premium;
   }
@@ -153,8 +153,8 @@ public final class SwaptionTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -197,7 +197,7 @@ public final class SwaptionTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionTrade other = (SwaptionTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(premium, other.premium);
     }
@@ -207,7 +207,7 @@ public final class SwaptionTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(premium);
     return hash;
@@ -217,7 +217,7 @@ public final class SwaptionTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SwaptionTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
@@ -235,10 +235,10 @@ public final class SwaptionTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", SwaptionTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", SwaptionTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -254,7 +254,7 @@ public final class SwaptionTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "product",
         "premium");
 
@@ -267,8 +267,8 @@ public final class SwaptionTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         case -318452137:  // premium
@@ -294,11 +294,11 @@ public final class SwaptionTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -321,8 +321,8 @@ public final class SwaptionTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((SwaptionTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((SwaptionTrade) bean).getInfo();
         case -309474065:  // product
           return ((SwaptionTrade) bean).getProduct();
         case -318452137:  // premium
@@ -348,7 +348,7 @@ public final class SwaptionTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SwaptionTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private Swaption product;
     private Payment premium;
 
@@ -364,7 +364,7 @@ public final class SwaptionTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SwaptionTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.premium = beanToCopy.getPremium();
     }
@@ -373,8 +373,8 @@ public final class SwaptionTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         case -318452137:  // premium
@@ -387,8 +387,8 @@ public final class SwaptionTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (Swaption) newValue;
@@ -429,7 +429,7 @@ public final class SwaptionTrade
     @Override
     public SwaptionTrade build() {
       return new SwaptionTrade(
-          tradeInfo,
+          info,
           product,
           premium);
     }
@@ -439,11 +439,11 @@ public final class SwaptionTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -479,7 +479,7 @@ public final class SwaptionTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("SwaptionTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
       buf.append('}');

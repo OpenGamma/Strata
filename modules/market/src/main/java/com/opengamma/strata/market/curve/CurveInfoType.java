@@ -38,11 +38,11 @@ public final class CurveInfoType<T>
   /**
    * Obtains an instance from the specified name.
    * <p>
-   * Curve names may contain any character, but must not be empty.
+   * The name may contain any character, but must not be empty.
    *
-  * @param <T>  the type associated with the info
-   * @param name  the name of the curve
-   * @return a curve with the specified name
+   * @param <T>  the type associated with the info
+   * @param name  the name
+   * @return a type instance with the specified name
    */
   @FromString
   public static <T> CurveInfoType<T> of(String name) {
@@ -52,7 +52,7 @@ public final class CurveInfoType<T>
   /**
    * Creates an instance.
    * 
-   * @param name  the name of the curve
+   * @param name  the name
    */
   private CurveInfoType(String name) {
     super(name);

@@ -41,23 +41,23 @@ public class CmsTradeTest {
     CmsTrade test = sut();
     assertEquals(test.getPremium().get(), PREMIUM);
     assertEquals(test.getProduct(), PRODUCT_CAP);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder_noPrem() {
     CmsTrade test = CmsTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT_CAP2)
         .build();
     assertFalse(test.getPremium().isPresent());
     assertEquals(test.getProduct(), PRODUCT_CAP2);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
     ResolvedCmsTrade expected = ResolvedCmsTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT_CAP.resolve(REF_DATA))
         .premium(PREMIUM)
         .build();
@@ -77,7 +77,7 @@ public class CmsTradeTest {
   //-------------------------------------------------------------------------
   static CmsTrade sut() {
     return CmsTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT_CAP)
         .premium(PREMIUM)
         .build();

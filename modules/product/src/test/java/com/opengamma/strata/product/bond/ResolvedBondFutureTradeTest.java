@@ -25,7 +25,7 @@ public class ResolvedBondFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_getters() {
     ResolvedBondFutureTrade test = sut();
-    assertEquals(test.getInitialPrice(), BondFutureTradeTest.sut().getInitialPrice());
+    assertEquals(test.getTradeDate(), test.getInfo().getTradeDate().get());
   }
 
   //-------------------------------------------------------------------------

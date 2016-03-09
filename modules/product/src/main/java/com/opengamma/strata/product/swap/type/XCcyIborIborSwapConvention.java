@@ -21,6 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -192,8 +193,39 @@ public interface XCcyIborIborSwapConvention
    * @param spread  the spread, typically derived from the market
    * @return the trade
    */
-  public abstract SwapTrade toTrade(
+  public default SwapTrade toTrade(
       LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notionalSpreadLeg,
+      double notionalFlatLeg,
+      double spread) {
+    
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
+  }
+  
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the swap, the rate of the flat leg is received, with the rate of the spread leg being paid.
+   * If selling the swap, the opposite occurs.
+   * 
+   * @param tradeInfo  additional information about the trade.
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param notionalSpreadLeg  the notional amount for the spread leg
+   * @param notionalFlatLeg  the notional amount for the flat leg
+   * @param spread  the spread, typically derived from the market
+   * @return the trade
+   */
+  public abstract SwapTrade toTrade(
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,

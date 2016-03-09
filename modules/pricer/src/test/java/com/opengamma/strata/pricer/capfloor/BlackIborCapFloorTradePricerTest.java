@@ -64,12 +64,12 @@ public class BlackIborCapFloorTradePricerTest {
   private static final Payment PREMIUM = Payment.of(EUR, -NOTIONAL_VALUE * 0.19, VALUATION.toLocalDate());
   private static final ResolvedIborCapFloorTrade TRADE_PAYLEG = ResolvedIborCapFloorTrade.builder()
       .product(CAP_TWO_LEGS)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final ResolvedIborCapFloorTrade TRADE_PREMIUM = ResolvedIborCapFloorTrade.builder()
       .product(CAP_ONE_LEG)
       .premium(PREMIUM)
-      .tradeInfo(TradeInfo.EMPTY)
+      .info(TradeInfo.empty())
       .build();
   // valuation at payment of 1st period
   private static final double OBS_INDEX_1 = 0.012;

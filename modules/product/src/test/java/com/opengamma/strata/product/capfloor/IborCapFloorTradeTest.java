@@ -70,13 +70,13 @@ public class IborCapFloorTradeTest {
 
   public void test_builder_full() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
     assertEquals(test.getPremium().get(), PREMIUM);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder_min() {
@@ -85,18 +85,18 @@ public class IborCapFloorTradeTest {
         .build();
     assertEquals(test.getPremium().isPresent(), false);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
     ResolvedIborCapFloorTrade expected = ResolvedIborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM)
         .build();
@@ -106,7 +106,7 @@ public class IborCapFloorTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     IborCapFloorTrade test1 = IborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
@@ -128,7 +128,7 @@ public class IborCapFloorTradeTest {
 
   public void test_serialization() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();

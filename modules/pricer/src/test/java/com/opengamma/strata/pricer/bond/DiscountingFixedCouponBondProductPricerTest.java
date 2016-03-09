@@ -31,11 +31,11 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -54,10 +54,11 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.impl.bond.DiscountingFixedCouponBondPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * Test
@@ -71,7 +72,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final LocalDate VAL_DATE = date(2016, 4, 25);
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
@@ -86,12 +87,13 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.ofBusinessDays(-5, EUR_CALENDAR, BUSINESS_ADJUST);
   /** nonzero ex-coupon period */
   private static final ResolvedFixedCouponBond PRODUCT = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DAY_COUNT)
       .fixedRate(FIXED_RATE)
       .legalEntityId(ISSUER_ID)
       .currency(EUR)
       .notional(NOTIONAL)
-      .periodicSchedule(PERIOD_SCHEDULE)
+      .accrualSchedule(PERIOD_SCHEDULE)
       .settlementDateOffset(DATE_OFFSET)
       .yieldConvention(YIELD_CONVENTION)
       .exCouponPeriod(EX_COUPON)
@@ -99,12 +101,13 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .resolve(REF_DATA);
   /** no ex-coupon period */
   private static final ResolvedFixedCouponBond PRODUCT_NO_EXCOUPON = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DAY_COUNT)
       .fixedRate(FIXED_RATE)
       .legalEntityId(ISSUER_ID)
       .currency(EUR)
       .notional(NOTIONAL)
-      .periodicSchedule(PERIOD_SCHEDULE)
+      .accrualSchedule(PERIOD_SCHEDULE)
       .settlementDateOffset(DATE_OFFSET)
       .yieldConvention(YIELD_CONVENTION)
       .build()
@@ -244,7 +247,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_dirtyPriceFromCurves() {
-    double computed = PRICER.dirtyPriceFromCurves(PRODUCT, SECURITY_ID, PROVIDER, REF_DATA);
+    double computed = PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, REF_DATA);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT, PROVIDER);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
@@ -253,7 +256,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   public void test_dirtyPriceFromCurvesWithZSpread_continuous() {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
+        PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
@@ -262,7 +265,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   public void test_dirtyPriceFromCurvesWithZSpread_periodic() {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
@@ -271,7 +274,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   public void test_dirtyPriceFromCleanPrice_cleanPriceFromDirtyPrice() {
-    double dirtyPrice = PRICER.dirtyPriceFromCurves(PRODUCT, SECURITY_ID, PROVIDER, REF_DATA);
+    double dirtyPrice = PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, REF_DATA);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(PRODUCT, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(PRODUCT, settlement);
@@ -283,17 +286,17 @@ public class DiscountingFixedCouponBondProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_zSpreadFromCurvesAndPV_continuous() {
     double dirtyPrice = PRICER.dirtyPriceFromCurvesWithZSpread(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
+        PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     double computed = PRICER.zSpreadFromCurvesAndDirtyPrice(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, dirtyPrice, CONTINUOUS, 0);
+        PRODUCT, PROVIDER, REF_DATA, dirtyPrice, CONTINUOUS, 0);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
   public void test_zSpreadFromCurvesAndPV_periodic() {
     double dirtyPrice = PRICER.dirtyPriceFromCurvesWithZSpread(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double computed = PRICER.zSpreadFromCurvesAndDirtyPrice(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, dirtyPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT, PROVIDER, REF_DATA, dirtyPrice, PERIODIC, PERIOD_PER_YEAR);
     assertEquals(computed, Z_SPREAD, TOL);
   }
 
@@ -350,28 +353,28 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   public void test_dirtyPriceSensitivity() {
-    PointSensitivityBuilder point = PRICER.dirtyPriceSensitivity(PRODUCT, SECURITY_ID, PROVIDER, REF_DATA);
+    PointSensitivityBuilder point = PRICER.dirtyPriceSensitivity(PRODUCT, PROVIDER, REF_DATA);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
-        PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, SECURITY_ID, p, REF_DATA)));
+        PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, p, REF_DATA)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }
 
   public void test_dirtyPriceSensitivityWithZspread_continuous() {
     PointSensitivityBuilder point =
-        PRICER.dirtyPriceSensitivityWithZspread(PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
+        PRICER.dirtyPriceSensitivityWithZspread(PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(
-        EUR, PRICER.dirtyPriceFromCurvesWithZSpread(PRODUCT, SECURITY_ID, p, REF_DATA, Z_SPREAD, CONTINUOUS, 0)));
+        EUR, PRICER.dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, CONTINUOUS, 0)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }
 
   public void test_dirtyPriceSensitivityWithZspread_periodic() {
     PointSensitivityBuilder point = PRICER.dirtyPriceSensitivityWithZspread(
-        PRODUCT, SECURITY_ID, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(EUR, PRICER
-        .dirtyPriceFromCurvesWithZSpread(PRODUCT, SECURITY_ID, p, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
+        .dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }
 
@@ -388,12 +391,13 @@ public class DiscountingFixedCouponBondProductPricerTest {
     // normal
     LocalDate settleDate3 = date(2015, 4, 18); // not adjusted
     ResolvedFixedCouponBond product = FixedCouponBond.builder()
+        .securityId(SecurityId.of(SECURITY_ID))
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(ISSUER_ID)
         .currency(EUR)
         .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
+        .accrualSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(DaysAdjustment.NONE)
@@ -411,14 +415,15 @@ public class DiscountingFixedCouponBondProductPricerTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_US = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DayCounts.ACT_ACT_ICMA)
       .fixedRate(0.04625)
       .legalEntityId(ISSUER_ID)
       .currency(Currency.USD)
       .notional(100)
-      .periodicSchedule(SCHEDULE_US)
+      .accrualSchedule(SCHEDULE_US)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
-      .yieldConvention(YieldConvention.US_STREET)
+      .yieldConvention(FixedCouponBondYieldConvention.US_STREET)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -495,14 +500,15 @@ public class DiscountingFixedCouponBondProductPricerTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_UK = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DayCounts.ACT_ACT_ICMA)
       .fixedRate(0.05)
       .legalEntityId(ISSUER_ID)
       .currency(Currency.GBP)
       .notional(100)
-      .periodicSchedule(SCHEDULE_UK)
+      .accrualSchedule(SCHEDULE_UK)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, SAT_SUN))
-      .yieldConvention(YieldConvention.UK_BUMP_DMO)
+      .yieldConvention(FixedCouponBondYieldConvention.UK_BUMP_DMO)
       .exCouponPeriod(DaysAdjustment.ofCalendarDays(-7,
           BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, SAT_SUN)))
       .build()
@@ -580,14 +586,15 @@ public class DiscountingFixedCouponBondProductPricerTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, SAT_SUN),
       StubConvention.SHORT_INITIAL, false);
   private static final ResolvedFixedCouponBond PRODUCT_GER = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DayCounts.ACT_ACT_ICMA)
       .fixedRate(0.05)
       .legalEntityId(ISSUER_ID)
       .currency(Currency.EUR)
       .notional(100)
-      .periodicSchedule(SCHEDULE_GER)
+      .accrualSchedule(SCHEDULE_GER)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
-      .yieldConvention(YieldConvention.GERMAN_BONDS)
+      .yieldConvention(FixedCouponBondYieldConvention.GERMAN_BONDS)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -665,14 +672,15 @@ public class DiscountingFixedCouponBondProductPricerTest {
       StubConvention.SHORT_INITIAL, false);
   private static final double RATE_JP = 0.004;
   private static final ResolvedFixedCouponBond PRODUCT_JP = FixedCouponBond.builder()
+      .securityId(SecurityId.of(SECURITY_ID))
       .dayCount(DayCounts.NL_365)
       .fixedRate(RATE_JP)
       .legalEntityId(ISSUER_ID)
       .currency(Currency.JPY)
       .notional(100)
-      .periodicSchedule(SCHEDULE_JP)
+      .accrualSchedule(SCHEDULE_JP)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, JPTO))
-      .yieldConvention(YieldConvention.JAPAN_SIMPLE)
+      .yieldConvention(FixedCouponBondYieldConvention.JAPAN_SIMPLE)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);

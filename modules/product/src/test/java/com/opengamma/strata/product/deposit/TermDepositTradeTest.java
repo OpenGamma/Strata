@@ -42,28 +42,28 @@ public class TermDepositTradeTest {
       .dayCount(ACT_365F)
       .rate(0.0250)
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {
     TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     TermDepositTrade test = TermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
     TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
+    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
     assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
   }
 
@@ -71,7 +71,7 @@ public class TermDepositTradeTest {
   public void coverage() {
     TermDepositTrade test1 = TermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
     TermDepositTrade test2 = TermDepositTrade.builder()
@@ -83,7 +83,7 @@ public class TermDepositTradeTest {
   public void test_serialization() {
     TermDepositTrade test = TermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertSerialization(test);
   }

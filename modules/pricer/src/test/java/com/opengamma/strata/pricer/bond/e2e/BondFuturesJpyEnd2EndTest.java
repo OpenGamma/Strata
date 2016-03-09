@@ -25,13 +25,13 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -48,15 +48,13 @@ import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureProductPricer;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureTradePricer;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.FixedCouponBond;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedBondFuture;
 import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * End to end test on JPY-dominated trades.
@@ -80,7 +78,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
   private static final BondGroup GROUP_REPO = BondGroup.of("GOVT BONDS");
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.JAPAN_SIMPLE;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.JAPAN_SIMPLE;
   /** Notional of underlying bond */
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.JPTO;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(3, CALENDAR);
@@ -107,33 +105,31 @@ public class BondFuturesJpyEnd2EndTest {
     StandardId.of("OG-Ticker", "GOVT-BOND9"), StandardId.of("OG-Ticker", "GOVT-BOND10"),
     StandardId.of("OG-Ticker", "GOVT-BOND11"), StandardId.of("OG-Ticker", "GOVT-BOND12"),
     StandardId.of("OG-Ticker", "GOVT-BOND13") };
-  private static final SecurityLink<FixedCouponBond>[] UND_BOND_SECURITY = new SecurityLink[NB_UND_BONDS];
-  private static final FixedCouponBond[] UND_BOND_PRODUCT = new FixedCouponBond[NB_UND_BONDS];
+  private static final FixedCouponBond[] UND_BOND = new FixedCouponBond[NB_UND_BONDS];
   static {
     for (int i = 0; i < NB_UND_BONDS; ++i) {
       PeriodicSchedule periodSchedule = PeriodicSchedule.of(
           START_DATE[i], MATURITY_DATE[i], Frequency.P6M, BUSINESS_ADJUST, StubConvention.SHORT_INITIAL, false);
       FixedCouponBond product = FixedCouponBond.builder()
+          .securityId(SecurityId.of(BOND_SECURITY_ID[i]))
           .dayCount(DAY_COUNT)
           .fixedRate(UND_RATES[i] * ONE_PERCENT)
           .legalEntityId(ISSUER_ID)
           .currency(JPY)
           .notional(NOTIONAL)
-          .periodicSchedule(periodSchedule)
+          .accrualSchedule(periodSchedule)
           .settlementDateOffset(SETTLEMENT_DAYS)
           .yieldConvention(YIELD_CONVENTION)
           .build();
-      UND_BOND_PRODUCT[i] = product;
-      Security<FixedCouponBond> bondSecurity = UnitSecurity.builder(product).standardId(BOND_SECURITY_ID[i]).build();
-      UND_BOND_SECURITY[i] = SecurityLink.resolved(bondSecurity);
+      UND_BOND[i] = product;
     }
   }
   private static final DaysAdjustment LAST_TRADE_ADJUST = DaysAdjustment.ofBusinessDays(-5, CALENDAR);
   // Futures in September 2016
-  private static final SecurityLink<FixedCouponBond>[] UND_BOND_SECURITY_SEP;
+  private static final FixedCouponBond[] UND_BOND_SEP;
   static {
-    UND_BOND_SECURITY_SEP = new SecurityLink[NB_UND_BONDS - 2];
-    System.arraycopy(UND_BOND_SECURITY, 2, UND_BOND_SECURITY_SEP, 0, NB_UND_BONDS - 2);
+    UND_BOND_SEP = new FixedCouponBond[NB_UND_BONDS - 2];
+    System.arraycopy(UND_BOND, 2, UND_BOND_SEP, 0, NB_UND_BONDS - 2);
   }
   private static final Double[] CF_SEP = new Double[] {0.706302, 0.695006, 0.686265, 0.677675, 0.669189, 0.654569,
     0.646180, 0.633317, 0.631348, 0.623057, 0.614901, 0.599832 };
@@ -143,9 +139,11 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate LAST_TRADING_DATE_SEP = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_SEP, REF_DATA);
   private static final LocalDate FIRST_NOTICE_DATE_SEP = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_SEP, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_SEP = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_SEP, REF_DATA);
+  private static final SecurityId FUTURE_SECURITY_ID_SEP = SecurityId.of("OG-Ticker", "GOVT-BOND-FUT-SEP");
   private static final ResolvedBondFuture FUTURE_PRODUCT_SEP = BondFuture.builder()
-      .conversionFactor(CF_SEP)
-      .deliveryBasket(UND_BOND_SECURITY_SEP)
+      .securityId(FUTURE_SECURITY_ID_SEP)
+      .deliveryBasket(UND_BOND_SEP)
+      .conversionFactors(CF_SEP)
       .firstNoticeDate(FIRST_NOTICE_DATE_SEP)
       .lastNoticeDate(LAST_NOTICE_DATE_SEP)
       .firstDeliveryDate(FIRST_DELIVERY_DATE_SEP)
@@ -154,21 +152,19 @@ public class BondFuturesJpyEnd2EndTest {
       .rounding(Rounding.ofDecimalPlaces(2))
       .build()
       .resolve(REF_DATA);
-  private static final StandardId FUTURE_SECURITY_ID_SEP = StandardId.of("OG-Ticker", "GOVT-BOND-FUT-SEP");
   private static final ResolvedBondFutureTrade FUTURE_TRADE_SEP = ResolvedBondFutureTrade.builder()
       .quantity(QUANTITY)
       .product(FUTURE_PRODUCT_SEP)
-      .securityStandardId(FUTURE_SECURITY_ID_SEP)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final double REF_PRICE_SEP = 151.61;
   // Futures in June 2016
   private static final Double[] CF_JUN = new Double[] {0.706302, 0.697881, 0.686265, 0.677675, 0.669189, 0.660850,
     0.646180, 0.637931, 0.624765, 0.623057, 0.614901, 0.606851, 0.591771 };
-  private static final SecurityLink<FixedCouponBond>[] UND_BOND_SECURITY_JUN;
+  private static final FixedCouponBond[] UND_BOND_JUN;
   static {
-    UND_BOND_SECURITY_JUN = new SecurityLink[NB_UND_BONDS - 1];
-    System.arraycopy(UND_BOND_SECURITY, 1, UND_BOND_SECURITY_JUN, 0, NB_UND_BONDS - 1);
+    UND_BOND_JUN = new FixedCouponBond[NB_UND_BONDS - 1];
+    System.arraycopy(UND_BOND, 1, UND_BOND_JUN, 0, NB_UND_BONDS - 1);
   }
   private static final LocalDate EFFECTIVE_DATE_JUN = LocalDate.of(2016, 6, 20);
   private static final LocalDate FIRST_DELIVERY_DATE_JUN = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_JUN, REF_DATA);
@@ -176,9 +172,11 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate LAST_TRADING_DATE_JUN = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_JUN, REF_DATA);
   private static final LocalDate FIRST_NOTICE_DATE_JUN = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_JUN, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_JUN = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_JUN, REF_DATA);
+  private static final SecurityId FUTURE_SECURITY_ID_JUN = SecurityId.of("OG-Ticker", "GOVT-BOND-FUT-JUN");
   private static final ResolvedBondFuture FUTURE_PRODUCT_JUN = BondFuture.builder()
-      .conversionFactor(CF_JUN)
-      .deliveryBasket(UND_BOND_SECURITY_JUN)
+      .securityId(FUTURE_SECURITY_ID_JUN)
+      .deliveryBasket(UND_BOND_JUN)
+      .conversionFactors(CF_JUN)
       .firstNoticeDate(FIRST_NOTICE_DATE_JUN)
       .lastNoticeDate(LAST_NOTICE_DATE_JUN)
       .firstDeliveryDate(FIRST_DELIVERY_DATE_JUN)
@@ -187,12 +185,11 @@ public class BondFuturesJpyEnd2EndTest {
       .rounding(Rounding.ofDecimalPlaces(2))
       .build()
       .resolve(REF_DATA);
-  private static final StandardId FUTURE_SECURITY_ID_JUN = StandardId.of("OG-Ticker", "GOVT-BOND-FUT-JUN");
   private static final ResolvedBondFutureTrade FUTURE_TRADE_JUN = ResolvedBondFutureTrade.builder()
-      .quantity(QUANTITY)
       .product(FUTURE_PRODUCT_JUN)
-      .securityStandardId(FUTURE_SECURITY_ID_JUN)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
+      .quantity(QUANTITY)
+      .price(123)
       .build();
   private static final double REF_PRICE_JUN = 151.73;
   // Futures in March 2016
@@ -204,9 +201,11 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate LAST_TRADING_DATE_MAR = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_MAR, REF_DATA);
   private static final LocalDate FIRST_NOTICE_DATE_MAR = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_MAR, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_MAR = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_MAR, REF_DATA);
+  private static final SecurityId FUTURE_SECURITY_ID_MAR = SecurityId.of("OG-Ticker", "GOVT-BOND-FUT-MAR");
   private static final ResolvedBondFuture FUTURE_PRODUCT_MAR = BondFuture.builder()
-      .conversionFactor(CF_MAR)
-      .deliveryBasket(UND_BOND_SECURITY)
+      .securityId(FUTURE_SECURITY_ID_MAR)
+      .deliveryBasket(UND_BOND)
+      .conversionFactors(CF_MAR)
       .firstNoticeDate(FIRST_NOTICE_DATE_MAR)
       .lastNoticeDate(LAST_NOTICE_DATE_MAR)
       .firstDeliveryDate(FIRST_DELIVERY_DATE_MAR)
@@ -215,12 +214,10 @@ public class BondFuturesJpyEnd2EndTest {
       .rounding(Rounding.ofDecimalPlaces(2))
       .build()
       .resolve(REF_DATA);
-  private static final StandardId FUTURE_SECURITY_ID_MAR = StandardId.of("OG-Ticker", "GOVT-BOND-FUT-MAR");
   private static final ResolvedBondFutureTrade FUTURE_TRADE_MAR = ResolvedBondFutureTrade.builder()
       .quantity(QUANTITY)
       .product(FUTURE_PRODUCT_MAR)
-      .securityStandardId(FUTURE_SECURITY_ID_MAR)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final double REF_PRICE_MAR = 152.25;
   // Curves

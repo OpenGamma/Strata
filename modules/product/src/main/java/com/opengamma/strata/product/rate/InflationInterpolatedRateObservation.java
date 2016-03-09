@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -39,8 +40,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * Linear interpolation based on the number of days of the payment month is used
  * to find the appropriate value for each pair of observations.
  */
-@BeanDefinition
-public class InflationInterpolatedRateObservation
+@BeanDefinition(builderScope = "private")
+public final class InflationInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
   /**
@@ -103,13 +104,12 @@ public class InflationInterpolatedRateObservation
       YearMonth referenceEndMonth,
       double weight) {
 
-    return InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(index, referenceStartMonth))
-        .startSecondObservation(PriceIndexObservation.of(index, referenceStartMonth.plusMonths(1)))
-        .endObservation(PriceIndexObservation.of(index, referenceEndMonth))
-        .endSecondObservation(PriceIndexObservation.of(index, referenceEndMonth.plusMonths(1)))
-        .weight(weight)
-        .build();
+    return new InflationInterpolatedRateObservation(
+        PriceIndexObservation.of(index, referenceStartMonth),
+        PriceIndexObservation.of(index, referenceStartMonth.plusMonths(1)),
+        PriceIndexObservation.of(index, referenceEndMonth),
+        PriceIndexObservation.of(index, referenceEndMonth.plusMonths(1)),
+        weight);
   }
 
   @ImmutableValidator
@@ -163,29 +163,22 @@ public class InflationInterpolatedRateObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static InflationInterpolatedRateObservation.Builder builder() {
-    return new InflationInterpolatedRateObservation.Builder();
-  }
-
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected InflationInterpolatedRateObservation(InflationInterpolatedRateObservation.Builder builder) {
-    JodaBeanUtils.notNull(builder.startObservation, "startObservation");
-    JodaBeanUtils.notNull(builder.startSecondObservation, "startSecondObservation");
-    JodaBeanUtils.notNull(builder.endObservation, "endObservation");
-    JodaBeanUtils.notNull(builder.endSecondObservation, "endSecondObservation");
-    ArgChecker.notNegative(builder.weight, "weight");
-    this.startObservation = builder.startObservation;
-    this.startSecondObservation = builder.startSecondObservation;
-    this.endObservation = builder.endObservation;
-    this.endSecondObservation = builder.endSecondObservation;
-    this.weight = builder.weight;
+  private InflationInterpolatedRateObservation(
+      PriceIndexObservation startObservation,
+      PriceIndexObservation startSecondObservation,
+      PriceIndexObservation endObservation,
+      PriceIndexObservation endSecondObservation,
+      double weight) {
+    JodaBeanUtils.notNull(startObservation, "startObservation");
+    JodaBeanUtils.notNull(startSecondObservation, "startSecondObservation");
+    JodaBeanUtils.notNull(endObservation, "endObservation");
+    JodaBeanUtils.notNull(endSecondObservation, "endSecondObservation");
+    ArgChecker.notNegative(weight, "weight");
+    this.startObservation = startObservation;
+    this.startSecondObservation = startSecondObservation;
+    this.endObservation = endObservation;
+    this.endSecondObservation = endSecondObservation;
+    this.weight = weight;
     validate();
   }
 
@@ -266,14 +259,6 @@ public class InflationInterpolatedRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -305,28 +290,20 @@ public class InflationInterpolatedRateObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("InflationInterpolatedRateObservation{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("startObservation").append('=').append(startObservation).append(',').append(' ');
+    buf.append("startSecondObservation").append('=').append(startSecondObservation).append(',').append(' ');
+    buf.append("endObservation").append('=').append(endObservation).append(',').append(' ');
+    buf.append("endSecondObservation").append('=').append(endSecondObservation).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("startObservation").append('=').append(JodaBeanUtils.toString(startObservation)).append(',').append(' ');
-    buf.append("startSecondObservation").append('=').append(JodaBeanUtils.toString(startSecondObservation)).append(',').append(' ');
-    buf.append("endObservation").append('=').append(JodaBeanUtils.toString(endObservation)).append(',').append(' ');
-    buf.append("endSecondObservation").append('=').append(JodaBeanUtils.toString(endSecondObservation)).append(',').append(' ');
-    buf.append("weight").append('=').append(JodaBeanUtils.toString(weight)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code InflationInterpolatedRateObservation}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -371,7 +348,7 @@ public class InflationInterpolatedRateObservation
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -392,7 +369,7 @@ public class InflationInterpolatedRateObservation
     }
 
     @Override
-    public InflationInterpolatedRateObservation.Builder builder() {
+    public BeanBuilder<? extends InflationInterpolatedRateObservation> builder() {
       return new InflationInterpolatedRateObservation.Builder();
     }
 
@@ -411,7 +388,7 @@ public class InflationInterpolatedRateObservation
      * The meta-property for the {@code startObservation} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PriceIndexObservation> startObservation() {
+    public MetaProperty<PriceIndexObservation> startObservation() {
       return startObservation;
     }
 
@@ -419,7 +396,7 @@ public class InflationInterpolatedRateObservation
      * The meta-property for the {@code startSecondObservation} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PriceIndexObservation> startSecondObservation() {
+    public MetaProperty<PriceIndexObservation> startSecondObservation() {
       return startSecondObservation;
     }
 
@@ -427,7 +404,7 @@ public class InflationInterpolatedRateObservation
      * The meta-property for the {@code endObservation} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PriceIndexObservation> endObservation() {
+    public MetaProperty<PriceIndexObservation> endObservation() {
       return endObservation;
     }
 
@@ -435,7 +412,7 @@ public class InflationInterpolatedRateObservation
      * The meta-property for the {@code endSecondObservation} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PriceIndexObservation> endSecondObservation() {
+    public MetaProperty<PriceIndexObservation> endSecondObservation() {
       return endSecondObservation;
     }
 
@@ -443,7 +420,7 @@ public class InflationInterpolatedRateObservation
      * The meta-property for the {@code weight} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> weight() {
+    public MetaProperty<Double> weight() {
       return weight;
     }
 
@@ -480,7 +457,7 @@ public class InflationInterpolatedRateObservation
   /**
    * The bean-builder for {@code InflationInterpolatedRateObservation}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<InflationInterpolatedRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<InflationInterpolatedRateObservation> {
 
     private PriceIndexObservation startObservation;
     private PriceIndexObservation startSecondObservation;
@@ -491,19 +468,7 @@ public class InflationInterpolatedRateObservation
     /**
      * Restricted constructor.
      */
-    protected Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    protected Builder(InflationInterpolatedRateObservation beanToCopy) {
-      this.startObservation = beanToCopy.getStartObservation();
-      this.startSecondObservation = beanToCopy.getStartSecondObservation();
-      this.endObservation = beanToCopy.getEndObservation();
-      this.endSecondObservation = beanToCopy.getEndSecondObservation();
-      this.weight = beanToCopy.getWeight();
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -575,79 +540,12 @@ public class InflationInterpolatedRateObservation
 
     @Override
     public InflationInterpolatedRateObservation build() {
-      return new InflationInterpolatedRateObservation(this);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the observation at the start.
-     * <p>
-     * The inflation rate is the ratio between the interpolated start and end observations.
-     * The start month is typically three months before the start of the period.
-     * @param startObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder startObservation(PriceIndexObservation startObservation) {
-      JodaBeanUtils.notNull(startObservation, "startObservation");
-      this.startObservation = startObservation;
-      return this;
-    }
-
-    /**
-     * Sets the observation for interpolation at the start.
-     * <p>
-     * The inflation rate is the ratio between the interpolated start and end observations.
-     * The month is typically one month after the month of the start observation.
-     * @param startSecondObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder startSecondObservation(PriceIndexObservation startSecondObservation) {
-      JodaBeanUtils.notNull(startSecondObservation, "startSecondObservation");
-      this.startSecondObservation = startSecondObservation;
-      return this;
-    }
-
-    /**
-     * Sets the observation at the end.
-     * <p>
-     * The inflation rate is the ratio between the interpolated start and end observations.
-     * The end month is typically three months before the end of the period.
-     * @param endObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endObservation(PriceIndexObservation endObservation) {
-      JodaBeanUtils.notNull(endObservation, "endObservation");
-      this.endObservation = endObservation;
-      return this;
-    }
-
-    /**
-     * Sets the observation for interpolation at the end.
-     * <p>
-     * The inflation rate is the ratio between the interpolated start and end observations.
-     * The month is typically one month after the month of the end observation.
-     * @param endSecondObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endSecondObservation(PriceIndexObservation endSecondObservation) {
-      JodaBeanUtils.notNull(endSecondObservation, "endSecondObservation");
-      this.endSecondObservation = endSecondObservation;
-      return this;
-    }
-
-    /**
-     * Sets the positive weight used when interpolating.
-     * <p>
-     * Given two price index observations, typically in adjacent months, the weight is used
-     * to determine the adjusted index value. The value is given by the formula
-     * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
-     * @param weight  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder weight(double weight) {
-      ArgChecker.notNegative(weight, "weight");
-      this.weight = weight;
-      return this;
+      return new InflationInterpolatedRateObservation(
+          startObservation,
+          startSecondObservation,
+          endObservation,
+          endSecondObservation,
+          weight);
     }
 
     //-----------------------------------------------------------------------
@@ -655,21 +553,13 @@ public class InflationInterpolatedRateObservation
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("InflationInterpolatedRateObservation.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("startObservation").append('=').append(JodaBeanUtils.toString(startObservation)).append(',').append(' ');
       buf.append("startSecondObservation").append('=').append(JodaBeanUtils.toString(startSecondObservation)).append(',').append(' ');
       buf.append("endObservation").append('=').append(JodaBeanUtils.toString(endObservation)).append(',').append(' ');
       buf.append("endSecondObservation").append('=').append(JodaBeanUtils.toString(endSecondObservation)).append(',').append(' ');
-      buf.append("weight").append('=').append(JodaBeanUtils.toString(weight)).append(',').append(' ');
+      buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

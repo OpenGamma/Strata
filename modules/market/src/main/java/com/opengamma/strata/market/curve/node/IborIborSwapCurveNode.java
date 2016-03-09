@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
@@ -163,7 +164,7 @@ public final class IborIborSwapCurveNode
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
-    return TenorCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
+    return TenorDateCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
   }
 
   // calculate the end date

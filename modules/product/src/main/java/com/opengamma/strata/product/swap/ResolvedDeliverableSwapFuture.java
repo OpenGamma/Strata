@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A Deliverable Swap Future, resolved for pricing.
@@ -40,19 +41,26 @@ import com.opengamma.strata.product.ResolvedProduct;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedDeliverableSwapFuture
     implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
-   * The notional of the futures. 
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
+  /**
+   * The notional of the futures.
    * <p>
    * This is also called face value or contract value.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
-   * The delivery date. 
+   * The delivery date.
    * <p>
    * The underlying swap is delivered on this date.
    */
@@ -61,15 +69,15 @@ public final class ResolvedDeliverableSwapFuture
   /**
    * The last date of trading.
    * <p>
-   * This date must be before the delivery date of the underlying swap. 
+   * This date must be before the delivery date of the underlying swap.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
    * The underlying swap.
    * <p>
-   * The delivery date of the future is typically the first accrual date of the underlying swap. 
-   * The swap should be a receiver swap of notional 1. 
+   * The delivery date of the future is typically the first accrual date of the underlying swap.
+   * The swap should be a receiver swap of notional 1.
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedSwap underlyingSwap;
@@ -138,15 +146,26 @@ public final class ResolvedDeliverableSwapFuture
     return new ResolvedDeliverableSwapFuture.Builder();
   }
 
-  private ResolvedDeliverableSwapFuture(
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param notional  the value of the property
+   * @param deliveryDate  the value of the property, not null
+   * @param lastTradeDate  the value of the property, not null
+   * @param underlyingSwap  the value of the property, not null
+   */
+  ResolvedDeliverableSwapFuture(
+      SecurityId securityId,
       double notional,
       LocalDate deliveryDate,
       LocalDate lastTradeDate,
       ResolvedSwap underlyingSwap) {
-    ArgChecker.notNegative(notional, "notional");
+    JodaBeanUtils.notNull(securityId, "securityId");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(underlyingSwap, "underlyingSwap");
+    this.securityId = securityId;
     this.notional = notional;
     this.deliveryDate = deliveryDate;
     this.lastTradeDate = lastTradeDate;
@@ -167,6 +186,17 @@ public final class ResolvedDeliverableSwapFuture
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
   }
 
   //-----------------------------------------------------------------------
@@ -230,7 +260,8 @@ public final class ResolvedDeliverableSwapFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedDeliverableSwapFuture other = (ResolvedDeliverableSwapFuture) obj;
-      return JodaBeanUtils.equal(notional, other.notional) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(deliveryDate, other.deliveryDate) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
           JodaBeanUtils.equal(underlyingSwap, other.underlyingSwap);
@@ -241,6 +272,7 @@ public final class ResolvedDeliverableSwapFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(deliveryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
@@ -250,8 +282,9 @@ public final class ResolvedDeliverableSwapFuture
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ResolvedDeliverableSwapFuture{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("deliveryDate").append('=').append(deliveryDate).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
@@ -270,6 +303,11 @@ public final class ResolvedDeliverableSwapFuture
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", ResolvedDeliverableSwapFuture.class, SecurityId.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -295,6 +333,7 @@ public final class ResolvedDeliverableSwapFuture
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "notional",
         "deliveryDate",
         "lastTradeDate",
@@ -309,6 +348,8 @@ public final class ResolvedDeliverableSwapFuture
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 1585636160:  // notional
           return notional;
         case 681469378:  // deliveryDate
@@ -337,6 +378,14 @@ public final class ResolvedDeliverableSwapFuture
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     /**
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
@@ -373,6 +422,8 @@ public final class ResolvedDeliverableSwapFuture
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((ResolvedDeliverableSwapFuture) bean).getSecurityId();
         case 1585636160:  // notional
           return ((ResolvedDeliverableSwapFuture) bean).getNotional();
         case 681469378:  // deliveryDate
@@ -402,6 +453,7 @@ public final class ResolvedDeliverableSwapFuture
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedDeliverableSwapFuture> {
 
+    private SecurityId securityId;
     private double notional;
     private LocalDate deliveryDate;
     private LocalDate lastTradeDate;
@@ -418,6 +470,7 @@ public final class ResolvedDeliverableSwapFuture
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResolvedDeliverableSwapFuture beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.notional = beanToCopy.getNotional();
       this.deliveryDate = beanToCopy.getDeliveryDate();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
@@ -428,6 +481,8 @@ public final class ResolvedDeliverableSwapFuture
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 1585636160:  // notional
           return notional;
         case 681469378:  // deliveryDate
@@ -444,6 +499,9 @@ public final class ResolvedDeliverableSwapFuture
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
@@ -489,6 +547,7 @@ public final class ResolvedDeliverableSwapFuture
     @Override
     public ResolvedDeliverableSwapFuture build() {
       return new ResolvedDeliverableSwapFuture(
+          securityId,
           notional,
           deliveryDate,
           lastTradeDate,
@@ -497,6 +556,19 @@ public final class ResolvedDeliverableSwapFuture
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
+    /**
      * Sets the notional of the futures.
      * <p>
      * This is also called face value or contract value.
@@ -504,7 +576,7 @@ public final class ResolvedDeliverableSwapFuture
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -552,8 +624,9 @@ public final class ResolvedDeliverableSwapFuture
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ResolvedDeliverableSwapFuture.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("deliveryDate").append('=').append(JodaBeanUtils.toString(deliveryDate)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');

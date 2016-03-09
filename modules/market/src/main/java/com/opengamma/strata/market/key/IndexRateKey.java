@@ -27,7 +27,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.id.IndexRateId;
 
 /**

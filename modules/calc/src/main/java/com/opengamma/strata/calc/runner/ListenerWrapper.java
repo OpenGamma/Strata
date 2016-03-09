@@ -17,11 +17,17 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A wrapper around a {@link CalculationListener} that ensures the listener is only invoked by a single thread
- * at a time and calls {@link CalculationListener#calculationsComplete() calculationsComplete} when
- * all calculations have finished.
+ * Wrapper around a listener for thread-safety.
+ * <p>
+ * This is a wrapper around a {@link CalculationListener} that ensures the listener
+ * is only invoked by a single thread at a time. When the calculations are complete,
+ * it calls {@link CalculationListener#calculationsComplete() calculationsComplete}.
+ * <p>
+ * Calculations may be performed in bulk for a given target.
+ * The logic in this class unwraps the {@link CalculationResults}, calling the
+ * listener with each individual {@link CalculationResult}.
  */
-final class ListenerWrapper implements Consumer<CalculationResult> {
+final class ListenerWrapper implements Consumer<CalculationResults> {
 
   private static final Logger log = LoggerFactory.getLogger(ListenerWrapper.class);
 
@@ -29,7 +35,7 @@ final class ListenerWrapper implements Consumer<CalculationResult> {
   private final CalculationListener listener;
 
   /** Queue of actions to perform on the delegate. */
-  private final Queue<CalculationResult> queue = new LinkedList<>();
+  private final Queue<CalculationResults> queue = new LinkedList<>();
 
   /** Protects the queue and the executing flag. */
   private final Lock lock = new ReentrantLock();
@@ -57,7 +63,10 @@ final class ListenerWrapper implements Consumer<CalculationResult> {
   /** The number of results received. */
   private int resultCount;
 
+  //-------------------------------------------------------------------------
   /**
+   * Creates an instance wrapping the specified listener.
+   * 
    * @param listener  the underlying listener wrapped by this object
    * @param expectedResultCount  the number of results expected
    */
@@ -66,6 +75,7 @@ final class ListenerWrapper implements Consumer<CalculationResult> {
     this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a calculation result and delivers it to the listener
    * <p>
@@ -80,11 +90,11 @@ final class ListenerWrapper implements Consumer<CalculationResult> {
    * @param result the result of a calculation
    */
   @Override
-  public void accept(CalculationResult result) {
+  public void accept(CalculationResults result) {
     // This is mutated while protected by the lock and accessed while not protected.
     // This is safe because the executing flag ensures the thread that accesses the
     // variable while unlocked is the same thread that set its value while guarded by the lock.
-    CalculationResult nextResult;
+    CalculationResults nextResult;
 
     lock.lock();
     try {
@@ -108,7 +118,9 @@ final class ListenerWrapper implements Consumer<CalculationResult> {
       try {
         // Invoke the listener while not protected by the lock. This allows other threads
         // to queue results while this thread is delivering them to the listener.
-        listener.resultReceived(nextResult);
+        for (CalculationResult cell : nextResult.getCells()) {
+          listener.resultReceived(nextResult.getTarget(), cell);
+        }
       } catch (RuntimeException e) {
         log.warn("Exception invoking listener.resultReceived", e);
       }

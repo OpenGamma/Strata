@@ -9,8 +9,6 @@ import java.io.Serializable;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Extrapolator implementation.
@@ -69,46 +67,43 @@ final class InterpolatorCurveExtrapolator
    * Bound extrapolator.
    */
   static class Bound implements BoundCurveExtrapolator {
-    private final Interpolator1D interpolator;
-    private final Interpolator1DDataBundle dataBundle;
+    private final AbstractBoundCurveInterpolator interpolator;
 
     Bound(DoubleArray xValues, DoubleArray yValues, BoundCurveInterpolator interpolator) {
-      ArgChecker.isTrue(interpolator instanceof StandardBoundCurveInterpolator);
-      StandardBoundCurveInterpolator mathInterpolator = ((StandardBoundCurveInterpolator) interpolator);
-      this.dataBundle = mathInterpolator.getDataBundle();
-      this.interpolator = mathInterpolator.getInterpolator();
+      ArgChecker.isTrue(interpolator instanceof AbstractBoundCurveInterpolator);
+      this.interpolator = (AbstractBoundCurveInterpolator) interpolator;
     }
 
     //-------------------------------------------------------------------------
     @Override
     public double leftExtrapolate(double xValue) {
-      return interpolator.interpolate(dataBundle, xValue);
+      return interpolator.doInterpolate(xValue);
     }
 
     @Override
     public double leftExtrapolateFirstDerivative(double xValue) {
-      return interpolator.firstDerivative(dataBundle, xValue);
+      return interpolator.doFirstDerivative(xValue);
     }
 
     @Override
     public DoubleArray leftExtrapolateParameterSensitivity(double xValue) {
-      return DoubleArray.ofUnsafe(interpolator.getNodeSensitivitiesForValue(dataBundle, xValue));
+      return interpolator.doParameterSensitivity(xValue);
     }
 
     //-------------------------------------------------------------------------
     @Override
     public double rightExtrapolate(double xValue) {
-      return interpolator.interpolate(dataBundle, xValue);
+      return interpolator.doInterpolate(xValue);
     }
 
     @Override
     public double rightExtrapolateFirstDerivative(double xValue) {
-      return interpolator.firstDerivative(dataBundle, xValue);
+      return interpolator.doFirstDerivative(xValue);
     }
 
     @Override
     public DoubleArray rightExtrapolateParameterSensitivity(double xValue) {
-      return DoubleArray.ofUnsafe(interpolator.getNodeSensitivitiesForValue(dataBundle, xValue));
+      return interpolator.doParameterSensitivity(xValue);
     }
   }
 

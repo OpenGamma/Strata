@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
@@ -15,18 +14,11 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendarIds;
-import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -36,7 +28,6 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.examples.data.ExampleData;
@@ -48,15 +39,9 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.FixedRateCalculation;
-import com.opengamma.strata.product.swap.IborRateCalculation;
-import com.opengamma.strata.product.swap.NotionalSchedule;
-import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.SwapLeg;
-import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -181,7 +166,7 @@ public class SwapPricingWithCalibrationExample {
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results);
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results, refData);
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
@@ -196,49 +181,19 @@ public class SwapPricingWithCalibrationExample {
   //-----------------------------------------------------------------------  
   // create a vanilla fixed vs libor 3m swap
   private static Trade createVanillaFixedVsLibor3mSwap() {
-    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.PAY)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
-            .frequency(Frequency.P6M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P6M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .id(StandardId.of("example", "1"))
+        .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
+        .counterparty(StandardId.of("example", "A"))
+        .settlementDate(LocalDate.of(2014, 9, 12))
         .build();
-
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.RECEIVE)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
-            .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P3M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
-        .build();
-
-    return SwapTrade.builder()
-        .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
-            .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 9, 12))
-            .build())
-        .build();
+    return FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
+        tradeInfo,
+        LocalDate.of(2014, 9, 12), // the start date
+        LocalDate.of(2021, 9, 12), // the end date
+        BuySell.BUY,               // indicates wheter this trade is a buy or sell
+        100_000_000,               // the notional amount  
+        0.015);                    // the fixed interest rate
   }
 
 }

@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
 
@@ -98,8 +99,12 @@ public class InterpolatedNodalSurfaceTest {
 
     Map<Double, Interpolator1DDataBundle> bundle = INTERPOLATOR.getDataBundle(DATA);
     assertThat(test.zValue(1.5d, 3.7d)).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
-    assertThat(test.zValueParameterSensitivity(1.5d, 1.5d)).isEqualTo(
-        INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d)));
+    DoubleArray sensiValues = test.zValueParameterSensitivity(1.5d, 1.5d).getSensitivity();
+    Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
+    for (int i = 0; i < XVALUES.size(); ++i) {
+      DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
+      assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
+    }
   }
 
   public void test_lookup_byPair() {
@@ -112,8 +117,13 @@ public class InterpolatedNodalSurfaceTest {
 
     Map<Double, Interpolator1DDataBundle> bundle = INTERPOLATOR.getDataBundle(DATA);
     assertThat(test.zValue(DoublesPair.of(1.5d, 3.7d))).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
-    assertThat(test.zValueParameterSensitivity(DoublesPair.of(1.5d, 1.5d))).isEqualTo(
-        INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d)));
+
+    DoubleArray sensiValues = test.zValueParameterSensitivity(DoublesPair.of(1.5d, 1.5d)).getSensitivity();
+    Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
+    for (int i = 0; i < XVALUES.size(); ++i) {
+      DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
+      assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
+    }
   }
 
   //-------------------------------------------------------------------------

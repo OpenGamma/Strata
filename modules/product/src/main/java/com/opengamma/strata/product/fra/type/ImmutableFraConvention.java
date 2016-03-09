@@ -330,7 +330,7 @@ public final class ImmutableFraConvention
 
   @Override
   public FraTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate paymentDate,
@@ -338,11 +338,12 @@ public final class ImmutableFraConvention
       double notional,
       double fixedRate) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     return FraTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(Fra.builder()
             .buySell(buySell)
             .currency(getCurrency())

@@ -18,7 +18,6 @@
 <listEntry value="com.opengamma.strata.collect"/>
 <listEntry value="com.opengamma.strata.collect.array"/>
 <listEntry value="com.opengamma.strata.collect.function"/>
-<listEntry value="com.opengamma.strata.collect.id"/>
 <listEntry value="com.opengamma.strata.collect.io"/>
 <listEntry value="com.opengamma.strata.collect.named"/>
 <listEntry value="com.opengamma.strata.collect.range"/>

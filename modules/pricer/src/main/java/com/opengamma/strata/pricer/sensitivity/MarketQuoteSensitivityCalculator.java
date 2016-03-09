@@ -15,6 +15,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
@@ -74,9 +75,12 @@ public class MarketQuoteSensitivityCalculator {
       // split between different curves
       Map<CurveName, DoubleArray> split = info.splitValues(marketQuoteSens);
       for (Entry<CurveName, DoubleArray> entry : split.entrySet()) {
-        // build result without curve metadata
+        CurveName curveName = entry.getKey();
+        CurveMetadata curveMetadata = provider.findCurve(curveName)
+            .map(c -> c.getMetadata())
+            .orElseGet(() -> DefaultCurveMetadata.of(curveName));
         CurveCurrencyParameterSensitivity maketQuoteSens = CurveCurrencyParameterSensitivity.of(
-            DefaultCurveMetadata.of(entry.getKey()),
+            curveMetadata,
             paramSens.getCurrency(),
             entry.getValue());
         result = result.combinedWith(maketQuoteSens);

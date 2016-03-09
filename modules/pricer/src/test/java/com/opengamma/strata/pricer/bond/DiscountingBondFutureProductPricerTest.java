@@ -23,9 +23,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedBondFuture;
+import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 
 /**
  * Test {@link DiscountingBondFutureProductPricer}.
@@ -37,7 +36,7 @@ public class DiscountingBondFutureProductPricerTest {
 
   // product
   private static final ResolvedBondFuture FUTURE_PRODUCT = BondDataSets.FUTURE_PRODUCT_USD.resolve(REF_DATA);
-  private static final Security<FixedCouponBond> BOND_SECURITY = BondDataSets.BOND_SECURITY_LINK_USD[0].resolvedTarget();
+  private static final ResolvedFixedCouponBond BOND = BondDataSets.BOND_USD[0].resolve(REF_DATA);
   private static final Double[] CONVERSION_FACTOR = BondDataSets.CONVERSION_FACTOR_USD.clone();
   // curves
   private static final LegalEntityDiscountingProvider PROVIDER = LegalEntityDiscountingProviderDataSets.ISSUER_REPO_ZERO;
@@ -57,12 +56,11 @@ public class DiscountingBondFutureProductPricerTest {
   public void test_price() {
     double computed = FUTURE_PRICER.price(FUTURE_PRODUCT, PROVIDER);
     double dirtyPrice = BOND_PRICER.dirtyPriceFromCurves(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
-        BOND_SECURITY.getStandardId(),
+        BOND,
         PROVIDER,
         FUTURE_PRODUCT.getLastDeliveryDate());
     double expected = BOND_PRICER.cleanPriceFromDirtyPrice(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
+        BOND,
         FUTURE_PRODUCT.getLastDeliveryDate(), dirtyPrice) / CONVERSION_FACTOR[0];
     assertEquals(computed, expected, TOL);
   }
@@ -70,15 +68,14 @@ public class DiscountingBondFutureProductPricerTest {
   public void test_priceWithZSpread_continuous() {
     double computed = FUTURE_PRICER.priceWithZSpread(FUTURE_PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     double dirtyPrice = BOND_PRICER.dirtyPriceFromCurvesWithZSpread(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
-        BOND_SECURITY.getStandardId(),
+        BOND,
         PROVIDER,
         Z_SPREAD,
         CONTINUOUS,
         0,
         FUTURE_PRODUCT.getLastDeliveryDate());
     double expected = BOND_PRICER.cleanPriceFromDirtyPrice(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
+        BOND,
         FUTURE_PRODUCT.getLastDeliveryDate(), dirtyPrice) / CONVERSION_FACTOR[0];
     assertEquals(computed, expected, TOL);
   }
@@ -86,15 +83,14 @@ public class DiscountingBondFutureProductPricerTest {
   public void test_priceWithZSpread_periodic() {
     double computed = FUTURE_PRICER.priceWithZSpread(FUTURE_PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double dirtyPrice = BOND_PRICER.dirtyPriceFromCurvesWithZSpread(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
-        BOND_SECURITY.getStandardId(),
+        BOND,
         PROVIDER,
         Z_SPREAD,
         PERIODIC,
         PERIOD_PER_YEAR,
         FUTURE_PRODUCT.getLastDeliveryDate());
     double expected = BOND_PRICER.cleanPriceFromDirtyPrice(
-        BOND_SECURITY.getProduct().resolve(REF_DATA),
+        BOND,
         FUTURE_PRODUCT.getLastDeliveryDate(), dirtyPrice) / CONVERSION_FACTOR[0];
     assertEquals(computed, expected, TOL);
   }

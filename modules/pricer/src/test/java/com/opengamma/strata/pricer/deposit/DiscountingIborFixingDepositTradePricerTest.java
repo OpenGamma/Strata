@@ -59,7 +59,7 @@ public class DiscountingIborFixingDepositTradePricerTest {
       .build();
   private static final ResolvedIborFixingDeposit RDEPOSIT_PRODUCT = DEPOSIT_PRODUCT.resolve(REF_DATA);
   private static final IborFixingDepositTrade DEPOSIT_TRADE = 
-      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).tradeInfo(TradeInfo.EMPTY).build();
+      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).info(TradeInfo.empty()).build();
   private static final ResolvedIborFixingDepositTrade RDEPOSIT_TRADE = DEPOSIT_TRADE.resolve(REF_DATA);
   
   private static final ImmutableRatesProvider IMM_PROV;

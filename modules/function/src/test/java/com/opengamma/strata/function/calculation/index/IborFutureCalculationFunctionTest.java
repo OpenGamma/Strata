@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -30,7 +31,6 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -57,7 +57,7 @@ public class IborFutureCalculationFunctionTest {
   public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
       LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, REF_DATA);
 
-  private static final StandardId SEC_ID = TRADE.getSecurity().getStandardId();
+  private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getLastTradeDate().minusDays(7);

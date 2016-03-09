@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -32,11 +33,11 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
@@ -50,6 +51,8 @@ import com.opengamma.strata.product.swap.StubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
@@ -110,11 +113,8 @@ public class SwapPricingExample {
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults =
+        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
@@ -146,49 +146,19 @@ public class SwapPricingExample {
   //-----------------------------------------------------------------------  
   // create a vanilla fixed vs libor 3m swap
   private static Trade createVanillaFixedVsLibor3mSwap() {
-    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.PAY)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
-            .frequency(Frequency.P6M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P6M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .id(StandardId.of("example", "1"))
+        .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
+        .counterparty(StandardId.of("example", "A"))
+        .settlementDate(LocalDate.of(2014, 9, 12))
         .build();
-
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.RECEIVE)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2021, 9, 12))
-            .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P3M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
-        .build();
-
-    return SwapTrade.builder()
-        .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
-            .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 9, 12))
-            .build())
-        .build();
+    return FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
+        tradeInfo,
+        LocalDate.of(2014, 9, 12), // the start date
+        LocalDate.of(2021, 9, 12), // the end date
+        BuySell.BUY,               // indicates wheter this trade is a buy or sell
+        100_000_000,               // the notional amount
+        0.015);                    // the fixed interest rate
   }
 
   // create a libor 3m vs libor 6m basis swap with spread
@@ -232,9 +202,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .attributes(ImmutableMap.of("description", "Libor 3m + spread vs Libor 6m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Libor 3m + spread vs Libor 6m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -284,9 +254,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
-            .attributes(ImmutableMap.of("description", "Fed Funds averaged + spread vs Libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fed Funds averaged + spread vs Libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -295,100 +265,36 @@ public class SwapPricingExample {
 
   // Create a vanilla fixed vs libor 3m swap with fixing
   private static Trade createFixedVsLibor3mWithFixingSwap() {
-    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.PAY)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2013, 9, 12))
-            .endDate(LocalDate.of(2020, 9, 12))
-            .frequency(Frequency.P6M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P6M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .id(StandardId.of("example", "4"))
+        .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs libor 3m (with fixing)")
+        .counterparty(StandardId.of("example", "A"))
+        .settlementDate(LocalDate.of(2013, 9, 12))
         .build();
-
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.RECEIVE)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2013, 9, 12))
-            .endDate(LocalDate.of(2020, 9, 12))
-            .frequency(Frequency.P3M)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.P3M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
-        .build();
-
-    return SwapTrade.builder()
-        .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
-            .id(StandardId.of("example", "4"))
-            .attributes(ImmutableMap.of("description", "Fixed vs libor 3m (with fixing)"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2013, 9, 12))
-            .build())
-        .build();
+    return FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
+        tradeInfo,
+        LocalDate.of(2013, 9, 12), // the start date
+        LocalDate.of(2020, 9, 12), // the end date
+        BuySell.BUY,               // indicates wheter this trade is a buy or sell
+        100_000_000,               // the notional amount
+        0.015);                    // the fixed interest rate
   }
 
   // Create a fixed vs overnight swap with fixing
   private static Trade createFixedVsOvernightWithFixingSwap() {
-    NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 100_000_000);
-
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.PAY)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 1, 17))
-            .endDate(LocalDate.of(2014, 3, 17))
-            .frequency(Frequency.TERM)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.TERM)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(FixedRateCalculation.of(0.00123, DayCounts.ACT_360))
+    TradeInfo tradeInfo = TradeInfo.builder()
+        .id(StandardId.of("example", "5"))
+        .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs ON (with fixing)")
+        .counterparty(StandardId.of("example", "A"))
+        .settlementDate(LocalDate.of(2014, 1, 17))
         .build();
-
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PayReceive.RECEIVE)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 1, 17))
-            .endDate(LocalDate.of(2014, 3, 17))
-            .frequency(Frequency.TERM)
-            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarIds.USNY))
-            .stubConvention(StubConvention.SHORT_INITIAL)
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(Frequency.TERM)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(notional)
-        .calculation(OvernightRateCalculation.builder()
-            .dayCount(DayCounts.ACT_360)
-            .index(OvernightIndices.USD_FED_FUND)
-            .build())
-        .build();
-
-    return SwapTrade.builder()
-        .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
-            .id(StandardId.of("example", "5"))
-            .attributes(ImmutableMap.of("description", "Fixed vs ON (with fixing)"))
-            .counterparty(StandardId.of("example", "A"))
-            .settlementDate(LocalDate.of(2014, 1, 17))
-            .build())
-        .build();
+    return FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS.toTrade(
+        tradeInfo,
+        LocalDate.of(2014, 1, 17), // the start date
+        LocalDate.of(2014, 3, 17), // the end date
+        BuySell.BUY,               // indicates wheter this trade is a buy or sell
+        100_000_000,               // the notional amount
+        0.00123);                  // the fixed interest rate
   }
 
   // Create a fixed vs libor 3m swap
@@ -430,9 +336,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "6"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (3m short initial stub)"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m (3m short initial stub)")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -479,9 +385,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "7"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (1m short initial stub)"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m (1m short initial stub)")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -531,9 +437,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "8"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 6m (interpolated 3m short initial stub)")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -583,9 +489,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "9"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 6m (interpolated 4m short initial stub)")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -632,9 +538,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "10"))
-            .attributes(ImmutableMap.of("description", "Zero-coupon fixed vs libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Zero-coupon fixed vs libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -680,9 +586,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "11"))
-            .attributes(ImmutableMap.of("description", "Compounding fixed vs fed funds"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Compounding fixed vs fed funds")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 2, 5))
             .build())
@@ -730,9 +636,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "12"))
-            .attributes(ImmutableMap.of("description", "Compounding fed funds vs libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Compounding fed funds vs libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())
@@ -778,9 +684,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "13"))
-            .attributes(ImmutableMap.of("description", "Compounding libor 6m vs libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Compounding libor 6m vs libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 8, 27))
             .build())
@@ -823,9 +729,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(receiveLeg, payLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "14"))
-            .attributes(ImmutableMap.of("description", "GBP Libor 3m vs USD Libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP Libor 3m vs USD Libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())
@@ -868,9 +774,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "15"))
-            .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "USD fixed vs GBP Libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())
@@ -923,9 +829,9 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "16"))
-            .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m (notional exchange)"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "USD fixed vs GBP Libor 3m (notional exchange)")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 1, 24))
             .build())

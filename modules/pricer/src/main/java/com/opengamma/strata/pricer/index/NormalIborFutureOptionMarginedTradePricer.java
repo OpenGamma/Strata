@@ -91,7 +91,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
       RatesProvider ratesProvider,
       NormalVolatilityIborFutureProvider volatilityProvider) {
 
-    ResolvedIborFuture future = futureOptionTrade.getProduct().getUnderlying();
+    ResolvedIborFuture future = futureOptionTrade.getProduct().getUnderlyingFuture();
     double futurePrice = futureOptionPricer.getFuturePricer().price(future, ratesProvider);
     return presentValueSensitivityNormalVolatility(futureOptionTrade, ratesProvider, volatilityProvider, futurePrice);
   }

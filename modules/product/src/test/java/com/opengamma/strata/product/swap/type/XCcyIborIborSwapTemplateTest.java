@@ -94,7 +94,7 @@ public class XCcyIborIborSwapTemplateTest {
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

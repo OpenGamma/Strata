@@ -26,7 +26,7 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class ResolvedIborCapFloorTradeTest {
 
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final ResolvedIborCapFloor PRODUCT =
       ResolvedIborCapFloor.of(ResolvedIborCapFloorTest.CAPFLOOR_LEG, ResolvedIborCapFloorTest.PAY_LEG);
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), date(2016, 7, 2));
@@ -36,18 +36,18 @@ public class ResolvedIborCapFloorTradeTest {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.empty());
   }
 
   public void test_builder_full() {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.of(PREMIUM));
   }
@@ -55,7 +55,7 @@ public class ResolvedIborCapFloorTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();

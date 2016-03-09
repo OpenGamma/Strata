@@ -29,14 +29,14 @@ public class FxVanillaOptionTradeTest {
   private static final double NOTIONAL = 1.0e6;
   private static final FxVanillaOption PRODUCT = FxVanillaOptionTest.sut();
   private static final FxVanillaOption PRODUCT2 = FxVanillaOptionTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 11, 12)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 11, 12));
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     FxVanillaOptionTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getPremium(), PREMIUM);
   }
 
@@ -44,7 +44,7 @@ public class FxVanillaOptionTradeTest {
   public void test_resolve() {
     FxVanillaOptionTrade test = sut();
     ResolvedFxVanillaOptionTrade expected = ResolvedFxVanillaOptionTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM)
         .build();
@@ -64,7 +64,7 @@ public class FxVanillaOptionTradeTest {
   //-------------------------------------------------------------------------
   static FxVanillaOptionTrade sut() {
     return FxVanillaOptionTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();

@@ -187,8 +187,8 @@ public class ReportRunnerTool implements AutoCloseable {
       trades = portfolio.getTrades().stream()
           .filter(t -> t instanceof FinanceTrade)
           .map(t -> (FinanceTrade) t)
-          .filter(t -> t.getTradeInfo().getId().isPresent())
-          .filter(t -> t.getTradeInfo().getId().get().getValue().equals(idSearch))
+          .filter(t -> t.getInfo().getId().isPresent())
+          .filter(t -> t.getInfo().getId().get().getValue().equals(idSearch))
           .collect(toImmutableList());
       if (trades.size() > 1) {
         throw new IllegalArgumentException(
@@ -209,12 +209,7 @@ public class ReportRunnerTool implements AutoCloseable {
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);
 
-    return ReportCalculationResults.builder()
-        .valuationDate(valuationDate)
-        .trades(trades)
-        .columns(requirements.getTradeMeasureRequirements())
-        .calculationResults(results)
-        .build();
+    return ReportCalculationResults.of(valuationDate, trades, requirements.getTradeMeasureRequirements(), results, refData);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

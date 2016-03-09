@@ -84,7 +84,7 @@ public class IborFutureCalculationFunction
   public FunctionRequirements requirements(IborFutureTrade trade, Set<Measure> measures, ReferenceData refData) {
     IborFuture product = trade.getProduct();
 
-    QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey quoteKey = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
     IborIndexCurveKey indexForwardCurveKey = IborIndexCurveKey.of(product.getIndex());
     DiscountCurveKey discountFactorsKey = DiscountCurveKey.of(product.getCurrency());
     IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());

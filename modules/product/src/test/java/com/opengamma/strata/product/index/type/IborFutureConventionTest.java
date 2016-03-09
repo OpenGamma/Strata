@@ -73,15 +73,15 @@ public class IborFutureConventionTest {
     Period start = Period.ofMonths(2);
     int number = 2; // Future should be 20 Dec 15 + 2 IMM = effective 15-Jun-2016, fixing 13-Jun-2016    
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
-    long quantity = 3;
+    double quantity = 3;
     double price = 0.99;
     IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
-    assertEquals(trade.getInitialPrice(), price);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
-    assertEquals(trade.getQuantity(), quantity);
     assertEquals(trade.getProduct().getIndex(), USD_LIBOR_3M);
     assertEquals(trade.getProduct().getNotional(), NOTIONAL_1M);
     assertEquals(trade.getProduct().getAccrualFactor(), 0.25);
+    assertEquals(trade.getQuantity(), quantity);
+    assertEquals(trade.getPrice(), price);
   }
 
   //-------------------------------------------------------------------------

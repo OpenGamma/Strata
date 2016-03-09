@@ -5,9 +5,6 @@
  */
 package com.opengamma.strata.basics.market;
 
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.id.StandardIdentifiable;
-
 /**
  * A market data identifier that identifies observable data.
  * <p>

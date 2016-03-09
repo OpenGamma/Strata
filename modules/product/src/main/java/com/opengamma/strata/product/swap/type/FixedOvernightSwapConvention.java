@@ -20,6 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -169,8 +170,37 @@ public interface FixedOvernightSwapConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract SwapTrade toTrade(
+  public default SwapTrade toTrade(
       LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate) {
+    
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, buySell, notional, fixedRate);
+  }
+  
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the swap, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * 
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @return the trade
+   */
+  public abstract SwapTrade toTrade(
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,

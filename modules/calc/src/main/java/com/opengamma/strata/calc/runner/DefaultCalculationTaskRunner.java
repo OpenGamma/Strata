@@ -15,7 +15,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
@@ -36,11 +38,6 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
    * This will typically be multi-threaded, but single or direct executors also work.
    */
   private final ExecutorService executor;
-  /**
-   * The factory for consumers that wrap listeners to control threading and notify
-   * them when calculations are complete.
-   */
-  private final ConsumerFactory consumerFactory = ListenerWrapper::new;
 
   //-------------------------------------------------------------------------
   /**
@@ -148,7 +145,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       CalculationEnvironment marketData,
       ReferenceData refData) {
 
-    Listener listener = new Listener(tasks.getColumns());
+    AggregatingListener listener = new AggregatingListener(tasks.getColumns());
     calculateMultipleScenariosAsync(tasks, marketData, refData, listener);
     return listener.result();
   }
@@ -173,7 +170,11 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       CalculationListener listener) {
 
     List<CalculationTask> taskList = tasks.getTasks();
-    Consumer<CalculationResult> consumer = consumerFactory.create(listener, taskList.size());
+    // the listener is invoked via this wrapper
+    // the wrapper ensures thread-safety for the listener
+    // it also calls the listener with single CalculationResult cells, not CalculationResults
+    Consumer<CalculationResults> consumer = new ListenerWrapper(listener, taskList.size());
+    // run each task using the executor
     taskList.stream().forEach(task -> runTask(task, marketData, refData, consumer));
   }
 
@@ -182,10 +183,12 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       CalculationTask task,
       CalculationEnvironment marketData,
       ReferenceData refData,
-      Consumer<CalculationResult> consumer) {
+      Consumer<CalculationResults> consumer) {
 
-    // the result of the task is passed to consumer.accept()
-    CompletableFuture.supplyAsync(() -> task.execute(marketData, refData), executor).thenAccept(consumer::accept);
+    // the task is executed, with the result passed to the consumer
+    // the consumer wraps the listener to ensure thread-safety
+    Supplier<CalculationResults> taskExecutor = () -> task.execute(marketData, refData);
+    CompletableFuture.supplyAsync(taskExecutor, executor).thenAccept(consumer);
   }
 
   //-------------------------------------------------------------------------
@@ -196,9 +199,10 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculation listener that receives the results of individual calculations and builds a set of {@link Results}.
+   * Calculation listener that receives the results of individual calculations
+   * and builds a set of {@link Results}. This is used by the non-async methods.
    */
-  private static final class Listener extends AggregatingCalculationListener<Results> {
+  private static final class AggregatingListener extends AggregatingCalculationListener<Results> {
 
     /** Comparator for sorting the results by row and then column. */
     private static final Comparator<CalculationResult> COMPARATOR =
@@ -211,12 +215,12 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
     /** The columns that define what values are calculated. */
     private final List<Column> columns;
 
-    private Listener(List<Column> columns) {
+    private AggregatingListener(List<Column> columns) {
       this.columns = columns;
     }
 
     @Override
-    public void resultReceived(CalculationResult result) {
+    public void resultReceived(CalculationTarget target, CalculationResult result) {
       results.add(result);
     }
 
@@ -247,30 +251,9 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   /**
-   * Factory for consumers of calculation results.
-   * <p>
-   * The consumer wraps a {@link CalculationListener} to ensure it is only invoked
-   * by a single thread at a time.
-   * <p>
-   * It is also responsible for keeping track of how many results have been received and invoking
-   * {@link CalculationListener#calculationsComplete() calculationsComplete()}.
-   */
-  private interface ConsumerFactory {
-
-    /**
-     * Returns a consumer to deliver messages to the listener.
-     *
-     * @param listener  the listener to which the consumer will deliver messages
-     * @param totalResultsCount  the total number of results expected
-     * @return a consumer to deliver messages to the listener
-     */
-    public abstract Consumer<CalculationResult> create(CalculationListener listener, int totalResultsCount);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Listener that decorates another listener and unwraps {@link ScenarioResult} instances
    * containing a single value before passing the value to the delegate listener.
+   * This is used by the single scenario async method.
    */
   private static final class UnwrappingListener implements CalculationListener {
 
@@ -281,11 +264,11 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
     }
 
     @Override
-    public void resultReceived(CalculationResult calculationResult) {
+    public void resultReceived(CalculationTarget target, CalculationResult calculationResult) {
       Result<?> result = calculationResult.getResult();
       Result<?> unwrappedResult = unwrapScenarioResult(result);
-      CalculationResult unwrappedCalculationResult = calculationResult.toBuilder().result(unwrappedResult).build();
-      delegate.resultReceived(unwrappedCalculationResult);
+      CalculationResult unwrappedCalculationResult = calculationResult.withResult(unwrappedResult);
+      delegate.resultReceived(target, unwrappedCalculationResult);
     }
 
     @Override

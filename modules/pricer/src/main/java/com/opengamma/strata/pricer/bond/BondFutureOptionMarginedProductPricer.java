@@ -70,7 +70,7 @@ public abstract class BondFutureOptionMarginedProductPricer {
    * @return the index
    */
   public double marginIndex(ResolvedBondFutureOption option, double price) {
-    double notional = option.getUnderlying().getNotional();
+    double notional = option.getUnderlyingFuture().getNotional();
     return price * notional;
   }
 
@@ -86,7 +86,7 @@ public abstract class BondFutureOptionMarginedProductPricer {
    * @return the index sensitivity
    */
   public PointSensitivities marginIndexSensitivity(ResolvedBondFutureOption option, PointSensitivities priceSensitivity) {
-    double notional = option.getUnderlying().getNotional();
+    double notional = option.getUnderlyingFuture().getNotional();
     return priceSensitivity.multipliedBy(notional);
   }
 

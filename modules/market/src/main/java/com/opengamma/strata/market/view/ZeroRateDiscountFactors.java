@@ -156,6 +156,12 @@ public final class ZeroRateDiscountFactors
     }
   }
 
+  @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    return curve.yValue(yearFraction);
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // convert zero rate to discount factor

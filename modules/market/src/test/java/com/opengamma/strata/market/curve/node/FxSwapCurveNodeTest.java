@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -36,11 +37,11 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
@@ -137,8 +138,8 @@ public class FxSwapCurveNodeTest {
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
         .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate, REF_DATA).plus(FAR_PERIOD), REF_DATA);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), endDate);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), endDate);
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
   }
 
   public void test_metadata_fixed() {

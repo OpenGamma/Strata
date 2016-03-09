@@ -126,6 +126,19 @@ public interface DiscountFactors
       int periodsPerYear);
 
   /**
+   * Gets the continuously compounded zero rate.
+   * <p>
+   * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
+   * year fraction which is computed internally in each implementation. 
+   * 
+   * @param date  the date to discount to
+   * @return the zero rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double zeroRate(LocalDate date);
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the zero rate point sensitivity at the specified date.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
@@ -213,10 +226,11 @@ public interface DiscountFactors
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the unit parameter sensitivity of the forward rate at the specified fixing date.
+   * Calculates the unit parameter sensitivity at the specified fixing date.
    * <p>
-   * This returns the unit sensitivity to each parameter on the underlying curve at the specified date.
-   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
+   * This returns the unit sensitivity of the zero-coupon rate continuously compounded to each parameter on 
+   * the underlying curve at the specified date. The zero-rate continuously compounded is associated to 
+   * the result of {@link #discountFactor(LocalDate)}.
    * 
    * @param date  the date to find the sensitivity for
    * @return the parameter sensitivity
@@ -229,6 +243,7 @@ public interface DiscountFactors
    * <p>
    * This is used to convert a single point sensitivity to curve parameter sensitivity.
    * The calculation typically involves multiplying the point and unit sensitivities.
+   * This returns the sensitivity of the value referred in the point sensitivity to the curve parameters.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity

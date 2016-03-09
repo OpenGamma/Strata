@@ -38,44 +38,48 @@ public class InflationInterpolatedRateObservationTest {
     InflationInterpolatedRateObservation test = InflationInterpolatedRateObservation.of(
         GB_HICP, START_MONTH_FIRST, END_MONTH_FIRST, WEIGHT);
     assertEquals(test.getIndex(), GB_HICP);
-    assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
-  }
-
-  public void test_builder() {
-    InflationInterpolatedRateObservation test = InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(CH_CPI, START_MONTH_FIRST))
-        .startSecondObservation(PriceIndexObservation.of(CH_CPI, START_MONTH_SECOND))
-        .endObservation(PriceIndexObservation.of(CH_CPI, END_MONTH_FIRST))
-        .endSecondObservation(PriceIndexObservation.of(CH_CPI, END_MONTH_SECOND))
-        .weight(WEIGHT)
-        .build();
-    assertEquals(test.getIndex(), CH_CPI);
+    assertEquals(test.getStartObservation().getFixingMonth(), START_MONTH_FIRST);
+    assertEquals(test.getStartSecondObservation().getFixingMonth(), START_MONTH_SECOND);
+    assertEquals(test.getEndObservation().getFixingMonth(), END_MONTH_FIRST);
+    assertEquals(test.getEndSecondObservation().getFixingMonth(), END_MONTH_SECOND);
     assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
   }
 
   public void test_wrongMonthOrder() {
     assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.of(
         GB_HICP, END_MONTH_FIRST, START_MONTH_FIRST, WEIGHT));
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .startSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .endObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .weight(WEIGHT)
+    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.meta().builder()
+        .set(InflationInterpolatedRateObservation.meta().startObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+        .set(InflationInterpolatedRateObservation.meta().startSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+        .set(InflationInterpolatedRateObservation.meta().endObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationInterpolatedRateObservation.meta().endSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+        .set(InflationInterpolatedRateObservation.meta().weight(), WEIGHT)
         .build());
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .startSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 2)))
-        .endObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .weight(WEIGHT)
+    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.meta().builder()
+        .set(InflationInterpolatedRateObservation.meta().startObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+        .set(InflationInterpolatedRateObservation.meta().startSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 2)))
+        .set(InflationInterpolatedRateObservation.meta().endObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationInterpolatedRateObservation.meta().endSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationInterpolatedRateObservation.meta().weight(), WEIGHT)
         .build());
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .startSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 9)))
-        .endObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .weight(WEIGHT)
+    assertThrowsIllegalArg(() -> InflationInterpolatedRateObservation.meta().builder()
+        .set(InflationInterpolatedRateObservation.meta().startObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+        .set(InflationInterpolatedRateObservation.meta().startSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 9)))
+        .set(InflationInterpolatedRateObservation.meta().endObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationInterpolatedRateObservation.meta().endSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+        .set(InflationInterpolatedRateObservation.meta().weight(), WEIGHT)
         .build());
   }
 
@@ -93,13 +97,8 @@ public class InflationInterpolatedRateObservationTest {
     InflationInterpolatedRateObservation test1 = InflationInterpolatedRateObservation.of(
         GB_HICP, START_MONTH_FIRST, END_MONTH_FIRST, WEIGHT);
     coverImmutableBean(test1);
-    InflationInterpolatedRateObservation test2 = InflationInterpolatedRateObservation.builder()
-        .startObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 1)))
-        .startSecondObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 2)))
-        .endObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 8)))
-        .weight(WEIGHT + 0.1d)
-        .build();
+    InflationInterpolatedRateObservation test2 = InflationInterpolatedRateObservation.of(
+        CH_CPI, YearMonth.of(2010, 1), YearMonth.of(2010, 7), WEIGHT + 0.1d);
     coverBeanEquals(test1, test2);
   }
 

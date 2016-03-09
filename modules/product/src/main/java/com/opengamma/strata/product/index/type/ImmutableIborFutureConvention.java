@@ -35,11 +35,8 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
@@ -128,7 +125,7 @@ public final class ImmutableIborFutureConvention
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,
-      long quantity,
+      double quantity,
       double notional,
       double price,
       ReferenceData refData) {
@@ -136,19 +133,20 @@ public final class ImmutableIborFutureConvention
     LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber, refData);
     double accrualFactor = index.getTenor().get(ChronoUnit.MONTHS) / 12.0;
     LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
-    IborFuture underlying = IborFuture.builder()
+    YearMonth m = YearMonth.from(lastTradeDate);
+    IborFuture product = IborFuture.builder()
+        .securityId(SecurityId.of("OG-Future", "Ibor-" + index.getName() + "-" + m.format(MONTH_YEAR_FORMAT)))
         .index(index)
         .accrualFactor(accrualFactor)
         .lastTradeDate(lastTradeDate)
         .notional(notional).build();
-    YearMonth m = YearMonth.from(lastTradeDate);
-    Security<IborFuture> security = UnitSecurity.builder(underlying)
-        .standardId(StandardId.of("OG-Future", "Ibor-" + index.getName() + "-" + m.format(MONTH_YEAR_FORMAT)))
-        .build();
-    SecurityLink<IborFuture> securityLink = SecurityLink.resolved(security);
-    TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).build();
+    TradeInfo info = TradeInfo.of(tradeDate);
     return IborFutureTrade.builder()
-        .quantity(quantity).initialPrice(price).securityLink(securityLink).tradeInfo(info).build();
+        .info(info)
+        .product(product)
+        .quantity(quantity)
+        .price(price)
+        .build();
   }
 
   @Override

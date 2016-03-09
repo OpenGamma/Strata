@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Defines the observation of inflation figures from a price index with interpolation
@@ -44,7 +45,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * Linear interpolation based on the number of days of the payment month is used
  * to find the appropriate value.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class InflationEndInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -99,12 +100,11 @@ public final class InflationEndInterpolatedRateObservation
       YearMonth referenceEndMonth,
       double weight) {
 
-    return InflationEndInterpolatedRateObservation.builder()
-        .startIndexValue(startIndexValue)
-        .endObservation(PriceIndexObservation.of(index, referenceEndMonth))
-        .endSecondObservation(PriceIndexObservation.of(index, referenceEndMonth.plusMonths(1)))
-        .weight(weight)
-        .build();
+    return new InflationEndInterpolatedRateObservation(
+        startIndexValue,
+        PriceIndexObservation.of(index, referenceEndMonth),
+        PriceIndexObservation.of(index, referenceEndMonth.plusMonths(1)),
+        weight);
   }
 
   @ImmutableValidator
@@ -149,14 +149,6 @@ public final class InflationEndInterpolatedRateObservation
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static InflationEndInterpolatedRateObservation.Builder builder() {
-    return new InflationEndInterpolatedRateObservation.Builder();
-  }
 
   private InflationEndInterpolatedRateObservation(
       double startIndexValue,
@@ -238,14 +230,6 @@ public final class InflationEndInterpolatedRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -345,7 +329,7 @@ public final class InflationEndInterpolatedRateObservation
     }
 
     @Override
-    public InflationEndInterpolatedRateObservation.Builder builder() {
+    public BeanBuilder<? extends InflationEndInterpolatedRateObservation> builder() {
       return new InflationEndInterpolatedRateObservation.Builder();
     }
 
@@ -423,7 +407,7 @@ public final class InflationEndInterpolatedRateObservation
   /**
    * The bean-builder for {@code InflationEndInterpolatedRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<InflationEndInterpolatedRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<InflationEndInterpolatedRateObservation> {
 
     private double startIndexValue;
     private PriceIndexObservation endObservation;
@@ -434,17 +418,6 @@ public final class InflationEndInterpolatedRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(InflationEndInterpolatedRateObservation beanToCopy) {
-      this.startIndexValue = beanToCopy.getStartIndexValue();
-      this.endObservation = beanToCopy.getEndObservation();
-      this.endSecondObservation = beanToCopy.getEndSecondObservation();
-      this.weight = beanToCopy.getWeight();
     }
 
     //-----------------------------------------------------------------------
@@ -516,63 +489,6 @@ public final class InflationEndInterpolatedRateObservation
           endObservation,
           endSecondObservation,
           weight);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the start index value.
-     * <p>
-     * The published index value of the start month.
-     * @param startIndexValue  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder startIndexValue(double startIndexValue) {
-      ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
-      this.startIndexValue = startIndexValue;
-      return this;
-    }
-
-    /**
-     * Sets the observation at the end.
-     * <p>
-     * The inflation rate is the ratio between the start index value and the interpolated end observations.
-     * The end month is typically three months before the end of the period.
-     * @param endObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endObservation(PriceIndexObservation endObservation) {
-      JodaBeanUtils.notNull(endObservation, "endObservation");
-      this.endObservation = endObservation;
-      return this;
-    }
-
-    /**
-     * Sets the observation for interpolation at the end.
-     * <p>
-     * The inflation rate is the ratio between the start index value and the interpolated end observations.
-     * The month is typically one month after the month of the end observation.
-     * @param endSecondObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endSecondObservation(PriceIndexObservation endSecondObservation) {
-      JodaBeanUtils.notNull(endSecondObservation, "endSecondObservation");
-      this.endSecondObservation = endSecondObservation;
-      return this;
-    }
-
-    /**
-     * Sets the positive weight used when interpolating.
-     * <p>
-     * Given two price index observations, typically in adjacent months, the weight is used
-     * to determine the adjusted index value. The value is given by the formula
-     * {@code (weight * price_index_1 + (1 - weight) * price_index_2)}.
-     * @param weight  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder weight(double weight) {
-      ArgChecker.notNegative(weight, "weight");
-      this.weight = weight;
-      return this;
     }
 
     //-----------------------------------------------------------------------

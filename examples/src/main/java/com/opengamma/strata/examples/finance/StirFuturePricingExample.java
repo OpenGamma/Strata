@@ -10,20 +10,20 @@ import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -83,11 +83,8 @@ public class StirFuturePricingExample {
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults =
+        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("stir-future-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
@@ -100,15 +97,15 @@ public class StirFuturePricingExample {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
     return trade.toBuilder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Mar15 IMM Ibor Future"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Mar15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
         .quantity(20)
-        .initialPrice(0.9997)
+        .price(0.9997)
         .build();
   }
 
@@ -117,15 +114,15 @@ public class StirFuturePricingExample {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
     return trade.toBuilder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Jun15 IMM Ibor Future"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Jun15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
         .quantity(20)
-        .initialPrice(0.9997)
+        .price(0.9997)
         .build();
   }
 

@@ -53,7 +53,7 @@ public final class CdsTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The credit default swap that was agreed when the trade occurred.
    * <p>
@@ -66,24 +66,24 @@ public final class CdsTrade
   /**
    * Obtains an instance of a CDS trade.
    * 
-   * @param tradeInfo  the trade info
+   * @param info  the trade info
    * @param product  the product
    * @return the trade
    */
-  public static CdsTrade of(TradeInfo tradeInfo, Cds product) {
-    return new CdsTrade(tradeInfo, product);
+  public static CdsTrade of(TradeInfo info, Cds product) {
+    return new CdsTrade(info, product);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedCdsTrade resolve(ReferenceData refData) {
     return ResolvedCdsTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(info)
         .product(product.resolve(refData))
         .build();
   }
@@ -116,10 +116,10 @@ public final class CdsTrade
   }
 
   private CdsTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       Cds product) {
     JodaBeanUtils.notNull(product, "product");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.product = product;
   }
 
@@ -146,8 +146,8 @@ public final class CdsTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -178,7 +178,7 @@ public final class CdsTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CdsTrade other = (CdsTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product);
     }
     return false;
@@ -187,7 +187,7 @@ public final class CdsTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     return hash;
   }
@@ -196,7 +196,7 @@ public final class CdsTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CdsTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();
@@ -213,10 +213,10 @@ public final class CdsTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", CdsTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", CdsTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -227,7 +227,7 @@ public final class CdsTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "product");
 
     /**
@@ -239,8 +239,8 @@ public final class CdsTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
       }
@@ -264,11 +264,11 @@ public final class CdsTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -283,8 +283,8 @@ public final class CdsTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((CdsTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((CdsTrade) bean).getInfo();
         case -309474065:  // product
           return ((CdsTrade) bean).getProduct();
       }
@@ -308,7 +308,7 @@ public final class CdsTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CdsTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private Cds product;
 
     /**
@@ -323,7 +323,7 @@ public final class CdsTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CdsTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
     }
 
@@ -331,8 +331,8 @@ public final class CdsTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         default:
@@ -343,8 +343,8 @@ public final class CdsTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (Cds) newValue;
@@ -382,7 +382,7 @@ public final class CdsTrade
     @Override
     public CdsTrade build() {
       return new CdsTrade(
-          tradeInfo,
+          info,
           product);
     }
 
@@ -391,11 +391,11 @@ public final class CdsTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -417,7 +417,7 @@ public final class CdsTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("CdsTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product));
       buf.append('}');
       return buf.toString();

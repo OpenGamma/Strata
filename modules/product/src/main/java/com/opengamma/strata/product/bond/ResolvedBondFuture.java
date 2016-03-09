@@ -31,9 +31,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * A futures contract based on a basket of fixed coupon bonds, resolved for pricing.
@@ -46,12 +45,19 @@ import com.opengamma.strata.product.ResolvedProduct;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
 @SuppressWarnings("unchecked")
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedBondFuture
     implements ResolvedProduct, ImmutableBean, Serializable {
   // suppress warning unchecked is for auto-generated code
 
+  /**
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
   /**
    * The basket of deliverable bonds.
    * <p>
@@ -61,7 +67,7 @@ public final class ResolvedBondFuture
    * All of the underlying bonds must have the same notional and currency.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<Pair<ResolvedFixedCouponBond, StandardId>> deliveryBasket;
+  private final ImmutableList<ResolvedFixedCouponBond> deliveryBasket;
   /**
    * The conversion factor for each bond in the basket.
    * <p>
@@ -71,32 +77,32 @@ public final class ResolvedBondFuture
    * All of the underlying bonds must have the same notional and currency.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<Double> conversionFactor;
+  private final ImmutableList<Double> conversionFactors;
   /**
-   * The last trading date. 
+   * The last trading date.
    * <p>
-   * The future security is traded until this date. 
+   * The future security is traded until this date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
    * The first notice date.
    * <p>
-   * The first date on which the delivery of the underlying is authorized. 
+   * The first date on which the delivery of the underlying is authorized.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate firstNoticeDate;
   /**
    * The last notice date.
    * <p>
-   * The last date on which the delivery of the underlying is authorized. 
+   * The last date on which the delivery of the underlying is authorized.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastNoticeDate;
   /**
    * The first delivery date.
    * <p>
-   * The first date on which the underlying is delivered. 
+   * The first date on which the underlying is delivered.
    * If not specified, this is computed from {@code firstNoticeDate} by using
    * {@code settlementDateOffset} in the first  element of the delivery basket.
    */
@@ -105,7 +111,7 @@ public final class ResolvedBondFuture
   /**
    * The last notice date.
    * <p>
-   * The last date on which the underlying is delivered. 
+   * The last date on which the underlying is delivered.
    * If not specified, this is computed from {@code lastNoticeDate} by using
    * {@code settlementDateOffset} in the first element of the delivery basket.
    */
@@ -131,7 +137,7 @@ public final class ResolvedBondFuture
   @ImmutableValidator
   private void validate() {
     int size = deliveryBasket.size();
-    ArgChecker.isTrue(size == conversionFactor.size(),
+    ArgChecker.isTrue(size == conversionFactors.size(),
         "The delivery basket size should be the same as the conversion factor size");
     ArgChecker.inOrderOrEqual(firstNoticeDate, lastNoticeDate, "firstNoticeDate", "lastNoticeDate");
     ArgChecker.inOrderOrEqual(firstDeliveryDate, lastDeliveryDate, "firstDeliveryDate", "lastDeliveryDate");
@@ -141,8 +147,8 @@ public final class ResolvedBondFuture
       double notional = getNotional();
       Currency currency = getCurrency();
       for (int i = 1; i < size; ++i) {
-        ArgChecker.isTrue(deliveryBasket.get(i).getFirst().getNotional() == notional);
-        ArgChecker.isTrue(deliveryBasket.get(i).getFirst().getCurrency().equals(currency));
+        ArgChecker.isTrue(deliveryBasket.get(i).getNotional() == notional);
+        ArgChecker.isTrue(deliveryBasket.get(i).getCurrency().equals(currency));
       }
     }
   }
@@ -156,7 +162,7 @@ public final class ResolvedBondFuture
    * @return the currency
    */
   public Currency getCurrency() {
-    return deliveryBasket.get(0).getFirst().getCurrency();
+    return deliveryBasket.get(0).getCurrency();
   }
 
   /**
@@ -168,7 +174,7 @@ public final class ResolvedBondFuture
    * @return the notional
    */
   public double getNotional() {
-    return deliveryBasket.get(0).getFirst().getNotional();
+    return deliveryBasket.get(0).getNotional();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -198,25 +204,40 @@ public final class ResolvedBondFuture
     return new ResolvedBondFuture.Builder();
   }
 
-  private ResolvedBondFuture(
-      List<Pair<ResolvedFixedCouponBond, StandardId>> deliveryBasket,
-      List<Double> conversionFactor,
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param deliveryBasket  the value of the property, not empty
+   * @param conversionFactors  the value of the property, not empty
+   * @param lastTradeDate  the value of the property, not null
+   * @param firstNoticeDate  the value of the property, not null
+   * @param lastNoticeDate  the value of the property, not null
+   * @param firstDeliveryDate  the value of the property, not null
+   * @param lastDeliveryDate  the value of the property, not null
+   * @param rounding  the value of the property, not null
+   */
+  ResolvedBondFuture(
+      SecurityId securityId,
+      List<ResolvedFixedCouponBond> deliveryBasket,
+      List<Double> conversionFactors,
       LocalDate lastTradeDate,
       LocalDate firstNoticeDate,
       LocalDate lastNoticeDate,
       LocalDate firstDeliveryDate,
       LocalDate lastDeliveryDate,
       Rounding rounding) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notEmpty(deliveryBasket, "deliveryBasket");
-    JodaBeanUtils.notEmpty(conversionFactor, "conversionFactor");
+    JodaBeanUtils.notEmpty(conversionFactors, "conversionFactors");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(firstNoticeDate, "firstNoticeDate");
     JodaBeanUtils.notNull(lastNoticeDate, "lastNoticeDate");
     JodaBeanUtils.notNull(firstDeliveryDate, "firstDeliveryDate");
     JodaBeanUtils.notNull(lastDeliveryDate, "lastDeliveryDate");
     JodaBeanUtils.notNull(rounding, "rounding");
+    this.securityId = securityId;
     this.deliveryBasket = ImmutableList.copyOf(deliveryBasket);
-    this.conversionFactor = ImmutableList.copyOf(conversionFactor);
+    this.conversionFactors = ImmutableList.copyOf(conversionFactors);
     this.lastTradeDate = lastTradeDate;
     this.firstNoticeDate = firstNoticeDate;
     this.lastNoticeDate = lastNoticeDate;
@@ -243,6 +264,17 @@ public final class ResolvedBondFuture
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the basket of deliverable bonds.
    * <p>
    * The underling which will be delivered in the future time is chosen from
@@ -251,7 +283,7 @@ public final class ResolvedBondFuture
    * All of the underlying bonds must have the same notional and currency.
    * @return the value of the property, not empty
    */
-  public ImmutableList<Pair<ResolvedFixedCouponBond, StandardId>> getDeliveryBasket() {
+  public ImmutableList<ResolvedFixedCouponBond> getDeliveryBasket() {
     return deliveryBasket;
   }
 
@@ -265,8 +297,8 @@ public final class ResolvedBondFuture
    * All of the underlying bonds must have the same notional and currency.
    * @return the value of the property, not empty
    */
-  public ImmutableList<Double> getConversionFactor() {
-    return conversionFactor;
+  public ImmutableList<Double> getConversionFactors() {
+    return conversionFactors;
   }
 
   //-----------------------------------------------------------------------
@@ -358,8 +390,9 @@ public final class ResolvedBondFuture
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedBondFuture other = (ResolvedBondFuture) obj;
-      return JodaBeanUtils.equal(deliveryBasket, other.deliveryBasket) &&
-          JodaBeanUtils.equal(conversionFactor, other.conversionFactor) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(deliveryBasket, other.deliveryBasket) &&
+          JodaBeanUtils.equal(conversionFactors, other.conversionFactors) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
           JodaBeanUtils.equal(firstNoticeDate, other.firstNoticeDate) &&
           JodaBeanUtils.equal(lastNoticeDate, other.lastNoticeDate) &&
@@ -373,8 +406,9 @@ public final class ResolvedBondFuture
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(deliveryBasket);
-    hash = hash * 31 + JodaBeanUtils.hashCode(conversionFactor);
+    hash = hash * 31 + JodaBeanUtils.hashCode(conversionFactors);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(firstNoticeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastNoticeDate);
@@ -386,10 +420,11 @@ public final class ResolvedBondFuture
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("ResolvedBondFuture{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("deliveryBasket").append('=').append(deliveryBasket).append(',').append(' ');
-    buf.append("conversionFactor").append('=').append(conversionFactor).append(',').append(' ');
+    buf.append("conversionFactors").append('=').append(conversionFactors).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
     buf.append("firstNoticeDate").append('=').append(firstNoticeDate).append(',').append(' ');
     buf.append("lastNoticeDate").append('=').append(lastNoticeDate).append(',').append(' ');
@@ -411,17 +446,22 @@ public final class ResolvedBondFuture
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", ResolvedBondFuture.class, SecurityId.class);
+    /**
      * The meta-property for the {@code deliveryBasket} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<Pair<ResolvedFixedCouponBond, StandardId>>> deliveryBasket = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<ResolvedFixedCouponBond>> deliveryBasket = DirectMetaProperty.ofImmutable(
         this, "deliveryBasket", ResolvedBondFuture.class, (Class) ImmutableList.class);
     /**
-     * The meta-property for the {@code conversionFactor} property.
+     * The meta-property for the {@code conversionFactors} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<Double>> conversionFactor = DirectMetaProperty.ofImmutable(
-        this, "conversionFactor", ResolvedBondFuture.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<Double>> conversionFactors = DirectMetaProperty.ofImmutable(
+        this, "conversionFactors", ResolvedBondFuture.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code lastTradeDate} property.
      */
@@ -457,8 +497,9 @@ public final class ResolvedBondFuture
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "deliveryBasket",
-        "conversionFactor",
+        "conversionFactors",
         "lastTradeDate",
         "firstNoticeDate",
         "lastNoticeDate",
@@ -475,10 +516,12 @@ public final class ResolvedBondFuture
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 1999764186:  // deliveryBasket
           return deliveryBasket;
-        case 1438876165:  // conversionFactor
-          return conversionFactor;
+        case 1655488270:  // conversionFactors
+          return conversionFactors;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
         case -1085415050:  // firstNoticeDate
@@ -512,19 +555,27 @@ public final class ResolvedBondFuture
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
+    /**
      * The meta-property for the {@code deliveryBasket} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<Pair<ResolvedFixedCouponBond, StandardId>>> deliveryBasket() {
+    public MetaProperty<ImmutableList<ResolvedFixedCouponBond>> deliveryBasket() {
       return deliveryBasket;
     }
 
     /**
-     * The meta-property for the {@code conversionFactor} property.
+     * The meta-property for the {@code conversionFactors} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<Double>> conversionFactor() {
-      return conversionFactor;
+    public MetaProperty<ImmutableList<Double>> conversionFactors() {
+      return conversionFactors;
     }
 
     /**
@@ -579,10 +630,12 @@ public final class ResolvedBondFuture
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((ResolvedBondFuture) bean).getSecurityId();
         case 1999764186:  // deliveryBasket
           return ((ResolvedBondFuture) bean).getDeliveryBasket();
-        case 1438876165:  // conversionFactor
-          return ((ResolvedBondFuture) bean).getConversionFactor();
+        case 1655488270:  // conversionFactors
+          return ((ResolvedBondFuture) bean).getConversionFactors();
         case -1041950404:  // lastTradeDate
           return ((ResolvedBondFuture) bean).getLastTradeDate();
         case -1085415050:  // firstNoticeDate
@@ -616,8 +669,9 @@ public final class ResolvedBondFuture
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedBondFuture> {
 
-    private List<Pair<ResolvedFixedCouponBond, StandardId>> deliveryBasket = ImmutableList.of();
-    private List<Double> conversionFactor = ImmutableList.of();
+    private SecurityId securityId;
+    private List<ResolvedFixedCouponBond> deliveryBasket = ImmutableList.of();
+    private List<Double> conversionFactors = ImmutableList.of();
     private LocalDate lastTradeDate;
     private LocalDate firstNoticeDate;
     private LocalDate lastNoticeDate;
@@ -637,8 +691,9 @@ public final class ResolvedBondFuture
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResolvedBondFuture beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.deliveryBasket = beanToCopy.getDeliveryBasket();
-      this.conversionFactor = beanToCopy.getConversionFactor();
+      this.conversionFactors = beanToCopy.getConversionFactors();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
       this.firstNoticeDate = beanToCopy.getFirstNoticeDate();
       this.lastNoticeDate = beanToCopy.getLastNoticeDate();
@@ -651,10 +706,12 @@ public final class ResolvedBondFuture
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 1999764186:  // deliveryBasket
           return deliveryBasket;
-        case 1438876165:  // conversionFactor
-          return conversionFactor;
+        case 1655488270:  // conversionFactors
+          return conversionFactors;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
         case -1085415050:  // firstNoticeDate
@@ -676,11 +733,14 @@ public final class ResolvedBondFuture
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1999764186:  // deliveryBasket
-          this.deliveryBasket = (List<Pair<ResolvedFixedCouponBond, StandardId>>) newValue;
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
           break;
-        case 1438876165:  // conversionFactor
-          this.conversionFactor = (List<Double>) newValue;
+        case 1999764186:  // deliveryBasket
+          this.deliveryBasket = (List<ResolvedFixedCouponBond>) newValue;
+          break;
+        case 1655488270:  // conversionFactors
+          this.conversionFactors = (List<Double>) newValue;
           break;
         case -1041950404:  // lastTradeDate
           this.lastTradeDate = (LocalDate) newValue;
@@ -733,8 +793,9 @@ public final class ResolvedBondFuture
     @Override
     public ResolvedBondFuture build() {
       return new ResolvedBondFuture(
+          securityId,
           deliveryBasket,
-          conversionFactor,
+          conversionFactors,
           lastTradeDate,
           firstNoticeDate,
           lastNoticeDate,
@@ -745,6 +806,19 @@ public final class ResolvedBondFuture
 
     //-----------------------------------------------------------------------
     /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
+    /**
      * Sets the basket of deliverable bonds.
      * <p>
      * The underling which will be delivered in the future time is chosen from
@@ -754,7 +828,7 @@ public final class ResolvedBondFuture
      * @param deliveryBasket  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder deliveryBasket(List<Pair<ResolvedFixedCouponBond, StandardId>> deliveryBasket) {
+    public Builder deliveryBasket(List<ResolvedFixedCouponBond> deliveryBasket) {
       JodaBeanUtils.notEmpty(deliveryBasket, "deliveryBasket");
       this.deliveryBasket = deliveryBasket;
       return this;
@@ -766,7 +840,7 @@ public final class ResolvedBondFuture
      * @param deliveryBasket  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder deliveryBasket(Pair<ResolvedFixedCouponBond, StandardId>... deliveryBasket) {
+    public Builder deliveryBasket(ResolvedFixedCouponBond... deliveryBasket) {
       return deliveryBasket(ImmutableList.copyOf(deliveryBasket));
     }
 
@@ -777,23 +851,23 @@ public final class ResolvedBondFuture
      * This must not be empty, and its size must be the same as the size of {@code deliveryBasket}.
      * <p>
      * All of the underlying bonds must have the same notional and currency.
-     * @param conversionFactor  the new value, not empty
+     * @param conversionFactors  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder conversionFactor(List<Double> conversionFactor) {
-      JodaBeanUtils.notEmpty(conversionFactor, "conversionFactor");
-      this.conversionFactor = conversionFactor;
+    public Builder conversionFactors(List<Double> conversionFactors) {
+      JodaBeanUtils.notEmpty(conversionFactors, "conversionFactors");
+      this.conversionFactors = conversionFactors;
       return this;
     }
 
     /**
-     * Sets the {@code conversionFactor} property in the builder
+     * Sets the {@code conversionFactors} property in the builder
      * from an array of objects.
-     * @param conversionFactor  the new value, not empty
+     * @param conversionFactors  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder conversionFactor(Double... conversionFactor) {
-      return conversionFactor(ImmutableList.copyOf(conversionFactor));
+    public Builder conversionFactors(Double... conversionFactors) {
+      return conversionFactors(ImmutableList.copyOf(conversionFactors));
     }
 
     /**
@@ -884,10 +958,11 @@ public final class ResolvedBondFuture
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("ResolvedBondFuture.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("deliveryBasket").append('=').append(JodaBeanUtils.toString(deliveryBasket)).append(',').append(' ');
-      buf.append("conversionFactor").append('=').append(JodaBeanUtils.toString(conversionFactor)).append(',').append(' ');
+      buf.append("conversionFactors").append('=').append(JodaBeanUtils.toString(conversionFactors)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
       buf.append("firstNoticeDate").append('=').append(JodaBeanUtils.toString(firstNoticeDate)).append(',').append(' ');
       buf.append("lastNoticeDate").append('=').append(JodaBeanUtils.toString(lastNoticeDate)).append(',').append(' ');

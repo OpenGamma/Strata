@@ -126,7 +126,7 @@ public class IborFixingDepositConventionTest {
         .tradeDate(tradeDate)
         .build();
     assertEquals(trade.getProduct(), productExpected);
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
   }
 
   //-------------------------------------------------------------------------

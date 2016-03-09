@@ -24,7 +24,6 @@ import java.time.ZoneOffset;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -38,9 +37,6 @@ import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.BlackFunctionData;
-import com.opengamma.strata.pricer.impl.option.BlackPriceFunction;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
@@ -152,7 +148,6 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .build()
       .resolve(REF_DATA);
 
-  private static final BlackPriceFunction BLACK = new BlackPriceFunction();
   private static final BlackSwaptionPhysicalProductPricer PRICER_SWAPTION_BLACK =
       BlackSwaptionPhysicalProductPricer.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
@@ -199,10 +194,8 @@ public class BlackSwaptionPhysicalProductPricerTest {
     double pvbp = PRICER_SWAP.getLegPricer().pvbp(RSWAP_REC.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
     double volatility = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.volatility(SWAPTION_LONG_REC.getExpiry(),
         SWAP_TENOR_YEAR, STRIKE, forward);
-    BlackFunctionData blackData = BlackFunctionData.of(forward, Math.abs(pvbp), volatility);
     double expiry = BLACK_VOL_SWAPTION_PROVIDER_USD_STD.relativeTime(SWAPTION_LONG_REC.getExpiry());
-    EuropeanVanillaOption option = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
-    double pvExpected = BLACK.getPriceFunction(option).apply(blackData);
+    double pvExpected = Math.abs(pvbp) * BlackFormulaRepository.price(forward, STRIKE, expiry, volatility, false);
     CurrencyAmount pvComputed =
         PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC, MULTI_USD, BLACK_VOL_SWAPTION_PROVIDER_USD_STD);
     assertEquals(pvComputed.getCurrency(), USD);

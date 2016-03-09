@@ -5,17 +5,13 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
-import static com.opengamma.strata.basics.PutCall.PUT;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.pricer.impl.option.BlackFunctionData;
-import com.opengamma.strata.pricer.impl.option.BlackPriceFunction;
-import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
+import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
  * Test {@link SmileDeltaParameters}.
@@ -90,25 +86,21 @@ public class SmileDeltaParametersTest {
    * Tests the strikes computations.
    */
   public void strike() {
-    double[] strike = SMILE.getStrike(FORWARD);
-    BlackPriceFunction function = new BlackPriceFunction();
+    double[] strike = SMILE.getStrike(FORWARD).toArrayUnsafe();
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      BlackFunctionData dataPut = BlackFunctionData.of(FORWARD, 1.0, volatility.get(loopdelta));
-      EuropeanVanillaOption optionPut = EuropeanVanillaOption.of(strike[loopdelta], TIME_TO_EXPIRY, PUT);
-      ValueDerivatives dPut = function.getPriceAdjoint(optionPut, dataPut);
+      ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
+          FORWARD, strike[loopdelta], TIME_TO_EXPIRY, volatility.get(loopdelta), false);
       assertEquals("Strike: Put " + loopdelta, dPut.getDerivative(0), -DELTA.get(loopdelta), 1e-8);
-      BlackFunctionData dataCall = BlackFunctionData.of(FORWARD, 1.0, volatility.get(2 * nbDelta - loopdelta));
-      EuropeanVanillaOption optionCall = EuropeanVanillaOption.of(strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, CALL);
-      ValueDerivatives dCall = function.getPriceAdjoint(optionCall, dataCall);
+      ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
+          FORWARD, strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, volatility.get(2 * nbDelta - loopdelta), true);
       assertEquals("Strike: Call " + loopdelta, dCall.getDerivative(0), DELTA.get(loopdelta), 1e-8);
     }
-    BlackFunctionData data = BlackFunctionData.of(FORWARD, 1.0, volatility.get(nbDelta));
-    EuropeanVanillaOption optionPut = EuropeanVanillaOption.of(strike[nbDelta], TIME_TO_EXPIRY, PUT);
-    ValueDerivatives dPut = function.getPriceAdjoint(optionPut, data);
-    EuropeanVanillaOption optionCall = EuropeanVanillaOption.of(strike[nbDelta], TIME_TO_EXPIRY, CALL);
-    ValueDerivatives dCall = function.getPriceAdjoint(optionCall, data);
+    ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
+        FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), false);
+    ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
+        FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
     assertEquals("Strike: ATM", dCall.getDerivative(0) + dPut.getDerivative(0), 0.0, 1e-8);
   }
 

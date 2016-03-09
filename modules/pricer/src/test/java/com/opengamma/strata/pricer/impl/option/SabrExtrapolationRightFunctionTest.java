@@ -8,8 +8,6 @@ package com.opengamma.strata.pricer.impl.option;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import java.util.function.Function;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
@@ -35,7 +33,6 @@ public class SabrExtrapolationRightFunctionTest {
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final SabrExtrapolationRightFunction SABR_EXTRAPOLATION =
       SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, SABR_DATA, CUT_OFF_STRIKE, MU);
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final SabrHaganVolatilityFunctionProvider SABR_FUNCTION = SabrHaganVolatilityFunctionProvider.DEFAULT;
   private static final double TOLERANCE_PRICE = 1.0E-10;
 
@@ -58,22 +55,15 @@ public class SabrExtrapolationRightFunctionTest {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
     double strikeOut = 0.12;
-    EuropeanVanillaOption optionIn = EuropeanVanillaOption.of(strikeIn, TIME_TO_EXPIRY, PutCall.CALL);
-    EuropeanVanillaOption optionAt = EuropeanVanillaOption.of(strikeAt, TIME_TO_EXPIRY, PutCall.CALL);
-    EuropeanVanillaOption optionOut = EuropeanVanillaOption.of(strikeOut, TIME_TO_EXPIRY, PutCall.CALL);
-    double volatilityIn = SABR_FUNCTION.getVolatility(FORWARD, optionIn.getStrike(), TIME_TO_EXPIRY, SABR_DATA);
-    BlackFunctionData dataBlackIn = BlackFunctionData.of(FORWARD, 1.0, volatilityIn);
-    Function<BlackFunctionData, Double> funcBlackIn = BLACK_FUNCTION.getPriceFunction(optionIn);
-    double priceExpectedIn = funcBlackIn.apply(dataBlackIn);
-    double priceIn = SABR_EXTRAPOLATION.price(optionIn.getStrike(), optionIn.getPutCall());
+    double volatilityIn = SABR_FUNCTION.getVolatility(FORWARD, strikeIn, TIME_TO_EXPIRY, SABR_DATA);
+    double priceExpectedIn = BlackFormulaRepository.price(FORWARD, strikeIn, TIME_TO_EXPIRY, volatilityIn, true);
+    double priceIn = SABR_EXTRAPOLATION.price(strikeIn, PutCall.CALL);
     assertEquals(priceExpectedIn, priceIn, TOLERANCE_PRICE);
-    double volatilityAt = SABR_FUNCTION.getVolatility(FORWARD, optionAt.getStrike(), TIME_TO_EXPIRY, SABR_DATA);
-    BlackFunctionData dataBlackAt = BlackFunctionData.of(FORWARD, 1.0, volatilityAt);
-    Function<BlackFunctionData, Double> funcBlackAt = BLACK_FUNCTION.getPriceFunction(optionAt);
-    double priceExpectedAt = funcBlackAt.apply(dataBlackAt);
-    double priceAt = SABR_EXTRAPOLATION.price(optionAt.getStrike(), optionAt.getPutCall());
+    double volatilityAt = SABR_FUNCTION.getVolatility(FORWARD, strikeAt, TIME_TO_EXPIRY, SABR_DATA);
+    double priceExpectedAt = BlackFormulaRepository.price(FORWARD, strikeAt, TIME_TO_EXPIRY, volatilityAt, true);
+    double priceAt = SABR_EXTRAPOLATION.price(strikeAt, PutCall.CALL);
     assertEquals(priceExpectedAt, priceAt, TOLERANCE_PRICE);
-    double priceOut = SABR_EXTRAPOLATION.price(optionOut.getStrike(), optionOut.getPutCall());
+    double priceOut = SABR_EXTRAPOLATION.price(strikeOut, PutCall.CALL);
     double priceExpectedOut = 5.427104E-5; // From previous run
     assertEquals(priceExpectedOut, priceOut, TOLERANCE_PRICE);
   }
@@ -89,22 +79,15 @@ public class SabrExtrapolationRightFunctionTest {
     for (int loopexp = 0; loopexp < timeToExpiry.length; loopexp++) {
       SabrExtrapolationRightFunction sabrExtra =
           SabrExtrapolationRightFunction.of(FORWARD, timeToExpiry[loopexp], SABR_DATA, CUT_OFF_STRIKE, MU);
-      EuropeanVanillaOption optionIn = EuropeanVanillaOption.of(strikeIn, timeToExpiry[loopexp], PutCall.CALL);
-      EuropeanVanillaOption optionAt = EuropeanVanillaOption.of(strikeAt, timeToExpiry[loopexp], PutCall.CALL);
-      EuropeanVanillaOption optionOut = EuropeanVanillaOption.of(strikeOut, timeToExpiry[loopexp], PutCall.CALL);
-      double volatilityIn = SABR_FUNCTION.getVolatility(FORWARD, optionIn.getStrike(), TIME_TO_EXPIRY, SABR_DATA);
-      BlackFunctionData dataBlackIn = BlackFunctionData.of(FORWARD, 1.0, volatilityIn);
-      Function<BlackFunctionData, Double> funcBlackIn = BLACK_FUNCTION.getPriceFunction(optionIn);
-      double priceExpectedIn = funcBlackIn.apply(dataBlackIn);
-      double priceIn = sabrExtra.price(optionIn.getStrike(), optionIn.getPutCall());
+      double volatilityIn = SABR_FUNCTION.getVolatility(FORWARD, strikeIn, timeToExpiry[loopexp], SABR_DATA);
+      double priceExpectedIn = BlackFormulaRepository.price(FORWARD, strikeIn, timeToExpiry[loopexp], volatilityIn, true);
+      double priceIn = sabrExtra.price(strikeIn, PutCall.CALL);
       assertEquals(priceExpectedIn, priceIn, TOLERANCE_PRICE);
-      double volatilityAt = SABR_FUNCTION.getVolatility(FORWARD, optionAt.getStrike(), TIME_TO_EXPIRY, SABR_DATA);
-      BlackFunctionData dataBlackAt = BlackFunctionData.of(FORWARD, 1.0, volatilityAt);
-      Function<BlackFunctionData, Double> funcBlackAt = BLACK_FUNCTION.getPriceFunction(optionAt);
-      double priceExpectedAt = funcBlackAt.apply(dataBlackAt);
-      double priceAt = sabrExtra.price(optionAt.getStrike(), optionAt.getPutCall());
+      double volatilityAt = SABR_FUNCTION.getVolatility(FORWARD, strikeAt, timeToExpiry[loopexp], SABR_DATA);
+      double priceExpectedAt = BlackFormulaRepository.price(FORWARD, strikeAt, timeToExpiry[loopexp], volatilityAt, true);
+      double priceAt = sabrExtra.price(strikeAt, PutCall.CALL);
       assertEquals(priceExpectedAt, priceAt, TOLERANCE_PRICE);
-      double priceOut = sabrExtra.price(optionOut.getStrike(), optionOut.getPutCall());
+      double priceOut = sabrExtra.price(strikeOut, PutCall.CALL);
       double priceExpectedOut = 0.0; // From previous run
       assertEquals(priceExpectedOut, priceOut, TOLERANCE_PRICE);
     }

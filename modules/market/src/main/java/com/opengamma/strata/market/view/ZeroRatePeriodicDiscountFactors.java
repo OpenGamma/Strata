@@ -36,6 +36,7 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -166,6 +167,13 @@ public final class ZeroRatePeriodicDiscountFactors
     }
   }
 
+  @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    double ratePeriod = curve.yValue(yearFraction);
+    return frequency * Math.log(1d + ratePeriod / frequency);
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // convert zero rate periodically compounded to discount factor
@@ -194,15 +202,30 @@ public final class ZeroRatePeriodicDiscountFactors
       int periodPerYear) {
 
     double relativeYearFraction = relativeYearFraction(date);
-    double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+
+    if (Math.abs(relativeYearFraction) < EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, 0);
+    }
+    if (compoundedRateType.equals(CompoundedRateType.CONTINUOUS)) {
+      double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
+      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+    }
+    double df = discountFactor(relativeYearFraction);
+    double df2 = Math.pow(df, -1.0 / (relativeYearFraction * periodPerYear));
+    double df3 = df2 + zSpread / periodPerYear;
+    double ddfSdz = -relativeYearFraction * Math.pow(df3, -relativeYearFraction * periodPerYear - 1) * df2;
+    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, ddfSdz);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
-    return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction));
+    double rp = curve.yValue(relativeYearFraction);
+    double rcBar = 1.0;
+    double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
+    CurveUnitParameterSensitivity drpdp = curve.yValueParameterSensitivity(relativeYearFraction);
+    return CurveUnitParameterSensitivities.of(drpdp.multipliedBy(rpBar));
   }
 
   @Override

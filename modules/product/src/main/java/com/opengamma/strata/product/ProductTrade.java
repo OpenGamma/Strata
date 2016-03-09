@@ -11,7 +11,6 @@ import com.opengamma.strata.basics.Trade;
  * A trade that is directly based on a product.
  * <p>
  * A product trade is a {@link Trade} that directly contains a reference to a {@link Product}.
- * This design is typically used for Over-The-Counter (OTC) trades, where the instrument is not fungible.
  * <p>
  * Implementations of this interface must be immutable beans.
  */

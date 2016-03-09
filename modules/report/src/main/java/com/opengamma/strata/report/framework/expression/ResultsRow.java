@@ -16,8 +16,10 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.ProductTrade;
+import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.report.ReportCalculationResults;
 
@@ -55,20 +57,43 @@ class ResultsRow {
   /**
    * Returns the product from the row.
    * <p>
-   * This returns a successful result where the row's trade implements {@link ProductTrade}.
+   * This returns a successful result where the trade associated with the row
+   * implements {@link ProductTrade}.
    *
    * @return the product from the row
    */
   Result<Product> getProduct() {
     Trade trade = getTrade();
-
+    if (trade instanceof SecurityTrade) {
+      SecurityTrade idTrade = (SecurityTrade) trade;
+      trade = idTrade.resolveSecurity(results.getReferenceData());
+    }
     if (trade instanceof ProductTrade) {
       return Result.success(((ProductTrade) trade).getProduct());
     }
-    if (trade instanceof SecurityTrade) {
-      return Result.success(((SecurityTrade<?>) trade).getProduct());
-    }
     return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
+  }
+
+  /**
+   * Returns the security from the row.
+   * <p>
+   * This returns a successful result where the trade associated with the row
+   * implements {@link GenericSecurityTrade}.
+   *
+   * @return the security from the row
+   */
+  Result<Security> getSecurity() {
+    Trade trade = getTrade();
+    if (trade instanceof SecurityTrade) {
+      SecurityTrade secTrade = (SecurityTrade) trade;
+      Security security = results.getReferenceData().getValue(secTrade.getSecurityId());
+      return Result.success(security);
+    }
+    if (trade instanceof GenericSecurityTrade) {
+      GenericSecurityTrade secTrade = (GenericSecurityTrade) trade;
+      return Result.success(secTrade.getSecurity());
+    }
+    return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a security");
   }
 
   /**

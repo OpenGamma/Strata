@@ -86,7 +86,7 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
@@ -107,7 +107,7 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

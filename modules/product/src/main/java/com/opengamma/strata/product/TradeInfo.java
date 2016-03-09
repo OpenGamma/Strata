@@ -9,12 +9,14 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * Additional information about a trade.
@@ -35,14 +38,14 @@ import com.opengamma.strata.collect.id.StandardId;
  * This allows additional information about a trade to be associated.
  * It is kept in a separate object as the information is optional for pricing.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class TradeInfo
-    implements ImmutableBean, Attributable, Serializable {
+    implements ImmutableBean, Serializable {
 
   /**
    * An empty instance of {@code TradeInfo}.
    */
-  public static final TradeInfo EMPTY = TradeInfo.builder().build();
+  private static final TradeInfo EMPTY = TradeInfo.builder().build();
 
   /**
    * The primary identifier for the trade, optional.
@@ -84,13 +87,106 @@ public final class TradeInfo
   @PropertyDefinition(get = "optional")
   private final LocalDate settlementDate;
   /**
-   * The set of additional trade attributes.
+   * The trade attributes.
    * <p>
-   * Most data in the trade is available as bean properties.
-   * Attributes are typically used to tag the object with additional information.
+   * Trade attributes, provide the ability to associate arbitrary information
+   * with a trade in a key-value map.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final ImmutableMap<String, String> attributes;
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<TradeAttributeType<?>, Object> attributes;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty instance, with no values or attributes.
+   * 
+   * @return the empty instance
+   */
+  public static TradeInfo empty() {
+    return EMPTY;
+  }
+
+  /**
+   * Obtains an instance with the specified trade date.
+   * 
+   * @param tradeDate  the trade date
+   * @return the trade information
+   */
+  public static TradeInfo of(LocalDate tradeDate) {
+    return new TradeInfo(null, null, tradeDate, null, null, null, ImmutableMap.of());
+  }
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * 
+   * @return the builder, not null
+   */
+  public static TradeInfoBuilder builder() {
+    return new TradeInfoBuilder();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the attribute associated with the specified type.
+   * <p>
+   * This method obtains the specified attribute.
+   * This allows an attribute about a trade to be obtained if available.
+   * <p>
+   * If the attribute is not found, an exception is thrown.
+   * 
+   * @param <T>  the type of the result
+   * @param type  the type to find
+   * @return the attribute value
+   * @throws IllegalArgumentException if the attribute is not found
+   */
+  public <T> T getAttribute(TradeAttributeType<T> type) {
+    return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
+        Messages.format("Attribute not found for type '{}'", type)));
+  }
+
+  /**
+   * Finds the attribute associated with the specified type.
+   * <p>
+   * This method obtains the specified attribute.
+   * This allows an attribute about a trade to be obtained if available.
+   * <p>
+   * If the attribute is not found, optional empty is returned.
+   * 
+   * @param <T>  the type of the result
+   * @param type  the type to find
+   * @return the attribute value
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Optional<T> findAttribute(TradeAttributeType<T> type) {
+    return Optional.ofNullable((T) attributes.get(type));
+  }
+
+  /**
+   * Returns a copy of this instance with attribute added.
+   * <p>
+   * This returns a new instance with the specified attribute added.
+   * The attribute is added using {@code Map.put(type, value)} semantics.
+   * 
+   * @param <T> the type of the value
+   * @param type  the type providing meaning to the value
+   * @param value  the value
+   * @return a new instance based on this one with the attribute added
+   */
+  @SuppressWarnings("unchecked")
+  public <T> TradeInfo withAttribute(TradeAttributeType<T> type, T value) {
+    // ImmutableMap.Builder would not provide Map.put semantics
+    Map<TradeAttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
+    updatedAttributes.put(type, value);
+    return new TradeInfo(id, counterparty, tradeDate, tradeTime, zone, settlementDate, updatedAttributes);
+  }
+
+  /**
+   * Returns a builder populated with the values of this instance.
+   * 
+   * @return a builder populated with the values of this instance
+   */
+  public TradeInfoBuilder toBuilder() {
+    return new TradeInfoBuilder(id, counterparty, tradeDate, tradeTime, zone, settlementDate, attributes);
+  }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
@@ -112,21 +208,23 @@ public final class TradeInfo
   private static final long serialVersionUID = 1L;
 
   /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
+   * Creates an instance.
+   * @param id  the value of the property
+   * @param counterparty  the value of the property
+   * @param tradeDate  the value of the property
+   * @param tradeTime  the value of the property
+   * @param zone  the value of the property
+   * @param settlementDate  the value of the property
+   * @param attributes  the value of the property, not null
    */
-  public static TradeInfo.Builder builder() {
-    return new TradeInfo.Builder();
-  }
-
-  private TradeInfo(
+  TradeInfo(
       StandardId id,
       StandardId counterparty,
       LocalDate tradeDate,
       LocalTime tradeTime,
       ZoneId zone,
       LocalDate settlementDate,
-      Map<String, String> attributes) {
+      Map<TradeAttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this.id = id;
     this.counterparty = counterparty;
@@ -217,26 +315,17 @@ public final class TradeInfo
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of additional trade attributes.
+   * Gets the trade attributes.
    * <p>
-   * Most data in the trade is available as bean properties.
-   * Attributes are typically used to tag the object with additional information.
+   * Trade attributes, provide the ability to associate arbitrary information
+   * with a trade in a key-value map.
    * @return the value of the property, not null
    */
-  @Override
-  public ImmutableMap<String, String> getAttributes() {
+  public ImmutableMap<TradeAttributeType<?>, Object> getAttributes() {
     return attributes;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -327,7 +416,7 @@ public final class TradeInfo
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<String, String>> attributes = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<TradeAttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
         this, "attributes", TradeInfo.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -370,7 +459,7 @@ public final class TradeInfo
     }
 
     @Override
-    public TradeInfo.Builder builder() {
+    public BeanBuilder<? extends TradeInfo> builder() {
       return new TradeInfo.Builder();
     }
 
@@ -437,7 +526,7 @@ public final class TradeInfo
      * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<String, String>> attributes() {
+    public MetaProperty<ImmutableMap<TradeAttributeType<?>, Object>> attributes() {
       return attributes;
     }
 
@@ -478,7 +567,7 @@ public final class TradeInfo
   /**
    * The bean-builder for {@code TradeInfo}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TradeInfo> {
+  private static final class Builder extends DirectFieldsBeanBuilder<TradeInfo> {
 
     private StandardId id;
     private StandardId counterparty;
@@ -486,26 +575,12 @@ public final class TradeInfo
     private LocalTime tradeTime;
     private ZoneId zone;
     private LocalDate settlementDate;
-    private Map<String, String> attributes = ImmutableMap.of();
+    private Map<TradeAttributeType<?>, Object> attributes = ImmutableMap.of();
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(TradeInfo beanToCopy) {
-      this.id = beanToCopy.id;
-      this.counterparty = beanToCopy.counterparty;
-      this.tradeDate = beanToCopy.tradeDate;
-      this.tradeTime = beanToCopy.tradeTime;
-      this.zone = beanToCopy.zone;
-      this.settlementDate = beanToCopy.settlementDate;
-      this.attributes = beanToCopy.getAttributes();
     }
 
     //-----------------------------------------------------------------------
@@ -554,7 +629,7 @@ public final class TradeInfo
           this.settlementDate = (LocalDate) newValue;
           break;
         case 405645655:  // attributes
-          this.attributes = (Map<String, String>) newValue;
+          this.attributes = (Map<TradeAttributeType<?>, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -596,90 +671,6 @@ public final class TradeInfo
           zone,
           settlementDate,
           attributes);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the primary identifier for the trade, optional.
-     * <p>
-     * The identifier is used to identify the trade.
-     * It will typically be an identifier in an external data system.
-     * <p>
-     * A trade may have multiple active identifiers. Any identifier may be chosen here.
-     * Certain uses of the identifier, such as storage in a database, require that the
-     * identifier does not change over time, and this should be considered best practice.
-     * @param id  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder id(StandardId id) {
-      this.id = id;
-      return this;
-    }
-
-    /**
-     * Sets the counterparty identifier, optional.
-     * <p>
-     * An identifier used to specify the counterparty of the trade.
-     * @param counterparty  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder counterparty(StandardId counterparty) {
-      this.counterparty = counterparty;
-      return this;
-    }
-
-    /**
-     * Sets the trade date, optional.
-     * @param tradeDate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder tradeDate(LocalDate tradeDate) {
-      this.tradeDate = tradeDate;
-      return this;
-    }
-
-    /**
-     * Sets the trade time, optional.
-     * @param tradeTime  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder tradeTime(LocalTime tradeTime) {
-      this.tradeTime = tradeTime;
-      return this;
-    }
-
-    /**
-     * Sets the trade time-zone, optional.
-     * @param zone  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder zone(ZoneId zone) {
-      this.zone = zone;
-      return this;
-    }
-
-    /**
-     * Sets the settlement date, optional.
-     * @param settlementDate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder settlementDate(LocalDate settlementDate) {
-      this.settlementDate = settlementDate;
-      return this;
-    }
-
-    /**
-     * Sets the set of additional trade attributes.
-     * <p>
-     * Most data in the trade is available as bean properties.
-     * Attributes are typically used to tag the object with additional information.
-     * @param attributes  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder attributes(Map<String, String> attributes) {
-      JodaBeanUtils.notNull(attributes, "attributes");
-      this.attributes = attributes;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -77,10 +77,8 @@ public final class Unchecked {
   public static void wrap(CheckedRunnable block) {
     try {
       block.run();
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
     } catch (Throwable ex) {
-      throw Throwables.propagate(ex);
+      throw propagate(ex);
     }
   }
 
@@ -104,10 +102,8 @@ public final class Unchecked {
   public static <T> T wrap(CheckedSupplier<T> block) {
     try {
       return block.get();
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
     } catch (Throwable ex) {
-      throw Throwables.propagate(ex);
+      throw propagate(ex);
     }
   }
 
@@ -126,10 +122,8 @@ public final class Unchecked {
     return () -> {
       try {
         runnable.run();
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -151,10 +145,8 @@ public final class Unchecked {
     return (t) -> {
       try {
         return function.apply(t);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -176,10 +168,8 @@ public final class Unchecked {
     return (t, u) -> {
       try {
         return function.apply(t, u);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -200,10 +190,8 @@ public final class Unchecked {
     return (t) -> {
       try {
         return function.apply(t);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -223,10 +211,8 @@ public final class Unchecked {
     return (t, u) -> {
       try {
         return function.apply(t, u);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -247,10 +233,8 @@ public final class Unchecked {
     return (t) -> {
       try {
         return predicate.test(t);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -271,10 +255,8 @@ public final class Unchecked {
     return (t, u) -> {
       try {
         return predicate.test(t, u);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -295,10 +277,8 @@ public final class Unchecked {
     return (t) -> {
       try {
         consumer.accept(t);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -319,10 +299,8 @@ public final class Unchecked {
     return (t, u) -> {
       try {
         consumer.accept(t, u);
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
@@ -343,12 +321,39 @@ public final class Unchecked {
     return () -> {
       try {
         return supplier.get();
-      } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
       } catch (Throwable ex) {
-        throw Throwables.propagate(ex);
+        throw propagate(ex);
       }
     };
   }
 
+  /**
+   * Propagates {@code throwable} as-is if possible, or by wrapping in a {@code RuntimeException} if not.
+   * <ul>
+   *   <li>If {@code throwable} is an {@code Error} or {@code RuntimeException} it is propagated as-is.</li>
+   *   <li>If {@code throwable} is an {@code IOException} it is wrapped in {@code UncheckedIOException} and thrown.</li>
+   *   <li>Otherwise {@code throwable} is wrapped in a {@code RuntimeException} and thrown.</li>
+   * </ul>
+   * This method always throws an exception. The return type is a convenience to satisfy the type system
+   * when the enclosing method returns a value. For example:
+   * <pre>
+   *   T foo() {
+   *     try {
+   *       return methodWithCheckedException();
+   *     } catch (Exception e) {
+   *       throw Unchecked.propagate(e);
+   *     }
+   *   }
+   * </pre>
+   *
+   * @param throwable the {@code Throwable} to propagate
+   * @return nothing; this method always throws an exception
+   */
+  public static RuntimeException propagate(Throwable throwable) {
+    if (throwable instanceof IOException) {
+      throw new UncheckedIOException((IOException) throwable);
+    } else {
+      throw Throwables.propagate(throwable);
+    }
+  }
 }

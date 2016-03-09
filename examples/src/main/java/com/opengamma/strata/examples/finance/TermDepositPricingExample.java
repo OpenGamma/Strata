@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
@@ -19,17 +18,18 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -90,11 +90,8 @@ public class TermDepositPricingExample {
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults =
+        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("term-deposit-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
@@ -117,9 +114,9 @@ public class TermDepositPricingExample {
 
     return TermDepositTrade.builder()
         .product(td)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Deposit 10M at 3%"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 10M at 3%")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 12, 16))
             .build())
@@ -141,9 +138,9 @@ public class TermDepositPricingExample {
 
     return TermDepositTrade.builder()
         .product(td)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .attributes(ImmutableMap.of("description", "Deposit 5M at 3.8%"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Deposit 5M at 3.8%")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 12, 16))
             .build())

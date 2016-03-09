@@ -25,7 +25,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
@@ -47,6 +46,7 @@ import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSe
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOption;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 
@@ -63,7 +63,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       BondDataSets.FUTURE_OPTION_PRODUCT_EUR_115.resolve(REF_DATA);
   private static final ResolvedBondFutureOptionTrade OPTION_TRADE =
       BondDataSets.FUTURE_OPTION_TRADE_EUR.resolve(REF_DATA);
-  private static final StandardId FUTURE_SECURITY_ID = BondDataSets.FUTURE_SECURITY_ID_EUR;
+  private static final SecurityId FUTURE_SECURITY_ID = BondDataSets.FUTURE_SECURITY_ID_EUR;
   private static final double NOTIONAL = BondDataSets.NOTIONAL_EUR;
   private static final long QUANTITY = BondDataSets.QUANTITY_EUR;
   // curves
@@ -146,7 +146,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     LocalDate valuationDate2 = LocalDate.of(2014, 3, 31); // equal to trade date
     CurrencyAmount computed2 =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, valuationDate2, currentPrice, lastClosingPrice);
-    double expected = NOTIONAL * QUANTITY * (currentPrice - OPTION_TRADE.getInitialPrice().getAsDouble());
+    double expected = NOTIONAL * QUANTITY * (currentPrice - OPTION_TRADE.getPrice());
     assertEquals(computed2.getCurrency(), Currency.EUR);
     assertEquals(computed2.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
   }
@@ -203,7 +203,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   public void test_presentValueSensitivity() {
     PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivity(OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
     CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
-    double futurePrice = FUTURE_PRICER.price(OPTION_PRODUCT.getUnderlying(), RATE_PROVIDER);
+    double futurePrice = FUTURE_PRICER.price(OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER);
     double strike = OPTION_PRODUCT.getStrikePrice();
     double expiryTime = ACT_365F.relativeYearFraction(VAL_DATE, OPTION_PRODUCT.getExpiryDate());
     double logMoneyness = Math.log(strike / futurePrice);
@@ -215,7 +215,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     double volSensi = 0.5 * (volUp - volDw) / EPS;
     double vega = BlackFormulaRepository.vega(futurePrice, strike, expiryTime, vol);
     CurveCurrencyParameterSensitivities sensiVol = RATE_PROVIDER.curveParameterSensitivity(
-        FUTURE_PRICER.priceSensitivity(OPTION_PRODUCT.getUnderlying(), RATE_PROVIDER))
+        FUTURE_PRICER.priceSensitivity(OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER))
         .multipliedBy(-vega * volSensi * NOTIONAL * QUANTITY);
     CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, (p), VOL_PROVIDER, REFERENCE_PRICE));

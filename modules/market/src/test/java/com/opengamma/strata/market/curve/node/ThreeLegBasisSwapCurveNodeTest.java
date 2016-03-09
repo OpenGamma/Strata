@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.BuySell.BUY;
+
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -27,11 +28,11 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
@@ -133,8 +134,8 @@ public class ThreeLegBasisSwapCurveNodeTest {
     ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
-    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
   }
 
   public void test_metadata_fixed() {

@@ -22,11 +22,12 @@ import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFun
 import com.opengamma.strata.function.marketdata.curve.IborIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.OvernightIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
+import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.SecurityPosition;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.future.GenericFutureOptionTrade;
-import com.opengamma.strata.product.future.GenericFutureTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -128,10 +129,10 @@ public class StandardComponents {
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}
-   *  <li>Generic Future - {@link GenericFutureTrade}
-   *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
+   *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    *

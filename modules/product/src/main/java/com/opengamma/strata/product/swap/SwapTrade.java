@@ -46,7 +46,7 @@ public final class SwapTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The swap product that was agreed when the trade occurred.
    * <p>
@@ -59,24 +59,24 @@ public final class SwapTrade
   /**
    * Obtains an instance of a Swap trade.
    * 
-   * @param tradeInfo  the trade info
+   * @param info  the trade info
    * @param product  the product
    * @return the trade
    */
-  public static SwapTrade of(TradeInfo tradeInfo, Swap product) {
-    return new SwapTrade(tradeInfo, product);
+  public static SwapTrade of(TradeInfo info, Swap product) {
+    return new SwapTrade(info, product);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedSwapTrade resolve(ReferenceData refData) {
     return ResolvedSwapTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(info)
         .product(product.resolve(refData))
         .build();
   }
@@ -109,10 +109,10 @@ public final class SwapTrade
   }
 
   private SwapTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       Swap product) {
     JodaBeanUtils.notNull(product, "product");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.product = product;
   }
 
@@ -139,8 +139,8 @@ public final class SwapTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -171,7 +171,7 @@ public final class SwapTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwapTrade other = (SwapTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product);
     }
     return false;
@@ -180,7 +180,7 @@ public final class SwapTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     return hash;
   }
@@ -189,7 +189,7 @@ public final class SwapTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SwapTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();
@@ -206,10 +206,10 @@ public final class SwapTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", SwapTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", SwapTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -220,7 +220,7 @@ public final class SwapTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "product");
 
     /**
@@ -232,8 +232,8 @@ public final class SwapTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
       }
@@ -257,11 +257,11 @@ public final class SwapTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -276,8 +276,8 @@ public final class SwapTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((SwapTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((SwapTrade) bean).getInfo();
         case -309474065:  // product
           return ((SwapTrade) bean).getProduct();
       }
@@ -301,7 +301,7 @@ public final class SwapTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SwapTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private Swap product;
 
     /**
@@ -316,7 +316,7 @@ public final class SwapTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SwapTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
     }
 
@@ -324,8 +324,8 @@ public final class SwapTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         default:
@@ -336,8 +336,8 @@ public final class SwapTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (Swap) newValue;
@@ -375,7 +375,7 @@ public final class SwapTrade
     @Override
     public SwapTrade build() {
       return new SwapTrade(
-          tradeInfo,
+          info,
           product);
     }
 
@@ -384,11 +384,11 @@ public final class SwapTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -410,7 +410,7 @@ public final class SwapTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("SwapTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product));
       buf.append('}');
       return buf.toString();

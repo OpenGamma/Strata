@@ -71,7 +71,7 @@ public class FraDummyData {
    * Fra trade.
    */
   public static final FraTrade FRA_TRADE = FraTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+      .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(FRA)
       .build();
 

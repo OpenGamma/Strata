@@ -24,19 +24,19 @@ public class FxNdfTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxNdf PRODUCT = FxNdfTest.sut();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_of() {
     FxNdfTrade test = FxNdfTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     FxNdfTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class FxNdfTradeTest {
   static FxNdfTrade sut() {
     return FxNdfTrade.builder()
         .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
   }
 

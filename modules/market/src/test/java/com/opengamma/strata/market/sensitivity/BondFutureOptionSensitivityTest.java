@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Test {@link BondFutureOptionSensitivity}.
  */
 @Test
 public class BondFutureOptionSensitivityTest {
-  private static final StandardId FUTURE_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT");
+  private static final SecurityId FUTURE_SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND-FUT");
   private static final ZonedDateTime OPTION_EXPIRY = dateUtc(2015, 8, 27);
   private static final LocalDate FUTURE_EXPIRY = date(2015, 8, 28);
   private static final double STRIKE_PRICE = 0.98;
@@ -76,7 +76,7 @@ public class BondFutureOptionSensitivityTest {
         FUTURE_SECURITY_ID, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity a2 = BondFutureOptionSensitivity.of(
         FUTURE_SECURITY_ID, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
-    BondFutureOptionSensitivity b = BondFutureOptionSensitivity.of(StandardId.of("OG-Ticker", "FOO-BOND-FUT"),
+    BondFutureOptionSensitivity b = BondFutureOptionSensitivity.of(SecurityId.of("OG-Ticker", "FOO-BOND-FUT"),
         OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity c = BondFutureOptionSensitivity.of(
         FUTURE_SECURITY_ID, dateUtc(2015, 7, 27), FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
@@ -180,7 +180,7 @@ public class BondFutureOptionSensitivityTest {
         FUTURE_SECURITY_ID, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     coverImmutableBean(test1);
     BondFutureOptionSensitivity test2 = BondFutureOptionSensitivity.of(
-        StandardId.of("OG-Ticker", "FOO-BOND-FUT"),
+        SecurityId.of("OG-Ticker", "FOO-BOND-FUT"),
         dateUtc(2015, 9, 27),
         date(2015, 9, 28),
         0.985,

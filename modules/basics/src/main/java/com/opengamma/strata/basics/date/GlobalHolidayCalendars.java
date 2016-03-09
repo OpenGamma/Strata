@@ -121,6 +121,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar JPTO = generateTokyo();
+  /**
+   * The holiday calendar for Toronto, Canada, with code 'CATO'.
+   * <p>
+   * This constant provides the calendar for Toronto holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar CATO = generateToronto();
 
   //-------------------------------------------------------------------------
   /**
@@ -583,6 +592,47 @@ final class GlobalHolidayCalendars {
         holidays.add(date1.plusDays(1));
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // generate CATO
+  // data sources
+  // http://www.labour.gov.on.ca/english/es/pubs/guide/publicholidays.php
+  // http://www.cra-arc.gc.ca/tx/hldys/menu-eng.html
+  // http://www.tmxmoney.com/en/investor_tools/market_hours.html
+  // http://www.statutoryholidayscanada.com/
+  static ImmutableHolidayCalendar generateToronto() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year (public)
+      holidays.add(bumpToMon(date(year, 1, 1)));
+      // family (public)
+      if (year >= 2008) {
+        holidays.add(first(year, 2).with(dayOfWeekInMonth(3, MONDAY)));
+      }
+      // good friday (public)
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // victoria (public)
+      holidays.add(date(year, 5, 25).with(TemporalAdjusters.previous(MONDAY)));
+      // canada (public)
+      holidays.add(bumpToMon(date(year, 7, 1)));
+      // civic
+      holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
+      // labour (public)
+      holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // thanksgiving (public)
+      holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
+      // remembrance
+      holidays.add(bumpToMon(date(year, 11, 11)));
+      // christmas (public)
+      holidays.add(christmas(year));
+      // boxing (public)
+      holidays.add(boxingDay(year));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CATO"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------

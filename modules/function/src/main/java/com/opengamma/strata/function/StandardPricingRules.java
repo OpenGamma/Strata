@@ -11,21 +11,23 @@ import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.function.calculation.credit.CdsFunctionGroups;
 import com.opengamma.strata.function.calculation.deposit.TermDepositFunctionGroups;
 import com.opengamma.strata.function.calculation.fra.FraFunctionGroups;
-import com.opengamma.strata.function.calculation.future.GenericFutureFunctionGroups;
-import com.opengamma.strata.function.calculation.future.GenericFutureOptionFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxNdfFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroups;
 import com.opengamma.strata.function.calculation.index.IborFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGroups;
+import com.opengamma.strata.function.calculation.security.GenericSecurityTradeFunctionGroups;
+import com.opengamma.strata.function.calculation.security.SecurityPositionFunctionGroups;
+import com.opengamma.strata.function.calculation.security.SecurityTradeFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.DeliverableSwapFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.SwapFunctionGroups;
 import com.opengamma.strata.function.calculation.swaption.SwaptionFunctionGroups;
+import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.SecurityPosition;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.future.GenericFutureOptionTrade;
-import com.opengamma.strata.product.future.GenericFutureTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -54,9 +56,10 @@ final class StandardPricingRules {
       PricingRule.builder(FxSingleTrade.class).functionGroup(FxSingleFunctionGroups.discounting()).build(),
       PricingRule.builder(FxNdfTrade.class).functionGroup(FxNdfFunctionGroups.discounting()).build(),
       PricingRule.builder(FxSwapTrade.class).functionGroup(FxSwapFunctionGroups.discounting()).build(),
-      PricingRule.builder(GenericFutureTrade.class).functionGroup(GenericFutureFunctionGroups.market()).build(),
-      PricingRule.builder(GenericFutureOptionTrade.class).functionGroup(GenericFutureOptionFunctionGroups.market()).build(),
+      PricingRule.builder(GenericSecurityTrade.class).functionGroup(GenericSecurityTradeFunctionGroups.market()).build(),
       PricingRule.builder(IborFutureTrade.class).functionGroup(IborFutureFunctionGroups.discounting()).build(),
+      PricingRule.builder(SecurityPosition.class).functionGroup(SecurityPositionFunctionGroups.market()).build(),
+      PricingRule.builder(SecurityTrade.class).functionGroup(SecurityTradeFunctionGroups.market()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
       PricingRule.builder(SwaptionTrade.class).functionGroup(SwaptionFunctionGroups.standard()).build(),
       PricingRule.builder(TermDepositTrade.class).functionGroup(TermDepositFunctionGroups.discounting()).build());
@@ -84,10 +87,10 @@ final class StandardPricingRules {
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
    *  <li>FX swap - {@link FxSwapTrade}
-   *  <li>Generic Future - {@link GenericFutureTrade}
-   *  <li>Generic Future Option - {@link GenericFutureOptionTrade}
+   *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
+   *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    * 

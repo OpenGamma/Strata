@@ -23,20 +23,20 @@ public class ResolvedFraTradeTest {
 
   private static final ResolvedFra PRODUCT = ResolvedFraTest.sut();
   private static final ResolvedFra PRODUCT2 = ResolvedFraTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {
     ResolvedFraTrade test = ResolvedFraTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     ResolvedFraTrade test = ResolvedFraTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -53,7 +53,7 @@ public class ResolvedFraTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFraTrade sut() {
     return ResolvedFraTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
   }
