@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.market.ReferenceDataId;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -46,6 +47,7 @@ public final class SecurityId
    * Obtains an instance from a scheme and value.
    * <p>
    * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
+   * This permits letters, numbers, colon, forward-slash, plus, dot, equals, underscore and dash.
    * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.
@@ -61,9 +63,6 @@ public final class SecurityId
 
   /**
    * Creates an instance from a standard two-part identifier.
-   * <p>
-   * This parses the identifier from the form produced by {@code toString()}
-   * which is '{@code $scheme~$value}'.
    *
    * @param standardId  the underlying standard two-part identifier
    * @return the security identifier
@@ -155,7 +154,13 @@ public final class SecurityId
    * @throws ClassCastException if the identifier exists, but is not of the correct type
    */
   public <T extends ReferenceSecurity> T resolve(ReferenceData refData, Class<T> securityType) {
-    return securityType.cast(refData.getValue(this));
+    ReferenceSecurity security = refData.getValue(this);
+    if (!securityType.isInstance(security)) {
+      throw new ClassCastException(Messages.format(
+          "Identifier '{}' resolved to a security of type '{}' where '{}' was expected",
+          this, security.getClass().getSimpleName(), securityType.getSimpleName()));
+    }
+    return securityType.cast(security);
   }
 
   //-------------------------------------------------------------------------

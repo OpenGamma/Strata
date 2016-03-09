@@ -70,7 +70,7 @@ public final class EquitySecurity
   }
 
   @Override
-  public ImmutableSet<SecurityId> getUnderlyingSecurities() {
+  public ImmutableSet<SecurityId> getUnderlyingIds() {
     return ImmutableSet.of();
   }
 

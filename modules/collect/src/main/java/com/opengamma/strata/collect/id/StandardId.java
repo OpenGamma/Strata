@@ -96,6 +96,7 @@ public final class StandardId
    * Obtains an instance from a scheme and value.
    * <p>
    * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
+   * This permits letters, numbers, colon, forward-slash, plus, dot, equals, underscore and dash.
    * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.

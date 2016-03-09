@@ -14,7 +14,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * A single security that can be traded.
+ * A security that can be traded.
  * <p>
  * A security is one of the building blocks of finance, representing a fungible instrument that can be traded.
  * This is intended to cover instruments such as listed equities and futures.
@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.Messages;
  * are embedded directly within the trade, rather than handled as one-off securities.
  * <p>
  * A security may be referred to using a {@link SecurityId}.
- * The identifier can be looked up in {@link ReferenceData}.
+ * The security can be looked up in {@link ReferenceData} using the identifier.
  * <p>
  * Implementations of this interface must be immutable beans.
  */
@@ -51,13 +51,15 @@ public interface ReferenceSecurity {
   public abstract Currency getCurrency();
 
   /**
-   * Gets the underlying security identifiers.
+   * Gets the set of underlying security identifiers.
    * <p>
-   * The set must contain all the security identifiers that this security refers to.
+   * The set must contain all the security identifiers that this security directly refers to.
+   * For example, a bond future will return the identifiers of the underlying basket of bonds,
+   * but a bond future option will only return the identifier of the underlying future, not the basket.
    * 
    * @return the underlying security identifiers
    */
-  public abstract ImmutableSet<SecurityId> getUnderlyingSecurities();
+  public abstract ImmutableSet<SecurityId> getUnderlyingIds();
 
   /**
    * Gets additional information about the security.

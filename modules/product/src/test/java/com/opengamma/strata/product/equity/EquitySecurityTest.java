@@ -40,7 +40,7 @@ public class EquitySecurityTest {
     assertEquals(test.findInfo(SecurityInfoType.NAME), Optional.of("Test"));
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getUnderlyingSecurities(), ImmutableSet.of());
+    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
     assertEquals(sut2().findInfo(SecurityInfoType.NAME), Optional.empty());
     assertThrowsIllegalArg(() -> sut2().getInfo(SecurityInfoType.NAME));
   }
