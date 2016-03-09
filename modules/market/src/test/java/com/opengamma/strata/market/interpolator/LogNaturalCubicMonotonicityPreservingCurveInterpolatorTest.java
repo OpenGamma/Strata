@@ -32,7 +32,7 @@ public class LogNaturalCubicMonotonicityPreservingCurveInterpolatorTest {
   private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 3.1, 2.0, 7.0, 2.0);
   private static final DoubleArray X_TEST = DoubleArray.of(1., 1.3, 1.6);
   private static final DoubleArray Y_TEST = DoubleArray.of(3.1, 2.371263052860037, 1.9868207082165292);
-  
+
   private static final double TOL = 1.e-12;
 
   public void test_basics() {
@@ -46,7 +46,7 @@ public class LogNaturalCubicMonotonicityPreservingCurveInterpolatorTest {
     for (int i = 0; i < X_DATA.size(); i++) {
       assertEquals(bci.interpolate(X_DATA.get(i)), Y_DATA.get(i), TOL);
     }
-    
+
     for (int i = 0; i < X_TEST.size(); i++) {
       assertEquals(bci.interpolate(X_TEST.get(i)), Y_TEST.get(i), TOL);
     }

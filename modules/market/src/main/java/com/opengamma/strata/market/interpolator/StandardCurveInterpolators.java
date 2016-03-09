@@ -27,8 +27,9 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator SQUARE_LINEAR = SquareLinearCurveInterpolator.INSTANCE;
   // Double quadratic interpolator.
   public static final CurveInterpolator DOUBLE_QUADRATIC = DoubleQuadraticCurveInterpolator.INSTANCE;
-  //Log natural cubic interpolation with monotonicity filter. 
-  public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE = LogNaturalCubicMonotonicityPreservingCurveInterpolator.INSTANCE;
+  //Log natural cubic interpolation with monotonicity filter.
+  public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
+      LogNaturalCubicMonotonicityPreservingCurveInterpolator.INSTANCE;
   // Time square interpolator.
   public static final CurveInterpolator TIME_SQUARE =
       new StandardCurveInterpolator("TimeSquare", new TimeSquareInterpolator1D());
