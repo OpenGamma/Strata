@@ -61,18 +61,17 @@ public final class IborFutureOptionTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SecurityLink<IborFutureOption> securityLink;
   /**
-   * The quantity, indicating the number of contracts in the trade.
+   * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The initial price of the option, represented in decimal form.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * <p>
    * This property should be set if the option has daily margining.
    */
@@ -183,8 +182,9 @@ public final class IborFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -194,11 +194,9 @@ public final class IborFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the initial price of the option, represented in decimal form.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * <p>
    * This property should be set if the option has daily margining.
    * @return the optional value of the property, not null
@@ -519,8 +517,9 @@ public final class IborFutureOptionTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -531,11 +530,9 @@ public final class IborFutureOptionTrade
     }
 
     /**
-     * Sets the initial price of the option, represented in decimal form.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
      * <p>
      * This property should be set if the option has daily margining.
      * @param initialPrice  the new value

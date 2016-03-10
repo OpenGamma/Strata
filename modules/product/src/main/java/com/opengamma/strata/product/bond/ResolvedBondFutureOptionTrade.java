@@ -64,14 +64,15 @@ public final class ResolvedBondFutureOptionTrade
   @PropertyDefinition(validate = "notNull")
   private final StandardId securityStandardId;
   /**
-   * The quantity, indicating the number of contracts in the trade.
+   * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The initial price of the option, represented in decimal form.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    * <p>
@@ -178,8 +179,9 @@ public final class ResolvedBondFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -189,7 +191,7 @@ public final class ResolvedBondFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the initial price of the option, represented in decimal form.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    * <p>
@@ -549,8 +551,9 @@ public final class ResolvedBondFutureOptionTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -561,7 +564,7 @@ public final class ResolvedBondFutureOptionTrade
     }
 
     /**
-     * Sets the initial price of the option, represented in decimal form.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
      * <p>

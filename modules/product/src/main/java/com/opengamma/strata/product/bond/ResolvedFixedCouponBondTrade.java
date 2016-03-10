@@ -64,7 +64,7 @@ public final class ResolvedFixedCouponBondTrade
   @PropertyDefinition(validate = "notNull")
   private final StandardId securityStandardId;
   /**
-   * The quantity, indicating the number of bond contracts in the trade.
+   * The quantity that was traded.
    * <p>
    * This will be positive if buying and negative if selling.
    */
@@ -180,7 +180,7 @@ public final class ResolvedFixedCouponBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of bond contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
    * This will be positive if buying and negative if selling.
    * @return the value of the property
@@ -552,7 +552,7 @@ public final class ResolvedFixedCouponBondTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of bond contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
