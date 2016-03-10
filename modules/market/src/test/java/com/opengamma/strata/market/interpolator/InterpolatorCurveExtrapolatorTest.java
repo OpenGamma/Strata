@@ -18,7 +18,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.interpolation.Extrapolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
-import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.LogNaturalCubicMonotonicityPreservingInterpolator1D;
+import com.opengamma.strata.math.impl.interpolation.SquareLinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -47,35 +48,28 @@ public class InterpolatorCurveExtrapolatorTest {
       DoubleArray.of(11., 11., 8., 5., 1.001, 1.001, 5., 8., 11., 11.),
       DoubleArray.of(1.001, 1.001, 5., 8., 9., 9., 11., 12., 18., 18.)
     };
-    int nData = xValues.size();
     int nKeys = 100;
-    double [] leftKeys = new double [nKeys];
-    double [] rightKeys = new double [nKeys];
+    double [] keys = new double [nKeys];
     double interval = 0.061;
     for (int i= 0;i<nKeys;++i) {
-      leftKeys[i] = xValues.get(0) - interval * i;
-      rightKeys[i] = xValues.get(nData - 1) + interval * i;
+      keys[i] = xValues.get(0) + interval * i;
     }
 
     CurveExtrapolator extrap = InterpolatorCurveExtrapolator.INSTANCE;
     int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
-      BoundCurveInterpolator boundInterp = CurveInterpolators.NATURAL_SPLINE.bind(xValues, yValues[k], extrap, extrap);
-      Interpolator1D baseInterp = ((StandardBoundCurveInterpolator) boundInterp).getInterpolator();
+      BoundCurveInterpolator boundInterp = CurveInterpolators.SQUARE_LINEAR.bind(xValues, yValues[k], extrap, extrap);
+      Interpolator1D baseInterp = new SquareLinearInterpolator1D();
       Interpolator1DDataBundle baseBundle = 
           baseInterp.getDataBundleFromSortedArrays(xValues.toArray(), yValues[k].toArray());
       for (int j = 0;j<nKeys;++j) {
         // value
-        assertEquals(boundInterp.interpolate(leftKeys[j]), baseInterp.interpolate(baseBundle, leftKeys[j]), TOL);
-        assertEquals(boundInterp.interpolate(rightKeys[j]), baseInterp.interpolate(baseBundle, rightKeys[j]), TOL);
+        assertEquals(boundInterp.interpolate(keys[j]), baseInterp.interpolate(baseBundle, keys[j]), TOL);
         // derivative 
-        assertEquals(boundInterp.firstDerivative(leftKeys[j]), baseInterp.firstDerivative(baseBundle, leftKeys[j]), TOL);
-        assertEquals(boundInterp.firstDerivative(rightKeys[j]), baseInterp.firstDerivative(baseBundle, rightKeys[j]), TOL);
+        assertEquals(boundInterp.firstDerivative(keys[j]), baseInterp.firstDerivative(baseBundle, keys[j]), TOL);
         // sensitivity
-        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(leftKeys[j]).toArray(),
-            baseInterp.getNodeSensitivitiesForValue(baseBundle, leftKeys[j]), TOL));
-        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(rightKeys[j]).toArray(),
-            baseInterp.getNodeSensitivitiesForValue(baseBundle, rightKeys[j]), TOL));
+        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(keys[j]).toArray(),
+            baseInterp.getNodeSensitivitiesForValue(baseBundle, keys[j]), TOL));
       }
     }
   }
@@ -90,45 +84,37 @@ public class InterpolatorCurveExtrapolatorTest {
       DoubleArray.of(9.95780079114617, 8.733013195721913, 8.192165283188197, 6.539369493529048, 6.3868683960757515,
           4.700471352238411, 4.555354921077598, 3.780781869340659, 2.299369456202763, 0.9182441378327986)
     };
-    int nData = xValues.size();
     int nKeys = 100;
-    double[] leftKeys = new double[nKeys];
-    double[] rightKeys = new double[nKeys];
+    double[] keys = new double[nKeys];
     double interval = 0.061;
     for (int i = 0; i < nKeys; ++i) {
-      leftKeys[i] = xValues.get(0) - interval * i;
-      rightKeys[i] = xValues.get(nData - 1) + interval * i;
+      keys[i] = xValues.get(0) + interval * i;
     }
 
     CurveExtrapolator extrap = InterpolatorCurveExtrapolator.INSTANCE;
     int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
-      BoundCurveInterpolator boundInterp =
-          CurveInterpolators.NATURAL_SPLINE.bind(xValues, yValues[k], extrap, extrap);
-      Interpolator1D baseInterp = ((StandardBoundCurveInterpolator) boundInterp).getInterpolator();
+      BoundCurveInterpolator boundInterp = CurveInterpolators.SQUARE_LINEAR.bind(xValues, yValues[k], extrap, extrap);
+      Interpolator1D baseInterp = new SquareLinearInterpolator1D();
       Interpolator1DDataBundle baseBundle =
           baseInterp.getDataBundleFromSortedArrays(xValues.toArray(), yValues[k].toArray());
       for (int j = 0; j < nKeys; ++j) {
         // value
-        assertEquals(boundInterp.interpolate(leftKeys[j]), baseInterp.interpolate(baseBundle, leftKeys[j]), TOL);
-        assertEquals(boundInterp.interpolate(rightKeys[j]), baseInterp.interpolate(baseBundle, rightKeys[j]), TOL);
+        assertEquals(boundInterp.interpolate(keys[j]), baseInterp.interpolate(baseBundle, keys[j]), TOL);
         // derivative 
-        assertEquals(boundInterp.firstDerivative(leftKeys[j]), baseInterp.firstDerivative(baseBundle, leftKeys[j]), TOL);
-        assertEquals(boundInterp.firstDerivative(rightKeys[j]), baseInterp.firstDerivative(baseBundle, rightKeys[j]), TOL);
+        assertEquals(boundInterp.firstDerivative(keys[j]), baseInterp.firstDerivative(baseBundle, keys[j]), TOL);
         // sensitivity
-        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(leftKeys[j]).toArray(),
-            baseInterp.getNodeSensitivitiesForValue(baseBundle, leftKeys[j]), TOL));
-        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(rightKeys[j]).toArray(),
-            baseInterp.getNodeSensitivitiesForValue(baseBundle, rightKeys[j]), TOL));
+        assertTrue(DoubleArrayMath.fuzzyEquals(boundInterp.parameterSensitivity(keys[j]).toArray(),
+            baseInterp.getNodeSensitivitiesForValue(baseBundle, keys[j]), TOL));
       }
     }
   }
 
   public void test_sameAsPrevious() {
     BoundCurveInterpolator bci =
-        CurveInterpolators.NATURAL_SPLINE.bind(X_DATA, Y_DATA, INT_EXTRAPOLATOR, INT_EXTRAPOLATOR);
+        CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(X_DATA, Y_DATA, INT_EXTRAPOLATOR, INT_EXTRAPOLATOR);
     Extrapolator1D oldExtrap = Interpolator1DFactory.INTERPOLATOR_EXTRAPOLATOR_INSTANCE;
-    Interpolator1D oldInterp = new NaturalSplineInterpolator1D();
+    Interpolator1D oldInterp = new LogNaturalCubicMonotonicityPreservingInterpolator1D();
     Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());
 
     for (int i = 0; i < 100; i++) {
