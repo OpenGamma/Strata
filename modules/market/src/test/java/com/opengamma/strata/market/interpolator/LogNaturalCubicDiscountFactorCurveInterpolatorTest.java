@@ -19,25 +19,25 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * Test {@link LogNaturalDiscountFactorCurveInterpolator}.
+ * Test {@link LogNaturalCubicDiscountFactorCurveInterpolator}.
  */
 @Test
-public class LogNaturalDiscountFactorCurveInterpolatorTest {
+public class LogNaturalCubicDiscountFactorCurveInterpolatorTest {
 
   private static final Random RANDOM = new Random(0L);
-  private static final CurveInterpolator LNDFC_INTERPOLATOR = LogNaturalDiscountFactorCurveInterpolator.INSTANCE;
+  private static final CurveInterpolator LNDFC_INTERPOLATOR = LogNaturalCubicDiscountFactorCurveInterpolator.INSTANCE;
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.2, 0.4, 1.0, 1.8, 2.8, 5.0);
   private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 3.1, 2.0, 7.0, 2.0);
   private static final DoubleArray X_TEST = DoubleArray.of(1., 1.3, 1.6);
   private static final DoubleArray Y_TEST = DoubleArray.of(3.1, 2.375168445874886, 1.9885112466306356);
-  
+
   private static final double TOL = 1.e-12;
 
   public void test_basics() {
-    assertEquals(LNDFC_INTERPOLATOR.getName(), LogNaturalDiscountFactorCurveInterpolator.NAME);
-    assertEquals(LNDFC_INTERPOLATOR.toString(), LogNaturalDiscountFactorCurveInterpolator.NAME);
+    assertEquals(LNDFC_INTERPOLATOR.getName(), LogNaturalCubicDiscountFactorCurveInterpolator.NAME);
+    assertEquals(LNDFC_INTERPOLATOR.toString(), LogNaturalCubicDiscountFactorCurveInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -46,7 +46,7 @@ public class LogNaturalDiscountFactorCurveInterpolatorTest {
     for (int i = 0; i < X_DATA.size(); i++) {
       assertEquals(bci.interpolate(X_DATA.get(i)), Y_DATA.get(i), TOL);
     }
-    
+
     for (int i = 0; i < X_TEST.size(); i++) {
       assertEquals(bci.interpolate(X_TEST.get(i)), Y_TEST.get(i), TOL);
     }
