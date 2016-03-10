@@ -42,6 +42,8 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
  * Test {@link ResolvedCapitalIndexedBond}. 
+ * <p>
+ * The accrued interest method is test in the pricer test.
  */
 @Test
 public class ResolvedCapitalIndexedBondTest {

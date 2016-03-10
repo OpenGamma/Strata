@@ -27,8 +27,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.swap.PaymentPeriod;
 
-/**
+/** 
  * A trade in a capital indexed bond, resolved for pricing.
  * <p>
  * This is the resolved form of {@link CapitalIndexedBondTrade} and is the primary input to the pricers.
@@ -78,7 +79,7 @@ public final class ResolvedCapitalIndexedBondTrade
    * This is effectively a fixed amount payment once the inflation rate is fixed.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CapitalIndexedBondPaymentPeriod settlement;
+  private final PaymentPeriod settlement;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -118,7 +119,7 @@ public final class ResolvedCapitalIndexedBondTrade
       ResolvedCapitalIndexedBond product,
       StandardId securityStandardId,
       long quantity,
-      CapitalIndexedBondPaymentPeriod settlement) {
+      PaymentPeriod settlement) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
     JodaBeanUtils.notNull(settlement, "settlement");
@@ -198,7 +199,7 @@ public final class ResolvedCapitalIndexedBondTrade
    * This is effectively a fixed amount payment once the inflation rate is fixed.
    * @return the value of the property, not null
    */
-  public CapitalIndexedBondPaymentPeriod getSettlement() {
+  public PaymentPeriod getSettlement() {
     return settlement;
   }
 
@@ -284,8 +285,8 @@ public final class ResolvedCapitalIndexedBondTrade
     /**
      * The meta-property for the {@code settlement} property.
      */
-    private final MetaProperty<CapitalIndexedBondPaymentPeriod> settlement = DirectMetaProperty.ofImmutable(
-        this, "settlement", ResolvedCapitalIndexedBondTrade.class, CapitalIndexedBondPaymentPeriod.class);
+    private final MetaProperty<PaymentPeriod> settlement = DirectMetaProperty.ofImmutable(
+        this, "settlement", ResolvedCapitalIndexedBondTrade.class, PaymentPeriod.class);
     /**
      * The meta-properties.
      */
@@ -372,7 +373,7 @@ public final class ResolvedCapitalIndexedBondTrade
      * The meta-property for the {@code settlement} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CapitalIndexedBondPaymentPeriod> settlement() {
+    public MetaProperty<PaymentPeriod> settlement() {
       return settlement;
     }
 
@@ -415,7 +416,7 @@ public final class ResolvedCapitalIndexedBondTrade
     private ResolvedCapitalIndexedBond product;
     private StandardId securityStandardId;
     private long quantity;
-    private CapitalIndexedBondPaymentPeriod settlement;
+    private PaymentPeriod settlement;
 
     /**
      * Restricted constructor.
@@ -471,7 +472,7 @@ public final class ResolvedCapitalIndexedBondTrade
           this.quantity = (Long) newValue;
           break;
         case 73828649:  // settlement
-          this.settlement = (CapitalIndexedBondPaymentPeriod) newValue;
+          this.settlement = (PaymentPeriod) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -572,7 +573,7 @@ public final class ResolvedCapitalIndexedBondTrade
      * @param settlement  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder settlement(CapitalIndexedBondPaymentPeriod settlement) {
+    public Builder settlement(PaymentPeriod settlement) {
       JodaBeanUtils.notNull(settlement, "settlement");
       this.settlement = settlement;
       return this;

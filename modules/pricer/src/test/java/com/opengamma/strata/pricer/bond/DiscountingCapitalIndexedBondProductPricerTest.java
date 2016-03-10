@@ -453,7 +453,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_accruedInterest() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
-    double computed = PRICER.accruedInterest(PRODUCT, refDate);
+    double computed = PRODUCT.accruedInterest(refDate);
     Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     CapitalIndexedBondPaymentPeriod period = PRODUCT.getPeriodicPayments().get(16);
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
@@ -463,20 +463,20 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_accruedInterest_onPayment() {
     CapitalIndexedBondPaymentPeriod period = PRODUCT.getPeriodicPayments().get(16);
     LocalDate refDate = period.getPaymentDate();
-    double computed = PRICER.accruedInterest(PRODUCT, refDate);
+    double computed = PRODUCT.accruedInterest(refDate);
     assertEquals(computed, 0d, TOL * REAL_COUPON_VALUE * NOTIONAL);
   }
 
   public void test_accruedInterest_before() {
     LocalDate refDate = LocalDate.of(2003, 1, 22);
-    double computed = PRICER.accruedInterest(PRODUCT, refDate);
+    double computed = PRODUCT.accruedInterest(refDate);
     assertEquals(computed, 0d, TOL * REAL_COUPON_VALUE * NOTIONAL);
   }
 
   public void test_accruedInterest_exCoupon_in() {
     CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.getPeriodicPayments().get(16);
     LocalDate refDate = period.getDetachmentDate();
-    double computed = PRICER.accruedInterest(PRODUCT_EX_COUPON, refDate);
+    double computed = PRODUCT_EX_COUPON.accruedInterest(refDate);
     Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     double factorTotal =
@@ -488,7 +488,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_accruedInterest_exCoupon_out() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.getPeriodicPayments().get(16);
-    double computed = PRICER.accruedInterest(PRODUCT_EX_COUPON, refDate);
+    double computed = PRODUCT_EX_COUPON.accruedInterest(refDate);
     Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     assertEquals(computed, factor * REAL_COUPON_VALUE * NOTIONAL * 2d, TOL * REAL_COUPON_VALUE * NOTIONAL);
@@ -499,7 +499,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double dirtyRealPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double cleanRealPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT, refDate, dirtyRealPrice);
-    double expected = dirtyRealPrice - PRICER.accruedInterest(PRODUCT, refDate) / NOTIONAL;
+    double expected = dirtyRealPrice - PRODUCT.accruedInterest(refDate) / NOTIONAL;
     assertEquals(cleanRealPrice, expected, TOL);
     assertEquals(PRICER.dirtyRealPriceFromCleanRealPrice(PRODUCT, refDate, cleanRealPrice), dirtyRealPrice, TOL);
   }
@@ -534,7 +534,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT, RATES_PROVIDER, refDate, dirtyNominalPrice);
     RateObservation obs = RATE_CALC.createRateObservation(VALUATION, START_INDEX);
     double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER);
-    double expected = dirtyNominalPrice - PRICER.accruedInterest(PRODUCT, refDate) * (refRate + 1d) / NOTIONAL;
+    double expected = dirtyNominalPrice - PRODUCT.accruedInterest(refDate) * (refRate + 1d) / NOTIONAL;
     assertEquals(cleanNominalPrice, expected, TOL);
     assertEquals(PRICER.dirtyNominalPriceFromCleanNominalPrice(PRODUCT, RATES_PROVIDER, refDate, cleanNominalPrice),
         dirtyNominalPrice, TOL);
@@ -627,9 +627,9 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_accruedInterest_us() {
-    double accPositive = PRICER.accruedInterest(PRODUCT_US, LocalDate.of(2016, 7, 14));
+    double accPositive = PRODUCT_US.accruedInterest(LocalDate.of(2016, 7, 14));
     assertEquals(accPositive, 6216d, 1.0);
-    double accZero = PRICER.accruedInterest(PRODUCT_US, LocalDate.of(2016, 7, 15));
+    double accZero = PRODUCT_US.accruedInterest(LocalDate.of(2016, 7, 15));
     assertEquals(accZero, 0d);
   }
 
@@ -744,11 +744,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_accruedInterest_ukGov() {
-    double accPositive = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 7));
+    double accPositive = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 7));
     assertEquals(accPositive, 11885d, 1.0);
-    double accNegative = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 8));
+    double accNegative = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 8));
     assertEquals(accNegative, -546.44, 1.0e-2);
-    double accZero = PRICER.accruedInterest(PRODUCT_GOV, LocalDate.of(2016, 4, 16));
+    double accZero = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 16));
     assertEquals(accZero, 0d);
   }
 
@@ -838,11 +838,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   }
 
   public void test_accruedInterest_ukCor() {
-    double accPositive = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 13));
+    double accPositive = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 13));
     assertEquals(accPositive, 2971d, 1.0);
-    double accNegative = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 14));
+    double accNegative = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 14));
     assertEquals(accNegative, -137.37, 1.0e-2);
-    double accZero = PRICER.accruedInterest(PRODUCT_CORP, LocalDate.of(2016, 3, 22));
+    double accZero = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 22));
     assertEquals(accZero, 0d);
   }
 

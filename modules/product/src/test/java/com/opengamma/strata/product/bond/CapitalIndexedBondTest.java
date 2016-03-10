@@ -214,6 +214,21 @@ public class CapitalIndexedBondTest {
         .build();
   }
 
+  static CapitalIndexedBond sut1() {
+    return CapitalIndexedBond.builder()
+        .notional(NOTIONAL)
+        .currency(USD)
+        .dayCount(ACT_ACT_ISDA)
+        .rateCalculation(RATE_CALC)
+        .exCouponPeriod(EX_COUPON)
+        .legalEntityId(LEGAL_ENTITY)
+        .yieldConvention(INDEX_LINKED_FLOAT)
+        .settlementDateOffset(SETTLE_OFFSET)
+        .periodicSchedule(SCHEDULE)
+        .startIndexValue(START_INDEX)
+        .build();
+  }
+
   static CapitalIndexedBond sut2() {
     return CapitalIndexedBond
         .builder()

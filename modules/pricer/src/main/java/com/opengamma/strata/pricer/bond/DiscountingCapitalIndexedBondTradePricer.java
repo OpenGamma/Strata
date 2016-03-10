@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
@@ -22,6 +23,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
+import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
+import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * Pricer for for capital index bond trades.
@@ -46,6 +49,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param productPricer  pricer for {@link ResolvedCapitalIndexedBond}
    */
   public DiscountingCapitalIndexedBondTradePricer(DiscountingCapitalIndexedBondProductPricer productPricer) {
+
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
   }
 
@@ -62,23 +66,19 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
-   * @param cleanRealPrice  the clean real price
    * @return the present value of the bond trade
    */
   public CurrencyAmount presentValue(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
-      ReferenceData refData,
-      double cleanRealPrice) {
+      ReferenceData refData) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), ratesProvider,
         issuerDiscountFactorsProvider, settlementDate);
-    CurrencyAmount pvSettle = presentValueFromCleanPrice(
-        trade, ratesProvider, issuerDiscountFactorsProvider, refData, cleanRealPrice);
-    return pvProduct.multipliedBy(trade.getQuantity()).plus(pvSettle);
+    return presentValueFromProductPresentValue(trade, ratesProvider, issuerDiscountFactorsProvider, pvProduct);
   }
 
   /**
@@ -99,7 +99,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
-   * @param cleanRealPrice  the clean real price
    * @return the present value of the bond trade
    */
   public CurrencyAmount presentValueWithZSpread(
@@ -107,7 +106,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
-      double cleanRealPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -121,16 +119,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
         zSpread,
         compoundedRateType,
         periodsPerYear);
-    CurrencyAmount pvSettle = presentValueFromCleanPriceWithZSpread(
-        trade,
-        ratesProvider,
-        issuerDiscountFactorsProvider,
-        refData,
-        cleanRealPrice,
-        zSpread,
-        compoundedRateType,
-        periodsPerYear);
-    return pvProduct.multipliedBy(trade.getQuantity()).plus(pvSettle);
+    return presentValueFromProductPresentValue(trade, ratesProvider, issuerDiscountFactorsProvider, pvProduct);
   }
 
   //-------------------------------------------------------------------------
@@ -146,23 +135,20 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
-   * @param cleanRealPrice  the clean real price
    * @return the present value sensitivity of the bond trade
    */
   public PointSensitivityBuilder presentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
-      ReferenceData refData,
-      double cleanRealPrice) {
+      ReferenceData refData) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     PointSensitivityBuilder productSensi = productPricer.presentValueSensitivity(trade.getProduct(),
-        ratesProvider, issuerDiscountFactorsProvider, settlementDate).multipliedBy(trade.getQuantity());
-    PointSensitivityBuilder settleSensi = presentValueSensitivityFromRealCleanPrice(
-        trade, ratesProvider, issuerDiscountFactorsProvider, refData, cleanRealPrice);
-    return productSensi.combinedWith(settleSensi);
+        ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    return presentValueSensitivityFromProductPresentValueSensitivity(
+        trade, ratesProvider, issuerDiscountFactorsProvider, productSensi);
   }
 
   /**
@@ -180,7 +166,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
-   * @param cleanRealPrice  the clean real price
    * @return the present value sensitivity of the bond trade
    */
   public PointSensitivityBuilder presentValueSensitivityWithZSpread(
@@ -188,7 +173,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
-      double cleanRealPrice,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
@@ -196,23 +180,14 @@ public class DiscountingCapitalIndexedBondTradePricer {
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     PointSensitivityBuilder productSensi = productPricer.presentValueSensitivityWithZSpread(trade.getProduct(),
-        ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType, periodsPerYear)
-        .multipliedBy(trade.getQuantity());
-    PointSensitivityBuilder settleSensi = presentValueSensitivityFromRealCleanPriceWithZSpread(
-        trade,
-        ratesProvider,
-        issuerDiscountFactorsProvider,
-        refData,
-        cleanRealPrice,
-        zSpread,
-        compoundedRateType,
-        periodsPerYear);
-    return productSensi.combinedWith(settleSensi);
+        ratesProvider, issuerDiscountFactorsProvider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
+    return presentValueSensitivityFromProductPresentValueSensitivity(
+        trade, ratesProvider, issuerDiscountFactorsProvider, productSensi);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value of the settlement of the bond trade from the clean price.
+   * Calculates the present value of the bond trade from the clean price.
    * <p>
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
    * for positive quantity of trade.  
@@ -240,10 +215,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     Currency currency = bond.getCurrency();
     double df = issuerDiscountFactorsProvider
         .repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(standardSettlementDate);
-    CurrencyAmount pvStandard =
-        netAmountStandard(trade, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
+    CurrencyAmount pvStandard = forecastValueStandardFromCleanPrice(
+        bond, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
-      return pvStandard;
+      return presentValueFromProductPresentValue(trade, ratesProvider, issuerDiscountFactorsProvider, pvStandard);
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors =
@@ -256,7 +231,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
       pvDiff = productPricer.presentValueCoupon(
           bond, ratesProvider, discountFactors, standardSettlementDate, tradeSettlementDate);
     }
-    return pvStandard.plus(pvDiff * trade.getQuantity());
+    return presentValueFromProductPresentValue(
+        trade, ratesProvider, issuerDiscountFactorsProvider, pvStandard.plus(pvDiff));
   }
 
   /**
@@ -297,10 +273,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     Currency currency = bond.getCurrency();
     double df = issuerDiscountFactorsProvider
         .repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(standardSettlementDate);
-    CurrencyAmount pvStandard =
-        netAmountStandard(trade, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
+    CurrencyAmount pvStandard = forecastValueStandardFromCleanPrice(
+        bond, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
-      return pvStandard;
+      return presentValueFromProductPresentValue(trade, ratesProvider, issuerDiscountFactorsProvider, pvStandard);
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors discountFactors =
@@ -327,7 +303,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
           compoundedRateType,
           periodsPerYear);
     }
-    return pvStandard.plus(pvDiff * trade.getQuantity());
+    return presentValueFromProductPresentValue(
+        trade, ratesProvider, issuerDiscountFactorsProvider, pvStandard.plus(pvDiff));
   }
 
   //-------------------------------------------------------------------------
@@ -344,7 +321,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param cleanRealPrice  the clean real price
    * @return the present value sensitivity of the settlement
    */
-  public PointSensitivityBuilder presentValueSensitivityFromRealCleanPrice(
+  public PointSensitivityBuilder presentValueSensitivityFromCleanPrice(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
@@ -362,11 +339,13 @@ public class DiscountingCapitalIndexedBondTradePricer {
         issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, currency);
     double df = repoDiscountFactors.discountFactor(standardSettlementDate);
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
-    PointSensitivityBuilder pvSensiStandard = netAmountStandardSensitivity(
-        trade, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(
-        dfSensi.multipliedBy(netAmountStandard(trade, ratesProvider, standardSettlementDate, cleanRealPrice).getAmount()));
+    PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
+        standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(dfSensi.multipliedBy(
+        forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
+                .getAmount()));
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
-      return pvSensiStandard;
+      return presentValueSensitivityFromProductPresentValueSensitivity(
+          trade, ratesProvider, issuerDiscountFactorsProvider, pvSensiStandard);
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors issuerDiscountFactors =
@@ -379,7 +358,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
       pvSensiDiff = pvSensiDiff.combinedWith(productPricer.presentValueSensitivityCoupon(bond, ratesProvider,
           issuerDiscountFactors, standardSettlementDate, tradeSettlementDate));
     }
-    return pvSensiStandard.combinedWith(pvSensiDiff.multipliedBy(trade.getQuantity()));
+    return presentValueSensitivityFromProductPresentValueSensitivity(
+        trade, ratesProvider, issuerDiscountFactorsProvider, pvSensiStandard.combinedWith(pvSensiDiff));
   }
 
   /**
@@ -399,7 +379,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param cleanRealPrice  the clean real price
    * @return the present value sensitivity of the settlement
    */
-  public PointSensitivityBuilder presentValueSensitivityFromRealCleanPriceWithZSpread(
+  public PointSensitivityBuilder presentValueSensitivityFromCleanPriceWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
@@ -420,11 +400,13 @@ public class DiscountingCapitalIndexedBondTradePricer {
         issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, currency);
     double df = repoDiscountFactors.discountFactor(standardSettlementDate);
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
-    PointSensitivityBuilder pvSensiStandard = netAmountStandardSensitivity(
-        trade, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(
-        dfSensi.multipliedBy(netAmountStandard(trade, ratesProvider, standardSettlementDate, cleanRealPrice).getAmount()));
+    PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
+        standardSettlementDate, cleanRealPrice).multipliedBy(df).combinedWith(dfSensi.multipliedBy(
+        forecastValueStandardFromCleanPrice(bond, ratesProvider, standardSettlementDate, cleanRealPrice)
+                .getAmount()));
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
-      return pvSensiStandard;
+      return presentValueSensitivityFromProductPresentValueSensitivity(
+          trade, ratesProvider, issuerDiscountFactorsProvider, pvSensiStandard);
     }
     // check coupon payment between two settlement dates
     IssuerCurveDiscountFactors issuerDiscountFactors =
@@ -452,7 +434,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
           compoundedRateType,
           periodsPerYear));
     }
-    return pvSensiStandard.combinedWith(pvSensiDiff.multipliedBy(trade.getQuantity()));
+    return presentValueSensitivityFromProductPresentValueSensitivity(
+        trade, ratesProvider, issuerDiscountFactorsProvider, pvSensiStandard.combinedWith(pvSensiDiff));
   }
 
   //-------------------------------------------------------------------------
@@ -466,14 +449,34 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param cleanRealPrice  the clean real price
    * @return the currency exposure of the trade
    */
-  public MultiCurrencyAmount currencyExposure(
+  public MultiCurrencyAmount currencyExposureFromCleanPrice(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
       double cleanRealPrice) {
 
-    CurrencyAmount pv = presentValue(trade, ratesProvider, issuerDiscountFactorsProvider, refData, cleanRealPrice);
+    CurrencyAmount pv = presentValueFromCleanPrice(
+        trade, ratesProvider, issuerDiscountFactorsProvider, refData, cleanRealPrice);
+    return MultiCurrencyAmount.of(pv);
+  }
+
+  /**
+   * Calculates the currency exposure of the bond trade.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param issuerDiscountFactorsProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @return the currency exposure of the trade
+   */
+  public MultiCurrencyAmount currencyExposure(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
+      ReferenceData refData) {
+
+    CurrencyAmount pv = presentValue(trade, ratesProvider, issuerDiscountFactorsProvider, refData);
     return MultiCurrencyAmount.of(pv);
   }
 
@@ -490,7 +493,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
    * @param cleanRealPrice  the clean real price
    * @return the currency exposure of the trade
    */
-  public MultiCurrencyAmount currencyExposureWithZSpread(
+  public MultiCurrencyAmount currencyExposureFromCleanPriceWithZSpread(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
@@ -500,7 +503,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    CurrencyAmount pv = presentValueWithZSpread(
+    CurrencyAmount pv = presentValueFromCleanPriceWithZSpread(
         trade,
         ratesProvider,
         issuerDiscountFactorsProvider,
@@ -513,103 +516,175 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   /**
+   * Calculates the currency exposure of the bond trade with z-spread.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param issuerDiscountFactorsProvider  the discount factors provider
+   * @param refData  the reference data used to calculate the settlement date
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the currency exposure of the trade
+   */
+  public MultiCurrencyAmount currencyExposureWithZSpread(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
+      ReferenceData refData,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    CurrencyAmount pv = presentValueWithZSpread(
+        trade,
+        ratesProvider,
+        issuerDiscountFactorsProvider,
+        refData,
+        zSpread,
+        compoundedRateType,
+        periodsPerYear);
+    return MultiCurrencyAmount.of(pv);
+  }
+
+  /**
    * Calculates the current of the bond trade.
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
-   * @param realCleanPrice  the real clean price
    * @return the current cash
    */
   public CurrencyAmount currentCash(
       ResolvedCapitalIndexedBondTrade trade,
-      RatesProvider ratesProvider,
-      double realCleanPrice) {
+      RatesProvider ratesProvider) {
 
     LocalDate valuationDate = ratesProvider.getValuationDate();
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
-    CapitalIndexedBondPaymentPeriod settle = trade.getSettlement();
+    PaymentPeriod settle = trade.getSettlement();
     CurrencyAmount cashProduct = productPricer.currentCash(trade.getProduct(), ratesProvider, settlementDate);
-    double cashSettle = settle.getPaymentDate().isEqual(valuationDate) ?
-        netAmount(trade, ratesProvider, realCleanPrice).getAmount() : 0d;
+    double cashSettle =
+        settle.getPaymentDate().isEqual(valuationDate) ? netAmount(trade, ratesProvider).getAmount() : 0d;
     return cashProduct.plus(cashSettle);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the net amount of the settlement of the bond trade from real clean price. 
+   * Calculates the net amount of the settlement of the bond trade. 
    * <p>
    * Since the sign of the settlement notional is opposite to that of the product, negative amount will be returned 
    * for positive quantity of trade.  
    * 
    * @param trade  the trade
    * @param ratesProvider  the rates provider, used to determine price index values
-   * @param realCleanPrice  the real clean price
    * @return the net amount
    */
   public CurrencyAmount netAmount(
       ResolvedCapitalIndexedBondTrade trade,
-      RatesProvider ratesProvider,
-      double realCleanPrice) {
+      RatesProvider ratesProvider) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
-    LocalDate paymentDate = settlement.getPaymentDate();
-    double notional = trade.getProduct().getNotional();
-    double netAmountRealByUnit =
-        realCleanPrice + productPricer.accruedInterest(trade.getProduct(), paymentDate) / notional;
-    double netAmount = productPricer.getPeriodPricer().forecastValue(settlement, ratesProvider);
-    return CurrencyAmount.of(settlement.getCurrency(), netAmount * netAmountRealByUnit);
+    PaymentPeriod settlement = trade.getSettlement();
+    if (settlement instanceof KnownAmountPaymentPeriod) {
+      Payment payment = ((KnownAmountPaymentPeriod) settlement).getPayment();
+      return payment.getValue();
+    } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
+      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
+      double netAmount = productPricer.getPeriodPricer().forecastValue(casted, ratesProvider);
+      return CurrencyAmount.of(casted.getCurrency(), netAmount);
+    }
+    throw new UnsupportedOperationException("unsupported settlement type");
   }
 
-  private CurrencyAmount netAmountStandard(
+  //-------------------------------------------------------------------------
+  private CurrencyAmount presentValueSettlement(
       ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
+
+    PaymentPeriod settlement = trade.getSettlement();
+    ResolvedCapitalIndexedBond product = trade.getProduct();
+    RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
+        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+    return netAmount(trade, ratesProvider).multipliedBy(discountFactors.discountFactor(settlement.getPaymentDate()));
+  }
+  
+  private CurrencyAmount presentValueFromProductPresentValue(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider, 
+      CurrencyAmount productPresentValue) {
+
+    CurrencyAmount pvProduct = productPresentValue.multipliedBy(trade.getQuantity());
+    CurrencyAmount pvPayment = presentValueSettlement(trade, ratesProvider, issuerDiscountFactorsProvider);
+    return pvProduct.plus(pvPayment);
+  }
+
+  CurrencyAmount forecastValueStandardFromCleanPrice(
+      ResolvedCapitalIndexedBond product,
       RatesProvider ratesProvider,
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
-    double notional = trade.getProduct().getNotional();
-    double netAmountRealByUnit =
-        realCleanPrice + productPricer.accruedInterest(trade.getProduct(), standardSettlementDate) / notional;
-    double indexRatio = productPricer.indexRatio(trade.getProduct(), ratesProvider, standardSettlementDate);
-    return CurrencyAmount.of(settlement.getCurrency(), indexRatio * netAmountRealByUnit * settlement.getNotional());
+    double notional = product.getNotional();
+    double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
+    double indexRatio = productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
+    return CurrencyAmount.of(product.getCurrency(), indexRatio * netAmountReal);
   }
 
-  /**
-   * Calculates the net amount sensitivity of the settlement of the bond trade from real clean price. 
-   * 
-   * @param trade  the trade
-   * @param ratesProvider  the rates provider, used to determine price index values
-   * @param realCleanPrice  the real clean price
-   * @return the net amount sensitivity
-   */
-  public PointSensitivityBuilder netAmountSensitivity(
+  //-------------------------------------------------------------------------
+  private PointSensitivityBuilder netAmountSensitivity(
+      ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider) {
+
+    PaymentPeriod settlement = trade.getSettlement();
+    if (settlement instanceof KnownAmountPaymentPeriod) {
+      return PointSensitivityBuilder.none();
+    } else if (settlement instanceof CapitalIndexedBondPaymentPeriod) {
+      CapitalIndexedBondPaymentPeriod casted = (CapitalIndexedBondPaymentPeriod) settlement;
+      return productPricer.getPeriodPricer().forecastValueSensitivity(casted, ratesProvider);
+    }
+    throw new UnsupportedOperationException("unsupported settlement type");
+  }
+
+  private PointSensitivityBuilder presentValueSensitivitySettlement(
       ResolvedCapitalIndexedBondTrade trade,
       RatesProvider ratesProvider,
-      double realCleanPrice) {
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
-    LocalDate paymentDate = settlement.getPaymentDate();
-    double notional = trade.getProduct().getNotional();
-    double netAmountRealByUnit =
-        realCleanPrice + productPricer.accruedInterest(trade.getProduct(), paymentDate) / notional;
-    PointSensitivityBuilder netAmountSensi =
-        productPricer.getPeriodPricer().forecastValueSensitivity(settlement, ratesProvider);
-    return netAmountSensi.multipliedBy(netAmountRealByUnit);
+    PaymentPeriod settlement = trade.getSettlement();
+    ResolvedCapitalIndexedBond product = trade.getProduct();
+    RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
+        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+    double df = discountFactors.discountFactor(settlement.getPaymentDate());
+    double netAmount = netAmount(trade, ratesProvider).getAmount();
+    PointSensitivityBuilder dfSensi =
+        discountFactors.zeroRatePointSensitivity(settlement.getPaymentDate()).multipliedBy(netAmount);
+    PointSensitivityBuilder naSensi = netAmountSensitivity(trade, ratesProvider).multipliedBy(df);
+    return dfSensi.combinedWith(naSensi);
   }
 
-  private PointSensitivityBuilder netAmountStandardSensitivity(
+  private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(
       ResolvedCapitalIndexedBondTrade trade,
+      RatesProvider ratesProvider,
+      LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
+      PointSensitivityBuilder productPresnetValueSensitivity) {
+
+    PointSensitivityBuilder sensiProduct = productPresnetValueSensitivity.multipliedBy(trade.getQuantity());
+    PointSensitivityBuilder sensiPayment =
+        presentValueSensitivitySettlement(trade, ratesProvider, issuerDiscountFactorsProvider);
+    return sensiProduct.combinedWith(sensiPayment);
+  }
+
+  PointSensitivityBuilder forecastValueSensitivityStandardFromCleanPrice(
+      ResolvedCapitalIndexedBond product,
       RatesProvider ratesProvider,
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
-    CapitalIndexedBondPaymentPeriod settlement = trade.getSettlement();
-    double notional = trade.getProduct().getNotional();
-    double netAmountRealByUnit =
-        realCleanPrice + productPricer.accruedInterest(trade.getProduct(), standardSettlementDate) / notional;
+    double notional = product.getNotional();
+    double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
     PointSensitivityBuilder indexRatioSensi =
-        productPricer.indexRatioSensitivity(trade.getProduct(), ratesProvider, standardSettlementDate);
-    return indexRatioSensi.multipliedBy(netAmountRealByUnit * settlement.getNotional());
+        productPricer.indexRatioSensitivity(product, ratesProvider, standardSettlementDate);
+    return indexRatioSensi.multipliedBy(netAmountReal);
   }
 
   //-------------------------------------------------------------------------
