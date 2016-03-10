@@ -7,7 +7,6 @@ package com.opengamma.strata.market.interpolator;
 
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
-
 import java.io.Serializable;
 
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -78,7 +77,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
     private final double rightFirstDev;
     private final boolean leftNatural;
     private final boolean rightNatural;
-    
+
     Bound(DoubleArray xValues, DoubleArray yValues) {
       super(xValues, yValues);
       this.xValues = xValues.toArrayUnsafe();
@@ -100,12 +99,17 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       this.rightNatural = base.rightNatural;
       this.dataSize = xValues.length;
     }
-    
+
     //-------------------------------------------------------------------------
-    private static double[] calculateSecondDerivative(double[] xValues, double[] yValues, int dataSize, double leftFirstDev,
+    private static double[] calculateSecondDerivative(
+        double[] xValues,
+        double[] yValues,
+        int dataSize,
+        double leftFirstDev,
         double rightFirstDev,
         boolean leftNatural,
         boolean rightNatural) {
+
       double[] deltaX = new double[dataSize - 1];
       double[] deltaYOverDeltaX = new double[dataSize - 1];
       double[] oneOverDeltaX = new double[dataSize - 1];
@@ -119,10 +123,14 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       DoubleArray rhsVector = getRHSVector(deltaYOverDeltaX, leftFirstDev, rightFirstDev, leftNatural, rightNatural);
       return ((DoubleArray) OG_ALGEBRA.multiply(inverseTriDiag, rhsVector)).toArray();
     }
-    
-    private static double[][] getSecondDerivativesSensitivities(double[] xValues, double[] yValues, int dataSize,
+
+    private static double[][] getSecondDerivativesSensitivities(
+        double[] xValues,
+        double[] yValues,
+        int dataSize,
         boolean leftNatural,
         boolean rightNatural) {
+
       double[] deltaX = new double[dataSize - 1];
       double[] deltaYOverDeltaX = new double[dataSize - 1];
       double[] oneOverDeltaX = new double[dataSize - 1];
@@ -137,7 +145,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       DoubleMatrix rhsMatrix = getRHSMatrix(oneOverDeltaX, leftNatural, rightNatural);
       return ((DoubleMatrix) OG_ALGEBRA.multiply(inverseTriDiag, rhsMatrix)).toArray();
     }
-    
+
     private static DoubleMatrix getInverseTridiagonalMatrix(double[] deltaX, boolean leftNatural, boolean rightNatural) {
       InverseTridiagonalMatrixCalculator invertor = new InverseTridiagonalMatrixCalculator();
       int n = deltaX.length + 1;
@@ -149,7 +157,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
         b[i] = deltaX[i] / 6.0;
         c[i - 1] = deltaX[i - 1] / 6.0;
       }
-      
+
       // Boundary condition
       if (leftNatural) {
         a[0] = 1.0;
@@ -169,10 +177,14 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       TridiagonalMatrix tridiagonal = new TridiagonalMatrix(a, b, c);
       return invertor.apply(tridiagonal);
     }
-    
-    private static DoubleArray getRHSVector(double[] deltaYOverDeltaX, double leftFirstDev, double rightFirstDev,
-        boolean leftNatural, 
-        boolean rightNatural){
+
+    private static DoubleArray getRHSVector(
+        double[] deltaYOverDeltaX,
+        double leftFirstDev,
+        double rightFirstDev,
+        boolean leftNatural,
+        boolean rightNatural) {
+
       int n = deltaYOverDeltaX.length + 1;
       double[] res = new double[n];
 
@@ -188,7 +200,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       }
       return DoubleArray.copyOf(res);
     }
-    
+
     private static DoubleMatrix getRHSMatrix(double[] oneOverDeltaX, boolean leftNatural, boolean rightNatural) {
       int n = oneOverDeltaX.length + 1;
 
@@ -209,7 +221,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       }
       return DoubleMatrix.copyOf(res);
     }
-    
+
     //-------------------------------------------------------------------------
     @Override
     double doInterpolate(double xValue) {
@@ -271,7 +283,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
       }
       result[low] += a;
       result[high] += b;
-      
+
       return DoubleArray.ofUnsafe(result);
     }
 
