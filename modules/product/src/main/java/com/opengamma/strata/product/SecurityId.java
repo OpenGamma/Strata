@@ -13,10 +13,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataId;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -31,7 +28,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * an identifier from a well-known global or vendor symbology.
  */
 public final class SecurityId
-    implements ReferenceDataId<ReferenceSecurity>, Resolvable<ReferenceSecurity>, Serializable {
+    implements ReferenceDataId<ReferenceSecurity>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -116,51 +113,6 @@ public final class SecurityId
   @Override
   public Class<ReferenceSecurity> getReferenceDataType() {
     return ReferenceSecurity.class;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Resolves this identifier to a security using the specified reference data.
-   * <p>
-   * This returns an instance of {@link ReferenceSecurity}.
-   * <p>
-   * Resolved objects may be bound to data that changes over time.
-   * If the data changes, the resolved form will not be updated.
-   * Care must be taken when placing the resolved form in a cache or persistence layer.
-   * 
-   * @param refData  the reference data, used to resolve the reference
-   * @return the resolved security
-   * @throws ReferenceDataNotFoundException if the identifier is not found
-   */
-  @Override
-  public ReferenceSecurity resolve(ReferenceData refData) {
-    return refData.getValue(this);
-  }
-
-  /**
-   * Resolves this identifier to a security using the specified reference data and type.
-   * <p>
-   * This returns an instance of {@link ReferenceSecurity} cast to the specified type.
-   * <p>
-   * Resolved objects may be bound to data that changes over time.
-   * If the data changes, the resolved form will not be updated.
-   * Care must be taken when placing the resolved form in a cache or persistence layer.
-   * 
-   * @param <T>  the type of the security
-   * @param refData  the reference data, used to resolve the reference
-   * @param securityType  the type of the security
-   * @return the resolved security
-   * @throws ReferenceDataNotFoundException if the identifier is not found
-   * @throws ClassCastException if the identifier exists, but is not of the correct type
-   */
-  public <T extends ReferenceSecurity> T resolve(ReferenceData refData, Class<T> securityType) {
-    ReferenceSecurity security = refData.getValue(this);
-    if (!securityType.isInstance(security)) {
-      throw new ClassCastException(Messages.format(
-          "Identifier '{}' resolved to a security of type '{}' where '{}' was expected",
-          this, security.getClass().getSimpleName(), securityType.getSimpleName()));
-    }
-    return securityType.cast(security);
   }
 
   //-------------------------------------------------------------------------

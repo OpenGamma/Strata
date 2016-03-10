@@ -5,19 +5,11 @@
  */
 package com.opengamma.strata.product;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
 
-import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ImmutableReferenceData;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.equity.Equity;
-import com.opengamma.strata.product.equity.EquitySecurity;
 
 /**
  * Test {@link SecurityId}.
@@ -47,23 +39,6 @@ public class SecurityIdTest {
     assertEquals(test.getStandardId(), STANDARD_ID);
     assertEquals(test.getReferenceDataType(), ReferenceSecurity.class);
     assertEquals(test.toString(), STANDARD_ID.toString());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolve() {
-    SecurityId test = SecurityId.of(STANDARD_ID);
-    EquitySecurity equity = EquitySecurity.builder()
-        .product(Equity.builder()
-            .securityId(test)
-            .currency(GBP)
-            .build())
-        .build();
-    ReferenceData refData = ImmutableReferenceData.of(test, equity);
-    assertEquals(test.resolve(refData), equity);
-    assertEquals(test.resolve(refData, EquitySecurity.class), equity);
-    assertThrows(() -> test.resolve(ReferenceData.empty()), ReferenceDataNotFoundException.class);
-    ReferenceSecurity mockSecurity = Mockito.mock(ReferenceSecurity.class);
-    assertThrows(() -> test.resolve(refData, mockSecurity.getClass()), ClassCastException.class);
   }
 
   //-------------------------------------------------------------------------
