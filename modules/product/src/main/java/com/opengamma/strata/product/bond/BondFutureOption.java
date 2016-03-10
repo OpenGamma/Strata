@@ -74,22 +74,22 @@ public final class BondFutureOption
   @PropertyDefinition
   private final double strikePrice;
   /**
-   * The expiry date of the option.  
+   * The expiry date of the option.
    * <p>
    * The expiry date is related to the expiry time and time-zone.
-   * The date must not be after last trade date of the underlying future. 
+   * The date must not be after last trade date of the underlying future.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expiryDate;
   /**
-   * The expiry time of the option.  
+   * The expiry time of the option.
    * <p>
    * The expiry time is related to the expiry date and time-zone.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalTime expiryTime;
   /**
-   * The time-zone of the expiry time.  
+   * The time-zone of the expiry time.
    * <p>
    * The expiry time-zone is related to the expiry date and time.
    */

@@ -73,30 +73,30 @@ public final class ResolvedBondFuture
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<Double> conversionFactor;
   /**
-   * The last trading date. 
+   * The last trading date.
    * <p>
-   * The future security is traded until this date. 
+   * The future security is traded until this date.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
    * The first notice date.
    * <p>
-   * The first date on which the delivery of the underlying is authorized. 
+   * The first date on which the delivery of the underlying is authorized.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate firstNoticeDate;
   /**
    * The last notice date.
    * <p>
-   * The last date on which the delivery of the underlying is authorized. 
+   * The last date on which the delivery of the underlying is authorized.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastNoticeDate;
   /**
    * The first delivery date.
    * <p>
-   * The first date on which the underlying is delivered. 
+   * The first date on which the underlying is delivered.
    * If not specified, this is computed from {@code firstNoticeDate} by using
    * {@code settlementDateOffset} in the first  element of the delivery basket.
    */
@@ -105,7 +105,7 @@ public final class ResolvedBondFuture
   /**
    * The last notice date.
    * <p>
-   * The last date on which the underlying is delivered. 
+   * The last date on which the underlying is delivered.
    * If not specified, this is computed from {@code lastNoticeDate} by using
    * {@code settlementDateOffset} in the first element of the delivery basket.
    */
