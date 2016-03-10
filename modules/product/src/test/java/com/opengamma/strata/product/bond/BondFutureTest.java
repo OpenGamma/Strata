@@ -104,7 +104,7 @@ public class BondFutureTest {
   public void test_builder_full() {
     BondFuture test = BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .firstDeliveryDate(FIRST_DELIVERY_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
@@ -113,7 +113,7 @@ public class BondFutureTest {
         .rounding(ROUNDING)
         .build();
     assertEquals(test.getBondProductBasket(), ImmutableList.copyOf(BOND_PRODUCT));
-    assertEquals(test.getConversionFactor(), ImmutableList.copyOf(CONVERSION_FACTOR));
+    assertEquals(test.getConversionFactors(), ImmutableList.copyOf(CONVERSION_FACTOR));
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getDeliveryBasket(), ImmutableList.copyOf(SECURITY_LINK));
     assertEquals(test.getNotional(), NOTIONAL);
@@ -128,14 +128,14 @@ public class BondFutureTest {
   public void test_builder_noDeliveryDate() {
     BondFuture test = BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
         .build();
     assertEquals(test.getBondProductBasket(), ImmutableList.copyOf(BOND_PRODUCT));
-    assertEquals(test.getConversionFactor(), ImmutableList.copyOf(CONVERSION_FACTOR));
+    assertEquals(test.getConversionFactors(), ImmutableList.copyOf(CONVERSION_FACTOR));
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getDeliveryBasket(), ImmutableList.copyOf(SECURITY_LINK));
     assertEquals(test.getNotional(), NOTIONAL);
@@ -152,7 +152,7 @@ public class BondFutureTest {
     // wrong size
     assertThrowsIllegalArg(() -> BondFuture.builder()
         .deliveryBasket(SECURITY_LINK[0])
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -161,7 +161,7 @@ public class BondFutureTest {
     // first notice date missing
     assertThrowsIllegalArg(() -> BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
@@ -169,14 +169,14 @@ public class BondFutureTest {
     // last notice date missing
     assertThrowsIllegalArg(() -> BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
         .rounding(ROUNDING)
         .build());
     // basket list empty
     assertThrowsIllegalArg(() -> BondFuture.builder()
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -201,7 +201,7 @@ public class BondFutureTest {
     SecurityLink<FixedCouponBond> securityLinkNotional = SecurityLink.resolved(securityNotional);
     assertThrowsIllegalArg(() -> BondFuture.builder()
         .deliveryBasket(SECURITY_LINK[0], securityLinkNotional)
-        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
+        .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -223,7 +223,7 @@ public class BondFutureTest {
     SecurityLink<FixedCouponBond> securityLinkCurrency = SecurityLink.resolved(securityCurrency);
     assertThrowsIllegalArg(() -> BondFuture.builder()
         .deliveryBasket(SECURITY_LINK[0], securityLinkCurrency)
-        .conversionFactor(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
+        .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -234,7 +234,7 @@ public class BondFutureTest {
   public void test_getBondSecurityBasket() {
     BondFuture test = BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
+        .conversionFactors(ImmutableList.copyOf(CONVERSION_FACTOR))
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
         .lastTradeDate(LAST_TRADING_DATE)
@@ -251,7 +251,7 @@ public class BondFutureTest {
   public void test_resolve() {
     ResolvedBondFuture expected = ResolvedBondFuture.builder()
         .deliveryBasket(RESOLVED_BASKET)
-        .conversionFactor(CONVERSION_FACTOR)
+        .conversionFactors(CONVERSION_FACTOR)
         .lastTradeDate(LAST_TRADING_DATE)
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
@@ -276,7 +276,7 @@ public class BondFutureTest {
   static BondFuture sut() {
     return BondFuture.builder()
         .deliveryBasket(SECURITY_LINK)
-        .conversionFactor(ImmutableList.copyOf(CONVERSION_FACTOR))
+        .conversionFactors(ImmutableList.copyOf(CONVERSION_FACTOR))
         .firstNoticeDate(FIRST_NOTICE_DATE)
         .firstDeliveryDate(FIRST_DELIVERY_DATE)
         .lastNoticeDate(LAST_NOTICE_DATE)
@@ -288,7 +288,7 @@ public class BondFutureTest {
 
   static BondFuture sut2() {
     return BondFuture.builder()
-        .conversionFactor(0.9187)
+        .conversionFactors(0.9187)
         .deliveryBasket(SECURITY_LINK[3])
         .firstNoticeDate(FIRST_NOTICE_DATE.plusDays(7))
         .lastNoticeDate(LAST_NOTICE_DATE.plusDays(7))

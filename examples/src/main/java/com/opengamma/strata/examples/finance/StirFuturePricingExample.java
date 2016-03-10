@@ -105,7 +105,7 @@ public class StirFuturePricingExample {
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
         .quantity(20)
-        .initialPrice(0.9997)
+        .price(0.9997)
         .build();
   }
 
@@ -122,7 +122,7 @@ public class StirFuturePricingExample {
             .settlementDate(LocalDate.of(2014, 9, 14))
             .build())
         .quantity(20)
-        .initialPrice(0.9997)
+        .price(0.9997)
         .build();
   }
 

@@ -45,7 +45,7 @@ public class IborFutureOptionTradeTest {
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   private static final long QUANTITY = 35;
-  private static final double INITIAL_PRICE = 0.015;
+  private static final double PRICE = 0.015;
   private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future1");
   private static final StandardId OPTION_ID = StandardId.of("OG-Ticker", "Option1");
 
@@ -95,12 +95,12 @@ public class IborFutureOptionTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), RESOLVABLE_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getInitialPrice(), OptionalDouble.of(INITIAL_PRICE));
+    assertEquals(test.getPrice(), OptionalDouble.of(PRICE));
     assertThrows(() -> test.getSecurity(), IllegalStateException.class);
   }
 
@@ -113,7 +113,7 @@ public class IborFutureOptionTradeTest {
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), PARTLY_RESOLVED_OPTION_LINK);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getInitialPrice(), OptionalDouble.empty());
+    assertEquals(test.getPrice(), OptionalDouble.empty());
     assertEquals(test.getSecurity(), OPTION_SECURITY);
   }
 
@@ -122,12 +122,12 @@ public class IborFutureOptionTradeTest {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
         .securityLink(RESOLVABLE_OPTION_LINK)
         .quantity(100)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     LinkResolver resolver = new LinkResolver() {
       @SuppressWarnings("unchecked")
@@ -147,12 +147,12 @@ public class IborFutureOptionTradeTest {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(100)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     IborFutureOptionTrade expected = IborFutureOptionTrade.builder()
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     LinkResolver resolver = new LinkResolver() {
       @SuppressWarnings("unchecked")
@@ -169,7 +169,7 @@ public class IborFutureOptionTradeTest {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
         .quantity(100)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     LinkResolver resolver = new LinkResolver() {
       @Override
@@ -186,7 +186,7 @@ public class IborFutureOptionTradeTest {
     IborFutureOptionTrade test = IborFutureOptionTrade.builder()
         .tradeInfo(TRADE_INFO)
         .securityLink(FULLY_RESOLVED_OPTION_LINK)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .quantity(QUANTITY)
         .build();
     ResolvedIborFutureOptionTrade resolved = test.resolve(REF_DATA);
@@ -194,7 +194,7 @@ public class IborFutureOptionTradeTest {
     assertEquals(resolved.getProduct(), RESOLVED_OPTION.resolve(REF_DATA));
     assertEquals(resolved.getSecurityStandardId(), OPTION_ID);
     assertEquals(resolved.getQuantity(), QUANTITY);
-    assertEquals(resolved.getInitialPrice(), OptionalDouble.of(INITIAL_PRICE));
+    assertEquals(resolved.getPrice(), OptionalDouble.of(PRICE));
   }
 
   //-------------------------------------------------------------------------
@@ -213,7 +213,7 @@ public class IborFutureOptionTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(PARTLY_RESOLVED_OPTION_LINK)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
   }
 
