@@ -8,7 +8,6 @@ package com.opengamma.strata.market.interpolator;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalDiscountFactorInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.TimeSquareInterpolator1D;
 
 /**
  * The standard set of curve interpolators.
@@ -31,8 +30,7 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
       LogNaturalCubicMonotonicityPreservingCurveInterpolator.INSTANCE;
   // Time square interpolator.
-  public static final CurveInterpolator TIME_SQUARE =
-      new StandardCurveInterpolator("TimeSquare", new TimeSquareInterpolator1D());
+  public static final CurveInterpolator TIME_SQUARE = TimeSquareCurveInterpolator.INSTANCE;
   // Natural cubic spline interpolator.
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
       new StandardCurveInterpolator("NaturalCubicSpline", new NaturalCubicSplineInterpolator1D());
