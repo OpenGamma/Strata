@@ -78,7 +78,7 @@ public final class ResolvedIborFutureTrade
    * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    */
   @PropertyDefinition
-  private final double initialPrice;
+  private final double price;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -118,14 +118,14 @@ public final class ResolvedIborFutureTrade
       ResolvedIborFuture product,
       StandardId securityStandardId,
       long quantity,
-      double initialPrice) {
+      double price) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
     this.tradeInfo = tradeInfo;
     this.product = product;
     this.securityStandardId = securityStandardId;
     this.quantity = quantity;
-    this.initialPrice = initialPrice;
+    this.price = price;
   }
 
   @Override
@@ -197,8 +197,8 @@ public final class ResolvedIborFutureTrade
    * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * @return the value of the property
    */
-  public double getInitialPrice() {
-    return initialPrice;
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -221,7 +221,7 @@ public final class ResolvedIborFutureTrade
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(initialPrice, other.initialPrice);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -233,7 +233,7 @@ public final class ResolvedIborFutureTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(initialPrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
@@ -245,7 +245,7 @@ public final class ResolvedIborFutureTrade
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -281,10 +281,10 @@ public final class ResolvedIborFutureTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedIborFutureTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
-        this, "initialPrice", ResolvedIborFutureTrade.class, Double.TYPE);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", ResolvedIborFutureTrade.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -294,7 +294,7 @@ public final class ResolvedIborFutureTrade
         "product",
         "securityStandardId",
         "quantity",
-        "initialPrice");
+        "price");
 
     /**
      * Restricted constructor.
@@ -313,8 +313,8 @@ public final class ResolvedIborFutureTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -368,11 +368,11 @@ public final class ResolvedIborFutureTrade
     }
 
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> initialPrice() {
-      return initialPrice;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -387,8 +387,8 @@ public final class ResolvedIborFutureTrade
           return ((ResolvedIborFutureTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
           return ((ResolvedIborFutureTrade) bean).getQuantity();
-        case -423406491:  // initialPrice
-          return ((ResolvedIborFutureTrade) bean).getInitialPrice();
+        case 106934601:  // price
+          return ((ResolvedIborFutureTrade) bean).getPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -414,7 +414,7 @@ public final class ResolvedIborFutureTrade
     private ResolvedIborFuture product;
     private StandardId securityStandardId;
     private long quantity;
-    private double initialPrice;
+    private double price;
 
     /**
      * Restricted constructor.
@@ -432,7 +432,7 @@ public final class ResolvedIborFutureTrade
       this.product = beanToCopy.getProduct();
       this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
-      this.initialPrice = beanToCopy.getInitialPrice();
+      this.price = beanToCopy.getPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -447,8 +447,8 @@ public final class ResolvedIborFutureTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -469,8 +469,8 @@ public final class ResolvedIborFutureTrade
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case -423406491:  // initialPrice
-          this.initialPrice = (Double) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -509,7 +509,7 @@ public final class ResolvedIborFutureTrade
           product,
           securityStandardId,
           quantity,
-          initialPrice);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -568,11 +568,11 @@ public final class ResolvedIborFutureTrade
      * This is the price agreed when the trade occurred.
      * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
      * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
-     * @param initialPrice  the new value
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder initialPrice(double initialPrice) {
-      this.initialPrice = initialPrice;
+    public Builder price(double price) {
+      this.price = price;
       return this;
     }
 
@@ -585,7 +585,7 @@ public final class ResolvedIborFutureTrade
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }

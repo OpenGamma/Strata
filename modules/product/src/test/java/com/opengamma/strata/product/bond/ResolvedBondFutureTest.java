@@ -28,7 +28,7 @@ public class ResolvedBondFutureTest {
     ResolvedBondFuture base = sut();
     ResolvedBondFuture test = ResolvedBondFuture.builder()
         .deliveryBasket(base.getDeliveryBasket())
-        .conversionFactor(base.getConversionFactor())
+        .conversionFactors(base.getConversionFactors())
         .firstNoticeDate(base.getFirstNoticeDate())
         .lastNoticeDate(base.getLastNoticeDate())
         .firstDeliveryDate(base.getFirstDeliveryDate())
@@ -44,7 +44,7 @@ public class ResolvedBondFutureTest {
     // wrong size
     assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
         .deliveryBasket(base.getDeliveryBasket().subList(0, 1))
-        .conversionFactor(base.getConversionFactor())
+        .conversionFactors(base.getConversionFactors())
         .firstNoticeDate(base.getFirstNoticeDate())
         .lastNoticeDate(base.getLastNoticeDate())
         .lastTradeDate(base.getLastTradeDate())
@@ -52,14 +52,14 @@ public class ResolvedBondFutureTest {
     // first notice date missing
     assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
         .deliveryBasket(base.getDeliveryBasket())
-        .conversionFactor(base.getConversionFactor())
+        .conversionFactors(base.getConversionFactors())
         .lastNoticeDate(base.getLastNoticeDate())
         .lastTradeDate(base.getLastTradeDate())
         .build());
     // last notice date missing
     assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
         .deliveryBasket(base.getDeliveryBasket())
-        .conversionFactor(base.getConversionFactor())
+        .conversionFactors(base.getConversionFactors())
         .firstNoticeDate(base.getFirstNoticeDate())
         .lastTradeDate(base.getLastTradeDate())
         .build());

@@ -99,7 +99,7 @@ public final class BondDataSets {
   private static final LocalDate LAST_NOTICE_DATE_USD = LocalDate.of(2011, 10, 4);
   /** Bond future product */
   public static final BondFuture FUTURE_PRODUCT_USD = BondFuture.builder()
-      .conversionFactor(CONVERSION_FACTOR_USD)
+      .conversionFactors(CONVERSION_FACTOR_USD)
       .deliveryBasket(BOND_SECURITY_LINK_USD)
       .firstNoticeDate(FIRST_NOTICE_DATE_USD)
       .lastNoticeDate(LAST_NOTICE_DATE_USD)
@@ -116,7 +116,7 @@ public final class BondDataSets {
   public static final long QUANTITY_USD = 1234l;
   /** Bond future trade */
   public static final BondFutureTrade FUTURE_TRADE_USD = BondFutureTrade.builder()
-      .initialPrice(1.1d)
+      .price(1.1d)
       .quantity(QUANTITY_USD)
       .securityLink(FUTURE_SECURITY_LINK_USD)
       .tradeInfo(TRADE_INFO_USD)
@@ -173,7 +173,7 @@ public final class BondDataSets {
   private static final LocalDate FIRST_NOTICE_DATE_EUR = LocalDate.of(2014, 6, 6);
   private static final LocalDate LAST_NOTICE_DATE_EUR = LocalDate.of(2014, 6, 6);
   private static final BondFuture FUTURE_PRODUCT_EUR = BondFuture.builder()
-      .conversionFactor(CONVERSION_FACTOR_EUR)
+      .conversionFactors(CONVERSION_FACTOR_EUR)
       .deliveryBasket(SECURITY_LINK_EUR)
       .firstNoticeDate(FIRST_NOTICE_DATE_EUR)
       .lastNoticeDate(LAST_NOTICE_DATE_EUR)
@@ -219,7 +219,7 @@ public final class BondDataSets {
       .resolved(UnitSecurity.builder(FUTURE_OPTION_PRODUCT_EUR_115).standardId(OPTION_SECURITY_ID).build());
   /** Bond future option trade */
   public static final BondFutureOptionTrade FUTURE_OPTION_TRADE_EUR = BondFutureOptionTrade.builder()
-      .initialPrice(0.01)
+      .price(0.01)
       .quantity(QUANTITY_EUR)
       .securityLink(OPTION_SECURITY_LINK)
       .tradeInfo(TRADE_INFO)

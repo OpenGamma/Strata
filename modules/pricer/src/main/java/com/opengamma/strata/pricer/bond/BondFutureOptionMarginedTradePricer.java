@@ -86,7 +86,7 @@ public abstract class BondFutureOptionMarginedTradePricer {
     double marginReferencePrice = lastClosingPrice;
     LocalDate tradeDate = tradeDateOpt.get();
     if (tradeDate.equals(valuationDate)) {
-      OptionalDouble tradePrice = trade.getInitialPrice();
+      OptionalDouble tradePrice = trade.getPrice();
       ArgChecker.isTrue(tradePrice.isPresent(), "trade price not present");
       marginReferencePrice = tradePrice.getAsDouble();
     }

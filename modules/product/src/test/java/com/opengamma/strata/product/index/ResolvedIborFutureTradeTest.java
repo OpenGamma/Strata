@@ -31,7 +31,7 @@ public class ResolvedIborFutureTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long QUANTITY = 35;
-  private static final double INITIAL_PRICE = 1.015;
+  private static final double PRICE = 1.015;
   private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future1");
   private static final StandardId FUTURE_ID2 = StandardId.of("OG-Ticker", "Future2");
 
@@ -48,13 +48,13 @@ public class ResolvedIborFutureTradeTest {
         .product(FUTURE)
         .securityStandardId(FUTURE_ID)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
     assertEquals(test.getProduct(), FUTURE);
     assertEquals(test.getSecurityStandardId(), FUTURE_ID);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(test.getPrice(), PRICE);
   }
 
   //-------------------------------------------------------------------------
@@ -64,7 +64,7 @@ public class ResolvedIborFutureTradeTest {
         .product(FUTURE)
         .securityStandardId(FUTURE_ID)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     coverImmutableBean(test);
     ResolvedIborFutureTrade test2 = ResolvedIborFutureTrade.builder()
@@ -72,7 +72,7 @@ public class ResolvedIborFutureTradeTest {
         .product(FUTURE)
         .securityStandardId(FUTURE_ID2)
         .quantity(QUANTITY + 1)
-        .initialPrice(INITIAL_PRICE + 0.1)
+        .price(PRICE + 0.1)
         .build();
     coverBeanEquals(test, test2);
   }
@@ -83,7 +83,7 @@ public class ResolvedIborFutureTradeTest {
         .product(FUTURE)
         .securityStandardId(FUTURE_ID)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertSerialization(test);
   }
