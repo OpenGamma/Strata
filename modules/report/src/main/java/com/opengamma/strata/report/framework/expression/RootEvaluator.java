@@ -23,8 +23,9 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
 
   private static final ImmutableSet<String> TOKENS = ImmutableSet.of(
       ValueRootType.MEASURES.token(),
-      ValueRootType.TRADE.token(),
-      ValueRootType.PRODUCT.token());
+      ValueRootType.PRODUCT.token(),
+      ValueRootType.SECURITY.token(),
+      ValueRootType.TRADE.token());
 
   @Override
   public Class<?> getTargetType() {
@@ -45,6 +46,8 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
         return evaluateMeasures(resultsRow, remainingTokens);
       case PRODUCT:
         return EvaluationResult.of(resultsRow.getProduct(), remainingTokens);
+      case SECURITY:
+        return EvaluationResult.of(resultsRow.getSecurity(), remainingTokens);
       case TRADE:
         return EvaluationResult.success(resultsRow.getTrade(), remainingTokens);
       default:

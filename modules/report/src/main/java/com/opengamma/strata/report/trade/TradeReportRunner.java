@@ -51,9 +51,7 @@ public class TradeReportRunner
         .map(Column::of)
         .collect(toImmutableList());
 
-    return ReportRequirements.builder()
-        .tradeMeasureRequirements(measureRequirements)
-        .build();
+    return ReportRequirements.of(measureRequirements);
   }
 
   @Override

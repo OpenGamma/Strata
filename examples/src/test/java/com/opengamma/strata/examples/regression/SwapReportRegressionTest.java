@@ -94,11 +94,7 @@ public class SwapReportRegressionTest {
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(valuationDate, trades, columns, results);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-regression-test-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
