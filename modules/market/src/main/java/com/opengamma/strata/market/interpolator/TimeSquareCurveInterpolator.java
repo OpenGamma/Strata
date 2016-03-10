@@ -11,7 +11,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * A one-dimensional interpolator.
+ * Time square interpolator.
+ * <p>
  * The interpolation is linear on x y^2. The interpolator is used for interpolation on integrated variance for options.
  * All values of y must be positive. 
  */
@@ -96,7 +97,7 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
       if (lowerIndex == dataSize - 1) {
         return y1;
       }
-      
+
       int higherIndex = lowerIndex + 1;
       double x2 = xValues[higherIndex];
       double y2 = yValues[higherIndex];
@@ -110,15 +111,15 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
     @Override
     double doFirstDerivative(double xValue) {
       ArgChecker.isTrue(xValue > 0, "Value should be stricly positive");
-      // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       int index;
+      // check if x-value is at the last node
       if (lowerIndex == dataSize - 1) {
         index = dataSize - 2;
       } else {
         index = lowerIndex;
       }
-      
+
       double x1 = xValues[index];
       double y1 = yValues[index];
       int higherIndex = index + 1;
@@ -127,7 +128,7 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
       if ((y1 < EPS) || (y2 < EPS)) {
         throw new UnsupportedOperationException("node sensitivity not implemented when one node is 0 value");
       }
-      
+
       double w = (x2 - xValue) / (x2 - x1);
       double xy21 = x1 * y1 * y1;
       double xy22 = x2 * y2 * y2;
@@ -138,22 +139,22 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
     @Override
     DoubleArray doParameterSensitivity(double xValue) {
       double[] resultSensitivity = new double[dataSize];
-      // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       double x1 = xValues[lowerIndex];
       double y1 = yValues[lowerIndex];
+      // check if x-value is at the last node
       if (lowerIndex == dataSize - 1) {
         resultSensitivity[dataSize - 1] = 1.0;
         return DoubleArray.ofUnsafe(resultSensitivity);
       }
-      
+
       int higherIndex = lowerIndex + 1;
       double x2 = xValues[higherIndex];
       double y2 = yValues[higherIndex];
       if ((y1 < EPS) || (y2 < EPS)) {
         throw new UnsupportedOperationException("node sensitivity not implemented when one node is 0 value");
       }
-      
+
       double w = (x2 - xValue) / (x2 - x1);
       double xy21 = x1 * y1 * y1;
       double xy22 = x2 * y2 * y2;
