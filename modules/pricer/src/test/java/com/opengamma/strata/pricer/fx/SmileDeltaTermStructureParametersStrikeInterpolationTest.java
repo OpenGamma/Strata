@@ -5,17 +5,24 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.collect.tuple.Triple;
+import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DDataBundle;
 
@@ -26,80 +33,119 @@ import com.opengamma.strata.math.impl.interpolation.data.ArrayInterpolator1DData
 @Test
 public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
 
-  private static final double[] TIME_TO_EXPIRY = {0.10, 0.25, 0.50, 1.00, 2.00, 3.00 };
-  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.17 };
+  private static final String NAME = "smiles";
+  private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.10, 0.25, 0.50, 1.00, 2.00, 3.00);
+  private static final DoubleArray ATM = DoubleArray.of(0.175, 0.185, 0.18, 0.17, 0.16, 0.17);
   private static final DoubleArray DELTA = DoubleArray.of(0.10, 0.25);
-  private static final double[][] RISK_REVERSAL = new double[][] {
+  private static final DoubleMatrix RISK_REVERSAL = DoubleMatrix.copyOf(new double[][] {
       {-0.010, -0.0050},
       {-0.011, -0.0060},
       {-0.012, -0.0070},
       {-0.013, -0.0080},
       {-0.014, -0.0090},
-      {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] {
+    {-0.014, -0.0090 } });
+  private static final DoubleMatrix STRANGLE = DoubleMatrix.copyOf(new double[][] {
       {0.0300, 0.0100},
       {0.0310, 0.0110},
       {0.0320, 0.0120},
       {0.0330, 0.0130},
       {0.0340, 0.0140},
-      {0.0340, 0.0140}};
-  private static final int NB_EXP = TIME_TO_EXPIRY.length;
-  private static final SmileDeltaParameters[] VOLATILITY_TERM = new SmileDeltaParameters[NB_EXP];
+    {0.0340, 0.0140 } });
+  private static final int NB_EXP = TIME_TO_EXPIRY.size();
+  private static final List<SmileDeltaParameters> VOLATILITY_TERM = new ArrayList<>(NB_EXP);
   static {
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
-      VOLATILITY_TERM[loopexp] = SmileDeltaParameters.of(
-          TIME_TO_EXPIRY[loopexp], 
-          ATM[loopexp],
+      VOLATILITY_TERM.add(SmileDeltaParameters.of(
+          TIME_TO_EXPIRY.get(loopexp),
+          ATM.get(loopexp),
           DELTA, 
-          DoubleArray.copyOf(RISK_REVERSAL[loopexp]),
-          DoubleArray.copyOf(STRANGLE[loopexp]));
+          DoubleArray.copyOf(RISK_REVERSAL.toArray()[loopexp]),
+          DoubleArray.copyOf(STRANGLE.toArray()[loopexp])));
     }
   }
-  private static final Interpolator1D INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
-  private static final Interpolator1D INTERPOLATOR_TIME = CombinedInterpolatorExtrapolator.of(
-      CurveInterpolators.TIME_SQUARE.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(VOLATILITY_TERM, INTERPOLATOR_STRIKE);
+  private static final CurveInterpolator INTERPOLATOR_STRIKE = CurveInterpolators.LINEAR;
+  private static final CurveExtrapolator FLAT = CurveExtrapolators.FLAT;
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
+      SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, VOLATILITY_TERM, FLAT, INTERPOLATOR_STRIKE, FLAT);
 
   private static final double TOLERANCE_VOL = 1.0E-10;
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullVolatility() {
-    new SmileDeltaTermStructureParametersStrikeInterpolation(null, INTERPOLATOR_STRIKE);
-  }
-
   public void getter() {
     assertEquals("Smile by delta term structure: volatility", VOLATILITY_TERM, SMILE_TERM.getVolatilityTerm());
   }
 
+  public void copy() {
+    assertEquals(SMILE_TERM.copy(), SMILE_TERM);
+  }
+
+  //-------------------------------------------------------------------------
   public void constructor() {
+    SmileDeltaTermStructureParametersStrikeInterpolation smileTerm1 =
+        SmileDeltaTermStructureParametersStrikeInterpolation.of(
+            NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTerm1);
     SmileDeltaTermStructureParametersStrikeInterpolation smileTerm2 =
-        new SmileDeltaTermStructureParametersStrikeInterpolation(
-            SMILE_TERM.getName(), TIME_TO_EXPIRY, DELTA.toArray(), ATM, RISK_REVERSAL, STRANGLE);
+        SmileDeltaTermStructureParametersStrikeInterpolation.of(
+            NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE, FLAT, INTERPOLATOR_STRIKE, FLAT);
     assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTerm2);
   }
 
   public void constructor2() {
     double[][] vol = new double[NB_EXP][];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
-      vol[loopexp] = VOLATILITY_TERM[loopexp].getVolatility().toArray();
+      vol[loopexp] = VOLATILITY_TERM.get(loopexp).getVolatility().toArray();
     }
-    SmileDeltaTermStructureParametersStrikeInterpolation smileTermVol =
-        new SmileDeltaTermStructureParametersStrikeInterpolation(
-            SMILE_TERM.getName(), TIME_TO_EXPIRY, DELTA.toArray(), vol);
-    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTermVol);
+    SmileDeltaTermStructureParametersStrikeInterpolation smileTermVol1 =
+        SmileDeltaTermStructureParametersStrikeInterpolation.of(
+            SMILE_TERM.getName(), TIME_TO_EXPIRY, DELTA, DoubleMatrix.copyOf(vol));
+    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTermVol1);
+    SmileDeltaTermStructureParametersStrikeInterpolation smileTermVol2 =
+        SmileDeltaTermStructureParametersStrikeInterpolation.of(
+            SMILE_TERM.getName(), TIME_TO_EXPIRY, DELTA, DoubleMatrix.copyOf(vol), FLAT, INTERPOLATOR_STRIKE, FLAT);
+    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTermVol2);
   }
 
+  public void testWrongDataSize() {
+    double[][] vol = new double[NB_EXP][];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      vol[loopexp] = VOLATILITY_TERM.get(loopexp).getVolatility().toArray();
+    }
+    DoubleArray timeShort = DoubleArray.of(0.10, 0.25, 0.50, 1.00, 2.00);
+    DoubleArray deltaLong = DoubleArray.of(0.10, 0.2, 0.25);
+    DoubleArray delta0 = DoubleArray.of();
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, timeShort, DELTA,
+        DoubleMatrix.copyOf(vol)));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, TIME_TO_EXPIRY,
+        deltaLong, DoubleMatrix.copyOf(vol)));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, TIME_TO_EXPIRY,
+        delta0, DoubleMatrix.copyOf(vol)));
+    DoubleMatrix shortMat = DoubleMatrix.copyOf(new double[][] {
+      {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 } });
+    DoubleMatrix vec = DoubleMatrix.copyOf(new double[][] {
+      {0.0300 }, {0.0310 }, {0.0320 }, {0.0330 }, {0.0340 }, {0.0340 } });
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(
+        NAME, timeShort, DELTA, ATM, RISK_REVERSAL, STRANGLE));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(
+        NAME, TIME_TO_EXPIRY, deltaLong, ATM, RISK_REVERSAL, STRANGLE));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(
+        NAME, TIME_TO_EXPIRY, DELTA, ATM, shortMat, STRANGLE));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(
+        NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, shortMat));
+    assertThrowsIllegalArg(() -> SmileDeltaTermStructureParametersStrikeInterpolation.of(
+        NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, vec));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Tests the volatility at a point of the grid.
    */
   public void volatilityAtPoint() {
     double forward = 1.40;
     double timeToExpiry = 0.50;
-    double[] strikes = SMILE_TERM.getVolatilityTerm()[2].getStrike(forward);
+    double[] strikes = SMILE_TERM.getVolatilityTerm().get(2).getStrike(forward).toArray();
     double volComputed = SMILE_TERM.getVolatility(timeToExpiry, strikes[1], forward);
-    double volExpected = SMILE_TERM.getVolatilityTerm()[2].getVolatility().get(1);
+    double volExpected = SMILE_TERM.getVolatilityTerm().get(2).getVolatility().get(1);
     assertEquals("Smile by delta term structure: volatility at a point", volExpected, volComputed, TOLERANCE_VOL);
   }
 
@@ -110,8 +156,8 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     double forward = 1.40;
     double timeToExpiry = 0.50;
     double strike = 1.50;
-    double[] strikes = SMILE_TERM.getVolatilityTerm()[2].getStrike(forward);
-    double[] vol = SMILE_TERM.getVolatilityTerm()[2].getVolatility().toArray();
+    double[] strikes = SMILE_TERM.getVolatilityTerm().get(2).getStrike(forward).toArray();
+    double[] vol = SMILE_TERM.getVolatilityTerm().get(2).getVolatility().toArray();
     ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
     LinearInterpolator1D interpolator = new LinearInterpolator1D();
     double volExpected = interpolator.interpolate(volatilityInterpolation, strike);
@@ -128,14 +174,13 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     double strike = 1.45;
     SmileDeltaParameters smile = SmileDeltaParameters.of(
         timeToExpiry,
-        ATM[0],
+        ATM.get(0),
         DELTA,
-        DoubleArray.copyOf(RISK_REVERSAL[0]),
-        DoubleArray.copyOf(STRANGLE[0]));
-    double[] strikes = smile.getStrike(forward);
-    double[] vol = smile.getVolatility().toArray();
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
-    double volExpected = INTERPOLATOR_STRIKE.interpolate(volatilityInterpolation, strike);
+        DoubleArray.copyOf(RISK_REVERSAL.toArray()[0]),
+        DoubleArray.copyOf(STRANGLE.toArray()[0]));
+    DoubleArray strikes = smile.getStrike(forward);
+    DoubleArray vol = smile.getVolatility();
+    double volExpected = INTERPOLATOR_STRIKE.bind(strikes, vol, FLAT, FLAT).interpolate(strike);
     double volComputed = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volExpected, volComputed, TOLERANCE_VOL);
   }
@@ -149,14 +194,13 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     double strike = 1.45;
     SmileDeltaParameters smile = SmileDeltaParameters.of(
         timeToExpiry,
-        ATM[NB_EXP - 1],
+        ATM.toArray()[NB_EXP - 1],
         DELTA,
-        DoubleArray.copyOf(RISK_REVERSAL[NB_EXP - 1]),
-        DoubleArray.copyOf(STRANGLE[NB_EXP - 1]));
-    double[] strikes = smile.getStrike(forward);
-    double[] vol = smile.getVolatility().toArray();
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
-    double volExpected = INTERPOLATOR_STRIKE.interpolate(volatilityInterpolation, strike);
+        DoubleArray.copyOf(RISK_REVERSAL.toArray()[NB_EXP - 1]),
+        DoubleArray.copyOf(STRANGLE.toArray()[NB_EXP - 1]));
+    DoubleArray strikes = smile.getStrike(forward);
+    DoubleArray vol = smile.getVolatility();
+    double volExpected = INTERPOLATOR_STRIKE.bind(strikes, vol, FLAT, FLAT).interpolate(strike);
     double volComputed = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volExpected, volComputed, TOLERANCE_VOL);
   }
@@ -168,24 +212,22 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     double forward = 1.40;
     double timeToExpiry = 0.75;
     double strike = 1.50;
-    double[] vol050 = SMILE_TERM.getVolatilityTerm()[2].getVolatility().toArray();
-    double[] vol100 = SMILE_TERM.getVolatilityTerm()[3].getVolatility().toArray();
+    double[] vol050 = SMILE_TERM.getVolatilityTerm().get(2).getVolatility().toArray();
+    double[] vol100 = SMILE_TERM.getVolatilityTerm().get(3).getVolatility().toArray();
     double[] vol = new double[vol050.length];
     for (int loopvol = 0; loopvol < vol050.length; loopvol++) {
-      vol[loopvol] = Math.sqrt(((vol050[loopvol] * vol050[loopvol] * TIME_TO_EXPIRY[2] + vol100[loopvol] * vol100[loopvol] * TIME_TO_EXPIRY[3]) / 2.0) / timeToExpiry);
+      vol[loopvol] = Math.sqrt(((vol050[loopvol] * vol050[loopvol] * TIME_TO_EXPIRY.get(2) + vol100[loopvol]
+          * vol100[loopvol] * TIME_TO_EXPIRY.get(3)) / 2.0) / timeToExpiry);
     }
     SmileDeltaParameters smile = SmileDeltaParameters.of(timeToExpiry, DELTA, DoubleArray.copyOf(vol));
-    double[] strikes = smile.getStrike(forward);
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, vol);
-    LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    double volExpected = interpolator.interpolate(volatilityInterpolation, strike);
+    DoubleArray strikes = smile.getStrike(forward);
+    double volExpected = INTERPOLATOR_STRIKE.bind(strikes, DoubleArray.copyOf(vol), FLAT, FLAT).interpolate(strike);
     double volComputed = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volExpected, volComputed, TOLERANCE_VOL);
-    double volTriple = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, forward));
+    double volTriple = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volComputed, volTriple, TOLERANCE_VOL);
     SmileDeltaTermStructureParametersStrikeInterpolation smileTerm2 =
-        new SmileDeltaTermStructureParametersStrikeInterpolation(
-            TIME_TO_EXPIRY, DELTA.toArray(), ATM, RISK_REVERSAL, STRANGLE, INTERPOLATOR_STRIKE, INTERPOLATOR_TIME);
+        SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, VOLATILITY_TERM);
     double volComputed2 = smileTerm2.getVolatility(timeToExpiry, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volComputed, volComputed2, TOLERANCE_VOL);
   }
@@ -202,29 +244,49 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     double shift = 0.00001;
     for (int looptest = 0; looptest < nbTest; looptest++) {
       double vol = SMILE_TERM.getVolatility(timeToExpiry[looptest], strike[looptest], forward);
-      double[][] bucketTest = new double[TIME_TO_EXPIRY.length][2 * DELTA.size() + 1];
+      double[][] bucketTest = new double[TIME_TO_EXPIRY.size()][2 * DELTA.size() + 1];
       VolatilityAndBucketedSensitivities volComputed =
           SMILE_TERM.getVolatilityAndSensitivities(timeToExpiry[looptest], strike[looptest], forward);
       DoubleMatrix bucketSensi = volComputed.getSensitivities();
       assertEquals("Smile by delta term structure: volatility adjoint", vol, volComputed.getVolatility(), 1.0E-10);
-      SmileDeltaParameters[] volData = new SmileDeltaParameters[TIME_TO_EXPIRY.length];
+      SmileDeltaParameters[] volData = new SmileDeltaParameters[TIME_TO_EXPIRY.size()];
       double[] volBumped = new double[2 * DELTA.size() + 1];
-      for (int loopexp = 0; loopexp < TIME_TO_EXPIRY.length; loopexp++) {
+      for (int loopexp = 0; loopexp < TIME_TO_EXPIRY.size(); loopexp++) {
         for (int loopsmile = 0; loopsmile < 2 * DELTA.size() + 1; loopsmile++) {
-          System.arraycopy(SMILE_TERM.getVolatilityTerm(), 0, volData, 0, TIME_TO_EXPIRY.length);
-          System.arraycopy(
-              SMILE_TERM.getVolatilityTerm()[loopexp].getVolatility().toArray(), 0, volBumped, 0, 2 * DELTA.size() + 1);
+          System.arraycopy(SMILE_TERM.getVolatilityTerm().toArray(), 0, volData, 0, TIME_TO_EXPIRY.size());
+          System.arraycopy(SMILE_TERM.getVolatilityTerm().get(loopexp).getVolatility().toArray(), 0, volBumped, 0,
+              2 * DELTA.size() + 1);
           volBumped[loopsmile] += shift;
-          volData[loopexp] = SmileDeltaParameters.of(TIME_TO_EXPIRY[loopexp], DELTA, DoubleArray.copyOf(volBumped));
+          volData[loopexp] = SmileDeltaParameters.of(TIME_TO_EXPIRY.get(loopexp), DELTA, DoubleArray.copyOf(volBumped));
           SmileDeltaTermStructureParametersStrikeInterpolation smileTermBumped =
-              new SmileDeltaTermStructureParametersStrikeInterpolation(volData, INTERPOLATOR_STRIKE);
-          bucketTest[loopexp][loopsmile] = (smileTermBumped.getVolatility(timeToExpiry[looptest], strike[looptest], forward) - volComputed.getVolatility()) / shift;
-          // FIXME: the strike sensitivity to volatility is missing. To be corrected when [PLAT-1396] is fixed.
-          assertEquals("Smile by delta term structure: (test: " + looptest + ") volatility bucket sensitivity " + loopexp + " - " + loopsmile, bucketTest[loopexp][loopsmile],
+              SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, ImmutableList.copyOf(volData));
+          bucketTest[loopexp][loopsmile] = (smileTermBumped.getVolatility(timeToExpiry[looptest], strike[looptest],
+              forward) - volComputed.getVolatility()) / shift;
+          assertEquals("Smile by delta term structure: (test: " + looptest + ") volatility bucket sensitivity "
+              + loopexp + " - " + loopsmile, bucketTest[loopexp][loopsmile],
               bucketSensi.get(loopexp, loopsmile), tolerance[looptest]);
         }
       }
     }
   }
 
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(SMILE_TERM);
+    SmileDeltaTermStructureParametersStrikeInterpolation other = SmileDeltaTermStructureParametersStrikeInterpolation
+        .of("other", DoubleArray.of(0.1, 0.5),
+            DoubleArray.of(0.25),
+            DoubleMatrix.copyOf(new double[][] { {0.15, 0.1, 0.12 }, {0.1, 0.07, 0.08 } }),
+            CurveExtrapolators.LINEAR,
+            CurveInterpolators.NATURAL_SPLINE,
+            CurveExtrapolators.LINEAR,
+            CurveExtrapolators.LINEAR,
+            CurveInterpolators.NATURAL_SPLINE,
+            CurveExtrapolators.LINEAR);
+    coverBeanEquals(SMILE_TERM, other);
+  }
+
+  public void test_serialization() {
+    assertSerialization(SMILE_TERM);
+  }
 }

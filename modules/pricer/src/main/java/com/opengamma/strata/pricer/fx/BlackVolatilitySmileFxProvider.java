@@ -120,12 +120,12 @@ final class BlackVolatilitySmileFxProvider
     double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     double pointValue = point.getSensitivity();
     DoubleMatrix bucketedSensi = smile.getVolatilityAndSensitivities(expiryTime, strike, forward).getSensitivities();
-    double[] times = smile.getTimeToExpiry();
+    double[] times = smile.getTimeToExpiry().toArray();
     int nTimes = times.length;
     List<Double> sensiList = new ArrayList<Double>();
     List<SurfaceParameterMetadata> paramList = new ArrayList<SurfaceParameterMetadata>();
     for (int i = 0; i < nTimes; ++i) {
-      DoubleArray deltas = smile.getVolatilityTerm()[i].getDelta();
+      DoubleArray deltas = smile.getVolatilityTerm().get(i).getDelta();
       int nDeltas = deltas.size();
       int nDeltasTotal = 2 * nDeltas + 1;
       double[] deltasTotal = new double[nDeltasTotal]; // absolute delta
