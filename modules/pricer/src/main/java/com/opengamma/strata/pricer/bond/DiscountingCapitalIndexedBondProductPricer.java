@@ -16,7 +16,6 @@ import java.util.function.Function;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
@@ -977,7 +976,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double cleanPrice) {
 
     double notional = bond.getNotional();
-    return cleanPrice + accruedInterest(bond, settlementDate) / notional;
+    return cleanPrice + bond.accruedInterest(settlementDate) / notional;
   }
 
   /**
@@ -994,7 +993,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double dirtyPrice) {
 
     double notional = bond.getNotional();
-    return dirtyPrice - accruedInterest(bond, settlementDate) / notional;
+    return dirtyPrice - bond.accruedInterest(settlementDate) / notional;
   }
 
   /**
@@ -1014,7 +1013,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     double notional = bond.getNotional();
     double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
-    return cleanPrice + accruedInterest(bond, settlementDate) / notional * indexRatio;
+    return cleanPrice + bond.accruedInterest(settlementDate) / notional * indexRatio;
   }
 
   /**
@@ -1034,7 +1033,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     double notional = bond.getNotional();
     double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
-    return dirtyPrice - accruedInterest(bond, settlementDate) / notional * indexRatio;
+    return dirtyPrice - bond.accruedInterest(settlementDate) / notional * indexRatio;
   }
 
   /**
@@ -1170,38 +1169,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
     };
     double[] range = ROOT_BRACKETER.getBracketedPoints(residual, -0.5, 0.5); // Starting range is [-1%, 1%]
     return ROOT_FINDER.getRoot(residual, range[0], range[1]);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the accrued interest of the bond with the specified settlement date.
-   * 
-   * @param bond  the product
-   * @param settlementDate  the settlement date
-   * @return the accrued interest of the product 
-   */
-  public double accruedInterest(ResolvedCapitalIndexedBond bond, LocalDate settlementDate) {
-    if (bond.getUnadjustedStartDate().isAfter(settlementDate)) {
-      return 0d;
-    }
-    double notional = bond.getNotional();
-    CapitalIndexedBondPaymentPeriod period = bond.findPeriod(settlementDate)
-        .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
-    LocalDate previousAccrualDate = period.getUnadjustedStartDate();
-    double realCoupon = period.getRealCoupon();
-    double couponPerYear = bond.getFrequency().eventsPerYear();
-    double rate = realCoupon * couponPerYear;
-    double accruedInterest = bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND) ||
-        bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE) ?
-        bond.yearFraction(previousAccrualDate, settlementDate, DayCounts.ACT_365F) * rate * notional
-        : bond.yearFraction(previousAccrualDate, settlementDate) * rate * notional;
-    double result = 0d;
-    if (bond.hasExCouponPeriod() && !settlementDate.isBefore(period.getDetachmentDate())) {
-      result = accruedInterest - notional * rate * period.getYearFraction();
-    } else {
-      result = accruedInterest;
-    }
-    return result;
   }
 
   //-------------------------------------------------------------------------

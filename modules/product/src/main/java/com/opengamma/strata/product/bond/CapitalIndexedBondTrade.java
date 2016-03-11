@@ -25,7 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.LinkResolver;
 import com.opengamma.strata.collect.id.StandardId;
@@ -34,6 +36,8 @@ import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
+import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A trade representing a capital indexed bond.
@@ -66,6 +70,14 @@ public final class CapitalIndexedBondTrade
    */
   @PropertyDefinition
   private final long quantity;
+  /**
+   * The clean price.
+   * <p>
+   * The price to be paid/received under this trade. 
+   * This clean price is nominal price or real price depending on the yield convention of the product. 
+   */
+  @PropertyDefinition
+  private final double cleanPrice;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -89,20 +101,33 @@ public final class CapitalIndexedBondTrade
     CapitalIndexedBond product = getProduct();
     ResolvedCapitalIndexedBond resolvedProduct = product.resolve(refData);
     LocalDate settlementDate = tradeInfo.getSettlementDate().get();
+    double accruedInterest = resolvedProduct.accruedInterest(settlementDate) / product.getNotional();
     if (settlementDate.isBefore(resolvedProduct.getStartDate())) {
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
     }
+    PaymentPeriod settlement;
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+      settlement = KnownAmountPaymentPeriod.of(
+          Payment.of(product.getCurrency(),
+          -product.getNotional() * quantity * (cleanPrice + accruedInterest), settlementDate),
+          SchedulePeriod.of(
+              resolvedProduct.getStartDate(),
+              settlementDate,
+              product.getPeriodicSchedule().getStartDate(),
+              settlementDate));
+    } else {
     RateObservation rateObservation =
         product.getRateCalculation().createRateObservation(settlementDate, product.getStartIndexValue());
-    CapitalIndexedBondPaymentPeriod settlement = CapitalIndexedBondPaymentPeriod.builder()
+      settlement = CapitalIndexedBondPaymentPeriod.builder()
         .startDate(resolvedProduct.getStartDate())
         .unadjustedStartDate(product.getPeriodicSchedule().getStartDate())
         .endDate(settlementDate)
         .rateObservation(rateObservation)
         .currency(product.getCurrency())
-        .notional(-product.getNotional() * quantity)
+        .notional(-product.getNotional() * quantity * (cleanPrice + accruedInterest))
         .realCoupon(1d)
         .build();
+    }
 
     return ResolvedCapitalIndexedBondTrade.builder()
         .tradeInfo(tradeInfo)
@@ -143,11 +168,13 @@ public final class CapitalIndexedBondTrade
   private CapitalIndexedBondTrade(
       TradeInfo tradeInfo,
       SecurityLink<CapitalIndexedBond> securityLink,
-      long quantity) {
+      long quantity,
+      double cleanPrice) {
     JodaBeanUtils.notNull(securityLink, "securityLink");
     this.tradeInfo = tradeInfo;
     this.securityLink = securityLink;
     this.quantity = quantity;
+    this.cleanPrice = cleanPrice;
     validate();
   }
 
@@ -204,6 +231,18 @@ public final class CapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the clean price.
+   * <p>
+   * The price to be paid/received under this trade.
+   * This clean price is nominal price or real price depending on the yield convention of the product.
+   * @return the value of the property
+   */
+  public double getCleanPrice() {
+    return cleanPrice;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -220,7 +259,8 @@ public final class CapitalIndexedBondTrade
       CapitalIndexedBondTrade other = (CapitalIndexedBondTrade) obj;
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
           JodaBeanUtils.equal(securityLink, other.securityLink) &&
-          (quantity == other.quantity);
+          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(cleanPrice, other.cleanPrice);
     }
     return false;
   }
@@ -231,16 +271,18 @@ public final class CapitalIndexedBondTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(securityLink);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cleanPrice);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CapitalIndexedBondTrade{");
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
     buf.append("securityLink").append('=').append(securityLink).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity));
+    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("cleanPrice").append('=').append(JodaBeanUtils.toString(cleanPrice));
     buf.append('}');
     return buf.toString();
   }
@@ -272,13 +314,19 @@ public final class CapitalIndexedBondTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", CapitalIndexedBondTrade.class, Long.TYPE);
     /**
+     * The meta-property for the {@code cleanPrice} property.
+     */
+    private final MetaProperty<Double> cleanPrice = DirectMetaProperty.ofImmutable(
+        this, "cleanPrice", CapitalIndexedBondTrade.class, Double.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tradeInfo",
         "securityLink",
-        "quantity");
+        "quantity",
+        "cleanPrice");
 
     /**
      * Restricted constructor.
@@ -295,6 +343,8 @@ public final class CapitalIndexedBondTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
+        case -861237120:  // cleanPrice
+          return cleanPrice;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -339,6 +389,14 @@ public final class CapitalIndexedBondTrade
       return quantity;
     }
 
+    /**
+     * The meta-property for the {@code cleanPrice} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> cleanPrice() {
+      return cleanPrice;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -349,6 +407,8 @@ public final class CapitalIndexedBondTrade
           return ((CapitalIndexedBondTrade) bean).getSecurityLink();
         case -1285004149:  // quantity
           return ((CapitalIndexedBondTrade) bean).getQuantity();
+        case -861237120:  // cleanPrice
+          return ((CapitalIndexedBondTrade) bean).getCleanPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -373,6 +433,7 @@ public final class CapitalIndexedBondTrade
     private TradeInfo tradeInfo;
     private SecurityLink<CapitalIndexedBond> securityLink;
     private long quantity;
+    private double cleanPrice;
 
     /**
      * Restricted constructor.
@@ -389,6 +450,7 @@ public final class CapitalIndexedBondTrade
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.securityLink = beanToCopy.getSecurityLink();
       this.quantity = beanToCopy.getQuantity();
+      this.cleanPrice = beanToCopy.getCleanPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -401,6 +463,8 @@ public final class CapitalIndexedBondTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
+        case -861237120:  // cleanPrice
+          return cleanPrice;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -418,6 +482,9 @@ public final class CapitalIndexedBondTrade
           break;
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
+          break;
+        case -861237120:  // cleanPrice
+          this.cleanPrice = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -454,7 +521,8 @@ public final class CapitalIndexedBondTrade
       return new CapitalIndexedBondTrade(
           tradeInfo,
           securityLink,
-          quantity);
+          quantity,
+          cleanPrice);
     }
 
     //-----------------------------------------------------------------------
@@ -496,14 +564,28 @@ public final class CapitalIndexedBondTrade
       return this;
     }
 
+    /**
+     * Sets the clean price.
+     * <p>
+     * The price to be paid/received under this trade.
+     * This clean price is nominal price or real price depending on the yield convention of the product.
+     * @param cleanPrice  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder cleanPrice(double cleanPrice) {
+      this.cleanPrice = cleanPrice;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("CapitalIndexedBondTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
-      buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity));
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
+      buf.append("cleanPrice").append('=').append(JodaBeanUtils.toString(cleanPrice));
       buf.append('}');
       return buf.toString();
     }

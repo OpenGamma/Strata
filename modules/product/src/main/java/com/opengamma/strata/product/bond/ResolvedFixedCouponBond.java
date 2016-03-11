@@ -52,7 +52,7 @@ import com.opengamma.strata.product.ResolvedProduct;
  * whereas the nominal payment is defined by {@link Payment}.
  * <p>
  * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
- * The enum, {@link YieldConvention}, specifies the yield computation convention.
+ * The enum, {@link CapitalIndexedBondYieldConvention}, specifies the yield computation convention.
  * <p>
  * A {@code ResolvedFixedCouponBond} is bound to data that changes over time, such as holiday calendars.
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
