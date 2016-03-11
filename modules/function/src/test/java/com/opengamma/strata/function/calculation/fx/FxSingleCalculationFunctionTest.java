@@ -80,12 +80,12 @@ public class FxSingleCalculationFunctionTest {
   public void test_requirementsAndCurrency() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(GBP), DiscountCurveKey.of(USD)));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
-    assertThat(function.naturalCurrency(TRADE)).isEqualTo(GBP);
+    assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(GBP);
   }
 
   public void test_simpleMeasures() {

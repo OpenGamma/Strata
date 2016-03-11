@@ -17,11 +17,11 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
- * When calculating accrued interest, it is necessary to use a formula specific to each 
- * yield convention. Accordingly, the computation of price, convexity and duration from 
- * the yield should be based on this yield convention. 
+ * When calculating accrued interest, it is necessary to use a formula specific to each
+ * yield convention. Accordingly, the computation of price, convexity and duration from
+ * the yield should be based on this yield convention.
  * <p>
- * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013, 
+ * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013
  */
 public enum FixedCouponBondYieldConvention {
 

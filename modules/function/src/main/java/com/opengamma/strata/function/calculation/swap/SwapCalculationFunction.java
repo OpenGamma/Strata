@@ -101,13 +101,13 @@ public class SwapCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(SwapTrade target) {
-    return target.getProduct().getLegs().get(0).getCurrency();
+  public Currency naturalCurrency(SwapTrade trade, ReferenceData refData) {
+    return trade.getProduct().getLegs().get(0).getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(SwapTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(SwapTrade trade, Set<Measure> measures, ReferenceData refData) {
     Swap product = trade.getProduct();
 
     // no market data for leg initial notional

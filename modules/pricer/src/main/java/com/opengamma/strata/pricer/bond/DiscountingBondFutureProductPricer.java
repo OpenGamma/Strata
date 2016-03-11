@@ -64,7 +64,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double dirtyPrice = bondPricer.dirtyPriceFromCurves(
           bond, bondSec.getSecond(), provider, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
-          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
+          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
     }
     return Doubles.min(priceBonds);
   }
@@ -100,7 +100,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double dirtyPrice = bondPricer.dirtyPriceFromCurvesWithZSpread(
           bond, bondSec.getSecond(), provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
-          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
+          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
     }
     return Doubles.min(priceBonds);
   }
@@ -129,7 +129,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double dirtyPrice = bondPricer.dirtyPriceFromCurves(
           bond, bondSec.getSecond(), provider, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
-          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
+          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
       if (priceBonds[i] < priceMin) {
         priceMin = priceBonds[i];
         indexCTD = i;
@@ -139,7 +139,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
     ResolvedFixedCouponBond bond = bondSec.getFirst();
     PointSensitivityBuilder pointSensi = bondPricer.dirtyPriceSensitivity(
         bond, bondSec.getSecond(), provider, future.getLastDeliveryDate());
-    return pointSensi.multipliedBy(1d / future.getConversionFactor().get(indexCTD)).build();
+    return pointSensi.multipliedBy(1d / future.getConversionFactors().get(indexCTD)).build();
   }
 
   /**
@@ -177,7 +177,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
       double dirtyPrice = bondPricer.dirtyPriceFromCurvesWithZSpread(
           bond, bondSec.getSecond(), provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
       priceBonds[i] = bondPricer.cleanPriceFromDirtyPrice(
-          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactor().get(i);
+          bond, future.getLastDeliveryDate(), dirtyPrice) / future.getConversionFactors().get(i);
       if (priceBonds[i] < priceMin) {
         priceMin = priceBonds[i];
         indexCTD = i;
@@ -187,7 +187,7 @@ public final class DiscountingBondFutureProductPricer extends AbstractBondFuture
     ResolvedFixedCouponBond bond = bondSec.getFirst();
     PointSensitivityBuilder pointSensi = bondPricer.dirtyPriceSensitivityWithZspread(
         bond, bondSec.getSecond(), provider, zSpread, compoundedRateType, periodPerYear, future.getLastDeliveryDate());
-    return pointSensi.multipliedBy(1d / future.getConversionFactor().get(indexCTD)).build();
+    return pointSensi.multipliedBy(1d / future.getConversionFactors().get(indexCTD)).build();
   }
 
 }

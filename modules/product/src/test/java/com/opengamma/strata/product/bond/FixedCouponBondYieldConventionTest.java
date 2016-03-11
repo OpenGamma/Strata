@@ -24,10 +24,10 @@ public class FixedCouponBondYieldConventionTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {FixedCouponBondYieldConvention.UK_BUMP_DMO, "UK-Bump-DMO" },
-      {FixedCouponBondYieldConvention.US_STREET, "US-Street" },
-      {FixedCouponBondYieldConvention.GERMAN_BONDS, "German-Bonds" },
-      {FixedCouponBondYieldConvention.JAPAN_SIMPLE, "Japan-Simple" },
+        {FixedCouponBondYieldConvention.UK_BUMP_DMO, "UK-Bump-DMO"},
+        {FixedCouponBondYieldConvention.US_STREET, "US-Street"},
+        {FixedCouponBondYieldConvention.GERMAN_BONDS, "German-Bonds"},
+        {FixedCouponBondYieldConvention.JAPAN_SIMPLE, "Japan-Simple"},
     };
   }
 

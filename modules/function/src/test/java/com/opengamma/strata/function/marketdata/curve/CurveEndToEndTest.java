@@ -187,7 +187,7 @@ public class CurveEndToEndTest {
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
-    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketDataRequirements reqs = tasks.getRequirements(REF_DATA);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
@@ -232,12 +232,12 @@ public class CurveEndToEndTest {
     }
 
     @Override
-    public Currency naturalCurrency(FraTrade trade) {
+    public Currency naturalCurrency(FraTrade trade, ReferenceData refData) {
       return trade.getProduct().getCurrency();
     }
 
     @Override
-    public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures) {
+    public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures, ReferenceData refData) {
       Fra fra = trade.getProduct();
 
       Set<Index> indices = new HashSet<>();

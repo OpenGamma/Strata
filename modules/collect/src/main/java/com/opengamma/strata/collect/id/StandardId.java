@@ -86,12 +86,17 @@ public final class StandardId
    */
   @PropertyDefinition(validate = "notNull")
   private final String value;
+  /**
+   * The hash code.
+   */
+  private transient final int hashCode;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from a scheme and value.
    * <p>
    * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
+   * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
    * <p>
    * The value must be non-empty and match the regular expression '{@code [!-z][ -z]*}'.
    *
@@ -145,6 +150,12 @@ public final class StandardId
   private StandardId(String scheme, String value) {
     this.scheme = ArgChecker.matches(REGEX_SCHEME, scheme, "scheme");
     this.value = ArgChecker.matches(REGEX_VALUE, value, "value");
+    this.hashCode = scheme.hashCode() ^ value.hashCode();
+  }
+
+  // resolve after deserialization
+  private Object readResolve() {
+    return of(scheme, value);
   }
 
   //-------------------------------------------------------------------------
@@ -204,11 +215,11 @@ public final class StandardId
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
+    if (obj instanceof StandardId) {
+      StandardId other = (StandardId) obj;
+      return scheme.equals(other.scheme) && value.equals(other.value);
     }
-    StandardId other = (StandardId) obj;
-    return scheme.equals(other.scheme) && value.equals(other.value);
+    return false;
   }
 
   /**
@@ -218,11 +229,11 @@ public final class StandardId
    */
   @Override
   public int hashCode() {
-    return scheme.hashCode() ^ value.hashCode();
+    return hashCode;
   }
 
   /**
-   * Returns the identifier in a stahndard string format.
+   * Returns the identifier in a standard string format.
    * <p>
    * The returned string is in the form '{@code $scheme~$value}'.
    * This is suitable for use with {@link #parse(String)}.

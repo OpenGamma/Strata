@@ -33,7 +33,8 @@ import com.opengamma.strata.product.Product;
 /**
  * A deliverable swap futures contract.
  * <p>
- * A deliverable swap future is a financial instrument that physically settles an interest rate swap on a future date. 
+ * A deliverable swap future is a financial instrument that physically settles
+ * an interest rate swap on a future date. 
  * The delivered swap is cleared by a central counterparty. 
  * The last future price before delivery is quoted in term of the underlying swap present value. 
  * The futures product is margined on a daily basis.
@@ -43,14 +44,14 @@ public final class DeliverableSwapFuture
     implements Product, Resolvable<ResolvedDeliverableSwapFuture>, ImmutableBean, Serializable {
 
   /**
-   * The notional of the futures. 
+   * The notional of the futures.
    * <p>
    * This is also called face value or contract value.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
-   * The delivery date. 
+   * The delivery date.
    * <p>
    * The underlying swap is delivered on this date.
    */
@@ -59,15 +60,15 @@ public final class DeliverableSwapFuture
   /**
    * The last date of trading.
    * <p>
-   * This date must be before the delivery date of the underlying swap. 
+   * This date must be before the delivery date of the underlying swap.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
    * The underlying swap.
    * <p>
-   * The delivery date of the future is typically the first accrual date of the underlying swap. 
-   * The swap should be a receiver swap of notional 1. 
+   * The delivery date of the future is typically the first accrual date of the underlying swap.
+   * The swap should be a receiver swap of notional 1.
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap underlyingSwap;

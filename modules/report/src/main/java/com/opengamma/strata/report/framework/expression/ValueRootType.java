@@ -26,6 +26,10 @@ public enum ValueRootType {
    */
   PRODUCT("Product"),
   /**
+   * Refers to the security on the trade.
+   */
+  SECURITY("Security"),
+  /**
    * Refers to the trade.
    */
   TRADE("Trade");

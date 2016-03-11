@@ -88,17 +88,13 @@ public class SwapReportRegressionTest {
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
-    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketDataRequirements reqs = tasks.getRequirements(REF_DATA);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(valuationDate, trades, columns, results);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-regression-test-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);

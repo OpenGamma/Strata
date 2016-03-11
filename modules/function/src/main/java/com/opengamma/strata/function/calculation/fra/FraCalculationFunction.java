@@ -89,13 +89,13 @@ public class FraCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(FraTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(FraTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures, ReferenceData refData) {
     Fra product = trade.getProduct();
 
     // Create a set of all indices referenced by the FRA

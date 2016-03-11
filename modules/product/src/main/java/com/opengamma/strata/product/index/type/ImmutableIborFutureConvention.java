@@ -148,7 +148,11 @@ public final class ImmutableIborFutureConvention
     SecurityLink<IborFuture> securityLink = SecurityLink.resolved(security);
     TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).build();
     return IborFutureTrade.builder()
-        .quantity(quantity).initialPrice(price).securityLink(securityLink).tradeInfo(info).build();
+        .tradeInfo(info)
+        .securityLink(securityLink)
+        .quantity(quantity)
+        .price(price)
+        .build();
   }
 
   @Override

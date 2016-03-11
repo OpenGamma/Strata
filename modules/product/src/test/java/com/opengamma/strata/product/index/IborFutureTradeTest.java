@@ -38,7 +38,7 @@ public class IborFutureTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 3, 18)).build();
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long QUANTITY = 35;
-  private static final double INITIAL_PRICE = 1.015;
+  private static final double PRICE = 1.015;
   private static final IborFuture PRODUCT = IborFutureTest.sut();
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "OG");
   private static final Security<IborFuture> SECURITY = UnitSecurity.builder(PRODUCT)
@@ -54,7 +54,7 @@ public class IborFutureTradeTest {
     IborFutureTrade test = sut();
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
     assertEquals(test.getSecurityLink(), RESOLVABLE_LINK);
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getQuantity(), QUANTITY);
     assertThrows(() -> test.getSecurity(), IllegalStateException.class);
     assertThrows(() -> test.getProduct(), IllegalStateException.class);
@@ -64,12 +64,12 @@ public class IborFutureTradeTest {
     IborFutureTrade test = IborFutureTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(RESOLVED_LINK)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .quantity(QUANTITY)
         .build();
     assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(TRADE_DATE).build());
     assertEquals(test.getSecurityLink(), RESOLVED_LINK);
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getSecurity(), SECURITY);
     assertEquals(test.getProduct(), PRODUCT);
@@ -116,7 +116,7 @@ public class IborFutureTradeTest {
     IborFutureTrade test = IborFutureTrade.builder()
         .tradeInfo(TRADE_INFO)
         .securityLink(RESOLVED_LINK)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .quantity(QUANTITY)
         .build();
     ResolvedIborFutureTrade resolved = test.resolve(REF_DATA);
@@ -124,7 +124,7 @@ public class IborFutureTradeTest {
     assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(resolved.getSecurityStandardId(), SECURITY_ID);
     assertEquals(resolved.getQuantity(), QUANTITY);
-    assertEquals(resolved.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(resolved.getPrice(), PRICE);
   }
 
   //-------------------------------------------------------------------------
@@ -142,7 +142,7 @@ public class IborFutureTradeTest {
     return IborFutureTrade.builder()
         .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
         .securityLink(RESOLVABLE_LINK)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .quantity(QUANTITY)
         .build();
   }
@@ -151,7 +151,7 @@ public class IborFutureTradeTest {
     return IborFutureTrade.builder()
         .tradeInfo(TRADE_INFO)
         .securityLink(SecurityLink.resolvable(StandardId.of("OG-Ticker", "OG2"), IborFuture.class))
-        .initialPrice(1.1)
+        .price(1.1)
         .quantity(100)
         .build();
   }

@@ -64,23 +64,22 @@ public final class ResolvedIborFutureOptionTrade
   @PropertyDefinition(validate = "notNull")
   private final StandardId securityStandardId;
   /**
-   * The quantity, indicating the number of contracts in the trade.
+   * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The initial price of the option, represented in decimal form.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * <p>
    * This property should be set if the option has daily margining.
    */
   @PropertyDefinition(get = "optional")
-  private final Double initialPrice;
+  private final Double price;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -120,14 +119,14 @@ public final class ResolvedIborFutureOptionTrade
       ResolvedIborFutureOption product,
       StandardId securityStandardId,
       long quantity,
-      Double initialPrice) {
+      Double price) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
     this.tradeInfo = tradeInfo;
     this.product = product;
     this.securityStandardId = securityStandardId;
     this.quantity = quantity;
-    this.initialPrice = initialPrice;
+    this.price = price;
   }
 
   @Override
@@ -180,8 +179,9 @@ public final class ResolvedIborFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -191,17 +191,15 @@ public final class ResolvedIborFutureOptionTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the initial price of the option, represented in decimal form.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-   * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * <p>
    * This property should be set if the option has daily margining.
    * @return the optional value of the property, not null
    */
-  public OptionalDouble getInitialPrice() {
-    return initialPrice != null ? OptionalDouble.of(initialPrice) : OptionalDouble.empty();
+  public OptionalDouble getPrice() {
+    return price != null ? OptionalDouble.of(price) : OptionalDouble.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -224,7 +222,7 @@ public final class ResolvedIborFutureOptionTrade
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(initialPrice, other.initialPrice);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -236,7 +234,7 @@ public final class ResolvedIborFutureOptionTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(initialPrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
@@ -248,7 +246,7 @@ public final class ResolvedIborFutureOptionTrade
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -284,10 +282,10 @@ public final class ResolvedIborFutureOptionTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedIborFutureOptionTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
-        this, "initialPrice", ResolvedIborFutureOptionTrade.class, Double.class);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", ResolvedIborFutureOptionTrade.class, Double.class);
     /**
      * The meta-properties.
      */
@@ -297,7 +295,7 @@ public final class ResolvedIborFutureOptionTrade
         "product",
         "securityStandardId",
         "quantity",
-        "initialPrice");
+        "price");
 
     /**
      * Restricted constructor.
@@ -316,8 +314,8 @@ public final class ResolvedIborFutureOptionTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -371,11 +369,11 @@ public final class ResolvedIborFutureOptionTrade
     }
 
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> initialPrice() {
-      return initialPrice;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -390,8 +388,8 @@ public final class ResolvedIborFutureOptionTrade
           return ((ResolvedIborFutureOptionTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
           return ((ResolvedIborFutureOptionTrade) bean).getQuantity();
-        case -423406491:  // initialPrice
-          return ((ResolvedIborFutureOptionTrade) bean).initialPrice;
+        case 106934601:  // price
+          return ((ResolvedIborFutureOptionTrade) bean).price;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -417,7 +415,7 @@ public final class ResolvedIborFutureOptionTrade
     private ResolvedIborFutureOption product;
     private StandardId securityStandardId;
     private long quantity;
-    private Double initialPrice;
+    private Double price;
 
     /**
      * Restricted constructor.
@@ -435,7 +433,7 @@ public final class ResolvedIborFutureOptionTrade
       this.product = beanToCopy.getProduct();
       this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
-      this.initialPrice = beanToCopy.initialPrice;
+      this.price = beanToCopy.price;
     }
 
     //-----------------------------------------------------------------------
@@ -450,8 +448,8 @@ public final class ResolvedIborFutureOptionTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -472,8 +470,8 @@ public final class ResolvedIborFutureOptionTrade
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case -423406491:  // initialPrice
-          this.initialPrice = (Double) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -512,7 +510,7 @@ public final class ResolvedIborFutureOptionTrade
           product,
           securityStandardId,
           quantity,
-          initialPrice);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -553,8 +551,9 @@ public final class ResolvedIborFutureOptionTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -565,18 +564,16 @@ public final class ResolvedIborFutureOptionTrade
     }
 
     /**
-     * Sets the initial price of the option, represented in decimal form.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
-     * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
      * <p>
      * This property should be set if the option has daily margining.
-     * @param initialPrice  the new value
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder initialPrice(Double initialPrice) {
-      this.initialPrice = initialPrice;
+    public Builder price(Double price) {
+      this.price = price;
       return this;
     }
 
@@ -589,7 +586,7 @@ public final class ResolvedIborFutureOptionTrade
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }

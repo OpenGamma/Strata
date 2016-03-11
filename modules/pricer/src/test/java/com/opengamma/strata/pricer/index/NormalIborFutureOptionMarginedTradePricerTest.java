@@ -77,7 +77,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
       .product(OPTION)
       .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
-      .initialPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build();
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
       .tradeInfo(TradeInfo.builder()
@@ -86,7 +86,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
       .product(OPTION)
       .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
-      .initialPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build();
 
   private static final double RATE = 0.015;

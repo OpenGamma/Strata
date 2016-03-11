@@ -93,11 +93,8 @@ public class CdsPricingExample {
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(
-        valuationDate,
-        trades,
-        columns,
-        results);
+    ReportCalculationResults calculationResults =
+        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("cds-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);

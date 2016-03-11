@@ -41,7 +41,7 @@ public class IborFutureOptionMarginedTradePricerTest {
       .product(OPTION)
       .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
-      .initialPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build();
   private static final ResolvedIborFutureOptionTrade OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
       .tradeInfo(TradeInfo.builder()
@@ -50,7 +50,7 @@ public class IborFutureOptionMarginedTradePricerTest {
       .product(OPTION)
       .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
-      .initialPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build();
 
   private static final DiscountingIborFutureProductPricer FUTURE_PRICER = DiscountingIborFutureProductPricer.DEFAULT;
@@ -70,7 +70,7 @@ public class IborFutureOptionMarginedTradePricerTest {
         .product(OPTION)
         .securityStandardId(OPTION_ID)
         .quantity(OPTION_QUANTITY)
-        .initialPrice(TRADE_PRICE)
+        .price(TRADE_PRICE)
         .build();
     assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VAL_DATE, optionPrice, lastClosingPrice));
   }

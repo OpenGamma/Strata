@@ -60,7 +60,6 @@ public class CapitalIndexedBondTradeTest {
       TradeInfo.builder().tradeDate(TRADE).settlementDate(SETTLEMENT_DATE).build();
   private static final TradeInfo TRADE_INFO_EARLY =
       TradeInfo.builder().tradeDate(date(2008, 1, 1)).settlementDate(date(2008, 1, 1)).build();
-  private static final double ACCRUED = 0.019;
 
   private static final LinkResolver RESOLVER = new LinkResolver() {
     @SuppressWarnings("unchecked")

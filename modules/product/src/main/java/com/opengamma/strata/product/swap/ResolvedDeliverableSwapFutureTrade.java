@@ -63,16 +63,17 @@ public final class ResolvedDeliverableSwapFutureTrade
   @PropertyDefinition(validate = "notNull")
   private final StandardId securityStandardId;
   /**
-   * The quantity, indicating the number of future contracts in the trade.
+   * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The trade price of the future.
+   * The price that was traded, in decimal form.
    * <p>
-   * This is the transaction price expressed in the convention of the futures.
+   * This is the price agreed when the trade occurred.
    */
   @PropertyDefinition
   private final double tradePrice;
@@ -175,8 +176,9 @@ public final class ResolvedDeliverableSwapFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of future contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -186,9 +188,9 @@ public final class ResolvedDeliverableSwapFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trade price of the future.
+   * Gets the price that was traded, in decimal form.
    * <p>
-   * This is the transaction price expressed in the convention of the futures.
+   * This is the price agreed when the trade occurred.
    * @return the value of the property
    */
   public double getTradePrice() {
@@ -544,8 +546,9 @@ public final class ResolvedDeliverableSwapFutureTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of future contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -556,9 +559,9 @@ public final class ResolvedDeliverableSwapFutureTrade
     }
 
     /**
-     * Sets the trade price of the future.
+     * Sets the price that was traded, in decimal form.
      * <p>
-     * This is the transaction price expressed in the convention of the futures.
+     * This is the price agreed when the trade occurred.
      * @param tradePrice  the new value
      * @return this, for chaining, not null
      */

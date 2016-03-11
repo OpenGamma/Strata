@@ -80,16 +80,16 @@ public class FxSwapCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(FxSwapTrade target) {
-    Currency base = target.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();
-    Currency counter = target.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
+  public Currency naturalCurrency(FxSwapTrade trade, ReferenceData refData) {
+    Currency base = trade.getProduct().getNearLeg().getBaseCurrencyAmount().getCurrency();
+    Currency counter = trade.getProduct().getNearLeg().getCounterCurrencyAmount().getCurrency();
     CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
     return marketConventionPair.getBase();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FxSwapTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(FxSwapTrade trade, Set<Measure> measures, ReferenceData refData) {
     FxSwap fx = trade.getProduct();
     Currency baseCurrency = fx.getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getNearLeg().getCounterCurrencyAmount().getCurrency();

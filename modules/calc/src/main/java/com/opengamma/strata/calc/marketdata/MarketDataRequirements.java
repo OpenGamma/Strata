@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.runner.CalculationTasks;
@@ -73,14 +74,16 @@ public final class MarketDataRequirements implements ImmutableBean {
    * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
    * @param columns  the columns that will be calculated
+   * @param refData  the reference data
    * @return the market data requirements
    */
   public static MarketDataRequirements of(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
-      List<Column> columns) {
+      List<Column> columns,
+      ReferenceData refData) {
 
-    return CalculationTasks.of(calculationRules, targets, columns).getRequirements();
+    return CalculationTasks.of(calculationRules, targets, columns).getRequirements(refData);
   }
 
   /**

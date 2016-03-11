@@ -100,9 +100,7 @@ public class CashFlowReportRunner
   //-------------------------------------------------------------------------
   @Override
   public ReportRequirements requirements(CashFlowReportTemplate reportTemplate) {
-    return ReportRequirements.builder()
-        .tradeMeasureRequirements(Column.of(Measures.EXPLAIN_PRESENT_VALUE))
-        .build();
+    return ReportRequirements.of(Column.of(Measures.EXPLAIN_PRESENT_VALUE));
   }
 
   @Override

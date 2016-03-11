@@ -52,12 +52,12 @@ public class BondFutureTradeTest {
   private static final LocalDate TRADE_DATE = LocalDate.of(2011, 6, 20);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   private static final long QUANTITY = 1234L;
-  private static final double INITIAL_PRICE = 1.2345;
+  private static final double PRICE = 1.2345;
 
   //-------------------------------------------------------------------------
   public void test_of_resolved() {
     BondFutureTrade test = sut();
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getProduct(), FUTURE_PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getSecurity(), FUTURE_SECURITY);
@@ -70,9 +70,9 @@ public class BondFutureTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(FUTURE_SECURITY_LINK_RESOLVABLE)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
-    assertEquals(test.getInitialPrice(), INITIAL_PRICE);
+    assertEquals(test.getPrice(), PRICE);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getSecurityLink(), FUTURE_SECURITY_LINK_RESOLVABLE);
@@ -90,7 +90,7 @@ public class BondFutureTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(FUTURE_SECURITY_LINK_RESOLVABLE)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(base.resolveLinks(RESOLVER), sut());
   }
@@ -101,7 +101,7 @@ public class BondFutureTradeTest {
         .product(FUTURE_PRODUCT.resolve(REF_DATA))
         .securityStandardId(FUTURE_SECURITY_ID)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(sut().resolve(REF_DATA), expected);
   }
@@ -121,7 +121,7 @@ public class BondFutureTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(FUTURE_SECURITY_LINK_RESOLVED)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
   }
 
