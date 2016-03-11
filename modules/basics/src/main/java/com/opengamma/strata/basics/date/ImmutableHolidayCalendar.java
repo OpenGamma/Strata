@@ -41,8 +41,10 @@ import com.opengamma.strata.collect.range.LocalDateRange;
  * <p>
  * A standard immutable implementation of {@link HolidayCalendar} that stores all
  * dates that are holidays, plus a list of weekend days.
- * Internally, the class uses a range to determine the valid range of dates.
- * Only dates between the start of the earliest year and the end of the latest year can be queried.
+ * <p>
+ * Internally, the class uses a range to determine the range of known holiday dates.
+ * Beyond the range of known holiday dates, weekend days are used to determine business days.
+ * Dates may be queried from year zero to year 10,000.
  * <p>
  * Applications should refer to holidays using {@link HolidayCalendarId}.
  * The identifier must be {@linkplain HolidayCalendarId#resolve(ReferenceData) resolved}
@@ -91,7 +93,9 @@ public final class ImmutableHolidayCalendar
    */
   private final int[] lookup;
   /**
-   * The supported range of dates.
+   * The principal range of dates.
+   * <p>
+   * Holiday queries are optimized for this range.
    */
   private final LocalDateRange range;
 
@@ -248,16 +252,16 @@ public final class ImmutableHolidayCalendar
       return (lookup[index] & (1 << (date.getDayOfMonth() - 1))) == 0;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return weekendDays.contains(date.getDayOfWeek());
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return isHolidayOutOfRange(date);
     }
   }
 
   // pulled out to aid hotspot inlining
-  private String rangeError(LocalDate date) {
-    return "Date is not within the range of known holidays: " + date + ", " + range;
+  private boolean isHolidayOutOfRange(LocalDate date) {
+    if (date.getYear() >= 0 && date.getYear() < 10000) {
+      return weekendDays.contains(date.getDayOfWeek());
+    }
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
   }
 
   //-------------------------------------------------------------------------
@@ -274,11 +278,16 @@ public final class ImmutableHolidayCalendar
       return date;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.shift(date, amount);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return shiftOutOfRange(date, amount);
     }
+  }
+
+  // pulled out to aid hotspot inlining
+  private LocalDate shiftOutOfRange(LocalDate date, int amount) {
+    if (date.getYear() >= 0 && date.getYear() < 10000) {
+      return HolidayCalendar.super.shift(date, amount);
+    }
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
   }
 
   //-------------------------------------------------------------------------
@@ -289,10 +298,7 @@ public final class ImmutableHolidayCalendar
       return shiftNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 1);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.next(date);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return HolidayCalendar.super.next(date);
     }
   }
 
@@ -327,10 +333,7 @@ public final class ImmutableHolidayCalendar
       return shiftPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 1, -1);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.previous(date);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return previousOutOfRange(date);
     }
   }
 
@@ -357,6 +360,14 @@ public final class ImmutableHolidayCalendar
     return LocalDate.of(baseYear, baseMonth, domOffset + 1);
   }
 
+  // pulled out to aid hotspot inlining
+  private LocalDate previousOutOfRange(LocalDate date) {
+    if (date.getYear() >= 0 && date.getYear() < 10000) {
+      return HolidayCalendar.super.previous(date);
+    }
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public LocalDate nextSameOrLastInMonth(LocalDate date) {
@@ -365,10 +376,7 @@ public final class ImmutableHolidayCalendar
       return shiftNextSameLast(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.nextSameOrLastInMonth(date);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return HolidayCalendar.super.nextSameOrLastInMonth(date);
     }
   }
 
@@ -408,11 +416,16 @@ public final class ImmutableHolidayCalendar
       return (lookup[index] >>> (date.getDayOfMonth() - 1)) == 1;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.isLastBusinessDayOfMonth(date);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return isLastBusinessDayOfMonthOutOfRange(date);
     }
+  }
+
+  // pulled out to aid hotspot inlining
+  private boolean isLastBusinessDayOfMonthOutOfRange(LocalDate date) {
+    if (date.getYear() >= 0 && date.getYear() < 10000) {
+      return HolidayCalendar.super.isLastBusinessDayOfMonth(date);
+    }
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
   }
 
   //-------------------------------------------------------------------------
@@ -427,11 +440,16 @@ public final class ImmutableHolidayCalendar
       return date.withDayOfMonth(32 - leading);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
-      if (startYear == 0) {
-        return HolidayCalendar.super.lastBusinessDayOfMonth(date);
-      }
-      throw new IllegalArgumentException(rangeError(date));
+      return lastBusinessDayOfMonthOutOfRange(date);
     }
+  }
+
+  // pulled out to aid hotspot inlining
+  private LocalDate lastBusinessDayOfMonthOutOfRange(LocalDate date) {
+    if (date.getYear() >= 0 && date.getYear() < 10000) {
+      return HolidayCalendar.super.lastBusinessDayOfMonth(date);
+    }
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
   }
 
   //-------------------------------------------------------------------------
