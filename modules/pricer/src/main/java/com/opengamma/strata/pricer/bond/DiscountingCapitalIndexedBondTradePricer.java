@@ -21,6 +21,7 @@ import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
+import com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
 import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
@@ -626,7 +627,8 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
     double notional = product.getNotional();
     double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
-    double indexRatio = productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
+    double indexRatio = product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT) ? 1d :
+        productPricer.indexRatio(product, ratesProvider, standardSettlementDate);
     return CurrencyAmount.of(product.getCurrency(), indexRatio * netAmountReal);
   }
 
@@ -680,6 +682,9 @@ public class DiscountingCapitalIndexedBondTradePricer {
       LocalDate standardSettlementDate,
       double realCleanPrice) {
 
+    if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
+      return PointSensitivityBuilder.none();
+    }
     double notional = product.getNotional();
     double netAmountReal = realCleanPrice * notional + product.accruedInterest(standardSettlementDate);
     PointSensitivityBuilder indexRatioSensi =
