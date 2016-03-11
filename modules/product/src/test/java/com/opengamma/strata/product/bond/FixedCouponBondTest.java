@@ -42,7 +42,7 @@ import com.opengamma.strata.collect.id.StandardId;
 public class FixedCouponBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
@@ -163,7 +163,7 @@ public class FixedCouponBondTest {
         .notional(1.0e6)
         .periodicSchedule(sche)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, SAT_SUN))
-        .yieldConvention(YieldConvention.UK_BUMP_DMO)
+        .yieldConvention(FixedCouponBondYieldConvention.UK_BUMP_DMO)
         .build();
   }
 

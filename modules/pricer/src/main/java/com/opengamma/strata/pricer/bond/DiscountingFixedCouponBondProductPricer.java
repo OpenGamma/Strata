@@ -5,6 +5,11 @@
  */
 package com.opengamma.strata.pricer.bond;
 
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.GERMAN_BONDS;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.JAPAN_SIMPLE;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.UK_BUMP_DMO;
+import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.US_STREET;
+
 import java.time.LocalDate;
 import java.util.function.Function;
 
@@ -29,8 +34,8 @@ import com.opengamma.strata.pricer.impl.bond.DiscountingFixedCouponBondPaymentPe
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * Pricer for for rate fixed coupon bond products.
@@ -534,7 +539,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * Calculates the dirty price of the fixed coupon bond from yield.
    * <p>
    * The yield must be fractional.
-   * The dirty price is computed for {@link YieldConvention}, and the result is expressed in fraction. 
+   * The dirty price is computed for {@link FixedCouponBondYieldConvention}, and the result is expressed in fraction. 
    * 
    * @param bond  the product
    * @param settlementDate  the settlement date
@@ -544,21 +549,19 @@ public class DiscountingFixedCouponBondProductPricer {
   public double dirtyPriceFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
         return (1d + payment.getFixedRate() * payment.getYearFraction()) /
             (1d + factorToNextCoupon(bond, settlementDate) * yield /
                 ((double) bond.getFrequency().eventsPerYear()));
       }
     }
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
-        (yieldConvention.equals(YieldConvention.UK_BUMP_DMO)) ||
-        (yieldConvention.equals(YieldConvention.GERMAN_BONDS))) {
+    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(UK_BUMP_DMO)) || (yieldConv.equals(GERMAN_BONDS))) {
       return dirtyPriceFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -567,7 +570,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double cleanPrice = (1d + bond.getFixedRate() * maturity) / (1d + yield * maturity);
       return dirtyPriceFromCleanPrice(bond, settlementDate, cleanPrice);
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
 
   private double dirtyPriceFromYieldStandard(
@@ -606,7 +609,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * @return the yield of the product 
    */
   public double yieldFromDirtyPrice(ResolvedFixedCouponBond bond, LocalDate settlementDate, double dirtyPrice) {
-    if (bond.getYieldConvention().equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (bond.getYieldConvention().equals(JAPAN_SIMPLE)) {
       double cleanPrice = cleanPriceFromDirtyPrice(bond, settlementDate, dirtyPrice);
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       double maturity = bond.getDayCount().relativeYearFraction(settlementDate, maturityDate);
@@ -632,7 +635,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * with respect to yield, divided by the dirty price. 
    * <p>
    * The input yield must be fractional. The dirty price and its derivative are
-   * computed for {@link YieldConvention}, and the result is expressed in fraction. 
+   * computed for {@link FixedCouponBondYieldConvention}, and the result is expressed in fraction. 
    * 
    * @param bond  the product
    * @param settlementDate  the settlement date
@@ -642,20 +645,18 @@ public class DiscountingFixedCouponBondProductPricer {
   public double modifiedDurationFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factor = factorToNextCoupon(bond, settlementDate);
         return factor / couponPerYear / (1d + factor * yield / couponPerYear);
       }
     }
-    if (yieldConvention.equals(YieldConvention.US_STREET) ||
-        yieldConvention.equals(YieldConvention.UK_BUMP_DMO) ||
-        yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+    if (yieldConv.equals(US_STREET) || yieldConv.equals(UK_BUMP_DMO) || yieldConv.equals(GERMAN_BONDS)) {
       return modifiedDurationFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -666,7 +667,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double dirtyPrice = dirtyPriceFromCleanPrice(bond, settlementDate, num / den);
       return num * maturity / den / den / dirtyPrice;
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
 
   private double modifiedDurationFromYieldStandard(
@@ -708,7 +709,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * Macaulay defined an alternative way of weighting the future cash flows. 
    * <p>
    * The input yield must be fractional. The dirty price and its derivative are
-   * computed for {@link YieldConvention}, and the result is expressed in fraction. 
+   * computed for {@link FixedCouponBondYieldConvention}, and the result is expressed in fraction. 
    * 
    * @param bond  the product
    * @param settlementDate  the settlement date
@@ -718,18 +719,16 @@ public class DiscountingFixedCouponBondProductPricer {
   public double macaulayDurationFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) && (nCoupon == 1)) {
+    FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
+    if ((yieldConv.equals(US_STREET)) && (nCoupon == 1)) {
       return factorToNextCoupon(bond, settlementDate) /
           bond.getFrequency().eventsPerYear();
     }
-    if ((yieldConvention.equals(YieldConvention.US_STREET)) ||
-        (yieldConvention.equals(YieldConvention.UK_BUMP_DMO)) ||
-        (yieldConvention.equals(YieldConvention.GERMAN_BONDS))) {
+    if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(UK_BUMP_DMO)) || (yieldConv.equals(GERMAN_BONDS))) {
       return modifiedDurationFromYield(bond, settlementDate, yield) *
           (1d + yield / bond.getFrequency().eventsPerYear());
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
 
   /**
@@ -739,7 +738,7 @@ public class DiscountingFixedCouponBondProductPricer {
    * to yield, divided by the dirty price. 
    * <p>
    * The input yield must be fractional. The dirty price and its derivative are
-   * computed for {@link YieldConvention}, and the result is expressed in fraction. 
+   * computed for {@link FixedCouponBondYieldConvention}, and the result is expressed in fraction. 
    * 
    * @param bond  the product
    * @param settlementDate  the settlement date
@@ -749,9 +748,9 @@ public class DiscountingFixedCouponBondProductPricer {
   public double convexityFromYield(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
-    YieldConvention yieldConvention = bond.getYieldConvention();
+    FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if (nCoupon == 1) {
-      if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+      if (yieldConv.equals(US_STREET) || yieldConv.equals(GERMAN_BONDS)) {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factorToNextCoupon = factorToNextCoupon(bond, settlementDate);
         double timeToPay = factorToNextCoupon / couponPerYear;
@@ -759,11 +758,10 @@ public class DiscountingFixedCouponBondProductPricer {
         return 2d * timeToPay * timeToPay / (disc * disc);
       }
     }
-    if (yieldConvention.equals(YieldConvention.US_STREET) || yieldConvention.equals(YieldConvention.UK_BUMP_DMO) ||
-        yieldConvention.equals(YieldConvention.GERMAN_BONDS)) {
+    if (yieldConv.equals(US_STREET) || yieldConv.equals(UK_BUMP_DMO) || yieldConv.equals(GERMAN_BONDS)) {
       return convexityFromYieldStandard(bond, settlementDate, yield);
     }
-    if (yieldConvention.equals(YieldConvention.JAPAN_SIMPLE)) {
+    if (yieldConv.equals(JAPAN_SIMPLE)) {
       LocalDate maturityDate = bond.getUnadjustedEndDate();
       if (settlementDate.isAfter(maturityDate)) {
         return 0d;
@@ -774,7 +772,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double dirtyPrice = dirtyPriceFromCleanPrice(bond, settlementDate, num / den);
       return 2d * num * Math.pow(maturity, 2) * Math.pow(den, -3) / dirtyPrice;
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.name() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
 
   // assumes notional and coupon rate are constant across the payments. 

@@ -56,8 +56,8 @@ import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
-import com.opengamma.strata.product.bond.YieldConvention;
 
 /**
  * Test
@@ -71,7 +71,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final LocalDate VAL_DATE = date(2016, 4, 25);
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.GERMAN_BONDS;
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
@@ -418,7 +418,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .periodicSchedule(SCHEDULE_US)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
-      .yieldConvention(YieldConvention.US_STREET)
+      .yieldConvention(FixedCouponBondYieldConvention.US_STREET)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -502,7 +502,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .periodicSchedule(SCHEDULE_UK)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, SAT_SUN))
-      .yieldConvention(YieldConvention.UK_BUMP_DMO)
+      .yieldConvention(FixedCouponBondYieldConvention.UK_BUMP_DMO)
       .exCouponPeriod(DaysAdjustment.ofCalendarDays(-7,
           BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, SAT_SUN)))
       .build()
@@ -587,7 +587,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .periodicSchedule(SCHEDULE_GER)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
-      .yieldConvention(YieldConvention.GERMAN_BONDS)
+      .yieldConvention(FixedCouponBondYieldConvention.GERMAN_BONDS)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
@@ -672,7 +672,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .notional(100)
       .periodicSchedule(SCHEDULE_JP)
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, JPTO))
-      .yieldConvention(YieldConvention.JAPAN_SIMPLE)
+      .yieldConvention(FixedCouponBondYieldConvention.JAPAN_SIMPLE)
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
