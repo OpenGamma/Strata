@@ -138,9 +138,8 @@ public final class FxSingle
   /**
    * Creates an {@code FxSingle} using a rate.
    * <p>
-   * This create an FX specifying a value date, notional in one currency, the second currency
-   * and the FX rate between the two.
-   * The currencies of the payments must differ.
+   * This create an FX specifying the amount, FX rate and value date.
+   * The amount must be specified using one of the currencies of the FX rate.
    * <p>
    * This factory identifies the currency pair of the exchange and assigns the payments
    * to match the base or counter currency of the standardized currency pair.
@@ -160,9 +159,8 @@ public final class FxSingle
   /**
    * Creates an {@code FxSingle} using a rate, specifying a date adjustment.
    * <p>
-   * This create an FX specifying a value date, notional in one currency, the second currency
-   * and the FX rate between the two.
-   * The currencies of the payments must differ.
+   * This create an FX specifying the amount, FX rate and value date.
+   * The amount must be specified using one of the currencies of the FX rate.
    * <p>
    * This factory identifies the currency pair of the exchange and assigns the payments
    * to match the base or counter currency of the standardized currency pair.

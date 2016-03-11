@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.Product;
 
 /**
@@ -89,13 +90,13 @@ public final class FxSwap
    * The FX rate at the near date is specified as {@code fxRate}.
    * The FX rate at the far date is equal to {@code fxRate + forwardPoints}
    * <p>
-   * The two currencies must not be equal.
+   * The two currencies are specified by the near FX rate.
+   * The amount must be specified using one of the currencies of the near FX rate.
    * The near date must be before the far date.
    * Conventions will be used to determine the base and counter currency.
    * 
    * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param currency2  the second currency
-   * @param nearFxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
+   * @param nearRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
    * @param forwardPoints  the forward points, where the far FX rate is {@code (fxRate + forwardPoints)}
    * @param nearDate  the near value date
    * @param farDate  the far value date
@@ -103,17 +104,16 @@ public final class FxSwap
    */
   public static FxSwap ofForwardPoints(
       CurrencyAmount amountCurrency1,
-      Currency currency2,
-      double nearFxRate,
+      FxRate nearRate,
       double forwardPoints,
       LocalDate nearDate,
       LocalDate farDate) {
 
     Currency currency1 = amountCurrency1.getCurrency();
-    ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
-    ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
-    FxRate nearRate = FxRate.of(currency1, currency2, nearFxRate);
-    FxRate farRate = FxRate.of(currency1, currency2, nearFxRate + forwardPoints);
+    ArgChecker.isTrue(
+        nearRate.getPair().contains(currency1),
+        Messages.format("Amount and FX rate have a currency in common: {} and {}", amountCurrency1, nearDate));
+    FxRate farRate = nearRate.mapRate(rate -> rate + forwardPoints);
     FxSingle nearLeg = FxSingle.of(amountCurrency1, nearRate, nearDate);
     FxSingle farLeg = FxSingle.of(amountCurrency1.negated(), farRate, farDate);
     return of(nearLeg, farLeg);
@@ -125,13 +125,13 @@ public final class FxSwap
    * The FX rate at the near date is specified as {@code fxRate}.
    * The FX rate at the far date is equal to {@code fxRate + forwardPoints}
    * <p>
-   * The two currencies must not be equal.
+   * The two currencies are specified by the near FX rate.
+   * The amount must be specified using one of the currencies of the near FX rate.
    * The near date must be before the far date.
    * Conventions will be used to determine the base and counter currency.
    * 
    * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param currency2  the second currency
-   * @param nearFxRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
+   * @param nearRate  the near FX rate, where {@code (1.0 * amountCurrency1 = fxRate * amountCurrency2)}
    * @param forwardPoints  the forward points, where the far FX rate is {@code (fxRate + forwardPoints)}
    * @param nearDate  the near value date
    * @param farDate  the far value date
@@ -140,8 +140,7 @@ public final class FxSwap
    */
   public static FxSwap ofForwardPoints(
       CurrencyAmount amountCurrency1,
-      Currency currency2,
-      double nearFxRate,
+      FxRate nearRate,
       double forwardPoints,
       LocalDate nearDate,
       LocalDate farDate,
@@ -149,10 +148,10 @@ public final class FxSwap
 
     ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
     Currency currency1 = amountCurrency1.getCurrency();
-    ArgChecker.isFalse(currency1.equals(currency2), "Currencies must not be equal");
-    ArgChecker.notNegativeOrZero(nearFxRate, "fxRate");
-    FxRate nearRate = FxRate.of(currency1, currency2, nearFxRate);
-    FxRate farRate = FxRate.of(currency1, currency2, nearFxRate + forwardPoints);
+    ArgChecker.isTrue(
+        nearRate.getPair().contains(currency1),
+        Messages.format("Amount and FX rate have a currency in common: {} and {}", amountCurrency1, nearDate));
+    FxRate farRate = nearRate.mapRate(rate -> rate + forwardPoints);
     FxSingle nearLeg = FxSingle.of(amountCurrency1, nearRate, nearDate, paymentDateAdjustment);
     FxSingle farLeg = FxSingle.of(amountCurrency1.negated(), farRate, farDate, paymentDateAdjustment);
     return of(nearLeg, farLeg);

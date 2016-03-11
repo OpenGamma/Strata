@@ -204,6 +204,12 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_mapRate() {
+    FxRate test = FxRate.of(GBP, USD, 1.5d);
+    assertEquals(test.mapRate(r -> r + 0.2), FxRate.of(GBP, USD, 1.7d));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals_hashCode() {
     FxRate a1 = FxRate.of(AUD, GBP, 1.25d);
     FxRate a2 = FxRate.of(AUD, GBP, 1.25d);
