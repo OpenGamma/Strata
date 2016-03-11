@@ -77,7 +77,7 @@ public class BondFutureOptionTradeTest {
 
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   private static final long QUANTITY = 1234;
-  private static final Double INITIAL_PRICE = 0.01;
+  private static final Double PRICE = 0.01;
   private static final StandardId OPTION_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT-OPT");
   private static final StandardId OPTION_SECURITY_ID2 = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT-OPT2");
   private static final Security<BondFutureOption> OPTION_SECURITY_RESOLVED = UnitSecurity
@@ -118,12 +118,12 @@ public class BondFutureOptionTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(OPTION_RESOLVABLE_FUTURE_RESOLVABLE)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), OPTION_RESOLVABLE_FUTURE_RESOLVABLE);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getInitialPrice(), OptionalDouble.of(INITIAL_PRICE));
+    assertEquals(test.getPrice(), OptionalDouble.of(PRICE));
     assertThrows(() -> test.getSecurity(), IllegalStateException.class);
   }
 
@@ -136,7 +136,7 @@ public class BondFutureOptionTradeTest {
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityLink(), OPTION_RESOLVED_FUTURE_RESOLVED);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getInitialPrice(), OptionalDouble.empty());
+    assertEquals(test.getPrice(), OptionalDouble.empty());
     assertEquals(test.getSecurity(), OPTION_SECURITY_RESOLVED);
   }
 
@@ -145,12 +145,12 @@ public class BondFutureOptionTradeTest {
     BondFutureOptionTrade test = BondFutureOptionTrade.builder()
         .securityLink(OPTION_RESOLVABLE_FUTURE_RESOLVABLE)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     BondFutureOptionTrade expected = BondFutureOptionTrade.builder()
         .securityLink(OPTION_RESOLVED_FUTURE_RESOLVED)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.resolveLinks(RESOLVER), expected);
   }
@@ -159,12 +159,12 @@ public class BondFutureOptionTradeTest {
     BondFutureOptionTrade test = BondFutureOptionTrade.builder()
         .securityLink(OPTION_RESOLVED_FUTURE_RESOLVABLE)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     BondFutureOptionTrade expected = BondFutureOptionTrade.builder()
         .securityLink(OPTION_RESOLVED_FUTURE_RESOLVED)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.resolveLinks(RESOLVER), expected);
   }
@@ -173,7 +173,7 @@ public class BondFutureOptionTradeTest {
     BondFutureOptionTrade test = BondFutureOptionTrade.builder()
         .securityLink(OPTION_RESOLVED_FUTURE_RESOLVED)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.resolveLinks(RESOLVER), test);
   }
@@ -184,7 +184,7 @@ public class BondFutureOptionTradeTest {
         .product(OPTION_PRODUCT_RESOLVED.resolve(REF_DATA))
         .securityStandardId(OPTION_SECURITY_ID)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(sut().resolve(REF_DATA), expected);
   }
@@ -205,7 +205,7 @@ public class BondFutureOptionTradeTest {
         .tradeInfo(TRADE_INFO)
         .securityLink(OPTION_RESOLVED_FUTURE_RESOLVED)
         .quantity(QUANTITY)
-        .initialPrice(INITIAL_PRICE)
+        .price(PRICE)
         .build();
   }
 

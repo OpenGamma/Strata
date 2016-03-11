@@ -74,13 +74,13 @@ public class TermDepositCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(TermDepositTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(TermDepositTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(TermDepositTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(TermDepositTrade trade, Set<Measure> measures, ReferenceData refData) {
     TermDeposit product = trade.getProduct();
 
     Set<DiscountCurveKey> discountCurveKeys =

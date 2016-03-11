@@ -144,7 +144,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate FIRST_NOTICE_DATE_SEP = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_SEP, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_SEP = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_SEP, REF_DATA);
   private static final ResolvedBondFuture FUTURE_PRODUCT_SEP = BondFuture.builder()
-      .conversionFactor(CF_SEP)
+      .conversionFactors(CF_SEP)
       .deliveryBasket(UND_BOND_SECURITY_SEP)
       .firstNoticeDate(FIRST_NOTICE_DATE_SEP)
       .lastNoticeDate(LAST_NOTICE_DATE_SEP)
@@ -177,7 +177,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate FIRST_NOTICE_DATE_JUN = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_JUN, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_JUN = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_JUN, REF_DATA);
   private static final ResolvedBondFuture FUTURE_PRODUCT_JUN = BondFuture.builder()
-      .conversionFactor(CF_JUN)
+      .conversionFactors(CF_JUN)
       .deliveryBasket(UND_BOND_SECURITY_JUN)
       .firstNoticeDate(FIRST_NOTICE_DATE_JUN)
       .lastNoticeDate(LAST_NOTICE_DATE_JUN)
@@ -205,7 +205,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LocalDate FIRST_NOTICE_DATE_MAR = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_MAR, REF_DATA);
   private static final LocalDate LAST_NOTICE_DATE_MAR = LAST_TRADE_ADJUST.adjust(LAST_DELIVERY_DATE_MAR, REF_DATA);
   private static final ResolvedBondFuture FUTURE_PRODUCT_MAR = BondFuture.builder()
-      .conversionFactor(CF_MAR)
+      .conversionFactors(CF_MAR)
       .deliveryBasket(UND_BOND_SECURITY)
       .firstNoticeDate(FIRST_NOTICE_DATE_MAR)
       .lastNoticeDate(LAST_NOTICE_DATE_MAR)

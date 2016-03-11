@@ -126,12 +126,12 @@ public class PricingRuleTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTrade1 target) {
+    public Currency naturalCurrency(TestTrade1 trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.empty();
     }
 
@@ -157,12 +157,12 @@ public class PricingRuleTest {
     }
 
     @Override
-    public Currency naturalCurrency(TestTrade1 target) {
+    public Currency naturalCurrency(TestTrade1 trade, ReferenceData refData) {
       return USD;
     }
 
     @Override
-    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures) {
+    public FunctionRequirements requirements(TestTrade1 target, Set<Measure> measures, ReferenceData refData) {
       return FunctionRequirements.empty();
     }
 

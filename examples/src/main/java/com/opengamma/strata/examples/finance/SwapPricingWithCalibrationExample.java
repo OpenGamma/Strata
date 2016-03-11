@@ -175,13 +175,13 @@ public class SwapPricingWithCalibrationExample {
     ReferenceData refData = ReferenceData.standard();
 
     // calibrate the curves and calculate the results
-    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns);
+    MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results);
+    ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results, refData);
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);

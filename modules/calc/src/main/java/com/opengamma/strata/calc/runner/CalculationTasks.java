@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.FunctionConfig;
@@ -244,14 +245,15 @@ public final class CalculationTasks {
    * <p>
    * This can be used to feed into the market data system to obtain and calibrate data.
    *
+   * @param refData  the reference data
    * @return the market data required for all calculations
    * @throws RuntimeException if unable to obtain the requirements
    */
-  public MarketDataRequirements getRequirements() {
+  public MarketDataRequirements getRequirements(ReferenceData refData) {
     MarketDataRequirements reqs = requirements;
     if (reqs == null) {
       List<MarketDataRequirements> result = calculationTasks.stream()
-          .map(CalculationTask::requirements)
+          .map(task -> task.requirements(refData))
           .collect(toList());
       reqs = requirements = MarketDataRequirements.combine(result);
 

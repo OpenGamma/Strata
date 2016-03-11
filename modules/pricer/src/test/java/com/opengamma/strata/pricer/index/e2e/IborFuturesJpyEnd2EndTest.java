@@ -101,7 +101,7 @@ public class IborFuturesJpyEnd2EndTest {
       .tradeInfo(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR)
       .securityStandardId(FUTURE_SECURITY_ID_MAR)
-      .initialPrice(REF_PRICE_MAR * ONE_PERCENT)
+      .price(REF_PRICE_MAR * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in June 2016
@@ -121,7 +121,7 @@ public class IborFuturesJpyEnd2EndTest {
       .tradeInfo(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN)
       .securityStandardId(FUTURE_SECURITY_ID_JUN)
-      .initialPrice(REF_PRICE_JUN * ONE_PERCENT)
+      .price(REF_PRICE_JUN * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in September 2016
@@ -141,7 +141,7 @@ public class IborFuturesJpyEnd2EndTest {
       .tradeInfo(TRADE_INFO)
       .product(FUTURE_PRODUCT_SEP)
       .securityStandardId(FUTURE_SECURITY_ID_SEP)
-      .initialPrice(REF_PRICE_SEP * ONE_PERCENT)
+      .price(REF_PRICE_SEP * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in June 2017
@@ -162,7 +162,7 @@ public class IborFuturesJpyEnd2EndTest {
       .tradeInfo(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN_MID)
       .securityStandardId(FUTURE_SECURITY_ID_JUN_MID)
-      .initialPrice(REF_PRICE_JUN_MID * ONE_PERCENT)
+      .price(REF_PRICE_JUN_MID * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // futures in March 2020
@@ -183,7 +183,7 @@ public class IborFuturesJpyEnd2EndTest {
       .tradeInfo(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR_LONG)
       .securityStandardId(FUTURE_SECURITY_ID_MAR_LONG)
-      .initialPrice(REF_PRICE_MAR_LONG * ONE_PERCENT)
+      .price(REF_PRICE_MAR_LONG * ONE_PERCENT)
       .quantity(QUANTITY)
       .build();
   // pricers
@@ -266,23 +266,23 @@ public class IborFuturesJpyEnd2EndTest {
   public void presentValue() {
     // March 2016
     CurrencyAmount pvMar = TRADE_PRICER.presentValue(FUTURE_TRADE_MAR, RATES_PROVIDER,
-        FUTURE_TRADE_MAR.getInitialPrice());
+        FUTURE_TRADE_MAR.getPrice());
     assertEquals(pvMar.getAmount(), -9738.418878056109, TOL * NOTIONAL);
     // June 2016
     CurrencyAmount pvJun = TRADE_PRICER.presentValue(FUTURE_TRADE_JUN, RATES_PROVIDER,
-        FUTURE_TRADE_JUN.getInitialPrice());
+        FUTURE_TRADE_JUN.getPrice());
     assertEquals(pvJun.getAmount(), -3812.1182441189885, TOL * NOTIONAL);
     // September 2016
     CurrencyAmount pvSep = TRADE_PRICER.presentValue(FUTURE_TRADE_SEP, RATES_PROVIDER,
-        FUTURE_TRADE_SEP.getInitialPrice());
+        FUTURE_TRADE_SEP.getPrice());
     assertEquals(pvSep.getAmount(), -5689.603123847395, TOL * NOTIONAL);
     // June 2017
     CurrencyAmount pvJunMid =
-        TRADE_PRICER.presentValue(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getInitialPrice());
+        TRADE_PRICER.presentValue(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getPrice());
     assertEquals(pvJunMid.getAmount(), 4022.2380772829056, TOL * NOTIONAL);
     // March 2020
     CurrencyAmount pvMarLong =
-        TRADE_PRICER.presentValue(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getInitialPrice());
+        TRADE_PRICER.presentValue(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getPrice());
     assertEquals(pvMarLong.getAmount(), 35818.328803278506, TOL * NOTIONAL);
   }
 
@@ -333,21 +333,21 @@ public class IborFuturesJpyEnd2EndTest {
 
   public void parSpread() {
     // March 2016
-    double psMar = TRADE_PRICER.parSpread(FUTURE_TRADE_MAR, RATES_PROVIDER, FUTURE_TRADE_MAR.getInitialPrice()) * HUNDRED;
+    double psMar = TRADE_PRICER.parSpread(FUTURE_TRADE_MAR, RATES_PROVIDER, FUTURE_TRADE_MAR.getPrice()) * HUNDRED;
     assertEquals(psMar, -0.038953675512221064, TOL * HUNDRED);
     // June 2016
-    double psJun = TRADE_PRICER.parSpread(FUTURE_TRADE_JUN, RATES_PROVIDER, FUTURE_TRADE_JUN.getInitialPrice()) * HUNDRED;
+    double psJun = TRADE_PRICER.parSpread(FUTURE_TRADE_JUN, RATES_PROVIDER, FUTURE_TRADE_JUN.getPrice()) * HUNDRED;
     assertEquals(psJun, -0.01524847297647014, TOL * HUNDRED);
     // September 2016
-    double psSep = TRADE_PRICER.parSpread(FUTURE_TRADE_SEP, RATES_PROVIDER, FUTURE_TRADE_SEP.getInitialPrice()) * HUNDRED;
+    double psSep = TRADE_PRICER.parSpread(FUTURE_TRADE_SEP, RATES_PROVIDER, FUTURE_TRADE_SEP.getPrice()) * HUNDRED;
     assertEquals(psSep, -0.022758412495393898, TOL * HUNDRED);
     // June 2017
     double psJunMid =
-        TRADE_PRICER.parSpread(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getInitialPrice()) * HUNDRED;
+        TRADE_PRICER.parSpread(FUTURE_TRADE_JUN_MID, RATES_PROVIDER, FUTURE_TRADE_JUN_MID.getPrice()) * HUNDRED;
     assertEquals(psJunMid, 0.01608895230913454, TOL * HUNDRED);
     // March 2020
     double psMarLong =
-        TRADE_PRICER.parSpread(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getInitialPrice()) * HUNDRED;
+        TRADE_PRICER.parSpread(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER, FUTURE_TRADE_MAR_LONG.getPrice()) * HUNDRED;
     assertEquals(psMarLong, 0.14327331521311049, TOL * HUNDRED);
   }
 

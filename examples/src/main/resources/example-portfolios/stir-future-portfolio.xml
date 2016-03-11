@@ -27,7 +27,7 @@
     </target>
    </securityLink>
    <quantity>20</quantity>
-   <initialPrice>0.9997</initialPrice>
+   <price>0.9997</price>
   </item>
   <item type="IborFutureTrade">
    <tradeInfo>
@@ -55,7 +55,7 @@
     </target>
    </securityLink>
    <quantity>20</quantity>
-   <initialPrice>0.9997</initialPrice>
+   <price>0.9997</price>
   </item>
  </trades>
 </bean>

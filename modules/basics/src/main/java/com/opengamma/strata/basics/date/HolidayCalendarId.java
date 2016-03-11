@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataId;
+import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
@@ -158,7 +159,7 @@ public final class HolidayCalendarId
    * 
    * @param refData  the reference data, used to resolve the reference
    * @return the resolved holiday calendar
-   * @throws IllegalArgumentException if the identifier is not found
+   * @throws ReferenceDataNotFoundException if the identifier is not found
    */
   @Override
   public HolidayCalendar resolve(ReferenceData refData) {

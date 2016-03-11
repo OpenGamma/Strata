@@ -26,10 +26,14 @@ import com.opengamma.strata.collect.result.Result;
  * for a target (trade) using one or more sets of market data (scenarios).
  * The methods of the function allow the {@link CalculationRunner} to correctly invoke the function:
  * <ul>
- * <li>{@link #supportedMeasures()} - the set of measures that can be calculated
- * <li>{@link #naturalCurrency(CalculationTarget)} - the "natural" currency of the target
- * <li>{@link #requirements(CalculationTarget, Set)} - the market data requirements for performing the calculation
- * <li>{@link #calculate(CalculationTarget, Set, CalculationMarketData, ReferenceData)} - perform the calculation
+ * <li>{@link #supportedMeasures()}
+ *  - the set of measures that can be calculated
+ * <li>{@link #naturalCurrency(CalculationTarget, ReferenceData)}
+ *  - the "natural" currency of the target
+ * <li>{@link #requirements(CalculationTarget, Set, ReferenceData)}
+ *  - the market data requirements for performing the calculation
+ * <li>{@link #calculate(CalculationTarget, Set, CalculationMarketData, ReferenceData)}
+ *  - perform the calculation
  * </ul>
  * <p>
  * If any of the calculated values contain any currency amounts and implement {@link CurrencyConvertible}
@@ -61,10 +65,11 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * An exception must only be thrown if the function handles no currency-convertible measures.
    *
    * @param target  the target of the calculation
+   * @param refData  the reference data to be used in the calculation
    * @return the "natural" currency of the target
    * @throws IllegalStateException if the function calculates no currency-convertible measures
    */
-  public abstract Currency naturalCurrency(T target);
+  public abstract Currency naturalCurrency(T target, ReferenceData refData);
 
   /**
    * Determines the market data required by this function to perform its calculations.
@@ -73,16 +78,17 @@ public interface CalculationFunction<T extends CalculationTarget> {
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to be calculated
+   * @param refData  the reference data to be used in the calculation
    * @return the requirements specifying the market data the function needs to perform calculations
    */
-  public abstract FunctionRequirements requirements(T target, Set<Measure> measures);
+  public abstract FunctionRequirements requirements(T target, Set<Measure> measures, ReferenceData refData);
 
   /**
    * Calculates values of multiple measures for the target using multiple sets of market data.
    * <p>
    * The set of measures must only contain measures that the function supports,
    * as returned by {@link #supportedMeasures()}. The market data must provide at least the
-   * set of data requested by {@link #requirements(CalculationTarget, Set)}.
+   * set of data requested by {@link #requirements(CalculationTarget, Set, ReferenceData)}.
    * <p>
    * The result of this method will often be an instance of {@link ScenarioResult}, which
    * handles the common case where there is one calculated value for each scenario.

@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
 
@@ -34,7 +35,7 @@ import com.opengamma.strata.collect.Messages;
  * This is used to specify the currency that the result should be reporting in.
  * The currency specified may be explicit, using {@link #of(Currency)}, or implicit
  * using {@link #NATURAL}. The "natural" currency of a target is obtained from
- * {@link CalculationFunction#naturalCurrency(CalculationTarget)}.
+ * {@link CalculationFunction#naturalCurrency(CalculationTarget, ReferenceData)}.
  */
 @BeanDefinition(builderScope = "private")
 public final class ReportingCurrency
@@ -44,7 +45,8 @@ public final class ReportingCurrency
    * An instance requesting the "natural" currency of the target.
    * <p>
    * When converting calculation results, conversion will occur to the "natural" currency of the target.
-   * The "natural" currency of a target is obtained from {@link CalculationFunction#naturalCurrency(CalculationTarget)}.
+   * The "natural" currency of a target is obtained
+   * from {@link CalculationFunction#naturalCurrency(CalculationTarget, ReferenceData)}.
    */
   public static final ReportingCurrency NATURAL = new ReportingCurrency(ReportingCurrencyType.NATURAL, null);
 
@@ -80,7 +82,8 @@ public final class ReportingCurrency
    * Checks if the type is 'Natural'.
    * <p>
    * When converting calculation results, conversion will occur to the "natural" currency of the target.
-   * The "natural" currency of a target is obtained from {@link CalculationFunction#naturalCurrency(CalculationTarget)}.
+   * The "natural" currency of a target is obtained
+   * from {@link CalculationFunction#naturalCurrency(CalculationTarget, ReferenceData)}.
    * 
    * @return true if the type is 'Natural'
    */

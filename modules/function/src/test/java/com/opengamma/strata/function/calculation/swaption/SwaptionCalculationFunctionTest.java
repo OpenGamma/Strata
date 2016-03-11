@@ -109,7 +109,7 @@ public class SwaptionCalculationFunctionTest {
   public void test_requirementsAndCurrency() {
     SwaptionCalculationFunction function = new SwaptionCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(
@@ -117,7 +117,7 @@ public class SwaptionCalculationFunctionTest {
             IborIndexCurveKey.of(INDEX),
             SwaptionVolatilitiesKey.of(INDEX)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
-    assertThat(function.naturalCurrency(TRADE)).isEqualTo(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
   public void test_simpleMeasures() {

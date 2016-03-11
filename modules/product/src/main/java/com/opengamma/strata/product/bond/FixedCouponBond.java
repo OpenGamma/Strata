@@ -54,7 +54,7 @@ import com.opengamma.strata.product.Product;
  * <p>
  * The accrual factor between two dates is computed {@code dayCount}. 
  * The legal entity of this fixed coupon bond is identified by {@link StandardId}.
- * The enum, {@link YieldConvention}, specifies the yield computation convention.
+ * The enum, {@link FixedCouponBondYieldConvention}, specifies the yield computation convention.
  */
 @BeanDefinition
 public final class FixedCouponBond
@@ -69,7 +69,7 @@ public final class FixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The notional amount, must be positive. 
+   * The notional amount, must be positive.
    * <p>
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
@@ -85,16 +85,16 @@ public final class FixedCouponBond
   @PropertyDefinition(validate = "notNull")
   private final PeriodicSchedule periodicSchedule;
   /**
-   * The fixed coupon rate. 
+   * The fixed coupon rate.
    * <p>
    * The periodic payments are based on this fixed coupon rate.
    */
   @PropertyDefinition
   private final double fixedRate;
   /**
-   * The day count convention applicable. 
+   * The day count convention applicable.
    * <p>
-   * The conversion from dates to a numerical value is made based on this day count. 
+   * The conversion from dates to a numerical value is made based on this day count.
    * For the fixed bond, the day count convention is used to compute accrued interest.
    * <p>
    * Note that the year fraction of a coupon payment is computed based on the unadjusted
@@ -105,24 +105,24 @@ public final class FixedCouponBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines how to convert from yield to price and inversely.  
+   * The convention defines how to convert from yield to price and inversely.
    */
   @PropertyDefinition(validate = "notNull")
   private final FixedCouponBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the fixed coupon bond product. 
+   * This identifier is used for the legal entity which issues the fixed coupon bond product.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
-   * The number of days between valuation date and settlement date. 
+   * The number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price. 
+   * This is used to compute clean price.
    * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
    * <p>
-   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds. 
+   * It is usually one business day for US treasuries and UK Gilts and three days for Euroland government bonds.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
@@ -134,7 +134,7 @@ public final class FixedCouponBond
    * The difference between the two is the ex-coupon period (measured in days).
    * <p>
    * Because the detachment date is not after the coupon date, the number of days
-   * stored in this field should be zero or negative. 
+   * stored in this field should be zero or negative.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment exCouponPeriod;
