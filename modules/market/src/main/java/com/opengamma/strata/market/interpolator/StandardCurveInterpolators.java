@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.interpolator;
 
-import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator1D;
 
 /**
  * The standard set of curve interpolators.
@@ -32,8 +31,7 @@ final class StandardCurveInterpolators {
   // Natural cubic spline interpolator.
   public static final CurveInterpolator NATURAL_CUBIC_SPLINE = NaturalCubicSplineCurveInterpolator.INSTANCE;
   // Natural spline interpolator.
-  public static final CurveInterpolator NATURAL_SPLINE =
-      new StandardCurveInterpolator("NaturalSpline", new NaturalSplineInterpolator1D());
+  public static final CurveInterpolator NATURAL_SPLINE = NaturalSplineCurveInterpolator.INSTANCE;
   // Log natural cubic spline interpolation for discount factors
   public static final CurveInterpolator LOG_NATURAL_CUBIC_DISCOUNT_FACTOR =
       LogNaturalCubicDiscountFactorCurveInterpolator.INSTANCE;
