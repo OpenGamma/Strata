@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.DoubleUnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -233,23 +232,6 @@ public final class FxRate
    */
   public FxRate toConventional() {
     return pair.isConventional() ? this : FxRate.of(pair.toConventional(), 1 / rate);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns an instance with the rate updated.
-   * <p>
-   * This returns an {@code FxRate} with the same currency pair and an updated rate.
-   * For example, the operator could be used to add the forward points of an FX swap.
-   * <pre>
-   *   forwardRate = nearRate.mapRate(rate -> rate + forwardPoints);
-   * </pre>
-   *
-   * @param operator  the operator to be applied to the existing rate
-   * @return a new instance with the rate updated
-   */
-  public FxRate mapRate(DoubleUnaryOperator operator) {
-    return new FxRate(pair, operator.applyAsDouble(rate));
   }
 
   //-------------------------------------------------------------------------
