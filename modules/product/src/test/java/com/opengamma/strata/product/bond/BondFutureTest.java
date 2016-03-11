@@ -49,7 +49,7 @@ public class BondFutureTest {
   // Underlying bonds
   private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BONDS"); // same repo curve for all bonds
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
-  private static final YieldConvention YIELD_CONVENTION = YieldConvention.US_STREET;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.US_STREET;
   private static final double NOTIONAL = 100000d;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(1, SAT_SUN);
   private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;

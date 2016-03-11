@@ -17,13 +17,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * Yield of a bond security is a conventional number representing the internal rate of
  * return of standardized cash flows.
- * When calculating accrued interest from the yield, it is necessary to use a formula
- * specific to each yield convention. Accordingly, the computation of price, convexity
- * and duration from the yield should be based on this yield convention. 
+ * When calculating accrued interest, it is necessary to use a formula specific to each
+ * yield convention. Accordingly, the computation of price, convexity and duration from
+ * the yield should be based on this yield convention.
  * <p>
- * Reference: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013.
+ * References: "Bond Pricing", OpenGamma Documentation 5, Version 2.0, May 2013
  */
-public enum YieldConvention {
+public enum FixedCouponBondYieldConvention {
 
   /**
    * UK BUMP/DMO method. 
@@ -49,7 +49,7 @@ public enum YieldConvention {
   private final String name;
 
   // create
-  private YieldConvention(String name) {
+  private FixedCouponBondYieldConvention(String name) {
     this.name = name;
   }
 
@@ -62,9 +62,9 @@ public enum YieldConvention {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static YieldConvention of(String uniqueName) {
+  public static FixedCouponBondYieldConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+    return valueOf(uniqueName.replace('-', '_').replace("/", "").toUpperCase(Locale.ENGLISH));
   }
 
   //-------------------------------------------------------------------------

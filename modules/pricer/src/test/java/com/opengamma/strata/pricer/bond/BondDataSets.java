@@ -34,7 +34,7 @@ import com.opengamma.strata.product.bond.BondFutureOption;
 import com.opengamma.strata.product.bond.BondFutureOptionTrade;
 import com.opengamma.strata.product.bond.BondFutureTrade;
 import com.opengamma.strata.product.bond.FixedCouponBond;
-import com.opengamma.strata.product.bond.YieldConvention;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
@@ -45,7 +45,7 @@ public final class BondDataSets {
   //      =====     Fixed coupon bonds, bond future, USD   =====      
   // Fixed coupon bonds
   private static final StandardId ISSUER_ID_USD = StandardId.of("OG-Ticker", "GOVT1");
-  private static final YieldConvention YIELD_CONVENTION_USD = YieldConvention.US_STREET;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION_USD = FixedCouponBondYieldConvention.US_STREET;
   /** Notional of underlying bond */
   public static final double NOTIONAL_USD = 100000.0;
   private static final HolidayCalendarId CALENDAR_USD = HolidayCalendarIds.SAT_SUN;
@@ -127,7 +127,7 @@ public final class BondDataSets {
   //      =====     Fixed coupon bonds, bond future, EUR   =====      
   // bond basket
   private static final StandardId ISSUER_ID_EUR = StandardId.of("OG-Ticker", "GOVT2");
-  private static final YieldConvention YIELD_CONVENTION_EUR = YieldConvention.GERMAN_BONDS;
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION_EUR = FixedCouponBondYieldConvention.GERMAN_BONDS;
   /** Notional of underlying bond */
   public static final double NOTIONAL_EUR = 100000d;
   private static final HolidayCalendarId CALENDAR_EUR = HolidayCalendarIds.EUTA;
