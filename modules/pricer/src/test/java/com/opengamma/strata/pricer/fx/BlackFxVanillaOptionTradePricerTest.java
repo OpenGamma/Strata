@@ -56,8 +56,9 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final DoubleMatrix STRANGLE = DoubleMatrix.ofUnsafe(new double[][] {
       {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120},
     {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } });
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
-      SmileDeltaTermStructureParametersStrikeInterpolation.of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
+          NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
 
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);

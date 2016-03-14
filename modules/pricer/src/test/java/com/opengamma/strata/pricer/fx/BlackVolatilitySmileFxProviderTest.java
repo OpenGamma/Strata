@@ -53,8 +53,8 @@ public class BlackVolatilitySmileFxProviderTest {
     {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 }, {-0.014, -0.0090 } });
   private static final DoubleMatrix STRANGLE = DoubleMatrix.ofUnsafe(new double[][] {
     {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } });
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM =
-      SmileDeltaTermStructureParametersStrikeInterpolation
+  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation
           .of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
@@ -98,7 +98,7 @@ public class BlackVolatilitySmileFxProviderTest {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double volExpected = SMILE_TERM.getVolatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
+        double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
         double volComputed = PROVIDER.getVolatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
@@ -109,7 +109,7 @@ public class BlackVolatilitySmileFxProviderTest {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
-        double volExpected = SMILE_TERM.getVolatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
+        double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
         double volComputed = PROVIDER.getVolatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j],
             1d / FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
@@ -184,7 +184,8 @@ public class BlackVolatilitySmileFxProviderTest {
     double strikeMod = provider.getCurrencyPair().equals(pair) ? strike : 1.0 / strike;
     double forwardMod = provider.getCurrencyPair().equals(pair) ? forward : 1.0 / forward;
 
-    SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = provider.getSmile();
+    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTerm =
+        (InterpolatedSmileDeltaTermStructureStrikeInterpolation) provider.getSmile();
     double[] times = smileTerm.getTimeToExpiry().toArray();
     int nTimes = times.length;
     SmileDeltaParameters[] volTermUp = new SmileDeltaParameters[nTimes];
@@ -213,10 +214,10 @@ public class BlackVolatilitySmileFxProviderTest {
       volTermUp[i] = SmileDeltaParameters.of(times[i], deltas, DoubleArray.copyOf(volsUp));
       volTermDw[i] = SmileDeltaParameters.of(times[i], deltas, DoubleArray.copyOf(volsDw));
     }
-    SmileDeltaTermStructureParametersStrikeInterpolation smileTermUp =
-        SmileDeltaTermStructureParametersStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermUp));
-    SmileDeltaTermStructureParametersStrikeInterpolation smileTermDw =
-        SmileDeltaTermStructureParametersStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermDw));
+    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTermUp =
+        InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermUp));
+    InterpolatedSmileDeltaTermStructureStrikeInterpolation smileTermDw =
+        InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(smileTerm.getName(), ImmutableList.copyOf(volTermDw));
     BlackVolatilitySmileFxProvider provUp =
         BlackVolatilitySmileFxProvider.of(smileTermUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilitySmileFxProvider provDw =

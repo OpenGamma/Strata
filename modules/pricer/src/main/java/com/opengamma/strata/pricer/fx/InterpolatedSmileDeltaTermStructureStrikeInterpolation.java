@@ -40,7 +40,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 
 /**
- * A term structure of smiles as used in Forex market.
+ * An interpolated term structure of smiles as used in Forex market.
  * <p>
  * The term structure defined here is composed of smile descriptions at different times. 
  * The data of each smile contains delta and volatility in {@link SmileDeltaParameters}. 
@@ -54,8 +54,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
  * The default for the strike direction is linear interpolation with flat extrapolation.
  */
 @BeanDefinition(builderScope = "private")
-public final class SmileDeltaTermStructureParametersStrikeInterpolation
-    implements SmileDeltaTermStructureParameters, ImmutableBean, Serializable {
+public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
+    implements InterpolatedSmileDeltaTermStructure, ImmutableBean, Serializable {
 
   /**
    * The name of the smile term structure.
@@ -114,7 +114,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param volatilityTerm  the volatility descriptions
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       List<SmileDeltaParameters> volatilityTerm) {
 
@@ -132,7 +132,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       List<SmileDeltaParameters> volatilityTerm,
       CurveExtrapolator strikeLeftExtrapolator,
@@ -164,7 +164,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       List<SmileDeltaParameters> volatilityTerm,
       CurveExtrapolator timeLeftExtrapolator,
@@ -182,7 +182,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
     }
     DoubleArray timeToExpiry =
         DoubleArray.copyOf(volatilityTerm.stream().map(vt -> vt.getTimeToExpiry()).collect(Collectors.toList()));
-    return new SmileDeltaTermStructureParametersStrikeInterpolation(
+    return new InterpolatedSmileDeltaTermStructureStrikeInterpolation(
         name,
         volatilityTerm,
         timeLeftExtrapolator,
@@ -210,7 +210,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param volatility  the volatilities
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -239,7 +239,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -284,7 +284,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -309,11 +309,10 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
         volatility.columnCount(), 2 * delta.size() + 1);
     SmileDeltaParameters[] vt = new SmileDeltaParameters[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
-      vt[loopexp] = SmileDeltaParameters.of(
-          timeToExpiry.get(loopexp), delta, DoubleArray.copyOf(volatility.rowArray(loopexp)));
+      vt[loopexp] = SmileDeltaParameters.of(timeToExpiry.get(loopexp), delta, volatility.row(loopexp));
     }
 
-    return new SmileDeltaTermStructureParametersStrikeInterpolation(
+    return new InterpolatedSmileDeltaTermStructureStrikeInterpolation(
         name,
         ImmutableList.copyOf(vt),
         timeLeftExtrapolator,
@@ -341,7 +340,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strangle  the strangle figures
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -371,7 +370,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -419,7 +418,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
    * @param strikeRightExtrapolator  right extrapolator used in the strike dimension
    * @return the instance
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation of(
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation of(
       String name,
       DoubleArray timeToExpiry,
       DoubleArray delta,
@@ -453,11 +452,11 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
           timeToExpiry.get(loopexp),
           atm.get(loopexp),
           delta,
-          DoubleArray.copyOf(riskReversal.rowArray(loopexp)),
-          DoubleArray.copyOf(strangle.rowArray(loopexp)));
+          riskReversal.row(loopexp),
+          strangle.row(loopexp));
     }
 
-    return new SmileDeltaTermStructureParametersStrikeInterpolation(
+    return new InterpolatedSmileDeltaTermStructureStrikeInterpolation(
         name,
         ImmutableList.copyOf(vt),
         timeLeftExtrapolator,
@@ -471,7 +470,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
-  private SmileDeltaTermStructureParametersStrikeInterpolation(
+  private InterpolatedSmileDeltaTermStructureStrikeInterpolation(
       String name,
       List<SmileDeltaParameters> volatilityTerm,
       CurveExtrapolator timeLeftExtrapolator,
@@ -501,14 +500,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
 
   //-------------------------------------------------------------------------
   @Override
-  public SmileDeltaTermStructureParametersStrikeInterpolation copy() {
-    return new SmileDeltaTermStructureParametersStrikeInterpolation(
-        name, volatilityTerm, timeLeftExtrapolator, timeInterpolator, timeRightExtrapolator, strikeLeftExtrapolator,
-        strikeInterpolator, strikeRightExtrapolator, timeToExpiry);
-  }
-
-  @Override
-  public double getVolatility(double time, double strike, double forward) {
+  public double volatility(double time, double strike, double forward) {
     ArgChecker.isTrue(time >= 0, "Positive time");
     SmileDeltaParameters smile = getSmileForTime(time);
     DoubleArray strikes = smile.getStrike(forward);
@@ -518,7 +510,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
   }
 
   @Override
-  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(double time, double strike, double forward) {
+  public VolatilityAndBucketedSensitivities volatilityAndSensitivities(double time, double strike, double forward) {
     ArgChecker.isTrue(time >= 0, "Positive time");
     SmileDeltaParameters smile = getSmileForTime(time);
     DoubleArray strikes = smile.getStrike(forward);
@@ -533,15 +525,15 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SmileDeltaTermStructureParametersStrikeInterpolation}.
+   * The meta-bean for {@code InterpolatedSmileDeltaTermStructureStrikeInterpolation}.
    * @return the meta-bean, not null
    */
-  public static SmileDeltaTermStructureParametersStrikeInterpolation.Meta meta() {
-    return SmileDeltaTermStructureParametersStrikeInterpolation.Meta.INSTANCE;
+  public static InterpolatedSmileDeltaTermStructureStrikeInterpolation.Meta meta() {
+    return InterpolatedSmileDeltaTermStructureStrikeInterpolation.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SmileDeltaTermStructureParametersStrikeInterpolation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(InterpolatedSmileDeltaTermStructureStrikeInterpolation.Meta.INSTANCE);
   }
 
   /**
@@ -550,8 +542,8 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
   private static final long serialVersionUID = 1L;
 
   @Override
-  public SmileDeltaTermStructureParametersStrikeInterpolation.Meta metaBean() {
-    return SmileDeltaTermStructureParametersStrikeInterpolation.Meta.INSTANCE;
+  public InterpolatedSmileDeltaTermStructureStrikeInterpolation.Meta metaBean() {
+    return InterpolatedSmileDeltaTermStructureStrikeInterpolation.Meta.INSTANCE;
   }
 
   @Override
@@ -661,7 +653,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SmileDeltaTermStructureParametersStrikeInterpolation other = (SmileDeltaTermStructureParametersStrikeInterpolation) obj;
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation other = (InterpolatedSmileDeltaTermStructureStrikeInterpolation) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(volatilityTerm, other.volatilityTerm) &&
           JodaBeanUtils.equal(timeLeftExtrapolator, other.timeLeftExtrapolator) &&
@@ -693,7 +685,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
-    buf.append("SmileDeltaTermStructureParametersStrikeInterpolation{");
+    buf.append("InterpolatedSmileDeltaTermStructureStrikeInterpolation{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("volatilityTerm").append('=').append(volatilityTerm).append(',').append(' ');
     buf.append("timeLeftExtrapolator").append('=').append(timeLeftExtrapolator).append(',').append(' ');
@@ -709,7 +701,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SmileDeltaTermStructureParametersStrikeInterpolation}.
+   * The meta-bean for {@code InterpolatedSmileDeltaTermStructureStrikeInterpolation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -721,48 +713,48 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", SmileDeltaTermStructureParametersStrikeInterpolation.class, String.class);
+        this, "name", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, String.class);
     /**
      * The meta-property for the {@code volatilityTerm} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableList<SmileDeltaParameters>> volatilityTerm = DirectMetaProperty.ofImmutable(
-        this, "volatilityTerm", SmileDeltaTermStructureParametersStrikeInterpolation.class, (Class) ImmutableList.class);
+        this, "volatilityTerm", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code timeLeftExtrapolator} property.
      */
     private final MetaProperty<CurveExtrapolator> timeLeftExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "timeLeftExtrapolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveExtrapolator.class);
+        this, "timeLeftExtrapolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveExtrapolator.class);
     /**
      * The meta-property for the {@code timeInterpolator} property.
      */
     private final MetaProperty<CurveInterpolator> timeInterpolator = DirectMetaProperty.ofImmutable(
-        this, "timeInterpolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveInterpolator.class);
+        this, "timeInterpolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveInterpolator.class);
     /**
      * The meta-property for the {@code timeRightExtrapolator} property.
      */
     private final MetaProperty<CurveExtrapolator> timeRightExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "timeRightExtrapolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveExtrapolator.class);
+        this, "timeRightExtrapolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveExtrapolator.class);
     /**
      * The meta-property for the {@code strikeLeftExtrapolator} property.
      */
     private final MetaProperty<CurveExtrapolator> strikeLeftExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "strikeLeftExtrapolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveExtrapolator.class);
+        this, "strikeLeftExtrapolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveExtrapolator.class);
     /**
      * The meta-property for the {@code strikeInterpolator} property.
      */
     private final MetaProperty<CurveInterpolator> strikeInterpolator = DirectMetaProperty.ofImmutable(
-        this, "strikeInterpolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveInterpolator.class);
+        this, "strikeInterpolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveInterpolator.class);
     /**
      * The meta-property for the {@code strikeRightExtrapolator} property.
      */
     private final MetaProperty<CurveExtrapolator> strikeRightExtrapolator = DirectMetaProperty.ofImmutable(
-        this, "strikeRightExtrapolator", SmileDeltaTermStructureParametersStrikeInterpolation.class, CurveExtrapolator.class);
+        this, "strikeRightExtrapolator", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, CurveExtrapolator.class);
     /**
      * The meta-property for the {@code timeToExpiry} property.
      */
     private final MetaProperty<DoubleArray> timeToExpiry = DirectMetaProperty.ofImmutable(
-        this, "timeToExpiry", SmileDeltaTermStructureParametersStrikeInterpolation.class, DoubleArray.class);
+        this, "timeToExpiry", InterpolatedSmileDeltaTermStructureStrikeInterpolation.class, DoubleArray.class);
     /**
      * The meta-properties.
      */
@@ -810,13 +802,13 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
     }
 
     @Override
-    public BeanBuilder<? extends SmileDeltaTermStructureParametersStrikeInterpolation> builder() {
-      return new SmileDeltaTermStructureParametersStrikeInterpolation.Builder();
+    public BeanBuilder<? extends InterpolatedSmileDeltaTermStructureStrikeInterpolation> builder() {
+      return new InterpolatedSmileDeltaTermStructureStrikeInterpolation.Builder();
     }
 
     @Override
-    public Class<? extends SmileDeltaTermStructureParametersStrikeInterpolation> beanType() {
-      return SmileDeltaTermStructureParametersStrikeInterpolation.class;
+    public Class<? extends InterpolatedSmileDeltaTermStructureStrikeInterpolation> beanType() {
+      return InterpolatedSmileDeltaTermStructureStrikeInterpolation.class;
     }
 
     @Override
@@ -902,23 +894,23 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getName();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getName();
         case 70074929:  // volatilityTerm
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getVolatilityTerm();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getVolatilityTerm();
         case 744543655:  // timeLeftExtrapolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getTimeLeftExtrapolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getTimeLeftExtrapolator();
         case -587914188:  // timeInterpolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getTimeInterpolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getTimeInterpolator();
         case 137585666:  // timeRightExtrapolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getTimeRightExtrapolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getTimeRightExtrapolator();
         case -145000308:  // strikeLeftExtrapolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getStrikeLeftExtrapolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getStrikeLeftExtrapolator();
         case 815202713:  // strikeInterpolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getStrikeInterpolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getStrikeInterpolator();
         case -1668473411:  // strikeRightExtrapolator
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getStrikeRightExtrapolator();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getStrikeRightExtrapolator();
         case -1831499397:  // timeToExpiry
-          return ((SmileDeltaTermStructureParametersStrikeInterpolation) bean).getTimeToExpiry();
+          return ((InterpolatedSmileDeltaTermStructureStrikeInterpolation) bean).getTimeToExpiry();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -936,9 +928,9 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code SmileDeltaTermStructureParametersStrikeInterpolation}.
+   * The bean-builder for {@code InterpolatedSmileDeltaTermStructureStrikeInterpolation}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<SmileDeltaTermStructureParametersStrikeInterpolation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<InterpolatedSmileDeltaTermStructureStrikeInterpolation> {
 
     private String name;
     private List<SmileDeltaParameters> volatilityTerm = ImmutableList.of();
@@ -1045,8 +1037,8 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
     }
 
     @Override
-    public SmileDeltaTermStructureParametersStrikeInterpolation build() {
-      return new SmileDeltaTermStructureParametersStrikeInterpolation(
+    public InterpolatedSmileDeltaTermStructureStrikeInterpolation build() {
+      return new InterpolatedSmileDeltaTermStructureStrikeInterpolation(
           name,
           volatilityTerm,
           timeLeftExtrapolator,
@@ -1062,7 +1054,7 @@ public final class SmileDeltaTermStructureParametersStrikeInterpolation
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(320);
-      buf.append("SmileDeltaTermStructureParametersStrikeInterpolation.Builder{");
+      buf.append("InterpolatedSmileDeltaTermStructureStrikeInterpolation.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("volatilityTerm").append('=').append(JodaBeanUtils.toString(volatilityTerm)).append(',').append(' ');
       buf.append("timeLeftExtrapolator").append('=').append(JodaBeanUtils.toString(timeLeftExtrapolator)).append(',').append(' ');

@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * of this value to the volatility data points that were used to construct the surface.
  */
 @BeanDefinition(builderScope = "private")
-final class VolatilityAndBucketedSensitivities
+public final class VolatilityAndBucketedSensitivities
     implements ImmutableBean, Serializable {
 
   /**
