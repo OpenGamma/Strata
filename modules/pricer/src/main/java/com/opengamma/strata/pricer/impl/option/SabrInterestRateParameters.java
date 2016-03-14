@@ -219,8 +219,8 @@ public final class SabrInterestRateParameters
    * <p>
    * The derivatives are stored in an array with:
    * <ul>
-   * <li>[0] derivative with respect to the forward
-   * <li>[1] derivative with respect to the forward strike
+   * <li>[0] derivative with respect to the strike
+   * <li>[1] derivative with respect to the forward
    * <li>[2] derivative with respect to the alpha
    * <li>[3] derivative with respect to the beta
    * <li>[4] derivative with respect to the rho

@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
@@ -271,10 +272,11 @@ public class VolatilitySwaptionPhysicalProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption.
+   * Calculates the present value curve sensitivity of the swaption in a sticky strike sense.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value curve sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves. 'Sticky strike' means that in computing the derivative with respect to curves, 
+   * the volatility is kept identical for identical strikes.
    * 
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
@@ -308,6 +310,47 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double sign = expanded.getLongShort().sign();
     return pvbpDr.multipliedBy(price * sign * Math.signum(pvbp))
         .combinedWith(forwardDr.multipliedBy(delta * Math.abs(pvbp) * sign));
+  }
+  
+  /**
+   * Calculates the present value curve sensitivity of the swaption in a sticky simple moneyness sense.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves. 'Sticky simple moneyness' means that in computing the derivative with respect to curves, 
+   * the volatility is kept identical for situations where the options have the same simple moneyness (strike - forward).
+   * 
+   * @param swaption  the swaption
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the volatilities
+   * @return the present value curve sensitivity of the swap product
+   */
+  public PointSensitivityBuilder presentValueSensitivityStickySimpleMoneyness(
+      ResolvedSwaption swaption,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities swaptionVolatilities) {
+
+    validate(swaption, ratesProvider, swaptionVolatilities);
+    double expiry = swaptionVolatilities.relativeTime(swaption.getExpiry());
+    ResolvedSwap underlying = swaption.getUnderlying();
+    ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
+    if (expiry < 0d) { // Option has expired already
+      return PointSensitivityBuilder.none();
+    }
+    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
+    double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
+    double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
+    ValueDerivatives volatility = swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward);
+    PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
+    double price = swaptionVolatilities.price(expiry, tenor, putCall, strike, forward, volatility.getValue());
+    // Backward sweep
+    double delta = swaptionVolatilities.priceDelta(expiry, tenor, putCall, strike, forward, volatility.getValue());
+    double vega = swaptionVolatilities.priceVega(expiry, tenor, putCall, strike, forward, volatility.getValue()); 
+    PointSensitivityBuilder pvbpDr = getSwapPricer().getLegPricer().pvbpSensitivity(fixedLeg, ratesProvider);
+    PointSensitivityBuilder forwardDr = getSwapPricer().parRateSensitivity(underlying, ratesProvider);
+    double sign = swaption.getLongShort().sign();
+    return pvbpDr.multipliedBy(price * sign * Math.signum(pvbp))
+        .combinedWith(forwardDr.multipliedBy((delta + vega * volatility.getDerivative(2)) * Math.abs(pvbp) * sign));
   }
 
   //-------------------------------------------------------------------------

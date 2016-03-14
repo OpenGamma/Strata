@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
@@ -82,6 +83,30 @@ public interface SwaptionVolatilities
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double volatility(double expiry, double tenor, double strike, double forward);
+  
+  /**
+   * Calculates the volatility and its derivatives with respect to the inputs at the specified date-time.
+   * 
+   * @param expiryDateTime  the option expiry
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @param strike  the option strike rate
+   * @param forward  the forward rate of the underlying swap
+   * @return the volatility and its derivatives
+   */
+  public default ValueDerivatives volatilityAdjoint(ZonedDateTime expiryDateTime, double tenor, double strike, double forward) {
+    return volatilityAdjoint(relativeTime(expiryDateTime), tenor, strike, forward);
+  }
+
+  /** 
+   * Calculates the volatility and its derivatives with respect to the inputs.
+   * 
+   * @param expiry  the time to expiry as a year fraction
+   * @param tenor  the tenor of the instrument as a year fraction
+   * @param strike  the option strike rate
+   * @param forward  the forward rate of the underlying swap
+   * @return the volatility and its derivatives
+   */
+  public abstract ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward);
 
   /**
    * Calculates the surface parameter sensitivity from the point sensitivity.

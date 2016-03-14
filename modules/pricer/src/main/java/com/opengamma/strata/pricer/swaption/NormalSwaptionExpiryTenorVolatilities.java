@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
@@ -131,6 +132,12 @@ public final class NormalSwaptionExpiryTenorVolatilities
   @Override
   public double volatility(double expiry, double tenor, double strike, double forwardRate) {
     return surface.zValue(expiry, tenor);
+  }
+
+  @Override
+  public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override

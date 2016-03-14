@@ -30,12 +30,13 @@ public interface SabrSwaptionVolatilities
    * <p>
    * The derivatives are stored in an array with:
    * <ul>
-   * <li>[0] derivative with respect to the forward
-   * <li>[1] derivative with respect to the forward strike
-   * <li>[2] derivative with respect to the alpha
-   * <li>[3] derivative with respect to the beta
-   * <li>[4] derivative with respect to the rho
-   * <li>[5] derivative with respect to the nu
+   * <li>[0] derivative with respect to the expiry
+   * <li>[1] derivative with respect to the strike
+   * <li>[2] derivative with respect to the forward 
+   * <li>[3] derivative with respect to the alpha
+   * <li>[4] derivative with respect to the beta
+   * <li>[5] derivative with respect to the rho
+   * <li>[6] derivative with respect to the nu
    * </ul>
    * 
    * @param expiry  the time to expiry as a year fraction
@@ -44,6 +45,7 @@ public interface SabrSwaptionVolatilities
    * @param forward  the forward
    * @return the volatility and associated sensitivities
    */
+  @Override
   public abstract ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward);
 
 }

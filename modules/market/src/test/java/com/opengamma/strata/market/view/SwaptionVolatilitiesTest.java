@@ -14,6 +14,8 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -88,6 +90,12 @@ public class SwaptionVolatilitiesTest {
     @Override
     public double tenor(LocalDate startDate, LocalDate endDate) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
+      double vol =  expiry * 2d;
+      return ValueDerivatives.of(vol, DoubleArray.ofUnsafe(new double[] {2.0d, 0.0d, 0.0d, 0.0d}));
     }
 
   }
