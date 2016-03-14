@@ -5,9 +5,7 @@
  */
 package com.opengamma.strata.market.surface;
 
-import java.util.Map;
 
-import com.opengamma.strata.collect.tuple.DoublesPair;
 
 /**
  * Testing surface implementation.
@@ -43,7 +41,7 @@ public class TestingSurface implements Surface {
   }
 
   @Override
-  public Map<DoublesPair, Double> zValueParameterSensitivity(double x, double y) {
+  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     throw new IllegalStateException();
   }
 

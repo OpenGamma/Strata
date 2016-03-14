@@ -24,12 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.function.DoubleTernaryOperator;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 
 /**
  * A surface based on a single constant value.
@@ -132,8 +130,8 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public Map<DoublesPair, Double> zValueParameterSensitivity(double x, double y) {
-    return ImmutableMap.of(DoublesPair.of(0, 0), 1d);
+  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+    return SurfaceUnitParameterSensitivity.of(metadata, DoubleArray.of(1d));
   }
 
   //-------------------------------------------------------------------------
