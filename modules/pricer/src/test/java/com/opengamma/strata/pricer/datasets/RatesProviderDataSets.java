@@ -22,7 +22,9 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -30,6 +32,8 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -39,6 +43,7 @@ public class RatesProviderDataSets {
 
   /** Wednesday. */
   public static final LocalDate VAL_DATE_2014_01_22 = LocalDate.of(2014, 1, 22);
+  public static final LocalDate VAL_DATE_END_OF_MONTH = LocalDate.of(2014, 1, 31);
 
   public static final DoubleArray TIMES_1 = DoubleArray.of(
       0.01, 0.25, 0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 10 nodes
@@ -46,6 +51,8 @@ public class RatesProviderDataSets {
       0.25, 0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 9 nodes
   public static final DoubleArray TIMES_3 = DoubleArray.of(
       0.50, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 30.0); // 8 nodes
+  public static final DoubleArray TIMES_4 = DoubleArray.of(
+      10.0, 22.0, 34.0, 58.0, 82.0, 118.0, 178.0); // 7 nodes
   public static final DoubleArray RATES_1 = DoubleArray.of(
       0.0100, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0160, 0.0170, 0.0180, 0.0190);
   public static final DoubleArray RATES_2 = DoubleArray.of(
@@ -70,6 +77,8 @@ public class RatesProviderDataSets {
       0.0170, 0.0180, 0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250);
   public static final DoubleArray RATES_3_3 = DoubleArray.of(
       0.0190, 0.0200, 0.0210, 0.0220, 0.0230, 0.0240, 0.0250, 0.0260);
+  public static final DoubleArray VALUES_4 = DoubleArray.of(
+      1.98, 2.05, 2.14, 2.28, 2.42, 2.57, 2.88); // small values for testing purposes
   public static final DoubleArray RATES_1_1_SIMPLE;
   public static final DoubleArray RATES_2_1_SIMPLE;
   public static final DoubleArray RATES_3_1_SIMPLE;
@@ -128,6 +137,7 @@ public class RatesProviderDataSets {
   public static final CurveName USD_DSC_NAME = CurveName.of("USD-DSCON");
   public static final CurveName USD_L3_NAME = CurveName.of("USD-LIBOR3M");
   public static final CurveName USD_L6_NAME = CurveName.of("USD-LIBOR6M");
+  public static final CurveName USD_CPI_NAME = CurveName.of("US-CPI-U");
   private static final CurveMetadata USD_SINGLE_METADATA = Curves.zeroRates(USD_SINGLE_NAME, ACT_360);
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates(USD_DSC_NAME, ACT_360);
   private static final CurveMetadata USD_L3_METADATA = Curves.zeroRates(USD_L3_NAME, ACT_360);
@@ -135,8 +145,11 @@ public class RatesProviderDataSets {
   private static final CurveMetadata USD_DSC_METADATA_SIMPLE = Curves.discountFactors(USD_DSC_NAME, ACT_360);
   private static final CurveMetadata USD_L3_METADATA_SIMPLE = Curves.discountFactors(USD_L3_NAME, ACT_360);
   private static final CurveMetadata USD_L6_METADATA_SIMPLE = Curves.discountFactors(USD_L6_NAME, ACT_360);
+  private static final CurveMetadata PRICE_INDEX_METADATA = Curves.prices(USD_CPI_NAME);
   private static final Curve USD_SINGLE_CURVE =
       InterpolatedNodalCurve.of(USD_SINGLE_METADATA, TIMES_1, RATES_1_1, INTERPOLATOR);
+  private static final LocalDateDoubleTimeSeries PRICE_INDEX_TS =
+      LocalDateDoubleTimeSeries.of(VAL_DATE_END_OF_MONTH, 193.0);
 
   public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
@@ -159,6 +172,10 @@ public class RatesProviderDataSets {
       InterpolatedNodalCurve.of(USD_L3_METADATA_SIMPLE, TIMES_2, RATES_2_1_SIMPLE, INTERPOLATOR);
   private static final Curve USD_L6_SIMPLE =
       InterpolatedNodalCurve.of(USD_L6_METADATA_SIMPLE, TIMES_3, RATES_3_1_SIMPLE, INTERPOLATOR);
+  private static final InterpolatedNodalCurve PRICE_INDEX_CURVE =
+      InterpolatedNodalCurve.of(PRICE_INDEX_METADATA, TIMES_4, VALUES_4, INTERPOLATOR);
+  private static final PriceIndexValues USD_CPI =
+      ForwardPriceIndexValues.of(PriceIndices.US_CPI_U, VAL_DATE_2014_01_22, PRICE_INDEX_CURVE, PRICE_INDEX_TS);
 
   public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
@@ -166,6 +183,15 @@ public class RatesProviderDataSets {
       .overnightIndexCurve(USD_FED_FUND, USD_DSC)
       .iborIndexCurve(USD_LIBOR_3M, USD_L3)
       .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+      .build();
+
+  public static final ImmutableRatesProvider MULTI_CPI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
+      .fxRateProvider(FX_MATRIX_USD)
+      .discountCurve(USD, USD_DSC)
+      .overnightIndexCurve(USD_FED_FUND, USD_DSC)
+      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
+      .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+      .priceIndexValues(USD_CPI)
       .build();
 
   //-------------------------------------------------------------------------

@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -25,6 +26,8 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.SimpleDiscountFactors;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
@@ -56,11 +59,12 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
 
   @Test
   public void sensitivity_multi_curve() {
-    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_USD, this::fn);
+    CurveCurrencyParameterSensitivities sensiComputed = FD_CALCULATOR.sensitivity(RatesProviderDataSets.MULTI_CPI_USD, this::fn);
     DoubleArray times1 = RatesProviderDataSets.TIMES_1;
     DoubleArray times2 = RatesProviderDataSets.TIMES_2;
     DoubleArray times3 = RatesProviderDataSets.TIMES_3;
-    assertEquals(sensiComputed.size(), 3);
+    DoubleArray times4 = RatesProviderDataSets.TIMES_4;
+    assertEquals(sensiComputed.size(), 4);
     DoubleArray s1 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_DSC_NAME, USD).getSensitivity();
     assertEquals(s1.size(), times1.size());
     for (int i = 0; i < times1.size(); i++) {
@@ -75,6 +79,11 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     assertEquals(s3.size(), times3.size());
     for (int i = 0; i < times3.size(); i++) {
       assertEquals(times3.get(i), s3.get(i), TOLERANCE_DELTA);
+    }
+    DoubleArray s4 = sensiComputed.getSensitivity(RatesProviderDataSets.USD_CPI_NAME, USD).getSensitivity();
+    assertEquals(s4.size(), times4.size());
+    for (int i = 0; i < times4.size(); i++) {
+      assertEquals(times4.get(i), s4.get(i), TOLERANCE_DELTA);
     }
   }
 
@@ -91,6 +100,12 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     ImmutableMap<Index, Curve> mapIndex = provider.getIndexCurves();
     for (Entry<Index, Curve> entry : mapIndex.entrySet()) {
       InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
+      result += sumProduct(curveInt);
+    }
+    // Price index
+    ImmutableMap<PriceIndex, PriceIndexValues> mapPriceIndex = provider.getPriceIndexValues();
+    for (Entry<PriceIndex, PriceIndexValues> entry : mapPriceIndex.entrySet()) {
+      InterpolatedNodalCurve curveInt = ((ForwardPriceIndexValues) entry.getValue()).getCurve();
       result += sumProduct(curveInt);
     }
     return CurrencyAmount.of(USD, result);

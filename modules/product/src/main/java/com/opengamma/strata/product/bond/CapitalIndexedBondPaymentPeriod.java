@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -30,20 +30,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
+import com.opengamma.strata.product.rate.RateObservation;
 import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
 
 /**
- * A period over which a fixed coupon is paid.
+ * A coupon or nominal payment of capital indexed bonds.
  * <p>
- * A single payment period within a fixed coupon bond, {@link ResolvedFixedCouponBond}.
- * The payments of the fixed coupon bond consist periodic coupon payments and nominal payment.
- * This class represents a single payment of the periodic payments. 
+ * A single payment period within a capital indexed bond, {@link ResolvedCapitalIndexedBond}.
+ * Since All the cash flows of the capital indexed bond are adjusted for inflation,  
+ * both of the periodic payments and nominal payment are represented by this class.
  */
 @BeanDefinition
-public final class FixedCouponBondPaymentPeriod
+public final class CapitalIndexedBondPaymentPeriod
     implements NotionalPaymentPeriod, ImmutableBean, Serializable {
 
   /**
@@ -55,13 +57,21 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The notional amount, must be positive. 
+   * The notional amount, must be non-zero.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition
   private final double notional;
+  /**
+   * The rate of real coupon. 
+   * <p>
+   * The real coupon is the rate before taking the inflation into account.
+   * For example, a real coupon of c for semi-annual payments is c/2. 
+   */
+  @PropertyDefinition
+  private final double realCoupon;
   /**
    * The start date of the payment period.
    * <p>
@@ -108,61 +118,76 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "notNull")
   private final LocalDate detachmentDate;
   /**
-   * The fixed coupon rate. 
+   * The rate to be observed.
    * <p>
-   * The single payment is based on this fixed coupon rate.
+   * The value of the period is based on this rate.
+   * This must be an inflation rate observation, specifically {@link InflationEndInterpolatedRateObservation}
+   * or {@link InflationEndMonthRateObservation}.
    */
-  @PropertyDefinition
-  private final double fixedRate;
-  /**
-   * The year fraction that the accrual period represents.
-   * <p>
-   * The year fraction of a bond period is based on the unadjusted dates.
-   * <p>
-   * The value is usually calculated using a {@link DayCount}.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   * The fraction may be greater than 1, but not less than 0.
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double yearFraction;
+  @PropertyDefinition(validate = "notNull")
+  private final RateObservation rateObservation;
 
   //-------------------------------------------------------------------------
-  // could use @ImmutablePreBuild and @ImmutableValidate but faster inline
   @ImmutableConstructor
-  private FixedCouponBondPaymentPeriod(
+  private CapitalIndexedBondPaymentPeriod(
       Currency currency,
       double notional,
+      double realCoupon,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate unadjustedStartDate,
       LocalDate unadjustedEndDate,
       LocalDate detachmentDate,
-      double fixedRate,
-      double yearFraction) {
+      RateObservation rateObservation) {
     this.currency = ArgChecker.notNull(currency, "currency");
-    this.notional = notional;
+    this.notional = ArgChecker.notZero(notional, 0d, "notional");
+    this.realCoupon = ArgChecker.notNegative(realCoupon, "realCoupon");
     this.startDate = ArgChecker.notNull(startDate, "startDate");
     this.endDate = ArgChecker.notNull(endDate, "endDate");
     this.unadjustedStartDate = firstNonNull(unadjustedStartDate, startDate);
     this.unadjustedEndDate = firstNonNull(unadjustedEndDate, endDate);
     this.detachmentDate = firstNonNull(detachmentDate, endDate);
-    this.fixedRate = fixedRate;
-    this.yearFraction = yearFraction;
-    // check for unadjusted must be after firstNonNull
+    this.rateObservation = ArgChecker.notNull(rateObservation, "rateObservation");
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
     ArgChecker.inOrderOrEqual(this.detachmentDate, this.endDate, "detachmentDate", "endDate");
+    ArgChecker.isTrue(rateObservation instanceof InflationEndInterpolatedRateObservation ||
+        rateObservation instanceof InflationEndMonthRateObservation,
+        "rateObservation must be inflation rate observation");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a payment period with unit real coupon and 0 ex-coupon days from this instance. 
+   * <p>
+   * The main use of this method is to create a nominal payment from the final periodic payment. 
+   * 
+   * @param startDate  the start date
+   * @param unadjustedStartDate  the unadjusted start date
+   * @return the payment period
+   */
+  CapitalIndexedBondPaymentPeriod withUnitCoupon(LocalDate startDate, LocalDate unadjustedStartDate) {
+    return new CapitalIndexedBondPaymentPeriod(
+        currency,
+        notional,
+        1d,
+        startDate,
+        endDate,
+        unadjustedStartDate,
+        unadjustedEndDate,
+        endDate,
+        rateObservation);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    // no index
+    rateObservation.collectIndices(builder);
   }
 
   @Override
-  public FixedCouponBondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
+  public CapitalIndexedBondPaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
     return this;
   }
 
@@ -201,15 +226,15 @@ public final class FixedCouponBondPaymentPeriod
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FixedCouponBondPaymentPeriod}.
+   * The meta-bean for {@code CapitalIndexedBondPaymentPeriod}.
    * @return the meta-bean, not null
    */
-  public static FixedCouponBondPaymentPeriod.Meta meta() {
-    return FixedCouponBondPaymentPeriod.Meta.INSTANCE;
+  public static CapitalIndexedBondPaymentPeriod.Meta meta() {
+    return CapitalIndexedBondPaymentPeriod.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FixedCouponBondPaymentPeriod.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CapitalIndexedBondPaymentPeriod.Meta.INSTANCE);
   }
 
   /**
@@ -221,13 +246,13 @@ public final class FixedCouponBondPaymentPeriod
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FixedCouponBondPaymentPeriod.Builder builder() {
-    return new FixedCouponBondPaymentPeriod.Builder();
+  public static CapitalIndexedBondPaymentPeriod.Builder builder() {
+    return new CapitalIndexedBondPaymentPeriod.Builder();
   }
 
   @Override
-  public FixedCouponBondPaymentPeriod.Meta metaBean() {
-    return FixedCouponBondPaymentPeriod.Meta.INSTANCE;
+  public CapitalIndexedBondPaymentPeriod.Meta metaBean() {
+    return CapitalIndexedBondPaymentPeriod.Meta.INSTANCE;
   }
 
   @Override
@@ -255,7 +280,7 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount, must be positive.
+   * Gets the notional amount, must be non-zero.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
@@ -263,6 +288,18 @@ public final class FixedCouponBondPaymentPeriod
    */
   public double getNotional() {
     return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the rate of real coupon.
+   * <p>
+   * The real coupon is the rate before taking the inflation into account.
+   * For example, a real coupon of c for semi-annual payments is c/2.
+   * @return the value of the property
+   */
+  public double getRealCoupon() {
+    return realCoupon;
   }
 
   //-----------------------------------------------------------------------
@@ -334,28 +371,15 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixed coupon rate.
+   * Gets the rate to be observed.
    * <p>
-   * The single payment is based on this fixed coupon rate.
-   * @return the value of the property
+   * The value of the period is based on this rate.
+   * This must be an inflation rate observation, specifically {@link InflationEndInterpolatedRateObservation}
+   * or {@link InflationEndMonthRateObservation}.
+   * @return the value of the property, not null
    */
-  public double getFixedRate() {
-    return fixedRate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the year fraction that the accrual period represents.
-   * <p>
-   * The year fraction of a bond period is based on the unadjusted dates.
-   * <p>
-   * The value is usually calculated using a {@link DayCount}.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   * The fraction may be greater than 1, but not less than 0.
-   * @return the value of the property
-   */
-  public double getYearFraction() {
-    return yearFraction;
+  public RateObservation getRateObservation() {
+    return rateObservation;
   }
 
   //-----------------------------------------------------------------------
@@ -373,16 +397,16 @@ public final class FixedCouponBondPaymentPeriod
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FixedCouponBondPaymentPeriod other = (FixedCouponBondPaymentPeriod) obj;
+      CapitalIndexedBondPaymentPeriod other = (CapitalIndexedBondPaymentPeriod) obj;
       return JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(realCoupon, other.realCoupon) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
           JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
           JodaBeanUtils.equal(detachmentDate, other.detachmentDate) &&
-          JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
-          JodaBeanUtils.equal(yearFraction, other.yearFraction);
+          JodaBeanUtils.equal(rateObservation, other.rateObservation);
     }
     return false;
   }
@@ -392,36 +416,36 @@ public final class FixedCouponBondPaymentPeriod
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(realCoupon);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(detachmentDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateObservation);
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
-    buf.append("FixedCouponBondPaymentPeriod{");
+    buf.append("CapitalIndexedBondPaymentPeriod{");
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("realCoupon").append('=').append(realCoupon).append(',').append(' ');
     buf.append("startDate").append('=').append(startDate).append(',').append(' ');
     buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
     buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
     buf.append("detachmentDate").append('=').append(detachmentDate).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+    buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FixedCouponBondPaymentPeriod}.
+   * The meta-bean for {@code CapitalIndexedBondPaymentPeriod}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -433,47 +457,47 @@ public final class FixedCouponBondPaymentPeriod
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", FixedCouponBondPaymentPeriod.class, Currency.class);
+        this, "currency", CapitalIndexedBondPaymentPeriod.class, Currency.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", FixedCouponBondPaymentPeriod.class, Double.TYPE);
+        this, "notional", CapitalIndexedBondPaymentPeriod.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code realCoupon} property.
+     */
+    private final MetaProperty<Double> realCoupon = DirectMetaProperty.ofImmutable(
+        this, "realCoupon", CapitalIndexedBondPaymentPeriod.class, Double.TYPE);
     /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", FixedCouponBondPaymentPeriod.class, LocalDate.class);
+        this, "startDate", CapitalIndexedBondPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", FixedCouponBondPaymentPeriod.class, LocalDate.class);
+        this, "endDate", CapitalIndexedBondPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code unadjustedStartDate} property.
      */
     private final MetaProperty<LocalDate> unadjustedStartDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedStartDate", FixedCouponBondPaymentPeriod.class, LocalDate.class);
+        this, "unadjustedStartDate", CapitalIndexedBondPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code unadjustedEndDate} property.
      */
     private final MetaProperty<LocalDate> unadjustedEndDate = DirectMetaProperty.ofImmutable(
-        this, "unadjustedEndDate", FixedCouponBondPaymentPeriod.class, LocalDate.class);
+        this, "unadjustedEndDate", CapitalIndexedBondPaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code detachmentDate} property.
      */
     private final MetaProperty<LocalDate> detachmentDate = DirectMetaProperty.ofImmutable(
-        this, "detachmentDate", FixedCouponBondPaymentPeriod.class, LocalDate.class);
+        this, "detachmentDate", CapitalIndexedBondPaymentPeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code fixedRate} property.
+     * The meta-property for the {@code rateObservation} property.
      */
-    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
-        this, "fixedRate", FixedCouponBondPaymentPeriod.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code yearFraction} property.
-     */
-    private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", FixedCouponBondPaymentPeriod.class, Double.TYPE);
+    private final MetaProperty<RateObservation> rateObservation = DirectMetaProperty.ofImmutable(
+        this, "rateObservation", CapitalIndexedBondPaymentPeriod.class, RateObservation.class);
     /**
      * The meta-properties.
      */
@@ -481,13 +505,13 @@ public final class FixedCouponBondPaymentPeriod
         this, null,
         "currency",
         "notional",
+        "realCoupon",
         "startDate",
         "endDate",
         "unadjustedStartDate",
         "unadjustedEndDate",
         "detachmentDate",
-        "fixedRate",
-        "yearFraction");
+        "rateObservation");
 
     /**
      * Restricted constructor.
@@ -502,6 +526,8 @@ public final class FixedCouponBondPaymentPeriod
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 1842278244:  // realCoupon
+          return realCoupon;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -512,22 +538,20 @@ public final class FixedCouponBondPaymentPeriod
           return unadjustedEndDate;
         case -878940481:  // detachmentDate
           return detachmentDate;
-        case 747425396:  // fixedRate
-          return fixedRate;
-        case -1731780257:  // yearFraction
-          return yearFraction;
+        case 535324460:  // rateObservation
+          return rateObservation;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public FixedCouponBondPaymentPeriod.Builder builder() {
-      return new FixedCouponBondPaymentPeriod.Builder();
+    public CapitalIndexedBondPaymentPeriod.Builder builder() {
+      return new CapitalIndexedBondPaymentPeriod.Builder();
     }
 
     @Override
-    public Class<? extends FixedCouponBondPaymentPeriod> beanType() {
-      return FixedCouponBondPaymentPeriod.class;
+    public Class<? extends CapitalIndexedBondPaymentPeriod> beanType() {
+      return CapitalIndexedBondPaymentPeriod.class;
     }
 
     @Override
@@ -550,6 +574,14 @@ public final class FixedCouponBondPaymentPeriod
      */
     public MetaProperty<Double> notional() {
       return notional;
+    }
+
+    /**
+     * The meta-property for the {@code realCoupon} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> realCoupon() {
+      return realCoupon;
     }
 
     /**
@@ -593,19 +625,11 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code fixedRate} property.
+     * The meta-property for the {@code rateObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> fixedRate() {
-      return fixedRate;
-    }
-
-    /**
-     * The meta-property for the {@code yearFraction} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> yearFraction() {
-      return yearFraction;
+    public MetaProperty<RateObservation> rateObservation() {
+      return rateObservation;
     }
 
     //-----------------------------------------------------------------------
@@ -613,23 +637,23 @@ public final class FixedCouponBondPaymentPeriod
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
-          return ((FixedCouponBondPaymentPeriod) bean).getCurrency();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getCurrency();
         case 1585636160:  // notional
-          return ((FixedCouponBondPaymentPeriod) bean).getNotional();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getNotional();
+        case 1842278244:  // realCoupon
+          return ((CapitalIndexedBondPaymentPeriod) bean).getRealCoupon();
         case -2129778896:  // startDate
-          return ((FixedCouponBondPaymentPeriod) bean).getStartDate();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((FixedCouponBondPaymentPeriod) bean).getEndDate();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getEndDate();
         case 1457691881:  // unadjustedStartDate
-          return ((FixedCouponBondPaymentPeriod) bean).getUnadjustedStartDate();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getUnadjustedStartDate();
         case 31758114:  // unadjustedEndDate
-          return ((FixedCouponBondPaymentPeriod) bean).getUnadjustedEndDate();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getUnadjustedEndDate();
         case -878940481:  // detachmentDate
-          return ((FixedCouponBondPaymentPeriod) bean).getDetachmentDate();
-        case 747425396:  // fixedRate
-          return ((FixedCouponBondPaymentPeriod) bean).getFixedRate();
-        case -1731780257:  // yearFraction
-          return ((FixedCouponBondPaymentPeriod) bean).getYearFraction();
+          return ((CapitalIndexedBondPaymentPeriod) bean).getDetachmentDate();
+        case 535324460:  // rateObservation
+          return ((CapitalIndexedBondPaymentPeriod) bean).getRateObservation();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -647,19 +671,19 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FixedCouponBondPaymentPeriod}.
+   * The bean-builder for {@code CapitalIndexedBondPaymentPeriod}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FixedCouponBondPaymentPeriod> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CapitalIndexedBondPaymentPeriod> {
 
     private Currency currency;
     private double notional;
+    private double realCoupon;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate unadjustedStartDate;
     private LocalDate unadjustedEndDate;
     private LocalDate detachmentDate;
-    private double fixedRate;
-    private double yearFraction;
+    private RateObservation rateObservation;
 
     /**
      * Restricted constructor.
@@ -671,16 +695,16 @@ public final class FixedCouponBondPaymentPeriod
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FixedCouponBondPaymentPeriod beanToCopy) {
+    private Builder(CapitalIndexedBondPaymentPeriod beanToCopy) {
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
+      this.realCoupon = beanToCopy.getRealCoupon();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
       this.detachmentDate = beanToCopy.getDetachmentDate();
-      this.fixedRate = beanToCopy.getFixedRate();
-      this.yearFraction = beanToCopy.getYearFraction();
+      this.rateObservation = beanToCopy.getRateObservation();
     }
 
     //-----------------------------------------------------------------------
@@ -691,6 +715,8 @@ public final class FixedCouponBondPaymentPeriod
           return currency;
         case 1585636160:  // notional
           return notional;
+        case 1842278244:  // realCoupon
+          return realCoupon;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -701,10 +727,8 @@ public final class FixedCouponBondPaymentPeriod
           return unadjustedEndDate;
         case -878940481:  // detachmentDate
           return detachmentDate;
-        case 747425396:  // fixedRate
-          return fixedRate;
-        case -1731780257:  // yearFraction
-          return yearFraction;
+        case 535324460:  // rateObservation
+          return rateObservation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -718,6 +742,9 @@ public final class FixedCouponBondPaymentPeriod
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
+          break;
+        case 1842278244:  // realCoupon
+          this.realCoupon = (Double) newValue;
           break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
@@ -734,11 +761,8 @@ public final class FixedCouponBondPaymentPeriod
         case -878940481:  // detachmentDate
           this.detachmentDate = (LocalDate) newValue;
           break;
-        case 747425396:  // fixedRate
-          this.fixedRate = (Double) newValue;
-          break;
-        case -1731780257:  // yearFraction
-          this.yearFraction = (Double) newValue;
+        case 535324460:  // rateObservation
+          this.rateObservation = (RateObservation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -771,17 +795,17 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     @Override
-    public FixedCouponBondPaymentPeriod build() {
-      return new FixedCouponBondPaymentPeriod(
+    public CapitalIndexedBondPaymentPeriod build() {
+      return new CapitalIndexedBondPaymentPeriod(
           currency,
           notional,
+          realCoupon,
           startDate,
           endDate,
           unadjustedStartDate,
           unadjustedEndDate,
           detachmentDate,
-          fixedRate,
-          yearFraction);
+          rateObservation);
     }
 
     //-----------------------------------------------------------------------
@@ -800,7 +824,7 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets the notional amount, must be positive.
+     * Sets the notional amount, must be non-zero.
      * <p>
      * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code currency}.
@@ -808,8 +832,20 @@ public final class FixedCouponBondPaymentPeriod
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
       this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the rate of real coupon.
+     * <p>
+     * The real coupon is the rate before taking the inflation into account.
+     * For example, a real coupon of c for semi-annual payments is c/2.
+     * @param realCoupon  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder realCoupon(double realCoupon) {
+      this.realCoupon = realCoupon;
       return this;
     }
 
@@ -889,31 +925,17 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets the fixed coupon rate.
+     * Sets the rate to be observed.
      * <p>
-     * The single payment is based on this fixed coupon rate.
-     * @param fixedRate  the new value
+     * The value of the period is based on this rate.
+     * This must be an inflation rate observation, specifically {@link InflationEndInterpolatedRateObservation}
+     * or {@link InflationEndMonthRateObservation}.
+     * @param rateObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixedRate(double fixedRate) {
-      this.fixedRate = fixedRate;
-      return this;
-    }
-
-    /**
-     * Sets the year fraction that the accrual period represents.
-     * <p>
-     * The year fraction of a bond period is based on the unadjusted dates.
-     * <p>
-     * The value is usually calculated using a {@link DayCount}.
-     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-     * The fraction may be greater than 1, but not less than 0.
-     * @param yearFraction  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder yearFraction(double yearFraction) {
-      ArgChecker.notNegative(yearFraction, "yearFraction");
-      this.yearFraction = yearFraction;
+    public Builder rateObservation(RateObservation rateObservation) {
+      JodaBeanUtils.notNull(rateObservation, "rateObservation");
+      this.rateObservation = rateObservation;
       return this;
     }
 
@@ -921,16 +943,16 @@ public final class FixedCouponBondPaymentPeriod
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(320);
-      buf.append("FixedCouponBondPaymentPeriod.Builder{");
+      buf.append("CapitalIndexedBondPaymentPeriod.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("realCoupon").append('=').append(JodaBeanUtils.toString(realCoupon)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
       buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
       buf.append("detachmentDate").append('=').append(JodaBeanUtils.toString(detachmentDate)).append(',').append(' ');
-      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
-      buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+      buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation));
       buf.append('}');
       return buf.toString();
     }
