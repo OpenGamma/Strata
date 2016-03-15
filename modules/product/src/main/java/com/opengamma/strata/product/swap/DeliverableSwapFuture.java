@@ -34,9 +34,9 @@ import com.opengamma.strata.product.Product;
  * A deliverable swap futures contract.
  * <p>
  * A deliverable swap future is a financial instrument that physically settles
- * an interest rate swap on a future date. 
- * The delivered swap is cleared by a central counterparty. 
- * The last future price before delivery is quoted in term of the underlying swap present value. 
+ * an interest rate swap on a future date.
+ * The delivered swap is cleared by a central counterparty.
+ * The last future price before delivery is quoted in term of the underlying swap present value.
  * The futures product is margined on a daily basis.
  */
 @BeanDefinition
@@ -51,19 +51,19 @@ public final class DeliverableSwapFuture
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double notional;
   /**
-   * The delivery date.
-   * <p>
-   * The underlying swap is delivered on this date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate deliveryDate;
-  /**
    * The last date of trading.
    * <p>
    * This date must be before the delivery date of the underlying swap.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
+  /**
+   * The delivery date.
+   * <p>
+   * The underlying swap is delivered on this date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate deliveryDate;
   /**
    * The underlying swap.
    * <p>
@@ -144,16 +144,16 @@ public final class DeliverableSwapFuture
 
   private DeliverableSwapFuture(
       double notional,
-      LocalDate deliveryDate,
       LocalDate lastTradeDate,
+      LocalDate deliveryDate,
       Swap underlyingSwap) {
     ArgChecker.notNegative(notional, "notional");
-    JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
+    JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
     JodaBeanUtils.notNull(underlyingSwap, "underlyingSwap");
     this.notional = notional;
-    this.deliveryDate = deliveryDate;
     this.lastTradeDate = lastTradeDate;
+    this.deliveryDate = deliveryDate;
     this.underlyingSwap = underlyingSwap;
     validate();
   }
@@ -186,17 +186,6 @@ public final class DeliverableSwapFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the delivery date.
-   * <p>
-   * The underlying swap is delivered on this date.
-   * @return the value of the property, not null
-   */
-  public LocalDate getDeliveryDate() {
-    return deliveryDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the last date of trading.
    * <p>
    * This date must be before the delivery date of the underlying swap.
@@ -204,6 +193,17 @@ public final class DeliverableSwapFuture
    */
   public LocalDate getLastTradeDate() {
     return lastTradeDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the delivery date.
+   * <p>
+   * The underlying swap is delivered on this date.
+   * @return the value of the property, not null
+   */
+  public LocalDate getDeliveryDate() {
+    return deliveryDate;
   }
 
   //-----------------------------------------------------------------------
@@ -235,8 +235,8 @@ public final class DeliverableSwapFuture
     if (obj != null && obj.getClass() == this.getClass()) {
       DeliverableSwapFuture other = (DeliverableSwapFuture) obj;
       return JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(deliveryDate, other.deliveryDate) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
+          JodaBeanUtils.equal(deliveryDate, other.deliveryDate) &&
           JodaBeanUtils.equal(underlyingSwap, other.underlyingSwap);
     }
     return false;
@@ -246,8 +246,8 @@ public final class DeliverableSwapFuture
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(deliveryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(deliveryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlyingSwap);
     return hash;
   }
@@ -257,8 +257,8 @@ public final class DeliverableSwapFuture
     StringBuilder buf = new StringBuilder(160);
     buf.append("DeliverableSwapFuture{");
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("deliveryDate").append('=').append(deliveryDate).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
+    buf.append("deliveryDate").append('=').append(deliveryDate).append(',').append(' ');
     buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));
     buf.append('}');
     return buf.toString();
@@ -280,15 +280,15 @@ public final class DeliverableSwapFuture
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", DeliverableSwapFuture.class, Double.TYPE);
     /**
-     * The meta-property for the {@code deliveryDate} property.
-     */
-    private final MetaProperty<LocalDate> deliveryDate = DirectMetaProperty.ofImmutable(
-        this, "deliveryDate", DeliverableSwapFuture.class, LocalDate.class);
-    /**
      * The meta-property for the {@code lastTradeDate} property.
      */
     private final MetaProperty<LocalDate> lastTradeDate = DirectMetaProperty.ofImmutable(
         this, "lastTradeDate", DeliverableSwapFuture.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code deliveryDate} property.
+     */
+    private final MetaProperty<LocalDate> deliveryDate = DirectMetaProperty.ofImmutable(
+        this, "deliveryDate", DeliverableSwapFuture.class, LocalDate.class);
     /**
      * The meta-property for the {@code underlyingSwap} property.
      */
@@ -300,8 +300,8 @@ public final class DeliverableSwapFuture
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "notional",
-        "deliveryDate",
         "lastTradeDate",
+        "deliveryDate",
         "underlyingSwap");
 
     /**
@@ -315,10 +315,10 @@ public final class DeliverableSwapFuture
       switch (propertyName.hashCode()) {
         case 1585636160:  // notional
           return notional;
-        case 681469378:  // deliveryDate
-          return deliveryDate;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
+        case 681469378:  // deliveryDate
+          return deliveryDate;
         case 1497421456:  // underlyingSwap
           return underlyingSwap;
       }
@@ -350,19 +350,19 @@ public final class DeliverableSwapFuture
     }
 
     /**
-     * The meta-property for the {@code deliveryDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> deliveryDate() {
-      return deliveryDate;
-    }
-
-    /**
      * The meta-property for the {@code lastTradeDate} property.
      * @return the meta-property, not null
      */
     public MetaProperty<LocalDate> lastTradeDate() {
       return lastTradeDate;
+    }
+
+    /**
+     * The meta-property for the {@code deliveryDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> deliveryDate() {
+      return deliveryDate;
     }
 
     /**
@@ -379,10 +379,10 @@ public final class DeliverableSwapFuture
       switch (propertyName.hashCode()) {
         case 1585636160:  // notional
           return ((DeliverableSwapFuture) bean).getNotional();
-        case 681469378:  // deliveryDate
-          return ((DeliverableSwapFuture) bean).getDeliveryDate();
         case -1041950404:  // lastTradeDate
           return ((DeliverableSwapFuture) bean).getLastTradeDate();
+        case 681469378:  // deliveryDate
+          return ((DeliverableSwapFuture) bean).getDeliveryDate();
         case 1497421456:  // underlyingSwap
           return ((DeliverableSwapFuture) bean).getUnderlyingSwap();
       }
@@ -407,8 +407,8 @@ public final class DeliverableSwapFuture
   public static final class Builder extends DirectFieldsBeanBuilder<DeliverableSwapFuture> {
 
     private double notional;
-    private LocalDate deliveryDate;
     private LocalDate lastTradeDate;
+    private LocalDate deliveryDate;
     private Swap underlyingSwap;
 
     /**
@@ -423,8 +423,8 @@ public final class DeliverableSwapFuture
      */
     private Builder(DeliverableSwapFuture beanToCopy) {
       this.notional = beanToCopy.getNotional();
-      this.deliveryDate = beanToCopy.getDeliveryDate();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
+      this.deliveryDate = beanToCopy.getDeliveryDate();
       this.underlyingSwap = beanToCopy.getUnderlyingSwap();
     }
 
@@ -434,10 +434,10 @@ public final class DeliverableSwapFuture
       switch (propertyName.hashCode()) {
         case 1585636160:  // notional
           return notional;
-        case 681469378:  // deliveryDate
-          return deliveryDate;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
+        case 681469378:  // deliveryDate
+          return deliveryDate;
         case 1497421456:  // underlyingSwap
           return underlyingSwap;
         default:
@@ -451,11 +451,11 @@ public final class DeliverableSwapFuture
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case 681469378:  // deliveryDate
-          this.deliveryDate = (LocalDate) newValue;
-          break;
         case -1041950404:  // lastTradeDate
           this.lastTradeDate = (LocalDate) newValue;
+          break;
+        case 681469378:  // deliveryDate
+          this.deliveryDate = (LocalDate) newValue;
           break;
         case 1497421456:  // underlyingSwap
           this.underlyingSwap = (Swap) newValue;
@@ -494,8 +494,8 @@ public final class DeliverableSwapFuture
     public DeliverableSwapFuture build() {
       return new DeliverableSwapFuture(
           notional,
-          deliveryDate,
           lastTradeDate,
+          deliveryDate,
           underlyingSwap);
     }
 
@@ -514,19 +514,6 @@ public final class DeliverableSwapFuture
     }
 
     /**
-     * Sets the delivery date.
-     * <p>
-     * The underlying swap is delivered on this date.
-     * @param deliveryDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder deliveryDate(LocalDate deliveryDate) {
-      JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
-      this.deliveryDate = deliveryDate;
-      return this;
-    }
-
-    /**
      * Sets the last date of trading.
      * <p>
      * This date must be before the delivery date of the underlying swap.
@@ -536,6 +523,19 @@ public final class DeliverableSwapFuture
     public Builder lastTradeDate(LocalDate lastTradeDate) {
       JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
       this.lastTradeDate = lastTradeDate;
+      return this;
+    }
+
+    /**
+     * Sets the delivery date.
+     * <p>
+     * The underlying swap is delivered on this date.
+     * @param deliveryDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder deliveryDate(LocalDate deliveryDate) {
+      JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
+      this.deliveryDate = deliveryDate;
       return this;
     }
 
@@ -559,8 +559,8 @@ public final class DeliverableSwapFuture
       StringBuilder buf = new StringBuilder(160);
       buf.append("DeliverableSwapFuture.Builder{");
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("deliveryDate").append('=').append(JodaBeanUtils.toString(deliveryDate)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+      buf.append("deliveryDate").append('=').append(JodaBeanUtils.toString(deliveryDate)).append(',').append(' ');
       buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));
       buf.append('}');
       return buf.toString();

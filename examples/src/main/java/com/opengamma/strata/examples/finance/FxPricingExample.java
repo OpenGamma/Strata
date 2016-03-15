@@ -133,7 +133,7 @@ public class FxPricingExample {
   // create an FX Swap trade
   private static Trade createTrade3() {
     FxSwap swap = FxSwap.ofForwardPoints(
-        CurrencyAmount.of(GBP, 10000), USD, 1.62, 0.03, LocalDate.of(2014, 6, 14), LocalDate.of(2014, 9, 14));
+        CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), 0.03, LocalDate.of(2014, 6, 14), LocalDate.of(2014, 9, 14));
     return FxSwapTrade.builder()
         .product(swap)
         .tradeInfo(TradeInfo.builder()

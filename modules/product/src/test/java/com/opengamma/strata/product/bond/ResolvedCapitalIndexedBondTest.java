@@ -82,7 +82,6 @@ public class ResolvedCapitalIndexedBondTest {
           .realCoupon(COUPON)
           .rateObservation(obs)
           .notional(NOTIONAL)
-          .yearFraction(ACT_ACT_ISDA.yearFraction(unAdjDates[i], unAdjDates[i + 1]))
           .build();
     }
   }
@@ -109,9 +108,6 @@ public class ResolvedCapitalIndexedBondTest {
     assertEquals(test.findPeriodIndex(PERIODIC[0].getUnadjustedStartDate()), OptionalInt.of(0));
     assertEquals(test.findPeriodIndex(PERIODIC[1].getUnadjustedStartDate()), OptionalInt.of(1));
     assertEquals(test.findPeriodIndex(LocalDate.MIN), OptionalInt.empty());
-    assertEquals(test.yearFraction(
-        PERIODIC[0].getUnadjustedStartDate(), PERIODIC[0].getUnadjustedEndDate()),
-        PERIODIC[0].getYearFraction());
     assertEquals(
         test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA),
         SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));

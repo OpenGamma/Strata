@@ -88,15 +88,15 @@ public final class ImmutableReferenceData
   }
 
   // validates a single entry
-  private static <T> void validateEntry(ReferenceDataId<?> id, Object value) {
+  private static void validateEntry(ReferenceDataId<?> id, Object value) {
     if (!id.getReferenceDataType().isInstance(value)) {
       if (value == null) {
         throw new IllegalArgumentException(Messages.format(
-            "Reference data must not be null for identifier '{}'", id));
+            "Value for identifier '{}' must not be null", id));
       }
       throw new ClassCastException(Messages.format(
-          "Value '{}' does not implement parameterized type '{}' for identifier '{}'",
-          value, id.getClass().getSimpleName(), id));
+          "Value for identifier '{}' does not implement expected type '{}': '{}'",
+          id, id.getReferenceDataType().getSimpleName(), value));
     }
   }
 
@@ -123,10 +123,15 @@ public final class ImmutableReferenceData
     @SuppressWarnings("unchecked")
     T value = (T) values.get(id);
     if (value == null) {
-      throw new ReferenceDataNotFoundException(Messages.format(
-          "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName()));
+      throw new ReferenceDataNotFoundException(msgValueNotFound(id));
     }
     return value;
+  }
+
+  // extracted to aid inlining performance
+  private String msgValueNotFound(ReferenceDataId<?> id) {
+    return Messages.format(
+        "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName());
   }
 
   @Override

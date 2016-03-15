@@ -378,8 +378,10 @@ public class ImmutableHolidayCalendarTest {
   public void test_isBusinessDay_outOfRange() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
     ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, SUNDAY);
-    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.of(2013, 12, 31)));
-    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.of(2015, 1, 1)));
+    assertEquals(test.isBusinessDay(LocalDate.of(2013, 12, 31)), true);
+    assertEquals(test.isBusinessDay(LocalDate.of(2015, 1, 1)), true);
+    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -464,7 +466,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_shift_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(date(2010, 1, 1), 1));
+    assertEquals(HOLCAL_MON_WED.shift(date(2010, 1, 1), 1), date(2010, 1, 4));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MIN, 1));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MAX.minusDays(1), 1));
   }
@@ -510,7 +512,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_next_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(date(2010, 1, 1)));
+    assertEquals(HOLCAL_MON_WED.next(date(2010, 1, 1)), date(2010, 1, 4));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MAX.minusDays(1)));
   }
@@ -552,7 +554,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_nextOrSame_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(date(2010, 1, 1)));
+    assertEquals(HOLCAL_MON_WED.nextOrSame(date(2010, 1, 1)), date(2010, 1, 1));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MAX));
   }
@@ -593,7 +595,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_previous_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(date(2010, 1, 1)));
+    assertEquals(HOLCAL_MON_WED.previous(date(2010, 1, 1)), date(2009, 12, 31));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MIN.plusDays(1)));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MAX));
   }
@@ -636,7 +638,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_previousOrSame_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(date(2010, 1, 1)));
+    assertEquals(HOLCAL_MON_WED.previousOrSame(date(2010, 1, 1)), date(2010, 1, 1));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MAX));
   }
@@ -682,7 +684,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_nextSameOrLastInMonth_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(date(2010, 1, 1)));
+    assertEquals(HOLCAL_MON_WED.nextSameOrLastInMonth(date(2010, 1, 1)), date(2010, 1, 1));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MAX));
   }
@@ -729,13 +731,13 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_lastBusinessDayOfMonth_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(date(2010, 1, 1)));
+    assertEquals(HOLCAL_END_MONTH.lastBusinessDayOfMonth(date(2010, 1, 1)), date(2010, 1, 29));
     assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MAX));
   }
 
   public void test_isLastBusinessDayOfMonth_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(date(2010, 1, 1)));
+    assertEquals(HOLCAL_END_MONTH.isLastBusinessDayOfMonth(date(2010, 1, 1)), false);
     assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MAX));
   }

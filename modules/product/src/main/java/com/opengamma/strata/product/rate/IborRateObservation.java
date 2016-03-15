@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Defines the observation of a rate of interest from a single Ibor index.
@@ -36,7 +37,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
  * An interest rate determined directly from an Ibor index.
  * For example, a rate determined from 'GBP-LIBOR-3M' on a single fixing date.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class IborRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -151,14 +152,6 @@ public final class IborRateObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static IborRateObservation.Builder builder() {
-    return new IborRateObservation.Builder();
-  }
-
   private IborRateObservation(
       IborIndexObservation observation) {
     JodaBeanUtils.notNull(observation, "observation");
@@ -190,14 +183,6 @@ public final class IborRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -264,7 +249,7 @@ public final class IborRateObservation
     }
 
     @Override
-    public IborRateObservation.Builder builder() {
+    public BeanBuilder<? extends IborRateObservation> builder() {
       return new IborRateObservation.Builder();
     }
 
@@ -312,7 +297,7 @@ public final class IborRateObservation
   /**
    * The bean-builder for {@code IborRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IborRateObservation> {
 
     private IborIndexObservation observation;
 
@@ -320,14 +305,6 @@ public final class IborRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(IborRateObservation beanToCopy) {
-      this.observation = beanToCopy.getObservation();
     }
 
     //-----------------------------------------------------------------------
@@ -381,18 +358,6 @@ public final class IborRateObservation
     public IborRateObservation build() {
       return new IborRateObservation(
           observation);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the underlying index observation.
-     * @param observation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder observation(IborIndexObservation observation) {
-      JodaBeanUtils.notNull(observation, "observation");
-      this.observation = observation;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -166,7 +166,6 @@ public final class CapitalIndexedBond
   @Override
   public ResolvedCapitalIndexedBond resolve(ReferenceData refData) {
     Schedule adjustedSchedule = periodicSchedule.createSchedule(refData);
-    Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
     List<Double> resolvedGearings =
         rateCalculation.getGearing().orElse(ALWAYS_1).resolveValues(adjustedSchedule.getPeriods());
@@ -174,7 +173,6 @@ public final class CapitalIndexedBond
     // coupon payments
     for (int i = 0; i < adjustedSchedule.size(); i++) {
       SchedulePeriod period = adjustedSchedule.getPeriod(i);
-      SchedulePeriod unadjustedPeriod = unadjustedSchedule.getPeriod(i);
       bondPeriodsBuilder.add(CapitalIndexedBondPaymentPeriod.builder()
           .unadjustedStartDate(period.getUnadjustedStartDate())
           .unadjustedEndDate(period.getUnadjustedEndDate())
@@ -185,7 +183,6 @@ public final class CapitalIndexedBond
           .currency(currency)
           .rateObservation(rateCalculation.createRateObservation(period.getEndDate(), startIndexValue))
           .realCoupon(resolvedGearings.get(i))
-          .yearFraction(unadjustedPeriod.yearFraction(dayCount, unadjustedSchedule))
           .build());
     }
     ImmutableList<CapitalIndexedBondPaymentPeriod> bondPeriods = bondPeriodsBuilder.build();

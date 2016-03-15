@@ -90,7 +90,7 @@ public class SmileDeltaParametersTest {
    * Tests the strikes computations.
    */
   public void strike() {
-    double[] strike = SMILE.getStrike(FORWARD);
+    double[] strike = SMILE.getStrike(FORWARD).toArray();
     BlackPriceFunction function = new BlackPriceFunction();
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();

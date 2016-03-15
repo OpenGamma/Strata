@@ -109,24 +109,24 @@ public final class CapitalIndexedBondTrade
     if (product.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
       settlement = KnownAmountPaymentPeriod.of(
           Payment.of(product.getCurrency(),
-          -product.getNotional() * quantity * (cleanPrice + accruedInterest), settlementDate),
+              -product.getNotional() * quantity * (cleanPrice + accruedInterest), settlementDate),
           SchedulePeriod.of(
               resolvedProduct.getStartDate(),
               settlementDate,
               product.getPeriodicSchedule().getStartDate(),
               settlementDate));
     } else {
-    RateObservation rateObservation =
-        product.getRateCalculation().createRateObservation(settlementDate, product.getStartIndexValue());
+      RateObservation rateObservation =
+          product.getRateCalculation().createRateObservation(settlementDate, product.getStartIndexValue());
       settlement = CapitalIndexedBondPaymentPeriod.builder()
-        .startDate(resolvedProduct.getStartDate())
-        .unadjustedStartDate(product.getPeriodicSchedule().getStartDate())
-        .endDate(settlementDate)
-        .rateObservation(rateObservation)
-        .currency(product.getCurrency())
-        .notional(-product.getNotional() * quantity * (cleanPrice + accruedInterest))
-        .realCoupon(1d)
-        .build();
+          .startDate(resolvedProduct.getStartDate())
+          .unadjustedStartDate(product.getPeriodicSchedule().getStartDate())
+          .endDate(settlementDate)
+          .rateObservation(rateObservation)
+          .currency(product.getCurrency())
+          .notional(-product.getNotional() * quantity * (cleanPrice + accruedInterest))
+          .realCoupon(1d)
+          .build();
     }
 
     return ResolvedCapitalIndexedBondTrade.builder()

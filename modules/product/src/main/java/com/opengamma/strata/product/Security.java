@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * @param <P>  the type of the product
  */
 public interface Security<P extends Product>
-    extends IdentifiableBean, Attributable {
+    extends IdentifiableBean {
 
   /**
    * The primary standard identifier for the security.
@@ -47,7 +47,6 @@ public interface Security<P extends Product>
    * 
    * @return the complete set of attributes
    */
-  @Override
   public abstract ImmutableMap<String, String> getAttributes();
 
   /**
