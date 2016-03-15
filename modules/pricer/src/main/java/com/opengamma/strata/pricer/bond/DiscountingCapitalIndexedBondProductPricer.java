@@ -627,7 +627,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     }
 
     double realRate = period.getRealCoupon();
-    double firstYearFraction = period.getYearFraction();
+    double firstYearFraction = bond.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate());
     double v = 1d / (1d + yield / couponPerYear);
     double rs = ratioPeriodToNextCoupon(period, settlementDate);
     if (yieldConvention.equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
@@ -650,7 +650,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return (realRate + 1d) * a / u * Math.pow(u * v, rs);
       } else {
         double firstCashFlow = firstYearFraction * realRate * indexRatio * couponPerYear;
-        double secondYearFraction = bond.getPeriodicPayments().get(periodIndex + 1).getYearFraction();
+        CapitalIndexedBondPaymentPeriod secondPeriod = bond.getPeriodicPayments().get(periodIndex + 1);
+        double secondYearFraction = bond.yearFraction(secondPeriod.getUnadjustedStartDate(), secondPeriod.getUnadjustedEndDate());
         double secondCashFlow = secondYearFraction * realRate * indexRatio * couponPerYear;
         double vn = Math.pow(v, nbCoupon - 1);
         double pvAtFirstCoupon =
@@ -664,7 +665,8 @@ public class DiscountingCapitalIndexedBondProductPricer {
       if (nbCoupon == 1) {
         return Math.pow(v, rs) * (firstCashFlow + 1d);
       } else {
-        double secondYearFraction = bond.getPeriodicPayments().get(periodIndex + 1).getYearFraction();
+        CapitalIndexedBondPaymentPeriod secondPeriod = bond.getPeriodicPayments().get(periodIndex + 1);
+        double secondYearFraction = bond.yearFraction(secondPeriod.getUnadjustedStartDate(), secondPeriod.getUnadjustedEndDate());
         double secondCashFlow = realRate * indexRatio * secondYearFraction * couponPerYear;
         double vn = Math.pow(v, nbCoupon - 1);
         double pvAtFirstCoupon = firstCashFlow + secondCashFlow * v + realRate * v * v * (1d - vn / v) / (1d - v) + vn;
@@ -1171,7 +1173,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(periodIndex);
     LocalDate previousAccrualDate = period.getUnadjustedStartDate();
     double factorSpot = bond.yearFraction(previousAccrualDate, settlementDate);
-    double factorPeriod = period.getYearFraction();
+    double factorPeriod = bond.yearFraction(previousAccrualDate, period.getUnadjustedEndDate());
     return (factorPeriod - factorSpot) / factorPeriod;
   }
 

@@ -185,7 +185,6 @@ public final class CapitalIndexedBond
           .currency(currency)
           .rateObservation(rateCalculation.createRateObservation(period.getEndDate(), startIndexValue))
           .realCoupon(resolvedGearings.get(i))
-          .yearFraction(unadjustedPeriod.yearFraction(dayCount, unadjustedSchedule))
           .build());
     }
     ImmutableList<CapitalIndexedBondPaymentPeriod> bondPeriods = bondPeriodsBuilder.build();

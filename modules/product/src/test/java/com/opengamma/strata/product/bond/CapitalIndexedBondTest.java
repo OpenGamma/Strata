@@ -168,7 +168,6 @@ public class CapitalIndexedBondTest {
           .realCoupon(COUPONS[i])
           .rateObservation(obs)
           .notional(NOTIONAL)
-          .yearFraction(ACT_ACT_ISDA.yearFraction(unAdjDates[i], unAdjDates[i + 1]))
           .build();
     }
     CapitalIndexedBondPaymentPeriod nominalExp =

@@ -346,7 +346,7 @@ public final class ResolvedCapitalIndexedBond
     double accruedInterest = yearFraction(previousAccrualDate, referenceDate) * rate * notional;
     double result = 0d;
     if (hasExCouponPeriod() && !referenceDate.isBefore(period.getDetachmentDate())) {
-      result = accruedInterest - notional * rate * period.getYearFraction();
+      result = accruedInterest - notional * rate * yearFraction(previousAccrualDate, period.getUnadjustedEndDate());
     } else {
       result = accruedInterest;
     }

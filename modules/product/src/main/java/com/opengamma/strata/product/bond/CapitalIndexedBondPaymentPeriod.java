@@ -30,7 +30,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
@@ -127,17 +126,6 @@ public final class CapitalIndexedBondPaymentPeriod
    */
   @PropertyDefinition(validate = "notNull")
   private final RateObservation rateObservation;
-  /**
-   * The year fraction that the accrual period represents.
-   * <p>
-   * The year fraction of a bond period is based on the unadjusted dates.
-   * <p>
-   * The value is usually calculated using a {@link DayCount}.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   * The fraction may be greater than 1, but not less than 0.
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double yearFraction;
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
@@ -150,8 +138,7 @@ public final class CapitalIndexedBondPaymentPeriod
       LocalDate unadjustedStartDate,
       LocalDate unadjustedEndDate,
       LocalDate detachmentDate,
-      RateObservation rateObservation,
-      double yearFraction) {
+      RateObservation rateObservation) {
     this.currency = ArgChecker.notNull(currency, "currency");
     this.notional = ArgChecker.notZero(notional, 0d, "notional");
     this.realCoupon = ArgChecker.notNegative(realCoupon, "realCoupon");
@@ -161,7 +148,6 @@ public final class CapitalIndexedBondPaymentPeriod
     this.unadjustedEndDate = firstNonNull(unadjustedEndDate, endDate);
     this.detachmentDate = firstNonNull(detachmentDate, endDate);
     this.rateObservation = ArgChecker.notNull(rateObservation, "rateObservation");
-    this.yearFraction = yearFraction;
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
@@ -191,8 +177,7 @@ public final class CapitalIndexedBondPaymentPeriod
         unadjustedStartDate,
         unadjustedEndDate,
         endDate,
-        rateObservation,
-        yearFraction);
+        rateObservation);
   }
 
   //-------------------------------------------------------------------------
@@ -399,21 +384,6 @@ public final class CapitalIndexedBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the year fraction that the accrual period represents.
-   * <p>
-   * The year fraction of a bond period is based on the unadjusted dates.
-   * <p>
-   * The value is usually calculated using a {@link DayCount}.
-   * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-   * The fraction may be greater than 1, but not less than 0.
-   * @return the value of the property
-   */
-  public double getYearFraction() {
-    return yearFraction;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -436,8 +406,7 @@ public final class CapitalIndexedBondPaymentPeriod
           JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
           JodaBeanUtils.equal(unadjustedEndDate, other.unadjustedEndDate) &&
           JodaBeanUtils.equal(detachmentDate, other.detachmentDate) &&
-          JodaBeanUtils.equal(rateObservation, other.rateObservation) &&
-          JodaBeanUtils.equal(yearFraction, other.yearFraction);
+          JodaBeanUtils.equal(rateObservation, other.rateObservation);
     }
     return false;
   }
@@ -454,13 +423,12 @@ public final class CapitalIndexedBondPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(detachmentDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateObservation);
-    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("CapitalIndexedBondPaymentPeriod{");
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
@@ -470,8 +438,7 @@ public final class CapitalIndexedBondPaymentPeriod
     buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
     buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
     buf.append("detachmentDate").append('=').append(detachmentDate).append(',').append(' ');
-    buf.append("rateObservation").append('=').append(rateObservation).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+    buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation));
     buf.append('}');
     return buf.toString();
   }
@@ -532,11 +499,6 @@ public final class CapitalIndexedBondPaymentPeriod
     private final MetaProperty<RateObservation> rateObservation = DirectMetaProperty.ofImmutable(
         this, "rateObservation", CapitalIndexedBondPaymentPeriod.class, RateObservation.class);
     /**
-     * The meta-property for the {@code yearFraction} property.
-     */
-    private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
-        this, "yearFraction", CapitalIndexedBondPaymentPeriod.class, Double.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -549,8 +511,7 @@ public final class CapitalIndexedBondPaymentPeriod
         "unadjustedStartDate",
         "unadjustedEndDate",
         "detachmentDate",
-        "rateObservation",
-        "yearFraction");
+        "rateObservation");
 
     /**
      * Restricted constructor.
@@ -579,8 +540,6 @@ public final class CapitalIndexedBondPaymentPeriod
           return detachmentDate;
         case 535324460:  // rateObservation
           return rateObservation;
-        case -1731780257:  // yearFraction
-          return yearFraction;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -673,14 +632,6 @@ public final class CapitalIndexedBondPaymentPeriod
       return rateObservation;
     }
 
-    /**
-     * The meta-property for the {@code yearFraction} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> yearFraction() {
-      return yearFraction;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -703,8 +654,6 @@ public final class CapitalIndexedBondPaymentPeriod
           return ((CapitalIndexedBondPaymentPeriod) bean).getDetachmentDate();
         case 535324460:  // rateObservation
           return ((CapitalIndexedBondPaymentPeriod) bean).getRateObservation();
-        case -1731780257:  // yearFraction
-          return ((CapitalIndexedBondPaymentPeriod) bean).getYearFraction();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -735,7 +684,6 @@ public final class CapitalIndexedBondPaymentPeriod
     private LocalDate unadjustedEndDate;
     private LocalDate detachmentDate;
     private RateObservation rateObservation;
-    private double yearFraction;
 
     /**
      * Restricted constructor.
@@ -757,7 +705,6 @@ public final class CapitalIndexedBondPaymentPeriod
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
       this.detachmentDate = beanToCopy.getDetachmentDate();
       this.rateObservation = beanToCopy.getRateObservation();
-      this.yearFraction = beanToCopy.getYearFraction();
     }
 
     //-----------------------------------------------------------------------
@@ -782,8 +729,6 @@ public final class CapitalIndexedBondPaymentPeriod
           return detachmentDate;
         case 535324460:  // rateObservation
           return rateObservation;
-        case -1731780257:  // yearFraction
-          return yearFraction;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -818,9 +763,6 @@ public final class CapitalIndexedBondPaymentPeriod
           break;
         case 535324460:  // rateObservation
           this.rateObservation = (RateObservation) newValue;
-          break;
-        case -1731780257:  // yearFraction
-          this.yearFraction = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -863,8 +805,7 @@ public final class CapitalIndexedBondPaymentPeriod
           unadjustedStartDate,
           unadjustedEndDate,
           detachmentDate,
-          rateObservation,
-          yearFraction);
+          rateObservation);
     }
 
     //-----------------------------------------------------------------------
@@ -998,27 +939,10 @@ public final class CapitalIndexedBondPaymentPeriod
       return this;
     }
 
-    /**
-     * Sets the year fraction that the accrual period represents.
-     * <p>
-     * The year fraction of a bond period is based on the unadjusted dates.
-     * <p>
-     * The value is usually calculated using a {@link DayCount}.
-     * Typically the value will be close to 1 for one year and close to 0.5 for six months.
-     * The fraction may be greater than 1, but not less than 0.
-     * @param yearFraction  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder yearFraction(double yearFraction) {
-      ArgChecker.notNegative(yearFraction, "yearFraction");
-      this.yearFraction = yearFraction;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("CapitalIndexedBondPaymentPeriod.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
@@ -1028,8 +952,7 @@ public final class CapitalIndexedBondPaymentPeriod
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
       buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
       buf.append("detachmentDate").append('=').append(JodaBeanUtils.toString(detachmentDate)).append(',').append(' ');
-      buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation)).append(',').append(' ');
-      buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
+      buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation));
       buf.append('}');
       return buf.toString();
     }
