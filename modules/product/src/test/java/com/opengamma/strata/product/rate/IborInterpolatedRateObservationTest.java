@@ -48,52 +48,48 @@ public class IborInterpolatedRateObservationTest {
   public void test_of_monthly() {
     IborInterpolatedRateObservation test =
         IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
-    IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortObservation(GBP_LIBOR_1M_OBS)
-        .longObservation(GBP_LIBOR_3M_OBS)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getShortObservation(), GBP_LIBOR_1M_OBS);
+    assertEquals(test.getLongObservation(), GBP_LIBOR_3M_OBS);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
+  }
+
+  public void test_of_monthly_byObs() {
+    IborInterpolatedRateObservation test = IborInterpolatedRateObservation.of(GBP_LIBOR_1M_OBS, GBP_LIBOR_3M_OBS);
+    assertEquals(test.getShortObservation(), GBP_LIBOR_1M_OBS);
+    assertEquals(test.getLongObservation(), GBP_LIBOR_3M_OBS);
     assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_monthly_reverseOrder() {
     IborInterpolatedRateObservation test =
         IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
-    IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortObservation(GBP_LIBOR_1M_OBS)
-        .longObservation(GBP_LIBOR_3M_OBS)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getShortObservation(), GBP_LIBOR_1M_OBS);
+    assertEquals(test.getLongObservation(), GBP_LIBOR_3M_OBS);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_weekly() {
     IborInterpolatedRateObservation test =
         IborInterpolatedRateObservation.of(EUR_EURIBOR_1W, EUR_EURIBOR_2W, FIXING_DATE, REF_DATA);
-    IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortObservation(EUR_EURIBOR_1W_OBS)
-        .longObservation(EUR_EURIBOR_2W_OBS)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getShortObservation(), EUR_EURIBOR_1W_OBS);
+    assertEquals(test.getLongObservation(), EUR_EURIBOR_2W_OBS);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_weekly_reverseOrder() {
     IborInterpolatedRateObservation test =
         IborInterpolatedRateObservation.of(EUR_EURIBOR_2W, EUR_EURIBOR_1W, FIXING_DATE, REF_DATA);
-    IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortObservation(EUR_EURIBOR_1W_OBS)
-        .longObservation(EUR_EURIBOR_2W_OBS)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getShortObservation(), EUR_EURIBOR_1W_OBS);
+    assertEquals(test.getLongObservation(), EUR_EURIBOR_2W_OBS);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_weekMonthCombination() {
     IborInterpolatedRateObservation test =
         IborInterpolatedRateObservation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, FIXING_DATE, REF_DATA);
-    IborInterpolatedRateObservation expected = IborInterpolatedRateObservation.builder()
-        .shortObservation(GBP_LIBOR_1W_OBS)
-        .longObservation(GBP_LIBOR_1M_OBS)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getShortObservation(), GBP_LIBOR_1W_OBS);
+    assertEquals(test.getLongObservation(), GBP_LIBOR_1M_OBS);
+    assertEquals(test.getFixingDate(), FIXING_DATE);
   }
 
   public void test_of_sameIndex() {
@@ -101,14 +97,15 @@ public class IborInterpolatedRateObservationTest {
   }
 
   public void test_builder_indexOrder() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
-        .shortObservation(GBP_LIBOR_3M_OBS)
-        .longObservation(GBP_LIBOR_1M_OBS)
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.meta().builder()
+        .set(IborInterpolatedRateObservation.meta().shortObservation(), GBP_LIBOR_3M_OBS)
+        .set(IborInterpolatedRateObservation.meta().longObservation(), GBP_LIBOR_1M_OBS)
         .build());
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
-        .shortObservation(EUR_EURIBOR_2W_OBS)
-        .longObservation(EUR_EURIBOR_1W_OBS)
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.meta().builder()
+        .set(IborInterpolatedRateObservation.meta().shortObservation(), EUR_EURIBOR_2W_OBS)
+        .set(IborInterpolatedRateObservation.meta().longObservation(), EUR_EURIBOR_1W_OBS)
         .build());
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(EUR_EURIBOR_2W_OBS, EUR_EURIBOR_1W_OBS));
   }
 
   public void test_of_differentCurrencies() {
@@ -116,9 +113,9 @@ public class IborInterpolatedRateObservationTest {
   }
 
   public void test_of_differentFixingDates() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.builder()
-        .shortObservation(GBP_LIBOR_1M_OBS)
-        .longObservation(GBP_LIBOR_3M_OBS2)
+    assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.meta().builder()
+        .set(IborInterpolatedRateObservation.meta().shortObservation(), GBP_LIBOR_1M_OBS)
+        .set(IborInterpolatedRateObservation.meta().longObservation(), GBP_LIBOR_3M_OBS2)
         .build());
   }
 

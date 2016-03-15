@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -38,7 +39,7 @@ import com.opengamma.strata.collect.Messages;
  * Both indices are observed on the same fixing date and they must have the same currency.
  * For example, linear interpolation between 'GBP-LIBOR-1M' and 'GBP-LIBOR-3M'.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class IborInterpolatedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -80,10 +81,7 @@ public final class IborInterpolatedRateObservation
     boolean inOrder = indicesInOrder(index1, index2, fixingDate);
     IborIndexObservation obs1 = IborIndexObservation.of(index1, fixingDate, refData);
     IborIndexObservation obs2 = IborIndexObservation.of(index2, fixingDate, refData);
-    return IborInterpolatedRateObservation.builder()
-        .shortObservation(inOrder ? obs1 : obs2)
-        .longObservation(inOrder ? obs2 : obs1)
-        .build();
+    return new IborInterpolatedRateObservation(inOrder ? obs1 : obs2, inOrder ? obs2 : obs1);
   }
 
   /**
@@ -95,8 +93,12 @@ public final class IborInterpolatedRateObservation
    * @param shortObservation  the short underlying index observation
    * @param longObservation  the long underlying index observation
    * @return the rate observation
+   * @throws IllegalArgumentException if the indices are not short, then long
    */
-  public static IborInterpolatedRateObservation of(IborIndexObservation shortObservation, IborIndexObservation longObservation) {
+  public static IborInterpolatedRateObservation of(
+      IborIndexObservation shortObservation,
+      IborIndexObservation longObservation) {
+
     return new IborInterpolatedRateObservation(shortObservation, longObservation);
   }
 
@@ -162,14 +164,6 @@ public final class IborInterpolatedRateObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static IborInterpolatedRateObservation.Builder builder() {
-    return new IborInterpolatedRateObservation.Builder();
-  }
-
   private IborInterpolatedRateObservation(
       IborIndexObservation shortObservation,
       IborIndexObservation longObservation) {
@@ -220,14 +214,6 @@ public final class IborInterpolatedRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -305,7 +291,7 @@ public final class IborInterpolatedRateObservation
     }
 
     @Override
-    public IborInterpolatedRateObservation.Builder builder() {
+    public BeanBuilder<? extends IborInterpolatedRateObservation> builder() {
       return new IborInterpolatedRateObservation.Builder();
     }
 
@@ -363,7 +349,7 @@ public final class IborInterpolatedRateObservation
   /**
    * The bean-builder for {@code IborInterpolatedRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborInterpolatedRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IborInterpolatedRateObservation> {
 
     private IborIndexObservation shortObservation;
     private IborIndexObservation longObservation;
@@ -372,15 +358,6 @@ public final class IborInterpolatedRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(IborInterpolatedRateObservation beanToCopy) {
-      this.shortObservation = beanToCopy.getShortObservation();
-      this.longObservation = beanToCopy.getLongObservation();
     }
 
     //-----------------------------------------------------------------------
@@ -440,35 +417,6 @@ public final class IborInterpolatedRateObservation
       return new IborInterpolatedRateObservation(
           shortObservation,
           longObservation);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the shorter Ibor index observation.
-     * <p>
-     * The rate to be paid is based on this index
-     * It will be a well known market index such as 'GBP-LIBOR-1M'.
-     * @param shortObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder shortObservation(IborIndexObservation shortObservation) {
-      JodaBeanUtils.notNull(shortObservation, "shortObservation");
-      this.shortObservation = shortObservation;
-      return this;
-    }
-
-    /**
-     * Sets the longer Ibor index observation.
-     * <p>
-     * The rate to be paid is based on this index
-     * It will be a well known market index such as 'GBP-LIBOR-3M'.
-     * @param longObservation  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder longObservation(IborIndexObservation longObservation) {
-      JodaBeanUtils.notNull(longObservation, "longObservation");
-      this.longObservation = longObservation;
-      return this;
     }
 
     //-----------------------------------------------------------------------

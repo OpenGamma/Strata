@@ -39,10 +39,7 @@ public class IborAveragedRateObservationTest {
   //-------------------------------------------------------------------------
   public void test_of_List() {
     IborAveragedRateObservation test = IborAveragedRateObservation.of(FIXINGS);
-    IborAveragedRateObservation expected = IborAveragedRateObservation.builder()
-        .fixings(IborAveragedFixing.of(GBP_LIBOR_3M_OBS1), IborAveragedFixing.of(GBP_LIBOR_3M_OBS2))
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getFixings(), FIXINGS);
     assertEquals(test.getTotalWeight(), 2d, 0d);
   }
 

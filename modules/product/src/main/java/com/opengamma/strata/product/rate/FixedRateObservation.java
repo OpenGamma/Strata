@@ -24,13 +24,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
+import org.joda.beans.BeanBuilder;
 
 /**
  * Defines a known fixed rate of interest.
  * <p>
  * An interest rate that is specified in the contract or has subsequently been determined.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class FixedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -77,14 +78,6 @@ public final class FixedRateObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static FixedRateObservation.Builder builder() {
-    return new FixedRateObservation.Builder();
-  }
-
   private FixedRateObservation(
       double rate) {
     this.rate = rate;
@@ -116,14 +109,6 @@ public final class FixedRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -190,7 +175,7 @@ public final class FixedRateObservation
     }
 
     @Override
-    public FixedRateObservation.Builder builder() {
+    public BeanBuilder<? extends FixedRateObservation> builder() {
       return new FixedRateObservation.Builder();
     }
 
@@ -238,7 +223,7 @@ public final class FixedRateObservation
   /**
    * The bean-builder for {@code FixedRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FixedRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<FixedRateObservation> {
 
     private double rate;
 
@@ -246,14 +231,6 @@ public final class FixedRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(FixedRateObservation beanToCopy) {
-      this.rate = beanToCopy.getRate();
     }
 
     //-----------------------------------------------------------------------
@@ -307,18 +284,6 @@ public final class FixedRateObservation
     public FixedRateObservation build() {
       return new FixedRateObservation(
           rate);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the fixed rate to be paid.
-     * A 5% rate will be expressed as 0.05.
-     * @param rate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rate(double rate) {
-      this.rate = rate;
-      return this;
     }
 
     //-----------------------------------------------------------------------
