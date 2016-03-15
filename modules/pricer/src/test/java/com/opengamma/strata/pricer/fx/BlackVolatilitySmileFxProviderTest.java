@@ -227,7 +227,7 @@ public class BlackVolatilitySmileFxProviderTest {
     double totalSensi = 0.5 * (volUp - volDw) / EPS;
 
     double expiryTime = provider.relativeTime(expiry);
-    SmileDeltaParameters singleSmile = smileTerm.getSmileForTime(expiryTime);
+    SmileDeltaParameters singleSmile = smileTerm.smileForTime(expiryTime);
     double[] strikesUp = singleSmile.getStrike(forwardMod).toArray();
     double[] strikesDw = strikesUp.clone();
     double[] vols = singleSmile.getVolatility().toArray();
@@ -236,9 +236,9 @@ public class BlackVolatilitySmileFxProviderTest {
     double volStrikeUp = LINEAR_FLAT.interpolate(LINEAR_FLAT.getDataBundleFromSortedArrays(strikesUp, vols), strikeMod);
     double volStrikeDw = LINEAR_FLAT.interpolate(LINEAR_FLAT.getDataBundleFromSortedArrays(strikesDw, vols), strikeMod);
     double sensiStrike = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
-    SmileDeltaParameters singleSmileUp = smileTermUp.getSmileForTime(expiryTime);
+    SmileDeltaParameters singleSmileUp = smileTermUp.smileForTime(expiryTime);
     double strikeUp = singleSmileUp.getStrike(forwardMod).get(deltaIndex);
-    SmileDeltaParameters singleSmileDw = smileTermDw.getSmileForTime(expiryTime);
+    SmileDeltaParameters singleSmileDw = smileTermDw.smileForTime(expiryTime);
     double strikeDw = singleSmileDw.getStrike(forwardMod).get(deltaIndex);
     double sensiVol = 0.5 * (strikeUp - strikeDw) / EPS;
 

@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 public interface SmileDeltaTermStructure {
 
   /**
-   * Calculates the volatility at a given time/strike/forward from the term structure. 
+   * Calculates the volatility at a given time/strike/forward from the term structure.
    * 
    * @param expiry  the time to expiry
    * @param strike  the strike
@@ -43,24 +43,25 @@ public interface SmileDeltaTermStructure {
       double forward);
 
   /**
-   * Obtains smile at a given time. 
+   * Calculates the smile at a given time.
    * 
    * @param expiry  the time to expiry
    * @return the smile
    */
-  public abstract SmileDeltaParameters getSmileForTime(double expiry);
+  public abstract SmileDeltaParameters smileForTime(double expiry);
 
   /**
-   * Obtains the smile at a given time and the sensitivities with respect to the volatility data points.
+   * Calculates the smile at a given time and the sensitivities with respect to the volatility data points.
    * 
    * @param expiry  the time to expiry
    * @param volatilityAtTimeSensitivity  the sensitivity to the volatilities of the smile at the given time
    * @return the smile and sensitivities
    */
-  public abstract SmileAndBucketedSensitivities getSmileAndSensitivitiesForTime(
+  public abstract SmileAndBucketedSensitivities smileAndSensitivitiesForTime(
       double expiry,
       DoubleArray volatilityAtTimeSensitivity);
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the number of smiles.
    * 

@@ -43,7 +43,7 @@ import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionN
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
  * <p>
  * The volatility is represented by a term structure of interpolated smile, 
- * {@link SmileDeltaTermStructureParametersStrikeInterpolation}, which represents expiry dependent smile formed of
+ * {@link SmileDeltaTermStructure}, which represents expiry dependent smile formed of
  * ATM, risk reversal and strangle as used in FX market.
  */
 @BeanDefinition

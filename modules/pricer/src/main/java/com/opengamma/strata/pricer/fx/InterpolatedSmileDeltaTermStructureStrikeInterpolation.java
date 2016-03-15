@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-
 import static com.opengamma.strata.market.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.interpolator.CurveInterpolators.TIME_SQUARE;
@@ -138,7 +137,7 @@ public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
       CurveExtrapolator strikeLeftExtrapolator,
       CurveInterpolator strikeInterpolator,
       CurveExtrapolator strikeRightExtrapolator) {
-    
+
     return of(
         name,
         volatilityTerm,
@@ -502,7 +501,7 @@ public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
   @Override
   public double volatility(double time, double strike, double forward) {
     ArgChecker.isTrue(time >= 0, "Positive time");
-    SmileDeltaParameters smile = getSmileForTime(time);
+    SmileDeltaParameters smile = smileForTime(time);
     DoubleArray strikes = smile.getStrike(forward);
     BoundCurveInterpolator bound = strikeInterpolator.bind(
         strikes, smile.getVolatility(), strikeLeftExtrapolator, strikeRightExtrapolator);
@@ -512,13 +511,13 @@ public final class InterpolatedSmileDeltaTermStructureStrikeInterpolation
   @Override
   public VolatilityAndBucketedSensitivities volatilityAndSensitivities(double time, double strike, double forward) {
     ArgChecker.isTrue(time >= 0, "Positive time");
-    SmileDeltaParameters smile = getSmileForTime(time);
+    SmileDeltaParameters smile = smileForTime(time);
     DoubleArray strikes = smile.getStrike(forward);
     BoundCurveInterpolator bound = strikeInterpolator.bind(
         strikes, smile.getVolatility(), strikeLeftExtrapolator, strikeRightExtrapolator);
     double volatility = bound.interpolate(strike);
     DoubleArray smileVolatilityBar = bound.parameterSensitivity(strike);
-    SmileAndBucketedSensitivities smileAndSensitivities = getSmileAndSensitivitiesForTime(time, smileVolatilityBar);
+    SmileAndBucketedSensitivities smileAndSensitivities = smileAndSensitivitiesForTime(time, smileVolatilityBar);
     return VolatilityAndBucketedSensitivities.of(volatility, smileAndSensitivities.getSensitivities());
   }
 

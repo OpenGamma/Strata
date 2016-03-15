@@ -25,7 +25,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 public interface InterpolatedSmileDeltaTermStructure extends SmileDeltaTermStructure {
 
   @Override
-  public default SmileDeltaParameters getSmileForTime(double expiry) {
+  public default SmileDeltaParameters smileForTime(double expiry) {
     int nbVol = getStrikeCount();
     int nbTime = getSmileCount();
     ArgChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
@@ -43,7 +43,7 @@ public interface InterpolatedSmileDeltaTermStructure extends SmileDeltaTermStruc
   }
 
   @Override
-  public default SmileAndBucketedSensitivities getSmileAndSensitivitiesForTime(
+  public default SmileAndBucketedSensitivities smileAndSensitivitiesForTime(
       double expiry,
       DoubleArray volatilityAtTimeSensitivity) {
 

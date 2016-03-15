@@ -43,14 +43,14 @@ public class InterpolatedSmileDeltaTermStructureStrikeInterpolationTest {
       {-0.012, -0.0070},
       {-0.013, -0.0080},
       {-0.014, -0.0090},
-    {-0.014, -0.0090 } });
+      {-0.014, -0.0090}});
   private static final DoubleMatrix STRANGLE = DoubleMatrix.copyOf(new double[][] {
       {0.0300, 0.0100},
       {0.0310, 0.0110},
       {0.0320, 0.0120},
       {0.0330, 0.0130},
       {0.0340, 0.0140},
-    {0.0340, 0.0140 } });
+      {0.0340, 0.0140}});
   private static final int NB_EXP = TIME_TO_EXPIRY.size();
   private static final List<SmileDeltaParameters> VOLATILITY_TERM = new ArrayList<>(NB_EXP);
   static {
@@ -58,7 +58,7 @@ public class InterpolatedSmileDeltaTermStructureStrikeInterpolationTest {
       VOLATILITY_TERM.add(SmileDeltaParameters.of(
           TIME_TO_EXPIRY.get(loopexp),
           ATM.get(loopexp),
-          DELTA, 
+          DELTA,
           DoubleArray.copyOf(RISK_REVERSAL.toArray()[loopexp]),
           DoubleArray.copyOf(STRANGLE.toArray()[loopexp])));
     }
@@ -117,9 +117,9 @@ public class InterpolatedSmileDeltaTermStructureStrikeInterpolationTest {
     assertThrowsIllegalArg(() -> InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_TO_EXPIRY,
         delta0, DoubleMatrix.copyOf(vol)));
     DoubleMatrix shortMat = DoubleMatrix.copyOf(new double[][] {
-      {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 } });
+        {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}});
     DoubleMatrix vec = DoubleMatrix.copyOf(new double[][] {
-      {0.0300 }, {0.0310 }, {0.0320 }, {0.0330 }, {0.0340 }, {0.0340 } });
+        {0.0300}, {0.0310}, {0.0320}, {0.0330}, {0.0340}, {0.0340}});
     assertThrowsIllegalArg(() -> InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
         NAME, timeShort, DELTA, ATM, RISK_REVERSAL, STRANGLE));
     assertThrowsIllegalArg(() -> InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
@@ -272,7 +272,7 @@ public class InterpolatedSmileDeltaTermStructureStrikeInterpolationTest {
     InterpolatedSmileDeltaTermStructureStrikeInterpolation other = InterpolatedSmileDeltaTermStructureStrikeInterpolation
         .of("other", DoubleArray.of(0.1, 0.5),
             DoubleArray.of(0.25),
-            DoubleMatrix.copyOf(new double[][] { {0.15, 0.1, 0.12 }, {0.1, 0.07, 0.08 } }),
+            DoubleMatrix.copyOf(new double[][] { {0.15, 0.1, 0.12}, {0.1, 0.07, 0.08}}),
             CurveExtrapolators.LINEAR,
             CurveInterpolators.NATURAL_SPLINE,
             CurveExtrapolators.LINEAR,
