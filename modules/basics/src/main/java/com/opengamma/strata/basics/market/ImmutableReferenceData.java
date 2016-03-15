@@ -129,7 +129,7 @@ public final class ImmutableReferenceData
   }
 
   // extracted to aid inlining performance
-  private <T> String msgValueNotFound(ReferenceDataId<T> id) {
+  private String msgValueNotFound(ReferenceDataId<?> id) {
     return Messages.format(
         "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName());
   }
