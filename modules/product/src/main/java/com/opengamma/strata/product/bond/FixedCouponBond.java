@@ -13,7 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -140,17 +140,15 @@ public final class FixedCouponBond
   private final DaysAdjustment exCouponPeriod;
 
   //-------------------------------------------------------------------------
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (builder.exCouponPeriod == null) {
-      builder.exCouponPeriod = DaysAdjustment.NONE;
-    }
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.exCouponPeriod = DaysAdjustment.NONE;
   }
 
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(settlementDateOffset.getDays() >= 0d, "The settlement date offset must be non-negative");
-    ArgChecker.isTrue(exCouponPeriod.getDays() <= 0d,
+    ArgChecker.isTrue(settlementDateOffset.getDays() >= 0, "The settlement date offset must be non-negative");
+    ArgChecker.isTrue(exCouponPeriod.getDays() <= 0,
         "The ex-coupon period is measured from the payment date, thus the days must be non-positive");
   }
 
@@ -686,6 +684,7 @@ public final class FixedCouponBond
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -793,7 +792,6 @@ public final class FixedCouponBond
 
     @Override
     public FixedCouponBond build() {
-      preBuild(this);
       return new FixedCouponBond(
           currency,
           notional,

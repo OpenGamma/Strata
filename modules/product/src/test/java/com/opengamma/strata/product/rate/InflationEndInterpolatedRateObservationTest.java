@@ -37,28 +37,20 @@ public class InflationEndInterpolatedRateObservationTest {
     InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     assertEquals(test.getIndex(), GB_HICP);
-    assertEquals(test.getStartIndexValue(), START_INDEX);
-    assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
-  }
-
-  public void test_builder() {
-    InflationEndInterpolatedRateObservation test = InflationEndInterpolatedRateObservation.builder()
-        .startIndexValue(START_INDEX)
-        .endObservation(PriceIndexObservation.of(CH_CPI, END_MONTH_FIRST))
-        .endSecondObservation(PriceIndexObservation.of(CH_CPI, END_MONTH_SECOND))
-        .weight(WEIGHT)
-        .build();
-    assertEquals(test.getIndex(), CH_CPI);
+    assertEquals(test.getEndObservation().getFixingMonth(), END_MONTH_FIRST);
+    assertEquals(test.getEndSecondObservation().getFixingMonth(), END_MONTH_SECOND);
     assertEquals(test.getStartIndexValue(), START_INDEX);
     assertEquals(test.getWeight(), WEIGHT, 1.0e-14);
   }
 
   public void test_wrongMonthOrder() {
-    assertThrowsIllegalArg(() -> InflationEndInterpolatedRateObservation.builder()
-        .startIndexValue(START_INDEX)
-        .endObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .weight(WEIGHT)
+    assertThrowsIllegalArg(() -> InflationEndInterpolatedRateObservation.meta().builder()
+        .set(InflationEndInterpolatedRateObservation.meta().startIndexValue(), START_INDEX)
+        .set(InflationEndInterpolatedRateObservation.meta().endObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationEndInterpolatedRateObservation.meta().endSecondObservation(),
+            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+        .set(InflationEndInterpolatedRateObservation.meta().weight(), WEIGHT)
         .build());
   }
 
@@ -76,12 +68,8 @@ public class InflationEndInterpolatedRateObservationTest {
     InflationEndInterpolatedRateObservation test1 = InflationEndInterpolatedRateObservation.of(
         GB_HICP, START_INDEX, END_MONTH_FIRST, WEIGHT);
     coverImmutableBean(test1);
-    InflationEndInterpolatedRateObservation test2 = InflationEndInterpolatedRateObservation.builder()
-        .startIndexValue(334d)
-        .endObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 7)))
-        .endSecondObservation(PriceIndexObservation.of(CH_CPI, YearMonth.of(2010, 8)))
-        .weight(WEIGHT + 0.1d)
-        .build();
+    InflationEndInterpolatedRateObservation test2 = InflationEndInterpolatedRateObservation.of(
+        CH_CPI, 334d, YearMonth.of(2010, 7), WEIGHT + 1);
     coverBeanEquals(test1, test2);
   }
 

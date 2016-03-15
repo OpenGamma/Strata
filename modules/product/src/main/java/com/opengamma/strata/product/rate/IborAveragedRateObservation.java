@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -38,7 +39,7 @@ import com.opengamma.strata.basics.index.Index;
  * An interest rate determined from a single Ibor index observed on multiple dates.
  * For example, the average of three fixings of 'GBP-LIBOR-3M'.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class IborAveragedRateObservation
     implements RateObservation, ImmutableBean, Serializable {
 
@@ -129,14 +130,6 @@ public final class IborAveragedRateObservation
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static IborAveragedRateObservation.Builder builder() {
-    return new IborAveragedRateObservation.Builder();
-  }
-
   @Override
   public IborAveragedRateObservation.Meta metaBean() {
     return IborAveragedRateObservation.Meta.INSTANCE;
@@ -165,14 +158,6 @@ public final class IborAveragedRateObservation
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -240,7 +225,7 @@ public final class IborAveragedRateObservation
     }
 
     @Override
-    public IborAveragedRateObservation.Builder builder() {
+    public BeanBuilder<? extends IborAveragedRateObservation> builder() {
       return new IborAveragedRateObservation.Builder();
     }
 
@@ -288,7 +273,7 @@ public final class IborAveragedRateObservation
   /**
    * The bean-builder for {@code IborAveragedRateObservation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborAveragedRateObservation> {
+  private static final class Builder extends DirectFieldsBeanBuilder<IborAveragedRateObservation> {
 
     private List<IborAveragedFixing> fixings = ImmutableList.of();
 
@@ -296,14 +281,6 @@ public final class IborAveragedRateObservation
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(IborAveragedRateObservation beanToCopy) {
-      this.fixings = beanToCopy.getFixings();
     }
 
     //-----------------------------------------------------------------------
@@ -358,31 +335,6 @@ public final class IborAveragedRateObservation
     public IborAveragedRateObservation build() {
       return new IborAveragedRateObservation(
           fixings);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the list of fixings.
-     * <p>
-     * A fixing will be taken for each reset period, with the final rate
-     * being an average of the fixings.
-     * @param fixings  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder fixings(List<IborAveragedFixing> fixings) {
-      JodaBeanUtils.notEmpty(fixings, "fixings");
-      this.fixings = fixings;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fixings} property in the builder
-     * from an array of objects.
-     * @param fixings  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder fixings(IborAveragedFixing... fixings) {
-      return fixings(ImmutableList.copyOf(fixings));
     }
 
     //-----------------------------------------------------------------------

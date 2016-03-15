@@ -62,6 +62,7 @@ public class IborCapletFloorletPeriodTest {
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getIborRate(), RATE_OBSERVATION);
     assertEquals(test.getIndex(), EUR_EURIBOR_3M);
+    assertEquals(test.getFixingDate(), FIXING_TIME_ZONE.toLocalDate());
     assertEquals(test.getFixingDateTime(), FIXING_TIME_ZONE);
     assertEquals(test.getPutCall(), PutCall.CALL);
     assertEquals(test.getUnadjustedStartDate(), START);

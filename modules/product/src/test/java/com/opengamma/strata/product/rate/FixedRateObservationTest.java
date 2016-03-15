@@ -22,10 +22,7 @@ public class FixedRateObservationTest {
 
   public void test_of() {
     FixedRateObservation test = FixedRateObservation.of(0.05);
-    FixedRateObservation expected = FixedRateObservation.builder()
-        .rate(0.05)
-        .build();
-    assertEquals(test, expected);
+    assertEquals(test.getRate(), 0.05);
   }
 
   //-------------------------------------------------------------------------
