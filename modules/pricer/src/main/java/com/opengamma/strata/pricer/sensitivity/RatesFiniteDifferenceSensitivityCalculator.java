@@ -16,6 +16,7 @@ import org.joda.beans.MetaProperty;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -23,8 +24,11 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.SimpleDiscountFactors;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -88,7 +92,13 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         (base, bumped) -> base.toBuilder().indexCurves(bumped).build(),
         valueFn,
         valueInit);
-    return discounting.combinedWith(forward);
+    CurveCurrencyParameterSensitivities priceIndex = sensitivityPriceIndex(
+        provider,
+        provider.getPriceIndexValues(),
+        (base, bumped) -> base.toBuilder().priceIndexValues(bumped).build(),
+        valueFn,
+        valueInit);
+    return discounting.combinedWith(forward).combinedWith(priceIndex);
   }
 
   // computes the sensitivity with respect to the curves
@@ -111,6 +121,32 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       });
       CurveMetadata metadata = entry.getValue().getMetadata();
+      result = result.combinedWith(CurveCurrencyParameterSensitivity.of(metadata, valueInit.getCurrency(), sensitivity));
+    }
+    return result;
+  }
+
+  // computes the sensitivity with respect to the price index curves
+  private <T> CurveCurrencyParameterSensitivities sensitivityPriceIndex(
+      ImmutableRatesProvider provider,
+      Map<PriceIndex, PriceIndexValues> indexValues,
+      BiFunction<ImmutableRatesProvider, Map<PriceIndex, PriceIndexValues>, ImmutableRatesProvider> storeBumpedFn,
+      Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
+      CurrencyAmount valueInit) {
+
+    CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
+    for (Entry<PriceIndex, PriceIndexValues> entry : indexValues.entrySet()) {
+      ForwardPriceIndexValues indexValue = ((ForwardPriceIndexValues) entry.getValue());
+      NodalCurve curveInt = indexValue.getCurve().toNodalCurve();
+      int nbNodePoint = curveInt.getXValues().size();
+      DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {
+        Curve dscBumped = bumpedCurve(curveInt, i);
+        Map<PriceIndex, PriceIndexValues> mapBumped = new HashMap<>(indexValues);
+        mapBumped.put(entry.getKey(), indexValue.withCurve((InterpolatedNodalCurve) dscBumped));
+        ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
+        return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      });
+      CurveMetadata metadata = indexValue.getCurve().getMetadata();
       result = result.combinedWith(CurveCurrencyParameterSensitivity.of(metadata, valueInit.getCurrency(), sensitivity));
     }
     return result;
