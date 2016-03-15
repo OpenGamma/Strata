@@ -41,11 +41,7 @@ public class ReferenceDataTest {
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID1, Integer.class), VAL1);
-    assertThrows(() -> test.getValue(ID1, Double.class), ClassCastException.class);
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
-    assertEquals(test.findValue(ID1, Integer.class), Optional.of(VAL1));
-    assertEquals(test.findValue(ID1, Double.class), Optional.empty());
 
     assertEquals(test.containsValue(ID2), true);
     assertEquals(test.getValue(ID2), VAL2);
