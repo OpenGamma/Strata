@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -24,9 +25,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * of the smile to the data points that were used to construct it.
  */
 @BeanDefinition(style = "light")
-final class SmileAndBucketedSensitivities
-    implements ImmutableBean {
-  // NOTE: This class is package scoped, as the Smile data provider API is effectively still in Beta
+public final class SmileAndBucketedSensitivities
+    implements ImmutableBean, Serializable {
 
   /**
    * The smile.
@@ -69,6 +69,11 @@ final class SmileAndBucketedSensitivities
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private SmileAndBucketedSensitivities(
       SmileDeltaParameters smile,
