@@ -60,19 +60,20 @@ public final class BondFutureTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SecurityLink<BondFuture> securityLink;
   /**
-   * The quantity, indicating the number of contracts in the trade.
+   * The quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
   /**
-   * The initial price of the future, represented in decimal form.
+   * The price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    */
   @PropertyDefinition
-  private final double initialPrice;
+  private final double price;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -93,7 +94,7 @@ public final class BondFutureTrade
         .product(getProduct().resolve(refData))
         .securityStandardId(getSecurity().getStandardId())
         .quantity(quantity)
-        .initialPrice(initialPrice)
+        .price(price)
         .build();
   }
 
@@ -128,12 +129,12 @@ public final class BondFutureTrade
       TradeInfo tradeInfo,
       SecurityLink<BondFuture> securityLink,
       long quantity,
-      double initialPrice) {
+      double price) {
     JodaBeanUtils.notNull(securityLink, "securityLink");
     this.tradeInfo = tradeInfo;
     this.securityLink = securityLink;
     this.quantity = quantity;
-    this.initialPrice = initialPrice;
+    this.price = price;
   }
 
   @Override
@@ -178,8 +179,9 @@ public final class BondFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
+   * This is the number of contracts that were traded.
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
@@ -189,13 +191,13 @@ public final class BondFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the initial price of the future, represented in decimal form.
+   * Gets the price that was traded, in decimal form.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
    */
-  public double getInitialPrice() {
-    return initialPrice;
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -217,7 +219,7 @@ public final class BondFutureTrade
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
           JodaBeanUtils.equal(securityLink, other.securityLink) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(initialPrice, other.initialPrice);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -228,7 +230,7 @@ public final class BondFutureTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(securityLink);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(initialPrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
@@ -239,7 +241,7 @@ public final class BondFutureTrade
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
     buf.append("securityLink").append('=').append(securityLink).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -271,10 +273,10 @@ public final class BondFutureTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", BondFutureTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
-        this, "initialPrice", BondFutureTrade.class, Double.TYPE);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", BondFutureTrade.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -283,7 +285,7 @@ public final class BondFutureTrade
         "tradeInfo",
         "securityLink",
         "quantity",
-        "initialPrice");
+        "price");
 
     /**
      * Restricted constructor.
@@ -300,8 +302,8 @@ public final class BondFutureTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -347,11 +349,11 @@ public final class BondFutureTrade
     }
 
     /**
-     * The meta-property for the {@code initialPrice} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> initialPrice() {
-      return initialPrice;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -364,8 +366,8 @@ public final class BondFutureTrade
           return ((BondFutureTrade) bean).getSecurityLink();
         case -1285004149:  // quantity
           return ((BondFutureTrade) bean).getQuantity();
-        case -423406491:  // initialPrice
-          return ((BondFutureTrade) bean).getInitialPrice();
+        case 106934601:  // price
+          return ((BondFutureTrade) bean).getPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -390,7 +392,7 @@ public final class BondFutureTrade
     private TradeInfo tradeInfo;
     private SecurityLink<BondFuture> securityLink;
     private long quantity;
-    private double initialPrice;
+    private double price;
 
     /**
      * Restricted constructor.
@@ -407,7 +409,7 @@ public final class BondFutureTrade
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.securityLink = beanToCopy.getSecurityLink();
       this.quantity = beanToCopy.getQuantity();
-      this.initialPrice = beanToCopy.getInitialPrice();
+      this.price = beanToCopy.getPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -420,8 +422,8 @@ public final class BondFutureTrade
           return securityLink;
         case -1285004149:  // quantity
           return quantity;
-        case -423406491:  // initialPrice
-          return initialPrice;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -440,8 +442,8 @@ public final class BondFutureTrade
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case -423406491:  // initialPrice
-          this.initialPrice = (Double) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -479,7 +481,7 @@ public final class BondFutureTrade
           tradeInfo,
           securityLink,
           quantity,
-          initialPrice);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -510,8 +512,9 @@ public final class BondFutureTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
+     * This is the number of contracts that were traded.
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value
      * @return this, for chaining, not null
@@ -522,14 +525,14 @@ public final class BondFutureTrade
     }
 
     /**
-     * Sets the initial price of the future, represented in decimal form.
+     * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * @param initialPrice  the new value
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder initialPrice(double initialPrice) {
-      this.initialPrice = initialPrice;
+    public Builder price(double price) {
+      this.price = price;
       return this;
     }
 
@@ -541,7 +544,7 @@ public final class BondFutureTrade
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }

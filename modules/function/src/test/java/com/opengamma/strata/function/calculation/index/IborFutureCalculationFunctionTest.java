@@ -75,12 +75,12 @@ public class IborFutureCalculationFunctionTest {
   public void test_requirementsAndCurrency() {
     IborFutureCalculationFunction function = new IborFutureCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX), QuoteKey.of(SEC_ID)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
-    assertThat(function.naturalCurrency(TRADE)).isEqualTo(CURRENCY);
+    assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
   public void test_simpleMeasures() {

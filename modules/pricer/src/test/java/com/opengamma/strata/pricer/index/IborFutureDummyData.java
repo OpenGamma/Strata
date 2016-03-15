@@ -75,7 +75,7 @@ public class IborFutureDummyData {
       .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
       .securityLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY))
       .quantity(FUTURE_QUANTITY)
-      .initialPrice(FUTURE_INITIAL_PRICE)
+      .price(FUTURE_INITIAL_PRICE)
       .build();
 
   /**
@@ -120,7 +120,7 @@ public class IborFutureDummyData {
           .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
           .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY))
           .quantity(OPTION_QUANTITY)
-          .initialPrice(OPTION_INITIAL_PRICE)
+          .price(OPTION_INITIAL_PRICE)
           .build();
 
 }

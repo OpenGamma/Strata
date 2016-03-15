@@ -70,7 +70,7 @@ public class DiscountingIborFutureTradePricerTest {
     when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 0.99;
-    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - FUTURE_TRADE.getInitialPrice();
+    double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - FUTURE_TRADE.getPrice();
     double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
     assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
   }
@@ -101,7 +101,7 @@ public class DiscountingIborFutureTradePricerTest {
 
     double lastClosingPrice = 1.025;
     DiscountingIborFutureTradePricer pricerFn = DiscountingIborFutureTradePricer.DEFAULT;
-    double expected = ((1.0 - RATE) - FUTURE_TRADE.getInitialPrice()) *
+    double expected = ((1.0 - RATE) - FUTURE_TRADE.getPrice()) *
         FUTURE.getAccrualFactor() * FUTURE.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
     assertEquals(computed.getAmount(), expected, TOLERANCE_PV);

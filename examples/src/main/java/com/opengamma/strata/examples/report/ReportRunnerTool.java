@@ -204,17 +204,12 @@ public class ReportRunnerTool implements AutoCloseable {
 
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
-    MarketDataRequirements reqs = tasks.getRequirements();
+    MarketDataRequirements reqs = tasks.getRequirements(refData);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);
 
-    return ReportCalculationResults.builder()
-        .valuationDate(valuationDate)
-        .trades(trades)
-        .columns(requirements.getTradeMeasureRequirements())
-        .calculationResults(results)
-        .build();
+    return ReportCalculationResults.of(valuationDate, trades, requirements.getTradeMeasureRequirements(), results, refData);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

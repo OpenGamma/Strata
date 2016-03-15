@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
@@ -166,8 +167,7 @@ public final class ImmutableFxSwapConvention
             .tradeDate(tradeDate).build())
         .product(FxSwap.ofForwardPoints(
             CurrencyAmount.of(currencyPair.getBase(), amount1),
-            currencyPair.getCounter(),
-            nearFxRate,
+            FxRate.of(currencyPair, nearFxRate),
             farLegForwardPoints,
             startDate,
             endDate,

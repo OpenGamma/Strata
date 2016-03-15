@@ -78,13 +78,13 @@ public class FxNdfCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(FxNdfTrade target) {
-    return target.getProduct().getSettlementCurrency();
+  public Currency naturalCurrency(FxNdfTrade trade, ReferenceData refData) {
+    return trade.getProduct().getSettlementCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FxNdfTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(FxNdfTrade trade, Set<Measure> measures, ReferenceData refData) {
     FxNdf fx = trade.getProduct();
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();

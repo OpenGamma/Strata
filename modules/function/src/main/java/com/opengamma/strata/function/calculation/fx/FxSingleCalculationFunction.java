@@ -81,16 +81,16 @@ public class FxSingleCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(FxSingleTrade target) {
-    Currency base = target.getProduct().getBaseCurrencyAmount().getCurrency();
-    Currency counter = target.getProduct().getCounterCurrencyAmount().getCurrency();
+  public Currency naturalCurrency(FxSingleTrade trade, ReferenceData refData) {
+    Currency base = trade.getProduct().getBaseCurrencyAmount().getCurrency();
+    Currency counter = trade.getProduct().getCounterCurrencyAmount().getCurrency();
     CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
     return marketConventionPair.getBase();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FxSingleTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(FxSingleTrade trade, Set<Measure> measures, ReferenceData refData) {
     FxSingle fx = trade.getProduct();
     Currency baseCurrency = fx.getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getCounterCurrencyAmount().getCurrency();

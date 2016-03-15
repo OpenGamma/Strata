@@ -57,7 +57,7 @@ public final class FixedCouponBondTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SecurityLink<FixedCouponBond> securityLink;
   /**
-   * The quantity, indicating the number of bond contracts in the trade.
+   * The quantity that was traded.
    * <p>
    * This will be positive if buying and negative if selling.
    */
@@ -179,7 +179,7 @@ public final class FixedCouponBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity, indicating the number of bond contracts in the trade.
+   * Gets the quantity that was traded.
    * <p>
    * This will be positive if buying and negative if selling.
    * @return the value of the property
@@ -514,7 +514,7 @@ public final class FixedCouponBondTrade
     }
 
     /**
-     * Sets the quantity, indicating the number of bond contracts in the trade.
+     * Sets the quantity that was traded.
      * <p>
      * This will be positive if buying and negative if selling.
      * @param quantity  the new value

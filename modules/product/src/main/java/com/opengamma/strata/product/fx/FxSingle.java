@@ -138,9 +138,8 @@ public final class FxSingle
   /**
    * Creates an {@code FxSingle} using a rate.
    * <p>
-   * This create an FX specifying a value date, notional in one currency, the second currency
-   * and the FX rate between the two.
-   * The currencies of the payments must differ.
+   * This creates a single foreign exchange specifying the amount, FX rate and value date.
+   * The amount must be specified using one of the currencies of the FX rate.
    * <p>
    * This factory identifies the currency pair of the exchange and assigns the payments
    * to match the base or counter currency of the standardized currency pair.
@@ -148,50 +147,53 @@ public final class FxSingle
    * <p>
    * No payment date adjustments apply.
    * 
-   * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param fxRate  the near FX rate
+   * @param amount  the amount being exchanged, positive if being received, negative if being paid
+   * @param fxRate  the FX rate
    * @param paymentDate  the date that the FX settles
    * @return the FX
    */
-  public static FxSingle of(CurrencyAmount amountCurrency1, FxRate fxRate, LocalDate paymentDate) {
-    return create(amountCurrency1, fxRate, paymentDate, null);
+  public static FxSingle of(CurrencyAmount amount, FxRate fxRate, LocalDate paymentDate) {
+    return create(amount, fxRate, paymentDate, null);
   }
 
   /**
    * Creates an {@code FxSingle} using a rate, specifying a date adjustment.
    * <p>
-   * This create an FX specifying a value date, notional in one currency, the second currency
-   * and the FX rate between the two.
-   * The currencies of the payments must differ.
+   * This creates a single foreign exchange specifying the amount, FX rate and value date.
+   * The amount must be specified using one of the currencies of the FX rate.
    * <p>
    * This factory identifies the currency pair of the exchange and assigns the payments
    * to match the base or counter currency of the standardized currency pair.
    * For example, a EUR/USD exchange always has EUR as the base payment and USD as the counter payment.
    * 
-   * @param amountCurrency1  the amount of the near leg in the first currency
-   * @param fxRate  the near FX rate
+   * @param amount  the amount being exchanged, positive if being received, negative if being paid
+   * @param fxRate  the FX rate
    * @param paymentDate  the date that the FX settles
    * @param paymentDateAdjustment  the adjustment to apply to the payment date
    * @return the FX
    */
   public static FxSingle of(
-      CurrencyAmount amountCurrency1,
+      CurrencyAmount amount,
       FxRate fxRate,
       LocalDate paymentDate,
       BusinessDayAdjustment paymentDateAdjustment) {
 
     ArgChecker.notNull(paymentDateAdjustment, "paymentDateAdjustment");
-    return create(amountCurrency1, fxRate, paymentDate, paymentDateAdjustment);
+    return create(amount, fxRate, paymentDate, paymentDateAdjustment);
   }
 
   // internal method where adjustment may be null
-  private static FxSingle create(CurrencyAmount amountCurrency1, FxRate fxRate, LocalDate paymentDate,
+  private static FxSingle create(
+      CurrencyAmount amount,
+      FxRate fxRate,
+      LocalDate paymentDate,
       BusinessDayAdjustment paymentDateAdjustment) {
+
     CurrencyPair pair = fxRate.getPair();
-    ArgChecker.isTrue(pair.contains(amountCurrency1.getCurrency()));
-    Currency currency2 = pair.getBase().equals(amountCurrency1.getCurrency()) ? pair.getCounter() : pair.getBase();
-    CurrencyAmount amountCurrency2 = amountCurrency1.convertedTo(currency2, fxRate).negated();
-    return create(amountCurrency1, amountCurrency2, paymentDate, paymentDateAdjustment);
+    ArgChecker.isTrue(pair.contains(amount.getCurrency()));
+    Currency currency2 = pair.getBase().equals(amount.getCurrency()) ? pair.getCounter() : pair.getBase();
+    CurrencyAmount amountCurrency2 = amount.convertedTo(currency2, fxRate).negated();
+    return create(amount, amountCurrency2, paymentDate, paymentDateAdjustment);
   }
 
   // internal method where adjustment may be null

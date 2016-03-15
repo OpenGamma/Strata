@@ -54,7 +54,7 @@ public class AbstractIborFutureTradePricerTest {
     LocalDate valuationDate = tradeDate;
     double lastMarginPrice = 0.995;
     double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, lastMarginPrice);
-    assertEquals(referencePrice, FUTURE_TRADE.getInitialPrice());
+    assertEquals(referencePrice, FUTURE_TRADE.getPrice());
   }
   
   public void test_reference_price_val_date_not_null() {

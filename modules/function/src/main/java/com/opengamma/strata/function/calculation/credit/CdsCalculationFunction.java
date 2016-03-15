@@ -98,13 +98,13 @@ public class CdsCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(CdsTrade target) {
-    return target.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
+  public Currency naturalCurrency(CdsTrade trade, ReferenceData refData) {
+    return trade.getProduct().getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(CdsTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(CdsTrade trade, Set<Measure> measures, ReferenceData refData) {
     Cds cds = trade.getProduct();
 
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();

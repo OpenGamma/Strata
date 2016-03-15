@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.date;
 
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
@@ -626,6 +627,41 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar CATO = GlobalHolidayCalendars.generateToronto();
+
+  @DataProvider(name = "cato")
+  Object[][] data_cato() {
+    return new Object[][] {
+        {2009, mds(2009, md(1, 1), md(2, 16), md(4, 10), md(4, 13),
+            md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
+        {2010, mds(2010, md(1, 1), md(2, 15), md(4, 2), md(4, 5),
+            md(5, 24), md(7, 1), md(8, 2), md(9, 6), md(10, 11), md(11, 11), md(12, 27), md(12, 28))},
+        {2011, mds(2011, md(1, 3), md(2, 21), md(4, 22), md(4, 25),
+            md(5, 23), md(7, 1), md(8, 1), md(9, 5), md(10, 10), md(11, 11), md(12, 26), md(12, 27))},
+        {2012, mds(2012, md(1, 2), md(2, 20), md(4, 6), md(4, 9),
+            md(5, 21), md(7, 2), md(8, 6), md(9, 3), md(10, 8), md(11, 12), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(2, 18), md(3, 29), md(4, 1),
+            md(5, 20), md(7, 1), md(8, 5), md(9, 2), md(10, 14), md(11, 11), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(2, 17), md(4, 18), md(4, 21),
+            md(5, 19), md(7, 1), md(8, 4), md(9, 1), md(10, 13), md(11, 11), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(2, 16), md(4, 3), md(4, 6),
+            md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
+        {2016, mds(2016, md(1, 1), md(2, 15), md(3, 25), md(3, 28),
+            md(5, 23), md(7, 1), md(8, 1), md(9, 5), md(10, 10), md(11, 11), md(12, 26), md(12, 27))},
+    };
+  }
+
+  @Test(dataProvider = "cato")
+  public void test_cato(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(CATO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static List<LocalDate> mds(int year, MonthDay... monthDays) {
     List<LocalDate> holidays = new ArrayList<>();
     for (MonthDay md : monthDays) {
@@ -636,6 +672,11 @@ public class GlobalHolidayCalendarsTest {
 
   private static MonthDay md(int month, int day) {
     return MonthDay.of(month, day);
+  }
+
+  //-------------------------------------------------------------------------
+  public static void coverage() {
+    coverPrivateConstructor(GlobalHolidayCalendars.class);
   }
 
 }

@@ -75,13 +75,13 @@ public class IborFutureCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(IborFutureTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(IborFutureTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(IborFutureTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(IborFutureTrade trade, Set<Measure> measures, ReferenceData refData) {
     IborFuture product = trade.getProduct();
 
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());

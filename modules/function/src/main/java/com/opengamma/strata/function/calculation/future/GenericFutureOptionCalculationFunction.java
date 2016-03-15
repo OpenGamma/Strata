@@ -63,13 +63,13 @@ public class GenericFutureOptionCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(GenericFutureOptionTrade target) {
-    return target.getProduct().getCurrency();
+  public Currency naturalCurrency(GenericFutureOptionTrade trade, ReferenceData refData) {
+    return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(GenericFutureOptionTrade trade, Set<Measure> measures) {
+  public FunctionRequirements requirements(GenericFutureOptionTrade trade, Set<Measure> measures, ReferenceData refData) {
     QuoteKey key = QuoteKey.of(trade.getSecurity().getStandardId());
 
     return FunctionRequirements.builder()
