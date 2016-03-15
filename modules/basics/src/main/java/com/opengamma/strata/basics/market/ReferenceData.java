@@ -97,7 +97,7 @@ public interface ReferenceData {
    * @param <T>  the type of the reference data
    * @param <S>  the type of the reference data subclass
    * @param id  the identifier to find
-   * @param type  the type of the subclass
+   * @param type  the type of the value to be returned
    * @return the reference data value
    * @throws ReferenceDataNotFoundException if the identifier is not found
    * @throws ClassCastException if the identifier exists, but is not of the correct type
@@ -108,7 +108,7 @@ public interface ReferenceData {
     if (!type.isInstance(value)) {
       throw new ClassCastException(Messages.format(
           "Identifier '{}' resolved to a value of type '{}' where '{}' was expected",
-          this, value.getClass().getSimpleName(), type.getSimpleName()));
+          id, value.getClass().getSimpleName(), type.getSimpleName()));
     }
     return (S) value;
   }
@@ -134,7 +134,7 @@ public interface ReferenceData {
    * @param <T>  the type of the reference data
    * @param <S>  the type of the reference data subclass
    * @param id  the identifier to find
-   * @param type  the type of the subclass
+   * @param type  the type of the value to be returned
    * @return the reference data value, empty if not found or of the wrong type
    */
   public default <T, S extends T> Optional<T> findValue(ReferenceDataId<T> id, Class<S> type) {
