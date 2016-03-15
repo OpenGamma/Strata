@@ -89,6 +89,31 @@ public interface ReferenceData {
   }
 
   /**
+   * Gets the reference data value associated with the specified identifier, cast to a specific type.
+   * <p>
+   * If this reference data instance contains the identifier, and the value is of the correct type,
+   * then the value will be returned. Otherwise, an exception will be thrown.
+   * 
+   * @param <T>  the type of the reference data
+   * @param <S>  the type of the reference data subclass
+   * @param id  the identifier to find
+   * @param type  the type of the subclass
+   * @return the reference data value
+   * @throws ReferenceDataNotFoundException if the identifier is not found
+   * @throws ClassCastException if the identifier exists, but is not of the correct type
+   */
+  @SuppressWarnings("unchecked")
+  public default <T, S extends T> S getValue(ReferenceDataId<T> id, Class<S> type) {
+    T value = getValue(id);
+    if (!type.isInstance(value)) {
+      throw new ClassCastException(Messages.format(
+          "Identifier '{}' resolved to a value of type '{}' where '{}' was expected",
+          this, value.getClass().getSimpleName(), type.getSimpleName()));
+    }
+    return (S) value;
+  }
+
+  /**
    * Finds the reference data value associated with the specified identifier.
    * <p>
    * If this reference data instance contains the identifier, the value will be returned.
@@ -99,6 +124,22 @@ public interface ReferenceData {
    * @return the reference data value, empty if not found
    */
   public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
+
+  /**
+   * Finds the reference data value associated with the specified identifier.
+   * <p>
+   * If this reference data instance contains the identifier, and the value is of the correct type,
+   * then the value will be returned. Otherwise, an empty optional will be returned.
+   *
+   * @param <T>  the type of the reference data
+   * @param <S>  the type of the reference data subclass
+   * @param id  the identifier to find
+   * @param type  the type of the subclass
+   * @return the reference data value, empty if not found or of the wrong type
+   */
+  public default <T, S extends T> Optional<T> findValue(ReferenceDataId<T> id, Class<S> type) {
+    return findValue(id).filter(type::isInstance).map(type::cast);
+  }
 
   /**
    * Gets the available identifiers.

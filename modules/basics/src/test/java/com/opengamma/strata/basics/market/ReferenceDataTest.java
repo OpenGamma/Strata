@@ -29,9 +29,9 @@ public class ReferenceDataTest {
   private static final TestObservableId ID1 = TestObservableId.of("1");
   private static final TestObservableId ID2 = TestObservableId.of("2");
   private static final TestObservableId ID3 = TestObservableId.of("3");
-  private static final String VAL1 = "1";
-  private static final String VAL2 = "2";
-  private static final String VAL3 = "3";
+  private static final Number VAL1 = 1;
+  private static final Number VAL2 = 2;
+  private static final Number VAL3 = 3;
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -41,7 +41,11 @@ public class ReferenceDataTest {
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);
+    assertEquals(test.getValue(ID1, Integer.class), VAL1);
+    assertThrows(() -> test.getValue(ID1, Double.class), ClassCastException.class);
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertEquals(test.findValue(ID1, Integer.class), Optional.of(VAL1));
+    assertEquals(test.findValue(ID1, Double.class), Optional.empty());
 
     assertEquals(test.containsValue(ID2), true);
     assertEquals(test.getValue(ID2), VAL2);
@@ -75,7 +79,7 @@ public class ReferenceDataTest {
   }
 
   public void test_of_badType() {
-    Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 67);  // 67 is not a String
+    Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, "67");  // not a Number
     assertThrows(() -> ReferenceData.of(dataMap), ClassCastException.class);
   }
 

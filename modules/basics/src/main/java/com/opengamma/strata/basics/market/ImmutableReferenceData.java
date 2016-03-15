@@ -123,10 +123,15 @@ public final class ImmutableReferenceData
     @SuppressWarnings("unchecked")
     T value = (T) values.get(id);
     if (value == null) {
-      throw new ReferenceDataNotFoundException(Messages.format(
-          "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName()));
+      throw new ReferenceDataNotFoundException(msgValueNotFound(id));
     }
     return value;
+  }
+
+  // extracted to aid inlining performance
+  private <T> String msgValueNotFound(ReferenceDataId<T> id) {
+    return Messages.format(
+        "Reference data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName());
   }
 
   @Override
