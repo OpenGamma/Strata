@@ -197,15 +197,24 @@ public final class BlackFormulaRepository {
 
 
   /**
-   * Computes the price without numeraire and its derivatives.
+   * Computes the price without numeraire and its derivatives of the first and second order.
    * <p>
-   * The derivatives are in the following order:
+   * The first order derivatives are in the following order:
    * <ul>
    * <li>[0] derivative with respect to the forward
    * <li>[1] derivative with respect to the strike
    * <li>[2] derivative with respect to the time to expiry
    * <li>[3] derivative with respect to the volatility
    * </ul>
+   * The price and the second order derivatives are in the ValueDerivatives which is the first element of the returned pair.
+   * <p>
+   * The second order derivatives are in the following order:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the strike
+   * <li>[2] derivative with respect to the volatility
+   * </ul>
+   * The second order derivatives are in the double[][] which is the second element of the returned pair.
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike
