@@ -46,7 +46,7 @@ public interface SecuritizedProductTrade
   /**
    * Gets the price that was traded.
    * <p>
-   * This is the price agreed when the trade occurred.
+   * This is the unit price agreed when the trade occurred.
    * 
    * @return the price
    */

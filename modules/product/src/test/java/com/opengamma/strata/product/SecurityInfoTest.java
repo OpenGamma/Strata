@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -36,8 +37,16 @@ public class SecurityInfoTest {
     assertEquals(test.findInfo(SecurityInfoType.NAME), Optional.empty());
   }
 
-  public void test_of_withMap() {
-    SecurityInfo test = SecurityInfo.of(ID, INFO_MAP);
+  public void test_of_withArray() {
+    SecurityInfo test = SecurityInfo.of(ID, SecurityInfoType.NAME.value("A"));
+    assertEquals(test.getId(), ID);
+    assertEquals(test.getInfo(), INFO_MAP);
+    assertEquals(test.getInfo(SecurityInfoType.NAME), "A");
+    assertEquals(test.findInfo(SecurityInfoType.NAME), Optional.of("A"));
+  }
+
+  public void test_of_withCollection() {
+    SecurityInfo test = SecurityInfo.of(ID, ImmutableList.of(SecurityInfoType.NAME.value("A")));
     assertEquals(test.getId(), ID);
     assertEquals(test.getInfo(), INFO_MAP);
     assertEquals(test.getInfo(SecurityInfoType.NAME), "A");

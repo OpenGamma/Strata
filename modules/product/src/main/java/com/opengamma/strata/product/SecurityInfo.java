@@ -5,11 +5,15 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -29,10 +33,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**
- * Additional information about a security.
+ * Information about a security.
  * <p>
- * This allows additional information about a security to be provided if desired.
- * All properties on this class are optional.
+ * This provides common information about a security.
  */
 @BeanDefinition(builderScope = "private")
 public final class SecurityInfo
@@ -74,10 +77,25 @@ public final class SecurityInfo
    * Obtains an instance from the identifier and additional information.
    * 
    * @param id  the security identifier
-   * @param infoMap  the map of additional information
+   * @param infoValues  the additional information values
    * @return the security information
    */
-  public static SecurityInfo of(SecurityId id, Map<SecurityInfoType<?>, Object> infoMap) {
+  public static SecurityInfo of(SecurityId id, SecurityInfoValue<?>... infoValues) {
+    Map<SecurityInfoType<?>, Object> infoMap = Stream.of(infoValues)
+        .collect(toImmutableMap(v -> v.getType(), v -> v.getValue()));
+    return new SecurityInfo(id, infoMap);
+  }
+
+  /**
+   * Obtains an instance from the identifier and additional information.
+   * 
+   * @param id  the security identifier
+   * @param infoValues  the additional information values
+   * @return the security information
+   */
+  public static SecurityInfo of(SecurityId id, Collection<SecurityInfoValue<?>> infoValues) {
+    Map<SecurityInfoType<?>, Object> infoMap = infoValues.stream()
+        .collect(toImmutableMap(v -> v.getType(), v -> v.getValue()));
     return new SecurityInfo(id, infoMap);
   }
 

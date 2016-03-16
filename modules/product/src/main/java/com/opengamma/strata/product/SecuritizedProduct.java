@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * By contrast, the product contains the full model for pricing, including underlying products.
  * <p>
  * For example, the securitized product of a bond future option directly contains all
- * the details of the future and the basket of bonds. Whereas, a bond future security
+ * the details of the future and the basket of bonds. Whereas, a bond future option security
  * only contains details of the option and an identifier referring to the future.
  * <p>
  * Implementations of this interface must be immutable beans.

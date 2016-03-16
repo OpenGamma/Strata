@@ -43,6 +43,9 @@ public final class SecurityId
   /**
    * Obtains an instance from a scheme and value.
    * <p>
+   * The scheme and value are used to produce a {@link StandardId}, where more
+   * information is available on how schemes and values relate to industry identifiers.
+   * <p>
    * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
    * This permits letters, numbers, colon, forward-slash, plus, dot, equals, underscore and dash.
    * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
@@ -83,7 +86,7 @@ public final class SecurityId
     return new SecurityId(StandardId.parse(str));
   }
 
-  // creates an identifier for a combined calendar
+  // creates an identifier
   private SecurityId(StandardId standardId) {
     this.standardId = ArgChecker.notNull(standardId, "standardId");
   }
@@ -152,6 +155,8 @@ public final class SecurityId
    * <p>
    * The returned string is in the form '{@code $scheme~$value}'.
    * This is suitable for use with {@link #parse(String)}.
+   * For example, if the scheme is 'OG-Future' and the value is 'Eurex-FGBL-Mar14'
+   * then the result is 'OG-Future~Eurex-FGBL-Mar14'.
    * 
    * @return a parsable representation of the identifier
    */
