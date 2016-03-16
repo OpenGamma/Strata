@@ -195,8 +195,19 @@ public final class ZeroRatePeriodicDiscountFactors
       int periodPerYear) {
 
     double relativeYearFraction = relativeYearFraction(date);
-    double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+
+    if (Math.abs(relativeYearFraction) < EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, 0);
+    }
+    if (compoundedRateType.equals(CompoundedRateType.CONTINUOUS)) {
+      double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
+      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+    }
+    double df = discountFactor(relativeYearFraction);
+    double df2 = Math.pow(df, -1.0 / (relativeYearFraction * periodPerYear));
+    double df3 = df2 + zSpread / periodPerYear;
+    double ddfSdz = -relativeYearFraction * Math.pow(df3, -relativeYearFraction * periodPerYear - 1) * df2;
+    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, ddfSdz);
   }
 
   //-------------------------------------------------------------------------
@@ -204,7 +215,6 @@ public final class ZeroRatePeriodicDiscountFactors
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
     double rp = curve.yValue(relativeYearFraction);
-    //    double rc = _compoundingPeriodsPerYear * Math.log(1 + rp / _compoundingPeriodsPerYear);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
     CurveUnitParameterSensitivity drpdp = curve.yValueParameterSensitivity(relativeYearFraction);
