@@ -13,6 +13,7 @@ import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -84,7 +85,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .gearing(REAL_COUPON)
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
-      .interpolated(true)
+      .indexCalculationMethod(INTERPOLATED)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
