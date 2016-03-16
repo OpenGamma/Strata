@@ -136,7 +136,6 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-<<<<<<< HEAD
    * Obtains an immutable rates providers with valuation date and time series. 
    * <p>
    * The time series must contain historical data for the price index. 
@@ -156,8 +155,6 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-=======
->>>>>>> master
    * Obtains legal entity discounting rates provider from valuation date. 
    * 
    * @param valuationDate  the valuation date
@@ -196,7 +193,6 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-<<<<<<< HEAD
    * Obtains legal entity discounting rates provider from valuation date. 
    * 
    * @param valuationDate  the valuation date
@@ -216,8 +212,6 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
-=======
->>>>>>> master
    * Obtains issuer curve discount factors form valuation date. 
    * 
    * @param valuationDate  the valuation date
