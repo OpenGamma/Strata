@@ -71,10 +71,9 @@ public final class CapitalIndexedBondTrade
   @PropertyDefinition
   private final long quantity;
   /**
-   * The clean price.
+   * The <i>clean</i> price at which the bond was traded.
    * <p>
-   * The price to be paid/received under this trade. 
-   * This clean price is nominal price or real price depending on the yield convention of the product. 
+   * The "clean" price excludes any accrued interest.
    */
   @PropertyDefinition
   private final double cleanPrice;
@@ -231,10 +230,9 @@ public final class CapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the clean price.
+   * Gets the <i>clean</i> price at which the bond was traded.
    * <p>
-   * The price to be paid/received under this trade.
-   * This clean price is nominal price or real price depending on the yield convention of the product.
+   * The "clean" price excludes any accrued interest.
    * @return the value of the property
    */
   public double getCleanPrice() {
@@ -565,10 +563,9 @@ public final class CapitalIndexedBondTrade
     }
 
     /**
-     * Sets the clean price.
+     * Sets the <i>clean</i> price at which the bond was traded.
      * <p>
-     * The price to be paid/received under this trade.
-     * This clean price is nominal price or real price depending on the yield convention of the product.
+     * The "clean" price excludes any accrued interest.
      * @param cleanPrice  the new value
      * @return this, for chaining, not null
      */

@@ -339,11 +339,11 @@ public class DiscountingFixedCouponBondTradePricer {
    * @return the current cash amount
    */
   public CurrencyAmount currentCash(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
-    Payment upfront = trade.getPayment();
-    Currency currency = upfront.getCurrency(); // assumes single currency is involved in trade
+    Payment upfrontPayment = upfrontPayment(trade);
+    Currency currency = upfrontPayment.getCurrency(); // assumes single currency is involved in trade
     CurrencyAmount currentCash = CurrencyAmount.zero(currency);
-    if (upfront.getDate().equals(valuationDate)) {
-      currentCash = currentCash.plus(CurrencyAmount.of(currency, upfront.getAmount()));
+    if (upfrontPayment.getDate().equals(valuationDate)) {
+      currentCash = currentCash.plus(upfrontPayment.getValue());
     }
     LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
     ResolvedFixedCouponBond product = trade.getProduct();
@@ -371,7 +371,8 @@ public class DiscountingFixedCouponBondTradePricer {
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(
         product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
-    return paymentPricer.presentValue(trade.getPayment(), discountFactors.getDiscountFactors());
+    Payment upfrontPayment = upfrontPayment(trade);
+    return paymentPricer.presentValue(upfrontPayment, discountFactors.getDiscountFactors());
   }
 
   private PointSensitivityBuilder presentValueSensitivityPayment(
@@ -381,12 +382,35 @@ public class DiscountingFixedCouponBondTradePricer {
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(
         product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+    Payment upfrontPayment = upfrontPayment(trade);
     PointSensitivityBuilder pt = paymentPricer.presentValueSensitivity(
-        trade.getPayment(), discountFactors.getDiscountFactors());
+        upfrontPayment, discountFactors.getDiscountFactors());
     if (pt instanceof ZeroRateSensitivity) {
       return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getBondGroup());
     }
     return pt; // NoPointSensitivity
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the payment that was made for the trade.
+   * <p>
+   * This is the payment that was made on the settlement date, based on the quantity and clean price.
+   * 
+   * @param trade  the trade
+   * @return the payment that was made
+   */
+  public Payment upfrontPayment(ResolvedFixedCouponBondTrade trade) {
+    ResolvedFixedCouponBond product = trade.getProduct();
+    // payment is based on the dirty price
+    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    double cleanPrice = trade.getPrice();
+    double dirtyPrice = productPricer.dirtyPriceFromCleanPrice(product, settlementDate, cleanPrice);
+    // calculate payment
+    Currency currency = product.getCurrency();
+    long quantity = trade.getQuantity();
+    double notional = product.getNotional();
+    return Payment.of(CurrencyAmount.of(currency, -quantity * notional * dirtyPrice), settlementDate);
   }
 
 }

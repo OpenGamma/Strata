@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
@@ -71,15 +71,12 @@ public final class ResolvedFixedCouponBondTrade
   @PropertyDefinition
   private final long quantity;
   /**
-   * The upfront fee payment of the bond trade.
+   * The <i>clean</i> price at which the bond was traded.
    * <p>
-   * The payment sign should be compatible with the product quantity, 
-   * thus the payment is negative for positive quantity and positive for negative quantity.
-   * <p>
-   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
+   * The "clean" price excludes any accrued interest.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final Payment payment;
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double price;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -119,15 +116,15 @@ public final class ResolvedFixedCouponBondTrade
       ResolvedFixedCouponBond product,
       StandardId securityStandardId,
       long quantity,
-      Payment payment) {
+      double price) {
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
-    JodaBeanUtils.notNull(payment, "payment");
+    ArgChecker.notNegative(price, "price");
     this.tradeInfo = tradeInfo;
     this.product = product;
     this.securityStandardId = securityStandardId;
     this.quantity = quantity;
-    this.payment = payment;
+    this.price = price;
   }
 
   @Override
@@ -191,16 +188,13 @@ public final class ResolvedFixedCouponBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the upfront fee payment of the bond trade.
+   * Gets the <i>clean</i> price at which the bond was traded.
    * <p>
-   * The payment sign should be compatible with the product quantity,
-   * thus the payment is negative for positive quantity and positive for negative quantity.
-   * <p>
-   * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
-   * @return the value of the property, not null
+   * The "clean" price excludes any accrued interest.
+   * @return the value of the property
    */
-  public Payment getPayment() {
-    return payment;
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -223,7 +217,7 @@ public final class ResolvedFixedCouponBondTrade
           JodaBeanUtils.equal(product, other.product) &&
           JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(payment, other.payment);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -235,7 +229,7 @@ public final class ResolvedFixedCouponBondTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(payment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
@@ -247,7 +241,7 @@ public final class ResolvedFixedCouponBondTrade
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -283,10 +277,10 @@ public final class ResolvedFixedCouponBondTrade
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedFixedCouponBondTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code payment} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Payment> payment = DirectMetaProperty.ofImmutable(
-        this, "payment", ResolvedFixedCouponBondTrade.class, Payment.class);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", ResolvedFixedCouponBondTrade.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -296,7 +290,7 @@ public final class ResolvedFixedCouponBondTrade
         "product",
         "securityStandardId",
         "quantity",
-        "payment");
+        "price");
 
     /**
      * Restricted constructor.
@@ -315,8 +309,8 @@ public final class ResolvedFixedCouponBondTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -786681338:  // payment
-          return payment;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -370,11 +364,11 @@ public final class ResolvedFixedCouponBondTrade
     }
 
     /**
-     * The meta-property for the {@code payment} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Payment> payment() {
-      return payment;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -389,8 +383,8 @@ public final class ResolvedFixedCouponBondTrade
           return ((ResolvedFixedCouponBondTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
           return ((ResolvedFixedCouponBondTrade) bean).getQuantity();
-        case -786681338:  // payment
-          return ((ResolvedFixedCouponBondTrade) bean).getPayment();
+        case 106934601:  // price
+          return ((ResolvedFixedCouponBondTrade) bean).getPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -416,7 +410,7 @@ public final class ResolvedFixedCouponBondTrade
     private ResolvedFixedCouponBond product;
     private StandardId securityStandardId;
     private long quantity;
-    private Payment payment;
+    private double price;
 
     /**
      * Restricted constructor.
@@ -434,7 +428,7 @@ public final class ResolvedFixedCouponBondTrade
       this.product = beanToCopy.getProduct();
       this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
-      this.payment = beanToCopy.getPayment();
+      this.price = beanToCopy.getPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -449,8 +443,8 @@ public final class ResolvedFixedCouponBondTrade
           return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case -786681338:  // payment
-          return payment;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -471,8 +465,8 @@ public final class ResolvedFixedCouponBondTrade
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case -786681338:  // payment
-          this.payment = (Payment) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -511,7 +505,7 @@ public final class ResolvedFixedCouponBondTrade
           product,
           securityStandardId,
           quantity,
-          payment);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -564,18 +558,15 @@ public final class ResolvedFixedCouponBondTrade
     }
 
     /**
-     * Sets the upfront fee payment of the bond trade.
+     * Sets the <i>clean</i> price at which the bond was traded.
      * <p>
-     * The payment sign should be compatible with the product quantity,
-     * thus the payment is negative for positive quantity and positive for negative quantity.
-     * <p>
-     * Typically the date of this payment is the same as the settlement date in {@code tradeInfo}.
-     * @param payment  the new value, not null
+     * The "clean" price excludes any accrued interest.
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder payment(Payment payment) {
-      JodaBeanUtils.notNull(payment, "payment");
-      this.payment = payment;
+    public Builder price(double price) {
+      ArgChecker.notNegative(price, "price");
+      this.price = price;
       return this;
     }
 
@@ -588,7 +579,7 @@ public final class ResolvedFixedCouponBondTrade
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }
