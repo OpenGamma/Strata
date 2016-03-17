@@ -109,10 +109,7 @@ public final class SecurityPriceInfo
    */
   public static SecurityPriceInfo ofCurrencyMinorUnit(Currency currency) {
     int digits = currency.getMinorUnitDigits();
-    double unitAmount = 1;
-    for (int i = 0; i < digits; i++) {
-      unitAmount = unitAmount / 10;
-    }
+    double unitAmount = Math.pow(10, -digits);
     return new SecurityPriceInfo(unitAmount, CurrencyAmount.of(currency, unitAmount), 1);
   }
 
