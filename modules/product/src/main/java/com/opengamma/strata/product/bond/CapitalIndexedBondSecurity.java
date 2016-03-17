@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.ModelledSecurity;
+import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -45,7 +45,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  */
 @BeanDefinition
 public final class CapitalIndexedBondSecurity
-    implements ModelledSecurity, ImmutableBean, Serializable {
+    implements Security, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -53,7 +53,7 @@ public final class CapitalIndexedBondSecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
   /**
    * The currency that the bond is traded in.
    */
@@ -65,7 +65,7 @@ public final class CapitalIndexedBondSecurity
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The accrual schedule.
@@ -205,7 +205,7 @@ public final class CapitalIndexedBondSecurity
   }
 
   private CapitalIndexedBondSecurity(
-      SecurityInfo securityInfo,
+      SecurityInfo info,
       Currency currency,
       double notional,
       PeriodicSchedule accrualSchedule,
@@ -216,9 +216,9 @@ public final class CapitalIndexedBondSecurity
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset,
       DaysAdjustment exCouponPeriod) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
     ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
@@ -227,7 +227,7 @@ public final class CapitalIndexedBondSecurity
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     JodaBeanUtils.notNull(exCouponPeriod, "exCouponPeriod");
-    this.securityInfo = securityInfo;
+    this.info = info;
     this.currency = currency;
     this.notional = notional;
     this.accrualSchedule = accrualSchedule;
@@ -264,8 +264,8 @@ public final class CapitalIndexedBondSecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -406,7 +406,7 @@ public final class CapitalIndexedBondSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CapitalIndexedBondSecurity other = (CapitalIndexedBondSecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
@@ -424,7 +424,7 @@ public final class CapitalIndexedBondSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
@@ -442,7 +442,7 @@ public final class CapitalIndexedBondSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("CapitalIndexedBondSecurity{");
-    buf.append("securityInfo").append('=').append(securityInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
@@ -468,10 +468,10 @@ public final class CapitalIndexedBondSecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", CapitalIndexedBondSecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", CapitalIndexedBondSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -527,7 +527,7 @@ public final class CapitalIndexedBondSecurity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo",
+        "info",
         "currency",
         "notional",
         "accrualSchedule",
@@ -548,8 +548,8 @@ public final class CapitalIndexedBondSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
@@ -591,11 +591,11 @@ public final class CapitalIndexedBondSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -682,8 +682,8 @@ public final class CapitalIndexedBondSecurity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((CapitalIndexedBondSecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((CapitalIndexedBondSecurity) bean).getInfo();
         case 575402001:  // currency
           return ((CapitalIndexedBondSecurity) bean).getCurrency();
         case 1585636160:  // notional
@@ -725,7 +725,7 @@ public final class CapitalIndexedBondSecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CapitalIndexedBondSecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
     private Currency currency;
     private double notional;
     private PeriodicSchedule accrualSchedule;
@@ -749,7 +749,7 @@ public final class CapitalIndexedBondSecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CapitalIndexedBondSecurity beanToCopy) {
-      this.securityInfo = beanToCopy.getSecurityInfo();
+      this.info = beanToCopy.getInfo();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
       this.accrualSchedule = beanToCopy.getAccrualSchedule();
@@ -766,8 +766,8 @@ public final class CapitalIndexedBondSecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
@@ -796,8 +796,8 @@ public final class CapitalIndexedBondSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -862,7 +862,7 @@ public final class CapitalIndexedBondSecurity
     @Override
     public CapitalIndexedBondSecurity build() {
       return new CapitalIndexedBondSecurity(
-          securityInfo,
+          info,
           currency,
           notional,
           accrualSchedule,
@@ -880,12 +880,12 @@ public final class CapitalIndexedBondSecurity
      * Sets the standard security information.
      * <p>
      * This includes the security identifier.
-     * @param securityInfo  the new value, not null
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityInfo(SecurityInfo securityInfo) {
-      JodaBeanUtils.notNull(securityInfo, "securityInfo");
-      this.securityInfo = securityInfo;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -909,7 +909,7 @@ public final class CapitalIndexedBondSecurity
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -1035,7 +1035,7 @@ public final class CapitalIndexedBondSecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(384);
       buf.append("CapitalIndexedBondSecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');

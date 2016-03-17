@@ -66,7 +66,7 @@ public class DeliverableSwapFutureSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     DeliverableSwapFutureSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
@@ -136,20 +136,20 @@ public class DeliverableSwapFutureSecurityTest {
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
     assertThrowsIllegalArg(() -> DeliverableSwapFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap1)
         .build());
     assertThrowsIllegalArg(() -> DeliverableSwapFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap2)
         .build());
     // should succeed normally (no notional to validate on known amount leg)
     DeliverableSwapFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap3)
@@ -183,7 +183,7 @@ public class DeliverableSwapFutureSecurityTest {
   //-------------------------------------------------------------------------
   static DeliverableSwapFutureSecurity sut() {
     return DeliverableSwapFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .notional(PRODUCT.getNotional())
         .lastTradeDate(PRODUCT.getLastTradeDate())
         .underlyingSwap(PRODUCT.getUnderlyingSwap())
@@ -192,7 +192,7 @@ public class DeliverableSwapFutureSecurityTest {
 
   static DeliverableSwapFutureSecurity sut2() {
     return DeliverableSwapFutureSecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .notional(PRODUCT2.getNotional())
         .lastTradeDate(PRODUCT2.getLastTradeDate())
         .underlyingSwap(PRODUCT2.getUnderlyingSwap())

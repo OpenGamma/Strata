@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.security;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 
 /**
  * Contains function groups for built-in simple security calculation functions.
@@ -21,8 +21,8 @@ public final class SecurityFunctionGroups {
   /**
    * The group with pricers based on market methods.
    */
-  private static final FunctionGroup<SecurityIdTrade> MARKET_GROUP =
-      DefaultFunctionGroup.builder(SecurityIdTrade.class).name("SecurityIdTradeMarket")
+  private static final FunctionGroup<SecurityTrade> MARKET_GROUP =
+      DefaultFunctionGroup.builder(SecurityTrade.class).name("SecurityTradeMarket")
           .addFunction(Measures.PRESENT_VALUE, SecurityCalculationFunction.class)
           .build();
 
@@ -45,7 +45,7 @@ public final class SecurityFunctionGroups {
    * 
    * @return the function group
    */
-  public static FunctionGroup<SecurityIdTrade> market() {
+  public static FunctionGroup<SecurityTrade> market() {
     return MARKET_GROUP;
   }
 

@@ -30,7 +30,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.ModelledSecurity;
+import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -48,7 +48,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class IborFutureSecurity
-    implements ModelledSecurity, ImmutableBean, Serializable {
+    implements Security, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -56,7 +56,7 @@ public final class IborFutureSecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
   /**
    * The notional amount.
    * <p>
@@ -64,7 +64,7 @@ public final class IborFutureSecurity
    * The notional expressed here must be positive.
    * The currency of the notional the same as the currency of the index.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The last date of trading.
@@ -154,17 +154,17 @@ public final class IborFutureSecurity
   }
 
   private IborFutureSecurity(
-      SecurityInfo securityInfo,
+      SecurityInfo info,
       double notional,
       LocalDate lastTradeDate,
       IborIndex index,
       Rounding rounding) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
-    ArgChecker.notNegative(notional, "notional");
+    JodaBeanUtils.notNull(info, "info");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(rounding, "rounding");
-    this.securityInfo = securityInfo;
+    this.info = info;
     this.notional = notional;
     this.lastTradeDate = lastTradeDate;
     this.index = index;
@@ -194,8 +194,8 @@ public final class IborFutureSecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -264,7 +264,7 @@ public final class IborFutureSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFutureSecurity other = (IborFutureSecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
           JodaBeanUtils.equal(index, other.index) &&
@@ -276,7 +276,7 @@ public final class IborFutureSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
@@ -288,7 +288,7 @@ public final class IborFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IborFutureSecurity{");
-    buf.append("securityInfo").append('=').append(securityInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
@@ -309,10 +309,10 @@ public final class IborFutureSecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", IborFutureSecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", IborFutureSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -343,7 +343,7 @@ public final class IborFutureSecurity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo",
+        "info",
         "notional",
         "lastTradeDate",
         "index",
@@ -359,8 +359,8 @@ public final class IborFutureSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case -1041950404:  // lastTradeDate
@@ -392,11 +392,11 @@ public final class IborFutureSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -443,8 +443,8 @@ public final class IborFutureSecurity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((IborFutureSecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((IborFutureSecurity) bean).getInfo();
         case 1585636160:  // notional
           return ((IborFutureSecurity) bean).getNotional();
         case -1041950404:  // lastTradeDate
@@ -476,7 +476,7 @@ public final class IborFutureSecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IborFutureSecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
     private double notional;
     private LocalDate lastTradeDate;
     private IborIndex index;
@@ -493,7 +493,7 @@ public final class IborFutureSecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IborFutureSecurity beanToCopy) {
-      this.securityInfo = beanToCopy.getSecurityInfo();
+      this.info = beanToCopy.getInfo();
       this.notional = beanToCopy.getNotional();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
       this.index = beanToCopy.getIndex();
@@ -504,8 +504,8 @@ public final class IborFutureSecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case -1041950404:  // lastTradeDate
@@ -522,8 +522,8 @@ public final class IborFutureSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
@@ -570,7 +570,7 @@ public final class IborFutureSecurity
     @Override
     public IborFutureSecurity build() {
       return new IborFutureSecurity(
-          securityInfo,
+          info,
           notional,
           lastTradeDate,
           index,
@@ -582,12 +582,12 @@ public final class IborFutureSecurity
      * Sets the standard security information.
      * <p>
      * This includes the security identifier.
-     * @param securityInfo  the new value, not null
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityInfo(SecurityInfo securityInfo) {
-      JodaBeanUtils.notNull(securityInfo, "securityInfo");
-      this.securityInfo = securityInfo;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -601,7 +601,7 @@ public final class IborFutureSecurity
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -654,7 +654,7 @@ public final class IborFutureSecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("IborFutureSecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');

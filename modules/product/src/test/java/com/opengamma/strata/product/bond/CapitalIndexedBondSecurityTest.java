@@ -65,7 +65,7 @@ public class CapitalIndexedBondSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     CapitalIndexedBondSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
@@ -73,7 +73,7 @@ public class CapitalIndexedBondSecurityTest {
 
   public void test_builder_fail() {
     assertThrowsIllegalArg(() -> CapitalIndexedBondSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)
         .startIndexValue(120)
@@ -86,7 +86,7 @@ public class CapitalIndexedBondSecurityTest {
         .exCouponPeriod(DaysAdjustment.ofBusinessDays(EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST))
         .build());
     assertThrowsIllegalArg(() -> CapitalIndexedBondSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)
         .startIndexValue(120)
@@ -134,7 +134,7 @@ public class CapitalIndexedBondSecurityTest {
 
   static CapitalIndexedBondSecurity createSecurity(CapitalIndexedBond product) {
     return CapitalIndexedBondSecurity.builder()
-        .securityInfo(SecurityInfo.of(product.getSecurityId(), INFO.getPriceInfo()))
+        .info(SecurityInfo.of(product.getSecurityId(), INFO.getPriceInfo()))
         .currency(product.getCurrency())
         .notional(product.getNotional())
         .accrualSchedule(product.getAccrualSchedule())

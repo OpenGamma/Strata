@@ -36,7 +36,7 @@ public class EquitySecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     EquitySecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
@@ -69,14 +69,14 @@ public class EquitySecurityTest {
   //-------------------------------------------------------------------------
   static EquitySecurity sut() {
     return EquitySecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .currency(PRODUCT.getCurrency())
         .build();
   }
 
   static EquitySecurity sut2() {
     return EquitySecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .currency(PRODUCT2.getCurrency())
         .build();
   }

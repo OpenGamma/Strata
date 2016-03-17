@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.ModelledSecurity;
+import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -45,7 +45,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class DeliverableSwapFutureSecurity
-    implements ModelledSecurity, ImmutableBean, Serializable {
+    implements Security, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -53,13 +53,13 @@ public final class DeliverableSwapFutureSecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
   /**
    * The notional.
    * <p>
    * This is also called face value or contract value.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The last date of trading.
@@ -151,15 +151,15 @@ public final class DeliverableSwapFutureSecurity
   }
 
   private DeliverableSwapFutureSecurity(
-      SecurityInfo securityInfo,
+      SecurityInfo info,
       double notional,
       LocalDate lastTradeDate,
       Swap underlyingSwap) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
-    ArgChecker.notNegative(notional, "notional");
+    JodaBeanUtils.notNull(info, "info");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(underlyingSwap, "underlyingSwap");
-    this.securityInfo = securityInfo;
+    this.info = info;
     this.notional = notional;
     this.lastTradeDate = lastTradeDate;
     this.underlyingSwap = underlyingSwap;
@@ -189,8 +189,8 @@ public final class DeliverableSwapFutureSecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -244,7 +244,7 @@ public final class DeliverableSwapFutureSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
           JodaBeanUtils.equal(underlyingSwap, other.underlyingSwap);
@@ -255,7 +255,7 @@ public final class DeliverableSwapFutureSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlyingSwap);
@@ -266,7 +266,7 @@ public final class DeliverableSwapFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("DeliverableSwapFutureSecurity{");
-    buf.append("securityInfo").append('=').append(securityInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
     buf.append("underlyingSwap").append('=').append(underlyingSwap).append(',').append(' ');
@@ -286,10 +286,10 @@ public final class DeliverableSwapFutureSecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", DeliverableSwapFutureSecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", DeliverableSwapFutureSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -315,7 +315,7 @@ public final class DeliverableSwapFutureSecurity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo",
+        "info",
         "notional",
         "lastTradeDate",
         "underlyingSwap",
@@ -330,8 +330,8 @@ public final class DeliverableSwapFutureSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case -1041950404:  // lastTradeDate
@@ -361,11 +361,11 @@ public final class DeliverableSwapFutureSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -404,8 +404,8 @@ public final class DeliverableSwapFutureSecurity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((DeliverableSwapFutureSecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((DeliverableSwapFutureSecurity) bean).getInfo();
         case 1585636160:  // notional
           return ((DeliverableSwapFutureSecurity) bean).getNotional();
         case -1041950404:  // lastTradeDate
@@ -435,7 +435,7 @@ public final class DeliverableSwapFutureSecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<DeliverableSwapFutureSecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
     private double notional;
     private LocalDate lastTradeDate;
     private Swap underlyingSwap;
@@ -451,7 +451,7 @@ public final class DeliverableSwapFutureSecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(DeliverableSwapFutureSecurity beanToCopy) {
-      this.securityInfo = beanToCopy.getSecurityInfo();
+      this.info = beanToCopy.getInfo();
       this.notional = beanToCopy.getNotional();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
       this.underlyingSwap = beanToCopy.getUnderlyingSwap();
@@ -461,8 +461,8 @@ public final class DeliverableSwapFutureSecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case -1041950404:  // lastTradeDate
@@ -477,8 +477,8 @@ public final class DeliverableSwapFutureSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
@@ -522,7 +522,7 @@ public final class DeliverableSwapFutureSecurity
     @Override
     public DeliverableSwapFutureSecurity build() {
       return new DeliverableSwapFutureSecurity(
-          securityInfo,
+          info,
           notional,
           lastTradeDate,
           underlyingSwap);
@@ -533,12 +533,12 @@ public final class DeliverableSwapFutureSecurity
      * Sets the standard security information.
      * <p>
      * This includes the security identifier.
-     * @param securityInfo  the new value, not null
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityInfo(SecurityInfo securityInfo) {
-      JodaBeanUtils.notNull(securityInfo, "securityInfo");
-      this.securityInfo = securityInfo;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -550,7 +550,7 @@ public final class DeliverableSwapFutureSecurity
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -588,7 +588,7 @@ public final class DeliverableSwapFutureSecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("DeliverableSwapFutureSecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
       buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));

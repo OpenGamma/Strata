@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.bond.BondFutureOptionSecurity;
 import com.opengamma.strata.product.bond.FixedCouponBondSecurity;
@@ -48,7 +49,7 @@ public final class GenericSecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
 
   //-------------------------------------------------------------------------
   /**
@@ -62,6 +63,17 @@ public final class GenericSecurity
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<SecurityId> getUnderlyingIds() {
+    return ImmutableSet.of();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecuritizedProduct createProduct(ReferenceData refData) {
+    throw new UnsupportedOperationException("Unable to create product, GenericSecurity does not have a product model");
+  }
+
   @Override
   public GenericSecurityTrade createTrade(TradeInfo tradeInfo, long quantity, double tradePrice, ReferenceData refData) {
     return new GenericSecurityTrade(tradeInfo, this, quantity, tradePrice);
@@ -87,9 +99,9 @@ public final class GenericSecurity
   private static final long serialVersionUID = 1L;
 
   private GenericSecurity(
-      SecurityInfo securityInfo) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
-    this.securityInfo = securityInfo;
+      SecurityInfo info) {
+    JodaBeanUtils.notNull(info, "info");
+    this.info = info;
   }
 
   @Override
@@ -115,8 +127,8 @@ public final class GenericSecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -127,7 +139,7 @@ public final class GenericSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericSecurity other = (GenericSecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo);
+      return JodaBeanUtils.equal(info, other.info);
     }
     return false;
   }
@@ -135,7 +147,7 @@ public final class GenericSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     return hash;
   }
 
@@ -143,7 +155,7 @@ public final class GenericSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("GenericSecurity{");
-    buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info));
     buf.append('}');
     return buf.toString();
   }
@@ -159,16 +171,16 @@ public final class GenericSecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", GenericSecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", GenericSecurity.class, SecurityInfo.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo");
+        "info");
 
     /**
      * Restricted constructor.
@@ -179,8 +191,8 @@ public final class GenericSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -202,19 +214,19 @@ public final class GenericSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((GenericSecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((GenericSecurity) bean).getInfo();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -236,7 +248,7 @@ public final class GenericSecurity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<GenericSecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
 
     /**
      * Restricted constructor.
@@ -248,8 +260,8 @@ public final class GenericSecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -258,8 +270,8 @@ public final class GenericSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -294,7 +306,7 @@ public final class GenericSecurity
     @Override
     public GenericSecurity build() {
       return new GenericSecurity(
-          securityInfo);
+          info);
     }
 
     //-----------------------------------------------------------------------
@@ -302,7 +314,7 @@ public final class GenericSecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("GenericSecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo));
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info));
       buf.append('}');
       return buf.toString();
     }

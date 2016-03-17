@@ -32,7 +32,7 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityInfoType;
 import com.opengamma.strata.product.TradeInfo;
@@ -129,7 +129,7 @@ public class GenericSecurityPricingExample {
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 12, 15))
         .build();
-    return SecurityIdTrade.of(tradeInfo, FGBL_MAR14_ID, 20, 99.550);
+    return SecurityTrade.of(tradeInfo, FGBL_MAR14_ID, 20, 99.550);
   }
 
   // create a futures trade that embeds details of the security
@@ -149,7 +149,7 @@ public class GenericSecurityPricingExample {
         .counterparty(StandardId.of("mn", "Dealer G"))
         .settlementDate(LocalDate.of(2013, 1, 15))
         .build();
-    return SecurityIdTrade.of(tradeInfo, OGBL_MAR14_C150_ID, 20, 1.6);
+    return SecurityTrade.of(tradeInfo, OGBL_MAR14_C150_ID, 20, 1.6);
   }
 
   // create an options trade that embeds details of the security

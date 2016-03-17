@@ -11,7 +11,7 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 
 /**
  * Multi-scenario measure calculations for simple security trades.
@@ -27,7 +27,7 @@ class SecurityMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      SecurityIdTrade trade,
+      SecurityTrade trade,
       Security security,
       CalculationMarketData marketData) {
 
@@ -39,13 +39,13 @@ class SecurityMeasureCalculations {
   //-------------------------------------------------------------------------
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
-      SecurityIdTrade trade,
+      SecurityTrade trade,
       Security security,
       MarketData marketData) {
 
     QuoteKey key = QuoteKey.of(security.getSecurityId().getStandardId());
     double price = marketData.getValue(key);
-    return security.getSecurityInfo().getPriceInfo().calculateMonetaryValue(trade.getQuantity(), price);
+    return security.getInfo().getPriceInfo().calculateMonetaryValue(trade.getQuantity(), price);
   }
 
 }

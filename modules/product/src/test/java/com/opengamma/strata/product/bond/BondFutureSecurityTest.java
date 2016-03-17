@@ -42,7 +42,7 @@ public class BondFutureSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     BondFutureSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getFirstDeliveryDate(), PRODUCT.getFirstDeliveryDate());
@@ -96,7 +96,7 @@ public class BondFutureSecurityTest {
   static BondFutureSecurity sut() {
     ImmutableList<FixedCouponBond> basket = PRODUCT.getDeliveryBasket();
     return BondFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .currency(PRODUCT.getCurrency())
         .deliveryBasketIds(basket.get(0).getSecurityId(), basket.get(1).getSecurityId())
         .conversionFactors(1d, 2d)
@@ -112,7 +112,7 @@ public class BondFutureSecurityTest {
   static BondFutureSecurity sut2() {
     ImmutableList<FixedCouponBond> basket = PRODUCT2.getDeliveryBasket();
     return BondFutureSecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .currency(PRODUCT2.getCurrency())
         .deliveryBasketIds(basket.get(0).getSecurityId())
         .conversionFactors(3d)

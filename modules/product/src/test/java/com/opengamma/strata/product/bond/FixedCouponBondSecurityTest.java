@@ -62,7 +62,7 @@ public class FixedCouponBondSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     FixedCouponBondSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
@@ -70,7 +70,7 @@ public class FixedCouponBondSecurityTest {
 
   public void test_builder_fail() {
     assertThrowsIllegalArg(() -> FixedCouponBondSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
@@ -82,7 +82,7 @@ public class FixedCouponBondSecurityTest {
         .exCouponPeriod(DaysAdjustment.ofBusinessDays(EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST))
         .build());
     assertThrowsIllegalArg(() -> FixedCouponBondSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
@@ -129,7 +129,7 @@ public class FixedCouponBondSecurityTest {
 
   static FixedCouponBondSecurity createSecurity(FixedCouponBond product) {
     return FixedCouponBondSecurity.builder()
-        .securityInfo(SecurityInfo.of(product.getSecurityId(), INFO.getPriceInfo()))
+        .info(SecurityInfo.of(product.getSecurityId(), INFO.getPriceInfo()))
         .currency(product.getCurrency())
         .notional(product.getNotional())
         .accrualSchedule(product.getAccrualSchedule())

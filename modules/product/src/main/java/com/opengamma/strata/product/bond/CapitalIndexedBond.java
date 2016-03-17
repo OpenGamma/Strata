@@ -81,7 +81,7 @@ public final class CapitalIndexedBond
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The accrual schedule.
@@ -262,7 +262,7 @@ public final class CapitalIndexedBond
       DaysAdjustment exCouponPeriod) {
     JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
     ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
@@ -953,7 +953,7 @@ public final class CapitalIndexedBond
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }

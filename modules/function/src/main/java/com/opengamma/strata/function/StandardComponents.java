@@ -23,7 +23,7 @@ import com.opengamma.strata.function.marketdata.curve.IborIndexCurveMarketDataFu
 import com.opengamma.strata.function.marketdata.curve.OvernightIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -131,7 +131,7 @@ public class StandardComponents {
    *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
-   *  <li>Security - {@link SecurityIdTrade}
+   *  <li>Security - {@link SecurityTrade}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    *

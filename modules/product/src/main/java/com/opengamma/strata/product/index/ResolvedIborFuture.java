@@ -68,7 +68,7 @@ public final class ResolvedIborFuture
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The accrual factor, defaulted from the index if not set.
@@ -185,7 +185,7 @@ public final class ResolvedIborFuture
       Rounding rounding) {
     JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     ArgChecker.notNegativeOrZero(accrualFactor, "accrualFactor");
     JodaBeanUtils.notNull(iborRate, "iborRate");
     JodaBeanUtils.notNull(rounding, "rounding");
@@ -661,7 +661,7 @@ public final class ResolvedIborFuture
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }

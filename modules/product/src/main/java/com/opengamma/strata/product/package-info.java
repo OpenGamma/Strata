@@ -41,8 +41,8 @@
  * <p>
  * A listed trade can be defined in two ways.
  * <p>
- * The first approach is to use {@link com.opengamma.strata.product.SecurityIdTrade SecurityIdTrade}.
- * A {@code SecurityIdTrade} stores just the security identifier, quantity and trade price.
+ * The first approach is to use {@link com.opengamma.strata.product.SecurityTrade SecurityTrade}.
+ * A {@code SecurityTrade} stores just the security identifier, quantity and trade price.
  * When the trade needs to be priced, the identifier can be resolved to a {@code Security} using
  * {@link com.opengamma.strata.basics.market.ReferenceData ReferenceData}.
  * The reference data could be backed by an in-memory store or a database.
@@ -53,7 +53,7 @@
  * As such, this approach avoids the need to use the Strata {@code Security} classes.
  * <p>
  * For example, consider a bond future.
- * In the first approach, the application would create a {@code SecurityIdTrade} using the identifier of the future.
+ * In the first approach, the application would create a {@code SecurityTrade} using the identifier of the future.
  * The reference data would be populated, mapping the identifier to an instance of {@code BondFutureSecurity}
  * and additional identifiers for each of the underlying {@code FixedCouponBondSecurity} instances.
  * <p>

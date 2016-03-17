@@ -16,10 +16,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
 
 /**
- * Test {@link SecurityIdTrade}.
+ * Test {@link SecurityTrade}.
  */
 @Test
-public class SecurityIdTradeTest {
+public class SecurityTradeTest {
 
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Id");
@@ -31,7 +31,7 @@ public class SecurityIdTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SecurityIdTrade test = SecurityIdTrade.of(TRADE_INFO, SECURITY_ID, QUANTITY, PRICE);
+    SecurityTrade test = SecurityTrade.of(TRADE_INFO, SECURITY_ID, QUANTITY, PRICE);
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -39,7 +39,7 @@ public class SecurityIdTradeTest {
   }
 
   public void test_builder() {
-    SecurityIdTrade test = sut();
+    SecurityTrade test = sut();
     assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -65,8 +65,8 @@ public class SecurityIdTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static SecurityIdTrade sut() {
-    return SecurityIdTrade.builder()
+  static SecurityTrade sut() {
+    return SecurityTrade.builder()
         .tradeInfo(TRADE_INFO)
         .securityId(SECURITY_ID)
         .quantity(QUANTITY)
@@ -74,8 +74,8 @@ public class SecurityIdTradeTest {
         .build();
   }
 
-  static SecurityIdTrade sut2() {
-    return SecurityIdTrade.builder()
+  static SecurityTrade sut2() {
+    return SecurityTrade.builder()
         .tradeInfo(TradeInfo.EMPTY)
         .securityId(SECURITY_ID2)
         .quantity(QUANTITY2)

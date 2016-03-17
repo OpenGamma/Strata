@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 
@@ -25,13 +26,14 @@ import com.opengamma.strata.basics.market.ReferenceData;
 public interface Security {
 
   /**
-   * Gets the security identifier.
+   * Gets the standard security information.
    * <p>
-   * This identifier uniquely identifies the security within the system.
+   * All securities contain this standard set of information.
+   * It includes the identifier, information about the price and an extensible data map.
    * 
    * @return the security identifier
    */
-  public abstract SecurityInfo getSecurityInfo();
+  public abstract SecurityInfo getInfo();
 
   /**
    * Gets the security identifier.
@@ -41,7 +43,7 @@ public interface Security {
    * @return the security identifier
    */
   public default SecurityId getSecurityId() {
-    return getSecurityInfo().getId();
+    return getInfo().getId();
   }
 
   /**
@@ -50,10 +52,35 @@ public interface Security {
    * @return the trading currency
    */
   public default Currency getCurrency() {
-    return getSecurityInfo().getPriceInfo().getCurrency();
+    return getInfo().getPriceInfo().getCurrency();
   }
 
+  /**
+   * Gets the set of underlying security identifiers.
+   * <p>
+   * The set must contain all the security identifiers that this security directly refers to.
+   * For example, a bond future will return the identifiers of the underlying basket of bonds,
+   * but a bond future option will only return the identifier of the underlying future, not the basket.
+   * 
+   * @return the underlying security identifiers
+   */
+  public abstract ImmutableSet<SecurityId> getUnderlyingIds();
+
   //-------------------------------------------------------------------------
+  /**
+   * Creates the product associated with this security.
+   * <p>
+   * The product of a security is distinct from the security.
+   * The product includes the financial details from this security,
+   * but excludes the additional information.
+   * The product also includes the products of any underlying securities.
+   * 
+   * @param refData  the reference data used to find underlying securities
+   * @return the product
+   * @throws UnsupportedOperationException if the security does not contain information about the product model
+   */
+  public abstract SecuritizedProduct createProduct(ReferenceData refData);
+
   /**
    * Creates a trade based on this security.
    * <p>
@@ -61,7 +88,7 @@ public interface Security {
    * 
    * @param tradeInfo  the trade information
    * @param quantity  the number of contracts in the trade
-   * @param tradePrice  the price that was traded, in decimal form
+   * @param tradePrice  the price agreed when the trade occurred
    * @param refData  the reference data used to find underlying securities
    * @return the trade
    */

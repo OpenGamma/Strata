@@ -24,10 +24,10 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 
 /**
- * Perform calculations on a single {@code SecurityIdTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code SecurityTrade} for each of a set of scenarios.
  * <p>
  * The supported built-in measures are:
  * <ul>
@@ -36,7 +36,7 @@ import com.opengamma.strata.product.SecurityIdTrade;
  * </ul>
  */
 public class SecurityCalculationFunction
-    implements CalculationFunction<SecurityIdTrade> {
+    implements CalculationFunction<SecurityTrade> {
 
   /**
    * The calculations by measure.
@@ -64,14 +64,14 @@ public class SecurityCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(SecurityIdTrade trade, ReferenceData refData) {
+  public Currency naturalCurrency(SecurityTrade trade, ReferenceData refData) {
     Security security = refData.getValue(trade.getSecurityId());
     return security.getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(SecurityIdTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(SecurityTrade trade, Set<Measure> measures, ReferenceData refData) {
     Security security = refData.getValue(trade.getSecurityId());
     QuoteKey key = QuoteKey.of(trade.getSecurityId().getStandardId());
 
@@ -84,7 +84,7 @@ public class SecurityCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      SecurityIdTrade trade,
+      SecurityTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
@@ -105,7 +105,7 @@ public class SecurityCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      SecurityIdTrade trade,
+      SecurityTrade trade,
       Security security,
       CalculationMarketData scenarioMarketData) {
 
@@ -120,7 +120,7 @@ public class SecurityCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        SecurityIdTrade trade,
+        SecurityTrade trade,
         Security security,
         CalculationMarketData marketData);
   }

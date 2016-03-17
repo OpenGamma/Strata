@@ -28,7 +28,7 @@ public class GenericSecurityTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     GenericSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), INFO.getId());
     assertEquals(test.getCurrency(), INFO.getPriceInfo().getCurrency());
     assertEquals(test, GenericSecurity.of(INFO));

@@ -61,12 +61,13 @@ public class IborFutureTest {
     IborFuture test = IborFuture.builder()
         .securityId(SECURITY_ID)
         .currency(GBP)
+        .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .index(GBP_LIBOR_2M)
         .build();
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), 0.0);
+    assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR2);
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);

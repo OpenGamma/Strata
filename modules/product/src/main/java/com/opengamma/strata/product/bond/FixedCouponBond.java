@@ -79,7 +79,7 @@ public final class FixedCouponBond
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The accrual schedule.
@@ -250,7 +250,7 @@ public final class FixedCouponBond
       DaysAdjustment exCouponPeriod) {
     JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
@@ -899,7 +899,7 @@ public final class FixedCouponBond
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }

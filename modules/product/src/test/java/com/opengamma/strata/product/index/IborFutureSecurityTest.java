@@ -36,7 +36,7 @@ public class IborFutureSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     IborFutureSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
@@ -69,7 +69,7 @@ public class IborFutureSecurityTest {
   //-------------------------------------------------------------------------
   static IborFutureSecurity sut() {
     return IborFutureSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .notional(PRODUCT.getNotional())
         .index(PRODUCT.getIndex())
         .lastTradeDate(PRODUCT.getLastTradeDate())
@@ -79,7 +79,7 @@ public class IborFutureSecurityTest {
 
   static IborFutureSecurity sut2() {
     return IborFutureSecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .notional(PRODUCT2.getNotional())
         .index(PRODUCT2.getIndex())
         .lastTradeDate(PRODUCT2.getLastTradeDate())

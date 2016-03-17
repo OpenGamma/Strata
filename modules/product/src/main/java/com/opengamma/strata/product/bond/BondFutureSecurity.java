@@ -36,7 +36,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.product.ModelledSecurity;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
@@ -50,7 +49,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class BondFutureSecurity
-    implements ModelledSecurity, ImmutableBean, Serializable {
+    implements Security, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -58,7 +57,7 @@ public final class BondFutureSecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
   /**
    * The currency that the future is traded in.
    */
@@ -228,7 +227,7 @@ public final class BondFutureSecurity
   }
 
   private BondFutureSecurity(
-      SecurityInfo securityInfo,
+      SecurityInfo info,
       Currency currency,
       List<SecurityId> deliveryBasketIds,
       List<Double> conversionFactors,
@@ -238,7 +237,7 @@ public final class BondFutureSecurity
       LocalDate firstDeliveryDate,
       LocalDate lastDeliveryDate,
       Rounding rounding) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notEmpty(deliveryBasketIds, "deliveryBasketIds");
     JodaBeanUtils.notEmpty(conversionFactors, "conversionFactors");
@@ -246,7 +245,7 @@ public final class BondFutureSecurity
     JodaBeanUtils.notNull(firstNoticeDate, "firstNoticeDate");
     JodaBeanUtils.notNull(lastNoticeDate, "lastNoticeDate");
     JodaBeanUtils.notNull(rounding, "rounding");
-    this.securityInfo = securityInfo;
+    this.info = info;
     this.currency = currency;
     this.deliveryBasketIds = ImmutableList.copyOf(deliveryBasketIds);
     this.conversionFactors = ImmutableList.copyOf(conversionFactors);
@@ -282,8 +281,8 @@ public final class BondFutureSecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -415,7 +414,7 @@ public final class BondFutureSecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureSecurity other = (BondFutureSecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(deliveryBasketIds, other.deliveryBasketIds) &&
           JodaBeanUtils.equal(conversionFactors, other.conversionFactors) &&
@@ -432,7 +431,7 @@ public final class BondFutureSecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(deliveryBasketIds);
     hash = hash * 31 + JodaBeanUtils.hashCode(conversionFactors);
@@ -449,7 +448,7 @@ public final class BondFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("BondFutureSecurity{");
-    buf.append("securityInfo").append('=').append(securityInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("deliveryBasketIds").append('=').append(deliveryBasketIds).append(',').append(' ');
     buf.append("conversionFactors").append('=').append(conversionFactors).append(',').append(' ');
@@ -474,10 +473,10 @@ public final class BondFutureSecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", BondFutureSecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", BondFutureSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -530,7 +529,7 @@ public final class BondFutureSecurity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo",
+        "info",
         "currency",
         "deliveryBasketIds",
         "conversionFactors",
@@ -550,8 +549,8 @@ public final class BondFutureSecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
         case -516424322:  // deliveryBasketIds
@@ -591,11 +590,11 @@ public final class BondFutureSecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -674,8 +673,8 @@ public final class BondFutureSecurity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((BondFutureSecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((BondFutureSecurity) bean).getInfo();
         case 575402001:  // currency
           return ((BondFutureSecurity) bean).getCurrency();
         case -516424322:  // deliveryBasketIds
@@ -715,7 +714,7 @@ public final class BondFutureSecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<BondFutureSecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
     private Currency currency;
     private List<SecurityId> deliveryBasketIds = ImmutableList.of();
     private List<Double> conversionFactors = ImmutableList.of();
@@ -738,7 +737,7 @@ public final class BondFutureSecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(BondFutureSecurity beanToCopy) {
-      this.securityInfo = beanToCopy.getSecurityInfo();
+      this.info = beanToCopy.getInfo();
       this.currency = beanToCopy.getCurrency();
       this.deliveryBasketIds = beanToCopy.getDeliveryBasketIds();
       this.conversionFactors = beanToCopy.getConversionFactors();
@@ -754,8 +753,8 @@ public final class BondFutureSecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
         case -516424322:  // deliveryBasketIds
@@ -783,8 +782,8 @@ public final class BondFutureSecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -846,7 +845,7 @@ public final class BondFutureSecurity
     @Override
     public BondFutureSecurity build() {
       return new BondFutureSecurity(
-          securityInfo,
+          info,
           currency,
           deliveryBasketIds,
           conversionFactors,
@@ -863,12 +862,12 @@ public final class BondFutureSecurity
      * Sets the standard security information.
      * <p>
      * This includes the security identifier.
-     * @param securityInfo  the new value, not null
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityInfo(SecurityInfo securityInfo) {
-      JodaBeanUtils.notNull(securityInfo, "securityInfo");
-      this.securityInfo = securityInfo;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -1025,7 +1024,7 @@ public final class BondFutureSecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(352);
       buf.append("BondFutureSecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("deliveryBasketIds").append('=').append(JodaBeanUtils.toString(deliveryBasketIds)).append(',').append(' ');
       buf.append("conversionFactors").append('=').append(JodaBeanUtils.toString(conversionFactors)).append(',').append(' ');

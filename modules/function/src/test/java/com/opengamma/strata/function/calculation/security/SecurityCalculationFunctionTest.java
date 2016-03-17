@@ -33,8 +33,8 @@ import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.SecurityIdTrade;
 import com.opengamma.strata.product.SecurityInfo;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -48,7 +48,7 @@ public class SecurityCalculationFunctionTest {
   private static final int TICK_VALUE = 10;
   private static final int QUANTITY = 20;
   private static final SecurityId SEC_ID = SecurityId.of("OG-Future", "Foo-Womble-Mar14");
-  public static final SecurityIdTrade TRADE = SecurityIdTrade.builder()
+  public static final SecurityTrade TRADE = SecurityTrade.builder()
       .tradeInfo(TradeInfo.builder()
           .settlementDate(LocalDate.of(2013, 12, 15))
           .build())
@@ -64,10 +64,10 @@ public class SecurityCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_group() {
-    FunctionGroup<SecurityIdTrade> test = SecurityFunctionGroups.market();
+    FunctionGroup<SecurityTrade> test = SecurityFunctionGroups.market();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measures.PRESENT_VALUE);
-    FunctionConfig<SecurityIdTrade> config =
+    FunctionConfig<SecurityTrade> config =
         SecurityFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
     assertThat(config.createFunction()).isInstanceOf(SecurityCalculationFunction.class);
   }

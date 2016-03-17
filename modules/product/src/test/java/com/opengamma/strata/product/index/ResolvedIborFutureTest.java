@@ -55,10 +55,11 @@ public class ResolvedIborFutureTest {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .securityId(SECURITY_ID)
         .currency(GBP)
+        .notional(NOTIONAL)
         .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
         .build();
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), 0.0);
+    assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR_2M);
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);

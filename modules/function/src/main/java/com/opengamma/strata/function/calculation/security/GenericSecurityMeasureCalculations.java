@@ -44,7 +44,7 @@ class GenericSecurityMeasureCalculations {
     GenericSecurity security = trade.getSecurity();
     QuoteKey key = QuoteKey.of(security.getSecurityId().getStandardId());
     double price = marketData.getValue(key);
-    return security.getSecurityInfo().getPriceInfo().calculateMonetaryValue(trade.getQuantity(), price);
+    return security.getInfo().getPriceInfo().calculateMonetaryValue(trade.getQuantity(), price);
   }
 
 }

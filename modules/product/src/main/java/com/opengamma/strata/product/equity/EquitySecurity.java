@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.ModelledSecurity;
+import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -38,7 +38,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class EquitySecurity
-    implements ModelledSecurity, ImmutableBean, Serializable {
+    implements Security, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -46,7 +46,7 @@ public final class EquitySecurity
    * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityInfo securityInfo;
+  private final SecurityInfo info;
   /**
    * The currency that the equity is traded in.
    */
@@ -98,11 +98,11 @@ public final class EquitySecurity
   }
 
   private EquitySecurity(
-      SecurityInfo securityInfo,
+      SecurityInfo info,
       Currency currency) {
-    JodaBeanUtils.notNull(securityInfo, "securityInfo");
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(currency, "currency");
-    this.securityInfo = securityInfo;
+    this.info = info;
     this.currency = currency;
   }
 
@@ -129,8 +129,8 @@ public final class EquitySecurity
    * @return the value of the property, not null
    */
   @Override
-  public SecurityInfo getSecurityInfo() {
-    return securityInfo;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -159,7 +159,7 @@ public final class EquitySecurity
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       EquitySecurity other = (EquitySecurity) obj;
-      return JodaBeanUtils.equal(securityInfo, other.securityInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(currency, other.currency);
     }
     return false;
@@ -168,7 +168,7 @@ public final class EquitySecurity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     return hash;
   }
@@ -177,7 +177,7 @@ public final class EquitySecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("EquitySecurity{");
-    buf.append("securityInfo").append('=').append(securityInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();
@@ -194,10 +194,10 @@ public final class EquitySecurity
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityInfo> securityInfo = DirectMetaProperty.ofImmutable(
-        this, "securityInfo", EquitySecurity.class, SecurityInfo.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", EquitySecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -208,7 +208,7 @@ public final class EquitySecurity
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityInfo",
+        "info",
         "currency");
 
     /**
@@ -220,8 +220,8 @@ public final class EquitySecurity
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
       }
@@ -245,11 +245,11 @@ public final class EquitySecurity
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityInfo> securityInfo() {
-      return securityInfo;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -264,8 +264,8 @@ public final class EquitySecurity
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return ((EquitySecurity) bean).getSecurityInfo();
+        case 3237038:  // info
+          return ((EquitySecurity) bean).getInfo();
         case 575402001:  // currency
           return ((EquitySecurity) bean).getCurrency();
       }
@@ -289,7 +289,7 @@ public final class EquitySecurity
    */
   public static final class Builder extends DirectFieldsBeanBuilder<EquitySecurity> {
 
-    private SecurityInfo securityInfo;
+    private SecurityInfo info;
     private Currency currency;
 
     /**
@@ -303,7 +303,7 @@ public final class EquitySecurity
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(EquitySecurity beanToCopy) {
-      this.securityInfo = beanToCopy.getSecurityInfo();
+      this.info = beanToCopy.getInfo();
       this.currency = beanToCopy.getCurrency();
     }
 
@@ -311,8 +311,8 @@ public final class EquitySecurity
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          return securityInfo;
+        case 3237038:  // info
+          return info;
         case 575402001:  // currency
           return currency;
         default:
@@ -323,8 +323,8 @@ public final class EquitySecurity
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 807907342:  // securityInfo
-          this.securityInfo = (SecurityInfo) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -362,7 +362,7 @@ public final class EquitySecurity
     @Override
     public EquitySecurity build() {
       return new EquitySecurity(
-          securityInfo,
+          info,
           currency);
     }
 
@@ -371,12 +371,12 @@ public final class EquitySecurity
      * Sets the standard security information.
      * <p>
      * This includes the security identifier.
-     * @param securityInfo  the new value, not null
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityInfo(SecurityInfo securityInfo) {
-      JodaBeanUtils.notNull(securityInfo, "securityInfo");
-      this.securityInfo = securityInfo;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -396,7 +396,7 @@ public final class EquitySecurity
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("EquitySecurity.Builder{");
-      buf.append("securityInfo").append('=').append(JodaBeanUtils.toString(securityInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
       buf.append('}');
       return buf.toString();

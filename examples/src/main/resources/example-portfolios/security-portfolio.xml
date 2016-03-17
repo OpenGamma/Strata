@@ -10,7 +10,7 @@
     </attributes>
    </tradeInfo>
    <security>
-    <securityInfo>
+    <info>
      <id>OG-Future~Eurex-FGBL-Mar14</id>
      <priceInfo>
       <tickSize>0.01</tickSize>
@@ -22,7 +22,7 @@
       <entry key="ProductFamily">FGBL</entry>
       <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-13</entry>
      </additionalInfo>
-    </securityInfo>
+    </info>
    </security>
    <quantity>20</quantity>
    <price>99.55</price>
@@ -36,7 +36,7 @@
     </attributes>
    </tradeInfo>
    <security>
-    <securityInfo>
+    <info>
      <id>OG-Future~CME-ED-Mar14</id>
      <priceInfo>
       <tickSize>0.005</tickSize>
@@ -48,7 +48,7 @@
       <entry key="ProductFamily">ED</entry>
       <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-10</entry>
      </additionalInfo>
-    </securityInfo>
+    </info>
    </security>
    <quantity>50</quantity>
    <price>99.55</price>
@@ -62,7 +62,7 @@
     </attributes>
    </tradeInfo>
    <security>
-    <securityInfo>
+    <info>
      <id>OG-FutOpt~Eurex-OGBL-Mar14-C150</id>
      <priceInfo>
       <tickSize>0.01</tickSize>
@@ -74,7 +74,7 @@
       <entry key="ProductFamily">OGBL</entry>
       <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-10</entry>
      </additionalInfo>
-    </securityInfo>
+    </info>
    </security>
    <quantity>20</quantity>
    <price>1.6</price>

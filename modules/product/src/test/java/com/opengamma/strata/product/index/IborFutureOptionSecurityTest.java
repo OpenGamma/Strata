@@ -43,7 +43,7 @@ public class IborFutureOptionSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     IborFutureOptionSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), OPTION.getSecurityId());
     assertEquals(test.getCurrency(), OPTION.getCurrency());
     assertEquals(test.getPutCall(), OPTION.getPutCall());
@@ -80,7 +80,7 @@ public class IborFutureOptionSecurityTest {
   //-------------------------------------------------------------------------
   static IborFutureOptionSecurity sut() {
     return IborFutureOptionSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .currency(OPTION.getCurrency())
         .putCall(OPTION.getPutCall())
         .strikePrice(OPTION.getStrikePrice())
@@ -95,7 +95,7 @@ public class IborFutureOptionSecurityTest {
 
   static IborFutureOptionSecurity sut2() {
     return IborFutureOptionSecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .currency(OPTION2.getCurrency())
         .putCall(OPTION2.getPutCall())
         .strikePrice(OPTION2.getStrikePrice())

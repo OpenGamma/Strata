@@ -45,7 +45,7 @@ public class BondFutureOptionSecurityTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     BondFutureOptionSecurity test = sut();
-    assertEquals(test.getSecurityInfo(), INFO);
+    assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of(PRODUCT.getUnderlyingFuture().getSecurityId()));
@@ -98,7 +98,7 @@ public class BondFutureOptionSecurityTest {
   //-------------------------------------------------------------------------
   static BondFutureOptionSecurity sut() {
     return BondFutureOptionSecurity.builder()
-        .securityInfo(INFO)
+        .info(INFO)
         .currency(PRODUCT.getCurrency())
         .putCall(CALL)
         .strikePrice(PRODUCT.getStrikePrice())
@@ -113,7 +113,7 @@ public class BondFutureOptionSecurityTest {
 
   static BondFutureOptionSecurity sut2() {
     return BondFutureOptionSecurity.builder()
-        .securityInfo(INFO2)
+        .info(INFO2)
         .currency(PRODUCT2.getCurrency())
         .putCall(PUT)
         .strikePrice(PRODUCT2.getStrikePrice())

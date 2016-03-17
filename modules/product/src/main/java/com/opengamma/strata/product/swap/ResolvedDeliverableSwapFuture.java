@@ -57,7 +57,7 @@ public final class ResolvedDeliverableSwapFuture
    * <p>
    * This is also called face value or contract value.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The delivery date.
@@ -161,7 +161,7 @@ public final class ResolvedDeliverableSwapFuture
       LocalDate lastTradeDate,
       ResolvedSwap underlyingSwap) {
     JodaBeanUtils.notNull(securityId, "securityId");
-    ArgChecker.notNegative(notional, "notional");
+    ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(underlyingSwap, "underlyingSwap");
@@ -576,7 +576,7 @@ public final class ResolvedDeliverableSwapFuture
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }

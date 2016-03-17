@@ -22,7 +22,7 @@ import com.opengamma.strata.function.calculation.swap.DeliverableSwapFutureFunct
 import com.opengamma.strata.function.calculation.swap.SwapFunctionGroups;
 import com.opengamma.strata.function.calculation.swaption.SwaptionFunctionGroups;
 import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.SecurityIdTrade;
+import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -56,7 +56,7 @@ final class StandardPricingRules {
       PricingRule.builder(FxSwapTrade.class).functionGroup(FxSwapFunctionGroups.discounting()).build(),
       PricingRule.builder(GenericSecurityTrade.class).functionGroup(GenericSecurityFunctionGroups.market()).build(),
       PricingRule.builder(IborFutureTrade.class).functionGroup(IborFutureFunctionGroups.discounting()).build(),
-      PricingRule.builder(SecurityIdTrade.class).functionGroup(SecurityFunctionGroups.market()).build(),
+      PricingRule.builder(SecurityTrade.class).functionGroup(SecurityFunctionGroups.market()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
       PricingRule.builder(SwaptionTrade.class).functionGroup(SwaptionFunctionGroups.standard()).build(),
       PricingRule.builder(TermDepositTrade.class).functionGroup(TermDepositFunctionGroups.discounting()).build());
@@ -87,7 +87,7 @@ final class StandardPricingRules {
    *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
-   *  <li>Security - {@link SecurityIdTrade}
+   *  <li>Security - {@link SecurityTrade}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    * 
