@@ -20,6 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 
 /**
@@ -132,8 +133,38 @@ public interface FxSwapConvention
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
    */
-  public abstract FxSwapTrade toTrade(
+  public default FxSwapTrade toTrade(
       LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
+      double farLegForwardPoints) {
+    
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
+  }
+  
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the first currency of the pair is received in the near leg and paid in the 
+   * far leg, while the second currency is paid in the near leg and received in the far leg.
+   * 
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @return the trade
+   */
+  public abstract FxSwapTrade toTrade(
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,

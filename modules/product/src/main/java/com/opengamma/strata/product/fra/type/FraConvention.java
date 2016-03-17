@@ -20,6 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.FraTrade;
 
 /**
@@ -145,8 +146,38 @@ public interface FraConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the trade
    */
-  public abstract FraTrade toTrade(
+  public default FraTrade toTrade(
       LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      LocalDate paymentDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate) {
+    
+    TradeInfo tradeInfo = TradeInfo.of(tradeDate);
+    return toTrade(tradeInfo, startDate, endDate, paymentDate, buySell, notional, fixedRate);
+  }
+  
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FRA, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the FRA, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * 
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param paymentDate  the payment date
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @return the trade
+   */
+  public abstract FraTrade toTrade(
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate paymentDate,
