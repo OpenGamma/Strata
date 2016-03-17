@@ -28,14 +28,6 @@ public class SecurityInfoTypeTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_value() {
-    SecurityInfoType<String> test = SecurityInfoType.of("Test");
-    SecurityInfoValue<String> value = test.value("A");
-    assertEquals(value.getType(), test);
-    assertEquals(value.getValue(), "A");
-  }
-
-  //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     SecurityInfoType<String> a = SecurityInfoType.of("Test");
     SecurityInfoType<String> a2 = SecurityInfoType.of("Test");

@@ -5,15 +5,12 @@
  */
 package com.opengamma.strata.product;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -29,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 
@@ -36,6 +34,7 @@ import com.opengamma.strata.collect.Messages;
  * Information about a security.
  * <p>
  * This provides common information about a security.
+ * This includes the identifier, information about the price and an extensible data map.
  */
 @BeanDefinition(builderScope = "private")
 public final class SecurityInfo
@@ -55,48 +54,54 @@ public final class SecurityInfo
   @PropertyDefinition(validate = "notNull")
   private final SecurityId id;
   /**
+   * The information about the security price.
+   * <p>
+   * This provides information about the security price.
+   * This can be used to convert the price into a monetary value.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityPriceInfo priceInfo;
+  /**
    * The additional security information.
    * <p>
    * This stores additional information for the security.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<SecurityInfoType<?>, Object> info;
+  private final ImmutableMap<SecurityInfoType<?>, Object> additionalInfo;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the identifier.
+   * Obtains an instance from the identifier, tick size and tick value.
+   * <p>
+   * This creates an instance, building the {@link SecurityPriceInfo} from
+   * the tick size and tick value, setting the contract size to 1.
+   * <p>
+   * A {@code SecurityInfo} also contains a hash map of additional information,
+   * keyed by {@link SecurityInfoType}. This hash map may contain anything
+   * of interest, and is populated using {@link #withAdditionalInfo(SecurityInfoType, Object)}.
    * 
    * @param id  the security identifier
+   * @param tickSize  the size of each tick, not negative or zero
+   * @param tickValue  the value of each tick
    * @return the security information
    */
-  public static SecurityInfo of(SecurityId id) {
-    return new SecurityInfo(id, ImmutableMap.of());
+  public static SecurityInfo of(SecurityId id, double tickSize, CurrencyAmount tickValue) {
+    return new SecurityInfo(id, SecurityPriceInfo.of(tickSize, tickValue), ImmutableMap.of());
   }
 
   /**
-   * Obtains an instance from the identifier and additional information.
+   * Obtains an instance from the identifier and pricing info.
+   * <p>
+   * A {@code SecurityInfo} also contains a hash map of additional information,
+   * keyed by {@link SecurityInfoType}. This hash map may contain anything
+   * of interest, and is populated using {@link #withAdditionalInfo(SecurityInfoType, Object)}.
    * 
    * @param id  the security identifier
-   * @param infoValues  the additional information values
+   * @param priceInfo  the information about the price
    * @return the security information
    */
-  public static SecurityInfo of(SecurityId id, SecurityInfoValue<?>... infoValues) {
-    Map<SecurityInfoType<?>, Object> infoMap = Stream.of(infoValues)
-        .collect(toImmutableMap(v -> v.getType(), v -> v.getValue()));
-    return new SecurityInfo(id, infoMap);
-  }
-
-  /**
-   * Obtains an instance from the identifier and additional information.
-   * 
-   * @param id  the security identifier
-   * @param infoValues  the additional information values
-   * @return the security information
-   */
-  public static SecurityInfo of(SecurityId id, Collection<SecurityInfoValue<?>> infoValues) {
-    Map<SecurityInfoType<?>, Object> infoMap = infoValues.stream()
-        .collect(toImmutableMap(v -> v.getType(), v -> v.getValue()));
-    return new SecurityInfo(id, infoMap);
+  public static SecurityInfo of(SecurityId id, SecurityPriceInfo priceInfo) {
+    return new SecurityInfo(id, priceInfo, ImmutableMap.of());
   }
 
   //-------------------------------------------------------------------------
@@ -113,8 +118,8 @@ public final class SecurityInfo
    * @return the security information
    * @throws IllegalArgumentException if the information is not found
    */
-  public <T> T getInfo(SecurityInfoType<T> type) {
-    return findInfo(type).orElseThrow(() -> new IllegalArgumentException(
+  public <T> T getAdditionalInfo(SecurityInfoType<T> type) {
+    return findAdditionalInfo(type).orElseThrow(() -> new IllegalArgumentException(
         Messages.format("Security info not found for type '{}'", type)));
   }
 
@@ -131,8 +136,27 @@ public final class SecurityInfo
    * @return the security information
    */
   @SuppressWarnings("unchecked")
-  public <T> Optional<T> findInfo(SecurityInfoType<T> type) {
-    return Optional.ofNullable((T) info.get(type));
+  public <T> Optional<T> findAdditionalInfo(SecurityInfoType<T> type) {
+    return Optional.ofNullable((T) additionalInfo.get(type));
+  }
+
+  /**
+   * Returns a copy of this instance with additional information added.
+   * <p>
+   * This returns a new instance with the specified additional information added.
+   * The additional information is added using {@code Map.put(type, value)} semantics.
+   * 
+   * @param <T> the type of the value
+   * @param type  the type providing meaning to the value
+   * @param value  the value
+   * @return a new instance based on this one with additional information added
+   */
+  @SuppressWarnings("unchecked")
+  public <T> SecurityInfo withAdditionalInfo(SecurityInfoType<T> type, T value) {
+    // ImmutableMap.Builder would not provide Map.put semantics
+    Map<SecurityInfoType<?>, Object> infoMap = new HashMap<>(additionalInfo);
+    infoMap.put(type, value);
+    return new SecurityInfo(id, priceInfo, infoMap);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -156,11 +180,14 @@ public final class SecurityInfo
 
   private SecurityInfo(
       SecurityId id,
-      Map<SecurityInfoType<?>, Object> info) {
+      SecurityPriceInfo priceInfo,
+      Map<SecurityInfoType<?>, Object> additionalInfo) {
     JodaBeanUtils.notNull(id, "id");
-    JodaBeanUtils.notNull(info, "info");
+    JodaBeanUtils.notNull(priceInfo, "priceInfo");
+    JodaBeanUtils.notNull(additionalInfo, "additionalInfo");
     this.id = id;
-    this.info = ImmutableMap.copyOf(info);
+    this.priceInfo = priceInfo;
+    this.additionalInfo = ImmutableMap.copyOf(additionalInfo);
   }
 
   @Override
@@ -197,13 +224,25 @@ public final class SecurityInfo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the information about the security price.
+   * <p>
+   * This provides information about the security price.
+   * This can be used to convert the price into a monetary value.
+   * @return the value of the property, not null
+   */
+  public SecurityPriceInfo getPriceInfo() {
+    return priceInfo;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the additional security information.
    * <p>
    * This stores additional information for the security.
    * @return the value of the property, not null
    */
-  public ImmutableMap<SecurityInfoType<?>, Object> getInfo() {
-    return info;
+  public ImmutableMap<SecurityInfoType<?>, Object> getAdditionalInfo() {
+    return additionalInfo;
   }
 
   //-----------------------------------------------------------------------
@@ -215,7 +254,8 @@ public final class SecurityInfo
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityInfo other = (SecurityInfo) obj;
       return JodaBeanUtils.equal(id, other.id) &&
-          JodaBeanUtils.equal(info, other.info);
+          JodaBeanUtils.equal(priceInfo, other.priceInfo) &&
+          JodaBeanUtils.equal(additionalInfo, other.additionalInfo);
     }
     return false;
   }
@@ -224,16 +264,18 @@ public final class SecurityInfo
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(id);
-    hash = hash * 31 + JodaBeanUtils.hashCode(info);
+    hash = hash * 31 + JodaBeanUtils.hashCode(priceInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalInfo);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("SecurityInfo{");
     buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("info").append('=').append(JodaBeanUtils.toString(info));
+    buf.append("priceInfo").append('=').append(priceInfo).append(',').append(' ');
+    buf.append("additionalInfo").append('=').append(JodaBeanUtils.toString(additionalInfo));
     buf.append('}');
     return buf.toString();
   }
@@ -254,18 +296,24 @@ public final class SecurityInfo
     private final MetaProperty<SecurityId> id = DirectMetaProperty.ofImmutable(
         this, "id", SecurityInfo.class, SecurityId.class);
     /**
-     * The meta-property for the {@code info} property.
+     * The meta-property for the {@code priceInfo} property.
+     */
+    private final MetaProperty<SecurityPriceInfo> priceInfo = DirectMetaProperty.ofImmutable(
+        this, "priceInfo", SecurityInfo.class, SecurityPriceInfo.class);
+    /**
+     * The meta-property for the {@code additionalInfo} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> info = DirectMetaProperty.ofImmutable(
-        this, "info", SecurityInfo.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> additionalInfo = DirectMetaProperty.ofImmutable(
+        this, "additionalInfo", SecurityInfo.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "id",
-        "info");
+        "priceInfo",
+        "additionalInfo");
 
     /**
      * Restricted constructor.
@@ -278,8 +326,10 @@ public final class SecurityInfo
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return id;
-        case 3237038:  // info
-          return info;
+        case -2126070377:  // priceInfo
+          return priceInfo;
+        case -974297739:  // additionalInfo
+          return additionalInfo;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -309,11 +359,19 @@ public final class SecurityInfo
     }
 
     /**
-     * The meta-property for the {@code info} property.
+     * The meta-property for the {@code priceInfo} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> info() {
-      return info;
+    public MetaProperty<SecurityPriceInfo> priceInfo() {
+      return priceInfo;
+    }
+
+    /**
+     * The meta-property for the {@code additionalInfo} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> additionalInfo() {
+      return additionalInfo;
     }
 
     //-----------------------------------------------------------------------
@@ -322,8 +380,10 @@ public final class SecurityInfo
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return ((SecurityInfo) bean).getId();
-        case 3237038:  // info
-          return ((SecurityInfo) bean).getInfo();
+        case -2126070377:  // priceInfo
+          return ((SecurityInfo) bean).getPriceInfo();
+        case -974297739:  // additionalInfo
+          return ((SecurityInfo) bean).getAdditionalInfo();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -346,7 +406,8 @@ public final class SecurityInfo
   private static final class Builder extends DirectFieldsBeanBuilder<SecurityInfo> {
 
     private SecurityId id;
-    private Map<SecurityInfoType<?>, Object> info = ImmutableMap.of();
+    private SecurityPriceInfo priceInfo;
+    private Map<SecurityInfoType<?>, Object> additionalInfo = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -360,8 +421,10 @@ public final class SecurityInfo
       switch (propertyName.hashCode()) {
         case 3355:  // id
           return id;
-        case 3237038:  // info
-          return info;
+        case -2126070377:  // priceInfo
+          return priceInfo;
+        case -974297739:  // additionalInfo
+          return additionalInfo;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -374,8 +437,11 @@ public final class SecurityInfo
         case 3355:  // id
           this.id = (SecurityId) newValue;
           break;
-        case 3237038:  // info
-          this.info = (Map<SecurityInfoType<?>, Object>) newValue;
+        case -2126070377:  // priceInfo
+          this.priceInfo = (SecurityPriceInfo) newValue;
+          break;
+        case -974297739:  // additionalInfo
+          this.additionalInfo = (Map<SecurityInfoType<?>, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -411,16 +477,18 @@ public final class SecurityInfo
     public SecurityInfo build() {
       return new SecurityInfo(
           id,
-          info);
+          priceInfo,
+          additionalInfo);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("SecurityInfo.Builder{");
       buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
-      buf.append("info").append('=').append(JodaBeanUtils.toString(info));
+      buf.append("priceInfo").append('=').append(JodaBeanUtils.toString(priceInfo)).append(',').append(' ');
+      buf.append("additionalInfo").append('=').append(JodaBeanUtils.toString(additionalInfo));
       buf.append('}');
       return buf.toString();
     }
