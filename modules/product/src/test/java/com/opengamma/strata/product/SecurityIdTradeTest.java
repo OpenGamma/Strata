@@ -13,6 +13,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
+
 /**
  * Test {@link SecurityIdTrade}.
  */
@@ -42,6 +44,14 @@ public class SecurityIdTradeTest {
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_resolve() {
+    GenericSecurity security = GenericSecurityTest.sut();
+    FinanceTrade test = sut().resolve(ImmutableReferenceData.of(SECURITY_ID, security));
+    GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, QUANTITY, PRICE);
+    assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------

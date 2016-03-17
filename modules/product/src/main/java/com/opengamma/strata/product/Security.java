@@ -1,62 +1,74 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product;
 
-import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.collect.id.IdentifiableBean;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
- * A single security.
+ * A security that can be traded.
  * <p>
  * A security is one of the building blocks of finance, representing a fungible instrument that can be traded.
- * This is intended to cover instruments such as listed equities and futures.
+ * This is intended to cover instruments such as listed equities, bonds and exchange traded derivatives (ETD).
+ * Within Strata, a financial instrument is a security if it is a standardized
+ * exchange-based contract that can be referenced by a {@link SecurityId}.
+ * The security can be looked up in {@link ReferenceData} using the identifier.
+ * <p>
  * It is intended that Over-The-Counter (OTC) instruments, such as an interest rate swap,
  * are embedded directly within the trade, rather than handled as one-off securities.
  * <p>
- * When referring to a security from another object, such as an underlying on a
- * more complex trade, consideration should be given to using {@link SecurityLink}.
- * <p>
  * Implementations of this interface must be immutable beans.
- * 
- * @param <P>  the type of the product
  */
-public interface Security<P extends Product>
-    extends IdentifiableBean {
+public interface Security {
 
   /**
-   * The primary standard identifier for the security.
+   * Gets the security identifier.
    * <p>
-   * The standard identifier is used to identify the security.
-   * It will typically be an identifier in an external data system.
-   * <p>
-   * A security may have multiple active identifiers. Any identifier may be chosen here.
-   * Certain uses of the identifier, such as storage in a database, require that the
-   * identifier does not change over time, and this should be considered best practice.
-   */
-  @Override
-  public abstract StandardId getStandardId();
-
-  /**
-   * Gets the entire set of additional attributes.
-   * <p>
-   * Attributes are typically used to tag the object with additional information.
+   * This identifier uniquely identifies the security within the system.
    * 
-   * @return the complete set of attributes
+   * @return the security identifier
    */
-  public abstract ImmutableMap<String, String> getAttributes();
+  public abstract SecurityInfo getSecurityInfo();
 
   /**
-   * Gets the product underlying the security.
+   * Gets the security identifier.
    * <p>
-   * All securities refer to a single underlying product.
-   * The product captures the financial details of the security contract.
+   * This identifier uniquely identifies the security within the system.
    * 
-   * @return the product
+   * @return the security identifier
    */
-  public abstract P getProduct();
+  public default SecurityId getSecurityId() {
+    return getSecurityInfo().getId();
+  }
+
+  /**
+   * Gets the currency that the security is traded in.
+   * 
+   * @return the trading currency
+   */
+  public default Currency getCurrency() {
+    return getSecurityInfo().getPriceInfo().getCurrency();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a trade based on this security.
+   * <p>
+   * This creates a trade of a suitable type for this security.
+   * 
+   * @param tradeInfo  the trade information
+   * @param quantity  the number of contracts in the trade
+   * @param tradePrice  the price that was traded, in decimal form
+   * @param refData  the reference data used to find underlying securities
+   * @return the trade
+   */
+  public abstract FinanceTrade createTrade(
+      TradeInfo tradeInfo,
+      long quantity,
+      double tradePrice,
+      ReferenceData refData);
 
 }

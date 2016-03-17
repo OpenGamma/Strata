@@ -63,12 +63,12 @@ public class ExamplesTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_genericFuturePricing_standalone() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> GenericFuturePricingExample.main(NO_ARGS)));
+  public void test_genericSecurityPricing_standalone() {
+    assertValidCapturedAsciiTable(caputureSystemOut(() -> GenericSecurityPricingExample.main(NO_ARGS)));
   }
 
-  public void test_genericFuturePricing_tool() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> ReportRunnerTool.main(toolArgs("future"))));
+  public void test_genericSecurityPricing_tool() {
+    assertValidCapturedAsciiTable(caputureSystemOut(() -> ReportRunnerTool.main(toolArgs("security"))));
   }
 
   //-------------------------------------------------------------------------

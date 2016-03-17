@@ -29,7 +29,6 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
@@ -39,6 +38,7 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Data provider of volatility for bond future options in the log-normal or Black model. 
@@ -60,7 +60,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    * The ID of the underlying future.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final StandardId futureSecurityId;
+  private final SecurityId futureSecurityId;
   /**
    * The day count applicable to the model.
    */
@@ -85,7 +85,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    */
   public static BlackVolatilityExpLogMoneynessBondFutureProvider of(
       InterpolatedNodalSurface surface,
-      StandardId futureSecurityId,
+      SecurityId futureSecurityId,
       DayCount dayCount,
       ZonedDateTime valuationTime) {
 
@@ -181,7 +181,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
 
   private BlackVolatilityExpLogMoneynessBondFutureProvider(
       NodalSurface parameters,
-      StandardId futureSecurityId,
+      SecurityId futureSecurityId,
       DayCount dayCount,
       ZonedDateTime valuationDateTime) {
     JodaBeanUtils.notNull(parameters, "parameters");
@@ -225,7 +225,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    * @return the value of the property, not null
    */
   @Override
-  public StandardId getFutureSecurityId() {
+  public SecurityId getFutureSecurityId() {
     return futureSecurityId;
   }
 
@@ -313,8 +313,8 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
     /**
      * The meta-property for the {@code futureSecurityId} property.
      */
-    private final MetaProperty<StandardId> futureSecurityId = DirectMetaProperty.ofImmutable(
-        this, "futureSecurityId", BlackVolatilityExpLogMoneynessBondFutureProvider.class, StandardId.class);
+    private final MetaProperty<SecurityId> futureSecurityId = DirectMetaProperty.ofImmutable(
+        this, "futureSecurityId", BlackVolatilityExpLogMoneynessBondFutureProvider.class, SecurityId.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -384,7 +384,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
      * The meta-property for the {@code futureSecurityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> futureSecurityId() {
+    public MetaProperty<SecurityId> futureSecurityId() {
       return futureSecurityId;
     }
 
@@ -438,7 +438,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
   public static final class Builder extends DirectFieldsBeanBuilder<BlackVolatilityExpLogMoneynessBondFutureProvider> {
 
     private NodalSurface parameters;
-    private StandardId futureSecurityId;
+    private SecurityId futureSecurityId;
     private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
 
@@ -483,7 +483,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
           this.parameters = (NodalSurface) newValue;
           break;
         case 1270940318:  // futureSecurityId
-          this.futureSecurityId = (StandardId) newValue;
+          this.futureSecurityId = (SecurityId) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -548,7 +548,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
      * @param futureSecurityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder futureSecurityId(StandardId futureSecurityId) {
+    public Builder futureSecurityId(SecurityId futureSecurityId) {
       JodaBeanUtils.notNull(futureSecurityId, "futureSecurityId");
       this.futureSecurityId = futureSecurityId;
       return this;

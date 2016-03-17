@@ -5,130 +5,68 @@
  */
 package com.opengamma.strata.product.equity;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.fail;
-
-import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.google.common.reflect.TypeToken;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.collect.id.IdentifiableBean;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 
 /**
- * Test.
+ * Test {@link EquityTrade}.
  */
 @Test
 public class EquityTradeTest {
 
-  Equity PRODUCT = Equity.builder().currency(GBP).build();
-  Security<Equity> SECURITY = UnitSecurity.builder(PRODUCT)
-      .standardId(StandardId.of("OG-Ticker", "1"))
-      .build();
-  SecurityLink<Equity> RESOLVABLE_LINK = SecurityLink.resolvable(SECURITY.getStandardId(), Equity.class);
-  SecurityLink<Equity> RESOLVED_LINK = SecurityLink.resolved(SECURITY);
+  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final Equity PRODUCT = EquityTest.sut();
+  private static final Equity PRODUCT2 = EquityTest.sut2();
+  private static final int QUANTITY = 100;
+  private static final int QUANTITY2 = 200;
+  private static final double PRICE = 123.50;
+  private static final double PRICE2 = 120.50;
 
   //-------------------------------------------------------------------------
-  public void test_builder_resolvable() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVABLE_LINK)
-        .quantity(100)
-        .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
-    assertEquals(test.getSecurityLink(), RESOLVABLE_LINK);
-    assertEquals(test.getQuantity(), 100);
-    assertEquals(test.getPremium(), Optional.empty());
-    assertThrows(() -> test.getSecurity(), IllegalStateException.class);
-    assertThrows(() -> test.getProduct(), IllegalStateException.class);
-  }
-
-  public void test_builder_resolved() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
-        .quantity(100)
-        .premium(CurrencyAmount.of(GBP, 1200))
-        .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(date(2014, 6, 30)).build());
-    assertEquals(test.getSecurityLink(), RESOLVED_LINK);
-    assertEquals(test.getQuantity(), 100);
-    assertEquals(test.getPremium(), Optional.of(CurrencyAmount.of(GBP, 1200)));
-    assertEquals(test.getSecurity(), SECURITY);
+  public void test_builder() {
+    EquityTrade test = sut();
+    assertEquals(test.getTradeInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolveLinks_resolvable() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVABLE_LINK)
-        .quantity(100)
-        .build();
-    EquityTrade expected = EquityTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .quantity(100)
-        .build();
-    LinkResolver resolver = new LinkResolver() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
-        assertEquals(identifier, SECURITY.getStandardId());
-        return (T) SECURITY;
-      }
-    };
-    assertEquals(test.resolveLinks(resolver), expected);
-  }
-
-  public void test_resolveLinks_resolved() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .quantity(100)
-        .build();
-    LinkResolver resolver = new LinkResolver() {
-      @Override
-      public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
-        fail();  // not invoked because link is already resolved
-        return null;
-      }
-    };
-    assertSame(test.resolveLinks(resolver), test);
+    assertEquals(test.getQuantity(), QUANTITY);
+    assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
+    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVABLE_LINK)
-        .quantity(100)
-        .build();
-    coverImmutableBean(test);
-    EquityTrade test2 = EquityTrade.builder()
-        .securityLink(RESOLVED_LINK)
-        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
-        .quantity(200)
-        .premium(CurrencyAmount.of(GBP, 1200))
-        .build();
-    coverBeanEquals(test, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    EquityTrade test = EquityTrade.builder()
-        .securityLink(RESOLVABLE_LINK)
-        .quantity(100)
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static EquityTrade sut() {
+    return EquityTrade.builder()
+        .tradeInfo(TRADE_INFO)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(PRICE)
         .build();
-    assertSerialization(test);
+  }
+
+  static EquityTrade sut2() {
+    return EquityTrade.builder()
+        .tradeInfo(TradeInfo.EMPTY)
+        .product(PRODUCT2)
+        .quantity(QUANTITY2)
+        .price(PRICE2)
+        .build();
   }
 
 }

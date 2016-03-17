@@ -5,97 +5,67 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.collect.id.LinkResolutionException;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.LinkResolvable;
+import com.opengamma.strata.basics.currency.Currency;
 
 /**
- * A trade that is directly based on a security.
+ * A trade representing the purchase or sale of a security,
+ * where the security is embedded ready for mark-to-market pricing.
  * <p>
- * A security trade is a {@link Trade} that contains a reference to a {@link Security}.
- * The security is held via a {@link SecurityLink}, which allows for the security to be
- * managed as reference data, separately from the trade.
+ * This trade represents a trade in a security, defined by a quantity and price.
+ * The security is embedded directly, however the underlying product model is not available.
+ * The security may be of any kind, including equities, bonds and exchange traded derivative (ETD).
  * <p>
  * Implementations of this interface must be immutable beans.
- * 
- * @param <P>  the type of the product
  */
-public interface SecurityTrade<P extends Product>
-    extends FinanceTrade, LinkResolvable<SecurityTrade<P>> {
+public interface SecurityTrade
+    extends FinanceTrade {
 
   /**
-   * Gets the link to the security that was traded.
-   * <p>
-   * A security link provides loose coupling between different parts of the object model.
-   * For example, this allows the trade to be stored in a different database to the security.
-   * <p>
-   * A link can be in one of two states, resolvable and resolved.
-   * In the resolvable state, the link contains the identifier and product type of the security.
-   * In the resolved state, the link directly embeds the security.
-   * <p>
-   * When the link is in the resolvable state, the {@link #getSecurity()} AND {@link #getProduct()}
-   * methods will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
+   * Gets the security that was traded.
    * 
-   * @return the link to the security, which may be in either the resolvable or resolved state
+   * @return the security
    */
-  public abstract SecurityLink<P> getSecurityLink();
+  public abstract Security getSecurity();
 
   /**
-   * Gets the security that was traded, throwing an exception if not resolved.
+   * Gets the quantity that was traded.
    * <p>
-   * Returns the underlying security that was traded.
-   * This is obtained from {@link #getSecurityLink()}.
-   * <p>
-   * The link has two states, resolvable and resolved.
-   * The security can only be returned if the link is resolved.
-   * If the link is in the resolvable state, this method will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
+   * This will be positive if buying and negative if selling.
    * 
-   * @return full details of the security
-   * @throws IllegalStateException if the security link is not resolved
+   * @return the quantity
    */
-  public default Security<P> getSecurity() {
-    return getSecurityLink().resolvedTarget();
-  }
+  public abstract long getQuantity();
 
   /**
-   * Gets the underlying product that was agreed when the trade occurred, throwing an exception if not resolved.
+   * Gets the price that was traded.
    * <p>
-   * Returns the underlying product that captures the contracted financial details of the trade.
-   * This is obtained from {@link #getSecurityLink()}.
-   * <p>
-   * The link has two states, resolvable and resolved.
-   * The product can only be returned if the link is resolved.
-   * If the link is in the resolvable state, this method will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
+   * This is the price agreed when the trade occurred.
    * 
-   * @return the product
-   * @throws IllegalStateException if the security link is not resolved
+   * @return the price
    */
-  public default P getProduct() {
-    return getSecurity().getProduct();
-  }
+  public abstract double getPrice();
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a trade where all links have been resolved.
+   * Gets the security identifier.
    * <p>
-   * This method examines the trade, locates any links and resolves them.
-   * The result is fully resolved with all data available for use.
-   * Calling {@link #getSecurity()} or {@link #getProduct()} on the result will not throw an exception.
-   * <p>
-   * An exception is thrown if a link cannot be resolved.
+   * This identifier uniquely identifies the security within the system.
    * 
-   * @param resolver  the resolver to use
-   * @return the fully resolved trade
-   * @throws LinkResolutionException if a link cannot be resolved
+   * @return the security identifier
    */
-  @Override
-  public abstract SecurityTrade<P> resolveLinks(LinkResolver resolver);
+  public default SecurityId getSecurityId() {
+    return getSecurity().getSecurityId();
+  }
+
+  /**
+   * Gets the currency of the trade.
+   * <p>
+   * This is the currency of the security.
+   * 
+   * @return the trading currency
+   */
+  public default Currency getCurrency() {
+    return getSecurity().getCurrency();
+  }
 
 }

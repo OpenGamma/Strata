@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.PaymentPeriod;
@@ -59,17 +59,19 @@ public final class ResolvedCapitalIndexedBondTrade
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ResolvedCapitalIndexedBond product;
   /**
-   * The identifier used to refer to the security.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId securityStandardId;
-  /**
    * The quantity, indicating the number of bond contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition
   private final long quantity;
+  /**
+   * The price that was traded, which is the <i>clean</i> price.
+   * <p>
+   * This is the clean price agreed when the trade occurred, without accrued interest.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double price;
   /**
    * The settlement of the bond trade.
    * <p>
@@ -117,16 +119,16 @@ public final class ResolvedCapitalIndexedBondTrade
   private ResolvedCapitalIndexedBondTrade(
       TradeInfo tradeInfo,
       ResolvedCapitalIndexedBond product,
-      StandardId securityStandardId,
       long quantity,
+      double price,
       PaymentPeriod settlement) {
     JodaBeanUtils.notNull(product, "product");
-    JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
+    ArgChecker.notNegative(price, "price");
     JodaBeanUtils.notNull(settlement, "settlement");
     this.tradeInfo = tradeInfo;
     this.product = product;
-    this.securityStandardId = securityStandardId;
     this.quantity = quantity;
+    this.price = price;
     this.settlement = settlement;
   }
 
@@ -171,15 +173,6 @@ public final class ResolvedCapitalIndexedBondTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier used to refer to the security.
-   * @return the value of the property, not null
-   */
-  public StandardId getSecurityStandardId() {
-    return securityStandardId;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the quantity, indicating the number of bond contracts in the trade.
    * <p>
    * This will be positive if buying and negative if selling.
@@ -187,6 +180,17 @@ public final class ResolvedCapitalIndexedBondTrade
    */
   public long getQuantity() {
     return quantity;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the price that was traded, which is the <i>clean</i> price.
+   * <p>
+   * This is the clean price agreed when the trade occurred, without accrued interest.
+   * @return the value of the property
+   */
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -221,8 +225,8 @@ public final class ResolvedCapitalIndexedBondTrade
       ResolvedCapitalIndexedBondTrade other = (ResolvedCapitalIndexedBondTrade) obj;
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
           JodaBeanUtils.equal(product, other.product) &&
-          JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
+          JodaBeanUtils.equal(price, other.price) &&
           JodaBeanUtils.equal(settlement, other.settlement);
     }
     return false;
@@ -233,8 +237,8 @@ public final class ResolvedCapitalIndexedBondTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlement);
     return hash;
   }
@@ -245,8 +249,8 @@ public final class ResolvedCapitalIndexedBondTrade
     buf.append("ResolvedCapitalIndexedBondTrade{");
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("price").append('=').append(price).append(',').append(' ');
     buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement));
     buf.append('}');
     return buf.toString();
@@ -273,15 +277,15 @@ public final class ResolvedCapitalIndexedBondTrade
     private final MetaProperty<ResolvedCapitalIndexedBond> product = DirectMetaProperty.ofImmutable(
         this, "product", ResolvedCapitalIndexedBondTrade.class, ResolvedCapitalIndexedBond.class);
     /**
-     * The meta-property for the {@code securityStandardId} property.
-     */
-    private final MetaProperty<StandardId> securityStandardId = DirectMetaProperty.ofImmutable(
-        this, "securityStandardId", ResolvedCapitalIndexedBondTrade.class, StandardId.class);
-    /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedCapitalIndexedBondTrade.class, Long.TYPE);
+    /**
+     * The meta-property for the {@code price} property.
+     */
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", ResolvedCapitalIndexedBondTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code settlement} property.
      */
@@ -294,8 +298,8 @@ public final class ResolvedCapitalIndexedBondTrade
         this, null,
         "tradeInfo",
         "product",
-        "securityStandardId",
         "quantity",
+        "price",
         "settlement");
 
     /**
@@ -311,10 +315,10 @@ public final class ResolvedCapitalIndexedBondTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -593973224:  // securityStandardId
-          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
+        case 106934601:  // price
+          return price;
         case 73828649:  // settlement
           return settlement;
       }
@@ -354,19 +358,19 @@ public final class ResolvedCapitalIndexedBondTrade
     }
 
     /**
-     * The meta-property for the {@code securityStandardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> securityStandardId() {
-      return securityStandardId;
-    }
-
-    /**
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
     public MetaProperty<Long> quantity() {
       return quantity;
+    }
+
+    /**
+     * The meta-property for the {@code price} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     /**
@@ -385,10 +389,10 @@ public final class ResolvedCapitalIndexedBondTrade
           return ((ResolvedCapitalIndexedBondTrade) bean).getTradeInfo();
         case -309474065:  // product
           return ((ResolvedCapitalIndexedBondTrade) bean).getProduct();
-        case -593973224:  // securityStandardId
-          return ((ResolvedCapitalIndexedBondTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
           return ((ResolvedCapitalIndexedBondTrade) bean).getQuantity();
+        case 106934601:  // price
+          return ((ResolvedCapitalIndexedBondTrade) bean).getPrice();
         case 73828649:  // settlement
           return ((ResolvedCapitalIndexedBondTrade) bean).getSettlement();
       }
@@ -414,8 +418,8 @@ public final class ResolvedCapitalIndexedBondTrade
 
     private TradeInfo tradeInfo;
     private ResolvedCapitalIndexedBond product;
-    private StandardId securityStandardId;
     private long quantity;
+    private double price;
     private PaymentPeriod settlement;
 
     /**
@@ -432,8 +436,8 @@ public final class ResolvedCapitalIndexedBondTrade
     private Builder(ResolvedCapitalIndexedBondTrade beanToCopy) {
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
-      this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
+      this.price = beanToCopy.getPrice();
       this.settlement = beanToCopy.getSettlement();
     }
 
@@ -445,10 +449,10 @@ public final class ResolvedCapitalIndexedBondTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -593973224:  // securityStandardId
-          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
+        case 106934601:  // price
+          return price;
         case 73828649:  // settlement
           return settlement;
         default:
@@ -465,11 +469,11 @@ public final class ResolvedCapitalIndexedBondTrade
         case -309474065:  // product
           this.product = (ResolvedCapitalIndexedBond) newValue;
           break;
-        case -593973224:  // securityStandardId
-          this.securityStandardId = (StandardId) newValue;
-          break;
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
+          break;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         case 73828649:  // settlement
           this.settlement = (PaymentPeriod) newValue;
@@ -509,8 +513,8 @@ public final class ResolvedCapitalIndexedBondTrade
       return new ResolvedCapitalIndexedBondTrade(
           tradeInfo,
           product,
-          securityStandardId,
           quantity,
+          price,
           settlement);
     }
 
@@ -541,17 +545,6 @@ public final class ResolvedCapitalIndexedBondTrade
     }
 
     /**
-     * Sets the identifier used to refer to the security.
-     * @param securityStandardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder securityStandardId(StandardId securityStandardId) {
-      JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
-      this.securityStandardId = securityStandardId;
-      return this;
-    }
-
-    /**
      * Sets the quantity, indicating the number of bond contracts in the trade.
      * <p>
      * This will be positive if buying and negative if selling.
@@ -560,6 +553,19 @@ public final class ResolvedCapitalIndexedBondTrade
      */
     public Builder quantity(long quantity) {
       this.quantity = quantity;
+      return this;
+    }
+
+    /**
+     * Sets the price that was traded, which is the <i>clean</i> price.
+     * <p>
+     * This is the clean price agreed when the trade occurred, without accrued interest.
+     * @param price  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder price(double price) {
+      ArgChecker.notNegative(price, "price");
+      this.price = price;
       return this;
     }
 
@@ -586,8 +592,8 @@ public final class ResolvedCapitalIndexedBondTrade
       buf.append("ResolvedCapitalIndexedBondTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price)).append(',').append(' ');
       buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement));
       buf.append('}');
       return buf.toString();

@@ -42,6 +42,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -133,6 +134,7 @@ public class DiscountingDeliverableSwapFutureProductPricerTest {
   private static final LocalDate DELIVERY = LocalDate.of(2012, 12, 19);
   private static final double NOTIONAL = 100000;
   private static final ResolvedDeliverableSwapFuture FUTURE = ResolvedDeliverableSwapFuture.builder()
+      .securityId(SecurityId.of("OG-Test", "DSF"))
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
