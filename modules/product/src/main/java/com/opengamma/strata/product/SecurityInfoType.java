@@ -59,18 +59,4 @@ public final class SecurityInfoType<T>
     super(name);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a value object wrapping the specified value and this type.
-   * <p>
-   * This method can be used to create instances to pass into
-   * {@link SecurityInfo#of(SecurityId, SecurityInfoValue...)}.
-   * 
-   * @param value  the value to associate with this type
-   * @return the value object
-   */
-  public SecurityInfoValue<T> value(T value) {
-    return SecurityInfoValue.of(this, value);
-  }
-
 }
