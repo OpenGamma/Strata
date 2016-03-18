@@ -19,6 +19,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.IntIntDoubleConsumer;
 import com.opengamma.strata.collect.function.IntIntDoubleToDoubleFunction;
@@ -41,7 +43,8 @@ import com.opengamma.strata.collect.function.IntIntToDoubleFunction;
  * In mathematical terms, this is a two-dimensional matrix.
  */
 @BeanDefinition(builderScope = "private")
-public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
+public final class DoubleMatrix
+    implements Matrix, Serializable, ImmutableBean {
 
   /**
    * An empty array.
@@ -61,18 +64,15 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
   /**
    * The number of rows.
    */
-  @PropertyDefinition(get = "")
-  private final int rows;
+  private final int rows;  // derived, not a property
   /**
    * The number of columns.
    */
-  @PropertyDefinition(get = "")
-  private final int columns;
+  private final int columns;  // derived, not a property
   /**
    * The number of elements.
    */
-  @PropertyDefinition(get = "")
-  private final int elements;
+  private final int elements;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -305,7 +305,7 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets up an empty matrix.
+   * Creates a matrix.
    * 
    * @param data  the data
    * @param rows  the number of rows
@@ -315,6 +315,21 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
     this.rows = rows;
     this.columns = columns;
     this.array = data;
+    this.elements = rows * columns;
+  }
+
+  @ImmutableConstructor
+  private DoubleMatrix(double[][] array) {
+    ArgChecker.notNull(array, "array");
+    if (array.length == 0) {
+      this.array = EMPTY.array;
+      this.rows = 0;
+      this.columns = 0;
+    } else {
+      this.array = array;
+      this.rows = array.length;
+      this.columns = array[0].length;
+    }
     this.elements = rows * columns;
   }
 
@@ -786,18 +801,6 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
     JodaBeanUtils.registerMetaBean(DoubleMatrix.Meta.INSTANCE);
   }
 
-  private DoubleMatrix(
-      double[][] array,
-      int rows,
-      int columns,
-      int elements) {
-    JodaBeanUtils.notNull(array, "array");
-    this.array = array;
-    this.rows = rows;
-    this.columns = columns;
-    this.elements = elements;
-  }
-
   @Override
   public DoubleMatrix.Meta metaBean() {
     return DoubleMatrix.Meta.INSTANCE;
@@ -829,29 +832,11 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
     private final MetaProperty<double[][]> array = DirectMetaProperty.ofImmutable(
         this, "array", DoubleMatrix.class, double[][].class);
     /**
-     * The meta-property for the {@code rows} property.
-     */
-    private final MetaProperty<Integer> rows = DirectMetaProperty.ofImmutable(
-        this, "rows", DoubleMatrix.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code columns} property.
-     */
-    private final MetaProperty<Integer> columns = DirectMetaProperty.ofImmutable(
-        this, "columns", DoubleMatrix.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code elements} property.
-     */
-    private final MetaProperty<Integer> elements = DirectMetaProperty.ofImmutable(
-        this, "elements", DoubleMatrix.class, Integer.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "array",
-        "rows",
-        "columns",
-        "elements");
+        "array");
 
     /**
      * Restricted constructor.
@@ -864,12 +849,6 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
       switch (propertyName.hashCode()) {
         case 93090393:  // array
           return array;
-        case 3506649:  // rows
-          return rows;
-        case 949721053:  // columns
-          return columns;
-        case -8339209:  // elements
-          return elements;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -898,42 +877,12 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
       return array;
     }
 
-    /**
-     * The meta-property for the {@code rows} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> rows() {
-      return rows;
-    }
-
-    /**
-     * The meta-property for the {@code columns} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> columns() {
-      return columns;
-    }
-
-    /**
-     * The meta-property for the {@code elements} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> elements() {
-      return elements;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 93090393:  // array
           return ((DoubleMatrix) bean).array;
-        case 3506649:  // rows
-          return ((DoubleMatrix) bean).rows;
-        case 949721053:  // columns
-          return ((DoubleMatrix) bean).columns;
-        case -8339209:  // elements
-          return ((DoubleMatrix) bean).elements;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -956,9 +905,6 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
   private static final class Builder extends DirectFieldsBeanBuilder<DoubleMatrix> {
 
     private double[][] array;
-    private int rows;
-    private int columns;
-    private int elements;
 
     /**
      * Restricted constructor.
@@ -972,12 +918,6 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
       switch (propertyName.hashCode()) {
         case 93090393:  // array
           return array;
-        case 3506649:  // rows
-          return rows;
-        case 949721053:  // columns
-          return columns;
-        case -8339209:  // elements
-          return elements;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -988,15 +928,6 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
       switch (propertyName.hashCode()) {
         case 93090393:  // array
           this.array = (double[][]) newValue;
-          break;
-        case 3506649:  // rows
-          this.rows = (Integer) newValue;
-          break;
-        case 949721053:  // columns
-          this.columns = (Integer) newValue;
-          break;
-        case -8339209:  // elements
-          this.elements = (Integer) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -1031,21 +962,15 @@ public final class DoubleMatrix implements Matrix, Serializable, ImmutableBean {
     @Override
     public DoubleMatrix build() {
       return new DoubleMatrix(
-          array,
-          rows,
-          columns,
-          elements);
+          array);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("DoubleMatrix.Builder{");
-      buf.append("array").append('=').append(JodaBeanUtils.toString(array)).append(',').append(' ');
-      buf.append("rows").append('=').append(JodaBeanUtils.toString(rows)).append(',').append(' ');
-      buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
-      buf.append("elements").append('=').append(JodaBeanUtils.toString(elements));
+      buf.append("array").append('=').append(JodaBeanUtils.toString(array));
       buf.append('}');
       return buf.toString();
     }

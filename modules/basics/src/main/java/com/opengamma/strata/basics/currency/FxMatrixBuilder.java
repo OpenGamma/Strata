@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * A mutable builder class for {@link FxMatrix}.
@@ -55,6 +56,7 @@ public class FxMatrixBuilder {
    */
   private final Map<CurrencyPair, Double> disjointRates = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   /**
    * Build a new {@code FxMatrix} from the data in the builder.
    *
@@ -63,14 +65,13 @@ public class FxMatrixBuilder {
    * which have no currency in common with other rates
    */
   public FxMatrix build() {
-
     if (!disjointRates.isEmpty()) {
       throw new IllegalStateException("Received rates with no currencies in common with other: " + disjointRates);
     }
     // Trim array down to the correct size - we have to copy the array
     // anyway to ensure immutability, so we may as well remove any
     // unused rows
-    return new FxMatrix(ImmutableMap.copyOf(currencies), copyArray(rates, currencies.size()));
+    return new FxMatrix(ImmutableMap.copyOf(currencies), DoubleMatrix.ofUnsafe(copyArray(rates, currencies.size())));
   }
 
   /**
@@ -324,7 +325,9 @@ public class FxMatrixBuilder {
     return Math.max(requiredCapacity == lowerPower ? requiredCapacity : lowerPower << 2, MINIMAL_MATRIX_SIZE);
   }
 
-  private double[][] copyArray(double[][] rates, int requestedSize) {
+  //-------------------------------------------------------------------------
+  // copies the array trimming to the specified size
+  private static double[][] copyArray(double[][] rates, int requestedSize) {
     int order = Math.min(rates.length, requestedSize);
     double[][] copy = new double[requestedSize][requestedSize];
     for (int i = 0; i < order; i++) {
@@ -332,4 +335,5 @@ public class FxMatrixBuilder {
     }
     return copy;
   }
+  
 }

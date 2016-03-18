@@ -43,7 +43,7 @@ import com.opengamma.strata.collect.tuple.Pair;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class FxMatrix
     implements FxRateProvider, ImmutableBean {
 
@@ -173,14 +173,6 @@ public final class FxMatrix
 
   //-------------------------------------------------------------------------
   /**
-   * Package-private constructor.
-   */
-  FxMatrix(ImmutableMap<Currency, Integer> currencies, double[][] rates) {
-    this.currencies = currencies;
-    this.rates = DoubleMatrix.copyOf(rates);
-  }
-
-  /**
    * Returns the set of currencies held within this matrix.
    *
    * @return the currencies in this matrix
@@ -308,7 +300,12 @@ public final class FxMatrix
     JodaBeanUtils.registerMetaBean(FxMatrix.Meta.INSTANCE);
   }
 
-  private FxMatrix(
+  /**
+   * Creates an instance.
+   * @param currencies  the value of the property, not null
+   * @param rates  the value of the property, not null
+   */
+  FxMatrix(
       Map<Currency, Integer> currencies,
       DoubleMatrix rates) {
     JodaBeanUtils.notNull(currencies, "currencies");

@@ -19,6 +19,7 @@ import static com.opengamma.strata.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.strata.basics.currency.FxMatrix.pairsToFxMatrix;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -563,6 +564,16 @@ public class FxMatrixTest {
 
     assertThat(m1.hashCode()).isNotEqualTo(m2.hashCode());
     assertThat(m2.hashCode()).isEqualTo(m3.hashCode());
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(FxMatrix.empty());
+    coverImmutableBean(FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(EUR, USD, 1.4)
+        .addRate(EUR, CHF, 1.2)
+        .build());
   }
   
   public void testSerializeDeserialize() {
