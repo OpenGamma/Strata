@@ -16,10 +16,13 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
+import org.joda.beans.Bean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -183,5 +186,17 @@ public class ImmutableRatesProviderTest {
         .build();
     coverBeanEquals(test, test2);
   }
+  
+  public void testSerializeDeserialize() {
+    cycleBean(ImmutableRatesProvider.builder(VAL_DATE).build());
+  }
+  
+  private void cycleBean(Bean bean) {
+    JodaBeanSer ser = JodaBeanSer.COMPACT;
+    String result = ser.xmlWriter().write(bean);
+    Bean cycled = ser.xmlReader().read(result);
+    assertThat(cycled).isEqualTo(bean);
+  }
+
 
 }

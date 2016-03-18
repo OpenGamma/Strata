@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.assertj.core.data.Offset;
+import org.joda.beans.Bean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -561,6 +563,27 @@ public class FxMatrixTest {
 
     assertThat(m1.hashCode()).isNotEqualTo(m2.hashCode());
     assertThat(m2.hashCode()).isEqualTo(m3.hashCode());
+  }
+  
+  public void testSerializeDeserialize() {
+    cycleBean(FxMatrix.empty());
+    cycleBean(FxMatrix.builder()
+        .addRate(GBP, USD, 1.6)
+        .addRate(EUR, USD, 1.4)
+        .addRate(EUR, CHF, 1.2)
+        .build());
+    cycleBean(FxMatrix.builder()
+        .addRate(GBP, USD, 1.7)
+        .addRate(EUR, USD, 1.5)
+        .addRate(EUR, CHF, 1.3)
+        .build());
+  }
+  
+  private void cycleBean(Bean bean) {
+    JodaBeanSer ser = JodaBeanSer.COMPACT;
+    String result = ser.xmlWriter().write(bean);
+    Bean cycled = ser.xmlReader().read(result);
+    assertThat(cycled).isEqualTo(bean);
   }
 
 }
