@@ -36,18 +36,18 @@ public class ResolvedIborCapFloorTradeTest {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.empty());
   }
 
   public void test_builder_full() {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.of(PREMIUM));
   }
@@ -55,7 +55,7 @@ public class ResolvedIborCapFloorTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();

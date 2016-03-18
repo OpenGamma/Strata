@@ -28,10 +28,10 @@ public class ResolvedFxSwapTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxSwapTrade test = ResolvedFxSwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(SWAP1)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), SWAP1);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxSwapTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxSwapTrade sut() {
     return ResolvedFxSwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(SWAP1)
         .build();
   }

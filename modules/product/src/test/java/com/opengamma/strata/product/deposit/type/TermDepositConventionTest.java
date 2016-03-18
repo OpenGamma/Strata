@@ -97,7 +97,7 @@ public class TermDepositConventionTest {
         .build();
     TradeInfo tradeInfoExpected = TradeInfo.builder().tradeDate(tradeDate).build();
     assertEquals(trade.getProduct(), termDepositExpected);
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
   }
 
   //-------------------------------------------------------------------------

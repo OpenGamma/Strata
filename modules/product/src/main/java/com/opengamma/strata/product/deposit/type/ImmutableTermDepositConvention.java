@@ -159,7 +159,7 @@ public final class ImmutableTermDepositConvention
       ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
     }
     return TermDepositTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(TermDeposit.builder()
             .buySell(buySell)
             .currency(currency)

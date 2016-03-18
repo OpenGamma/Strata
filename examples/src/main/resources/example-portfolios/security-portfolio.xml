@@ -2,13 +2,13 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.GenericSecurityTrade">
-   <tradeInfo>
+   <info>
     <counterparty>mn~Dealer G</counterparty>
     <settlementDate>2013-12-15</settlementDate>
     <attributes>
      <entry key="description">Euro-Bund Mar14</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <security>
     <info>
      <id>OG-Future~Eurex-FGBL-Mar14</id>
@@ -28,13 +28,13 @@
    <price>99.55</price>
   </item>
   <item type="GenericSecurityTrade">
-   <tradeInfo>
+   <info>
     <counterparty>mn~Dealer G</counterparty>
     <settlementDate>2013-12-18</settlementDate>
     <attributes>
      <entry key="description">EuroDollar Mar14</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <security>
     <info>
      <id>OG-Future~CME-ED-Mar14</id>
@@ -54,13 +54,13 @@
    <price>99.55</price>
   </item>
   <item type="GenericSecurityTrade">
-   <tradeInfo>
+   <info>
     <counterparty>mn~Dealer G</counterparty>
     <settlementDate>2013-01-15</settlementDate>
     <attributes>
      <entry key="description">Call on Euro-Bund Mar14</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <security>
     <info>
      <id>OG-FutOpt~Eurex-OGBL-Mar14-C150</id>

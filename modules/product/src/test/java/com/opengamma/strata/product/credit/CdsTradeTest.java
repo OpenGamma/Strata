@@ -56,14 +56,14 @@ public class CdsTradeTest {
   //-------------------------------------------------------------------------
   static CdsTrade sutSingleName() {
     return CdsTrade.builder()
-        .tradeInfo(tradeInfo())
+        .info(tradeInfo())
         .product(CdsTest.sutSingleName())
         .build();
   }
 
   static CdsTrade sutIndex() {
     return CdsTrade.builder()
-        .tradeInfo(tradeInfo())
+        .info(tradeInfo())
         .product(CdsTest.sutIndex())
         .build();
   }

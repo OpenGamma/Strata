@@ -276,7 +276,7 @@ public final class ImmutableIborFixingDepositConvention
       ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
     }
     return IborFixingDepositTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(IborFixingDeposit.builder()
             .buySell(buySell)
             .currency(getCurrency())

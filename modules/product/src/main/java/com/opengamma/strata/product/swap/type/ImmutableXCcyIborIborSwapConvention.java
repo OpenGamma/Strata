@@ -149,7 +149,7 @@ public final class ImmutableXCcyIborIborSwapConvention
     SwapLeg leg1 = spreadLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notionalSpreadLeg, spread);
     SwapLeg leg2 = flatLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notionalFlatLeg);
     return SwapTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(Swap.of(leg1, leg2))
         .build();
   }

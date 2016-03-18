@@ -109,7 +109,7 @@ public class DeliverableSwapFuturePricingExample {
         .build();
 
     return DeliverableSwapFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "CME-5Y-DSF Mar15"))
             .counterparty(StandardId.of("mn", "Dealer G"))
@@ -136,7 +136,7 @@ public class DeliverableSwapFuturePricingExample {
         .build();
 
     return DeliverableSwapFutureTrade.builder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "CME-5Y-DSF Jun15"))
             .counterparty(StandardId.of("mn", "Dealer G"))

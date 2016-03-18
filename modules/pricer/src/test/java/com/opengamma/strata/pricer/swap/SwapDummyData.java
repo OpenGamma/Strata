@@ -437,7 +437,7 @@ public final class SwapDummyData {
    * Swap trade.
    */
   public static final ResolvedSwapTrade SWAP_TRADE = ResolvedSwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+      .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP)
       .build();
 
@@ -445,7 +445,7 @@ public final class SwapDummyData {
    * Swap trade.
    */
   public static final ResolvedSwapTrade SWAP_TRADE_CROSS_CURRENCY = ResolvedSwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+      .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP_CROSS_CURRENCY)
       .build();
 

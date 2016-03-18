@@ -29,14 +29,14 @@ public class ResolvedFraTradeTest {
   public void test_of() {
     ResolvedFraTrade test = ResolvedFraTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     ResolvedFraTrade test = ResolvedFraTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -53,7 +53,7 @@ public class ResolvedFraTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFraTrade sut() {
     return ResolvedFraTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
   }

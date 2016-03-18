@@ -94,7 +94,7 @@ final class FxSingleLegFpmlParserPlugin
     Optional<XmlElement> ndfEl = fxEl.findChild("nonDeliverableSettlement");
     if (!ndfEl.isPresent()) {
       return FxSingleTrade.builder()
-          .tradeInfo(tradeInfoBuilder.build())
+          .info(tradeInfoBuilder.build())
           .product(FxSingle.of(curr1Amount, curr2Amount, valueDate))
           .build();
     }
@@ -145,7 +145,7 @@ final class FxSingleLegFpmlParserPlugin
         .maturityDateOffset(offset)
         .build();
     return FxNdfTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(FxNdf.builder()
             .settlementCurrencyNotional(settleCurrAmount)
             .agreedFxRate(fxRate)

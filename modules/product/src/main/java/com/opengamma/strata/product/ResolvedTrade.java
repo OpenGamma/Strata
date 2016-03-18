@@ -17,13 +17,13 @@ package com.opengamma.strata.product;
 public interface ResolvedTrade {
 
   /**
-   * The additional trade information.
+   * Gets the standard trade information.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * All trades contain this standard set of information.
    * 
-   * @return the additional trade info
+   * @return the trade information
    */
-  public abstract TradeInfo getTradeInfo();
+  public abstract TradeInfo getInfo();
 
   /**
    * Gets the underlying product that was agreed when the trade occurred.

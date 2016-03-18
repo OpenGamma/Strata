@@ -99,7 +99,7 @@ public class IborFuturesJpyEnd2EndTest {
       resolve(REF_DATA);
   private static final double REF_PRICE_MAR = 99.9d;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR = ResolvedIborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR)
       .price(REF_PRICE_MAR * ONE_PERCENT)
       .quantity(QUANTITY)
@@ -119,7 +119,7 @@ public class IborFuturesJpyEnd2EndTest {
       resolve(REF_DATA);
   private static final double REF_PRICE_JUN = 100d;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN = ResolvedIborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN)
       .price(REF_PRICE_JUN * ONE_PERCENT)
       .quantity(QUANTITY)
@@ -139,7 +139,7 @@ public class IborFuturesJpyEnd2EndTest {
       resolve(REF_DATA);
   private static final double REF_PRICE_SEP = 100.075d;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_SEP = ResolvedIborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_SEP)
       .price(REF_PRICE_SEP * ONE_PERCENT)
       .quantity(QUANTITY)
@@ -160,7 +160,7 @@ public class IborFuturesJpyEnd2EndTest {
       resolve(REF_DATA);
   private static final double REF_PRICE_JUN_MID = 100.165d;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN_MID = ResolvedIborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_JUN_MID)
       .price(REF_PRICE_JUN_MID * ONE_PERCENT)
       .quantity(QUANTITY)
@@ -181,7 +181,7 @@ public class IborFuturesJpyEnd2EndTest {
       resolve(REF_DATA);
   private static final double REF_PRICE_MAR_LONG = 99.815d;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR_LONG = ResolvedIborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_PRODUCT_MAR_LONG)
       .price(REF_PRICE_MAR_LONG * ONE_PERCENT)
       .quantity(QUANTITY)

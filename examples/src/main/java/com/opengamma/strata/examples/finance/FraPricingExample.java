@@ -107,7 +107,7 @@ public class FraPricingExample {
 
     return FraTrade.builder()
         .product(fra)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "0x3 FRA"))
             .counterparty(StandardId.of("example", "A"))

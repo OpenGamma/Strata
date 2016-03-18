@@ -152,7 +152,7 @@ public class ValuePathEvaluatorTest {
         .index(GBP_LIBOR_3M)
         .build();
     return FraTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(fra)
         .build();
   }

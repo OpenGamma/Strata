@@ -63,7 +63,7 @@ public class IborFutureDummyData {
    * An IborFutureTrade.
    */
   public static final IborFutureTrade IBOR_FUTURE_TRADE = IborFutureTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+      .info(TradeInfo.builder().tradeDate(TRADE_DATE).build())
       .product(IBOR_FUTURE)
       .quantity(FUTURE_QUANTITY)
       .price(FUTURE_INITIAL_PRICE)
@@ -102,7 +102,7 @@ public class IborFutureDummyData {
    */
   public static final IborFutureOptionTrade IBOR_FUTURE_OPTION_TRADE =
       IborFutureOptionTrade.builder()
-          .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+          .info(TradeInfo.builder().tradeDate(TRADE_DATE).build())
           .product(IBOR_FUTURE_OPTION)
           .quantity(OPTION_QUANTITY)
           .price(OPTION_INITIAL_PRICE)

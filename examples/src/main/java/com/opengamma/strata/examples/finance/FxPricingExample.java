@@ -107,7 +107,7 @@ public class FxPricingExample {
     FxSingle fx = FxSingle.of(CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
     return FxSingleTrade.builder()
         .product(fx)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 fwd"))
             .counterparty(StandardId.of("example", "BigBankA"))
@@ -121,7 +121,7 @@ public class FxPricingExample {
     FxSingle fx = FxSingle.of(CurrencyAmount.of(USD, 15000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
     return FxSingleTrade.builder()
         .product(fx)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "USD 15,000/GBP @ 1.62 fwd"))
             .counterparty(StandardId.of("example", "BigBankB"))
@@ -136,7 +136,7 @@ public class FxPricingExample {
         CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), 0.03, LocalDate.of(2014, 6, 14), LocalDate.of(2014, 9, 14));
     return FxSwapTrade.builder()
         .product(swap)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
             .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 swap"))
             .counterparty(StandardId.of("example", "BigBankA"))
@@ -154,7 +154,7 @@ public class FxPricingExample {
         .build();
     return BulletPaymentTrade.builder()
         .product(bp)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "4"))
             .attributes(ImmutableMap.of("description", "Bullet payment GBP 20,000"))
             .counterparty(StandardId.of("example", "BigBankC"))

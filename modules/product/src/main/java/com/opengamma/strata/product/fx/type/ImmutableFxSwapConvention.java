@@ -167,7 +167,7 @@ public final class ImmutableFxSwapConvention
     }
     double amount1 = BuySell.BUY.normalize(notional);
     return FxSwapTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(FxSwap.ofForwardPoints(
             CurrencyAmount.of(currencyPair.getBase(), amount1),
             FxRate.of(currencyPair, nearFxRate),

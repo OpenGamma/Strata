@@ -28,10 +28,10 @@ public class ResolvedFxNdfTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxNdfTrade test = ResolvedFxNdfTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxNdfTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxNdfTrade sut() {
     return ResolvedFxNdfTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
   }

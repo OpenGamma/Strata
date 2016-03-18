@@ -103,7 +103,7 @@ public class SwapPricePerformance {
       .build();
 
   private static final SwapTrade TRADE1 = SwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
+      .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
       .product(Swap.of(PAY1, RECEIVE1))
       .build();
   private static final RatesProvider PROVIDER = SwapEnd2EndTest.provider();
@@ -139,7 +139,7 @@ public class SwapPricePerformance {
       .build();
 
   private static final SwapTrade TRADE2 = SwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
+      .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
       .product(Swap.of(PAY2, RECEIVE2))
       .build();
 
@@ -174,7 +174,7 @@ public class SwapPricePerformance {
       .build();
 
   private static final SwapTrade TRADE3 = SwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2013, 9, 10)).build())
+      .info(TradeInfo.builder().tradeDate(LocalDate.of(2013, 9, 10)).build())
       .product(Swap.of(PAY3, RECEIVE3))
       .build();
 
@@ -226,7 +226,7 @@ public class SwapPricePerformance {
       .build();
 
   private static final SwapTrade TRADE4 = SwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
+      .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
       .product(Swap.of(PAY4, RECEIVE4))
       .build();
 
@@ -278,7 +278,7 @@ public class SwapPricePerformance {
       .build();
 
   private static final SwapTrade TRADE5 = SwapTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
+      .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
       .product(Swap.of(RECEIVE5, PAY5))
       .build();
 

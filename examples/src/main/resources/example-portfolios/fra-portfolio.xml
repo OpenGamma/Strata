@@ -2,14 +2,14 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.fra.FraTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>mn~Dealer B</counterparty>
     <settlementDate>2014-09-14</settlementDate>
     <attributes>
      <entry key="description">0x3 FRA</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <buySell>Sell</buySell>
     <currency>USD</currency>

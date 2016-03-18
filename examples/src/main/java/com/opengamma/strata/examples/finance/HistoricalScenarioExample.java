@@ -264,7 +264,7 @@ public class HistoricalScenarioExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Libor 3m vs Libor 6m"))
             .counterparty(StandardId.of("example", "A"))

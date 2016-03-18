@@ -43,7 +43,7 @@ public final class GenericSecurityTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The security that was traded.
    */
@@ -68,24 +68,24 @@ public final class GenericSecurityTrade
   /**
    * Obtains an instance from trade information, security, quantity and price.
    * 
-   * @param tradeInfo  the trade information
+   * @param info  the trade information
    * @param security  the security that was traded
    * @param quantity  the quantity that was traded
    * @param price  the price that was traded
    * @return the trade
    */
   public static GenericSecurityTrade of(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       GenericSecurity security,
       long quantity,
       double price) {
 
-    return new GenericSecurityTrade(tradeInfo, security, quantity, price);
+    return new GenericSecurityTrade(info, security, quantity, price);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.EMPTY;
   }
 
   //-------------------------------------------------------------------------
@@ -140,18 +140,18 @@ public final class GenericSecurityTrade
 
   /**
    * Creates an instance.
-   * @param tradeInfo  the value of the property
+   * @param info  the value of the property
    * @param security  the value of the property, not null
    * @param quantity  the value of the property
    * @param price  the value of the property
    */
   GenericSecurityTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       GenericSecurity security,
       long quantity,
       double price) {
     JodaBeanUtils.notNull(security, "security");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.security = security;
     this.quantity = quantity;
     this.price = price;
@@ -180,8 +180,8 @@ public final class GenericSecurityTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -231,7 +231,7 @@ public final class GenericSecurityTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericSecurityTrade other = (GenericSecurityTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(security, other.security) &&
           (quantity == other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
@@ -242,7 +242,7 @@ public final class GenericSecurityTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(security);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
     hash = hash * 31 + JodaBeanUtils.hashCode(price);
@@ -253,7 +253,7 @@ public final class GenericSecurityTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("GenericSecurityTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("security").append('=').append(security).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
@@ -272,10 +272,10 @@ public final class GenericSecurityTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", GenericSecurityTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", GenericSecurityTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code security} property.
      */
@@ -296,7 +296,7 @@ public final class GenericSecurityTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "security",
         "quantity",
         "price");
@@ -310,8 +310,8 @@ public final class GenericSecurityTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case 949122880:  // security
           return security;
         case -1285004149:  // quantity
@@ -339,11 +339,11 @@ public final class GenericSecurityTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -374,8 +374,8 @@ public final class GenericSecurityTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((GenericSecurityTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((GenericSecurityTrade) bean).getInfo();
         case 949122880:  // security
           return ((GenericSecurityTrade) bean).getSecurity();
         case -1285004149:  // quantity
@@ -403,7 +403,7 @@ public final class GenericSecurityTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<GenericSecurityTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private GenericSecurity security;
     private long quantity;
     private double price;
@@ -420,7 +420,7 @@ public final class GenericSecurityTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(GenericSecurityTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.security = beanToCopy.getSecurity();
       this.quantity = beanToCopy.getQuantity();
       this.price = beanToCopy.getPrice();
@@ -430,8 +430,8 @@ public final class GenericSecurityTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case 949122880:  // security
           return security;
         case -1285004149:  // quantity
@@ -446,8 +446,8 @@ public final class GenericSecurityTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case 949122880:  // security
           this.security = (GenericSecurity) newValue;
@@ -491,7 +491,7 @@ public final class GenericSecurityTrade
     @Override
     public GenericSecurityTrade build() {
       return new GenericSecurityTrade(
-          tradeInfo,
+          info,
           security,
           quantity,
           price);
@@ -502,11 +502,11 @@ public final class GenericSecurityTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -550,7 +550,7 @@ public final class GenericSecurityTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("GenericSecurityTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("security").append('=').append(JodaBeanUtils.toString(security)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
       buf.append("price").append('=').append(JodaBeanUtils.toString(price));

@@ -109,7 +109,7 @@ public final class BondDataSets {
   public static final long QUANTITY_USD = 1234l;
   /** Bond future trade */
   public static final BondFutureTrade FUTURE_TRADE_USD = BondFutureTrade.builder()
-      .tradeInfo(TRADE_INFO_USD)
+      .info(TRADE_INFO_USD)
       .product(FUTURE_PRODUCT_USD)
       .quantity(QUANTITY_USD)
       .price(1.1d)
@@ -207,7 +207,7 @@ public final class BondDataSets {
   public static final long QUANTITY_EUR = 1234L;
   /** Bond future option trade */
   public static final BondFutureOptionTrade FUTURE_OPTION_TRADE_EUR = BondFutureOptionTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE_OPTION_PRODUCT_EUR_115)
       .quantity(QUANTITY_EUR)
       .price(0.01)

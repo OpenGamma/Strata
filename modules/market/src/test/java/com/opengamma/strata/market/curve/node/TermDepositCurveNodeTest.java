@@ -147,7 +147,7 @@ public class TermDepositCurveNodeTest {
         .tradeDate(valuationDate)
         .build();
     assertEquals(trade.getProduct(), depositExpected);
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
   }
 
   public void test_trade_differentKey() {

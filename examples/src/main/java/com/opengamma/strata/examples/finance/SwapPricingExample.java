@@ -179,7 +179,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -229,7 +229,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "Libor 3m + spread vs Libor 6m"))
             .counterparty(StandardId.of("example", "A"))
@@ -281,7 +281,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
             .attributes(ImmutableMap.of("description", "Fed Funds averaged + spread vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -328,7 +328,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "4"))
             .attributes(ImmutableMap.of("description", "Fixed vs libor 3m (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
@@ -379,7 +379,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "5"))
             .attributes(ImmutableMap.of("description", "Fixed vs ON (with fixing)"))
             .counterparty(StandardId.of("example", "A"))
@@ -427,7 +427,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "6"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
@@ -476,7 +476,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "7"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m (1m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
@@ -528,7 +528,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "8"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 3m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
@@ -580,7 +580,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "9"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 6m (interpolated 4m short initial stub)"))
             .counterparty(StandardId.of("example", "A"))
@@ -629,7 +629,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "10"))
             .attributes(ImmutableMap.of("description", "Zero-coupon fixed vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -677,7 +677,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "11"))
             .attributes(ImmutableMap.of("description", "Compounding fixed vs fed funds"))
             .counterparty(StandardId.of("example", "A"))
@@ -727,7 +727,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "12"))
             .attributes(ImmutableMap.of("description", "Compounding fed funds vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -775,7 +775,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "13"))
             .attributes(ImmutableMap.of("description", "Compounding libor 6m vs libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -820,7 +820,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(receiveLeg, payLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "14"))
             .attributes(ImmutableMap.of("description", "GBP Libor 3m vs USD Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -865,7 +865,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "15"))
             .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
@@ -920,7 +920,7 @@ public class SwapPricingExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "16"))
             .attributes(ImmutableMap.of("description", "USD fixed vs GBP Libor 3m (notional exchange)"))
             .counterparty(StandardId.of("example", "A"))

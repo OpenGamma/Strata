@@ -51,7 +51,7 @@ public final class CapitalIndexedBondTrade
    * This allows additional information to be attached to the trade.
    */
   @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
+  private final TradeInfo info;
   /**
    * The bond that was traded.
    * <p>
@@ -77,19 +77,19 @@ public final class CapitalIndexedBondTrade
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.info = TradeInfo.EMPTY;
   }
 
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(getTradeInfo().getSettlementDate().isPresent(), "trade settlement date must be specified");
+    ArgChecker.isTrue(getInfo().getSettlementDate().isPresent(), "trade settlement date must be specified");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedCapitalIndexedBondTrade resolve(ReferenceData refData) {
     ResolvedCapitalIndexedBond resolvedProduct = product.resolve(refData);
-    LocalDate settlementDate = tradeInfo.getSettlementDate().get();
+    LocalDate settlementDate = info.getSettlementDate().get();
     double accruedInterest = resolvedProduct.accruedInterest(settlementDate) / product.getNotional();
     if (settlementDate.isBefore(resolvedProduct.getStartDate())) {
       throw new IllegalArgumentException("Settlement date must not be before bond starts");
@@ -119,7 +119,7 @@ public final class CapitalIndexedBondTrade
     }
 
     return ResolvedCapitalIndexedBondTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(info)
         .product(resolvedProduct)
         .quantity(quantity)
         .price(price)
@@ -156,19 +156,19 @@ public final class CapitalIndexedBondTrade
 
   /**
    * Creates an instance.
-   * @param tradeInfo  the value of the property
+   * @param info  the value of the property
    * @param product  the value of the property, not null
    * @param quantity  the value of the property
    * @param price  the value of the property
    */
   CapitalIndexedBondTrade(
-      TradeInfo tradeInfo,
+      TradeInfo info,
       CapitalIndexedBond product,
       long quantity,
       double price) {
     JodaBeanUtils.notNull(product, "product");
     ArgChecker.notNegative(price, "price");
-    this.tradeInfo = tradeInfo;
+    this.info = info;
     this.product = product;
     this.quantity = quantity;
     this.price = price;
@@ -198,8 +198,8 @@ public final class CapitalIndexedBondTrade
    * @return the value of the property
    */
   @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public TradeInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -254,7 +254,7 @@ public final class CapitalIndexedBondTrade
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CapitalIndexedBondTrade other = (CapitalIndexedBondTrade) obj;
-      return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
           (quantity == other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
@@ -265,7 +265,7 @@ public final class CapitalIndexedBondTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
     hash = hash * 31 + JodaBeanUtils.hashCode(price);
@@ -276,7 +276,7 @@ public final class CapitalIndexedBondTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CapitalIndexedBondTrade{");
-    buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
@@ -295,10 +295,10 @@ public final class CapitalIndexedBondTrade
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", CapitalIndexedBondTrade.class, TradeInfo.class);
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", CapitalIndexedBondTrade.class, TradeInfo.class);
     /**
      * The meta-property for the {@code product} property.
      */
@@ -319,7 +319,7 @@ public final class CapitalIndexedBondTrade
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "tradeInfo",
+        "info",
         "product",
         "quantity",
         "price");
@@ -333,8 +333,8 @@ public final class CapitalIndexedBondTrade
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         case -1285004149:  // quantity
@@ -362,11 +362,11 @@ public final class CapitalIndexedBondTrade
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<TradeInfo> info() {
+      return info;
     }
 
     /**
@@ -397,8 +397,8 @@ public final class CapitalIndexedBondTrade
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return ((CapitalIndexedBondTrade) bean).getTradeInfo();
+        case 3237038:  // info
+          return ((CapitalIndexedBondTrade) bean).getInfo();
         case -309474065:  // product
           return ((CapitalIndexedBondTrade) bean).getProduct();
         case -1285004149:  // quantity
@@ -426,7 +426,7 @@ public final class CapitalIndexedBondTrade
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CapitalIndexedBondTrade> {
 
-    private TradeInfo tradeInfo;
+    private TradeInfo info;
     private CapitalIndexedBond product;
     private long quantity;
     private double price;
@@ -443,7 +443,7 @@ public final class CapitalIndexedBondTrade
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CapitalIndexedBondTrade beanToCopy) {
-      this.tradeInfo = beanToCopy.getTradeInfo();
+      this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.quantity = beanToCopy.getQuantity();
       this.price = beanToCopy.getPrice();
@@ -453,8 +453,8 @@ public final class CapitalIndexedBondTrade
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          return tradeInfo;
+        case 3237038:  // info
+          return info;
         case -309474065:  // product
           return product;
         case -1285004149:  // quantity
@@ -469,8 +469,8 @@ public final class CapitalIndexedBondTrade
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
           break;
         case -309474065:  // product
           this.product = (CapitalIndexedBond) newValue;
@@ -514,7 +514,7 @@ public final class CapitalIndexedBondTrade
     @Override
     public CapitalIndexedBondTrade build() {
       return new CapitalIndexedBondTrade(
-          tradeInfo,
+          info,
           product,
           quantity,
           price);
@@ -525,11 +525,11 @@ public final class CapitalIndexedBondTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param tradeInfo  the new value
+     * @param info  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder info(TradeInfo info) {
+      this.info = info;
       return this;
     }
 
@@ -576,7 +576,7 @@ public final class CapitalIndexedBondTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("CapitalIndexedBondTrade.Builder{");
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
       buf.append("price").append('=').append(JodaBeanUtils.toString(price));

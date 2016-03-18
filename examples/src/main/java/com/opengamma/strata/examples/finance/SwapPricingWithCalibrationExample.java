@@ -232,7 +232,7 @@ public class SwapPricingWithCalibrationExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))

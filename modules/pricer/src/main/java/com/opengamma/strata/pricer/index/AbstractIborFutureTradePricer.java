@@ -64,7 +64,7 @@ public abstract class AbstractIborFutureTradePricer {
    */
   public double referencePrice(ResolvedIborFutureTrade trade, LocalDate valuationDate, double lastMarginPrice) {
     ArgChecker.notNull(valuationDate, "valuation date");
-    LocalDate tradeDate = trade.getTradeInfo().getTradeDate()
+    LocalDate tradeDate = trade.getInfo().getTradeDate()
         .orElseThrow(() -> new IllegalArgumentException("Trade date should be populated"));
     return (tradeDate.equals(valuationDate) ? trade.getPrice() : lastMarginPrice);
   }

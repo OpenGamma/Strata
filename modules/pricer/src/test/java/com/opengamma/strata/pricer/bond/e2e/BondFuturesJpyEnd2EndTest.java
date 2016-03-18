@@ -155,7 +155,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final ResolvedBondFutureTrade FUTURE_TRADE_SEP = ResolvedBondFutureTrade.builder()
       .quantity(QUANTITY)
       .product(FUTURE_PRODUCT_SEP)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final double REF_PRICE_SEP = 151.61;
   // Futures in June 2016
@@ -187,7 +187,7 @@ public class BondFuturesJpyEnd2EndTest {
       .resolve(REF_DATA);
   private static final ResolvedBondFutureTrade FUTURE_TRADE_JUN = ResolvedBondFutureTrade.builder()
       .product(FUTURE_PRODUCT_JUN)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .quantity(QUANTITY)
       .price(123)
       .build();
@@ -217,7 +217,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final ResolvedBondFutureTrade FUTURE_TRADE_MAR = ResolvedBondFutureTrade.builder()
       .quantity(QUANTITY)
       .product(FUTURE_PRODUCT_MAR)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final double REF_PRICE_MAR = 152.25;
   // Curves

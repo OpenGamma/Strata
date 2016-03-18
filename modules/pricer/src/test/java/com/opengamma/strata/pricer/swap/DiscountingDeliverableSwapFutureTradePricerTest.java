@@ -148,7 +148,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final long QUANTITY = 1234L;
   private static final ResolvedDeliverableSwapFutureTrade FUTURE_TRADE = ResolvedDeliverableSwapFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(FUTURE)
       .quantity(QUANTITY)
       .price(TRADE_PRICE)

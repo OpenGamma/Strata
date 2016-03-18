@@ -34,7 +34,7 @@ public class ResolvedCmsTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedCmsTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.of(PREMIUM));
   }
@@ -43,7 +43,7 @@ public class ResolvedCmsTradeTest {
     ResolvedCmsTrade test = ResolvedCmsTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.empty());
   }
@@ -61,7 +61,7 @@ public class ResolvedCmsTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedCmsTrade sut() {
     return ResolvedCmsTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();

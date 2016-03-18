@@ -30,7 +30,7 @@ public class GenericSecurityTradeTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     GenericSecurityTrade test = GenericSecurityTrade.of(TRADE_INFO, SECURITY, QUANTITY, PRICE);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getSecurity(), SECURITY);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -40,7 +40,7 @@ public class GenericSecurityTradeTest {
 
   public void test_builder() {
     GenericSecurityTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getSecurity(), SECURITY);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -61,7 +61,7 @@ public class GenericSecurityTradeTest {
   //-------------------------------------------------------------------------
   static GenericSecurityTrade sut() {
     return GenericSecurityTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .security(SECURITY)
         .quantity(QUANTITY)
         .price(PRICE)
@@ -70,7 +70,7 @@ public class GenericSecurityTradeTest {
 
   static GenericSecurityTrade sut2() {
     return GenericSecurityTrade.builder()
-        .tradeInfo(TradeInfo.EMPTY)
+        .info(TradeInfo.EMPTY)
         .security(SECURITY2)
         .quantity(QUANTITY2)
         .price(PRICE2)

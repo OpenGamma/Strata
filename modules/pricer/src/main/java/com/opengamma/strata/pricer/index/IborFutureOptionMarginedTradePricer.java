@@ -79,7 +79,7 @@ public abstract class IborFutureOptionMarginedTradePricer {
       double lastClosingPrice) {
 
     ResolvedIborFutureOption option = trade.getProduct();
-    Optional<LocalDate> tradeDateOpt = trade.getTradeInfo().getTradeDate();
+    Optional<LocalDate> tradeDateOpt = trade.getInfo().getTradeDate();
     ArgChecker.isTrue(tradeDateOpt.isPresent(), "trade date not present");
     double priceIndex = getProductPricer().marginIndex(option, currentOptionPrice);
     double marginReferencePrice = lastClosingPrice;

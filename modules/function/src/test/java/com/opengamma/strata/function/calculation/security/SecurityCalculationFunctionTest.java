@@ -49,7 +49,7 @@ public class SecurityCalculationFunctionTest {
   private static final int QUANTITY = 20;
   private static final SecurityId SEC_ID = SecurityId.of("OG-Future", "Foo-Womble-Mar14");
   public static final SecurityTrade TRADE = SecurityTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .settlementDate(LocalDate.of(2013, 12, 15))
           .build())
       .securityId(SEC_ID)

@@ -60,7 +60,7 @@ final class BulletPaymentFpmlParserPlugin
     bulletBuilder.value(document.parseCurrencyAmount(paymentEl.getChild("paymentAmount")));
 
     return BulletPaymentTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(bulletBuilder.build())
         .build();
   }

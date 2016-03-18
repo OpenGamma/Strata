@@ -51,7 +51,7 @@ public class GenericSecurityCalculationFunctionTest {
   private static final GenericSecurity FUTURE = GenericSecurity.of(
       SecurityInfo.of(SEC_ID, TICK_SIZE, CurrencyAmount.of(EUR, TICK_VALUE)));
   public static final GenericSecurityTrade TRADE = GenericSecurityTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .settlementDate(LocalDate.of(2013, 12, 15))
           .build())
       .security(FUTURE)

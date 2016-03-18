@@ -44,7 +44,7 @@ public class TradeTokenEvaluatorTest {
         "zone",
         "settlementDate",
         "attributes",
-        "tradeInfo");
+        "info");
     assertThat(tokens).isEqualTo(expected);
   }
 
@@ -81,7 +81,7 @@ public class TradeTokenEvaluatorTest {
         .counterparty(StandardId.of("cpty", "a"))
         .build();
     return GenericSecurityTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .security(security)
         .quantity(123)
         .price(456)

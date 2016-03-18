@@ -105,7 +105,7 @@ public class CapitalIndexedBondSecurityTest {
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
     TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).settlementDate(date(2016, 7, 1)).build();
     CapitalIndexedBondTrade expectedTrade = CapitalIndexedBondTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(PRODUCT)
         .quantity(100)
         .price(123.50)
