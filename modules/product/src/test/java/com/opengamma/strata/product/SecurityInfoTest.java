@@ -29,34 +29,57 @@ public class SecurityInfoTest {
   private static final SecurityId ID2 = SecurityId.of("OG-Test", "Test2");
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.01, CurrencyAmount.of(GBP, 0.01));
   private static final SecurityPriceInfo PRICE_INFO2 = SecurityPriceInfo.of(0.02, CurrencyAmount.of(GBP, 1));
-  private static final ImmutableMap<SecurityInfoType<?>, Object> INFO_MAP = ImmutableMap.of(SecurityInfoType.NAME, "A");
+  private static final ImmutableMap<SecurityAttributeType<?>, Object> INFO_MAP = ImmutableMap.of(SecurityAttributeType.NAME, "A");
 
   //-------------------------------------------------------------------------
-  public void test_of() {
+  public void test_of_priceInfoFields() {
+    SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO.getTickSize(), PRICE_INFO.getTickValue());
+    assertEquals(test.getId(), ID);
+    assertEquals(test.getPriceInfo(), PRICE_INFO);
+    assertEquals(test.getAttributes(), ImmutableMap.of());
+    assertThrowsIllegalArg(() -> test.getAttribute(SecurityAttributeType.NAME));
+    assertEquals(test.findAttribute(SecurityAttributeType.NAME), Optional.empty());
+  }
+
+  public void test_of_priceInfo() {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO);
     assertEquals(test.getId(), ID);
     assertEquals(test.getPriceInfo(), PRICE_INFO);
-    assertEquals(test.getAdditionalInfo(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAdditionalInfo(SecurityInfoType.NAME));
-    assertEquals(test.findAdditionalInfo(SecurityInfoType.NAME), Optional.empty());
+    assertEquals(test.getAttributes(), ImmutableMap.of());
+    assertThrowsIllegalArg(() -> test.getAttribute(SecurityAttributeType.NAME));
+    assertEquals(test.findAttribute(SecurityAttributeType.NAME), Optional.empty());
   }
 
   public void test_of_withAdditionalInfo() {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO)
-        .withAdditionalInfo(SecurityInfoType.NAME, "B")
-        .withAdditionalInfo(SecurityInfoType.NAME, "A");  // overwrites "B"
+        .withAttribute(SecurityAttributeType.NAME, "B")
+        .withAttribute(SecurityAttributeType.NAME, "A");  // overwrites "B"
     assertEquals(test.getId(), ID);
     assertEquals(test.getPriceInfo(), PRICE_INFO);
-    assertEquals(test.getAdditionalInfo(), INFO_MAP);
-    assertEquals(test.getAdditionalInfo(SecurityInfoType.NAME), "A");
-    assertEquals(test.findAdditionalInfo(SecurityInfoType.NAME), Optional.of("A"));
+    assertEquals(test.getAttributes(), INFO_MAP);
+    assertEquals(test.getAttribute(SecurityAttributeType.NAME), "A");
+    assertEquals(test.findAttribute(SecurityAttributeType.NAME), Optional.of("A"));
+  }
+
+  public void test_builder() {
+    SecurityInfo test = SecurityInfo.builder()
+        .id(ID)
+        .priceInfo(PRICE_INFO)
+        .addAttribute(SecurityAttributeType.NAME, "B")
+        .addAttribute(SecurityAttributeType.NAME, "A")  // overwrites "B"
+        .build();
+    assertEquals(test.getId(), ID);
+    assertEquals(test.getPriceInfo(), PRICE_INFO);
+    assertEquals(test.getAttributes(), INFO_MAP);
+    assertEquals(test.getAttribute(SecurityAttributeType.NAME), "A");
+    assertEquals(test.findAttribute(SecurityAttributeType.NAME), Optional.of("A"));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO);
     coverImmutableBean(test);
-    SecurityInfo test2 = SecurityInfo.of(ID2, PRICE_INFO2).withAdditionalInfo(SecurityInfoType.NAME, "A");
+    SecurityInfo test2 = SecurityInfo.of(ID2, PRICE_INFO2).withAttribute(SecurityAttributeType.NAME, "A");
     coverBeanEquals(test, test2);
   }
 

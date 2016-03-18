@@ -10,7 +10,6 @@ import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
@@ -24,6 +23,7 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -99,7 +99,7 @@ public class StirFuturePricingExample {
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Mar15 IMM Ibor Future"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Mar15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))
@@ -116,7 +116,7 @@ public class StirFuturePricingExample {
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Jun15 IMM Ibor Future"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Jun15 IMM Ibor Future")
             .counterparty(StandardId.of("example", "A"))
             .tradeDate(LocalDate.of(2014, 9, 12))
             .settlementDate(LocalDate.of(2014, 9, 14))

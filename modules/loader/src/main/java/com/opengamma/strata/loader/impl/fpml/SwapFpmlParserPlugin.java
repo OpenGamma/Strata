@@ -33,7 +33,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
@@ -102,7 +102,7 @@ final class SwapFpmlParserPlugin
     // rejected elements:
     //  'swapStream/calculationPeriodAmount/calculation/fxLinkedNotionalSchedule'
     //  'swapStream/calculationPeriodAmount/calculation/futureValueNotional'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement swapEl = tradeEl.getChild("swap");
     ImmutableList<XmlElement> legEls = swapEl.getChildren("swapStream");
     ImmutableList.Builder<SwapLeg> legsBuilder = ImmutableList.builder();

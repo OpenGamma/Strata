@@ -36,7 +36,7 @@ import com.opengamma.strata.collect.Messages;
  * This provides common information about a security.
  * This includes the identifier, information about the price and an extensible data map.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class SecurityInfo
     implements ImmutableBean, Serializable {
 
@@ -62,12 +62,13 @@ public final class SecurityInfo
   @PropertyDefinition(validate = "notNull")
   private final SecurityPriceInfo priceInfo;
   /**
-   * The additional security information.
+   * The security attributes.
    * <p>
-   * This stores additional information for the security.
+   * Security attributes, provide the ability to associate arbitrary information
+   * with a security in a key-value map.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<SecurityInfoType<?>, Object> additionalInfo;
+  private final ImmutableMap<SecurityAttributeType<?>, Object> attributes;
 
   //-------------------------------------------------------------------------
   /**
@@ -77,8 +78,8 @@ public final class SecurityInfo
    * the tick size and tick value, setting the contract size to 1.
    * <p>
    * A {@code SecurityInfo} also contains a hash map of additional information,
-   * keyed by {@link SecurityInfoType}. This hash map may contain anything
-   * of interest, and is populated using {@link #withAdditionalInfo(SecurityInfoType, Object)}.
+   * keyed by {@link SecurityAttributeType}. This hash map may contain anything
+   * of interest, and is populated using {@link #withAttribute(SecurityAttributeType, Object)}.
    * 
    * @param id  the security identifier
    * @param tickSize  the size of each tick, not negative or zero
@@ -93,8 +94,8 @@ public final class SecurityInfo
    * Obtains an instance from the identifier and pricing info.
    * <p>
    * A {@code SecurityInfo} also contains a hash map of additional information,
-   * keyed by {@link SecurityInfoType}. This hash map may contain anything
-   * of interest, and is populated using {@link #withAdditionalInfo(SecurityInfoType, Object)}.
+   * keyed by {@link SecurityAttributeType}. This hash map may contain anything
+   * of interest, and is populated using {@link #withAttribute(SecurityAttributeType, Object)}.
    * 
    * @param id  the security identifier
    * @param priceInfo  the information about the price
@@ -104,57 +105,66 @@ public final class SecurityInfo
     return new SecurityInfo(id, priceInfo, ImmutableMap.of());
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * 
+   * @return the builder, not null
+   */
+  public static SecurityInfoBuilder builder() {
+    return new SecurityInfoBuilder();
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets additional information about the security.
+   * Gets the attribute associated with the specified type.
    * <p>
-   * This method obtains the specified additional information.
-   * This allows additional information about a security to be obtained if available.
+   * This method obtains the specified attribute.
+   * This allows an attribute about a security to be obtained if available.
    * <p>
-   * If the info is not found, an exception is thrown.
+   * If the attribute is not found, an exception is thrown.
    * 
-   * @param <T>  the type of the info
+   * @param <T>  the type of the result
    * @param type  the type to find
-   * @return the security information
+   * @return the attribute value
    * @throws IllegalArgumentException if the information is not found
    */
-  public <T> T getAdditionalInfo(SecurityInfoType<T> type) {
-    return findAdditionalInfo(type).orElseThrow(() -> new IllegalArgumentException(
-        Messages.format("Security info not found for type '{}'", type)));
+  public <T> T getAttribute(SecurityAttributeType<T> type) {
+    return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
+        Messages.format("Attribute not found for type '{}'", type)));
   }
 
   /**
-   * Finds additional information about the security.
+   * Finds the attribute associated with the specified type.
    * <p>
-   * This method obtains the specified additional information.
-   * This allows additional information about a security to be obtained if available.
+   * This method obtains the specified attribute.
+   * This allows an attribute about a security to be obtained if available.
    * <p>
-   * If the info is not found, optional empty is returned.
+   * If the attribute is not found, optional empty is returned.
    * 
-   * @param <T>  the type of the info
+   * @param <T>  the type of the result
    * @param type  the type to find
-   * @return the security information
+   * @return the attribute value
    */
   @SuppressWarnings("unchecked")
-  public <T> Optional<T> findAdditionalInfo(SecurityInfoType<T> type) {
-    return Optional.ofNullable((T) additionalInfo.get(type));
+  public <T> Optional<T> findAttribute(SecurityAttributeType<T> type) {
+    return Optional.ofNullable((T) attributes.get(type));
   }
 
   /**
-   * Returns a copy of this instance with additional information added.
+   * Returns a copy of this instance with attribute added.
    * <p>
-   * This returns a new instance with the specified additional information added.
-   * The additional information is added using {@code Map.put(type, value)} semantics.
+   * This returns a new instance with the specified attribute added.
+   * The attribute is added using {@code Map.put(type, value)} semantics.
    * 
    * @param <T> the type of the value
    * @param type  the type providing meaning to the value
    * @param value  the value
-   * @return a new instance based on this one with additional information added
+   * @return a new instance based on this one with the attribute added
    */
   @SuppressWarnings("unchecked")
-  public <T> SecurityInfo withAdditionalInfo(SecurityInfoType<T> type, T value) {
+  public <T> SecurityInfo withAttribute(SecurityAttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
-    Map<SecurityInfoType<?>, Object> infoMap = new HashMap<>(additionalInfo);
+    Map<SecurityAttributeType<?>, Object> infoMap = new HashMap<>(attributes);
     infoMap.put(type, value);
     return new SecurityInfo(id, priceInfo, infoMap);
   }
@@ -178,16 +188,22 @@ public final class SecurityInfo
    */
   private static final long serialVersionUID = 1L;
 
-  private SecurityInfo(
+  /**
+   * Creates an instance.
+   * @param id  the value of the property, not null
+   * @param priceInfo  the value of the property, not null
+   * @param attributes  the value of the property, not null
+   */
+  SecurityInfo(
       SecurityId id,
       SecurityPriceInfo priceInfo,
-      Map<SecurityInfoType<?>, Object> additionalInfo) {
+      Map<SecurityAttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(id, "id");
     JodaBeanUtils.notNull(priceInfo, "priceInfo");
-    JodaBeanUtils.notNull(additionalInfo, "additionalInfo");
+    JodaBeanUtils.notNull(attributes, "attributes");
     this.id = id;
     this.priceInfo = priceInfo;
-    this.additionalInfo = ImmutableMap.copyOf(additionalInfo);
+    this.attributes = ImmutableMap.copyOf(attributes);
   }
 
   @Override
@@ -236,13 +252,14 @@ public final class SecurityInfo
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional security information.
+   * Gets the security attributes.
    * <p>
-   * This stores additional information for the security.
+   * Security attributes, provide the ability to associate arbitrary information
+   * with a security in a key-value map.
    * @return the value of the property, not null
    */
-  public ImmutableMap<SecurityInfoType<?>, Object> getAdditionalInfo() {
-    return additionalInfo;
+  public ImmutableMap<SecurityAttributeType<?>, Object> getAttributes() {
+    return attributes;
   }
 
   //-----------------------------------------------------------------------
@@ -255,7 +272,7 @@ public final class SecurityInfo
       SecurityInfo other = (SecurityInfo) obj;
       return JodaBeanUtils.equal(id, other.id) &&
           JodaBeanUtils.equal(priceInfo, other.priceInfo) &&
-          JodaBeanUtils.equal(additionalInfo, other.additionalInfo);
+          JodaBeanUtils.equal(attributes, other.attributes);
     }
     return false;
   }
@@ -265,7 +282,7 @@ public final class SecurityInfo
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(id);
     hash = hash * 31 + JodaBeanUtils.hashCode(priceInfo);
-    hash = hash * 31 + JodaBeanUtils.hashCode(additionalInfo);
+    hash = hash * 31 + JodaBeanUtils.hashCode(attributes);
     return hash;
   }
 
@@ -275,7 +292,7 @@ public final class SecurityInfo
     buf.append("SecurityInfo{");
     buf.append("id").append('=').append(id).append(',').append(' ');
     buf.append("priceInfo").append('=').append(priceInfo).append(',').append(' ');
-    buf.append("additionalInfo").append('=').append(JodaBeanUtils.toString(additionalInfo));
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();
   }
@@ -301,11 +318,11 @@ public final class SecurityInfo
     private final MetaProperty<SecurityPriceInfo> priceInfo = DirectMetaProperty.ofImmutable(
         this, "priceInfo", SecurityInfo.class, SecurityPriceInfo.class);
     /**
-     * The meta-property for the {@code additionalInfo} property.
+     * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> additionalInfo = DirectMetaProperty.ofImmutable(
-        this, "additionalInfo", SecurityInfo.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<SecurityAttributeType<?>, Object>> attributes = DirectMetaProperty.ofImmutable(
+        this, "attributes", SecurityInfo.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -313,7 +330,7 @@ public final class SecurityInfo
         this, null,
         "id",
         "priceInfo",
-        "additionalInfo");
+        "attributes");
 
     /**
      * Restricted constructor.
@@ -328,8 +345,8 @@ public final class SecurityInfo
           return id;
         case -2126070377:  // priceInfo
           return priceInfo;
-        case -974297739:  // additionalInfo
-          return additionalInfo;
+        case 405645655:  // attributes
+          return attributes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -367,11 +384,11 @@ public final class SecurityInfo
     }
 
     /**
-     * The meta-property for the {@code additionalInfo} property.
+     * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<SecurityInfoType<?>, Object>> additionalInfo() {
-      return additionalInfo;
+    public MetaProperty<ImmutableMap<SecurityAttributeType<?>, Object>> attributes() {
+      return attributes;
     }
 
     //-----------------------------------------------------------------------
@@ -382,8 +399,8 @@ public final class SecurityInfo
           return ((SecurityInfo) bean).getId();
         case -2126070377:  // priceInfo
           return ((SecurityInfo) bean).getPriceInfo();
-        case -974297739:  // additionalInfo
-          return ((SecurityInfo) bean).getAdditionalInfo();
+        case 405645655:  // attributes
+          return ((SecurityInfo) bean).getAttributes();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -407,7 +424,7 @@ public final class SecurityInfo
 
     private SecurityId id;
     private SecurityPriceInfo priceInfo;
-    private Map<SecurityInfoType<?>, Object> additionalInfo = ImmutableMap.of();
+    private Map<SecurityAttributeType<?>, Object> attributes = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -423,8 +440,8 @@ public final class SecurityInfo
           return id;
         case -2126070377:  // priceInfo
           return priceInfo;
-        case -974297739:  // additionalInfo
-          return additionalInfo;
+        case 405645655:  // attributes
+          return attributes;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -440,8 +457,8 @@ public final class SecurityInfo
         case -2126070377:  // priceInfo
           this.priceInfo = (SecurityPriceInfo) newValue;
           break;
-        case -974297739:  // additionalInfo
-          this.additionalInfo = (Map<SecurityInfoType<?>, Object>) newValue;
+        case 405645655:  // attributes
+          this.attributes = (Map<SecurityAttributeType<?>, Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -478,7 +495,7 @@ public final class SecurityInfo
       return new SecurityInfo(
           id,
           priceInfo,
-          additionalInfo);
+          attributes);
     }
 
     //-----------------------------------------------------------------------
@@ -488,7 +505,7 @@ public final class SecurityInfo
       buf.append("SecurityInfo.Builder{");
       buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
       buf.append("priceInfo").append('=').append(JodaBeanUtils.toString(priceInfo)).append(',').append(' ');
-      buf.append("additionalInfo").append('=').append(JodaBeanUtils.toString(additionalInfo));
+      buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
       buf.append('}');
       return buf.toString();
     }

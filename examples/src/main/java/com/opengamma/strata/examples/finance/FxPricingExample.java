@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -30,6 +29,7 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
@@ -109,7 +109,7 @@ public class FxPricingExample {
         .product(fx)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 fwd"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -123,7 +123,7 @@ public class FxPricingExample {
         .product(fx)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .attributes(ImmutableMap.of("description", "USD 15,000/GBP @ 1.62 fwd"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "USD 15,000/GBP @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankB"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -138,7 +138,7 @@ public class FxPricingExample {
         .product(swap)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
-            .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 swap"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 swap")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -156,7 +156,7 @@ public class FxPricingExample {
         .product(bp)
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "4"))
-            .attributes(ImmutableMap.of("description", "Bullet payment GBP 20,000"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Bullet payment GBP 20,000")
             .counterparty(StandardId.of("example", "BigBankC"))
             .settlementDate(LocalDate.of(2014, 9, 16))
             .build())
