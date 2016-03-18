@@ -33,7 +33,6 @@ public class SabrExtrapolationRightFunctionTest {
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final SabrExtrapolationRightFunction SABR_EXTRAPOLATION =
       SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, SABR_DATA, CUT_OFF_STRIKE, MU);
-//  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final SabrHaganVolatilityFunctionProvider SABR_FUNCTION = SabrHaganVolatilityFunctionProvider.DEFAULT;
   private static final double TOLERANCE_PRICE = 1.0E-10;
 

@@ -102,8 +102,6 @@ public final class BlackFormulaRepository {
     double res = sign * (first - second);
     return Math.max(0., res);
   }
-  
-
 
   //-------------------------------------------------------------------------
   /**
@@ -151,16 +149,12 @@ public final class BlackFormulaRepository {
     if (bFwd && bStr) {
       log.info("(large value)/(large value) ambiguous");
       double price = isCall ? (forward >= strike ? forward : 0d) : (strike >= forward ? strike : 0d); // ???
-      double[] derivatives = new double[4];
-      return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives)); // ??
+      return ValueDerivatives.of(price, DoubleArray.filled(4)); // ??
     }
     if (sigmaRootT < SMALL) {
-      boolean isItm = (sign * (forward - strike))>0;
+      boolean isItm = (sign * (forward - strike)) > 0;
       double price = isItm ? sign * (forward - strike) : 0d;
-      double[] derivatives = new double[4];
-      derivatives[0] = isItm ? sign : 0d;
-      derivatives[1] = isItm ? -sign : 0d;
-      return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives));
+      return ValueDerivatives.of(price, DoubleArray.of(isItm ? sign : 0d, isItm ? -sign : 0d, 0d, 0d));
     }
     if (Math.abs(forward - strike) < SMALL || bSigRt) {
       d1 = 0.5 * sigmaRootT;
@@ -174,13 +168,13 @@ public final class BlackFormulaRepository {
     double nS = NORMAL.getCDF(sign * d2);
     double first = nF == 0d ? 0d : forward * nF;
     double second = nS == 0d ? 0d : strike * nS;
-    double res = sign * (first - second);    
+    double res = sign * (first - second);
     double price = Math.max(0.0d, res);
-    
+
     // Backward sweep
     double resBar = 1.0;
     double firstBar = sign * resBar;
-    double secondBar = - sign * resBar;
+    double secondBar = -sign * resBar;
     double forwardBar = nF * firstBar;
     double strikeBar = nS * secondBar;
     double nFBar = forward * firstBar;
@@ -188,13 +182,10 @@ public final class BlackFormulaRepository {
     // Implementation Note: d2Bar = 0; no need to implement it.
     // Methodology Note: d2Bar is optimal exercise boundary. The derivative at the optimal point is 0.
     double sigmaRootTBar = d1Bar;
-    double lognormalVolBar =  Math.sqrt(timeToExpiry) * sigmaRootTBar;
+    double lognormalVolBar = Math.sqrt(timeToExpiry) * sigmaRootTBar;
     double timeToExpiryBar = 0.5 / Math.sqrt(timeToExpiry) * lognormalVol * sigmaRootTBar;
-    return ValueDerivatives.of(price, 
-        DoubleArray.ofUnsafe(new double[] {forwardBar, strikeBar, timeToExpiryBar, lognormalVolBar}));
+    return ValueDerivatives.of(price, DoubleArray.of(forwardBar, strikeBar, timeToExpiryBar, lognormalVolBar));
   }
-  
-
 
   /**
    * Computes the price without numeraire and its derivatives of the first and second order.
@@ -223,7 +214,7 @@ public final class BlackFormulaRepository {
    * @param isCall  true for call, false for put
    * @return the forward price and its derivatives 
    */
-  public static Pair<ValueDerivatives, double[][]>  priceAdjoint2(
+  public static Pair<ValueDerivatives, double[][]> priceAdjoint2(
       double forward,
       double strike,
       double timeToExpiry,
@@ -249,7 +240,6 @@ public final class BlackFormulaRepository {
       p = discountFactor * omega * (forward * d1 - strike * d2);
     }
     // Implementation Note: Backward sweep.
-    double[] bsD = new double[4];
     double[][] bsD2 = new double[3][3];
     double pBar = 1.0;
     double density1 = 0.0;
@@ -271,12 +261,9 @@ public final class BlackFormulaRepository {
       sqrtthetaBar = lognormalVol * volPeriodBar;
       timeToExpiryBar = 0.5 / sqrttheta * sqrtthetaBar;
     }
-    bsD[0] = forwardBar;
-    bsD[1] = strikeBar;
-    bsD[2] = timeToExpiryBar;
-    bsD[3] = lognormalVolBar;
+    DoubleArray bsD = DoubleArray.of(forwardBar, strikeBar, timeToExpiryBar, lognormalVolBar);
     if (strike < NEAR_ZERO || sqrttheta < NEAR_ZERO) {
-      return Pair.of(ValueDerivatives.of(p, DoubleArray.ofUnsafe(bsD)), bsD2);
+      return Pair.of(ValueDerivatives.of(p, bsD), bsD2);
     }
     // Backward sweep: second derivative
     double d2Bar = -discountFactor * omega * strike;
@@ -315,7 +302,7 @@ public final class BlackFormulaRepository {
     bsD2[1][2] = strikeVolBar2;
     bsD2[2][1] = strikeVolBar2;
     bsD2[1][1] = strikeStrikeBar2;
-    return Pair.of(ValueDerivatives.of(p, DoubleArray.ofUnsafe(bsD)), bsD2);
+    return Pair.of(ValueDerivatives.of(p, bsD), bsD2);
   }
 
   //-------------------------------------------------------------------------
@@ -1391,7 +1378,7 @@ public final class BlackFormulaRepository {
     derivatives[3] = part1 * (-sqrtt * omega * n + volatility * time) * part1Bar;
     return strike;
   }
-  
+
   /**
    * Compute the normal implied volatility from a normal volatility using an approximate initial guess and a root-finder.
    * <p>
@@ -1424,7 +1411,7 @@ public final class BlackFormulaRepository {
     };
     return ROOT_FINDER.getRoot(func, guess);
   }
-  
+
   /**
    * Compute the normal implied volatility from a normal volatility using an approximate explicit formula. 
    * <p>

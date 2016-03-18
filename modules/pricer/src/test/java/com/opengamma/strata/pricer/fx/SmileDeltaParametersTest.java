@@ -90,17 +90,17 @@ public class SmileDeltaParametersTest {
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      ValueDerivatives dPut = BlackFormulaRepository
-          .priceAdjoint(FORWARD, strike[loopdelta], TIME_TO_EXPIRY, volatility.get(loopdelta), false);
+      ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
+          FORWARD, strike[loopdelta], TIME_TO_EXPIRY, volatility.get(loopdelta), false);
       assertEquals("Strike: Put " + loopdelta, dPut.getDerivative(0), -DELTA.get(loopdelta), 1e-8);
-      ValueDerivatives dCall = BlackFormulaRepository
-          .priceAdjoint(FORWARD, strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, volatility.get(2 * nbDelta - loopdelta), true);
+      ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
+          FORWARD, strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, volatility.get(2 * nbDelta - loopdelta), true);
       assertEquals("Strike: Call " + loopdelta, dCall.getDerivative(0), DELTA.get(loopdelta), 1e-8);
     }
-    ValueDerivatives dPut = BlackFormulaRepository
-        .priceAdjoint(FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), false);
-    ValueDerivatives dCall =  BlackFormulaRepository
-        .priceAdjoint(FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
+    ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
+        FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), false);
+    ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
+        FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
     assertEquals("Strike: ATM", dCall.getDerivative(0) + dPut.getDerivative(0), 0.0, 1e-8);
   }
 

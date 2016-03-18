@@ -43,10 +43,6 @@ public class SabrExtrapolationRightFunction {
    */
   private static final SVDecompositionCommons SVD = new SVDecompositionCommons();
   /**
-   * Black function used.
-   */
-//  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /**
    * Value below which the time-to-expiry is considered to be 0 and the price of the fitting parameters fit a price of 0 (OTM).
    */
   private static final double SMALL_EXPIRY = 1.0E-6;
@@ -211,8 +207,8 @@ public class SabrExtrapolationRightFunction {
     // Uses Hagan et al SABR function.
     if (strike <= cutOffStrike) {
       ValueDerivatives volatilityAdjoint = sabrFunction.getVolatilityAdjoint(forward, strike, timeToExpiry, sabrData);
-      ValueDerivatives bsAdjoint = BlackFormulaRepository
-          .priceAdjoint(forward, strike, timeToExpiry, volatilityAdjoint.getValue(), putCall.equals(PutCall.CALL));
+      ValueDerivatives bsAdjoint = BlackFormulaRepository.priceAdjoint(
+          forward, strike, timeToExpiry, volatilityAdjoint.getValue(), putCall.equals(PutCall.CALL));
       return bsAdjoint.getDerivative(1) + bsAdjoint.getDerivative(3) * volatilityAdjoint.getDerivative(1);
     }
     // Uses extrapolation for call.
@@ -516,8 +512,8 @@ public class SabrExtrapolationRightFunction {
       double vD2Kp = (vDpP[1] - vD[1]) / paramShift;
       double vD3KKa = (vD2pP[1][1] - vD2[1][1]) / paramShift;
       pdSabr[loopparam][1] = (bsD2[1][2] + bsD2[2][2] * vD[1]) * vD[paramIndex] + bsD[3] * vD2Kp;
-      Pair<ValueDerivatives, double[][]> pa2VP = BlackFormulaRepository
-          .priceAdjoint2(forward, cutOffStrike, timeToExpiry, volatilityK * (1d + shift), true);
+      Pair<ValueDerivatives, double[][]> pa2VP = BlackFormulaRepository.priceAdjoint2(
+          forward, cutOffStrike, timeToExpiry, volatilityK * (1d + shift), true);
       double[][] bsD2VP = pa2VP.getSecond();
       double bsD3sss = (bsD2VP[2][2] - bsD2[2][2]) / (volatilityK * shift);
       double bsD3sKK = (bsD2VP[1][1] - bsD2[1][1]) / (volatilityK * shift);

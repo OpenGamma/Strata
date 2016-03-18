@@ -3240,7 +3240,7 @@ public class BlackFormulaRepositoryTest {
       double resP1 = BlackFormulaRepository.dualGamma(1.e12, 1.e12, 1.e24, vol);
       double resC4 = BlackFormulaRepository.dualGamma(1.e12, 1.e-12, 1.e-24, vol);
       double resC5 = BlackFormulaRepository.dualGamma(FORWARD, FORWARD, 1.e-24, vol); // / "* (1. + 1.e-12) "
-                                                                                            // removed
+                                                                                      // removed
       double resP2 = BlackFormulaRepository.dualGamma(1.e12, 1.e12, 1.e-24, vol);
 
       double refC1 = BlackFormulaRepository.dualGamma(0., 0., 0., vol);
@@ -3647,7 +3647,7 @@ public class BlackFormulaRepositoryTest {
       double resP1 = BlackFormulaRepository.crossGamma(1.e12, 1.e12, 1.e24, vol);
       double resC4 = BlackFormulaRepository.crossGamma(1.e12, 1.e-12, 1.e-24, vol);
       double resC5 = BlackFormulaRepository.crossGamma(FORWARD, FORWARD, 1.e-24, vol); // / "* (1. + 1.e-12) "
-                                                                                             // removed
+                                                                                       // removed
       double resP2 = BlackFormulaRepository.crossGamma(1.e12, 1.e12, 1.e-24, vol);
 
       double refC1 = BlackFormulaRepository.crossGamma(0., 0., 0., vol);
@@ -8717,7 +8717,7 @@ public class BlackFormulaRepositoryTest {
       }
     };
   }
-  
+
   private static final int N = 10;
   private static final double[] STRIKES = new double[N];
   private static final double[] STRIKES_ATM = new double[N];
@@ -8765,14 +8765,10 @@ public class BlackFormulaRepositoryTest {
           .price(FORWARD, strikes[i], TIME_TO_EXPIRY, ivBlackComputed, true);
       double priceNormal = NormalFormulaRepository
           .price(FORWARD, strikes[i], TIME_TO_EXPIRY, SIGMA_NORMAL[i], CALL);
-      assertEquals("check " + i, 
+      assertEquals("check " + i,
           priceNormal, priceBlackComputed, TOLERANCE_PRICE);
     }
   }
-  
-  
-
-
 
   private static final double T = 4.5;
   private static final double F = 104;
@@ -8803,9 +8799,9 @@ public class BlackFormulaRepositoryTest {
     double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
     assertEquals(derivativeK_FD, priceAdjoint.getDerivative(1), TOLERANCE_PRICE_DELTA);
     // Derivative time.
-    double deltaT = 1.0/ 365.0;
+    double deltaT = 1.0 / 365.0;
     double priceTP = BlackFormulaRepository.price(F, F - DELTA_F, T + deltaT, SIGMA, true);
-    double priceTM = BlackFormulaRepository.price(F, F - DELTA_F, T - deltaT, SIGMA , true);
+    double priceTM = BlackFormulaRepository.price(F, F - DELTA_F, T - deltaT, SIGMA, true);
     double derivativeT_FD = (priceTP - priceTM) / (2 * deltaT);
     assertEquals(derivativeT_FD, priceAdjoint.getDerivative(2), TOLERANCE_PRICE_DELTA);
     // Derivative volatility.
@@ -8815,7 +8811,7 @@ public class BlackFormulaRepositoryTest {
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(derivativeV_FD, priceAdjoint.getDerivative(3), TOLERANCE_PRICE_DELTA);
   }
-  
+
   private static final double TOLERANCE_1 = 1.0E-10;
   private static final double TOLERANCE_2_FWD_FWD = 1.0E-6;
   private static final double TOLERANCE_2_VOL_VOL = 1.0E-6;
@@ -8846,13 +8842,16 @@ public class BlackFormulaRepositoryTest {
   private void testPriceAdjointSecondOrder(double forward, double numeraire, double sigma, double strike, double time,
       PutCall putCall, int i) {
     // Price
-    ValueDerivatives priceAdjoint = BlackFormulaRepository.priceAdjoint(forward, strike, time, sigma, putCall.equals(PutCall.CALL));
-    Pair<ValueDerivatives, double[][]> bs = BlackFormulaRepository.priceAdjoint2(forward, strike, time, sigma, putCall.equals(PutCall.CALL));
+    ValueDerivatives priceAdjoint =
+        BlackFormulaRepository.priceAdjoint(forward, strike, time, sigma, putCall.equals(PutCall.CALL));
+    Pair<ValueDerivatives, double[][]> bs =
+        BlackFormulaRepository.priceAdjoint2(forward, strike, time, sigma, putCall.equals(PutCall.CALL));
     double[][] bsD2 = bs.getSecond();
     assertEquals("AD Second order: price", priceAdjoint.getValue(), bs.getFirst().getValue(), TOLERANCE_1);
     // First derivative
     for (int loopder = 0; loopder < 3; loopder++) {
-      assertEquals("AD Second order: 1st", priceAdjoint.getDerivatives().get(loopder), bs.getFirst().getDerivative(loopder), TOLERANCE_1);
+      assertEquals("AD Second order: 1st", priceAdjoint.getDerivatives().get(loopder), bs.getFirst().getDerivative(loopder),
+          TOLERANCE_1);
     }
     // Second derivative
     // Derivative forward-forward.

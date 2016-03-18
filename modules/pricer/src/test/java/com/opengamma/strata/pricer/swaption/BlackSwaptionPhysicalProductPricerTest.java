@@ -148,7 +148,6 @@ public class BlackSwaptionPhysicalProductPricerTest {
       .build()
       .resolve(REF_DATA);
 
-//  private static final BlackPriceFunction BLACK = new BlackPriceFunction();
   private static final BlackSwaptionPhysicalProductPricer PRICER_SWAPTION_BLACK =
       BlackSwaptionPhysicalProductPricer.DEFAULT;
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
