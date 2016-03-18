@@ -2,7 +2,7 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.index.IborFutureTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>example~A</counterparty>
     <tradeDate>2014-09-12</tradeDate>
@@ -10,7 +10,7 @@
     <attributes>
      <entry key="description">Mar15 IMM Ibor Future</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product type="com.opengamma.strata.product.index.IborFuture">
     <securityId>OG-Future~Ibor-USD-LIBOR-3M-Mar15</securityId>
     <currency>USD</currency>
@@ -24,7 +24,7 @@
    <price>0.9997</price>
   </item>
   <item type="IborFutureTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>example~A</counterparty>
     <tradeDate>2014-09-12</tradeDate>
@@ -32,7 +32,7 @@
     <attributes>
      <entry key="description">Jun15 IMM Ibor Future</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product type="IborFuture">
     <securityId>OG-Future~Ibor-USD-LIBOR-3M-Jun15</securityId>
     <currency>USD</currency>

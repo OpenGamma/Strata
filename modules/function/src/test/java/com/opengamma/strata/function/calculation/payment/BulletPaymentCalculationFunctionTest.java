@@ -62,7 +62,7 @@ public class BulletPaymentCalculationFunctionTest {
       .date(AdjustableDate.of(date(2015, 6, 30)))
       .build();
   public static final BulletPaymentTrade TRADE = BulletPaymentTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
       .product(PRODUCT)

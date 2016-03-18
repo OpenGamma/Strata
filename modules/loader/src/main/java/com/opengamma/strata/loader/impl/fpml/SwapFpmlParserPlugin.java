@@ -148,7 +148,7 @@ final class SwapFpmlParserPlugin
       }
     }
     return SwapTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(Swap.of(legsBuilder.build()))
         .build();
   }

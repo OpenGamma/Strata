@@ -32,7 +32,7 @@ public class ResolvedDeliverableSwapFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedDeliverableSwapFutureTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -51,7 +51,7 @@ public class ResolvedDeliverableSwapFutureTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedDeliverableSwapFutureTrade sut() {
     return ResolvedDeliverableSwapFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

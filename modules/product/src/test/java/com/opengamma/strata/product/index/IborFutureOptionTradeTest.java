@@ -37,7 +37,7 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     IborFutureOptionTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -48,7 +48,7 @@ public class IborFutureOptionTradeTest {
   public void test_resolve() {
     IborFutureOptionTrade test = sut();
     ResolvedIborFutureOptionTrade resolved = test.resolve(REF_DATA);
-    assertEquals(resolved.getTradeInfo(), TRADE_INFO);
+    assertEquals(resolved.getInfo(), TRADE_INFO);
     assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
     assertEquals(resolved.getQuantity(), QUANTITY);
     assertEquals(resolved.getPrice(), PRICE);
@@ -67,7 +67,7 @@ public class IborFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   static IborFutureOptionTrade sut() {
     return IborFutureOptionTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

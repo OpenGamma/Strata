@@ -2,14 +2,14 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.deposit.TermDepositTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-12-16</settlementDate>
     <attributes>
      <entry key="description">Deposit 10M at 3%</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <buySell>Buy</buySell>
     <currency>USD</currency>
@@ -25,14 +25,14 @@
    </product>
   </item>
   <item type="TermDepositTrade">
-   <tradeInfo>
+   <info>
     <id>example~2</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2015-12-16</settlementDate>
     <attributes>
      <entry key="description">Deposit 5M at 3.8%</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <buySell>Buy</buySell>
     <currency>USD</currency>

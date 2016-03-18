@@ -69,7 +69,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE_TD = ResolvedIborFutureOptionTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(VAL_DATE)
           .build())
       .product(OPTION)
@@ -77,7 +77,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
       .price(TRADE_PRICE)
       .build();
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(TRADE_DATE)
           .build())
       .product(OPTION)

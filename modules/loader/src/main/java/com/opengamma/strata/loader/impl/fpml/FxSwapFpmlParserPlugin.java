@@ -50,7 +50,7 @@ final class FxSwapFpmlParserPlugin
     FxSingle nearLeg = parseLeg(fxEl.getChild("nearLeg"), document, tradeInfoBuilder);
     FxSingle farLeg = parseLeg(fxEl.getChild("farLeg"), document, tradeInfoBuilder);
     return FxSwapTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(FxSwap.of(nearLeg, farLeg))
         .build();
   }

@@ -38,7 +38,7 @@ public class DeliverableSwapFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     DeliverableSwapFutureTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -50,7 +50,7 @@ public class DeliverableSwapFutureTradeTest {
   public void test_resolve() {
     DeliverableSwapFutureTrade test = sut();
     ResolvedDeliverableSwapFutureTrade expected = ResolvedDeliverableSwapFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
         .price(PRICE)
@@ -71,7 +71,7 @@ public class DeliverableSwapFutureTradeTest {
   //-------------------------------------------------------------------------
   static DeliverableSwapFutureTrade sut() {
     return DeliverableSwapFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

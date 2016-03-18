@@ -114,7 +114,7 @@ public class TermDepositPricingExample {
 
     return TermDepositTrade.builder()
         .product(td)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Deposit 10M at 3%"))
             .counterparty(StandardId.of("example", "A"))
@@ -138,7 +138,7 @@ public class TermDepositPricingExample {
 
     return TermDepositTrade.builder()
         .product(td)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "Deposit 5M at 3.8%"))
             .counterparty(StandardId.of("example", "A"))

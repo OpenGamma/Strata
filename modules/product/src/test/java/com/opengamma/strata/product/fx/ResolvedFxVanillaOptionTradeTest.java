@@ -38,7 +38,7 @@ public class ResolvedFxVanillaOptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxVanillaOptionTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), OPTION);
     assertEquals(test.getPremium(), PREMIUM);
   }
@@ -56,7 +56,7 @@ public class ResolvedFxVanillaOptionTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxVanillaOptionTrade sut() {
     return ResolvedFxVanillaOptionTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(OPTION)
         .premium(PREMIUM)
         .build();

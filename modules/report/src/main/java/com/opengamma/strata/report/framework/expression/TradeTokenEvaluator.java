@@ -35,7 +35,7 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
     MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
     if (trade instanceof FinanceTrade) {
       FinanceTrade ftrade = (FinanceTrade) trade;
-      return Sets.union(metaBean.metaPropertyMap().keySet(), ftrade.getTradeInfo().propertyNames());
+      return Sets.union(metaBean.metaPropertyMap().keySet(), ftrade.getInfo().propertyNames());
     }
     return metaBean.metaPropertyMap().keySet();
   }
@@ -60,12 +60,12 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
     // trade info
     if (trade instanceof FinanceTrade) {
       FinanceTrade ftrade = (FinanceTrade) trade;
-      Optional<String> tradeInfoPropertyName = ftrade.getTradeInfo().propertyNames().stream()
+      Optional<String> tradeInfoPropertyName = ftrade.getInfo().propertyNames().stream()
           .filter(p -> p.equalsIgnoreCase(firstToken))
           .findFirst();
 
       if (tradeInfoPropertyName.isPresent()) {
-        Object propertyValue = ftrade.getTradeInfo().property(tradeInfoPropertyName.get()).get();
+        Object propertyValue = ftrade.getInfo().property(tradeInfoPropertyName.get()).get();
 
         return propertyValue != null ?
             EvaluationResult.success(propertyValue, remainingTokens) :

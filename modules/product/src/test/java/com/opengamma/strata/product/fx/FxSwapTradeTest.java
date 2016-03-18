@@ -31,12 +31,12 @@ public class FxSwapTradeTest {
   public void test_of() {
     FxSwapTrade test = FxSwapTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     FxSwapTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -61,7 +61,7 @@ public class FxSwapTradeTest {
   static FxSwapTrade sut() {
     return FxSwapTrade.builder()
         .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
   }
 

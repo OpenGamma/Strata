@@ -100,7 +100,7 @@ final class FraFpmlParserPlugin
     fraBuilder.discounting(FraDiscountingMethod.of(fraEl.getChild("fraDiscounting").getContent()));
 
     return FraTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(fraBuilder.build())
         .build();
   }

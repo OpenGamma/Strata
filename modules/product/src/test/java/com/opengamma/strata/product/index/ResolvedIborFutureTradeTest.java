@@ -32,7 +32,7 @@ public class ResolvedIborFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedIborFutureTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -51,7 +51,7 @@ public class ResolvedIborFutureTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedIborFutureTrade sut() {
     return ResolvedIborFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

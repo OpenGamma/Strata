@@ -34,13 +34,13 @@ public class ResolvedSwaptionTradeTest {
   public void test_of() {
     ResolvedSwaptionTrade test = ResolvedSwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
     assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     ResolvedSwaptionTrade test = sut();
     assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -57,7 +57,7 @@ public class ResolvedSwaptionTradeTest {
   static ResolvedSwaptionTrade sut() {
     return ResolvedSwaptionTrade.builder()
         .product(SWAPTION)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .premium(PREMIUM)
         .build();
   }

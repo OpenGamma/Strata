@@ -76,7 +76,7 @@ final class TermDepositFpmlParserPlugin
     termBuilder.dayCount(document.parseDayCountFraction(termEl.getChild("dayCountFraction")));
 
     return TermDepositTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(termBuilder.build())
         .build();
   }

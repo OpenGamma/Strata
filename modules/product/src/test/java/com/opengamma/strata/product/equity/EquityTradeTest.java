@@ -32,7 +32,7 @@ public class EquityTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     EquityTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -53,7 +53,7 @@ public class EquityTradeTest {
   //-------------------------------------------------------------------------
   static EquityTrade sut() {
     return EquityTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)
@@ -62,7 +62,7 @@ public class EquityTradeTest {
 
   static EquityTrade sut2() {
     return EquityTrade.builder()
-        .tradeInfo(TradeInfo.EMPTY)
+        .info(TradeInfo.EMPTY)
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

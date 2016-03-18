@@ -77,7 +77,7 @@ public class IborIborSwapTemplateTest {
     Swap expected = Swap.of(
         IBOR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

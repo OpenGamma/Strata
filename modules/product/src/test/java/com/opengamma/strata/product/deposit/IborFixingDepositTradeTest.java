@@ -46,22 +46,22 @@ public class IborFixingDepositTradeTest {
   public void test_of() {
     IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     IborFixingDepositTrade test = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
     IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
+    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
     assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
   }
 
@@ -69,7 +69,7 @@ public class IborFixingDepositTradeTest {
   public void coverage() {
     IborFixingDepositTrade test1 = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
     IborFixingDepositTrade test2 = IborFixingDepositTrade.builder()
@@ -81,7 +81,7 @@ public class IborFixingDepositTradeTest {
   public void test_serialization() {
     IborFixingDepositTrade test = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertSerialization(test);
   }

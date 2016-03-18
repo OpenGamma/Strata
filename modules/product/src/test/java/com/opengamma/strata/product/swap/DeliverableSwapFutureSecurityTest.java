@@ -162,7 +162,7 @@ public class DeliverableSwapFutureSecurityTest {
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
     TradeInfo tradeInfo = TradeInfo.builder().tradeDate(PRODUCT.getLastTradeDate().minusDays(1)).build();
     DeliverableSwapFutureTrade expectedTrade = DeliverableSwapFutureTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(PRODUCT)
         .quantity(100)
         .price(123.50)

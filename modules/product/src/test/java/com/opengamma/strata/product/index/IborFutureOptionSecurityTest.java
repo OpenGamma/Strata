@@ -59,7 +59,7 @@ public class IborFutureOptionSecurityTest {
     assertEquals(test.createProduct(refData), OPTION);
     TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
     IborFutureOptionTrade expectedTrade = IborFutureOptionTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(OPTION)
         .quantity(100)
         .price(123.50)

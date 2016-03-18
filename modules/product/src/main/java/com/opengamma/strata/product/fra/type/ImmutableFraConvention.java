@@ -343,7 +343,7 @@ public final class ImmutableFraConvention
       ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
     }
     return FraTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(Fra.builder()
             .buySell(buySell)
             .currency(getCurrency())

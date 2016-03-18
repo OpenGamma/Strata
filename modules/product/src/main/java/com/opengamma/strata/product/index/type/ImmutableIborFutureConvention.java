@@ -142,7 +142,7 @@ public final class ImmutableIborFutureConvention
         .notional(notional).build();
     TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).build();
     return IborFutureTrade.builder()
-        .tradeInfo(info)
+        .info(info)
         .product(product)
         .quantity(quantity)
         .price(price)

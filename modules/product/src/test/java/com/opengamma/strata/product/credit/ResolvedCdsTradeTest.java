@@ -44,14 +44,14 @@ public class ResolvedCdsTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedCdsTrade sutSingleName() {
     return ResolvedCdsTrade.builder()
-        .tradeInfo(CdsTradeTest.tradeInfo())
+        .info(CdsTradeTest.tradeInfo())
         .product(ResolvedCdsTest.sutSingleName())
         .build();
   }
 
   static ResolvedCdsTrade sutIndex() {
     return ResolvedCdsTrade.builder()
-        .tradeInfo(CdsTradeTest.tradeInfo())
+        .info(CdsTradeTest.tradeInfo())
         .product(ResolvedCdsTest.sutIndex())
         .build();
   }

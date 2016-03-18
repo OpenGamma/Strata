@@ -95,7 +95,7 @@ public class SabrExtrapolationReplicationCmsTradePricerTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION).build();
   private static final ResolvedCmsTrade CMS_TRADE = ResolvedCmsTrade.builder()
       .product(CMS_TWO_LEGS)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
   private static final ResolvedCmsTrade CMS_TRADE_PREMIUM = ResolvedCmsTrade.builder()
       .product(CMS_ONE_LEG)

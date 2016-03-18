@@ -32,7 +32,7 @@ public class SecurityTradeTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     SecurityTrade test = SecurityTrade.of(TRADE_INFO, SECURITY_ID, QUANTITY, PRICE);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -40,7 +40,7 @@ public class SecurityTradeTest {
 
   public void test_builder() {
     SecurityTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -67,7 +67,7 @@ public class SecurityTradeTest {
   //-------------------------------------------------------------------------
   static SecurityTrade sut() {
     return SecurityTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .securityId(SECURITY_ID)
         .quantity(QUANTITY)
         .price(PRICE)
@@ -76,7 +76,7 @@ public class SecurityTradeTest {
 
   static SecurityTrade sut2() {
     return SecurityTrade.builder()
-        .tradeInfo(TradeInfo.EMPTY)
+        .info(TradeInfo.EMPTY)
         .securityId(SECURITY_ID2)
         .quantity(QUANTITY2)
         .price(PRICE2)

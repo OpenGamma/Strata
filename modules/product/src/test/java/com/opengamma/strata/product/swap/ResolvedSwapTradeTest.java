@@ -29,21 +29,21 @@ public class ResolvedSwapTradeTest {
   public void test_of() {
     ResolvedSwapTrade test = ResolvedSwapTrade.of(TRADE_INFO, SWAP1);
     assertEquals(test.getProduct(), SWAP1);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
         .product(SWAP1)
         .build();
-    assertEquals(test.getTradeInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.EMPTY);
     assertEquals(test.getProduct(), SWAP1);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();
     coverImmutableBean(test);
@@ -55,7 +55,7 @@ public class ResolvedSwapTradeTest {
 
   public void test_serialization() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
         .product(SWAP1)
         .build();
     assertSerialization(test);

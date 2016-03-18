@@ -40,7 +40,7 @@ public class FixedCouponBondTradeTest {
   public void test_builder_resolved() {
     FixedCouponBondTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
   }
@@ -48,7 +48,7 @@ public class FixedCouponBondTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolve() {
     ResolvedFixedCouponBondTrade expected = ResolvedFixedCouponBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
         .price(PRICE)
@@ -69,7 +69,7 @@ public class FixedCouponBondTradeTest {
   //-------------------------------------------------------------------------
   static FixedCouponBondTrade sut() {
     return FixedCouponBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

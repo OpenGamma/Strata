@@ -102,7 +102,7 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
@@ -116,7 +116,7 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 
@@ -130,7 +130,7 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

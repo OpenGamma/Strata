@@ -47,26 +47,26 @@ public class BulletPaymentTradeTest {
   public void test_of() {
     BulletPaymentTrade test = BulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
     assertEquals(test.getProduct(), PRODUCT1);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     BulletPaymentTrade test = BulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT1);
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
     BulletPaymentTrade test = BulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
+    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
     assertEquals(test.resolve(REF_DATA).getProduct(), PRODUCT1.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     BulletPaymentTrade test = BulletPaymentTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT1)
         .build();
     coverImmutableBean(test);
@@ -78,7 +78,7 @@ public class BulletPaymentTradeTest {
 
   public void test_serialization() {
     BulletPaymentTrade test = BulletPaymentTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT1)
         .build();
     assertSerialization(test);

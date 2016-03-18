@@ -77,7 +77,7 @@ public class DiscountingFraTradePricerTest {
     LocalDate paymentDate = RFRA.getPaymentDate();
     double publishedRate = 0.025;
     ResolvedFraTrade trade = FraTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(paymentDate).build())
+        .info(TradeInfo.builder().tradeDate(paymentDate).build())
         .product(FRA)
         .build()
         .resolve(REF_DATA);

@@ -31,7 +31,7 @@ public interface Security {
    * All securities contain this standard set of information.
    * It includes the identifier, information about the price and an extensible data map.
    * 
-   * @return the security identifier
+   * @return the security information
    */
   public abstract SecurityInfo getInfo();
 

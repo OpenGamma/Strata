@@ -216,7 +216,7 @@ public class SwapTradeModelDemo {
         .build();
     // a SwapTrade combines the two legs
     SwapTrade trade = SwapTrade.builder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("OG-Trade", "1"))
             .tradeDate(LocalDate.of(2014, 9, 10))
             .build())

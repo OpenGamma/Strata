@@ -116,7 +116,7 @@ public class HullWhiteIborFutureDataSet {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   /** Ibor future trade */
   public static final IborFutureTrade IBOR_FUTURE_TRADE = IborFutureTrade.builder()
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .product(IBOR_FUTURE)
       .quantity(QUANTITY)
       .price(REFERENCE_PRICE)

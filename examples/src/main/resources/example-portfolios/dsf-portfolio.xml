@@ -2,7 +2,7 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.swap.DeliverableSwapFutureTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>mn~Dealer G</counterparty>
     <tradeDate>2015-03-18</tradeDate>
@@ -10,7 +10,7 @@
     <attributes>
      <entry key="description">CME-5Y-DSF Mar15</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product type="com.opengamma.strata.product.swap.DeliverableSwapFuture">
     <securityId>OG-Future~CME-F1U-Mar15</securityId>
     <notional>100000.0</notional>
@@ -118,7 +118,7 @@
    <price>1.0075</price>
   </item>
   <item type="DeliverableSwapFutureTrade">
-   <tradeInfo>
+   <info>
     <id>example~2</id>
     <counterparty>mn~Dealer G</counterparty>
     <tradeDate>2015-06-17</tradeDate>
@@ -126,7 +126,7 @@
     <attributes>
      <entry key="description">CME-5Y-DSF Jun15</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product type="DeliverableSwapFuture">
     <securityId>OG-Future~CME-F1U-Jun15</securityId>
     <notional>100000.0</notional>

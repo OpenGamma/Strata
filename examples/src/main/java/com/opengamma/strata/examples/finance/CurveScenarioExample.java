@@ -189,7 +189,7 @@ public class CurveScenarioExample {
 
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))

@@ -39,7 +39,7 @@ public class BondFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     BondFutureTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), FUTURE);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -48,7 +48,7 @@ public class BondFutureTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolve() {
     ResolvedBondFutureTrade expected = ResolvedBondFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FUTURE.resolve(REF_DATA))
         .quantity(QUANTITY)
         .price(PRICE)
@@ -68,7 +68,7 @@ public class BondFutureTradeTest {
 
   static BondFutureTrade sut() {
     return BondFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FUTURE)
         .quantity(QUANTITY)
         .price(PRICE)

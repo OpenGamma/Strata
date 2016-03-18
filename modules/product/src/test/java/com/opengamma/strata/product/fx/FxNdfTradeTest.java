@@ -30,13 +30,13 @@ public class FxNdfTradeTest {
   public void test_of() {
     FxNdfTrade test = FxNdfTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     FxNdfTrade test = sut();
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -60,7 +60,7 @@ public class FxNdfTradeTest {
   static FxNdfTrade sut() {
     return FxNdfTrade.builder()
         .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
   }
 

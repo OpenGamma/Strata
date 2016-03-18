@@ -42,7 +42,7 @@ public class AbstractIborFutureTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void test_reference_price_after_trade_date() {
-    LocalDate tradeDate = FUTURE_TRADE.getTradeInfo().getTradeDate().get();
+    LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
     LocalDate valuationDate = tradeDate.plusDays(1);
     double lastMarginPrice = 0.995;
     double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, lastMarginPrice);
@@ -50,7 +50,7 @@ public class AbstractIborFutureTradePricerTest {
   }
   
   public void test_reference_price_on_trade_date() {
-    LocalDate tradeDate = FUTURE_TRADE.getTradeInfo().getTradeDate().get();
+    LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
     LocalDate valuationDate = tradeDate;
     double lastMarginPrice = 0.995;
     double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, lastMarginPrice);

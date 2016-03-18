@@ -86,7 +86,7 @@ public class FxSwapTemplateTest {
     BusinessDayAdjustment bda = CONVENTION.getBusinessDayAdjustment();
     FxSwap expected = FxSwap.ofForwardPoints(
         CurrencyAmount.of(EUR, NOTIONAL_EUR), FxRate.of(EUR, USD, FX_RATE_NEAR), FX_RATE_PTS, nearDate, farDate, bda);
-    assertEquals(test.getTradeInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
 

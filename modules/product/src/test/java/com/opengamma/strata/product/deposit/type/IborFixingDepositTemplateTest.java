@@ -90,7 +90,7 @@ public class IborFixingDepositTemplateTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(tradeDate)
         .build();
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
     assertEquals(trade.getProduct(), productExpected);
   }
 

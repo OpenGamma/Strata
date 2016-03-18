@@ -85,7 +85,7 @@ public class TermDepositTemplateTest {
         .rate(rate)
         .dayCount(ACT_360)
         .build();
-    assertEquals(trade.getTradeInfo(), tradeInfoExpected);
+    assertEquals(trade.getInfo(), tradeInfoExpected);
     assertEquals(trade.getProduct(), productExpected);
   }
 

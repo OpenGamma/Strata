@@ -97,7 +97,7 @@ public class StirFuturePricingExample {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
     return trade.toBuilder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Mar15 IMM Ibor Future"))
             .counterparty(StandardId.of("example", "A"))
@@ -114,7 +114,7 @@ public class StirFuturePricingExample {
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
         LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
     return trade.toBuilder()
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "Jun15 IMM Ibor Future"))
             .counterparty(StandardId.of("example", "A"))

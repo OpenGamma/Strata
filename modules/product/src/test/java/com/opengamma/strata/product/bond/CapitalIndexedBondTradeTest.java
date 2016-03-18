@@ -52,7 +52,7 @@ public class CapitalIndexedBondTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     CapitalIndexedBondTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
@@ -86,7 +86,7 @@ public class CapitalIndexedBondTradeTest {
   public void test_resolve() {
     ResolvedCapitalIndexedBondTrade test = sut().resolve(REF_DATA);
     ResolvedCapitalIndexedBondTrade expected = ResolvedCapitalIndexedBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
         .price(PRICE)
@@ -98,7 +98,7 @@ public class CapitalIndexedBondTradeTest {
   public void test_resolve1() {
     ResolvedCapitalIndexedBondTrade test = sut1().resolve(REF_DATA);
     ResolvedCapitalIndexedBondTrade expected = ResolvedCapitalIndexedBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT1.resolve(REF_DATA))
         .quantity(QUANTITY)
         .price(PRICE)
@@ -108,7 +108,7 @@ public class CapitalIndexedBondTradeTest {
   }
 
   public void test_resolve_invalid() {
-    CapitalIndexedBondTrade test = sut().toBuilder().tradeInfo(TRADE_INFO_EARLY).build();
+    CapitalIndexedBondTrade test = sut().toBuilder().info(TRADE_INFO_EARLY).build();
     assertThrowsIllegalArg(() -> test.resolve(REF_DATA));
   }
 
@@ -125,7 +125,7 @@ public class CapitalIndexedBondTradeTest {
   //-------------------------------------------------------------------------
   static CapitalIndexedBondTrade sut() {
     return CapitalIndexedBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)
@@ -134,7 +134,7 @@ public class CapitalIndexedBondTradeTest {
 
   static CapitalIndexedBondTrade sut1() {
     return CapitalIndexedBondTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT1)
         .quantity(QUANTITY)
         .price(PRICE)
@@ -143,7 +143,7 @@ public class CapitalIndexedBondTradeTest {
 
   static CapitalIndexedBondTrade sut2() {
     return CapitalIndexedBondTrade.builder()
-        .tradeInfo(TradeInfo.builder().settlementDate(START.plusDays(7)).build())
+        .info(TradeInfo.builder().settlementDate(START.plusDays(7)).build())
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

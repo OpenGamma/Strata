@@ -164,7 +164,7 @@ public final class ImmutableThreeLegBasisSwapConvention
     SwapLeg leg2 = spreadFloatingLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional);
     SwapLeg leg3 = flatFloatingLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notional);
     return SwapTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(Swap.of(leg1, leg2, leg3))
         .build();
   }

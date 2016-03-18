@@ -28,10 +28,10 @@ public class ResolvedFxSingleTradeTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxSingleTrade test = ResolvedFxSingleTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FWD1)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), FWD1);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxSingleTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxSingleTrade sut() {
     return ResolvedFxSingleTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FWD1)
         .build();
   }

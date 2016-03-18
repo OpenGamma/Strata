@@ -140,7 +140,7 @@ public final class ImmutableFixedIborSwapConvention
     SwapLeg leg1 = fixedLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional, fixedRate);
     SwapLeg leg2 = floatingLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notional);
     return SwapTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(Swap.of(leg1, leg2))
         .build();
   }
