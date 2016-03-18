@@ -6,11 +6,15 @@ This directory contains the `strata-collect` module.
 
 This module provides data structures used by Strata:
 
-* identifier - standard identifier with scheme and value
+* array - holds wrapped arrays and matrices
+* function - additional Java SE 8 functional interfaces
+* io - provides common file formats
+* named - extended enums
 * range - holds representations of ranges
 * result - a success or failure result wrapper
 * timeseries - hold a value that changes over time
 * tuple - an implementation of the "pair" concept
+* type - a typed string, to avoid stringly typed systems
 
 
 ### Source code
