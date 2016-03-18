@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.SortedMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
@@ -56,6 +55,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -266,7 +266,7 @@ public class HistoricalScenarioExample {
         .product(Swap.of(payLeg, receiveLeg))
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Libor 3m vs Libor 6m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Libor 3m vs Libor 6m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2015, 9, 11))
             .build())

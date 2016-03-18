@@ -17,11 +17,11 @@
       <tickValue>EUR 10</tickValue>
       <contractSize>1</contractSize>
      </priceInfo>
-     <additionalInfo>
-      <entry key="Exchange">Eurex</entry>
-      <entry key="ProductFamily">FGBL</entry>
-      <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-13</entry>
-     </additionalInfo>
+     <attributes>
+      <entry key="exchange">Eurex</entry>
+      <entry key="productFamily">FGBL</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-13</entry>
+     </attributes>
     </info>
    </security>
    <quantity>20</quantity>
@@ -43,11 +43,11 @@
       <tickValue>USD 12.5</tickValue>
       <contractSize>1</contractSize>
      </priceInfo>
-     <additionalInfo>
-      <entry key="Exchange">CME</entry>
-      <entry key="ProductFamily">ED</entry>
-      <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-10</entry>
-     </additionalInfo>
+     <attributes>
+      <entry key="exchange">CME</entry>
+      <entry key="productFamily">ED</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-10</entry>
+     </attributes>
     </info>
    </security>
    <quantity>50</quantity>
@@ -69,11 +69,11 @@
       <tickValue>EUR 10</tickValue>
       <contractSize>1</contractSize>
      </priceInfo>
-     <additionalInfo>
-      <entry key="Exchange">Eurex</entry>
-      <entry key="ProductFamily">OGBL</entry>
-      <entry key="ExpiryDate" type="java.time.LocalDate">2014-03-10</entry>
-     </additionalInfo>
+     <attributes>
+      <entry key="exchange">Eurex</entry>
+      <entry key="productFamily">OGBL</entry>
+      <entry key="expiryDate" type="java.time.LocalDate">2014-03-10</entry>
+     </attributes>
     </info>
    </security>
    <quantity>20</quantity>

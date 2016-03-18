@@ -6,6 +6,7 @@
 package com.opengamma.strata.product;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -22,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
- * Test.
+ * Test {@link TradeInfo}.
  */
 @Test
 public class TradeInfoTest {
@@ -37,12 +38,31 @@ public class TradeInfoTest {
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
     assertEquals(test.getSettlementDate(), Optional.empty());
+    assertEquals(test.getAttributes(), ImmutableMap.of());
+    assertThrowsIllegalArg(() -> test.getAttribute(TradeAttributeType.DESCRIPTION));
+    assertEquals(test.findAttribute(TradeAttributeType.DESCRIPTION), Optional.empty());
+  }
+
+  public void test_builder_withAttribute() {
+    TradeInfo test = TradeInfo.builder()
+        .counterparty(StandardId.of("OG-Party", "Other"))
+        .build()
+        .withAttribute(TradeAttributeType.DESCRIPTION, "A");
+    assertEquals(test.getId(), Optional.empty());
+    assertEquals(test.getCounterparty(), Optional.of(StandardId.of("OG-Party", "Other")));
+    assertEquals(test.getTradeDate(), Optional.empty());
+    assertEquals(test.getTradeTime(), Optional.empty());
+    assertEquals(test.getZone(), Optional.empty());
+    assertEquals(test.getSettlementDate(), Optional.empty());
+    assertEquals(test.getAttributes(), ImmutableMap.of(TradeAttributeType.DESCRIPTION, "A"));
+    assertEquals(test.getAttribute(TradeAttributeType.DESCRIPTION), "A");
+    assertEquals(test.findAttribute(TradeAttributeType.DESCRIPTION), Optional.of("A"));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     TradeInfo test = TradeInfo.builder()
-        .attributes(ImmutableMap.of("A", "B"))
+        .addAttribute(TradeAttributeType.DESCRIPTION, "A")
         .counterparty(StandardId.of("OG-Party", "Other"))
         .tradeDate(date(2014, 6, 20))
         .tradeTime(LocalTime.MIDNIGHT)

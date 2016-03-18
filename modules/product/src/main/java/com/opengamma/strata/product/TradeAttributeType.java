@@ -10,27 +10,28 @@ import org.joda.convert.FromString;
 import com.opengamma.strata.collect.type.TypedString;
 
 /**
- * The type of additional security information.
+ * The type that provides meaning to a trade attribute.
  * <p>
- * This extension point allows arbitrary information to be associated with a security.
+ * Trade attributes, stored on {@link TradeInfo}, provide the ability to
+ * associate arbitrary information with a trade in a key-value map.
  * For example, it might be used to provide information about the trading platform.
  * <p>
- * Applications that wish to use security information should declare a static
- * constant declaring the {@code SecurityInfoType} instance, the type parameter
- * and an UpperCamelCase name. For example:
+ * Applications that wish to use trade attributes should declare a static
+ * constant declaring the {@code TradeAttributeType} instance, the type parameter
+ * and a lowerCamelCase name. For example:
  * <pre>
- *  public static final SecurityInfoType&lt;String&gt; NAME = SecurityInfoType.of("Name");
+ *  public static final TradeAttributeType&lt;String&gt; DEALER = TradeAttributeType.of("dealer");
  * </pre>
  * 
  * @param <T>  the type associated with the info
  */
-public final class SecurityInfoType<T>
-    extends TypedString<SecurityInfoType<T>> {
+public final class TradeAttributeType<T>
+    extends TypedString<TradeAttributeType<T>> {
 
   /**
-   * Key used to access the name of the security.
+   * Key used to access the description of the trade.
    */
-  public static final SecurityInfoType<String> NAME = SecurityInfoType.of("Name");
+  public static final TradeAttributeType<String> DESCRIPTION = TradeAttributeType.of("description");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -46,8 +47,8 @@ public final class SecurityInfoType<T>
    * @return a type instance with the specified name
    */
   @FromString
-  public static <T> SecurityInfoType<T> of(String name) {
-    return new SecurityInfoType<T>(name);
+  public static <T> TradeAttributeType<T> of(String name) {
+    return new TradeAttributeType<T>(name);
   }
 
   /**
@@ -55,7 +56,7 @@ public final class SecurityInfoType<T>
    * 
    * @param name  the name
    */
-  private SecurityInfoType(String name) {
+  private TradeAttributeType(String name) {
     super(name);
   }
 

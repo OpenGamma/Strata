@@ -48,6 +48,7 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -234,7 +235,7 @@ public class SwapPricingWithCalibrationExample {
         .product(Swap.of(payLeg, receiveLeg))
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())

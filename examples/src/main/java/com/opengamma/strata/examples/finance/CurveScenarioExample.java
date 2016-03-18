@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Locale;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
@@ -48,6 +47,7 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurveParallelShifts;
 import com.opengamma.strata.function.marketdata.scenario.curve.AnyCurveFilter;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -190,7 +190,7 @@ public class CurveScenarioExample {
     return SwapTrade.builder()
         .product(Swap.of(payLeg, receiveLeg))
         .info(TradeInfo.builder()
-            .attributes(ImmutableMap.of("description", "Fixed vs Libor 3m"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
             .counterparty(StandardId.of("example", "A"))
             .settlementDate(LocalDate.of(2014, 9, 12))
             .build())

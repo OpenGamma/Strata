@@ -10,28 +10,28 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link SecurityInfoType}.
+ * Test {@link TradeAttributeType}.
  */
 @Test
-public class SecurityInfoTypeTest {
+public class TradeAttributeTypeTest {
 
   //-------------------------------------------------------------------------
   public void test_constants() {
-    SecurityInfoType<String> test = SecurityInfoType.NAME;
-    assertEquals(test.toString(), "Name");
+    TradeAttributeType<String> test = TradeAttributeType.DESCRIPTION;
+    assertEquals(test.toString(), "description");
   }
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SecurityInfoType<String> test = SecurityInfoType.of("Test");
-    assertEquals(test.toString(), "Test");
+    TradeAttributeType<String> test = TradeAttributeType.of("test");
+    assertEquals(test.toString(), "test");
   }
 
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
-    SecurityInfoType<String> a = SecurityInfoType.of("Test");
-    SecurityInfoType<String> a2 = SecurityInfoType.of("Test");
-    SecurityInfoType<String> b = SecurityInfoType.of("Test2");
+    TradeAttributeType<String> a = TradeAttributeType.of("test");
+    TradeAttributeType<String> a2 = TradeAttributeType.of("test");
+    TradeAttributeType<String> b = TradeAttributeType.of("test2");
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
