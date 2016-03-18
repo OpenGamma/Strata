@@ -3,13 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.collect.id;
+package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.basics.market.StandardId;
 
 /**
  * Test.

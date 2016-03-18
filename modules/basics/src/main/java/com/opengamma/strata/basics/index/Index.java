@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.basics.index;
 
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.collect.id.StandardIdentifiable;
+import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.basics.market.StandardIdentifiable;
 import com.opengamma.strata.collect.named.Named;
 
 /**

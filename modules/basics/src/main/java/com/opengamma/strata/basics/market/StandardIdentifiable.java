@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.collect.id;
+package com.opengamma.strata.basics.market;
 
 /**
  * Provides uniform access to objects that can supply a standard identifier.
