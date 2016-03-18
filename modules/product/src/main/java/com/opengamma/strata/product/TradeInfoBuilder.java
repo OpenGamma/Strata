@@ -11,8 +11,8 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Builder to create {@code TradeInfo}.

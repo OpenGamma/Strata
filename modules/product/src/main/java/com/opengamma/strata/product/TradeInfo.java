@@ -29,8 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.id.StandardId;
 
 /**
  * Additional information about a trade.
