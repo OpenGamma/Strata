@@ -93,10 +93,11 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(
+        futureOption.getUnderlyingFuture().getSecurityId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilityProvider.getVolatility(
         futureOption.getExpiry(), future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -159,10 +160,11 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(
+        futureOption.getUnderlyingFuture().getSecurityId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -214,10 +216,11 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(
+        futureOption.getUnderlyingFuture().getSecurityId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -268,10 +271,11 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(
+        futureOption.getUnderlyingFuture().getSecurityId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
@@ -324,7 +328,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     double delta = deltaStickyStrike(futureOption, ratesProvider, volatilityProvider, futurePrice);
     PointSensitivities futurePriceSensitivity =
-        futurePricer.priceSensitivity(futureOption.getUnderlying(), ratesProvider);
+        futurePricer.priceSensitivity(futureOption.getUnderlyingFuture(), ratesProvider);
     return futurePriceSensitivity.multipliedBy(delta);
   }
 
@@ -378,15 +382,17 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-    ArgChecker.isTrue(futureOption.getUnderlyingSecurityStandardId().equals(volatilityProvider.getFutureSecurityId()),
+    ArgChecker.isTrue(
+        futureOption.getUnderlyingFuture().getSecurityId().equals(volatilityProvider.getFutureSecurityId()),
         "Underlying future security ID should be the same as security ID of data");
     double strike = futureOption.getStrikePrice();
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilityProvider.getVolatility(futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice);
     double timeToExpiry = volatilityProvider.relativeTime(futureOption.getExpiry());
     double vega = BlackFormulaRepository.vega(futurePrice, strike, timeToExpiry, volatility);
-    return BondFutureOptionSensitivity.of(futureOption.getUnderlyingSecurityStandardId(),
+    return BondFutureOptionSensitivity.of(
+        futureOption.getUnderlyingFuture().getSecurityId(),
         futureOption.getExpiry(),
         future.getLastTradeDate(), strike, futurePrice, future.getCurrency(), vega);
   }
@@ -394,7 +400,7 @@ public final class BlackBondFutureOptionMarginedProductPricer extends BondFuture
   //-------------------------------------------------------------------------
   // calculate the price of the underlying future
   private double futurePrice(ResolvedBondFutureOption futureOption, LegalEntityDiscountingProvider ratesProvider) {
-    ResolvedBondFuture future = futureOption.getUnderlying();
+    ResolvedBondFuture future = futureOption.getUnderlyingFuture();
     return futurePricer.price(future, ratesProvider);
   }
 

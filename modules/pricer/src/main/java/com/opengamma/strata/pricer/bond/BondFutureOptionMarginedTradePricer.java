@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.bond;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -86,13 +85,11 @@ public abstract class BondFutureOptionMarginedTradePricer {
     double marginReferencePrice = lastClosingPrice;
     LocalDate tradeDate = tradeDateOpt.get();
     if (tradeDate.equals(valuationDate)) {
-      OptionalDouble tradePrice = trade.getPrice();
-      ArgChecker.isTrue(tradePrice.isPresent(), "trade price not present");
-      marginReferencePrice = tradePrice.getAsDouble();
+      marginReferencePrice = trade.getPrice();
     }
     double referenceIndex = getProductPricer().marginIndex(option, marginReferencePrice);
     double pv = (priceIndex - referenceIndex) * trade.getQuantity();
-    return CurrencyAmount.of(option.getUnderlying().getCurrency(), pv);
+    return CurrencyAmount.of(option.getUnderlyingFuture().getCurrency(), pv);
   }
 
   /**

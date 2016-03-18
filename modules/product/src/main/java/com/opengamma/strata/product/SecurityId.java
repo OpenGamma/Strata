@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.id.StandardId;
  * an identifier from a well-known global or vendor symbology.
  */
 public final class SecurityId
-    implements ReferenceDataId<Security<?>>, Serializable {
+    implements ReferenceDataId<Security>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -113,11 +113,9 @@ public final class SecurityId
    *
    * @return the type of the reference data this identifier refers to
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
-  public Class<Security<?>> getReferenceDataType() {
-    // this will simplify with next commit
-    return (Class) Security.class;
+  public Class<Security> getReferenceDataType() {
+    return Security.class;
   }
 
   //-------------------------------------------------------------------------

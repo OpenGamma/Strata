@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -39,7 +39,7 @@ import com.opengamma.strata.product.TradeInfo;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedDeliverableSwapFutureTrade
     implements ResolvedTrade, ImmutableBean, Serializable {
 
@@ -51,17 +51,12 @@ public final class ResolvedDeliverableSwapFutureTrade
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
   /**
-   * The resolved Deliverable Swap Future product.
+   * The future that was traded.
    * <p>
    * The product captures the contracted financial details of the trade.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ResolvedDeliverableSwapFuture product;
-  /**
-   * The identifier used to refer to the security.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId securityStandardId;
   /**
    * The quantity that was traded.
    * <p>
@@ -75,8 +70,8 @@ public final class ResolvedDeliverableSwapFutureTrade
    * <p>
    * This is the price agreed when the trade occurred.
    */
-  @PropertyDefinition
-  private final double tradePrice;
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  private final double price;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -111,19 +106,24 @@ public final class ResolvedDeliverableSwapFutureTrade
     return new ResolvedDeliverableSwapFutureTrade.Builder();
   }
 
-  private ResolvedDeliverableSwapFutureTrade(
+  /**
+   * Creates an instance.
+   * @param tradeInfo  the value of the property
+   * @param product  the value of the property, not null
+   * @param quantity  the value of the property
+   * @param price  the value of the property
+   */
+  ResolvedDeliverableSwapFutureTrade(
       TradeInfo tradeInfo,
       ResolvedDeliverableSwapFuture product,
-      StandardId securityStandardId,
       long quantity,
-      double tradePrice) {
+      double price) {
     JodaBeanUtils.notNull(product, "product");
-    JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
+    ArgChecker.notNegative(price, "price");
     this.tradeInfo = tradeInfo;
     this.product = product;
-    this.securityStandardId = securityStandardId;
     this.quantity = quantity;
-    this.tradePrice = tradePrice;
+    this.price = price;
   }
 
   @Override
@@ -155,7 +155,7 @@ public final class ResolvedDeliverableSwapFutureTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the resolved Deliverable Swap Future product.
+   * Gets the future that was traded.
    * <p>
    * The product captures the contracted financial details of the trade.
    * @return the value of the property, not null
@@ -163,15 +163,6 @@ public final class ResolvedDeliverableSwapFutureTrade
   @Override
   public ResolvedDeliverableSwapFuture getProduct() {
     return product;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the identifier used to refer to the security.
-   * @return the value of the property, not null
-   */
-  public StandardId getSecurityStandardId() {
-    return securityStandardId;
   }
 
   //-----------------------------------------------------------------------
@@ -193,8 +184,8 @@ public final class ResolvedDeliverableSwapFutureTrade
    * This is the price agreed when the trade occurred.
    * @return the value of the property
    */
-  public double getTradePrice() {
-    return tradePrice;
+  public double getPrice() {
+    return price;
   }
 
   //-----------------------------------------------------------------------
@@ -215,9 +206,8 @@ public final class ResolvedDeliverableSwapFutureTrade
       ResolvedDeliverableSwapFutureTrade other = (ResolvedDeliverableSwapFutureTrade) obj;
       return JodaBeanUtils.equal(tradeInfo, other.tradeInfo) &&
           JodaBeanUtils.equal(product, other.product) &&
-          JodaBeanUtils.equal(securityStandardId, other.securityStandardId) &&
           (quantity == other.quantity) &&
-          JodaBeanUtils.equal(tradePrice, other.tradePrice);
+          JodaBeanUtils.equal(price, other.price);
     }
     return false;
   }
@@ -227,21 +217,19 @@ public final class ResolvedDeliverableSwapFutureTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(product);
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityStandardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(tradePrice);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedDeliverableSwapFutureTrade{");
     buf.append("tradeInfo").append('=').append(tradeInfo).append(',').append(' ');
     buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("securityStandardId").append('=').append(securityStandardId).append(',').append(' ');
     buf.append("quantity").append('=').append(quantity).append(',').append(' ');
-    buf.append("tradePrice").append('=').append(JodaBeanUtils.toString(tradePrice));
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();
   }
@@ -267,20 +255,15 @@ public final class ResolvedDeliverableSwapFutureTrade
     private final MetaProperty<ResolvedDeliverableSwapFuture> product = DirectMetaProperty.ofImmutable(
         this, "product", ResolvedDeliverableSwapFutureTrade.class, ResolvedDeliverableSwapFuture.class);
     /**
-     * The meta-property for the {@code securityStandardId} property.
-     */
-    private final MetaProperty<StandardId> securityStandardId = DirectMetaProperty.ofImmutable(
-        this, "securityStandardId", ResolvedDeliverableSwapFutureTrade.class, StandardId.class);
-    /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", ResolvedDeliverableSwapFutureTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code tradePrice} property.
+     * The meta-property for the {@code price} property.
      */
-    private final MetaProperty<Double> tradePrice = DirectMetaProperty.ofImmutable(
-        this, "tradePrice", ResolvedDeliverableSwapFutureTrade.class, Double.TYPE);
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", ResolvedDeliverableSwapFutureTrade.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -288,9 +271,8 @@ public final class ResolvedDeliverableSwapFutureTrade
         this, null,
         "tradeInfo",
         "product",
-        "securityStandardId",
         "quantity",
-        "tradePrice");
+        "price");
 
     /**
      * Restricted constructor.
@@ -305,12 +287,10 @@ public final class ResolvedDeliverableSwapFutureTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -593973224:  // securityStandardId
-          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case 1861750341:  // tradePrice
-          return tradePrice;
+        case 106934601:  // price
+          return price;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -348,14 +328,6 @@ public final class ResolvedDeliverableSwapFutureTrade
     }
 
     /**
-     * The meta-property for the {@code securityStandardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> securityStandardId() {
-      return securityStandardId;
-    }
-
-    /**
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
@@ -364,11 +336,11 @@ public final class ResolvedDeliverableSwapFutureTrade
     }
 
     /**
-     * The meta-property for the {@code tradePrice} property.
+     * The meta-property for the {@code price} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> tradePrice() {
-      return tradePrice;
+    public MetaProperty<Double> price() {
+      return price;
     }
 
     //-----------------------------------------------------------------------
@@ -379,12 +351,10 @@ public final class ResolvedDeliverableSwapFutureTrade
           return ((ResolvedDeliverableSwapFutureTrade) bean).getTradeInfo();
         case -309474065:  // product
           return ((ResolvedDeliverableSwapFutureTrade) bean).getProduct();
-        case -593973224:  // securityStandardId
-          return ((ResolvedDeliverableSwapFutureTrade) bean).getSecurityStandardId();
         case -1285004149:  // quantity
           return ((ResolvedDeliverableSwapFutureTrade) bean).getQuantity();
-        case 1861750341:  // tradePrice
-          return ((ResolvedDeliverableSwapFutureTrade) bean).getTradePrice();
+        case 106934601:  // price
+          return ((ResolvedDeliverableSwapFutureTrade) bean).getPrice();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -408,9 +378,8 @@ public final class ResolvedDeliverableSwapFutureTrade
 
     private TradeInfo tradeInfo;
     private ResolvedDeliverableSwapFuture product;
-    private StandardId securityStandardId;
     private long quantity;
-    private double tradePrice;
+    private double price;
 
     /**
      * Restricted constructor.
@@ -426,9 +395,8 @@ public final class ResolvedDeliverableSwapFutureTrade
     private Builder(ResolvedDeliverableSwapFutureTrade beanToCopy) {
       this.tradeInfo = beanToCopy.getTradeInfo();
       this.product = beanToCopy.getProduct();
-      this.securityStandardId = beanToCopy.getSecurityStandardId();
       this.quantity = beanToCopy.getQuantity();
-      this.tradePrice = beanToCopy.getTradePrice();
+      this.price = beanToCopy.getPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -439,12 +407,10 @@ public final class ResolvedDeliverableSwapFutureTrade
           return tradeInfo;
         case -309474065:  // product
           return product;
-        case -593973224:  // securityStandardId
-          return securityStandardId;
         case -1285004149:  // quantity
           return quantity;
-        case 1861750341:  // tradePrice
-          return tradePrice;
+        case 106934601:  // price
+          return price;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -459,14 +425,11 @@ public final class ResolvedDeliverableSwapFutureTrade
         case -309474065:  // product
           this.product = (ResolvedDeliverableSwapFuture) newValue;
           break;
-        case -593973224:  // securityStandardId
-          this.securityStandardId = (StandardId) newValue;
-          break;
         case -1285004149:  // quantity
           this.quantity = (Long) newValue;
           break;
-        case 1861750341:  // tradePrice
-          this.tradePrice = (Double) newValue;
+        case 106934601:  // price
+          this.price = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -503,9 +466,8 @@ public final class ResolvedDeliverableSwapFutureTrade
       return new ResolvedDeliverableSwapFutureTrade(
           tradeInfo,
           product,
-          securityStandardId,
           quantity,
-          tradePrice);
+          price);
     }
 
     //-----------------------------------------------------------------------
@@ -522,7 +484,7 @@ public final class ResolvedDeliverableSwapFutureTrade
     }
 
     /**
-     * Sets the resolved Deliverable Swap Future product.
+     * Sets the future that was traded.
      * <p>
      * The product captures the contracted financial details of the trade.
      * @param product  the new value, not null
@@ -531,17 +493,6 @@ public final class ResolvedDeliverableSwapFutureTrade
     public Builder product(ResolvedDeliverableSwapFuture product) {
       JodaBeanUtils.notNull(product, "product");
       this.product = product;
-      return this;
-    }
-
-    /**
-     * Sets the identifier used to refer to the security.
-     * @param securityStandardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder securityStandardId(StandardId securityStandardId) {
-      JodaBeanUtils.notNull(securityStandardId, "securityStandardId");
-      this.securityStandardId = securityStandardId;
       return this;
     }
 
@@ -562,24 +513,24 @@ public final class ResolvedDeliverableSwapFutureTrade
      * Sets the price that was traded, in decimal form.
      * <p>
      * This is the price agreed when the trade occurred.
-     * @param tradePrice  the new value
+     * @param price  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradePrice(double tradePrice) {
-      this.tradePrice = tradePrice;
+    public Builder price(double price) {
+      ArgChecker.notNegative(price, "price");
+      this.price = price;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ResolvedDeliverableSwapFutureTrade.Builder{");
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-      buf.append("securityStandardId").append('=').append(JodaBeanUtils.toString(securityStandardId)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("tradePrice").append('=').append(JodaBeanUtils.toString(tradePrice));
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
       buf.append('}');
       return buf.toString();
     }

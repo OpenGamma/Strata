@@ -44,25 +44,21 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 public class ResolvedDeliverableSwapFutureTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final DeliverableSwapFuture PRODUCT = DeliverableSwapFutureTest.sut();
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, SAT_SUN);
   private static final LocalDate START_DATE = LocalDate.of(2014, 9, 12);
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
       .createTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015, REF_DATA).getProduct();
-  private static final ResolvedSwap RSWAP = SWAP.resolve(REF_DATA);
-  private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
-  private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
-  private static final double NOTIONAL = 100000;
+  private static final ResolvedSwap RSWAP = PRODUCT.getUnderlyingSwap().resolve(REF_DATA);
+  private static final LocalDate LAST_TRADE_DATE = PRODUCT.getLastTradeDate();
+  private static final LocalDate DELIVERY_DATE = PRODUCT.getDeliveryDate();
+  private static final double NOTIONAL = PRODUCT.getNotional();
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    ResolvedDeliverableSwapFuture test = ResolvedDeliverableSwapFuture.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(RSWAP)
-        .build();
+    ResolvedDeliverableSwapFuture test = sut();
     assertEquals(test.getDeliveryDate(), DELIVERY_DATE);
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
     assertEquals(test.getNotional(), NOTIONAL);
@@ -135,12 +131,14 @@ public class ResolvedDeliverableSwapFutureTest {
     Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     assertThrowsIllegalArg(() -> ResolvedDeliverableSwapFuture.builder()
+        .securityId(PRODUCT.getSecurityId())
         .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap1.resolve(REF_DATA))
         .build());
     assertThrowsIllegalArg(() -> ResolvedDeliverableSwapFuture.builder()
+        .securityId(PRODUCT.getSecurityId())
         .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
@@ -150,55 +148,21 @@ public class ResolvedDeliverableSwapFutureTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ResolvedDeliverableSwapFuture test = ResolvedDeliverableSwapFuture.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(RSWAP)
-        .build();
-    coverImmutableBean(test);
-    SwapLeg iborLeg = RateCalculationSwapLeg.builder()
-        .payReceive(PAY)
-        .accrualSchedule(PeriodicSchedule.builder()
-            .startDate(LocalDate.of(2014, 9, 12))
-            .endDate(LocalDate.of(2016, 9, 12))
-            .frequency(P1M)
-            .businessDayAdjustment(BDA_MF)
-            .stubConvention(StubConvention.SHORT_INITIAL)
-            .build())
-        .paymentSchedule(PaymentSchedule.builder()
-            .paymentFrequency(P3M)
-            .paymentDateOffset(DaysAdjustment.NONE)
-            .build())
-        .notionalSchedule(NotionalSchedule.builder()
-            .currency(USD)
-            .amount(ValueSchedule.of(1d))
-            .finalExchange(true)
-            .initialExchange(true)
-            .build())
-        .calculation(IborRateCalculation.builder()
-            .index(INDEX)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, SAT_SUN, BDA_P))
-            .build())
-        .build();
-    Swap swap1 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg);
-    ResolvedDeliverableSwapFuture test2 = ResolvedDeliverableSwapFuture.builder()
-        .notional(20000L)
-        .deliveryDate(LocalDate.of(2014, 9, 5))
-        .lastTradeDate(LocalDate.of(2014, 9, 2))
-        .underlyingSwap(swap1.resolve(REF_DATA))
-        .build();
-    coverBeanEquals(test, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    ResolvedDeliverableSwapFuture test = ResolvedDeliverableSwapFuture.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(RSWAP)
-        .build();
-    assertSerialization(test);
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static ResolvedDeliverableSwapFuture sut() {
+    return PRODUCT.resolve(REF_DATA);
+  }
+
+  static ResolvedDeliverableSwapFuture sut2() {
+    return DeliverableSwapFutureTest.sut2().resolve(REF_DATA);
   }
 
 }

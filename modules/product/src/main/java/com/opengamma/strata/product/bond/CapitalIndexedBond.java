@@ -16,7 +16,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -39,7 +39,8 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.rate.RateObservation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
@@ -58,25 +59,29 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * The enum, {@code yieldConvention}, specifies the yield computation convention.
  * The accrued interest must be computed with {@code dayCount}.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class CapitalIndexedBond
-    implements Product, Resolvable<ResolvedCapitalIndexedBond>, ImmutableBean, Serializable {
+    implements SecuritizedProduct, Resolvable<ResolvedCapitalIndexedBond>, ImmutableBean, Serializable {
 
   /**
-   * The primary currency of the product.
+   * The security identifier.
    * <p>
-   * The amounts of the notional are usually expressed in terms of this currency,
-   * however they can be converted from amounts in a different currency.
+   * This identifier uniquely identifies the security within the system.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final SecurityId securityId;
+  /**
+   * The currency that the bond is traded in.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The notional amount, must be positive. 
+   * The notional amount, must be positive.
    * <p>
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
    * The accrual schedule.
@@ -85,7 +90,7 @@ public final class CapitalIndexedBond
    * These are used directly or indirectly to determine other dates in the product.
    */
   @PropertyDefinition(validate = "notNull")
-  private final PeriodicSchedule periodicSchedule;
+  private final PeriodicSchedule accrualSchedule;
   /**
    * The inflation rate calculation.
    * <p>
@@ -102,9 +107,9 @@ public final class CapitalIndexedBond
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double startIndexValue;
   /**
-   * The day count convention applicable. 
+   * The day count convention applicable.
    * <p>
-   * The conversion from dates to a numerical value is made based on this day count. 
+   * The conversion from dates to a numerical value is made based on this day count.
    * For the inflation-indexed bond, the day count convention is used to compute accrued interest.
    * <p>
    * Note that the year fraction of a coupon payment is computed based on the unadjusted
@@ -115,21 +120,21 @@ public final class CapitalIndexedBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines how to convert from yield to price and inversely.  
+   * The convention defines how to convert from yield to price and inversely.
    */
   @PropertyDefinition(validate = "notNull")
   private final CapitalIndexedBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the coupon bond product. 
+   * This identifier is used for the legal entity that issues the bond.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
-   * The number of days between valuation date and settlement date. 
+   * The number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price. 
+   * This is used to compute clean price.
    * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
    */
   @PropertyDefinition(validate = "notNull")
@@ -142,30 +147,28 @@ public final class CapitalIndexedBond
    * The difference between the two is the ex-coupon period (measured in days).
    * <p>
    * Because the detachment date is not after the coupon date, the number of days
-   * stored in this field should be zero or negative. 
+   * stored in this field should be zero or negative.
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment exCouponPeriod;
 
   //-------------------------------------------------------------------------
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (builder.exCouponPeriod == null) {
-      builder.exCouponPeriod = DaysAdjustment.NONE;
-    }
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.exCouponPeriod = DaysAdjustment.NONE;
   }
 
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(settlementDateOffset.getDays() >= 0d, "The settlement date offset must be non-negative");
-    ArgChecker.isTrue(exCouponPeriod.getDays() <= 0d,
+    ArgChecker.isTrue(settlementDateOffset.getDays() >= 0, "The settlement date offset must be non-negative");
+    ArgChecker.isTrue(exCouponPeriod.getDays() <= 0,
         "The ex-coupon period is measured from the payment date, thus the days must be non-positive");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedCapitalIndexedBond resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = periodicSchedule.createSchedule(refData);
+    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData);
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
     List<Double> resolvedGearings =
         rateCalculation.getGearing().orElse(ALWAYS_1).resolveValues(adjustedSchedule.getPeriods());
@@ -190,9 +193,10 @@ public final class CapitalIndexedBond
     CapitalIndexedBondPaymentPeriod nominalPayment = bondPeriods.get(bondPeriods.size() - 1)
         .withUnitCoupon(bondPeriods.get(0).getStartDate(), bondPeriods.get(0).getUnadjustedStartDate());
     return ResolvedCapitalIndexedBond.builder()
+        .securityId(securityId)
         .periodicPayments(ImmutableList.copyOf(bondPeriods))
-        .frequency(periodicSchedule.getFrequency())
-        .rollConvention(periodicSchedule.calculatedRollConvention())
+        .frequency(accrualSchedule.getFrequency())
+        .rollConvention(accrualSchedule.calculatedRollConvention())
         .dayCount(dayCount)
         .yieldConvention(yieldConvention)
         .settlementDateOffset(settlementDateOffset)
@@ -230,10 +234,25 @@ public final class CapitalIndexedBond
     return new CapitalIndexedBond.Builder();
   }
 
-  private CapitalIndexedBond(
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param currency  the value of the property, not null
+   * @param notional  the value of the property
+   * @param accrualSchedule  the value of the property, not null
+   * @param rateCalculation  the value of the property, not null
+   * @param startIndexValue  the value of the property
+   * @param dayCount  the value of the property, not null
+   * @param yieldConvention  the value of the property, not null
+   * @param legalEntityId  the value of the property, not null
+   * @param settlementDateOffset  the value of the property, not null
+   * @param exCouponPeriod  the value of the property, not null
+   */
+  CapitalIndexedBond(
+      SecurityId securityId,
       Currency currency,
       double notional,
-      PeriodicSchedule periodicSchedule,
+      PeriodicSchedule accrualSchedule,
       InflationRateCalculation rateCalculation,
       double startIndexValue,
       DayCount dayCount,
@@ -241,9 +260,10 @@ public final class CapitalIndexedBond
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset,
       DaysAdjustment exCouponPeriod) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
-    JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
+    ArgChecker.notNegativeOrZero(notional, "notional");
+    JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
     ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -251,9 +271,10 @@ public final class CapitalIndexedBond
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     JodaBeanUtils.notNull(exCouponPeriod, "exCouponPeriod");
+    this.securityId = securityId;
     this.currency = currency;
     this.notional = notional;
-    this.periodicSchedule = periodicSchedule;
+    this.accrualSchedule = accrualSchedule;
     this.rateCalculation = rateCalculation;
     this.startIndexValue = startIndexValue;
     this.dayCount = dayCount;
@@ -281,12 +302,22 @@ public final class CapitalIndexedBond
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency of the product.
+   * Gets the security identifier.
    * <p>
-   * The amounts of the notional are usually expressed in terms of this currency,
-   * however they can be converted from amounts in a different currency.
+   * This identifier uniquely identifies the security within the system.
    * @return the value of the property, not null
    */
+  @Override
+  public SecurityId getSecurityId() {
+    return securityId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency that the bond is traded in.
+   * @return the value of the property, not null
+   */
+  @Override
   public Currency getCurrency() {
     return currency;
   }
@@ -311,8 +342,8 @@ public final class CapitalIndexedBond
    * These are used directly or indirectly to determine other dates in the product.
    * @return the value of the property, not null
    */
-  public PeriodicSchedule getPeriodicSchedule() {
-    return periodicSchedule;
+  public PeriodicSchedule getAccrualSchedule() {
+    return accrualSchedule;
   }
 
   //-----------------------------------------------------------------------
@@ -368,7 +399,7 @@ public final class CapitalIndexedBond
   /**
    * Gets the legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the coupon bond product.
+   * This identifier is used for the legal entity that issues the bond.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -419,9 +450,10 @@ public final class CapitalIndexedBond
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CapitalIndexedBond other = (CapitalIndexedBond) obj;
-      return JodaBeanUtils.equal(currency, other.currency) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(periodicSchedule, other.periodicSchedule) &&
+          JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
           JodaBeanUtils.equal(rateCalculation, other.rateCalculation) &&
           JodaBeanUtils.equal(startIndexValue, other.startIndexValue) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
@@ -436,9 +468,10 @@ public final class CapitalIndexedBond
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(periodicSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateCalculation);
     hash = hash * 31 + JodaBeanUtils.hashCode(startIndexValue);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
@@ -451,11 +484,12 @@ public final class CapitalIndexedBond
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("CapitalIndexedBond{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("periodicSchedule").append('=').append(periodicSchedule).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("rateCalculation").append('=').append(rateCalculation).append(',').append(' ');
     buf.append("startIndexValue").append('=').append(startIndexValue).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
@@ -478,6 +512,11 @@ public final class CapitalIndexedBond
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", CapitalIndexedBond.class, SecurityId.class);
+    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
@@ -488,10 +527,10 @@ public final class CapitalIndexedBond
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", CapitalIndexedBond.class, Double.TYPE);
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code accrualSchedule} property.
      */
-    private final MetaProperty<PeriodicSchedule> periodicSchedule = DirectMetaProperty.ofImmutable(
-        this, "periodicSchedule", CapitalIndexedBond.class, PeriodicSchedule.class);
+    private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
+        this, "accrualSchedule", CapitalIndexedBond.class, PeriodicSchedule.class);
     /**
      * The meta-property for the {@code rateCalculation} property.
      */
@@ -532,9 +571,10 @@ public final class CapitalIndexedBond
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "currency",
         "notional",
-        "periodicSchedule",
+        "accrualSchedule",
         "rateCalculation",
         "startIndexValue",
         "dayCount",
@@ -552,12 +592,14 @@ public final class CapitalIndexedBond
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case 304659814:  // accrualSchedule
+          return accrualSchedule;
         case -521703991:  // rateCalculation
           return rateCalculation;
         case -1656407615:  // startIndexValue
@@ -593,6 +635,14 @@ public final class CapitalIndexedBond
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
+    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -609,11 +659,11 @@ public final class CapitalIndexedBond
     }
 
     /**
-     * The meta-property for the {@code periodicSchedule} property.
+     * The meta-property for the {@code accrualSchedule} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<PeriodicSchedule> periodicSchedule() {
-      return periodicSchedule;
+    public MetaProperty<PeriodicSchedule> accrualSchedule() {
+      return accrualSchedule;
     }
 
     /**
@@ -676,12 +726,14 @@ public final class CapitalIndexedBond
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((CapitalIndexedBond) bean).getSecurityId();
         case 575402001:  // currency
           return ((CapitalIndexedBond) bean).getCurrency();
         case 1585636160:  // notional
           return ((CapitalIndexedBond) bean).getNotional();
-        case 1847018066:  // periodicSchedule
-          return ((CapitalIndexedBond) bean).getPeriodicSchedule();
+        case 304659814:  // accrualSchedule
+          return ((CapitalIndexedBond) bean).getAccrualSchedule();
         case -521703991:  // rateCalculation
           return ((CapitalIndexedBond) bean).getRateCalculation();
         case -1656407615:  // startIndexValue
@@ -717,9 +769,10 @@ public final class CapitalIndexedBond
    */
   public static final class Builder extends DirectFieldsBeanBuilder<CapitalIndexedBond> {
 
+    private SecurityId securityId;
     private Currency currency;
     private double notional;
-    private PeriodicSchedule periodicSchedule;
+    private PeriodicSchedule accrualSchedule;
     private InflationRateCalculation rateCalculation;
     private double startIndexValue;
     private DayCount dayCount;
@@ -732,6 +785,7 @@ public final class CapitalIndexedBond
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -739,9 +793,10 @@ public final class CapitalIndexedBond
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CapitalIndexedBond beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.currency = beanToCopy.getCurrency();
       this.notional = beanToCopy.getNotional();
-      this.periodicSchedule = beanToCopy.getPeriodicSchedule();
+      this.accrualSchedule = beanToCopy.getAccrualSchedule();
       this.rateCalculation = beanToCopy.getRateCalculation();
       this.startIndexValue = beanToCopy.getStartIndexValue();
       this.dayCount = beanToCopy.getDayCount();
@@ -755,12 +810,14 @@ public final class CapitalIndexedBond
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case 575402001:  // currency
           return currency;
         case 1585636160:  // notional
           return notional;
-        case 1847018066:  // periodicSchedule
-          return periodicSchedule;
+        case 304659814:  // accrualSchedule
+          return accrualSchedule;
         case -521703991:  // rateCalculation
           return rateCalculation;
         case -1656407615:  // startIndexValue
@@ -783,14 +840,17 @@ public final class CapitalIndexedBond
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case 1847018066:  // periodicSchedule
-          this.periodicSchedule = (PeriodicSchedule) newValue;
+        case 304659814:  // accrualSchedule
+          this.accrualSchedule = (PeriodicSchedule) newValue;
           break;
         case -521703991:  // rateCalculation
           this.rateCalculation = (InflationRateCalculation) newValue;
@@ -845,11 +905,11 @@ public final class CapitalIndexedBond
 
     @Override
     public CapitalIndexedBond build() {
-      preBuild(this);
       return new CapitalIndexedBond(
+          securityId,
           currency,
           notional,
-          periodicSchedule,
+          accrualSchedule,
           rateCalculation,
           startIndexValue,
           dayCount,
@@ -861,10 +921,20 @@ public final class CapitalIndexedBond
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the primary currency of the product.
+     * Sets the security identifier.
      * <p>
-     * The amounts of the notional are usually expressed in terms of this currency,
-     * however they can be converted from amounts in a different currency.
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
+    /**
+     * Sets the currency that the bond is traded in.
      * @param currency  the new value, not null
      * @return this, for chaining, not null
      */
@@ -883,7 +953,7 @@ public final class CapitalIndexedBond
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
+      ArgChecker.notNegativeOrZero(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -893,12 +963,12 @@ public final class CapitalIndexedBond
      * <p>
      * This is used to define the accrual periods.
      * These are used directly or indirectly to determine other dates in the product.
-     * @param periodicSchedule  the new value, not null
+     * @param accrualSchedule  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder periodicSchedule(PeriodicSchedule periodicSchedule) {
-      JodaBeanUtils.notNull(periodicSchedule, "periodicSchedule");
-      this.periodicSchedule = periodicSchedule;
+    public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
+      JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
+      this.accrualSchedule = accrualSchedule;
       return this;
     }
 
@@ -962,7 +1032,7 @@ public final class CapitalIndexedBond
     /**
      * Sets the legal entity identifier.
      * <p>
-     * This identifier is used for the legal entity which issues the coupon bond product.
+     * This identifier is used for the legal entity that issues the bond.
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1007,11 +1077,12 @@ public final class CapitalIndexedBond
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("CapitalIndexedBond.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("periodicSchedule").append('=').append(JodaBeanUtils.toString(periodicSchedule)).append(',').append(' ');
+      buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation)).append(',').append(' ');
       buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');

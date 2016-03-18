@@ -381,7 +381,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -389,20 +388,18 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public double dirtyNominalPriceFromCurves(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    return dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    return dirtyNominalPriceFromCurves(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
   }
 
   // calculate the dirty price
   double dirtyNominalPriceFromCurves(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate) {
@@ -410,7 +407,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     CurrencyAmount pv = presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     double df = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+        bond.getSecurityId(), legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
     double notional = bond.getNotional();
     return pv.getAmount() / (df * notional);
   }
@@ -424,7 +421,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * compounded rates of the discounting curve.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -435,7 +431,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public double dirtyNominalPriceFromCurvesWithZSpread(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
@@ -445,14 +440,13 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    return dirtyNominalPriceFromCurvesWithZSpread(bond, securityId, ratesProvider, issuerDiscountFactorsProvider,
+    return dirtyNominalPriceFromCurvesWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         settlementDate, zSpread, compoundedRateType, periodsPerYear);
   }
 
   // calculate the dirty price
   double dirtyNominalPriceFromCurvesWithZSpread(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate,
@@ -465,7 +459,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
         periodsPerYear);
     StandardId legalEntityId = bond.getLegalEntityId();
     double df = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+        bond.getSecurityId(), legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
     double notional = bond.getNotional();
     return pv.getAmount() / (df * notional);
   }
@@ -478,7 +472,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * the underlying curves.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -486,20 +479,18 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public PointSensitivityBuilder dirtyNominalPriceSensitivity(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData) {
 
     validate(ratesProvider, issuerDiscountFactorsProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    return dirtyNominalPriceSensitivity(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+    return dirtyNominalPriceSensitivity(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
   }
 
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyNominalPriceSensitivity(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate) {
@@ -508,7 +499,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
     CurrencyAmount pv = presentValue(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(settlementDate);
     PointSensitivityBuilder pvSensi = presentValueSensitivity(
         bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate).multipliedBy(1d / (df * notional));
@@ -527,7 +518,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * compounded rates of the discounting curve.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -538,7 +528,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public PointSensitivityBuilder dirtyNominalPriceSensitivityWithZSpread(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
@@ -550,7 +539,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     return dirtyNominalPriceSensitivityWithZSpread(
         bond,
-        securityId,
         ratesProvider,
         issuerDiscountFactorsProvider,
         settlementDate,
@@ -562,7 +550,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyNominalPriceSensitivityWithZSpread(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       LocalDate settlementDate,
@@ -576,7 +563,7 @@ public class DiscountingCapitalIndexedBondProductPricer {
         periodsPerYear);
     StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(settlementDate);
     PointSensitivityBuilder pvSensi = presentValueSensitivityWithZSpread(bond, ratesProvider, issuerDiscountFactorsProvider,
         settlementDate, zSpread, compoundedRateType, periodsPerYear).multipliedBy(1d / (df * notional));
@@ -740,7 +727,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * The yield is in the bill yield convention.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -748,7 +734,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public double realYieldFromCurves(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData) {
@@ -757,10 +742,10 @@ public class DiscountingCapitalIndexedBondProductPricer {
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     double dirtyPrice;
     if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
-      dirtyPrice = dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+      dirtyPrice = dirtyNominalPriceFromCurves(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
     } else {
       double dirtyNominalPrice =
-          dirtyNominalPriceFromCurves(bond, securityId, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
+          dirtyNominalPriceFromCurves(bond, ratesProvider, issuerDiscountFactorsProvider, settlementDate);
       dirtyPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
     }
     return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyPrice);
@@ -1075,7 +1060,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    * to match the present value.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param ratesProvider  the rates provider, used to determine price index values
    * @param issuerDiscountFactorsProvider  the discount factors provider
    * @param refData  the reference data used to calculate the settlement date
@@ -1086,7 +1070,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
    */
   public double zSpreadFromCurvesAndCleanPrice(
       ResolvedCapitalIndexedBond bond,
-      StandardId securityId,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerDiscountFactorsProvider,
       ReferenceData refData,
@@ -1101,7 +1084,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
       public Double apply(Double z) {
         double dirtyPrice = dirtyNominalPriceFromCurvesWithZSpread(
             bond,
-            securityId,
             ratesProvider,
             issuerDiscountFactorsProvider,
             settlementDate,

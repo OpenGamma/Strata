@@ -25,9 +25,8 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.swap.DeliverableSwapFuture;
 import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.Swap;
@@ -102,6 +101,7 @@ public class DeliverableSwapFuturePricingExample {
         LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()
+        .securityId(SecurityId.of("OG-Future", "CME-F1U-Mar15"))
         .lastTradeDate(LocalDate.of(2015, 3, 16))
         .deliveryDate(LocalDate.of(2015, 3, 18))
         .notional(100_000)
@@ -109,9 +109,6 @@ public class DeliverableSwapFuturePricingExample {
         .build();
 
     return DeliverableSwapFutureTrade.builder()
-        .securityLink(SecurityLink.resolved(UnitSecurity.builder(product)
-            .standardId(StandardId.of("OG-Future", "CME-F1U-Mar15"))
-            .build()))
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .attributes(ImmutableMap.of("description", "CME-5Y-DSF Mar15"))
@@ -119,8 +116,9 @@ public class DeliverableSwapFuturePricingExample {
             .tradeDate(LocalDate.of(2015, 3, 18))
             .settlementDate(LocalDate.of(2015, 3, 18))
             .build())
+        .product(product)
         .quantity(20)
-        .tradePrice(1.0075)
+        .price(1.0075)
         .build();
   }
 
@@ -130,6 +128,7 @@ public class DeliverableSwapFuturePricingExample {
         LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
     DeliverableSwapFuture product = DeliverableSwapFuture.builder()
+        .securityId(SecurityId.of("OG-Future", "CME-F1U-Jun15"))
         .lastTradeDate(LocalDate.of(2015, 6, 15))
         .deliveryDate(LocalDate.of(2015, 6, 17))
         .notional(100_000)
@@ -137,9 +136,6 @@ public class DeliverableSwapFuturePricingExample {
         .build();
 
     return DeliverableSwapFutureTrade.builder()
-        .securityLink(SecurityLink.resolved(UnitSecurity.builder(product)
-            .standardId(StandardId.of("OG-Future", "CME-F1U-Jun15"))
-            .build()))
         .tradeInfo(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .attributes(ImmutableMap.of("description", "CME-5Y-DSF Jun15"))
@@ -147,8 +143,9 @@ public class DeliverableSwapFuturePricingExample {
             .tradeDate(LocalDate.of(2015, 6, 17))
             .settlementDate(LocalDate.of(2015, 6, 17))
             .build())
+        .product(product)
         .quantity(20)
-        .tradePrice(1.0085)
+        .price(1.0085)
         .build();
   }
 

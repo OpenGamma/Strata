@@ -57,7 +57,7 @@ public class IborFutureCalculationFunctionTest {
   public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
       LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, REF_DATA);
 
-  private static final StandardId SEC_ID = TRADE.getSecurity().getStandardId();
+  private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getLastTradeDate().minusDays(7);

@@ -211,11 +211,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     ResolvedCapitalIndexedBond bond = trade.getProduct();
     LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     double df = issuerDiscountFactorsProvider
-        .repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(standardSettlementDate);
+        .repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, currency).discountFactor(standardSettlementDate);
     CurrencyAmount pvStandard = forecastValueStandardFromCleanPrice(
         bond, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
@@ -269,11 +268,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     ResolvedCapitalIndexedBond bond = trade.getProduct();
     LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     double df = issuerDiscountFactorsProvider
-        .repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(standardSettlementDate);
+        .repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, currency).discountFactor(standardSettlementDate);
     CurrencyAmount pvStandard = forecastValueStandardFromCleanPrice(
         bond, ratesProvider, standardSettlementDate, cleanRealPrice).multipliedBy(df);
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
@@ -333,11 +331,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     ResolvedCapitalIndexedBond bond = trade.getProduct();
     LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     RepoCurveDiscountFactors repoDiscountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, currency);
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, currency);
     double df = repoDiscountFactors.discountFactor(standardSettlementDate);
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
     PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
@@ -394,11 +391,10 @@ public class DiscountingCapitalIndexedBondTradePricer {
     ResolvedCapitalIndexedBond bond = trade.getProduct();
     LocalDate standardSettlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
     LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
     StandardId legalEntityId = bond.getLegalEntityId();
     Currency currency = bond.getCurrency();
     RepoCurveDiscountFactors repoDiscountFactors =
-        issuerDiscountFactorsProvider.repoCurveDiscountFactors(securityId, legalEntityId, currency);
+        issuerDiscountFactorsProvider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, currency);
     double df = repoDiscountFactors.discountFactor(standardSettlementDate);
     PointSensitivityBuilder dfSensi = repoDiscountFactors.zeroRatePointSensitivity(standardSettlementDate);
     PointSensitivityBuilder pvSensiStandard = forecastValueSensitivityStandardFromCleanPrice(bond, ratesProvider,
@@ -604,7 +600,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     PaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
     return netAmount(trade, ratesProvider).multipliedBy(discountFactors.discountFactor(settlement.getPaymentDate()));
   }
   
@@ -655,7 +651,7 @@ public class DiscountingCapitalIndexedBondTradePricer {
     PaymentPeriod settlement = trade.getSettlement();
     ResolvedCapitalIndexedBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = issuerDiscountFactorsProvider.repoCurveDiscountFactors(
-        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
     double df = discountFactors.discountFactor(settlement.getPaymentDate());
     double netAmount = netAmount(trade, ratesProvider).getAmount();
     PointSensitivityBuilder dfSensi =

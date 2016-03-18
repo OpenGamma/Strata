@@ -88,7 +88,7 @@ public class DeliverableSwapFutureCalculationFunction
   @Override
   public FunctionRequirements requirements(DeliverableSwapFutureTrade trade, Set<Measure> measures, ReferenceData refData) {
     DeliverableSwapFuture product = trade.getProduct();
-    QuoteKey quoteKey = QuoteKey.of(trade.getSecurity().getStandardId());
+    QuoteKey quoteKey = QuoteKey.of(trade.getSecurityId().getStandardId());
     Set<Index> indices = product.getUnderlyingSwap().allIndices();
     Set<ObservableKey> indexRateKeys =
         indices.stream()

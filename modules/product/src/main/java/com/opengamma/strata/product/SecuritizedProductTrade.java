@@ -15,7 +15,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
  * A securitized product contains the structure of a financial instrument that is traded as a {@link Security}.
  * See {@link SecuritizedProduct} to understand the difference between a security and a securitized product.
  * <p>
- * When trading securities, the standard trade type is {@link SecurityIdTrade}.
+ * When trading securities, the standard trade type is {@link SecurityTrade}.
  * That trade type relies on securities being looked up in {@link ReferenceData}.
  * One use for trade types that implement {@code SecuritizedProductTrade} is to price
  * and hold trades without needing to populate reference data, because the securitized

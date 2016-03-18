@@ -174,12 +174,13 @@ public class ResolvedCapitalIndexedBondTest {
   //-------------------------------------------------------------------------
   static ResolvedCapitalIndexedBond sut() {
     return ResolvedCapitalIndexedBond.builder()
+        .securityId(CapitalIndexedBondTest.sut().getSecurityId())
         .dayCount(ACT_ACT_ISDA)
         .legalEntityId(LEGAL_ENTITY)
         .nominalPayment(NOMINAL)
         .periodicPayments(PERIODIC)
-        .frequency(CapitalIndexedBondTest.sut().getPeriodicSchedule().getFrequency())
-        .rollConvention(CapitalIndexedBondTest.sut().getPeriodicSchedule().calculatedRollConvention())
+        .frequency(CapitalIndexedBondTest.sut().getAccrualSchedule().getFrequency())
+        .rollConvention(CapitalIndexedBondTest.sut().getAccrualSchedule().calculatedRollConvention())
         .settlementDateOffset(SETTLE_OFFSET)
         .yieldConvention(US_IL_REAL)
         .rateCalculation(CapitalIndexedBondTest.sut().getRateCalculation())
@@ -189,12 +190,13 @@ public class ResolvedCapitalIndexedBondTest {
 
   static ResolvedCapitalIndexedBond sut2() {
     return ResolvedCapitalIndexedBond.builder()
+        .securityId(CapitalIndexedBondTest.sut2().getSecurityId())
         .dayCount(NL_365)
         .legalEntityId(StandardId.of("OG-Ticker", "US-Govt1"))
         .nominalPayment(PERIODIC[1].withUnitCoupon(PERIODIC[0].getStartDate(), PERIODIC[0].getUnadjustedStartDate()))
         .periodicPayments(PERIODIC[0], PERIODIC[1])
-        .frequency(CapitalIndexedBondTest.sut2().getPeriodicSchedule().getFrequency())
-        .rollConvention(CapitalIndexedBondTest.sut2().getPeriodicSchedule().calculatedRollConvention())
+        .frequency(CapitalIndexedBondTest.sut2().getAccrualSchedule().getFrequency())
+        .rollConvention(CapitalIndexedBondTest.sut2().getAccrualSchedule().calculatedRollConvention())
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .yieldConvention(INDEX_LINKED_FLOAT)
         .rateCalculation(CapitalIndexedBondTest.sut2().getRateCalculation())
