@@ -8,7 +8,7 @@ package com.opengamma.strata.product;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.beans.PropertyDefinition;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Builder to create {@code SecurityInfo}.
@@ -29,13 +29,12 @@ public final class SecurityInfoBuilder {
    * This provides information about the security price.
    * This can be used to convert the price into a monetary value.
    */
-  @PropertyDefinition(validate = "notNull")
   private SecurityPriceInfo priceInfo;
   /**
-   * The trade attributes.
+   * The security attributes.
    * <p>
    * Security attributes, provide the ability to associate arbitrary information
-   * with a trade in a key-value map.
+   * with a security in a key-value map.
    */
   private final Map<SecurityAttributeType<?>, Object> attributes = new HashMap<>();
 
@@ -53,7 +52,7 @@ public final class SecurityInfoBuilder {
    * @return this, for chaining
    */
   public SecurityInfoBuilder id(SecurityId id) {
-    this.id = id;
+    this.id = ArgChecker.notNull(id, "id");
     return this;
   }
 
@@ -67,12 +66,12 @@ public final class SecurityInfoBuilder {
    * @return this, for chaining
    */
   public SecurityInfoBuilder priceInfo(SecurityPriceInfo priceInfo) {
-    this.priceInfo = priceInfo;
+    this.priceInfo = ArgChecker.notNull(priceInfo, "priceInfo");
     return this;
   }
 
   /**
-   * Adds a trade attribute to the map of attributes.
+   * Adds a security attribute to the map of attributes.
    * <p>
    * The attribute is added using {@code Map.put(type, value)} semantics.
    * 
@@ -83,6 +82,8 @@ public final class SecurityInfoBuilder {
    */
   @SuppressWarnings("unchecked")
   public <T> SecurityInfoBuilder addAttribute(SecurityAttributeType<T> type, T value) {
+    ArgChecker.notNull(type, "type");
+    ArgChecker.notNull(value, "value");
     // ImmutableMap.Builder would not provide Map.put semantics
     attributes.put(type, value);
     return this;

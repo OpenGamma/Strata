@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.id.StandardId;
 
 /**
@@ -62,7 +63,7 @@ public final class TradeInfoBuilder {
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the primary identifier for the trade.
+   * Sets the primary identifier for the trade, optional.
    * <p>
    * The identifier is used to identify the trade.
    * 
@@ -75,7 +76,7 @@ public final class TradeInfoBuilder {
   }
 
   /**
-   * Sets the counterparty identifier.
+   * Sets the counterparty identifier, optional.
    * <p>
    * An identifier used to specify the counterparty of the trade.
    * 
@@ -88,7 +89,7 @@ public final class TradeInfoBuilder {
   }
 
   /**
-   * Sets the trade date.
+   * Sets the trade date, optional.
    * 
    * @param tradeDate  the trade date
    * @return this, for chaining
@@ -99,7 +100,7 @@ public final class TradeInfoBuilder {
   }
 
   /**
-   * Sets the trade time.
+   * Sets the trade time, optional.
    * 
    * @param tradeTime  the trade time
    * @return this, for chaining
@@ -110,7 +111,7 @@ public final class TradeInfoBuilder {
   }
 
   /**
-   * Sets the trade time-zone.
+   * Sets the trade time-zone, optional.
    * 
    * @param zone  the trade zone
    * @return this, for chaining
@@ -121,7 +122,7 @@ public final class TradeInfoBuilder {
   }
 
   /**
-   * Sets the settlement date.
+   * Sets the settlement date, optional.
    * 
    * @param settlementDate  the settlement date
    * @return this, for chaining
@@ -143,6 +144,8 @@ public final class TradeInfoBuilder {
    */
   @SuppressWarnings("unchecked")
   public <T> TradeInfoBuilder addAttribute(TradeAttributeType<T> type, T value) {
+    ArgChecker.notNull(type, "type");
+    ArgChecker.notNull(value, "value");
     // ImmutableMap.Builder would not provide Map.put semantics
     attributes.put(type, value);
     return this;
