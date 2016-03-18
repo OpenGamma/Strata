@@ -91,9 +91,10 @@ public final class TradeInfo
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<String, String> attributes;
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Obtains an immutable TradeInfo object with the specified trade date.
+   * Obtains an instance with the specified trade date.
    * 
    * @param tradeDate  the trade date
    * @return a TradeInfo object with the specified trade date.
