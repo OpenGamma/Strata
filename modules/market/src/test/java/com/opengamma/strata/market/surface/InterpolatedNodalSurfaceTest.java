@@ -101,7 +101,7 @@ public class InterpolatedNodalSurfaceTest {
     assertThat(test.zValue(1.5d, 3.7d)).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
     DoubleArray sensiValues = test.zValueParameterSensitivity(1.5d, 1.5d).getSensitivity();
     Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
-    for(int i = 0; i < XVALUES.size(); ++i) {
+    for (int i = 0; i < XVALUES.size(); ++i) {
       DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
       assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
     }
@@ -117,10 +117,10 @@ public class InterpolatedNodalSurfaceTest {
 
     Map<Double, Interpolator1DDataBundle> bundle = INTERPOLATOR.getDataBundle(DATA);
     assertThat(test.zValue(DoublesPair.of(1.5d, 3.7d))).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
-    
+
     DoubleArray sensiValues = test.zValueParameterSensitivity(DoublesPair.of(1.5d, 1.5d)).getSensitivity();
     Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
-    for(int i = 0; i < XVALUES.size(); ++i) {
+    for (int i = 0; i < XVALUES.size(); ++i) {
       DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
       assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
     }

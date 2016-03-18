@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.market.surface;
 
-
-
 /**
  * Testing surface implementation.
  * <p>

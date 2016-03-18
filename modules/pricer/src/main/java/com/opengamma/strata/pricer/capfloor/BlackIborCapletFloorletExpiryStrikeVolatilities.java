@@ -139,7 +139,7 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
         result.getSensitivity());
     return parameterSensi.multipliedBy(point.getSensitivity());
   }
-  
+
   private SurfaceMetadata updateSurfaceMetadata(NodalSurface parameters) {
     SurfaceMetadata surfaceMetadata = parameters.getMetadata();
     DoubleArray xValues = parameters.getXValues();

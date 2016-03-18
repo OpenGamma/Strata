@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.surface;
 
-
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.Perturbation;
@@ -91,7 +90,7 @@ public interface Surface {
    * Computes the sensitivity of the z-value with respect to the surface parameters.
    * <p>
    * This returns an array with one element for each x-y parameter of the surface.
-   * The array contains one a sensitivity value for each parameter used to create the surface.
+   * The array contains one sensitivity value for each parameter used to create the surface.
    * 
    * @param xyPair  the pair of x-value and y-value at which the parameter sensitivity is computed
    * @return the sensitivity at the x/y/ point

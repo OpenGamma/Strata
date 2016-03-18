@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.surface;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,19 +183,12 @@ public final class InterpolatedNodalSurface
   @Override
   public SurfaceUnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
     int size = xValues.size();
-    List<Double> sensitivityValues = new ArrayList<Double>(size);
-    Map<DoublesPair,Double> result = interpolator.getNodeSensitivitiesForValue(underlyingDataBundle, xyPair);
-    for (int i = 0; i < size; i++) {
-      DoublesPair pair = DoublesPair.of(xValues.get(i), yValues.get(i));
-      Double sensitivity = result.get(pair);
-      if(sensitivity == null) {
-        sensitivityValues.add(0d);
-      }
-      else {
-        sensitivityValues.add(sensitivity);
-      }
-    }
-    return SurfaceUnitParameterSensitivity.of(metadata, DoubleArray.copyOf(sensitivityValues));
+    Map<DoublesPair, Double> result = interpolator.getNodeSensitivitiesForValue(underlyingDataBundle, xyPair);
+    DoubleArray sensitivityValues = DoubleArray.of(size, i -> {
+      Double sensitivity = result.get(DoublesPair.of(xValues.get(i), yValues.get(i)));
+      return sensitivity != null ? sensitivity : 0d;
+    });
+    return SurfaceUnitParameterSensitivity.of(metadata, sensitivityValues);
   }
 
   //-------------------------------------------------------------------------

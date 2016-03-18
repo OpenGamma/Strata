@@ -170,7 +170,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
     }
     return surfaceMetadata.withParameterMetadata(sortedMetaList);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public double price(double expiry, double tenor, PutCall putCall, double strike, double forwardRate, double volatility) {

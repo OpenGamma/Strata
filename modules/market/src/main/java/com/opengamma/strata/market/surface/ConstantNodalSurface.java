@@ -48,6 +48,10 @@ public final class ConstantNodalSurface
    * X-values and y-values do not vary.
    */
   private static final DoubleArray VALUES = DoubleArray.of(0d);
+  /**
+   * Sensitivity does not vary.
+   */
+  private static final DoubleArray SENSITIVITY = DoubleArray.of(1d);
 
   /**
    * The surface metadata.
@@ -131,7 +135,7 @@ public final class ConstantNodalSurface
 
   @Override
   public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
-    return SurfaceUnitParameterSensitivity.of(metadata, DoubleArray.of(1d));
+    return SurfaceUnitParameterSensitivity.of(metadata, SENSITIVITY);
   }
 
   //-------------------------------------------------------------------------

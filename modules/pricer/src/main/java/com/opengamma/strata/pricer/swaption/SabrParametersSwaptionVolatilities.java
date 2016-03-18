@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -210,7 +209,7 @@ public final class SabrParametersSwaptionVolatilities
         currency,
         DoubleArray.copyOf(sensiMap.getSensitivity().stream().map(p -> p * factor).toArray()));
   }
-  
+
   private SurfaceMetadata updateSurfaceMetadata(NodalSurface parameters) {
     SurfaceMetadata surfaceMetadata = parameters.getMetadata();
     DoubleArray xValues = parameters.getXValues();
@@ -235,8 +234,8 @@ public final class SabrParametersSwaptionVolatilities
       }
       ArgChecker.isTrue(metaList.size() == 0, "Mismatch between surface parameter metadata list and doubles pair list");
     } else {
-      for(int i = 0; i < xValues.size(); ++i) {
-        SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata = 
+      for (int i = 0; i < xValues.size(); ++i) {
+        SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
             SwaptionSurfaceExpiryTenorNodeMetadata.of(xValues.get(i), yValues.get(i));
         orderedMetaList.add(parameterMetadata);
       }

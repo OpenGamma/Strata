@@ -140,10 +140,10 @@ public final class NormalSwaptionExpiryTenorVolatilities
     SurfaceUnitParameterSensitivity result = surface.zValueParameterSensitivity(expiry, tenor);
     SurfaceCurrencyParameterSensitivity parameterSensi = SurfaceCurrencyParameterSensitivity.of(
         updateSurfaceMetadata(surface), point.getCurrency(),
-            result.getSensitivity());
+        result.getSensitivity());
     return parameterSensi.multipliedBy(point.getSensitivity());
   }
-  
+
   private SurfaceMetadata updateSurfaceMetadata(NodalSurface parameters) {
     SurfaceMetadata surfaceMetadata = parameters.getMetadata();
     DoubleArray xValues = parameters.getXValues();
