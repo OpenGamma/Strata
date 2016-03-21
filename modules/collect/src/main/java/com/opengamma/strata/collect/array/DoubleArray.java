@@ -265,9 +265,12 @@ public final class DoubleArray
   //-----------------------------------------------------------------------
   /**
    * Obtains an instance from a collection of {@code Double}.
+   * <p>
+   * The order of the values in the returned array is the order in which elements are returned
+   * from the iterator of the collection.
    * 
    * @param collection  the collection to initialize from
-   * @return an array containing the specified values
+   * @return an array containing the values from the collection in iteration order
    */
   public static DoubleArray copyOf(Collection<Double> collection) {
     if (collection.size() == 0) {
