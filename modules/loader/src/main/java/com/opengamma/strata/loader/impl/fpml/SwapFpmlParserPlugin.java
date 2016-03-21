@@ -502,11 +502,11 @@ final class SwapFpmlParserPlugin
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/floatingRateMultiplierSchedule?'
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/inflationLag'
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/interpolationMethod'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/initialIndexLevel?'
     //  'calculationPeriodAmount/calculation/dayCountFraction'
     // ignored elements:
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/indexSource'
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/mainPublication'
-    // 'calculationPeriodAmount/calculation/inflationRateCalculation/initialIndexLevel'
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/fallbackBondApplicable'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/initialRate?'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/finalRateRounding?'
@@ -532,6 +532,10 @@ final class SwapFpmlParserPlugin
     // interpolation
     String interpStr = inflationEl.getChild("interpolationMethod").getContent();
     builder.interpolated(interpStr.toLowerCase(Locale.ENGLISH).contains("linear"));
+    // initial index
+    inflationEl.findChild("initialIndexLevel").ifPresent(el -> {
+      builder.firstIndexValue(document.parseDecimal(el));
+    });
     // gearing
     inflationEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
       builder.gearing(parseSchedule(el, document));

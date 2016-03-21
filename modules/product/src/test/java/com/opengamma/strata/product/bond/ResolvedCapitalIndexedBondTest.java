@@ -56,9 +56,9 @@ public class ResolvedCapitalIndexedBondTest {
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
       .interpolated(true)
+      .firstIndexValue(198.475)
       .build();
   private static final double NOTIONAL = 10_000_000d;
-  private static final double START_INDEX = 198.475;
   private static final BusinessDayAdjustment SCHEDULE_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY);
   private static final DaysAdjustment SETTLE_OFFSET = DaysAdjustment.ofBusinessDays(2, USNY);
@@ -70,7 +70,7 @@ public class ResolvedCapitalIndexedBondTest {
     for (int i = 0; i < 4; ++i) {
       LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
       LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);
-      RateObservation obs = RATE_CALC.createRateObservation(end, START_INDEX);
+      RateObservation obs = RATE_CALC.createRateObservation(end);
       PERIODIC[i] = CapitalIndexedBondPaymentPeriod.builder()
           .currency(USD)
           .startDate(start)
@@ -102,6 +102,7 @@ public class ResolvedCapitalIndexedBondTest {
     assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
     assertEquals(test.getYieldConvention(), US_IL_REAL);
     assertEquals(test.hasExCouponPeriod(), false);
+    assertEquals(test.getFirstIndexValue(), RATE_CALC.getFirstIndexValue().getAsDouble());
     assertEquals(test.findPeriod(PERIODIC[0].getUnadjustedStartDate()), Optional.of(test.getPeriodicPayments().get(0)));
     assertEquals(test.findPeriod(LocalDate.MIN), Optional.empty());
     assertEquals(test.findPeriodIndex(PERIODIC[0].getUnadjustedStartDate()), OptionalInt.of(0));
@@ -183,8 +184,7 @@ public class ResolvedCapitalIndexedBondTest {
         .rollConvention(CapitalIndexedBondTest.sut().getAccrualSchedule().calculatedRollConvention())
         .settlementDateOffset(SETTLE_OFFSET)
         .yieldConvention(US_IL_REAL)
-        .rateCalculation(CapitalIndexedBondTest.sut().getRateCalculation())
-        .startIndexValue(CapitalIndexedBondTest.sut().getStartIndexValue())
+        .rateCalculation(RATE_CALC)
         .build();
   }
 
@@ -200,7 +200,6 @@ public class ResolvedCapitalIndexedBondTest {
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, GBLO))
         .yieldConvention(INDEX_LINKED_FLOAT)
         .rateCalculation(CapitalIndexedBondTest.sut2().getRateCalculation())
-        .startIndexValue(CapitalIndexedBondTest.sut2().getStartIndexValue())
         .build();
   }
 

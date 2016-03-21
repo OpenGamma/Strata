@@ -102,8 +102,7 @@ public final class CapitalIndexedBondTrade
               product.getAccrualSchedule().getStartDate(),
               settlementDate));
     } else {
-      RateObservation rateObservation =
-          product.getRateCalculation().createRateObservation(settlementDate, product.getStartIndexValue());
+      RateObservation rateObservation = product.getRateCalculation().createRateObservation(settlementDate);
       settlement = CapitalIndexedBondPaymentPeriod.builder()
           .startDate(resolvedProduct.getStartDate())
           .unadjustedStartDate(product.getAccrualSchedule().getStartDate())
