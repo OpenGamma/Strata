@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -263,19 +264,22 @@ public final class DoubleArray
 
   //-----------------------------------------------------------------------
   /**
-   * Obtains an instance from a list of {@code Double}.
+   * Obtains an instance from a collection of {@code Double}.
+   * <p>
+   * The order of the values in the returned array is the order in which elements are returned
+   * from the iterator of the collection.
    * 
-   * @param list  the list to initialize from
-   * @return an array containing the specified values
+   * @param collection  the collection to initialize from
+   * @return an array containing the values from the collection in iteration order
    */
-  public static DoubleArray copyOf(List<Double> list) {
-    if (list.size() == 0) {
+  public static DoubleArray copyOf(Collection<Double> collection) {
+    if (collection.size() == 0) {
       return EMPTY;
     }
-    if (list instanceof ImmList) {
-      return ((ImmList) list).underlying;
+    if (collection instanceof ImmList) {
+      return ((ImmList) collection).underlying;
     }
-    return new DoubleArray(Doubles.toArray(list));
+    return new DoubleArray(Doubles.toArray(collection));
   }
 
   /**
