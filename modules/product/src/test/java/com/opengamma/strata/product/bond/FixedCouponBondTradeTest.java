@@ -6,8 +6,10 @@
 package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -24,11 +26,14 @@ import com.opengamma.strata.product.TradeInfo;
 public class FixedCouponBondTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate TRADE_DATE = LocalDate.of(2015, 3, 25);
-  private static final LocalDate SETTLEMENT_DATE = LocalDate.of(2015, 3, 30);
+  private static final LocalDate TRADE_DATE = date(2015, 3, 25);
+  private static final LocalDate SETTLEMENT_DATE = date(2015, 3, 30);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(TRADE_DATE)
       .settlementDate(SETTLEMENT_DATE)
+      .build();
+  private static final TradeInfo TRADE_INFO2 = TradeInfo.builder()
+      .tradeDate(TRADE_DATE)
       .build();
   private static final long QUANTITY = 10;
   private static final double PRICE = 123;
@@ -56,6 +61,16 @@ public class FixedCouponBondTradeTest {
     assertEquals(sut().resolve(REF_DATA), expected);
   }
 
+  public void test_resolve_noTradeOrSettlementDate() {
+    FixedCouponBondTrade test = FixedCouponBondTrade.builder()
+        .info(TradeInfo.EMPTY)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(PRICE)
+        .build();
+    assertThrows(() -> test.resolve(REF_DATA), IllegalStateException.class);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
@@ -78,6 +93,7 @@ public class FixedCouponBondTradeTest {
 
   static FixedCouponBondTrade sut2() {
     return FixedCouponBondTrade.builder()
+        .info(TRADE_INFO2)
         .product(PRODUCT2)
         .quantity(100L)
         .price(PRICE2)

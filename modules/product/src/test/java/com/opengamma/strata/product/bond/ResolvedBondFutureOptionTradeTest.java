@@ -8,6 +8,7 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
@@ -20,6 +21,12 @@ import com.opengamma.strata.basics.market.ReferenceData;
 public class ResolvedBondFutureOptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+
+  //-------------------------------------------------------------------------
+  public void test_getters() {
+    ResolvedBondFutureOptionTrade test = sut();
+    assertEquals(test.getTradeDate(), test.getInfo().getTradeDate().get());
+  }
 
   //-------------------------------------------------------------------------
   public void coverage() {

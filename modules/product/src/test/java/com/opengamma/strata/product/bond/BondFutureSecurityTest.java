@@ -63,7 +63,7 @@ public class BondFutureSecurityTest {
     BondFuture product = test.createProduct(refData);
     assertEquals(product.getDeliveryBasket().get(0), PRODUCT.getDeliveryBasket().get(0));
     assertEquals(product.getDeliveryBasket().get(1), PRODUCT.getDeliveryBasket().get(1));
-    TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+    TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     BondFutureTrade expectedTrade = BondFutureTrade.builder()
         .info(tradeInfo)
         .product(product)
