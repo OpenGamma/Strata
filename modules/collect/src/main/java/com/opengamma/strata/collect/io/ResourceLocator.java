@@ -119,7 +119,7 @@ public final class ResourceLocator {
    * @param resourceName  the resource name
    * @return the resource
    */
-  public static ResourceLocator ofClasspath(Class cls, String resourceName) {
+  public static ResourceLocator ofClasspath(Class<?> cls, String resourceName) {
     ArgChecker.notNull(resourceName, "classpathLocator");
     URL url = cls.getResource(resourceName);
     if (url == null) {
