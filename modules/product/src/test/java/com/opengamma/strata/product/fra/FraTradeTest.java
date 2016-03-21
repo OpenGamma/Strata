@@ -25,7 +25,7 @@ public class FraTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Fra PRODUCT = FraTest.sut();
   private static final Fra PRODUCT2 = FraTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {

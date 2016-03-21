@@ -21,7 +21,7 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class EquityTradeTest {
 
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final Equity PRODUCT = EquityTest.sut();
   private static final Equity PRODUCT2 = EquityTest.sut2();
   private static final int QUANTITY = 100;

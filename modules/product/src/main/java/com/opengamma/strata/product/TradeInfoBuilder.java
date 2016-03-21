@@ -61,6 +61,25 @@ public final class TradeInfoBuilder {
   TradeInfoBuilder() {
   }
 
+  // creates a populated instance
+  TradeInfoBuilder(
+      StandardId id,
+      StandardId counterparty,
+      LocalDate tradeDate,
+      LocalTime tradeTime,
+      ZoneId zone, 
+      LocalDate settlementDate,
+      Map<TradeAttributeType<?>, Object> attributes) {
+
+    this.id = id;
+    this.counterparty = counterparty;
+    this.tradeDate = tradeDate;
+    this.tradeTime = tradeTime;
+    this.zone = zone;
+    this.settlementDate = settlementDate;
+    this.attributes.putAll(attributes);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Sets the primary identifier for the trade, optional.

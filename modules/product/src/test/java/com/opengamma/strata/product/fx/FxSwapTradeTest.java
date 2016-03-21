@@ -25,7 +25,7 @@ public class FxSwapTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxSwap PRODUCT = FxSwapTest.sut();
   private static final FxSwap PRODUCT2 = FxSwapTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2011, 11, 14)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2011, 11, 14));
 
   //-------------------------------------------------------------------------
   public void test_of() {

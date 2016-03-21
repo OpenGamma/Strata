@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.market.ImmutableReferenceData;
 @Test
 public class SecurityTradeTest {
 
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Id");
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "Id2");
   private static final int QUANTITY = 100;

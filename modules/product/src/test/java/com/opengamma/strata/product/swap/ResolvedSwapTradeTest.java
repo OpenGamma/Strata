@@ -23,7 +23,7 @@ public class ResolvedSwapTradeTest {
 
   private static final ResolvedSwap SWAP1 = ResolvedSwap.of(ResolvedSwapTest.LEG1, ResolvedSwapTest.LEG2);
   private static final ResolvedSwap SWAP2 = ResolvedSwap.of(ResolvedSwapTest.LEG1);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -43,7 +43,7 @@ public class ResolvedSwapTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
-        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.of(date(2014, 6, 30)))
         .product(SWAP1)
         .build();
     coverImmutableBean(test);
@@ -55,7 +55,7 @@ public class ResolvedSwapTradeTest {
 
   public void test_serialization() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
-        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.of(date(2014, 6, 30)))
         .product(SWAP1)
         .build();
     assertSerialization(test);

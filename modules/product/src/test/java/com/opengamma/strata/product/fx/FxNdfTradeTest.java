@@ -24,7 +24,7 @@ public class FxNdfTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxNdf PRODUCT = FxNdfTest.sut();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_of() {

@@ -31,7 +31,7 @@ public class ResolvedBulletPaymentTradeTest {
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
   private static final ResolvedBulletPayment PRODUCT1 = ResolvedBulletPayment.of(Payment.of(GBP_P1000, DATE_2015_06_30));
   private static final ResolvedBulletPayment PRODUCT2 = ResolvedBulletPayment.of(Payment.of(GBP_M1000, DATE_2015_06_30));
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -51,7 +51,7 @@ public class ResolvedBulletPaymentTradeTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
-        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.of(date(2014, 6, 30)))
         .product(PRODUCT1)
         .build();
     coverImmutableBean(test);
@@ -63,7 +63,7 @@ public class ResolvedBulletPaymentTradeTest {
 
   public void test_serialization() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
-        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.of(date(2014, 6, 30)))
         .product(PRODUCT1)
         .build();
     assertSerialization(test);

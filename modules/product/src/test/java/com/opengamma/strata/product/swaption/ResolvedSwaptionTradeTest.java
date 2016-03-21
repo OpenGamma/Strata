@@ -26,7 +26,7 @@ public class ResolvedSwaptionTradeTest {
 
   private static final ResolvedSwaption SWAPTION = ResolvedSwaptionTest.sut();
   private static final ResolvedSwaption SWAPTION2 = ResolvedSwaptionTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
   private static final Payment PREMIUM2 = Payment.of(CurrencyAmount.of(Currency.USD, -3160000d), date(2014, 3, 17));
 

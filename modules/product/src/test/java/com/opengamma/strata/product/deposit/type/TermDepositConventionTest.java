@@ -95,7 +95,7 @@ public class TermDepositConventionTest {
         .rate(rate)
         .dayCount(ACT_360)
         .build();
-    TradeInfo tradeInfoExpected = TradeInfo.builder().tradeDate(tradeDate).build();
+    TradeInfo tradeInfoExpected = TradeInfo.of(tradeDate);
     assertEquals(trade.getProduct(), termDepositExpected);
     assertEquals(trade.getInfo(), tradeInfoExpected);
   }

@@ -27,7 +27,7 @@ public class ResolvedDeliverableSwapFutureTradeTest {
   private static final long QUANTITY2 = 200L;
   private static final double PRICE = 0.99;
   private static final double PRICE2 = 0.98;
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

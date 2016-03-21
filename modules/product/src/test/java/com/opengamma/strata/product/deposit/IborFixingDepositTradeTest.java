@@ -40,7 +40,7 @@ public class IborFixingDepositTradeTest {
       .index(GBP_LIBOR_6M)
       .fixedRate(0.0250)
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_of() {

@@ -140,7 +140,7 @@ public final class ImmutableIborFutureConvention
         .accrualFactor(accrualFactor)
         .lastTradeDate(lastTradeDate)
         .notional(notional).build();
-    TradeInfo info = TradeInfo.builder().tradeDate(tradeDate).build();
+    TradeInfo info = TradeInfo.of(tradeDate);
     return IborFutureTrade.builder()
         .info(info)
         .product(product)

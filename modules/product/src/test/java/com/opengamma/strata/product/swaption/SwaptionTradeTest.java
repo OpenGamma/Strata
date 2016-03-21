@@ -29,7 +29,7 @@ public class SwaptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Swaption SWAPTION = SwaptionTest.sut();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 3, 14)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 3, 14));
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
 
   //-------------------------------------------------------------------------

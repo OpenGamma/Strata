@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 @Test
 public class GenericSecurityTradeTest {
 
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final GenericSecurity SECURITY = GenericSecurityTest.sut();
   private static final GenericSecurity SECURITY2 = GenericSecurityTest.sut2();
   private static final int QUANTITY = 100;
