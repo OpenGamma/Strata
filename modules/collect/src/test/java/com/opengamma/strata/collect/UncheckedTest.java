@@ -283,4 +283,9 @@ public class UncheckedTest {
     assertUtilityClass(Unchecked.class);
   }
 
+  public void test_propagate() {
+    assertThrows(() -> Unchecked.propagate(new IOException()), UncheckedIOException.class);
+    assertThrows(() -> Unchecked.propagate(new Error()), Error.class);
+    assertThrows(() -> Unchecked.propagate(new IllegalArgumentException()), IllegalArgumentException.class);
+  }
 }
