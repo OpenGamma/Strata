@@ -29,7 +29,7 @@ public class FxVanillaOptionTradeTest {
   private static final double NOTIONAL = 1.0e6;
   private static final FxVanillaOption PRODUCT = FxVanillaOptionTest.sut();
   private static final FxVanillaOption PRODUCT2 = FxVanillaOptionTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 11, 12)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 11, 12));
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------

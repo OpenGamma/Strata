@@ -23,7 +23,7 @@ import com.opengamma.strata.product.TradeInfo;
 public class SwapTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
   private static final Swap SWAP1 = Swap.of(MockSwapLeg.MOCK_GBP1, MockSwapLeg.MOCK_USD1);
   private static final Swap SWAP2 = Swap.of(MockSwapLeg.MOCK_GBP1);
 

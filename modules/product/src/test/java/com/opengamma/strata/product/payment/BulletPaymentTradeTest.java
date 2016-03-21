@@ -41,7 +41,7 @@ public class BulletPaymentTradeTest {
       .value(GBP_P1000)
       .date(AdjustableDate.of(DATE_2015_06_30))
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {

@@ -57,7 +57,7 @@ public class IborFutureOptionSecurityTest {
     IborFutureOptionSecurity test = sut();
     ReferenceData refData = ImmutableReferenceData.of(FUTURE_ID, FUTURE_SECURITY);
     assertEquals(test.createProduct(refData), OPTION);
-    TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+    TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     IborFutureOptionTrade expectedTrade = IborFutureOptionTrade.builder()
         .info(tradeInfo)
         .product(OPTION)

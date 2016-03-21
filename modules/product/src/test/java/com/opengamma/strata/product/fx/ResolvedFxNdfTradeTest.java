@@ -23,7 +23,7 @@ public class ResolvedFxNdfTradeTest {
 
   private static final ResolvedFxNdf PRODUCT = ResolvedFxNdfTest.sut();
   private static final ResolvedFxNdf PRODUCT2 = ResolvedFxNdfTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

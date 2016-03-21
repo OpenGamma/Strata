@@ -26,7 +26,7 @@ public class IborFutureOptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
   private static final IborFutureOption PRODUCT = IborFutureOptionTest.sut();
   private static final IborFutureOption PRODUCT2 = IborFutureOptionTest.sut2();
   private static final long QUANTITY = 35;

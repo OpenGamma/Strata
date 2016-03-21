@@ -23,7 +23,7 @@ import com.opengamma.strata.product.TradeInfo;
 public class IborFutureTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 3, 18)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 3, 18));
   private static final IborFuture PRODUCT = IborFutureTest.sut();
   private static final IborFuture PRODUCT2 = IborFutureTest.sut2();
   private static final long QUANTITY = 35;

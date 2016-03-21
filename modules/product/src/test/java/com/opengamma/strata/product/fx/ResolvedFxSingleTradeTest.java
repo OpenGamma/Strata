@@ -23,7 +23,7 @@ public class ResolvedFxSingleTradeTest {
 
   private static final ResolvedFxSingle FWD1 = ResolvedFxSingleTest.sut();
   private static final ResolvedFxSingle FWD2 = ResolvedFxSingleTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_builder() {

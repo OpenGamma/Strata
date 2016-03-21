@@ -160,7 +160,7 @@ public class DeliverableSwapFutureSecurityTest {
   public void test_createProduct() {
     DeliverableSwapFutureSecurity test = sut();
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
-    TradeInfo tradeInfo = TradeInfo.builder().tradeDate(PRODUCT.getLastTradeDate().minusDays(1)).build();
+    TradeInfo tradeInfo = TradeInfo.of(PRODUCT.getLastTradeDate().minusDays(1));
     DeliverableSwapFutureTrade expectedTrade = DeliverableSwapFutureTrade.builder()
         .info(tradeInfo)
         .product(PRODUCT)

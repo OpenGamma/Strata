@@ -23,7 +23,7 @@ public class ResolvedFraTradeTest {
 
   private static final ResolvedFra PRODUCT = ResolvedFraTest.sut();
   private static final ResolvedFra PRODUCT2 = ResolvedFraTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {

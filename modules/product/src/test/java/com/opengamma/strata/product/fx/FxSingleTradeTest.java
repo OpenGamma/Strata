@@ -25,7 +25,7 @@ public class FxSingleTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxSingle PRODUCT = FxSingleTest.sut();
   private static final FxSingle PRODUCT2 = FxSingleTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -67,7 +67,7 @@ public class FxSingleTradeTest {
   //-------------------------------------------------------------------------
   static FxSingleTrade sut() {
     return FxSingleTrade.builder()
-        .info(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+        .info(TradeInfo.of(date(2014, 6, 30)))
         .product(PRODUCT)
         .build();
   }

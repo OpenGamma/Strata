@@ -26,7 +26,7 @@ import com.opengamma.strata.product.TradeInfo;
 @Test
 public class ResolvedIborCapFloorTradeTest {
 
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final ResolvedIborCapFloor PRODUCT =
       ResolvedIborCapFloor.of(ResolvedIborCapFloorTest.CAPFLOOR_LEG, ResolvedIborCapFloorTest.PAY_LEG);
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), date(2016, 7, 2));

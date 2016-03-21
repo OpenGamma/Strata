@@ -23,7 +23,7 @@ public class ResolvedIborFutureOptionTradeTest {
 
   private static final ResolvedIborFutureOption PRODUCT = ResolvedIborFutureOptionTest.sut();
   private static final ResolvedIborFutureOption PRODUCT2 = ResolvedIborFutureOptionTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
   private static final long QUANTITY = 100L;
   private static final long QUANTITY2 = 200L;
   private static final double PRICE = 0.99;

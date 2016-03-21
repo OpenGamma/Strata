@@ -46,7 +46,7 @@ public class ResolvedIborFixingDepositTradeTest {
       .floatingRate(RATE_OBS)
       .fixedRate(RATE)
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {

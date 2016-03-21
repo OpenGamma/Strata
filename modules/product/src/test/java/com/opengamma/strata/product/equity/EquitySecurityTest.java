@@ -46,7 +46,7 @@ public class EquitySecurityTest {
   public void test_createProduct() {
     EquitySecurity test = sut();
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
-    TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+    TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     EquityTrade expectedTrade = EquityTrade.builder()
         .info(tradeInfo)
         .product(PRODUCT)
