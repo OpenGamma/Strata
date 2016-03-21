@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.index;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
@@ -33,17 +32,13 @@ public class IborFutureOptionMarginedTradePricerTest {
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final ResolvedIborFutureOptionTrade OPTION_TRADE_TD = ResolvedIborFutureOptionTrade.builder()
-      .info(TradeInfo.builder()
-          .tradeDate(VAL_DATE)
-          .build())
+      .info(TradeInfo.of(VAL_DATE))
       .product(OPTION)
       .quantity(OPTION_QUANTITY)
       .price(TRADE_PRICE)
       .build();
   private static final ResolvedIborFutureOptionTrade OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
-      .info(TradeInfo.builder()
-          .tradeDate(TRADE_DATE)
-          .build())
+      .info(TradeInfo.of(TRADE_DATE))
       .product(OPTION)
       .quantity(OPTION_QUANTITY)
       .price(TRADE_PRICE)
@@ -58,18 +53,6 @@ public class IborFutureOptionMarginedTradePricerTest {
   private static final double TOLERANCE_PV = 1.0E-2;
 
   // ----------     present value     ----------
-  public void presentValue_from_no_trade_date() {
-    double optionPrice = 0.0125;
-    double lastClosingPrice = 0.0150;
-    ResolvedIborFutureOptionTrade trade = ResolvedIborFutureOptionTrade.builder()
-        .info(TradeInfo.builder().build())
-        .product(OPTION)
-        .quantity(OPTION_QUANTITY)
-        .price(TRADE_PRICE)
-        .build();
-    assertThrowsIllegalArg(() -> OPTION_TRADE_PRICER.presentValue(trade, VAL_DATE, optionPrice, lastClosingPrice));
-  }
-
   public void presentValue_from_option_price_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;

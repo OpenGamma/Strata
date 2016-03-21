@@ -8,6 +8,7 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -112,6 +113,16 @@ public class CapitalIndexedBondTradeTest {
     assertThrowsIllegalArg(() -> test.resolve(REF_DATA));
   }
 
+  public void test_resolve_noTradeOrSettlementDate() {
+    CapitalIndexedBondTrade test = CapitalIndexedBondTrade.builder()
+        .info(TradeInfo.EMPTY)
+        .product(PRODUCT)
+        .quantity(QUANTITY)
+        .price(PRICE)
+        .build();
+    assertThrows(() -> test.resolve(REF_DATA), IllegalStateException.class);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());
@@ -143,7 +154,7 @@ public class CapitalIndexedBondTradeTest {
 
   static CapitalIndexedBondTrade sut2() {
     return CapitalIndexedBondTrade.builder()
-        .info(TradeInfo.builder().settlementDate(START.plusDays(7)).build())
+        .info(TradeInfo.builder().tradeDate(START.plusDays(7)).build())
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

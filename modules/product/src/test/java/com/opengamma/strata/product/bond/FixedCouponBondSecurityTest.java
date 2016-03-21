@@ -98,7 +98,7 @@ public class FixedCouponBondSecurityTest {
   public void test_createProduct() {
     FixedCouponBondSecurity test = sut();
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
-    TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).build();
+    TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     FixedCouponBondTrade expectedTrade = FixedCouponBondTrade.builder()
         .info(tradeInfo)
         .product(PRODUCT)

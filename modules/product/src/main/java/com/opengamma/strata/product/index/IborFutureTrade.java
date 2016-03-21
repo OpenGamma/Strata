@@ -45,6 +45,7 @@ public final class IborFutureTrade
    * The additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link IborFutureTrade#resolve(ReferenceData)}.
    */
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo info;
@@ -153,6 +154,7 @@ public final class IborFutureTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link IborFutureTrade#resolve(ReferenceData)}.
    * @return the value of the property
    */
   @Override
@@ -486,6 +488,7 @@ public final class IborFutureTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
+     * The trade date is required when calling {@link IborFutureTrade#resolve(ReferenceData)}.
      * @param info  the new value
      * @return this, for chaining, not null
      */

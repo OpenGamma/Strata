@@ -26,7 +26,8 @@ public class BondFutureOptionTradeTest {
 
   private static final BondFutureOption OPTION_PRODUCT = BondFutureOptionTest.sut();
   private static final BondFutureOption OPTION_PRODUCT2 = BondFutureOptionTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 3, 31)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 3, 31));
+  private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2014, 4, 1));
   private static final long QUANTITY = 1234;
   private static final long QUANTITY2 = 100;
   private static final Double PRICE = 0.01;
@@ -74,6 +75,7 @@ public class BondFutureOptionTradeTest {
 
   static BondFutureOptionTrade sut2() {
     return BondFutureOptionTrade.builder()
+        .info(TRADE_INFO2)
         .product(OPTION_PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

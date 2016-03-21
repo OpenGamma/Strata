@@ -7,6 +7,7 @@ package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -18,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -65,6 +67,15 @@ public class IborFutureOptionSecurityTest {
         .price(123.50)
         .build();
     assertEquals(test.createTrade(tradeInfo, 100, 123.50, refData), expectedTrade);
+  }
+
+  public void test_createProduct_wrongType() {
+    IborFutureOptionSecurity test = sut();
+    IborFuture future = OPTION.getUnderlyingFuture();
+    SecurityId secId = future.getSecurityId();
+    GenericSecurity sec = GenericSecurity.of(INFO);
+    ReferenceData refData = ImmutableReferenceData.of(secId, sec);
+    assertThrows(() -> test.createProduct(refData), ClassCastException.class);
   }
 
   //-------------------------------------------------------------------------

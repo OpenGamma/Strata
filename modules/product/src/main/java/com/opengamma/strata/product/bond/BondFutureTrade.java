@@ -42,6 +42,7 @@ public final class BondFutureTrade
    * The additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link BondFutureTrade#resolve(ReferenceData)}.
    */
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo info;
@@ -148,6 +149,7 @@ public final class BondFutureTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link BondFutureTrade#resolve(ReferenceData)}.
    * @return the value of the property
    */
   @Override
@@ -479,6 +481,7 @@ public final class BondFutureTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
+     * The trade date is required when calling {@link BondFutureTrade#resolve(ReferenceData)}.
      * @param info  the new value
      * @return this, for chaining, not null
      */

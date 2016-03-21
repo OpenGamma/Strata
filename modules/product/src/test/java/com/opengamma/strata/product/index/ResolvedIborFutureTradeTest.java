@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.TradeInfo;
@@ -23,7 +25,9 @@ public class ResolvedIborFutureTradeTest {
 
   private static final ResolvedIborFuture PRODUCT = ResolvedIborFutureTest.sut();
   private static final ResolvedIborFuture PRODUCT2 = ResolvedIborFutureTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
+  private static final LocalDate TRADE_DATE = date(2014, 6, 30);
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
+  private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2014, 7, 1));
   private static final long QUANTITY = 100L;
   private static final long QUANTITY2 = 200L;
   private static final double PRICE = 0.99;
@@ -36,6 +40,7 @@ public class ResolvedIborFutureTradeTest {
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.getTradeDate(), TRADE_DATE);
   }
 
   //-------------------------------------------------------------------------
@@ -60,6 +65,7 @@ public class ResolvedIborFutureTradeTest {
 
   static ResolvedIborFutureTrade sut2() {
     return ResolvedIborFutureTrade.builder()
+        .info(TRADE_INFO2)
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

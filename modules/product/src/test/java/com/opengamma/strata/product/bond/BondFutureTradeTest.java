@@ -8,6 +8,7 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -29,8 +30,9 @@ public class BondFutureTradeTest {
   private static final BondFuture FUTURE = BondFutureTest.sut();
   private static final BondFuture FUTURE2 = BondFutureTest.sut2();
   // trade
-  private static final LocalDate TRADE_DATE = LocalDate.of(2011, 6, 20);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
+  private static final LocalDate TRADE_DATE = date(2011, 6, 20);
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
+  private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2016, 7, 1));
   private static final long QUANTITY = 1234L;
   private static final long QUANTITY2 = 100L;
   private static final double PRICE = 1.2345;
@@ -77,6 +79,7 @@ public class BondFutureTradeTest {
 
   static BondFutureTrade sut2() {
     return BondFutureTrade.builder()
+        .info(TRADE_INFO2)
         .product(FUTURE2)
         .quantity(QUANTITY2)
         .price(PRICE2)
