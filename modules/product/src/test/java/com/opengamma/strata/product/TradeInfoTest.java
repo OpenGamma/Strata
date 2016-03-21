@@ -28,12 +28,15 @@ import com.opengamma.strata.basics.market.StandardId;
 @Test
 public class TradeInfoTest {
 
+  private static final StandardId ID = StandardId.of("OG-Test", "123");
+  private static final StandardId COUNTERPARTY = StandardId.of("OG-Party", "Other");
+
   public void test_builder() {
     TradeInfo test = TradeInfo.builder()
-        .counterparty(StandardId.of("OG-Party", "Other"))
+        .counterparty(COUNTERPARTY)
         .build();
     assertEquals(test.getId(), Optional.empty());
-    assertEquals(test.getCounterparty(), Optional.of(StandardId.of("OG-Party", "Other")));
+    assertEquals(test.getCounterparty(), Optional.of(COUNTERPARTY));
     assertEquals(test.getTradeDate(), Optional.empty());
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
@@ -45,11 +48,11 @@ public class TradeInfoTest {
 
   public void test_builder_withAttribute() {
     TradeInfo test = TradeInfo.builder()
-        .counterparty(StandardId.of("OG-Party", "Other"))
+        .counterparty(COUNTERPARTY)
         .build()
         .withAttribute(TradeAttributeType.DESCRIPTION, "A");
     assertEquals(test.getId(), Optional.empty());
-    assertEquals(test.getCounterparty(), Optional.of(StandardId.of("OG-Party", "Other")));
+    assertEquals(test.getCounterparty(), Optional.of(COUNTERPARTY));
     assertEquals(test.getTradeDate(), Optional.empty());
     assertEquals(test.getTradeTime(), Optional.empty());
     assertEquals(test.getZone(), Optional.empty());
@@ -59,11 +62,22 @@ public class TradeInfoTest {
     assertEquals(test.findAttribute(TradeAttributeType.DESCRIPTION), Optional.of("A"));
   }
 
+  public void test_toBuilder() {
+    TradeInfo test = TradeInfo.builder()
+        .counterparty(COUNTERPARTY)
+        .build()
+        .toBuilder()
+        .id(ID)
+        .build();
+    assertEquals(test.getId(), Optional.of(ID));
+    assertEquals(test.getCounterparty(), Optional.of(COUNTERPARTY));
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     TradeInfo test = TradeInfo.builder()
         .addAttribute(TradeAttributeType.DESCRIPTION, "A")
-        .counterparty(StandardId.of("OG-Party", "Other"))
+        .counterparty(COUNTERPARTY)
         .tradeDate(date(2014, 6, 20))
         .tradeTime(LocalTime.MIDNIGHT)
         .zone(ZoneId.systemDefault())
@@ -83,7 +97,7 @@ public class TradeInfoTest {
 
   public void test_serialization() {
     TradeInfo test = TradeInfo.builder()
-        .counterparty(StandardId.of("OG-Party", "Other"))
+        .counterparty(COUNTERPARTY)
         .tradeDate(date(2014, 6, 20))
         .tradeTime(LocalTime.MIDNIGHT)
         .zone(ZoneOffset.UTC)
