@@ -264,18 +264,19 @@ public final class ImmutableIborFixingDepositConvention
 
   @Override
   public IborFixingDepositTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
       double notional,
       double fixedRate) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     return IborFixingDepositTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(IborFixingDeposit.builder()
             .buySell(buySell)
             .currency(getCurrency())

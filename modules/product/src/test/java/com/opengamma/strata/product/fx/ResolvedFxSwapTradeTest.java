@@ -23,15 +23,15 @@ public class ResolvedFxSwapTradeTest {
 
   private static final ResolvedFxSwap SWAP1 = ResolvedFxSwapTest.sut();
   private static final ResolvedFxSwap SWAP2 = ResolvedFxSwapTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxSwapTrade test = ResolvedFxSwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(SWAP1)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), SWAP1);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxSwapTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxSwapTrade sut() {
     return ResolvedFxSwapTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(SWAP1)
         .build();
   }

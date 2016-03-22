@@ -2,9 +2,9 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
     <trades>
         <item type="com.opengamma.strata.product.credit.CdsTrade">
-            <tradeInfo>
+            <info>
                 <attributes/>
-            </tradeInfo>
+            </info>
             <product>
                 <buySellProtection>Buy</buySellProtection>
                 <startDate>2014-09-22</startDate>
@@ -37,9 +37,9 @@
             </product>
         </item>
         <item type="CdsTrade">
-            <tradeInfo>
+            <info>
                 <attributes/>
-            </tradeInfo>
+            </info>
             <product>
                 <buySellProtection>Buy</buySellProtection>
                 <startDate>2014-09-22</startDate>
@@ -72,9 +72,9 @@
             </product>
         </item>
         <item type="CdsTrade">
-            <tradeInfo>
+            <info>
                 <attributes/>
-            </tradeInfo>
+            </info>
             <product>
                 <buySellProtection>Buy</buySellProtection>
                 <startDate>2014-03-20</startDate>

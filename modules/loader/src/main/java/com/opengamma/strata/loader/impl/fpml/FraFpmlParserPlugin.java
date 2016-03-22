@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraDiscountingMethod;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -61,7 +61,7 @@ final class FraFpmlParserPlugin
     //  'sellerAccountReference?'
     //  'calculationPeriodNumberOfDays'
     //  'additionalPayment*'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement fraEl = tradeEl.getChild("fra");
     Fra.Builder fraBuilder = Fra.builder();
     // buy/sell and counterparty
@@ -100,7 +100,7 @@ final class FraFpmlParserPlugin
     fraBuilder.discounting(FraDiscountingMethod.of(fraEl.getChild("fraDiscounting").getContent()));
 
     return FraTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(fraBuilder.build())
         .build();
   }

@@ -119,7 +119,7 @@ public class SwapPricingTest {
         .build();
 
     SwapTrade trade = SwapTrade.builder()
-        .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
+        .info(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg)).build();
 
     MarketEnvironment suppliedData = MarketEnvironment.builder(VAL_DATE)

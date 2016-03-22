@@ -78,6 +78,17 @@ public class ResourceLocatorTest {
     assertEquals(test.toString().endsWith("com/opengamma/strata/config/base/TestFile.txt"), true);
   }
 
+  public void test_ofClasspath_relative() throws Exception {
+    ResourceLocator test = ResourceLocator.ofClasspath(ResourceLocator.class, "TestFile.txt");
+    assertEquals(test.getLocator().startsWith("classpath"), true);
+    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertEquals(test.getByteSource().read()[0], 'H');
+    assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.toString().startsWith("classpath"), true);
+    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+  }
+
   public void test_ofClasspathUrl() throws Exception {
     URL url = Resources.getResource("com/opengamma/strata/config/base/TestFile.txt");
     ResourceLocator test = ResourceLocator.ofClasspathUrl(url);

@@ -29,7 +29,7 @@ public class SwaptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Swaption SWAPTION = SwaptionTest.sut();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 3, 14)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 3, 14));
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
 
   //-------------------------------------------------------------------------
@@ -37,14 +37,14 @@ public class SwaptionTradeTest {
     SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
     assertEquals(test.getPremium(), PREMIUM);
     assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     SwaptionTrade test = sut();
     assertEquals(test.getPremium(), PREMIUM);
     assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -52,7 +52,7 @@ public class SwaptionTradeTest {
     SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
     assertEquals(test.resolve(REF_DATA).getPremium(), PREMIUM);
     assertEquals(test.resolve(REF_DATA).getProduct(), SWAPTION.resolve(REF_DATA));
-    assertEquals(test.resolve(REF_DATA).getTradeInfo(), TRADE_INFO);
+    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
@@ -70,7 +70,7 @@ public class SwaptionTradeTest {
     return SwaptionTrade.builder()
         .premium(PREMIUM)
         .product(SWAPTION)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
   }
 

@@ -21,10 +21,10 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
@@ -152,7 +152,7 @@ public class ValuePathEvaluatorTest {
         .index(GBP_LIBOR_3M)
         .build();
     return FraTrade.builder()
-        .tradeInfo(tradeInfo)
+        .info(tradeInfo)
         .product(fra)
         .build();
   }

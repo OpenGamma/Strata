@@ -28,7 +28,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
@@ -45,6 +44,7 @@ import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFrac
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Test {@link BlackVolatilityExpLogMoneynessBondFutureProvider}.
@@ -89,7 +89,7 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
       InterpolatedNodalSurface.of(METADATA_WITH_PARAM, TIME, MONEYNESS, VOL, INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(METADATA, TIME, MONEYNESS, VOL, INTERPOLATOR_2D);
-  private static final StandardId FUTURE_SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND-FUT");
+  private static final SecurityId FUTURE_SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND-FUT");
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");

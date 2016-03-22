@@ -107,6 +107,28 @@ public final class ResourceLocator {
   }
 
   /**
+   * Creates a resource locator for a classpath resource which is associated with a class.
+   * <p>
+   * The classpath is searched using the same method as {@code Class.getResource}.
+   * <ul>
+   *   <li>If the resource name starts with '/' it is treated as an absolute path relative to the classpath root</li>
+   *   <li>Otherwise the resource name is treated as a path relative to the package containing the class</li>
+   * </ul>
+   *
+   * @param cls  the class
+   * @param resourceName  the resource name
+   * @return the resource
+   */
+  public static ResourceLocator ofClasspath(Class<?> cls, String resourceName) {
+    ArgChecker.notNull(resourceName, "classpathLocator");
+    URL url = cls.getResource(resourceName);
+    if (url == null) {
+      throw new IllegalArgumentException("Resource not found: " + resourceName);
+    }
+    return ofClasspathUrl(url);
+  }
+
+  /**
    * Creates a resource from a {@code URL}.
    * 
    * @param url  the URL to wrap

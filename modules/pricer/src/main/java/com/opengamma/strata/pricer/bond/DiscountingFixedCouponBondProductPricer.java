@@ -17,8 +17,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
@@ -165,19 +165,17 @@ public class DiscountingFixedCouponBondProductPricer {
    * The fixed coupon bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param refData  the reference data used to calculate the settlement date
    * @return the dirty price of the fixed coupon bond security
    */
   public double dirtyPriceFromCurves(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       ReferenceData refData) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    return dirtyPriceFromCurves(bond, securityId, provider, settlementDate);
+    return dirtyPriceFromCurves(bond, provider, settlementDate);
   }
 
   /**
@@ -186,21 +184,19 @@ public class DiscountingFixedCouponBondProductPricer {
    * The fixed coupon bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param settlementDate  the settlement date
    * @return the dirty price of the fixed coupon bond security
    */
   public double dirtyPriceFromCurves(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       LocalDate settlementDate) {
 
     CurrencyAmount pv = presentValue(bond, provider, settlementDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     double df = provider.repoCurveDiscountFactors(
-        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+        bond.getSecurityId(), legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
     double notional = bond.getNotional();
     return pv.getAmount() / df / notional;
   }
@@ -214,7 +210,6 @@ public class DiscountingFixedCouponBondProductPricer {
    * The fixed coupon bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
@@ -224,7 +219,6 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurvesWithZSpread(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double zSpread,
@@ -232,7 +226,7 @@ public class DiscountingFixedCouponBondProductPricer {
       int periodsPerYear) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    return dirtyPriceFromCurvesWithZSpread(bond, securityId, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
+    return dirtyPriceFromCurvesWithZSpread(bond, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
   }
 
   /**
@@ -244,7 +238,6 @@ public class DiscountingFixedCouponBondProductPricer {
    * The fixed coupon bond is represented as {@link Security} where standard ID of the bond is stored.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -254,7 +247,6 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double dirtyPriceFromCurvesWithZSpread(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -264,7 +256,7 @@ public class DiscountingFixedCouponBondProductPricer {
     CurrencyAmount pv = presentValueWithZSpread(bond, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
     StandardId legalEntityId = bond.getLegalEntityId();
     double df = provider.repoCurveDiscountFactors(
-        securityId, legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
+        bond.getSecurityId(), legalEntityId, bond.getCurrency()).discountFactor(settlementDate);
     double notional = bond.getNotional();
     return pv.getAmount() / df / notional;
   }
@@ -307,7 +299,6 @@ public class DiscountingFixedCouponBondProductPricer {
    * to match the dirty price.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param refData  the reference data used to calculate the settlement date
    * @param dirtyPrice  the dirtyPrice
@@ -317,7 +308,6 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public double zSpreadFromCurvesAndDirtyPrice(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double dirtyPrice,
@@ -328,7 +318,7 @@ public class DiscountingFixedCouponBondProductPricer {
       @Override
       public Double apply(final Double z) {
         return dirtyPriceFromCurvesWithZSpread(
-            bond, securityId, provider, refData, z, compoundedRateType, periodsPerYear) - dirtyPrice;
+            bond, provider, refData, z, compoundedRateType, periodsPerYear) - dirtyPrice;
       }
     };
     double[] range = ROOT_BRACKETER.getBracketedPoints(residual, -0.01, 0.01); // Starting range is [-1%, 1%]
@@ -419,31 +409,28 @@ public class DiscountingFixedCouponBondProductPricer {
    * the underlying curves.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param refData  the reference data used to calculate the settlement date
    * @return the dirty price value curve sensitivity of the security
    */
   public PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       ReferenceData refData) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    return dirtyPriceSensitivity(bond, securityId, provider, settlementDate);
+    return dirtyPriceSensitivity(bond, provider, settlementDate);
   }
 
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       LocalDate referenceDate) {
 
     StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        provider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
+        provider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(referenceDate);
     CurrencyAmount pv = presentValue(bond, provider);
     double notional = bond.getNotional();
@@ -463,7 +450,6 @@ public class DiscountingFixedCouponBondProductPricer {
    * compounded rates of the discounting curve.
    * 
    * @param bond  the product
-   * @param securityId  the security identifier of the bond
    * @param provider  the rates provider
    * @param refData  the reference data used to calculate the settlement date
    * @param zSpread  the z-spread
@@ -473,7 +459,6 @@ public class DiscountingFixedCouponBondProductPricer {
    */
   public PointSensitivityBuilder dirtyPriceSensitivityWithZspread(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       ReferenceData refData,
       double zSpread,
@@ -481,13 +466,12 @@ public class DiscountingFixedCouponBondProductPricer {
       int periodsPerYear) {
 
     LocalDate settlementDate = bond.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    return dirtyPriceSensitivityWithZspread(bond, securityId, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
+    return dirtyPriceSensitivityWithZspread(bond, provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
   }
 
   // calculate the dirty price sensitivity
   PointSensitivityBuilder dirtyPriceSensitivityWithZspread(
       ResolvedFixedCouponBond bond,
-      StandardId securityId,
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -496,7 +480,7 @@ public class DiscountingFixedCouponBondProductPricer {
 
     StandardId legalEntityId = bond.getLegalEntityId();
     RepoCurveDiscountFactors discountFactors =
-        provider.repoCurveDiscountFactors(securityId, legalEntityId, bond.getCurrency());
+        provider.repoCurveDiscountFactors(bond.getSecurityId(), legalEntityId, bond.getCurrency());
     double df = discountFactors.discountFactor(referenceDate);
     CurrencyAmount pv = presentValueWithZSpread(bond, provider, zSpread, compoundedRateType, periodsPerYear);
     double notional = bond.getNotional();

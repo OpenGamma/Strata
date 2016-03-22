@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
@@ -45,17 +45,17 @@ final class FxSwapFpmlParserPlugin
     // supported elements:
     // 'nearLeg'
     // 'farLeg'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement fxEl = tradeEl.getChild("fxSwap");
     FxSingle nearLeg = parseLeg(fxEl.getChild("nearLeg"), document, tradeInfoBuilder);
     FxSingle farLeg = parseLeg(fxEl.getChild("farLeg"), document, tradeInfoBuilder);
     return FxSwapTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(FxSwap.of(nearLeg, farLeg))
         .build();
   }
 
-  private FxSingle parseLeg(XmlElement legEl, FpmlDocument document, TradeInfo.Builder tradeInfoBuilder) {
+  private FxSingle parseLeg(XmlElement legEl, FpmlDocument document, TradeInfoBuilder tradeInfoBuilder) {
     // supported elements:
     // 'exchangedCurrency1/paymentAmount'
     // 'exchangedCurrency2/paymentAmount'

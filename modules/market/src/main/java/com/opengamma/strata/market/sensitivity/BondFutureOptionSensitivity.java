@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Point sensitivity to an implied volatility for a bond future option model.
@@ -44,7 +44,7 @@ public final class BondFutureOptionSensitivity
    * The index on which the underlying future fixes.
    */
   @PropertyDefinition(validate = "notNull")
-  private final StandardId futureSecurityId;
+  private final SecurityId futureSecurityId;
   /**
    * The expiry date-time of the option.
    */
@@ -90,7 +90,7 @@ public final class BondFutureOptionSensitivity
    * @return the point sensitivity object
    */
   public static BondFutureOptionSensitivity of(
-      StandardId futureSecurityId,
+      SecurityId futureSecurityId,
       ZonedDateTime expiryDate,
       LocalDate futureExpiryDate,
       double strikePrice,
@@ -187,7 +187,7 @@ public final class BondFutureOptionSensitivity
   private static final long serialVersionUID = 1L;
 
   private BondFutureOptionSensitivity(
-      StandardId futureSecurityId,
+      SecurityId futureSecurityId,
       ZonedDateTime expiry,
       LocalDate futureExpiryDate,
       double strikePrice,
@@ -227,7 +227,7 @@ public final class BondFutureOptionSensitivity
    * Gets the index on which the underlying future fixes.
    * @return the value of the property, not null
    */
-  public StandardId getFutureSecurityId() {
+  public SecurityId getFutureSecurityId() {
     return futureSecurityId;
   }
 
@@ -347,8 +347,8 @@ public final class BondFutureOptionSensitivity
     /**
      * The meta-property for the {@code futureSecurityId} property.
      */
-    private final MetaProperty<StandardId> futureSecurityId = DirectMetaProperty.ofImmutable(
-        this, "futureSecurityId", BondFutureOptionSensitivity.class, StandardId.class);
+    private final MetaProperty<SecurityId> futureSecurityId = DirectMetaProperty.ofImmutable(
+        this, "futureSecurityId", BondFutureOptionSensitivity.class, SecurityId.class);
     /**
      * The meta-property for the {@code expiry} property.
      */
@@ -439,7 +439,7 @@ public final class BondFutureOptionSensitivity
      * The meta-property for the {@code futureSecurityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> futureSecurityId() {
+    public MetaProperty<SecurityId> futureSecurityId() {
       return futureSecurityId;
     }
 
@@ -530,7 +530,7 @@ public final class BondFutureOptionSensitivity
    */
   private static final class Builder extends DirectFieldsBeanBuilder<BondFutureOptionSensitivity> {
 
-    private StandardId futureSecurityId;
+    private SecurityId futureSecurityId;
     private ZonedDateTime expiry;
     private LocalDate futureExpiryDate;
     private double strikePrice;
@@ -571,7 +571,7 @@ public final class BondFutureOptionSensitivity
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1270940318:  // futureSecurityId
-          this.futureSecurityId = (StandardId) newValue;
+          this.futureSecurityId = (SecurityId) newValue;
           break;
         case -1289159373:  // expiry
           this.expiry = (ZonedDateTime) newValue;

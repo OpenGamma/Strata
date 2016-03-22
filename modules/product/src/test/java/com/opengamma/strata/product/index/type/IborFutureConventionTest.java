@@ -76,12 +76,12 @@ public class IborFutureConventionTest {
     long quantity = 3;
     double price = 0.99;
     IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
-    assertEquals(trade.getPrice(), price);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
-    assertEquals(trade.getQuantity(), quantity);
     assertEquals(trade.getProduct().getIndex(), USD_LIBOR_3M);
     assertEquals(trade.getProduct().getNotional(), NOTIONAL_1M);
     assertEquals(trade.getProduct().getAccrualFactor(), 0.25);
+    assertEquals(trade.getQuantity(), quantity);
+    assertEquals(trade.getPrice(), price);
   }
 
   //-------------------------------------------------------------------------

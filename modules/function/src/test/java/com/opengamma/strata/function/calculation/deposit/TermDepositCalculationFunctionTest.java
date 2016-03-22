@@ -56,7 +56,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 public class TermDepositCalculationFunctionTest {
 
   public static final TermDepositTrade TRADE = TermDepositTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
       .product(TermDeposit.builder()

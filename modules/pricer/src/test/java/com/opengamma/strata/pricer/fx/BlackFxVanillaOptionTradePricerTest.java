@@ -92,7 +92,7 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final ResolvedFxVanillaOptionTrade OPTION_TRADE = ResolvedFxVanillaOptionTrade.builder()
       .premium(PREMIUM)
       .product(OPTION_PRODUCT)
-      .tradeInfo(TRADE_INFO)
+      .info(TRADE_INFO)
       .build();
 
   private static final BlackFxVanillaOptionProductPricer PRICER_PRODUCT = BlackFxVanillaOptionProductPricer.DEFAULT;

@@ -1,101 +1,565 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.Trade;
-import com.opengamma.strata.collect.id.LinkResolutionException;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.LinkResolvable;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
- * A trade that is directly based on a security.
+ * A trade representing the purchase or sale of a security,
+ * where the security is referenced by identifier.
  * <p>
- * A security trade is a {@link Trade} that contains a reference to a {@link Security}.
- * The security is held via a {@link SecurityLink}, which allows for the security to be
- * managed as reference data, separately from the trade.
+ * This trade represents a trade in a security, defined by a quantity and price.
+ * The security is referenced using {@link SecurityId}.
+ * The identifier may be looked up in {@link ReferenceData}.
  * <p>
- * Implementations of this interface must be immutable beans.
- * 
- * @param <P>  the type of the product
+ * The reference may be to any kind of security, including equities,
+ * bonds and exchange traded derivatives (ETD).
  */
-public interface SecurityTrade<P extends Product>
-    extends FinanceTrade, LinkResolvable<SecurityTrade<P>> {
+@BeanDefinition(constructorScope = "package")
+public final class SecurityTrade
+    implements FinanceTrade, ImmutableBean, Serializable {
 
   /**
-   * Gets the link to the security that was traded.
+   * The additional trade information, defaulted to an empty instance.
    * <p>
-   * A security link provides loose coupling between different parts of the object model.
-   * For example, this allows the trade to be stored in a different database to the security.
-   * <p>
-   * A link can be in one of two states, resolvable and resolved.
-   * In the resolvable state, the link contains the identifier and product type of the security.
-   * In the resolved state, the link directly embeds the security.
-   * <p>
-   * When the link is in the resolvable state, the {@link #getSecurity()} AND {@link #getProduct()}
-   * methods will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
-   * 
-   * @return the link to the security, which may be in either the resolvable or resolved state
+   * This allows additional information to be attached to the trade.
    */
-  public abstract SecurityLink<P> getSecurityLink();
-
+  @PropertyDefinition(overrideGet = true)
+  private final TradeInfo info;
   /**
-   * Gets the security that was traded, throwing an exception if not resolved.
+   * The identifier of the security that was traded.
    * <p>
-   * Returns the underlying security that was traded.
-   * This is obtained from {@link #getSecurityLink()}.
-   * <p>
-   * The link has two states, resolvable and resolved.
-   * The security can only be returned if the link is resolved.
-   * If the link is in the resolvable state, this method will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
-   * 
-   * @return full details of the security
-   * @throws IllegalStateException if the security link is not resolved
+   * This identifier uniquely identifies the security within the system.
    */
-  public default Security<P> getSecurity() {
-    return getSecurityLink().resolvedTarget();
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
+  /**
+   * The quantity that was traded.
+   * <p>
+   * This will be positive if buying and negative if selling.
+   */
+  @PropertyDefinition
+  private final long quantity;
+  /**
+   * The price agreed when the trade occurred.
+   * <p>
+   * This is the price agreed when the trade occurred.
+   */
+  @PropertyDefinition
+  private final double price;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from trade information, identifier, quantity and price.
+   * 
+   * @param tradeInfo  the trade information
+   * @param security  the security that was traded
+   * @param quantity  the quantity that was traded
+   * @param price  the price that was traded
+   * @return the trade
+   */
+  public static SecurityTrade of(
+      TradeInfo tradeInfo,
+      SecurityId security,
+      long quantity,
+      double price) {
+
+    return new SecurityTrade(tradeInfo, security, quantity, price);
   }
 
-  /**
-   * Gets the underlying product that was agreed when the trade occurred, throwing an exception if not resolved.
-   * <p>
-   * Returns the underlying product that captures the contracted financial details of the trade.
-   * This is obtained from {@link #getSecurityLink()}.
-   * <p>
-   * The link has two states, resolvable and resolved.
-   * The product can only be returned if the link is resolved.
-   * If the link is in the resolvable state, this method will throw an {@link IllegalStateException}.
-   * <p>
-   * To ensure that the link is resolved, call {@link #resolveLinks(LinkResolver)}.
-   * 
-   * @return the product
-   * @throws IllegalStateException if the security link is not resolved
-   */
-  public default P getProduct() {
-    return getSecurity().getProduct();
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.info = TradeInfo.EMPTY;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a trade where all links have been resolved.
+   * Resolves the security identifier using the specified reference data.
    * <p>
-   * This method examines the trade, locates any links and resolves them.
-   * The result is fully resolved with all data available for use.
-   * Calling {@link #getSecurity()} or {@link #getProduct()} on the result will not throw an exception.
-   * <p>
-   * An exception is thrown if a link cannot be resolved.
+   * This returns a trade equivalent to this one where the security identifier has been resolved.
    * 
-   * @param resolver  the resolver to use
-   * @return the fully resolved trade
-   * @throws LinkResolutionException if a link cannot be resolved
+   * @param refData  the reference data used to 
+   * @return an equivalent trade with the security resolved
+   */
+  public FinanceTrade resolve(ReferenceData refData) {
+    Security security = refData.getValue(securityId);
+    return security.createTrade(info, quantity, price, refData);
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code SecurityTrade}.
+   * @return the meta-bean, not null
+   */
+  public static SecurityTrade.Meta meta() {
+    return SecurityTrade.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(SecurityTrade.Meta.INSTANCE);
+  }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static SecurityTrade.Builder builder() {
+    return new SecurityTrade.Builder();
+  }
+
+  /**
+   * Creates an instance.
+   * @param info  the value of the property
+   * @param securityId  the value of the property, not null
+   * @param quantity  the value of the property
+   * @param price  the value of the property
+   */
+  SecurityTrade(
+      TradeInfo info,
+      SecurityId securityId,
+      long quantity,
+      double price) {
+    JodaBeanUtils.notNull(securityId, "securityId");
+    this.info = info;
+    this.securityId = securityId;
+    this.quantity = quantity;
+    this.price = price;
+  }
+
+  @Override
+  public SecurityTrade.Meta metaBean() {
+    return SecurityTrade.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the additional trade information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the trade.
+   * @return the value of the property
    */
   @Override
-  public abstract SecurityTrade<P> resolveLinks(LinkResolver resolver);
+  public TradeInfo getInfo() {
+    return info;
+  }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the security that was traded.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quantity that was traded.
+   * <p>
+   * This will be positive if buying and negative if selling.
+   * @return the value of the property
+   */
+  public long getQuantity() {
+    return quantity;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the price agreed when the trade occurred.
+   * <p>
+   * This is the price agreed when the trade occurred.
+   * @return the value of the property
+   */
+  public double getPrice() {
+    return price;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityTrade other = (SecurityTrade) obj;
+      return JodaBeanUtils.equal(info, other.info) &&
+          JodaBeanUtils.equal(securityId, other.securityId) &&
+          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(price, other.price);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
+    hash = hash * 31 + JodaBeanUtils.hashCode(price);
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("SecurityTrade{");
+    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
+    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price));
+    buf.append('}');
+    return buf.toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code SecurityTrade}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code info} property.
+     */
+    private final MetaProperty<TradeInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", SecurityTrade.class, TradeInfo.class);
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", SecurityTrade.class, SecurityId.class);
+    /**
+     * The meta-property for the {@code quantity} property.
+     */
+    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", SecurityTrade.class, Long.TYPE);
+    /**
+     * The meta-property for the {@code price} property.
+     */
+    private final MetaProperty<Double> price = DirectMetaProperty.ofImmutable(
+        this, "price", SecurityTrade.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "info",
+        "securityId",
+        "quantity",
+        "price");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return info;
+        case 1574023291:  // securityId
+          return securityId;
+        case -1285004149:  // quantity
+          return quantity;
+        case 106934601:  // price
+          return price;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public SecurityTrade.Builder builder() {
+      return new SecurityTrade.Builder();
+    }
+
+    @Override
+    public Class<? extends SecurityTrade> beanType() {
+      return SecurityTrade.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code info} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<TradeInfo> info() {
+      return info;
+    }
+
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
+    /**
+     * The meta-property for the {@code quantity} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Long> quantity() {
+      return quantity;
+    }
+
+    /**
+     * The meta-property for the {@code price} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> price() {
+      return price;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return ((SecurityTrade) bean).getInfo();
+        case 1574023291:  // securityId
+          return ((SecurityTrade) bean).getSecurityId();
+        case -1285004149:  // quantity
+          return ((SecurityTrade) bean).getQuantity();
+        case 106934601:  // price
+          return ((SecurityTrade) bean).getPrice();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code SecurityTrade}.
+   */
+  public static final class Builder extends DirectFieldsBeanBuilder<SecurityTrade> {
+
+    private TradeInfo info;
+    private SecurityId securityId;
+    private long quantity;
+    private double price;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+      applyDefaults(this);
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(SecurityTrade beanToCopy) {
+      this.info = beanToCopy.getInfo();
+      this.securityId = beanToCopy.getSecurityId();
+      this.quantity = beanToCopy.getQuantity();
+      this.price = beanToCopy.getPrice();
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          return info;
+        case 1574023291:  // securityId
+          return securityId;
+        case -1285004149:  // quantity
+          return quantity;
+        case 106934601:  // price
+          return price;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case 3237038:  // info
+          this.info = (TradeInfo) newValue;
+          break;
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
+        case -1285004149:  // quantity
+          this.quantity = (Long) newValue;
+          break;
+        case 106934601:  // price
+          this.price = (Double) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.setString(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public SecurityTrade build() {
+      return new SecurityTrade(
+          info,
+          securityId,
+          quantity,
+          price);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the additional trade information, defaulted to an empty instance.
+     * <p>
+     * This allows additional information to be attached to the trade.
+     * @param info  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder info(TradeInfo info) {
+      this.info = info;
+      return this;
+    }
+
+    /**
+     * Sets the identifier of the security that was traded.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
+    /**
+     * Sets the quantity that was traded.
+     * <p>
+     * This will be positive if buying and negative if selling.
+     * @param quantity  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder quantity(long quantity) {
+      this.quantity = quantity;
+      return this;
+    }
+
+    /**
+     * Sets the price agreed when the trade occurred.
+     * <p>
+     * This is the price agreed when the trade occurred.
+     * @param price  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder price(double price) {
+      this.price = price;
+      return this;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(160);
+      buf.append("SecurityTrade.Builder{");
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
+      buf.append("price").append('=').append(JodaBeanUtils.toString(price));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

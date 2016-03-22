@@ -33,7 +33,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
@@ -103,7 +103,7 @@ final class SwapFpmlParserPlugin
     // rejected elements:
     //  'swapStream/calculationPeriodAmount/calculation/fxLinkedNotionalSchedule'
     //  'swapStream/calculationPeriodAmount/calculation/futureValueNotional'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement swapEl = tradeEl.getChild("swap");
     ImmutableList<XmlElement> legEls = swapEl.getChildren("swapStream");
     ImmutableList.Builder<SwapLeg> legsBuilder = ImmutableList.builder();
@@ -149,7 +149,7 @@ final class SwapFpmlParserPlugin
       }
     }
     return SwapTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(Swap.of(legsBuilder.build()))
         .build();
   }
@@ -503,11 +503,11 @@ final class SwapFpmlParserPlugin
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/floatingRateMultiplierSchedule?'
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/inflationLag'
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/interpolationMethod'
+    //  'calculationPeriodAmount/calculation/inflationRateCalculation/initialIndexLevel?'
     //  'calculationPeriodAmount/calculation/dayCountFraction'
     // ignored elements:
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/indexSource'
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/mainPublication'
-    // 'calculationPeriodAmount/calculation/inflationRateCalculation/initialIndexLevel'
     // 'calculationPeriodAmount/calculation/inflationRateCalculation/fallbackBondApplicable'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/initialRate?'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/finalRateRounding?'
@@ -534,6 +534,10 @@ final class SwapFpmlParserPlugin
     String interpStr = inflationEl.getChild("interpolationMethod").getContent();
     builder.indexCalculationMethod(interpStr.toLowerCase(Locale.ENGLISH).contains("linear") ?
         PriceIndexCalculationMethod.INTERPOLATED : PriceIndexCalculationMethod.MONTHLY);
+    // initial index
+    inflationEl.findChild("initialIndexLevel").ifPresent(el -> {
+      builder.firstIndexValue(document.parseDecimal(el));
+    });
     // gearing
     inflationEl.findChild("floatingRateMultiplierSchedule").ifPresent(el -> {
       builder.gearing(parseSchedule(el, document));

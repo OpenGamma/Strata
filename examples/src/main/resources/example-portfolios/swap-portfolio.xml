@@ -2,14 +2,14 @@
 <bean type="com.opengamma.strata.examples.report.TradePortfolio">
  <trades>
   <item type="com.opengamma.strata.product.swap.SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~1</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs Libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="com.opengamma.strata.product.swap.RateCalculationSwapLeg">
@@ -107,14 +107,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~2</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Libor 3m + spread vs Libor 6m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -223,14 +223,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~3</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fed Funds averaged + spread vs Libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -332,14 +332,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~4</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2013-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs libor 3m (with fixing)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -437,14 +437,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~5</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-17</settlementDate>
     <attributes>
      <entry key="description">Fixed vs ON (with fixing)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -536,14 +536,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~6</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs Libor 3m (3m short initial stub)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -642,14 +642,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~7</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs Libor 3m (1m short initial stub)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -749,14 +749,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~8</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs Libor 6m (interpolated 3m short initial stub)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -860,14 +860,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~9</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Fixed vs Libor 6m (interpolated 4m short initial stub)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -971,14 +971,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~10</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Zero-coupon fixed vs libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1076,14 +1076,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~11</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-02-05</settlementDate>
     <attributes>
      <entry key="description">Compounding fixed vs fed funds</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1175,14 +1175,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~12</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-09-12</settlementDate>
     <attributes>
      <entry key="description">Compounding fed funds vs libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1280,14 +1280,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~13</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-08-27</settlementDate>
     <attributes>
      <entry key="description">Compounding libor 6m vs libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1392,14 +1392,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~14</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
      <entry key="description">GBP Libor 3m vs USD Libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1508,14 +1508,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~15</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
      <entry key="description">USD fixed vs GBP Libor 3m</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">
@@ -1613,14 +1613,14 @@
    </product>
   </item>
   <item type="SwapTrade">
-   <tradeInfo>
+   <info>
     <id>example~16</id>
     <counterparty>example~A</counterparty>
     <settlementDate>2014-01-24</settlementDate>
     <attributes>
      <entry key="description">USD fixed vs GBP Libor 3m (notional exchange)</entry>
     </attributes>
-   </tradeInfo>
+   </info>
    <product>
     <legs>
      <item type="RateCalculationSwapLeg">

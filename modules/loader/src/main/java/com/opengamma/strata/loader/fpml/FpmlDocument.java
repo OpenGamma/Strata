@@ -41,12 +41,13 @@ import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 
 /**
  * Provides data about the whole FpML document and parse helper methods.
@@ -138,7 +139,7 @@ public final class FpmlDocument {
    * Constant defining the "standard" trade info parser.
    */
   static final FpmlTradeInfoParserPlugin TRADE_INFO_STANDARD = (doc, tradeDate, allTradeIds) -> {
-    TradeInfo.Builder builder = TradeInfo.builder();
+    TradeInfoBuilder builder = TradeInfo.builder();
     builder.tradeDate(tradeDate);
     builder.id(allTradeIds.get(doc.getOurPartyHrefId()).stream().findFirst().orElse(null));
     return builder;
@@ -301,7 +302,7 @@ public final class FpmlDocument {
    * @return the trade info builder
    * @throws RuntimeException if unable to parse
    */
-  public TradeInfo.Builder parseTradeInfo(XmlElement tradeEl) {
+  public TradeInfoBuilder parseTradeInfo(XmlElement tradeEl) {
     XmlElement tradeHeaderEl = tradeEl.getChild("tradeHeader");
     LocalDate tradeDate = parseDate(tradeHeaderEl.getChild("tradeDate"));
     return tradeInfoParser.parseTrade(this, tradeDate, parseAllTradeIds(tradeHeaderEl));
@@ -345,7 +346,7 @@ public final class FpmlDocument {
    * @return the pay/receive flag
    * @throws RuntimeException if unable to parse
    */
-  public BuySell parseBuyerSeller(XmlElement baseEl, TradeInfo.Builder tradeInfoBuilder) {
+  public BuySell parseBuyerSeller(XmlElement baseEl, TradeInfoBuilder tradeInfoBuilder) {
     String buyerPartyReference = baseEl.getChild("buyerPartyReference").getAttribute(FpmlDocument.HREF);
     String sellerPartyReference = baseEl.getChild("sellerPartyReference").getAttribute(FpmlDocument.HREF);
     if (ourPartyHrefId.isEmpty() || buyerPartyReference.equals(ourPartyHrefId)) {
@@ -370,10 +371,10 @@ public final class FpmlDocument {
    * @return the pay/receive flag
    * @throws RuntimeException if unable to parse
    */
-  public PayReceive parsePayerReceiver(XmlElement baseEl, TradeInfo.Builder tradeInfoBuilder) {
+  public PayReceive parsePayerReceiver(XmlElement baseEl, TradeInfoBuilder tradeInfoBuilder) {
     String payerPartyReference = baseEl.getChild("payerPartyReference").getAttribute(HREF);
     String receiverPartyReference = baseEl.getChild("receiverPartyReference").getAttribute(HREF);
-    Object currentCounterparty = tradeInfoBuilder.get(TradeInfo.meta().counterparty());
+    Object currentCounterparty = tradeInfoBuilder.build().getCounterparty().orElse(null);
     // determine direction and setup counterparty
     if ((ourPartyHrefId.isEmpty() && currentCounterparty == null) || payerPartyReference.equals(ourPartyHrefId)) {
       StandardId proposedCounterparty = StandardId.of(FPML_PARTY_SCHEME, parties.get(receiverPartyReference).get(0));

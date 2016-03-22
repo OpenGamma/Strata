@@ -6,28 +6,16 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.reflect.TypeToken;
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.collect.id.IdentifiableBean;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
  * Test {@link DeliverableSwapFutureTrade}.
@@ -36,142 +24,66 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 public class DeliverableSwapFutureTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate START_DATE = LocalDate.of(2014, 9, 12);
-  private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
-      .createTrade(START_DATE, Tenor.TENOR_10Y, BuySell.SELL, 1d, 0.015, REF_DATA).getProduct();
-  private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2014, 9, 5);
-  private static final LocalDate DELIVERY_DATE = LocalDate.of(2014, 9, 9);
-  private static final double NOTIONAL = 100000;
-  static final DeliverableSwapFuture DSF_PRODUCT = DeliverableSwapFuture.builder()
-      .notional(NOTIONAL)
-      .deliveryDate(DELIVERY_DATE)
-      .lastTradeDate(LAST_TRADE_DATE)
-      .underlyingSwap(SWAP)
-      .build();
-  private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final Security<DeliverableSwapFuture> DSF_SECURITY = UnitSecurity.builder(DSF_PRODUCT)
-      .standardId(DSF_ID)
-      .build();
-  private static final SecurityLink<DeliverableSwapFuture> DSF_RESOLVABLE =
-      SecurityLink.resolvable(DSF_ID, DeliverableSwapFuture.class);
-  private static final SecurityLink<DeliverableSwapFuture> DSF_RESOLVED = SecurityLink.resolved(DSF_SECURITY);
+  static final DeliverableSwapFuture PRODUCT = DeliverableSwapFutureTest.sut();
+  static final DeliverableSwapFuture PRODUCT2 = DeliverableSwapFutureTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(LocalDate.of(2014, 6, 12))
       .settlementDate(LocalDate.of(2014, 6, 14))
       .build();
   private static final long QUANTITY = 100L;
-  private static final double TRADE_PRICE = 0.99;
-
-  private static final LinkResolver RESOLVER = new LinkResolver() {
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
-      assertEquals(identifier, DSF_ID);
-      return (T) DSF_SECURITY;
-    }
-  };
+  private static final long QUANTITY2 = 200L;
+  private static final double PRICE = 0.99;
+  private static final double PRICE2 = 0.98;
 
   //-------------------------------------------------------------------------
-  public void test_builder_resolvable() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVABLE)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
+  public void test_builder() {
+    DeliverableSwapFutureTrade test = sut();
+    assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getSecurityLink(), DSF_RESOLVABLE);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
-    assertEquals(test.getTradePrice(), TRADE_PRICE);
-    assertThrows(() -> test.getProduct(), IllegalStateException.class);
-    assertThrows(() -> test.getSecurity(), IllegalStateException.class);
-  }
-
-  public void test_builder_resolved() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getSecurityLink(), DSF_RESOLVED);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
-    assertEquals(test.getTradePrice(), TRADE_PRICE);
-    assertEquals(test.getProduct(), DSF_PRODUCT);
-    assertEquals(test.getSecurity(), DSF_SECURITY);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_resolveLinks_resolvable() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVABLE)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
-    DeliverableSwapFutureTrade expected = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
-    assertEquals(test.resolveLinks(RESOLVER), expected);
-  }
-
-  public void test_resolveLinks_resolved() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
-    assertSame(test.resolveLinks(RESOLVER), test);
+    assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
+    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
   }
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
+    DeliverableSwapFutureTrade test = sut();
     ResolvedDeliverableSwapFutureTrade expected = ResolvedDeliverableSwapFutureTrade.builder()
-        .tradeInfo(TRADE_INFO)
-        .product(DSF_PRODUCT.resolve(REF_DATA))
-        .securityStandardId(DSF_ID)
+        .info(TRADE_INFO)
+        .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
-        .tradePrice(TRADE_PRICE)
+        .price(PRICE)
         .build();
     assertEquals(test.resolve(REF_DATA), expected);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DeliverableSwapFutureTrade test1 = DeliverableSwapFutureTrade.builder()
-        .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
-        .build();
-    coverImmutableBean(test1);
-    DeliverableSwapFutureTrade test2 = DeliverableSwapFutureTrade.builder()
-        .quantity(10L)
-        .securityLink(DSF_RESOLVABLE)
-        .tradePrice(1.01)
-        .build();
-    coverBeanEquals(test1, test2);
+    coverImmutableBean(sut());
+    coverBeanEquals(sut(), sut2());
   }
 
   public void test_serialization() {
-    DeliverableSwapFutureTrade test = DeliverableSwapFutureTrade.builder()
+    assertSerialization(sut());
+  }
+
+  //-------------------------------------------------------------------------
+  static DeliverableSwapFutureTrade sut() {
+    return DeliverableSwapFutureTrade.builder()
+        .info(TRADE_INFO)
+        .product(PRODUCT)
         .quantity(QUANTITY)
-        .securityLink(DSF_RESOLVED)
-        .tradeInfo(TRADE_INFO)
-        .tradePrice(TRADE_PRICE)
+        .price(PRICE)
         .build();
-    assertSerialization(test);
+  }
+
+  static DeliverableSwapFutureTrade sut2() {
+    return DeliverableSwapFutureTrade.builder()
+        .product(PRODUCT2)
+        .quantity(QUANTITY2)
+        .price(PRICE2)
+        .build();
   }
 
 }

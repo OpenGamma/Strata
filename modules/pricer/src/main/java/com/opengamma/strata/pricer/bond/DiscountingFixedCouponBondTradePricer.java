@@ -12,8 +12,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -77,7 +77,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
-    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate settlementDate = trade.getSettlementDate();
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), provider, settlementDate);
     return presentValueFromProductPresentValue(trade, provider, pvProduct);
   }
@@ -107,7 +107,7 @@ public class DiscountingFixedCouponBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate settlementDate = trade.getSettlementDate();
     CurrencyAmount pvProduct = productPricer.presentValueWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
     return presentValueFromProductPresentValue(trade, provider, pvProduct);
@@ -145,11 +145,11 @@ public class DiscountingFixedCouponBondTradePricer {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
+    LocalDate tradeSettlementDate = trade.getSettlementDate();
     StandardId legalEntityId = product.getLegalEntityId();
     Currency currency = product.getCurrency();
-    double df = provider.repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(standardSettlementDate);
+    double df = provider.repoCurveDiscountFactors(
+        product.getSecurityId(), legalEntityId, currency).discountFactor(standardSettlementDate);
     double pvStandard =
         (cleanPrice * product.getNotional() + productPricer.accruedInterest(product, standardSettlementDate)) * df;
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
@@ -198,12 +198,11 @@ public class DiscountingFixedCouponBondTradePricer {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     LocalDate standardSettlementDate = product.getSettlementDateOffset().adjust(provider.getValuationDate(), refData);
-    LocalDate tradeSettlementDate = trade.getTradeInfo().getSettlementDate().get();
-    StandardId securityId = trade.getSecurityStandardId();
+    LocalDate tradeSettlementDate = trade.getSettlementDate();
     StandardId legalEntityId = product.getLegalEntityId();
     Currency currency = product.getCurrency();
-    double df = provider.repoCurveDiscountFactors(securityId, legalEntityId, currency).discountFactor(
-        standardSettlementDate);
+    double df = provider.repoCurveDiscountFactors(
+        product.getSecurityId(), legalEntityId, currency).discountFactor(standardSettlementDate);
     double pvStandard =
         (cleanPrice * product.getNotional() + productPricer.accruedInterest(product, standardSettlementDate)) * df;
     if (standardSettlementDate.isEqual(tradeSettlementDate)) {
@@ -251,7 +250,7 @@ public class DiscountingFixedCouponBondTradePricer {
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider) {
 
-    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate settlementDate = trade.getSettlementDate();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivity(
         trade.getProduct(), provider, settlementDate);
     return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
@@ -282,7 +281,7 @@ public class DiscountingFixedCouponBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate settlementDate = trade.getSettlementDate();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivityWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
     return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
@@ -339,13 +338,13 @@ public class DiscountingFixedCouponBondTradePricer {
    * @return the current cash amount
    */
   public CurrencyAmount currentCash(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
-    Payment upfront = trade.getPayment();
-    Currency currency = upfront.getCurrency(); // assumes single currency is involved in trade
+    Payment upfrontPayment = upfrontPayment(trade);
+    Currency currency = upfrontPayment.getCurrency(); // assumes single currency is involved in trade
     CurrencyAmount currentCash = CurrencyAmount.zero(currency);
-    if (upfront.getDate().equals(valuationDate)) {
-      currentCash = currentCash.plus(CurrencyAmount.of(currency, upfront.getAmount()));
+    if (upfrontPayment.getDate().equals(valuationDate)) {
+      currentCash = currentCash.plus(upfrontPayment.getValue());
     }
-    LocalDate settlementDate = trade.getTradeInfo().getSettlementDate().get();
+    LocalDate settlementDate = trade.getSettlementDate();
     ResolvedFixedCouponBond product = trade.getProduct();
     if (!settlementDate.isAfter(valuationDate)) {
       double cashCoupon = product.hasExCouponPeriod() ? 0d : currentCashCouponPayment(product, valuationDate);
@@ -370,8 +369,9 @@ public class DiscountingFixedCouponBondTradePricer {
   private CurrencyAmount presentValuePayment(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(
-        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
-    return paymentPricer.presentValue(trade.getPayment(), discountFactors.getDiscountFactors());
+        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
+    Payment upfrontPayment = upfrontPayment(trade);
+    return paymentPricer.presentValue(upfrontPayment, discountFactors.getDiscountFactors());
   }
 
   private PointSensitivityBuilder presentValueSensitivityPayment(
@@ -380,13 +380,36 @@ public class DiscountingFixedCouponBondTradePricer {
 
     ResolvedFixedCouponBond product = trade.getProduct();
     RepoCurveDiscountFactors discountFactors = provider.repoCurveDiscountFactors(
-        product.getLegalEntityId(), trade.getSecurityStandardId().getStandardId(), product.getCurrency());
+        product.getSecurityId(), product.getLegalEntityId(), product.getCurrency());
+    Payment upfrontPayment = upfrontPayment(trade);
     PointSensitivityBuilder pt = paymentPricer.presentValueSensitivity(
-        trade.getPayment(), discountFactors.getDiscountFactors());
+        upfrontPayment, discountFactors.getDiscountFactors());
     if (pt instanceof ZeroRateSensitivity) {
       return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pt, discountFactors.getBondGroup());
     }
     return pt; // NoPointSensitivity
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the payment that was made for the trade.
+   * <p>
+   * This is the payment that was made on the settlement date, based on the quantity and clean price.
+   * 
+   * @param trade  the trade
+   * @return the payment that was made
+   */
+  public Payment upfrontPayment(ResolvedFixedCouponBondTrade trade) {
+    ResolvedFixedCouponBond product = trade.getProduct();
+    // payment is based on the dirty price
+    LocalDate settlementDate = trade.getSettlementDate();
+    double cleanPrice = trade.getPrice();
+    double dirtyPrice = productPricer.dirtyPriceFromCleanPrice(product, settlementDate, cleanPrice);
+    // calculate payment
+    Currency currency = product.getCurrency();
+    long quantity = trade.getQuantity();
+    double notional = product.getNotional();
+    return Payment.of(CurrencyAmount.of(currency, -quantity * notional * dirtyPrice), settlementDate);
   }
 
 }

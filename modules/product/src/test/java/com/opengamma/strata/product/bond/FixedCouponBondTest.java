@@ -29,11 +29,12 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Test {@link FixedCouponBond}.
@@ -50,6 +51,8 @@ public class FixedCouponBondTest {
   private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
   private static final LocalDate START_DATE = LocalDate.of(2015, 4, 12);
   private static final LocalDate END_DATE = LocalDate.of(2025, 4, 12);
+  private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Bond");
+  private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "Bond2");
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
       BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA);
   private static final PeriodicSchedule PERIOD_SCHEDULE = PeriodicSchedule.of(
@@ -61,12 +64,13 @@ public class FixedCouponBondTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     FixedCouponBond test = sut();
+    assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getDayCount(), DAY_COUNT);
     assertEquals(test.getFixedRate(), FIXED_RATE);
     assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
     assertEquals(test.getCurrency(), EUR);
     assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPeriodicSchedule(), PERIOD_SCHEDULE);
+    assertEquals(test.getAccrualSchedule(), PERIOD_SCHEDULE);
     assertEquals(test.getSettlementDateOffset(), DATE_OFFSET);
     assertEquals(test.getYieldConvention(), YIELD_CONVENTION);
     assertEquals(test.getExCouponPeriod(), EX_COUPON);
@@ -74,23 +78,25 @@ public class FixedCouponBondTest {
 
   public void test_builder_fail() {
     assertThrowsIllegalArg(() -> FixedCouponBond.builder()
+        .securityId(SECURITY_ID)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
         .currency(EUR)
         .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
+        .accrualSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(DaysAdjustment.ofBusinessDays(EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST))
         .build());
     assertThrowsIllegalArg(() -> FixedCouponBond.builder()
+        .securityId(SECURITY_ID)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
         .currency(EUR)
         .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
+        .accrualSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(-3, EUTA))
         .yieldConvention(YIELD_CONVENTION)
         .build());
@@ -139,12 +145,13 @@ public class FixedCouponBondTest {
   //-------------------------------------------------------------------------
   static FixedCouponBond sut() {
     return FixedCouponBond.builder()
+        .securityId(SECURITY_ID)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
         .legalEntityId(LEGAL_ENTITY)
         .currency(EUR)
         .notional(NOTIONAL)
-        .periodicSchedule(PERIOD_SCHEDULE)
+        .accrualSchedule(PERIOD_SCHEDULE)
         .settlementDateOffset(DATE_OFFSET)
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(EX_COUPON)
@@ -156,12 +163,13 @@ public class FixedCouponBondTest {
     PeriodicSchedule sche = PeriodicSchedule.of(
         START_DATE, END_DATE, Frequency.P12M, adj, StubConvention.SHORT_INITIAL, true);
     return FixedCouponBond.builder()
+        .securityId(SECURITY_ID2)
         .dayCount(DayCounts.ACT_360)
         .fixedRate(0.005)
         .legalEntityId(StandardId.of("OG-Ticker", "BUN EUR 2"))
         .currency(GBP)
         .notional(1.0e6)
-        .periodicSchedule(sche)
+        .accrualSchedule(sche)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, SAT_SUN))
         .yieldConvention(FixedCouponBondYieldConvention.UK_BUMP_DMO)
         .build();

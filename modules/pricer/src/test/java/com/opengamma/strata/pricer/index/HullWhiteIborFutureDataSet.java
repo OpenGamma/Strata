@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -27,10 +26,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
@@ -102,7 +99,9 @@ public class HullWhiteIborFutureDataSet {
   private static final LocalDate LAST_TRADE_DATE = LocalDate.of(2012, 9, 17);
   private static final double FUTURE_FACTOR = 0.25;
   /**  Ibor future product  */
+  private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "FutSec");
   public static final IborFuture IBOR_FUTURE = IborFuture.builder()
+      .securityId(SECURITY_ID)
       .currency(EUR)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_DATE)
@@ -110,9 +109,6 @@ public class HullWhiteIborFutureDataSet {
       .accrualFactor(FUTURE_FACTOR)
       .rounding(Rounding.none())
       .build();
-  private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "FutSec");
-  private static final Security<IborFuture> SECURITY = UnitSecurity.builder(IBOR_FUTURE).standardId(SECURITY_ID).build();
-  private static final SecurityLink<IborFuture> SECURITY_LINK = SecurityLink.resolved(SECURITY);
   /** Quantity of trade */
   public static final long QUANTITY = 400L;
   private static final double REFERENCE_PRICE = 0.99;
@@ -120,10 +116,10 @@ public class HullWhiteIborFutureDataSet {
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).build();
   /** Ibor future trade */
   public static final IborFutureTrade IBOR_FUTURE_TRADE = IborFutureTrade.builder()
-      .price(REFERENCE_PRICE)
+      .info(TRADE_INFO)
+      .product(IBOR_FUTURE)
       .quantity(QUANTITY)
-      .securityLink(SECURITY_LINK)
-      .tradeInfo(TRADE_INFO)
+      .price(REFERENCE_PRICE)
       .build();
   /** Last margin price */
   public static final double LAST_MARGIN_PRICE = 0.98;

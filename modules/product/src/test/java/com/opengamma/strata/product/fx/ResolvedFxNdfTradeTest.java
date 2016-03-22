@@ -23,15 +23,15 @@ public class ResolvedFxNdfTradeTest {
 
   private static final ResolvedFxNdf PRODUCT = ResolvedFxNdfTest.sut();
   private static final ResolvedFxNdf PRODUCT2 = ResolvedFxNdfTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxNdfTrade test = ResolvedFxNdfTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxNdfTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxNdfTrade sut() {
     return ResolvedFxNdfTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(PRODUCT)
         .build();
   }
