@@ -205,7 +205,7 @@ public class DefaultCalculationTaskRunnerTest {
     private CalculationResult result;
 
     @Override
-    public void resultReceived(CalculationResult result) {
+    public void resultReceived(CalculationTarget target, CalculationResult result) {
       this.result = result;
     }
 

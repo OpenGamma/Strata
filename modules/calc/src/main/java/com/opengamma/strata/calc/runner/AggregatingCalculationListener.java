@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
+import com.opengamma.strata.basics.CalculationTarget;
+
 /**
  * Superclass for mutable calculation listeners that collect the results of individual calculations and
  * create a single aggregate result when the calculations are complete.
@@ -51,7 +53,7 @@ public abstract class AggregatingCalculationListener<T>
   }
 
   @Override
-  public abstract void resultReceived(CalculationResult result);
+  public abstract void resultReceived(CalculationTarget target, CalculationResult result);
 
   /**
    * Invoked to create the aggregate result when the individual calculations are complete.

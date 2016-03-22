@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRunner;
 
 /**
@@ -20,9 +21,10 @@ public interface CalculationListener {
   /**
    * Invoked when a calculation completes.
    *
+   * @param target  the calculation target, such as a trade
    * @param result  the result of the calculation
    */
-  public abstract void resultReceived(CalculationResult result);
+  public abstract void resultReceived(CalculationTarget target, CalculationResult result);
 
   /**
    * Invoked when all calculations have completed.
@@ -30,4 +32,5 @@ public interface CalculationListener {
    * This is guaranteed to be called after all results have been passed to {@link #resultReceived}.
    */
   public abstract void calculationsComplete();
+
 }
