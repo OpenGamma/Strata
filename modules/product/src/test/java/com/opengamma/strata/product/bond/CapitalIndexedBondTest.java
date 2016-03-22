@@ -69,6 +69,7 @@ public class CapitalIndexedBondTest {
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
       .interpolated(true)
+      .firstIndexValue(START_INDEX)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
@@ -93,9 +94,9 @@ public class CapitalIndexedBondTest {
     assertEquals(test.getNotional(), NOTIONAL);
     assertEquals(test.getAccrualSchedule(), SCHEDULE);
     assertEquals(test.getRateCalculation(), RATE_CALC);
+    assertEquals(test.getFirstIndexValue(), RATE_CALC.getFirstIndexValue().getAsDouble());
     assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
     assertEquals(test.getYieldConvention(), US_IL_REAL);
-    assertEquals(test.getStartIndexValue(), START_INDEX);
   }
 
   public void test_builder_min() {
@@ -109,7 +110,6 @@ public class CapitalIndexedBondTest {
         .yieldConvention(US_IL_REAL)
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
-        .startIndexValue(START_INDEX)
         .build();
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getCurrency(), USD);
@@ -121,7 +121,6 @@ public class CapitalIndexedBondTest {
     assertEquals(test.getRateCalculation(), RATE_CALC);
     assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
     assertEquals(test.getYieldConvention(), US_IL_REAL);
-    assertEquals(test.getStartIndexValue(), START_INDEX);
   }
 
   public void test_builder_fail() {
@@ -137,7 +136,6 @@ public class CapitalIndexedBondTest {
         .yieldConvention(US_IL_REAL)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(-2, USNY))
         .accrualSchedule(SCHEDULE)
-        .startIndexValue(START_INDEX)
         .build());
     // positive ex-coupon days
     assertThrowsIllegalArg(() -> CapitalIndexedBond.builder()
@@ -152,7 +150,6 @@ public class CapitalIndexedBondTest {
         .yieldConvention(US_IL_REAL)
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
-        .startIndexValue(START_INDEX)
         .build());
   }
 
@@ -165,7 +162,7 @@ public class CapitalIndexedBondTest {
       LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
       LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);
       LocalDate detachment = EX_COUPON.adjust(end, REF_DATA);
-      RateObservation obs = RATE_CALC.createRateObservation(end, START_INDEX);
+      RateObservation obs = RATE_CALC.createRateObservation(end);
       periodic[i] = CapitalIndexedBondPaymentPeriod.builder()
           .currency(USD)
           .startDate(start)
@@ -191,7 +188,6 @@ public class CapitalIndexedBondTest {
         .settlementDateOffset(SETTLE_OFFSET)
         .yieldConvention(US_IL_REAL)
         .rateCalculation(base.getRateCalculation())
-        .startIndexValue(base.getStartIndexValue())
         .build();
     assertEquals(base.resolve(REF_DATA), expected);
   }
@@ -219,7 +215,6 @@ public class CapitalIndexedBondTest {
         .yieldConvention(US_IL_REAL)
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
-        .startIndexValue(START_INDEX)
         .build();
   }
 
@@ -235,7 +230,6 @@ public class CapitalIndexedBondTest {
         .yieldConvention(INDEX_LINKED_FLOAT)
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
-        .startIndexValue(START_INDEX)
         .build();
   }
 
@@ -250,12 +244,12 @@ public class CapitalIndexedBondTest {
                 .index(GB_RPI)
                 .lag(Period.ofMonths(2))
                 .interpolated(true)
+                .firstIndexValue(124.556)
                 .build())
         .exCouponPeriod(EX_COUPON)
         .legalEntityId(StandardId.of("OG-Ticker", "US-Govt-1"))
         .yieldConvention(INDEX_LINKED_FLOAT)
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
-        .startIndexValue(124.556)
         .accrualSchedule(
             PeriodicSchedule.of(
                 START, END, FREQUENCY,

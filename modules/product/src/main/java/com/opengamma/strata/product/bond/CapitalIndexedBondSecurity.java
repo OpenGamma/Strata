@@ -79,17 +79,11 @@ public final class CapitalIndexedBondSecurity
    * The inflation rate calculation.
    * <p>
    * The reference index is interpolated index or monthly index.
-   * Real coupons are represented by {@code gearing} in this field.
+   * Real coupons are represented by {@code gearing} in the calculation.
+   * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
    */
   @PropertyDefinition(validate = "notNull")
   private final InflationRateCalculation rateCalculation;
-  /**
-   * Start index value. 
-   * <p>
-   * The price index value at the start of the bond. 
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
-  private final double startIndexValue;
   /**
    * The day count convention applicable.
    * <p>
@@ -147,9 +141,21 @@ public final class CapitalIndexedBondSecurity
     ArgChecker.isTrue(settlementDateOffset.getDays() >= 0, "The settlement date offset must be non-negative");
     ArgChecker.isTrue(exCouponPeriod.getDays() <= 0,
         "The ex-coupon period is measured from the payment date, thus the days must be non-positive");
+    ArgChecker.isTrue(rateCalculation.getFirstIndexValue().isPresent(), "Rate calculation must specify first index value");
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the first index value
+   * <p>
+   * This is the price index value at the start of the bond.
+   * 
+   * @return the first index value
+   */
+  public double getFirstIndexValue() {
+    return rateCalculation.getFirstIndexValue().getAsDouble();  // validated in constructor
+  }
+
   @Override
   public ImmutableSet<SecurityId> getUnderlyingIds() {
     return ImmutableSet.of();
@@ -164,7 +170,6 @@ public final class CapitalIndexedBondSecurity
         notional,
         accrualSchedule,
         rateCalculation,
-        startIndexValue,
         dayCount,
         yieldConvention,
         legalEntityId,
@@ -210,7 +215,6 @@ public final class CapitalIndexedBondSecurity
       double notional,
       PeriodicSchedule accrualSchedule,
       InflationRateCalculation rateCalculation,
-      double startIndexValue,
       DayCount dayCount,
       CapitalIndexedBondYieldConvention yieldConvention,
       StandardId legalEntityId,
@@ -221,7 +225,6 @@ public final class CapitalIndexedBondSecurity
     ArgChecker.notNegativeOrZero(notional, "notional");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
-    ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
@@ -232,7 +235,6 @@ public final class CapitalIndexedBondSecurity
     this.notional = notional;
     this.accrualSchedule = accrualSchedule;
     this.rateCalculation = rateCalculation;
-    this.startIndexValue = startIndexValue;
     this.dayCount = dayCount;
     this.yieldConvention = yieldConvention;
     this.legalEntityId = legalEntityId;
@@ -307,22 +309,12 @@ public final class CapitalIndexedBondSecurity
    * Gets the inflation rate calculation.
    * <p>
    * The reference index is interpolated index or monthly index.
-   * Real coupons are represented by {@code gearing} in this field.
+   * Real coupons are represented by {@code gearing} in the calculation.
+   * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
    * @return the value of the property, not null
    */
   public InflationRateCalculation getRateCalculation() {
     return rateCalculation;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets start index value.
-   * <p>
-   * The price index value at the start of the bond.
-   * @return the value of the property
-   */
-  public double getStartIndexValue() {
-    return startIndexValue;
   }
 
   //-----------------------------------------------------------------------
@@ -411,7 +403,6 @@ public final class CapitalIndexedBondSecurity
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
           JodaBeanUtils.equal(rateCalculation, other.rateCalculation) &&
-          JodaBeanUtils.equal(startIndexValue, other.startIndexValue) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
@@ -429,7 +420,6 @@ public final class CapitalIndexedBondSecurity
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateCalculation);
-    hash = hash * 31 + JodaBeanUtils.hashCode(startIndexValue);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(yieldConvention);
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
@@ -440,14 +430,13 @@ public final class CapitalIndexedBondSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("CapitalIndexedBondSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("rateCalculation").append('=').append(rateCalculation).append(',').append(' ');
-    buf.append("startIndexValue").append('=').append(startIndexValue).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
@@ -493,11 +482,6 @@ public final class CapitalIndexedBondSecurity
     private final MetaProperty<InflationRateCalculation> rateCalculation = DirectMetaProperty.ofImmutable(
         this, "rateCalculation", CapitalIndexedBondSecurity.class, InflationRateCalculation.class);
     /**
-     * The meta-property for the {@code startIndexValue} property.
-     */
-    private final MetaProperty<Double> startIndexValue = DirectMetaProperty.ofImmutable(
-        this, "startIndexValue", CapitalIndexedBondSecurity.class, Double.TYPE);
-    /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
@@ -532,7 +516,6 @@ public final class CapitalIndexedBondSecurity
         "notional",
         "accrualSchedule",
         "rateCalculation",
-        "startIndexValue",
         "dayCount",
         "yieldConvention",
         "legalEntityId",
@@ -558,8 +541,6 @@ public final class CapitalIndexedBondSecurity
           return accrualSchedule;
         case -521703991:  // rateCalculation
           return rateCalculation;
-        case -1656407615:  // startIndexValue
-          return startIndexValue;
         case 1905311443:  // dayCount
           return dayCount;
         case -1895216418:  // yieldConvention
@@ -631,14 +612,6 @@ public final class CapitalIndexedBondSecurity
     }
 
     /**
-     * The meta-property for the {@code startIndexValue} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> startIndexValue() {
-      return startIndexValue;
-    }
-
-    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
@@ -692,8 +665,6 @@ public final class CapitalIndexedBondSecurity
           return ((CapitalIndexedBondSecurity) bean).getAccrualSchedule();
         case -521703991:  // rateCalculation
           return ((CapitalIndexedBondSecurity) bean).getRateCalculation();
-        case -1656407615:  // startIndexValue
-          return ((CapitalIndexedBondSecurity) bean).getStartIndexValue();
         case 1905311443:  // dayCount
           return ((CapitalIndexedBondSecurity) bean).getDayCount();
         case -1895216418:  // yieldConvention
@@ -730,7 +701,6 @@ public final class CapitalIndexedBondSecurity
     private double notional;
     private PeriodicSchedule accrualSchedule;
     private InflationRateCalculation rateCalculation;
-    private double startIndexValue;
     private DayCount dayCount;
     private CapitalIndexedBondYieldConvention yieldConvention;
     private StandardId legalEntityId;
@@ -754,7 +724,6 @@ public final class CapitalIndexedBondSecurity
       this.notional = beanToCopy.getNotional();
       this.accrualSchedule = beanToCopy.getAccrualSchedule();
       this.rateCalculation = beanToCopy.getRateCalculation();
-      this.startIndexValue = beanToCopy.getStartIndexValue();
       this.dayCount = beanToCopy.getDayCount();
       this.yieldConvention = beanToCopy.getYieldConvention();
       this.legalEntityId = beanToCopy.getLegalEntityId();
@@ -776,8 +745,6 @@ public final class CapitalIndexedBondSecurity
           return accrualSchedule;
         case -521703991:  // rateCalculation
           return rateCalculation;
-        case -1656407615:  // startIndexValue
-          return startIndexValue;
         case 1905311443:  // dayCount
           return dayCount;
         case -1895216418:  // yieldConvention
@@ -810,9 +777,6 @@ public final class CapitalIndexedBondSecurity
           break;
         case -521703991:  // rateCalculation
           this.rateCalculation = (InflationRateCalculation) newValue;
-          break;
-        case -1656407615:  // startIndexValue
-          this.startIndexValue = (Double) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -867,7 +831,6 @@ public final class CapitalIndexedBondSecurity
           notional,
           accrualSchedule,
           rateCalculation,
-          startIndexValue,
           dayCount,
           yieldConvention,
           legalEntityId,
@@ -932,26 +895,14 @@ public final class CapitalIndexedBondSecurity
      * Sets the inflation rate calculation.
      * <p>
      * The reference index is interpolated index or monthly index.
-     * Real coupons are represented by {@code gearing} in this field.
+     * Real coupons are represented by {@code gearing} in the calculation.
+     * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
      * @param rateCalculation  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder rateCalculation(InflationRateCalculation rateCalculation) {
       JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
       this.rateCalculation = rateCalculation;
-      return this;
-    }
-
-    /**
-     * Sets start index value.
-     * <p>
-     * The price index value at the start of the bond.
-     * @param startIndexValue  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder startIndexValue(double startIndexValue) {
-      ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
-      this.startIndexValue = startIndexValue;
       return this;
     }
 
@@ -1033,14 +984,13 @@ public final class CapitalIndexedBondSecurity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(384);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("CapitalIndexedBondSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation)).append(',').append(' ');
-      buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');

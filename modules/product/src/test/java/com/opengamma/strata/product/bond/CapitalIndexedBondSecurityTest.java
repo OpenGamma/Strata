@@ -51,7 +51,7 @@ public class CapitalIndexedBondSecurityTest {
   private static final CapitalIndexedBondYieldConvention YIELD_CONVENTION = INDEX_LINKED_FLOAT;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
-  private static final InflationRateCalculation RATE = InflationRateCalculation.of(GB_HICP, 3, false);
+  private static final InflationRateCalculation RATE = InflationRateCalculation.of(GB_HICP, 3, false, 120d);
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUTA);
   private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
   private static final LocalDate START_DATE = LocalDate.of(2015, 4, 12);
@@ -69,6 +69,7 @@ public class CapitalIndexedBondSecurityTest {
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
     assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
+    assertEquals(test.getFirstIndexValue(), PRODUCT.getFirstIndexValue());
   }
 
   public void test_builder_fail() {
@@ -76,7 +77,6 @@ public class CapitalIndexedBondSecurityTest {
         .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)
-        .startIndexValue(120)
         .legalEntityId(LEGAL_ENTITY)
         .currency(EUR)
         .notional(NOTIONAL)
@@ -89,7 +89,6 @@ public class CapitalIndexedBondSecurityTest {
         .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)
-        .startIndexValue(120)
         .legalEntityId(LEGAL_ENTITY)
         .currency(EUR)
         .notional(NOTIONAL)
@@ -139,7 +138,6 @@ public class CapitalIndexedBondSecurityTest {
         .notional(product.getNotional())
         .accrualSchedule(product.getAccrualSchedule())
         .rateCalculation(product.getRateCalculation())
-        .startIndexValue(product.getStartIndexValue())
         .dayCount(product.getDayCount())
         .yieldConvention(product.getYieldConvention())
         .legalEntityId(product.getLegalEntityId())

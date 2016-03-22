@@ -71,6 +71,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
       .interpolated(true)
+      .firstIndexValue(START_INDEX)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
@@ -94,7 +95,6 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .yieldConvention(US_IL_REAL)
       .settlementDateOffset(SETTLE_OFFSET)
       .accrualSchedule(SCHEDULE)
-      .startIndexValue(START_INDEX)
       .build()
       .resolve(REF_DATA);
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.ofCalendarDays(-5, EX_COUPON_ADJ);
@@ -109,7 +109,6 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .settlementDateOffset(SETTLE_OFFSET)
       .accrualSchedule(SCHEDULE)
       .exCouponPeriod(EX_COUPON)
-      .startIndexValue(START_INDEX)
       .build()
       .resolve(REF_DATA);
   // detachment date (for nonzero ex-coupon days) < valuation date < payment date
@@ -511,7 +510,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, realPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(refDate, START_INDEX);
+    RateObservation obs = RATE_CALC.createRateObservation(refDate);
     double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
@@ -523,7 +522,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER, refDate, realPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(VALUATION, START_INDEX);
+    RateObservation obs = RATE_CALC.createRateObservation(VALUATION);
     double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
@@ -535,7 +534,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT, RATES_PROVIDER, refDate, dirtyNominalPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(VALUATION, START_INDEX);
+    RateObservation obs = RATE_CALC.createRateObservation(VALUATION);
     double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER);
     double expected = dirtyNominalPrice - PRODUCT.accruedInterest(refDate) * (refRate + 1d) / NOTIONAL;
     assertEquals(cleanNominalPrice, expected, TOL);
@@ -559,6 +558,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
       .interpolated(true)
+      .firstIndexValue(START_INDEX_US)
       .build();
   private static final LocalDate START_USD = LocalDate.of(2010, 7, 15);
   private static final LocalDate END_USD = LocalDate.of(2020, 7, 15);
@@ -575,7 +575,6 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .yieldConvention(US_IL_REAL)
       .settlementDateOffset(SETTLE_OFFSET_US)
       .accrualSchedule(SCHEDULE_US)
-      .startIndexValue(START_INDEX_US)
       .build()
       .resolve(REF_DATA);
   private static final double YIELD_US = -0.00189;
@@ -652,6 +651,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .index(GB_RPI)
       .lag(Period.ofMonths(8))
       .interpolated(false)
+      .firstIndexValue(START_INDEX_GOV)
       .build();
   private static final LocalDate START_GOV = LocalDate.of(1983, 10, 16);
   private static final LocalDate END_GOV = LocalDate.of(2020, 4, 16);
@@ -674,7 +674,6 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV)
       .exCouponPeriod(EX_COUPON_GOV)
-      .startIndexValue(START_INDEX_GOV)
       .build()
       .resolve(REF_DATA);
   private static final double YIELD_GOV = -0.01532;
@@ -689,13 +688,12 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .notional(NTNL)
       .currency(GBP)
       .dayCount(ACT_ACT_ICMA)
-      .rateCalculation(RATE_CALC_GOV)
+      .rateCalculation(RATE_CALC_GOV.toBuilder().firstIndexValue(START_INDEX_GOV_OP).build())
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(INDEX_LINKED_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV_OP)
       .exCouponPeriod(EX_COUPON_GOV)
-      .startIndexValue(START_INDEX_GOV_OP)
       .build()
       .resolve(REF_DATA);
   private static final double YIELD_GOV_OP = -0.0244;
@@ -767,6 +765,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .index(GB_RPI)
       .lag(Period.ofMonths(3))
       .interpolated(true)
+      .firstIndexValue(START_INDEX_CORP)
       .build();
   private static final LocalDate START_CORP = LocalDate.of(2010, 3, 22);
   private static final LocalDate END_CORP = LocalDate.of(2040, 3, 22);
@@ -789,7 +788,6 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_CORP)
       .exCouponPeriod(EX_COUPON_CORP)
-      .startIndexValue(START_INDEX_CORP)
       .build()
       .resolve(REF_DATA);
   private static final double YIELD_CORP = -0.00842;
