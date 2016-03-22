@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,7 +36,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -149,7 +150,7 @@ public final class FraCurveNode
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
     Tenor tenor = Tenor.of(template.getPeriodToEnd());
-    return TenorCurveNodeMetadata.of(nodeDate, tenor, label);
+    return TenorDateCurveNodeMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date

@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
@@ -37,7 +38,7 @@ import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -174,8 +175,8 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
-    assertEquals(((TenorCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
+    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
   public void test_metadata_fixed() {
