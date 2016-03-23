@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
@@ -33,7 +35,19 @@ class MarketDataFxRateProvider implements FxRateProvider {
     if (baseCurrency.equals(counterCurrency)) {
       return 1;
     }
-    FxRate rate = marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
-    return rate.fxRate(baseCurrency, counterCurrency);
+    // Try direct pair
+    Optional<FxRate> rate = marketData.findValue(FxRateKey.of(baseCurrency, counterCurrency));
+    if (rate.isPresent()) {
+      return rate.get().fxRate(baseCurrency, counterCurrency);
+    }
+    // Try triangulation on first currency
+    Currency triangularCcy = baseCurrency.getTriangulationCurrency();
+    Optional<FxRate> rate1 = marketData.findValue(FxRateKey.of(baseCurrency, triangularCcy));
+    Optional<FxRate> rate2 = marketData.findValue(FxRateKey.of(triangularCcy, counterCurrency));
+    if(rate1.isPresent() && rate2.isPresent()) {
+      return rate1.get().crossRate(rate2.get()).fxRate(baseCurrency, counterCurrency);
+    }
+    throw new IllegalArgumentException("No market data available for pair " + baseCurrency + "/" + counterCurrency);
   }
+  
 }
