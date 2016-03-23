@@ -78,7 +78,7 @@ public final class ResolvedIborFutureOptionTrade
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.info = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   @ImmutableValidator

@@ -66,7 +66,7 @@ class ResultsRow {
     Trade trade = getTrade();
     if (trade instanceof SecurityTrade) {
       SecurityTrade idTrade = (SecurityTrade) trade;
-      trade = idTrade.resolve(results.getReferenceData());
+      trade = idTrade.resolveSecurity(results.getReferenceData());
     }
     if (trade instanceof ProductTrade) {
       return Result.success(((ProductTrade) trade).getProduct());

@@ -44,7 +44,7 @@ public class ResolvedBulletPaymentTradeTest {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
         .product(PRODUCT1)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), PRODUCT1);
   }
 

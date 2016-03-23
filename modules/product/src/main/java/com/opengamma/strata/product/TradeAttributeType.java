@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.type.TypedString;
  *  public static final TradeAttributeType&lt;String&gt; DEALER = TradeAttributeType.of("dealer");
  * </pre>
  * 
- * @param <T>  the type associated with the info
+ * @param <T>  the type of the attribute value
  */
 public final class TradeAttributeType<T>
     extends TypedString<TradeAttributeType<T>> {

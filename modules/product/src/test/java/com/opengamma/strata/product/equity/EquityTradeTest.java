@@ -62,7 +62,7 @@ public class EquityTradeTest {
 
   static EquityTrade sut2() {
     return EquityTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

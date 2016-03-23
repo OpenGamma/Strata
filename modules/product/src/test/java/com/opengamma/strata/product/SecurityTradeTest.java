@@ -49,7 +49,7 @@ public class SecurityTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolve() {
     GenericSecurity security = GenericSecurityTest.sut();
-    FinanceTrade test = sut().resolve(ImmutableReferenceData.of(SECURITY_ID, security));
+    FinanceTrade test = sut().resolveSecurity(ImmutableReferenceData.of(SECURITY_ID, security));
     GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, QUANTITY, PRICE);
     assertEquals(test, expected);
   }
@@ -76,7 +76,7 @@ public class SecurityTradeTest {
 
   static SecurityTrade sut2() {
     return SecurityTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .securityId(SECURITY_ID2)
         .quantity(QUANTITY2)
         .price(PRICE2)

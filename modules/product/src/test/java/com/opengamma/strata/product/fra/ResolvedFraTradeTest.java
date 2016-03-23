@@ -36,7 +36,7 @@ public class ResolvedFraTradeTest {
     ResolvedFraTrade test = ResolvedFraTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), PRODUCT);
   }
 

@@ -74,23 +74,23 @@ public final class SecurityTrade
    * Obtains an instance from trade information, identifier, quantity and price.
    * 
    * @param tradeInfo  the trade information
-   * @param security  the security that was traded
+   * @param securityId  the identifier of the underlying security
    * @param quantity  the quantity that was traded
    * @param price  the price that was traded
    * @return the trade
    */
   public static SecurityTrade of(
       TradeInfo tradeInfo,
-      SecurityId security,
+      SecurityId securityId,
       long quantity,
       double price) {
 
-    return new SecurityTrade(tradeInfo, security, quantity, price);
+    return new SecurityTrade(tradeInfo, securityId, quantity, price);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.info = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +102,7 @@ public final class SecurityTrade
    * @param refData  the reference data used to 
    * @return an equivalent trade with the security resolved
    */
-  public FinanceTrade resolve(ReferenceData refData) {
+  public FinanceTrade resolveSecurity(ReferenceData refData) {
     Security security = refData.getValue(securityId);
     return security.createTrade(info, quantity, price, refData);
   }

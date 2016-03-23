@@ -45,7 +45,7 @@ public final class TradeInfo
   /**
    * An empty instance of {@code TradeInfo}.
    */
-  public static final TradeInfo EMPTY = TradeInfo.builder().build();
+  private static final TradeInfo EMPTY = TradeInfo.builder().build();
 
   /**
    * The primary identifier for the trade, optional.
@@ -97,6 +97,15 @@ public final class TradeInfo
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an empty instance, with no values or attributes.
+   * 
+   * @return the empty instance
+   */
+  public static TradeInfo empty() {
+    return EMPTY;
+  }
+
+  /**
    * Obtains an instance with the specified trade date.
    * 
    * @param tradeDate  the trade date
@@ -127,7 +136,7 @@ public final class TradeInfo
    * @param <T>  the type of the result
    * @param type  the type to find
    * @return the attribute value
-   * @throws IllegalArgumentException if the information is not found
+   * @throws IllegalArgumentException if the attribute is not found
    */
   public <T> T getAttribute(TradeAttributeType<T> type) {
     return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
@@ -165,9 +174,9 @@ public final class TradeInfo
   @SuppressWarnings("unchecked")
   public <T> TradeInfo withAttribute(TradeAttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
-    Map<TradeAttributeType<?>, Object> infoMap = new HashMap<>(attributes);
-    infoMap.put(type, value);
-    return new TradeInfo(id, counterparty, tradeDate, tradeTime, zone, settlementDate, infoMap);
+    Map<TradeAttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
+    updatedAttributes.put(type, value);
+    return new TradeInfo(id, counterparty, tradeDate, tradeTime, zone, settlementDate, updatedAttributes);
   }
 
   /**

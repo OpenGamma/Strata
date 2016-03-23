@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.type.TypedString;
  *  public static final SecurityAttributeType&lt;String&gt; EXCHANGE = SecurityAttributeType.of("exchange");
  * </pre>
  * 
- * @param <T>  the type associated with the info
+ * @param <T>  the type of the attribute value
  */
 public final class SecurityAttributeType<T>
     extends TypedString<SecurityAttributeType<T>> {

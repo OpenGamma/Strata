@@ -63,7 +63,7 @@ public class FixedCouponBondTradeTest {
 
   public void test_resolve_noTradeOrSettlementDate() {
     FixedCouponBondTrade test = FixedCouponBondTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

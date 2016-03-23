@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.currency.Currency;
  * <p>
  * This trade represents a trade in a security, defined by a quantity and price.
  * The security is embedded directly, however the underlying product model is not available.
- * The security may be of any kind, including equities, bonds and exchange traded derivative (ETD).
+ * The security may be of any kind, including equities, bonds and exchange traded derivatives (ETD).
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
@@ -57,7 +57,7 @@ public final class GenericSecurityTrade
   @PropertyDefinition
   private final long quantity;
   /**
-   * The price that was traded.
+   * The price agreed when the trade occurred.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -68,24 +68,24 @@ public final class GenericSecurityTrade
   /**
    * Obtains an instance from trade information, security, quantity and price.
    * 
-   * @param info  the trade information
+   * @param tradeInfo  the trade information
    * @param security  the security that was traded
    * @param quantity  the quantity that was traded
    * @param price  the price that was traded
    * @return the trade
    */
   public static GenericSecurityTrade of(
-      TradeInfo info,
+      TradeInfo tradeInfo,
       GenericSecurity security,
       long quantity,
       double price) {
 
-    return new GenericSecurityTrade(info, security, quantity, price);
+    return new GenericSecurityTrade(tradeInfo, security, quantity, price);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.info = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -206,7 +206,7 @@ public final class GenericSecurityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded.
+   * Gets the price agreed when the trade occurred.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -534,7 +534,7 @@ public final class GenericSecurityTrade
     }
 
     /**
-     * Sets the price that was traded.
+     * Sets the price agreed when the trade occurred.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value

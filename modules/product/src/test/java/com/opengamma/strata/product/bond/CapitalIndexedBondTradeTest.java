@@ -115,7 +115,7 @@ public class CapitalIndexedBondTradeTest {
 
   public void test_resolve_noTradeOrSettlementDate() {
     CapitalIndexedBondTrade test = CapitalIndexedBondTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)
