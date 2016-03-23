@@ -32,7 +32,15 @@ public enum ValueRootType {
   /**
    * Refers to the trade.
    */
-  TRADE("Trade");
+  TRADE("Trade"),
+  /**
+   * Refers to the position.
+   */
+  POSITION("Position"),
+  /**
+   * Refers to the target (trade or position).
+   */
+  TARGET("Target");
 
   //-------------------------------------------------------------------------
   /**

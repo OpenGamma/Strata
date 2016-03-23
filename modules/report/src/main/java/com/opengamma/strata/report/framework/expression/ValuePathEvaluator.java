@@ -46,7 +46,9 @@ public class ValuePathEvaluator {
       new MapTokenEvaluator(),
       new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
       new CurveCurrencyParameterSensitivityTokenEvaluator(),
+      new PositionTokenEvaluator(),
       new TradeTokenEvaluator(),
+      new SecurityTokenEvaluator(),
       new BeanTokenEvaluator(),
       new IterableTokenEvaluator());
 
@@ -84,7 +86,7 @@ public class ValuePathEvaluator {
 
     if (tokens.size() < 1) {
       return Collections.nCopies(
-          results.getTrades().size(),
+          results.getTargets().size(),
           Result.failure(FailureReason.INVALID_INPUT, "Column expressions must not be empty"));
     }
     int rowCount = results.getCalculationResults().getRowCount();

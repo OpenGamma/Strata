@@ -107,6 +107,8 @@ public class ValuePathEvaluatorTest {
         Result.success("cpty2"),
         Result.success("cpty3"));
     assertThat(counterpartyResults).isEqualTo(expectedCounterparties);
+    List<Result<?>> counterpartyResults2 = ValuePathEvaluator.evaluate("Target.Counterparty.Value", reportResults);
+    assertThat(counterpartyResults2).isEqualTo(expectedCounterparties);
   }
 
   public void productPath() {

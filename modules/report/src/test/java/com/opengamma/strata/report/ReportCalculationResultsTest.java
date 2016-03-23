@@ -64,7 +64,7 @@ public class ReportCalculationResultsTest {
   public void test_of() {
     ReportCalculationResults test = sut();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getTrades(), ImmutableList.of(TRADE));
+    assertEquals(test.getTargets(), ImmutableList.of(TRADE));
     assertEquals(test.getColumns(), ImmutableList.of(COLUMN));
     assertEquals(test.getCalculationResults().get(0, 0).getValue(), PV);
     assertEquals(test.getReferenceData(), ReferenceData.standard());

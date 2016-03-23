@@ -69,7 +69,7 @@ public class TradeReportRunner
       if (reportColumn.getValue().isPresent()) {
         columnResults = ValuePathEvaluator.evaluate(reportColumn.getValue().get(), results);
       } else {
-        columnResults = IntStream.range(0, results.getTrades().size())
+        columnResults = IntStream.range(0, results.getTargets().size())
             .mapToObj(i -> Result.failure(FailureReason.INVALID_INPUT, "No value specified in report template"))
             .collect(toImmutableList());
       }

@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
@@ -17,6 +18,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.Security;
@@ -45,13 +47,40 @@ class ResultsRow {
     this.rowIndex = rowIndex;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the target from the row.
+   *
+   * @return the target from the row
+   */
+  CalculationTarget getTarget() {
+    return results.getTargets().get(rowIndex);
+  }
+
+  /**
+   * Returns the position from the row.
+   *
+   * @return the position from the row
+   */
+  Result<Position> getPosition() {
+    CalculationTarget target = getTarget();
+    if (target instanceof Position) {
+      return Result.success((Position) target);
+    }
+    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a position");
+  }
+
   /**
    * Returns the trade from the row.
    *
    * @return the trade from the row
    */
-  Trade getTrade() {
-    return results.getTrades().get(rowIndex);
+  Result<Trade> getTrade() {
+    CalculationTarget target = getTarget();
+    if (target instanceof Trade) {
+      return Result.success((Trade) target);
+    }
+    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
   }
 
   /**
@@ -63,15 +92,18 @@ class ResultsRow {
    * @return the product from the row
    */
   Result<Product> getProduct() {
-    Trade trade = getTrade();
-    if (trade instanceof SecurityTrade) {
-      SecurityTrade idTrade = (SecurityTrade) trade;
-      trade = idTrade.resolveSecurity(results.getReferenceData());
+    CalculationTarget target = getTarget();
+    if (target instanceof SecurityTrade) {
+      SecurityTrade idTrade = (SecurityTrade) target;
+      target = idTrade.resolveSecurity(results.getReferenceData());
     }
-    if (trade instanceof ProductTrade) {
-      return Result.success(((ProductTrade) trade).getProduct());
+    if (target instanceof ProductTrade) {
+      return Result.success(((ProductTrade) target).getProduct());
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
+    if (target instanceof Trade) {
+      return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
+    }
+    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
   }
 
   /**
@@ -83,19 +115,23 @@ class ResultsRow {
    * @return the security from the row
    */
   Result<Security> getSecurity() {
-    Trade trade = getTrade();
-    if (trade instanceof SecurityTrade) {
-      SecurityTrade secTrade = (SecurityTrade) trade;
+    CalculationTarget target = getTarget();
+    if (target instanceof SecurityTrade) {
+      SecurityTrade secTrade = (SecurityTrade) target;
       Security security = results.getReferenceData().getValue(secTrade.getSecurityId());
       return Result.success(security);
     }
-    if (trade instanceof GenericSecurityTrade) {
-      GenericSecurityTrade secTrade = (GenericSecurityTrade) trade;
+    if (target instanceof GenericSecurityTrade) {
+      GenericSecurityTrade secTrade = (GenericSecurityTrade) target;
       return Result.success(secTrade.getSecurity());
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a security");
+    if (target instanceof Trade) {
+      return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a security");
+    }
+    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the result of calculating the named measure for the trade in the row.
    *
@@ -103,7 +139,7 @@ class ResultsRow {
    * @return the result of calculating the named measure for the trade in the row
    */
   Result<?> getResult(String measureName) {
-    List<String> validMeasureNames = measureNames(results.getTrades().get(rowIndex));
+    List<String> validMeasureNames = measureNames(results.getTargets().get(rowIndex));
     if (!validMeasureNames.contains(measureName)) {
       return Result.failure(
           FailureReason.INVALID_INPUT,
@@ -143,9 +179,9 @@ class ResultsRow {
   }
 
   // determine the available measures
-  static List<String> measureNames(Trade trade) {
+  static List<String> measureNames(CalculationTarget target) {
     // TODO The pricing rules should be an argument, not hard-coded to be the standard rules
-    Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(trade);
+    Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(target);
     return validMeasures.stream()
         .map(Measure::getName)
         .sorted()
