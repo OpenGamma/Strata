@@ -200,6 +200,14 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = Math.max(EFFECTIVE_ZERO, relativeYearFraction(date));
+    double discountFactor = discountFactor(yearFraction);
+    return -Math.log(discountFactor) / yearFraction;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     if (date.equals(valuationDate)) {
       return CurveUnitParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.

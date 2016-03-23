@@ -213,6 +213,19 @@ public interface DiscountFactors
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the continuously compounded zero rate.
+   * <p>
+   * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
+   * year fraction which is computed internally in each implementation. 
+   * 
+   * @param date  the date to discount to
+   * @return the zero rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double zeroRate(LocalDate date);
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the unit parameter sensitivity at the specified fixing date.
    * <p>
    * This returns the unit sensitivity of the zero-coupon rate continuously compounded to each parameter on 

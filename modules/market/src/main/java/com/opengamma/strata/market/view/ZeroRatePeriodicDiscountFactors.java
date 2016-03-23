@@ -212,6 +212,14 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    double ratePeriod = curve.yValue(yearFraction);
+    return frequency * Math.log(1d + ratePeriod / frequency);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
     double rp = curve.yValue(relativeYearFraction);

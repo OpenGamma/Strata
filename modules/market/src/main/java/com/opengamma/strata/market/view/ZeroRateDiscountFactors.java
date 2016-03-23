@@ -201,6 +201,13 @@ public final class ZeroRateDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    return curve.yValue(yearFraction);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
     double relativeYearFraction = relativeYearFraction(date);
     return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction));

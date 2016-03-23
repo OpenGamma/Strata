@@ -127,6 +127,15 @@ public class ZeroRatePeriodicDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_zeroRate() {
+    ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
+    double discountFactor = test.discountFactor(DATE_AFTER);
+    double zeroRate = test.zeroRate(DATE_AFTER);
+    assertEquals(Math.exp(-zeroRate * relativeYearFraction), discountFactor);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_discountFactorWithSpread_continuous() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
