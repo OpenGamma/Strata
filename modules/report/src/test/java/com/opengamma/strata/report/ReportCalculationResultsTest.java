@@ -38,7 +38,7 @@ public class ReportCalculationResultsTest {
 
   private static final LocalDate VAL_DATE = date(2016, 6, 30);
   private static final LocalDate VAL_DATE2 = date(2016, 7, 1);
-  private static final FraTrade TRADE = FraTrade.of(TradeInfo.EMPTY, Fra.builder()
+  private static final FraTrade TRADE = FraTrade.of(TradeInfo.empty(), Fra.builder()
       .buySell(BUY)
       .notional(1_000_000)
       .startDate(date(2015, 8, 5))
@@ -47,7 +47,7 @@ public class ReportCalculationResultsTest {
       .fixedRate(0.25d)
       .index(GBP_LIBOR_3M)
       .build());
-  private static final FraTrade TRADE2 = FraTrade.of(TradeInfo.EMPTY, Fra.builder()
+  private static final FraTrade TRADE2 = FraTrade.of(TradeInfo.empty(), Fra.builder()
       .buySell(SELL)
       .notional(1_000_000)
       .startDate(date(2015, 8, 5))

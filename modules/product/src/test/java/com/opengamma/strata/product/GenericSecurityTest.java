@@ -38,8 +38,8 @@ public class GenericSecurityTest {
     assertEquals(test, GenericSecurity.of(INFO));
     assertThrows(() -> test.createProduct(ReferenceData.empty()), UnsupportedOperationException.class);
     assertEquals(
-        test.createTrade(TradeInfo.EMPTY, 1, 2, ReferenceData.empty()),
-        GenericSecurityTrade.of(TradeInfo.EMPTY, GenericSecurity.of(INFO), 1, 2));
+        test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
+        GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
   }
 
   //-------------------------------------------------------------------------

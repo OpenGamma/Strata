@@ -70,7 +70,7 @@ public class GenericSecurityTradeTest {
 
   static GenericSecurityTrade sut2() {
     return GenericSecurityTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .security(SECURITY2)
         .quantity(QUANTITY2)
         .price(PRICE2)

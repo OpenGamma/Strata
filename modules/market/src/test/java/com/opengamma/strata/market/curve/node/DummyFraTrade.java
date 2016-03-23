@@ -41,7 +41,7 @@ public final class DummyFraTrade
 
   @Override
   public TradeInfo getInfo() {
-    return TradeInfo.EMPTY;
+    return TradeInfo.empty();
   }
 
   @Override
