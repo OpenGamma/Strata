@@ -167,6 +167,13 @@ public final class ZeroRatePeriodicDiscountFactors
     }
   }
 
+  @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    double ratePeriod = curve.yValue(yearFraction);
+    return frequency * Math.log(1d + ratePeriod / frequency);
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // convert zero rate periodically compounded to discount factor
@@ -208,14 +215,6 @@ public final class ZeroRatePeriodicDiscountFactors
     double df3 = df2 + zSpread / periodPerYear;
     double ddfSdz = -relativeYearFraction * Math.pow(df3, -relativeYearFraction * periodPerYear - 1) * df2;
     return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, ddfSdz);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double zeroRate(LocalDate date) {
-    double yearFraction = relativeYearFraction(date);
-    double ratePeriod = curve.yValue(yearFraction);
-    return frequency * Math.log(1d + ratePeriod / frequency);
   }
 
   //-------------------------------------------------------------------------

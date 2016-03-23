@@ -156,6 +156,12 @@ public final class ZeroRateDiscountFactors
     }
   }
 
+  @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    return curve.yValue(yearFraction);
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // convert zero rate to discount factor
@@ -197,13 +203,6 @@ public final class ZeroRateDiscountFactors
       factor = Math.exp(-zSpread * yearFraction);
     }
     return sensi.multipliedBy(factor);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double zeroRate(LocalDate date) {
-    double yearFraction = relativeYearFraction(date);
-    return curve.yValue(yearFraction);
   }
 
   //-------------------------------------------------------------------------

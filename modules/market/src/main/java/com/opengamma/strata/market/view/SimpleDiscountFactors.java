@@ -155,6 +155,13 @@ public final class SimpleDiscountFactors
     }
   }
 
+  @Override
+  public double zeroRate(LocalDate date) {
+    double yearFraction = Math.max(EFFECTIVE_ZERO, relativeYearFraction(date));
+    double discountFactor = discountFactor(yearFraction);
+    return -Math.log(discountFactor) / yearFraction;
+  }
+
   // calculates the discount factor at a given time
   private double discountFactor(double relativeYearFraction) {
     // read discount factor directly off curve
@@ -196,14 +203,6 @@ public final class SimpleDiscountFactors
       factor = Math.exp(-zSpread * yearFraction);
     }
     return sensi.multipliedBy(factor);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public double zeroRate(LocalDate date) {
-    double yearFraction = Math.max(EFFECTIVE_ZERO, relativeYearFraction(date));
-    double discountFactor = discountFactor(yearFraction);
-    return -Math.log(discountFactor) / yearFraction;
   }
 
   //-------------------------------------------------------------------------
