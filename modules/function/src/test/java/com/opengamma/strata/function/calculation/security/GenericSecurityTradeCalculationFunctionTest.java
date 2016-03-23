@@ -37,10 +37,10 @@ import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@link GenericSecurityCalculationFunction}.
+ * Test {@link GenericSecurityTradeCalculationFunction}.
  */
 @Test
-public class GenericSecurityCalculationFunctionTest {
+public class GenericSecurityTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MARKET_PRICE = 99.42;
@@ -63,16 +63,16 @@ public class GenericSecurityCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_group() {
-    FunctionGroup<GenericSecurityTrade> test = GenericSecurityFunctionGroups.market();
+    FunctionGroup<GenericSecurityTrade> test = GenericSecurityTradeFunctionGroups.market();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measures.PRESENT_VALUE);
     FunctionConfig<GenericSecurityTrade> config =
-        GenericSecurityFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(GenericSecurityCalculationFunction.class);
+        GenericSecurityTradeFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
+    assertThat(config.createFunction()).isInstanceOf(GenericSecurityTradeCalculationFunction.class);
   }
 
   public void test_requirementsAndCurrency() {
-    GenericSecurityCalculationFunction function = new GenericSecurityCalculationFunction();
+    GenericSecurityTradeCalculationFunction function = new GenericSecurityTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -82,7 +82,7 @@ public class GenericSecurityCalculationFunctionTest {
   }
 
   public void test_presentValue() {
-    GenericSecurityCalculationFunction function = new GenericSecurityCalculationFunction();
+    GenericSecurityTradeCalculationFunction function = new GenericSecurityTradeCalculationFunction();
     CalculationMarketData md = marketData();
     
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
@@ -107,8 +107,7 @@ public class GenericSecurityCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(GenericSecurityFunctionGroups.class);
-    coverPrivateConstructor(GenericSecurityMeasureCalculations.class);
+    coverPrivateConstructor(GenericSecurityTradeFunctionGroups.class);
   }
 
 }

@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.currency.Currency;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
-    implements FinanceTrade, ImmutableBean, Serializable {
+    implements FinanceTrade, SecurityQuantity, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -54,7 +54,7 @@ public final class GenericSecurityTrade
    * <p>
    * This will be positive if buying and negative if selling.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final long quantity;
   /**
    * The price agreed when the trade occurred.
@@ -96,6 +96,7 @@ public final class GenericSecurityTrade
    * 
    * @return the security identifier
    */
+  @Override
   public SecurityId getSecurityId() {
     return security.getSecurityId();
   }
@@ -200,6 +201,7 @@ public final class GenericSecurityTrade
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
+  @Override
   public long getQuantity() {
     return quantity;
   }

@@ -8,33 +8,33 @@ package com.opengamma.strata.function.calculation.security;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.GenericSecurityTrade;
 
 /**
- * Contains function groups for built-in simple security calculation functions.
+ * Contains function groups for built-in generic security calculation functions.
  * <p>
  * Function groups are used in pricing rules to allow the engine to calculate the
  * measures provided by the functions in the group.
  */
-public final class SecurityFunctionGroups {
+public final class GenericSecurityTradeFunctionGroups {
 
   /**
    * The group with pricers based on market methods.
    */
-  private static final FunctionGroup<SecurityTrade> MARKET_GROUP =
-      DefaultFunctionGroup.builder(SecurityTrade.class).name("SecurityTradeMarket")
-          .addFunction(Measures.PRESENT_VALUE, SecurityCalculationFunction.class)
+  private static final FunctionGroup<GenericSecurityTrade> MARKET_GROUP =
+      DefaultFunctionGroup.builder(GenericSecurityTrade.class).name("GenericSecurityTradeMarket")
+          .addFunction(Measures.PRESENT_VALUE, GenericSecurityTradeCalculationFunction.class)
           .build();
 
   /**
    * Restricted constructor.
    */
-  private SecurityFunctionGroups() {
+  private GenericSecurityTradeFunctionGroups() {
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the function group providing all built-in measures on simple security
+   * Obtains the function group providing all built-in measures on generic security
    * trades based solely on querying the market for the present value.
    * <p>
    * The supported built-in measures are:
@@ -45,7 +45,7 @@ public final class SecurityFunctionGroups {
    * 
    * @return the function group
    */
-  public static FunctionGroup<SecurityTrade> market() {
+  public static FunctionGroup<GenericSecurityTrade> market() {
     return MARKET_GROUP;
   }
 
