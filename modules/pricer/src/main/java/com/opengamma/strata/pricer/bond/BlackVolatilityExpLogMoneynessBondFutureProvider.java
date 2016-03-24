@@ -25,11 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -37,6 +35,7 @@ import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
+import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
 import com.opengamma.strata.product.SecurityId;
 
@@ -120,26 +119,29 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
   public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(BondFutureOptionSensitivity point) {
     double logMoneyness = Math.log(point.getStrikePrice() / point.getFuturePrice());
     double expiryTime = relativeTime(point.getExpiry());
-    Map<DoublesPair, Double> result = parameters.zValueParameterSensitivity(expiryTime, logMoneyness);
+    SurfaceUnitParameterSensitivity result = parameters.zValueParameterSensitivity(expiryTime, logMoneyness);
     SurfaceCurrencyParameterSensitivity parameterSensi = SurfaceCurrencyParameterSensitivity.of(
-        updateSurfaceMetadata(parameters.getMetadata(), result.keySet()), point.getCurrency(),
-        DoubleArray.copyOf(Doubles.toArray(result.values())));
+        updateSurfaceMetadata(parameters), point.getCurrency(),
+        result.getSensitivity());
     return parameterSensi.multipliedBy(point.getSensitivity());
   }
 
-  private SurfaceMetadata updateSurfaceMetadata(SurfaceMetadata surfaceMetadata, Set<DoublesPair> pairs) {
+  private SurfaceMetadata updateSurfaceMetadata(NodalSurface parameters) {
+    SurfaceMetadata surfaceMetadata = parameters.getMetadata();
+    DoubleArray xValues = parameters.getXValues();
+    DoubleArray yValues = parameters.getYValues();
     List<SurfaceParameterMetadata> sortedMetaList = new ArrayList<SurfaceParameterMetadata>();
     if (surfaceMetadata.getParameterMetadata().isPresent()) {
       List<SurfaceParameterMetadata> metaList =
           new ArrayList<SurfaceParameterMetadata>(surfaceMetadata.getParameterMetadata().get());
-      for (DoublesPair pair : pairs) {
+      for (int i = 0; i < xValues.size(); ++i) {
         metadataLoop:
         for (SurfaceParameterMetadata parameterMetadata : metaList) {
           ArgChecker.isTrue(parameterMetadata instanceof GenericVolatilitySurfaceYearFractionMetadata,
               "surface parameter metadata must be instance of GenericVolatilitySurfaceYearFractionMetadata");
           GenericVolatilitySurfaceYearFractionMetadata casted =
               (GenericVolatilitySurfaceYearFractionMetadata) parameterMetadata;
-          if (pair.getFirst() == casted.getYearFraction() && pair.getSecond() == casted.getStrike().getValue()) {
+          if (xValues.get(i) == casted.getYearFraction() && yValues.get(i) == casted.getStrike().getValue()) {
             sortedMetaList.add(casted);
             metaList.remove(parameterMetadata);
             break metadataLoop;
@@ -148,9 +150,9 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
       }
       ArgChecker.isTrue(metaList.size() == 0, "mismatch between surface parameter metadata list and doubles pair list");
     } else {
-      for (DoublesPair pair : pairs) {
+      for (int i = 0; i < xValues.size(); ++i) {
         GenericVolatilitySurfaceYearFractionMetadata parameterMetadata =
-            GenericVolatilitySurfaceYearFractionMetadata.of(pair.getFirst(), LogMoneynessStrike.of(pair.getSecond()));
+            GenericVolatilitySurfaceYearFractionMetadata.of(xValues.get(i), LogMoneynessStrike.of(yValues.get(i)));
         sortedMetaList.add(parameterMetadata);
       }
     }

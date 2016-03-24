@@ -11,7 +11,6 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.data.MapEntry;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -68,9 +67,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.zValue(-10d, 10d)).isEqualTo(VALUE);
     assertThat(test.zValue(100d, -100d)).isEqualTo(VALUE);
 
-    assertThat(test.zValueParameterSensitivity(0d, 0d)).containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
-    assertThat(test.zValueParameterSensitivity(-10d, 10d)).containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
-    assertThat(test.zValueParameterSensitivity(100d, -100d)).containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
+    assertThat(test.zValueParameterSensitivity(0d, 0d).getSensitivity().get(0)).isEqualTo(1d);
+    assertThat(test.zValueParameterSensitivity(-10d, 10d).getSensitivity().get(0)).isEqualTo(1d);
+    assertThat(test.zValueParameterSensitivity(100d, -100d).getSensitivity().get(0)).isEqualTo(1d);
   }
 
   public void test_lookup_byPair() {
@@ -79,11 +78,9 @@ public class ConstantNodalSurfaceTest {
     assertThat(test.zValue(DoublesPair.of(-10d, 10d))).isEqualTo(VALUE);
     assertThat(test.zValue(DoublesPair.of(100d, -100d))).isEqualTo(VALUE);
 
-    assertThat(test.zValueParameterSensitivity(DoublesPair.of(0d, 0d))).containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
-    assertThat(test.zValueParameterSensitivity(DoublesPair.of(-10d, 10d)))
-        .containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
-    assertThat(test.zValueParameterSensitivity(DoublesPair.of(100d, -100d)))
-        .containsOnly(MapEntry.entry(DoublesPair.of(0d, 0d), 1d));
+    assertThat(test.zValueParameterSensitivity(DoublesPair.of(0d, 0d)).getSensitivity().get(0)).isEqualTo(1d);
+    assertThat(test.zValueParameterSensitivity(DoublesPair.of(-10d, 10d)).getSensitivity().get(0)).isEqualTo(1d);
+    assertThat(test.zValueParameterSensitivity(DoublesPair.of(100d, -100d)).getSensitivity().get(0)).isEqualTo(1d);
   }
 
   //-------------------------------------------------------------------------
