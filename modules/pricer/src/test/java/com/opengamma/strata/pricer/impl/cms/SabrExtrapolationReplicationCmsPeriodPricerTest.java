@@ -10,12 +10,10 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
@@ -33,8 +31,6 @@ import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 import com.opengamma.strata.pricer.impl.option.SabrExtrapolationRightFunction;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
@@ -549,10 +545,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
           sabr.getRhoSurface(), sabr.getNuSurface(), SabrHaganVolatilityFunctionProvider.DEFAULT,
           sabr.getShiftSurface());
       testSensitivityValue(
-          coupon, caplet, foorlet, ratesProvider,
-          sensiCouponAlpha.getMetadata().getParameterMetadata().get(),
-          surfaceAlpha.getXValues().get(i),
-          surfaceAlpha.getYValues().get(i),
+          coupon, caplet, foorlet, ratesProvider, i,
           sensiCouponAlpha.getSensitivity(),
           computedCap.getSensitivity(surfaceAlpha.getName(), EUR).getSensitivity(),
           computedFloor.getSensitivity(surfaceAlpha.getName(), EUR).getSensitivity(),
@@ -572,10 +565,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
           sabr.getRhoSurface(), sabr.getNuSurface(), SabrHaganVolatilityFunctionProvider.DEFAULT,
           sabr.getShiftSurface());
       testSensitivityValue(
-          coupon, caplet, foorlet, ratesProvider,
-          sensiCouponBeta.getMetadata().getParameterMetadata().get(),
-          surfaceBeta.getXValues().get(i),
-          surfaceBeta.getYValues().get(i),
+          coupon, caplet, foorlet, ratesProvider, i,
           sensiCouponBeta.getSensitivity(),
           computedCap.getSensitivity(surfaceBeta.getName(), EUR).getSensitivity(),
           computedFloor.getSensitivity(surfaceBeta.getName(), EUR).getSensitivity(),
@@ -593,10 +583,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       SabrInterestRateParameters sabrDw = SabrInterestRateParameters.of(sabr.getAlphaSurface(), sabr.getBetaSurface(),
           bumpedSurfaces[1], sabr.getNuSurface(), SabrHaganVolatilityFunctionProvider.DEFAULT, sabr.getShiftSurface());
       testSensitivityValue(
-          coupon, caplet, foorlet, ratesProvider,
-          sensiCouponRho.getMetadata().getParameterMetadata().get(),
-          surfaceRho.getXValues().get(i),
-          surfaceRho.getYValues().get(i),
+          coupon, caplet, foorlet, ratesProvider, i,
           sensiCouponRho.getSensitivity(),
           computedCap.getSensitivity(surfaceRho.getName(), EUR).getSensitivity(),
           computedFloor.getSensitivity(surfaceRho.getName(), EUR).getSensitivity(),
@@ -614,10 +601,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       SabrInterestRateParameters sabrDw = SabrInterestRateParameters.of(sabr.getAlphaSurface(), sabr.getBetaSurface(),
           sabr.getRhoSurface(), bumpedSurfaces[1], SabrHaganVolatilityFunctionProvider.DEFAULT, sabr.getShiftSurface());
       testSensitivityValue(
-          coupon, caplet, foorlet, ratesProvider,
-          sensiCouponNu.getMetadata().getParameterMetadata().get(),
-          surfaceNu.getXValues().get(i),
-          surfaceNu.getYValues().get(i),
+          coupon, caplet, foorlet, ratesProvider, i,
           sensiCouponNu.getSensitivity(),
           computedCap.getSensitivity(surfaceNu.getName(), EUR).getSensitivity(),
           computedFloor.getSensitivity(surfaceNu.getName(), EUR).getSensitivity(),
@@ -639,27 +623,19 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         sabrParams, orgVols.getConvention(), orgVols.getValuationDateTime(), orgVols.getDayCount());
   }
 
-  private void testSensitivityValue(CmsPeriod coupon, CmsPeriod caplet, CmsPeriod floorlet, RatesProvider ratesProvider,
-      List<SurfaceParameterMetadata> listMeta, double expiry, double tenor, DoubleArray computedCouponSensi,
-      DoubleArray computedCapSensi, DoubleArray computedFloorSensi, SabrParametersSwaptionVolatilities volsUp,
-      SabrParametersSwaptionVolatilities volsDw) {
+  private void testSensitivityValue(
+      CmsPeriod coupon, CmsPeriod caplet, CmsPeriod floorlet, RatesProvider ratesProvider, int index,
+      DoubleArray computedCouponSensi, DoubleArray computedCapSensi, DoubleArray computedFloorSensi,
+      SabrParametersSwaptionVolatilities volsUp, SabrParametersSwaptionVolatilities volsDw) {
     double expectedCoupon = 0.5 * (PRICER.presentValue(coupon, ratesProvider, volsUp).getAmount()
         - PRICER.presentValue(coupon, ratesProvider, volsDw).getAmount()) / EPS;
     double expectedCap = 0.5 * (PRICER.presentValue(caplet, ratesProvider, volsUp).getAmount()
         - PRICER.presentValue(caplet, ratesProvider, volsDw).getAmount()) / EPS;
     double expectedFloor = 0.5 * (PRICER.presentValue(floorlet, ratesProvider, volsUp).getAmount()
         - PRICER.presentValue(floorlet, ratesProvider, volsDw).getAmount()) / EPS;
-    int position = -1;
-    for (int j = 0; j < listMeta.size(); ++j) {
-      SwaptionSurfaceExpiryTenorNodeMetadata cast = (SwaptionSurfaceExpiryTenorNodeMetadata) listMeta.get(j);
-      if (cast.getTenor() == tenor && cast.getYearFraction() == expiry) {
-        position = j;
-      }
-    }
-    assertFalse(position == -1, "sensitivity is not found");
-    assertEquals(computedCouponSensi.get(position), expectedCoupon, EPS * NOTIONAL * 10d);
-    assertEquals(computedCapSensi.get(position), expectedCap, EPS * NOTIONAL * 10d);
-    assertEquals(computedFloorSensi.get(position), expectedFloor, EPS * NOTIONAL * 10d);
+    assertEquals(computedCouponSensi.get(index), expectedCoupon, EPS * NOTIONAL * 10d);
+    assertEquals(computedCapSensi.get(index), expectedCap, EPS * NOTIONAL * 10d);
+    assertEquals(computedFloorSensi.get(index), expectedFloor, EPS * NOTIONAL * 10d);
   }
 
   private static CmsPeriod createCmsCoupon(boolean isBuy) {

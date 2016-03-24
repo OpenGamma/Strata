@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,17 +33,13 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -203,44 +198,8 @@ public final class SabrParametersSwaptionVolatilities
       double expiry,
       double tenor) {
 
-    SurfaceUnitParameterSensitivity sensiMap = surface.zValueParameterSensitivity(expiry, tenor);
-    return SurfaceCurrencyParameterSensitivity.of(
-        updateSurfaceMetadata(surface),
-        currency,
-        DoubleArray.copyOf(sensiMap.getSensitivity().stream().map(p -> p * factor).toArray()));
-  }
-
-  private SurfaceMetadata updateSurfaceMetadata(NodalSurface parameters) {
-    SurfaceMetadata surfaceMetadata = parameters.getMetadata();
-    DoubleArray xValues = parameters.getXValues();
-    DoubleArray yValues = parameters.getYValues();
-    List<SurfaceParameterMetadata> orderedMetaList = new ArrayList<SurfaceParameterMetadata>();
-    if (surfaceMetadata.getParameterMetadata().isPresent()) {
-      List<SurfaceParameterMetadata> metaList =
-          new ArrayList<SurfaceParameterMetadata>(surfaceMetadata.getParameterMetadata().get());
-      for (int i = 0; i < xValues.size(); ++i) {
-        metadataLoop:
-        for (SurfaceParameterMetadata parameterMetadata : metaList) {
-          ArgChecker.isTrue(parameterMetadata instanceof SwaptionSurfaceExpiryTenorNodeMetadata,
-              "Surface parameter metadata must be instance of SwaptionVolatilitySurfaceExpiryTenorNodeMetadata");
-          SwaptionSurfaceExpiryTenorNodeMetadata casted =
-              (SwaptionSurfaceExpiryTenorNodeMetadata) parameterMetadata;
-          if (xValues.get(i) == casted.getYearFraction() && yValues.get(i) == casted.getTenor()) {
-            orderedMetaList.add(casted);
-            metaList.remove(parameterMetadata);
-            break metadataLoop;
-          }
-        }
-      }
-      ArgChecker.isTrue(metaList.size() == 0, "Mismatch between surface parameter metadata list and doubles pair list");
-    } else {
-      for (int i = 0; i < xValues.size(); ++i) {
-        SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
-            SwaptionSurfaceExpiryTenorNodeMetadata.of(xValues.get(i), yValues.get(i));
-        orderedMetaList.add(parameterMetadata);
-      }
-    }
-    return surfaceMetadata.withParameterMetadata(orderedMetaList);
+    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
+    return unitSens.multipliedBy(currency, factor);
   }
 
   //-------------------------------------------------------------------------

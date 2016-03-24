@@ -748,19 +748,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       int nSens = sensExpected.getParameterCount();
       assertEquals(sensComputed.getParameterCount(), nSens);
       for (int i = 0; i < nSens; ++i) {
-        SwaptionSurfaceExpiryTenorNodeMetadata metaExpected =
-            (SwaptionSurfaceExpiryTenorNodeMetadata) sensExpected.getMetadata().getParameterMetadata().get().get(i);
-        boolean test = false;
-        for (int j = 0; j < nSens; ++j) {
-          SwaptionSurfaceExpiryTenorNodeMetadata metaComputed =
-              (SwaptionSurfaceExpiryTenorNodeMetadata) sensComputed.getMetadata().getParameterMetadata().get().get(j);
-          if (metaExpected.getYearFraction() == metaComputed.getYearFraction() &&
-              metaExpected.getTenor() == metaComputed.getTenor()) {
-            assertEquals(sensComputed.getSensitivity().toArray()[j], sensExpected.getSensitivity().toArray()[i], tol);
-            test = true;
-          }
-        }
-        assertTrue(test);
+        assertEquals(sensComputed.getSensitivity().get(i), sensExpected.getSensitivity().get(i), tol);
       }
       listComputed.remove(index);
     }
