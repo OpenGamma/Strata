@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.examples.finance;
 
-
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
