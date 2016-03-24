@@ -27,7 +27,7 @@ class SecurityMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       Security security,
-      long quantity,
+      double quantity,
       CalculationMarketData marketData) {
 
     return CurrencyValuesArray.of(
@@ -39,7 +39,7 @@ class SecurityMeasureCalculations {
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
       Security security,
-      long quantity,
+      double quantity,
       MarketData marketData) {
 
     QuoteKey key = QuoteKey.of(security.getSecurityId().getStandardId());

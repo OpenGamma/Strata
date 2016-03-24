@@ -48,6 +48,6 @@ public interface Position
    * @return the net quantity of the underlying security
    */
   @Override
-  public abstract long getQuantity();
+  public abstract double getQuantity();
 
 }

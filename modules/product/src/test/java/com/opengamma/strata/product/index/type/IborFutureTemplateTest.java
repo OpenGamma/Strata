@@ -53,7 +53,7 @@ public class IborFutureTemplateTest {
   public void test_createTrade() {
     IborFutureTemplate base = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     LocalDate date = LocalDate.of(2015, 10, 20);
-    long quantity = 3;
+    double quantity = 3;
     double price = 0.99;
     double notional = 100.0;
     IborFutureTrade trade = base.createTrade(date, quantity, notional, price, REF_DATA);

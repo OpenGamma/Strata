@@ -153,7 +153,7 @@ public final class SecurityPriceInfo
    * @param price  the price, typically from the market
    * @return the monetary value combining the tick size, tick value, contract size, quantity and price.
    */
-  public CurrencyAmount calculateMonetaryAmount(long quantity, double price) {
+  public CurrencyAmount calculateMonetaryAmount(double quantity, double price) {
     return CurrencyAmount.of(tickValue.getCurrency(), calculateMonetaryValue(quantity, price));
   }
 
@@ -170,7 +170,7 @@ public final class SecurityPriceInfo
    * @param price  the price, typically from the market
    * @return the monetary value combining the tick size, tick value, contract size, quantity and price.
    */
-  public double calculateMonetaryValue(long quantity, double price) {
+  public double calculateMonetaryValue(double quantity, double price) {
     return price * quantity * multiplier;
   }
 

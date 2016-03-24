@@ -101,7 +101,7 @@ public final class IborFutureTemplate
    */
   public IborFutureTrade createTrade(
       LocalDate tradeDate,
-      long quantity,
+      double quantity,
       double notional,
       double price,
       ReferenceData refData) {

@@ -36,6 +36,6 @@ public interface SecurityQuantity {
    * 
    * @return the net quantity of the security that is held
    */
-  public abstract long getQuantity();
+  public abstract double getQuantity();
 
 }

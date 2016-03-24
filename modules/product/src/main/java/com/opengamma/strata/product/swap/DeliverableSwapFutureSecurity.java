@@ -116,7 +116,7 @@ public final class DeliverableSwapFutureSecurity
   @Override
   public DeliverableSwapFutureTrade createTrade(
       TradeInfo info,
-      long quantity,
+      double quantity,
       double tradePrice,
       ReferenceData refData) {
 

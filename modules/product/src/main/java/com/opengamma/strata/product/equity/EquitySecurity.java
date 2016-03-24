@@ -66,7 +66,7 @@ public final class EquitySecurity
   }
 
   @Override
-  public EquityTrade createTrade(TradeInfo info, long quantity, double tradePrice, ReferenceData refData) {
+  public EquityTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
     return new EquityTrade(info, createProduct(refData), quantity, tradePrice);
   }
 

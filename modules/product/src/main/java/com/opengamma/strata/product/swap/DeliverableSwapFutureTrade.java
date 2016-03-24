@@ -59,7 +59,7 @@ public final class DeliverableSwapFutureTrade
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition(overrideGet = true)
-  private final long quantity;
+  private final double quantity;
   /**
    * The price that was traded, in decimal form.
    * <p>
@@ -118,7 +118,7 @@ public final class DeliverableSwapFutureTrade
   DeliverableSwapFutureTrade(
       TradeInfo info,
       DeliverableSwapFuture product,
-      long quantity,
+      double quantity,
       double price) {
     JodaBeanUtils.notNull(product, "product");
     ArgChecker.notNegative(price, "price");
@@ -176,7 +176,7 @@ public final class DeliverableSwapFutureTrade
    * @return the value of the property
    */
   @Override
-  public long getQuantity() {
+  public double getQuantity() {
     return quantity;
   }
 
@@ -210,7 +210,7 @@ public final class DeliverableSwapFutureTrade
       DeliverableSwapFutureTrade other = (DeliverableSwapFutureTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
-          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(quantity, other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
     }
     return false;
@@ -261,8 +261,8 @@ public final class DeliverableSwapFutureTrade
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", DeliverableSwapFutureTrade.class, Long.TYPE);
+    private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", DeliverableSwapFutureTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code price} property.
      */
@@ -335,7 +335,7 @@ public final class DeliverableSwapFutureTrade
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -382,7 +382,7 @@ public final class DeliverableSwapFutureTrade
 
     private TradeInfo info;
     private DeliverableSwapFuture product;
-    private long quantity;
+    private double quantity;
     private double price;
 
     /**
@@ -430,7 +430,7 @@ public final class DeliverableSwapFutureTrade
           this.product = (DeliverableSwapFuture) newValue;
           break;
         case -1285004149:  // quantity
-          this.quantity = (Long) newValue;
+          this.quantity = (Double) newValue;
           break;
         case 106934601:  // price
           this.price = (Double) newValue;
@@ -508,7 +508,7 @@ public final class DeliverableSwapFutureTrade
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder quantity(long quantity) {
+    public Builder quantity(double quantity) {
       this.quantity = quantity;
       return this;
     }

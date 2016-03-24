@@ -121,7 +121,7 @@ public class SecurityTradeCalculationFunction
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
         Security security,
-        long quantity,
+        double quantity,
         CalculationMarketData marketData);
   }
 

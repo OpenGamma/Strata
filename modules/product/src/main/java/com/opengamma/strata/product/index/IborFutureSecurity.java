@@ -119,7 +119,7 @@ public final class IborFutureSecurity
   @Override
   public IborFutureTrade createTrade(
       TradeInfo info,
-      long quantity,
+      double quantity,
       double tradePrice,
       ReferenceData refData) {
 
