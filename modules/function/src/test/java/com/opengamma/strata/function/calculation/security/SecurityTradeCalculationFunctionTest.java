@@ -38,10 +38,10 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
- * Test {@link SecurityCalculationFunction}.
+ * Test {@link SecurityTradeCalculationFunction}.
  */
 @Test
-public class SecurityCalculationFunctionTest {
+public class SecurityTradeCalculationFunctionTest {
 
   private static final double MARKET_PRICE = 99.42;
   private static final double TICK_SIZE = 0.01;
@@ -64,16 +64,16 @@ public class SecurityCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_group() {
-    FunctionGroup<SecurityTrade> test = SecurityFunctionGroups.market();
+    FunctionGroup<SecurityTrade> test = SecurityTradeFunctionGroups.market();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measures.PRESENT_VALUE);
     FunctionConfig<SecurityTrade> config =
-        SecurityFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(SecurityCalculationFunction.class);
+        SecurityTradeFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
+    assertThat(config.createFunction()).isInstanceOf(SecurityTradeCalculationFunction.class);
   }
 
   public void test_requirementsAndCurrency() {
-    SecurityCalculationFunction function = new SecurityCalculationFunction();
+    SecurityTradeCalculationFunction function = new SecurityTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -83,7 +83,7 @@ public class SecurityCalculationFunctionTest {
   }
 
   public void test_presentValue() {
-    SecurityCalculationFunction function = new SecurityCalculationFunction();
+    SecurityTradeCalculationFunction function = new SecurityTradeCalculationFunction();
     CalculationMarketData md = marketData();
     
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
@@ -108,7 +108,7 @@ public class SecurityCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(SecurityFunctionGroups.class);
+    coverPrivateConstructor(SecurityTradeFunctionGroups.class);
     coverPrivateConstructor(SecurityMeasureCalculations.class);
   }
 

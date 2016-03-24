@@ -16,12 +16,14 @@ import com.opengamma.strata.function.calculation.fx.FxSingleFunctionGroups;
 import com.opengamma.strata.function.calculation.fx.FxSwapFunctionGroups;
 import com.opengamma.strata.function.calculation.index.IborFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.payment.BulletPaymentFunctionGroups;
-import com.opengamma.strata.function.calculation.security.GenericSecurityFunctionGroups;
-import com.opengamma.strata.function.calculation.security.SecurityFunctionGroups;
+import com.opengamma.strata.function.calculation.security.GenericSecurityTradeFunctionGroups;
+import com.opengamma.strata.function.calculation.security.SecurityPositionFunctionGroups;
+import com.opengamma.strata.function.calculation.security.SecurityTradeFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.DeliverableSwapFutureFunctionGroups;
 import com.opengamma.strata.function.calculation.swap.SwapFunctionGroups;
 import com.opengamma.strata.function.calculation.swaption.SwaptionFunctionGroups;
 import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -54,9 +56,10 @@ final class StandardPricingRules {
       PricingRule.builder(FxSingleTrade.class).functionGroup(FxSingleFunctionGroups.discounting()).build(),
       PricingRule.builder(FxNdfTrade.class).functionGroup(FxNdfFunctionGroups.discounting()).build(),
       PricingRule.builder(FxSwapTrade.class).functionGroup(FxSwapFunctionGroups.discounting()).build(),
-      PricingRule.builder(GenericSecurityTrade.class).functionGroup(GenericSecurityFunctionGroups.market()).build(),
+      PricingRule.builder(GenericSecurityTrade.class).functionGroup(GenericSecurityTradeFunctionGroups.market()).build(),
       PricingRule.builder(IborFutureTrade.class).functionGroup(IborFutureFunctionGroups.discounting()).build(),
-      PricingRule.builder(SecurityTrade.class).functionGroup(SecurityFunctionGroups.market()).build(),
+      PricingRule.builder(SecurityPosition.class).functionGroup(SecurityPositionFunctionGroups.market()).build(),
+      PricingRule.builder(SecurityTrade.class).functionGroup(SecurityTradeFunctionGroups.market()).build(),
       PricingRule.builder(SwapTrade.class).functionGroup(SwapFunctionGroups.discounting()).build(),
       PricingRule.builder(SwaptionTrade.class).functionGroup(SwaptionFunctionGroups.standard()).build(),
       PricingRule.builder(TermDepositTrade.class).functionGroup(TermDepositFunctionGroups.discounting()).build());
@@ -87,7 +90,7 @@ final class StandardPricingRules {
    *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
-   *  <li>Security - {@link SecurityTrade}
+   *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
    * 

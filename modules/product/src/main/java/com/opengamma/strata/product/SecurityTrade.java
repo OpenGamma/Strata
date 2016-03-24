@@ -38,7 +38,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
  */
 @BeanDefinition(constructorScope = "package")
 public final class SecurityTrade
-    implements FinanceTrade, ImmutableBean, Serializable {
+    implements FinanceTrade, SecurityQuantity, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -52,14 +52,14 @@ public final class SecurityTrade
    * <p>
    * This identifier uniquely identifies the security within the system.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SecurityId securityId;
   /**
    * The quantity that was traded.
    * <p>
    * This will be positive if buying and negative if selling.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final long quantity;
   /**
    * The price agreed when the trade occurred.
@@ -187,6 +187,7 @@ public final class SecurityTrade
    * This identifier uniquely identifies the security within the system.
    * @return the value of the property, not null
    */
+  @Override
   public SecurityId getSecurityId() {
     return securityId;
   }
@@ -198,6 +199,7 @@ public final class SecurityTrade
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
+  @Override
   public long getQuantity() {
     return quantity;
   }
