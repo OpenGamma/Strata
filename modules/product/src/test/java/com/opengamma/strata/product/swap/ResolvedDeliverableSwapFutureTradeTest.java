@@ -23,8 +23,8 @@ public class ResolvedDeliverableSwapFutureTradeTest {
 
   private static final ResolvedDeliverableSwapFuture PRODUCT = ResolvedDeliverableSwapFutureTest.sut();
   private static final ResolvedDeliverableSwapFuture PRODUCT2 = ResolvedDeliverableSwapFutureTest.sut2();
-  private static final long QUANTITY = 100L;
-  private static final long QUANTITY2 = 200L;
+  private static final double QUANTITY = 100;
+  private static final double QUANTITY2 = 200;
   private static final double PRICE = 0.99;
   private static final double PRICE2 = 0.98;
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));

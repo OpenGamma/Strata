@@ -148,6 +148,8 @@ public final class SecurityPriceInfo
    * For bonds, this will be the premium if the price specified is the <i>dirty</i> price.
    * For margined ETDs, the profit or loss per day is the monetary difference
    * between two calls to this method with the price on each day.
+   * <p>
+   * This returns {@link #calculateMonetaryValue(double, double)} as a {@link CurrencyAmount}.
    * 
    * @param quantity  the quantity, such as the number of shares or number of future contracts
    * @param price  the price, typically from the market

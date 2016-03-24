@@ -24,8 +24,8 @@ public class SecurityTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Id");
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "Id2");
-  private static final int QUANTITY = 100;
-  private static final int QUANTITY2 = 200;
+  private static final double QUANTITY = 100;
+  private static final double QUANTITY2 = 200;
   private static final double PRICE = 123.50;
   private static final double PRICE2 = 120.50;
 

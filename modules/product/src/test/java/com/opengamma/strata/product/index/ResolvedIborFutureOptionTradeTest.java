@@ -28,8 +28,8 @@ public class ResolvedIborFutureOptionTradeTest {
   private static final LocalDate TRADE_DATE = date(2014, 6, 30);
   private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
   private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2014, 7, 1));
-  private static final long QUANTITY = 100L;
-  private static final long QUANTITY2 = 200L;
+  private static final double QUANTITY = 100;
+  private static final double QUANTITY2 = 200;
   private static final double PRICE = 0.99;
   private static final double PRICE2 = 0.98;
 
