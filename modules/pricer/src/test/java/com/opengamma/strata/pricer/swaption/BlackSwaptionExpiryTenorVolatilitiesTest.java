@@ -89,7 +89,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
       dateUtc(2015, 2, 17), dateUtc(2015, 5, 17), dateUtc(2015, 6, 17), dateUtc(2017, 2, 17)};
   private static final int NB_TEST = TEST_OPTION_EXPIRY.length;
   private static final double[] TEST_TENOR = new double[] {2.0, 6.0, 7.0, 15.0};
-  private static final double[] TEST_SENSITIVITY = new double[] {1.0, 1.0, 1.0, 1.0};
+  private static final double[] TEST_SENSITIVITY = new double[] {1.0, 2.0, 1.2, -1.0 };
   private static final double TEST_FORWARD = 0.025; // not used internally
   private static final double TEST_STRIKE = 0.03; // not used internally
 
@@ -136,7 +136,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
     int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, TEST_OPTION_EXPIRY[i], TENOR.get(i), TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+          CONVENTION, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
       SurfaceCurrencyParameterSensitivity sensActual = PROVIDER.surfaceCurrencyParameterSensitivity(point);
       double[] computed = sensActual.getSensitivity().toArray();
       for (int j = 0; j < nData; j++) {
@@ -155,7 +155,7 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
         double volDw = provDw.volatility(
             TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD);
         double fd = 0.5 * (volUp - volDw) / eps;
-        assertEquals(computed[j], fd, eps);
+        assertEquals(computed[j], fd * TEST_SENSITIVITY[i], eps);
       }
     }
   }

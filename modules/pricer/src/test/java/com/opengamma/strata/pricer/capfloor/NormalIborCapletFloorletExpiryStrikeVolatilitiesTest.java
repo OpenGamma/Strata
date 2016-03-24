@@ -167,7 +167,7 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
           double volUp = provUp.volatility(TEST_OPTION_EXPIRY[i], TEST_STRIKE[k], TEST_FORWARD);
           double volDw = provDw.volatility(TEST_OPTION_EXPIRY[i], TEST_STRIKE[k], TEST_FORWARD);
           double fd = 0.5 * (volUp - volDw) / eps;
-          assertEquals(computed.get(i), fd * TEST_SENSITIVITY[i], eps);
+          assertEquals(computed.get(j), fd * TEST_SENSITIVITY[i], eps);
         }
       }
     }
