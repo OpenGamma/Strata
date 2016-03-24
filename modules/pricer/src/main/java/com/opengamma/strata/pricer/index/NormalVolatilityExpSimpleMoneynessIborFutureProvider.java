@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.index;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -27,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
@@ -124,17 +122,8 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
     double expiryTime = relativeTime(point.getExpiry());
-    SurfaceUnitParameterSensitivity sensitivity = parameters.zValueParameterSensitivity(expiryTime, simpleMoneyness);
-    double pointSensitivity = point.getSensitivity();
-    List<Double> sensitivityValues = sensitivity.getSensitivity().toList();
-    int size = sensitivityValues.size();
-    double[] resultsSensitivityValues = new double[size];
-    int i = 0;
-    for (double d : sensitivityValues) {
-      resultsSensitivityValues[i] = d * pointSensitivity;
-      i++;
-    }
-    return SurfaceUnitParameterSensitivity.of(sensitivity.getMetadata(), DoubleArray.ofUnsafe(resultsSensitivityValues));
+    SurfaceUnitParameterSensitivity unitSens = parameters.zValueParameterSensitivity(expiryTime, simpleMoneyness);
+    return unitSens.multipliedBy(point.getSensitivity());
 
   }
 

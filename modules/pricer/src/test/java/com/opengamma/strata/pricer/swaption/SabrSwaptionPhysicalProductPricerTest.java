@@ -580,23 +580,26 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertEquals(pointComputed.getNuSensitivity(), 400285.55052713456, REGRESSION_TOL * NOTIONAL);
     SurfaceCurrencyParameterSensitivities sensiComputed =
         VOL_PROVIDER_REGRESSION.surfaceCurrencyParameterSensitivity(pointComputed);
-    double[][] alphaExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
-        {2.0, 10.0, 2.631285063205345E7}, {10.0, 1.0, 0.0}, {1.0, 10.0, 4136.961894403858}, {0.5, 5.0, 0.0},
-        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
-        {5.0, 1.0, 0.0}, {1.0, 5.0, 6204.475194599179}, {2.0, 5.0, 3.94631212984123E7}, {0.0, 5.0, 0.0}};
-    double[][] betaExp = new double[][] { {10.0, 10.0, -0.0}, {5.0, 5.0, -0.0}, {1.0, 1.0, -0.0}, {2.0, 1.0, -0.0},
-        {2.0, 10.0, -4817403.70908317}, {10.0, 1.0, -0.0}, {1.0, 10.0, -757.402375482629}, {0.5, 5.0, -0.0},
-        {0.0, 1.0, -0.0}, {0.0, 10.0, -0.0}, {0.5, 10.0, -0.0}, {0.5, 1.0, -0.0}, {10.0, 5.0, -0.0},
-        {5.0, 10.0, -0.0}, {5.0, 1.0, -0.0}, {1.0, 5.0, -1135.926404680998}, {2.0, 5.0, -7224978.759366533},
-        {0.0, 5.0, -0.0}};
-    double[][] rhoExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
-        {2.0, 10.0, 106482.62725265314}, {10.0, 1.0, 0.0}, {1.0, 10.0, 16.741423326578513}, {0.5, 5.0, 0.0},
-        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
-        {5.0, 1.0, 0.0}, {1.0, 5.0, 25.10821912392996}, {2.0, 5.0, 159699.03429338703}, {0.0, 5.0, 0.0}};
-    double[][] nuExp = new double[][] { {10.0, 10.0, 0.0}, {5.0, 5.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0},
-        {2.0, 10.0, 160104.03018547}, {10.0, 1.0, 0.0}, {1.0, 10.0, 25.171893432592533}, {0.5, 5.0, 0.0},
-        {0.0, 1.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {0.5, 1.0, 0.0}, {10.0, 5.0, 0.0}, {5.0, 10.0, 0.0},
-        {5.0, 1.0, 0.0}, {1.0, 5.0, 37.751952372314484}, {2.0, 5.0, 240118.59649585965}, {0.0, 5.0, 0.0}};
+    double[][] alphaExp = new double[][] {
+        {0.0, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0}, {5.0, 1.0, 0.0}, {10.0, 1.0, 0.0},
+        {0.0, 5.0, 0.0}, {0.5, 5.0, 0.0}, {1.0, 5.0, 6204.475194599179}, {2.0, 5.0, 3.94631212984123E7},
+        {5.0, 5.0, 0.0}, {10.0, 5.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {1.0, 10.0, 4136.961894403858},
+        {2.0, 10.0, 2.631285063205345E7}, {5.0, 10.0, 0.0}, {10.0, 10.0, 0.0},};
+    double[][] betaExp = new double[][] {
+        {0.0, 1.0, -0.0}, {0.5, 1.0, -0.0}, {1.0, 1.0, -0.0}, {2.0, 1.0, -0.0}, {5.0, 1.0, -0.0},
+        {10.0, 1.0, -0.0}, {0.0, 5.0, -0.0}, {0.5, 5.0, -0.0}, {1.0, 5.0, -1135.926404680998},
+        {2.0, 5.0, -7224978.759366533}, {5.0, 5.0, -0.0}, {10.0, 5.0, -0.0}, {0.0, 10.0, -0.0}, {0.5, 10.0, -0.0},
+        {1.0, 10.0, -757.402375482629}, {2.0, 10.0, -4817403.70908317}, {5.0, 10.0, -0.0}, {10.0, 10.0, -0.0}};
+    double[][] rhoExp = new double[][] {
+        {0.0, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0}, {5.0, 1.0, 0.0}, {10.0, 1.0, 0.0},
+        {0.0, 5.0, 0.0}, {0.5, 5.0, 0.0}, {1.0, 5.0, 25.10821912392996}, {2.0, 5.0, 159699.03429338703},
+        {5.0, 5.0, 0.0}, {10.0, 5.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {1.0, 10.0, 16.741423326578513},
+        {2.0, 10.0, 106482.62725265314}, {5.0, 10.0, 0.0}, {10.0, 10.0, 0.0}};
+    double[][] nuExp = new double[][] {
+        {0.0, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0}, {5.0, 1.0, 0.0}, {10.0, 1.0, 0.0},
+        {0.0, 5.0, 0.0}, {0.5, 5.0, 0.0}, {1.0, 5.0, 37.751952372314484}, {2.0, 5.0, 240118.59649585965},
+        {5.0, 5.0, 0.0}, {10.0, 5.0, 0.0}, {0.0, 10.0, 0.0}, {0.5, 10.0, 0.0}, {1.0, 10.0, 25.171893432592533},
+        {2.0, 10.0, 160104.03018547}, {5.0, 10.0, 0.0}, {10.0, 10.0, 0.0}};
     double[][][] exps = new double[][][] {alphaExp, betaExp, rhoExp, nuExp};
     SurfaceMetadata[] metadata = new SurfaceMetadata[] {SwaptionSabrRateVolatilityDataSet.META_ALPHA,
         SwaptionSabrRateVolatilityDataSet.META_BETA_USD, SwaptionSabrRateVolatilityDataSet.META_RHO,
@@ -631,19 +634,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
       int nSens = sensExpected.getParameterCount();
       assertEquals(sensComputed.getParameterCount(), nSens);
       for (int i = 0; i < nSens; ++i) {
-        SwaptionSurfaceExpiryTenorNodeMetadata metaExpected =
-            (SwaptionSurfaceExpiryTenorNodeMetadata) sensExpected.getMetadata().getParameterMetadata().get().get(i);
-        boolean test = false;
-        for (int j = 0; j < nSens; ++j) {
-          SwaptionSurfaceExpiryTenorNodeMetadata metaComputed =
-              (SwaptionSurfaceExpiryTenorNodeMetadata) sensComputed.getMetadata().getParameterMetadata().get().get(j);
-          if (metaExpected.getYearFraction() == metaComputed.getYearFraction() &&
-              metaExpected.getTenor() == metaComputed.getTenor()) {
-            assertEquals(sensComputed.getSensitivity().toArray()[j], sensExpected.getSensitivity().toArray()[i], tol);
-            test = true;
-          }
-        }
-        assertTrue(test);
+        assertEquals(sensComputed.getSensitivity().get(i), sensExpected.getSensitivity().get(i), tol);
       }
       listComputed.remove(index);
     }
