@@ -76,7 +76,7 @@ public final class ImmutableRatesProvider
    * The provider of foreign exchange rates.
    * Conversions where both currencies are the same always succeed.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final FxRateProvider fxRateProvider;
   /**
    * The discount curves, defaulted to an empty map.
@@ -100,7 +100,7 @@ public final class ImmutableRatesProvider
    * The time-series, defaulted to an empty map.
    * The historic data associated with each index.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Index, LocalDateDoubleTimeSeries> timeSeries;
 
   //-------------------------------------------------------------------------
@@ -313,7 +313,7 @@ public final class ImmutableRatesProvider
    * Conversions where both currencies are the same always succeed.
    * @return the value of the property, not null
    */
-  private FxRateProvider getFxRateProvider() {
+  public FxRateProvider getFxRateProvider() {
     return fxRateProvider;
   }
 
@@ -353,7 +353,7 @@ public final class ImmutableRatesProvider
    * The historic data associated with each index.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Index, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public ImmutableMap<Index, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
