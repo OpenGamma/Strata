@@ -119,9 +119,15 @@ public class RatesProviderFxDataSets {
         .build();
   }
 
-  public static RatesProvider createProviderEURUSD() {
+  /**
+   * Creates rates provider for EUR, USD with FX matrix. 
+   * 
+   * @param valuationDate  the valuation date
+   * @return the rates provider
+   */
+  public static RatesProvider createProviderEURUSD(LocalDate valuationDate) {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
-    return ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
+    return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(EUR, EUR_DSC)
         .discountCurve(USD, USD_DSC)
         .fxRateProvider(fxMatrix)
