@@ -98,8 +98,6 @@ public final class SecurityPriceInfo
   }
 
   /**
-<<<<<<< HEAD
-=======
    * Obtains an instance from the currency and the value of a single tradeable unit.
    *
    * @param currency  the currency in which the security is traded
@@ -111,7 +109,6 @@ public final class SecurityPriceInfo
   }
 
   /**
->>>>>>> master
    * Obtains an instance from the currency.
    * <p>
    * This sets the tick size and tick value to the minor unit of the currency.
