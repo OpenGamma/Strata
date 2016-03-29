@@ -42,7 +42,7 @@ public interface SecuritizedProductTrade
    * @return the quantity
    */
   @Override
-  public abstract long getQuantity();
+  public abstract double getQuantity();
 
   /**
    * Gets the price that was traded.

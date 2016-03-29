@@ -125,7 +125,7 @@ public final class ImmutableIborFutureConvention
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,
-      long quantity,
+      double quantity,
       double notional,
       double price,
       ReferenceData refData) {

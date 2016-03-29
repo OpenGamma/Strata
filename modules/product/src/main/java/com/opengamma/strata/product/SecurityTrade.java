@@ -60,7 +60,7 @@ public final class SecurityTrade
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition(overrideGet = true)
-  private final long quantity;
+  private final double quantity;
   /**
    * The price agreed when the trade occurred.
    * <p>
@@ -82,7 +82,7 @@ public final class SecurityTrade
   public static SecurityTrade of(
       TradeInfo tradeInfo,
       SecurityId securityId,
-      long quantity,
+      double quantity,
       double price) {
 
     return new SecurityTrade(tradeInfo, securityId, quantity, price);
@@ -144,7 +144,7 @@ public final class SecurityTrade
   SecurityTrade(
       TradeInfo info,
       SecurityId securityId,
-      long quantity,
+      double quantity,
       double price) {
     JodaBeanUtils.notNull(securityId, "securityId");
     this.info = info;
@@ -200,7 +200,7 @@ public final class SecurityTrade
    * @return the value of the property
    */
   @Override
-  public long getQuantity() {
+  public double getQuantity() {
     return quantity;
   }
 
@@ -233,7 +233,7 @@ public final class SecurityTrade
       SecurityTrade other = (SecurityTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(securityId, other.securityId) &&
-          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(quantity, other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
     }
     return false;
@@ -284,8 +284,8 @@ public final class SecurityTrade
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", SecurityTrade.class, Long.TYPE);
+    private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", SecurityTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code price} property.
      */
@@ -358,7 +358,7 @@ public final class SecurityTrade
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -405,7 +405,7 @@ public final class SecurityTrade
 
     private TradeInfo info;
     private SecurityId securityId;
-    private long quantity;
+    private double quantity;
     private double price;
 
     /**
@@ -453,7 +453,7 @@ public final class SecurityTrade
           this.securityId = (SecurityId) newValue;
           break;
         case -1285004149:  // quantity
-          this.quantity = (Long) newValue;
+          this.quantity = (Double) newValue;
           break;
         case 106934601:  // price
           this.price = (Double) newValue;
@@ -530,7 +530,7 @@ public final class SecurityTrade
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder quantity(long quantity) {
+    public Builder quantity(double quantity) {
       this.quantity = quantity;
       return this;
     }

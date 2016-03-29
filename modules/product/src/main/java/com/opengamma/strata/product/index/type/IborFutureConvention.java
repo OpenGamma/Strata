@@ -76,7 +76,7 @@ public interface IborFutureConvention
    * @param tradeDate  the trade date
    * @param minimumPeriod  minimum period between the value date and the first future
    * @param sequenceNumber  the 1-based sequence number of the futures
-   * @param quantity  the quantity of contract traded
+   * @param quantity  the number of contracts traded, positive if buying, negative if selling
    * @param notional  the notional amount of one future contract
    * @param price  the trade price of the future
    * @param refData  the reference data, used to resolve the trade dates
@@ -87,7 +87,7 @@ public interface IborFutureConvention
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,
-      long quantity,
+      double quantity,
       double notional,
       double price,
       ReferenceData refData);

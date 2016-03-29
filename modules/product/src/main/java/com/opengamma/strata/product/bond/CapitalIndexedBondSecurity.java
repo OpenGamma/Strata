@@ -178,7 +178,7 @@ public final class CapitalIndexedBondSecurity
   }
 
   @Override
-  public CapitalIndexedBondTrade createTrade(TradeInfo info, long quantity, double tradePrice, ReferenceData refData) {
+  public CapitalIndexedBondTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
     return new CapitalIndexedBondTrade(info, createProduct(refData), quantity, tradePrice);
   }
 

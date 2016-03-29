@@ -60,7 +60,7 @@ public final class BondFutureTrade
    * This will be positive if buying and negative if selling.
    */
   @PropertyDefinition(overrideGet = true)
-  private final long quantity;
+  private final double quantity;
   /**
    * The price that was traded, in decimal form.
    * <p>
@@ -119,7 +119,7 @@ public final class BondFutureTrade
   BondFutureTrade(
       TradeInfo info,
       BondFuture product,
-      long quantity,
+      double quantity,
       double price) {
     JodaBeanUtils.notNull(product, "product");
     ArgChecker.notNegative(price, "price");
@@ -178,7 +178,7 @@ public final class BondFutureTrade
    * @return the value of the property
    */
   @Override
-  public long getQuantity() {
+  public double getQuantity() {
     return quantity;
   }
 
@@ -212,7 +212,7 @@ public final class BondFutureTrade
       BondFutureTrade other = (BondFutureTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(product, other.product) &&
-          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(quantity, other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
     }
     return false;
@@ -263,8 +263,8 @@ public final class BondFutureTrade
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", BondFutureTrade.class, Long.TYPE);
+    private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", BondFutureTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code price} property.
      */
@@ -337,7 +337,7 @@ public final class BondFutureTrade
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -384,7 +384,7 @@ public final class BondFutureTrade
 
     private TradeInfo info;
     private BondFuture product;
-    private long quantity;
+    private double quantity;
     private double price;
 
     /**
@@ -432,7 +432,7 @@ public final class BondFutureTrade
           this.product = (BondFuture) newValue;
           break;
         case -1285004149:  // quantity
-          this.quantity = (Long) newValue;
+          this.quantity = (Double) newValue;
           break;
         case 106934601:  // price
           this.price = (Double) newValue;
@@ -511,7 +511,7 @@ public final class BondFutureTrade
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder quantity(long quantity) {
+    public Builder quantity(double quantity) {
       this.quantity = quantity;
       return this;
     }

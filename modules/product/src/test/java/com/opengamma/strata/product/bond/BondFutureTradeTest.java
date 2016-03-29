@@ -33,8 +33,8 @@ public class BondFutureTradeTest {
   private static final LocalDate TRADE_DATE = date(2011, 6, 20);
   private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
   private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2016, 7, 1));
-  private static final long QUANTITY = 1234L;
-  private static final long QUANTITY2 = 100L;
+  private static final double QUANTITY = 1234L;
+  private static final double QUANTITY2 = 100L;
   private static final double PRICE = 1.2345;
   private static final double PRICE2 = 1.3;
 

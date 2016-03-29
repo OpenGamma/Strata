@@ -148,12 +148,14 @@ public final class SecurityPriceInfo
    * For bonds, this will be the premium if the price specified is the <i>dirty</i> price.
    * For margined ETDs, the profit or loss per day is the monetary difference
    * between two calls to this method with the price on each day.
+   * <p>
+   * This returns {@link #calculateMonetaryValue(double, double)} as a {@link CurrencyAmount}.
    * 
    * @param quantity  the quantity, such as the number of shares or number of future contracts
    * @param price  the price, typically from the market
    * @return the monetary value combining the tick size, tick value, contract size, quantity and price.
    */
-  public CurrencyAmount calculateMonetaryAmount(long quantity, double price) {
+  public CurrencyAmount calculateMonetaryAmount(double quantity, double price) {
     return CurrencyAmount.of(tickValue.getCurrency(), calculateMonetaryValue(quantity, price));
   }
 
@@ -170,7 +172,7 @@ public final class SecurityPriceInfo
    * @param price  the price, typically from the market
    * @return the monetary value combining the tick size, tick value, contract size, quantity and price.
    */
-  public double calculateMonetaryValue(long quantity, double price) {
+  public double calculateMonetaryValue(double quantity, double price) {
     return price * quantity * multiplier;
   }
 

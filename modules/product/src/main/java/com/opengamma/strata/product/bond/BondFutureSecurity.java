@@ -194,7 +194,7 @@ public final class BondFutureSecurity
   }
 
   @Override
-  public BondFutureTrade createTrade(TradeInfo info, long quantity, double tradePrice, ReferenceData refData) {
+  public BondFutureTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
     BondFuture product = createProduct(refData);
     return new BondFutureTrade(info, product, quantity, tradePrice);
   }

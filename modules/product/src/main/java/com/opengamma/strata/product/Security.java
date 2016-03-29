@@ -94,7 +94,7 @@ public interface Security {
    */
   public abstract FinanceTrade createTrade(
       TradeInfo tradeInfo,
-      long quantity,
+      double quantity,
       double tradePrice,
       ReferenceData refData);
 

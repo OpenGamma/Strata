@@ -35,8 +35,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * The identifier may be looked up in {@link ReferenceData}.
  * <p>
  * The net quantity of the position is stored using two fields - {@code longQuantity} and {@code shortQuantity}.
- * Each field must be positive, however they may both be non-zero.
- * This allows long and short positions to be treated separately if necessary.
+ * These two fields must not be negative.
+ * In many cases, only a long quantity or short quantity will be present with the other set to zero.
+ * However it is also possible for both to be non-zero, allowing long and short positions to be treated separately.
  * The net quantity is available via {@link #getQuantity()}.
  */
 @BeanDefinition(constructorScope = "package")
@@ -64,7 +65,7 @@ public final class SecurityPosition
    * The quantity cannot be negative, as that would imply short selling.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final long longQuantity;
+  private final double longQuantity;
   /**
    * The quantity that was traded.
    * <p>
@@ -72,7 +73,7 @@ public final class SecurityPosition
    * The quantity cannot be negative, as that would imply the position is long.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final long shortQuantity;
+  private final double shortQuantity;
 
   //-------------------------------------------------------------------------
   /**
@@ -86,7 +87,7 @@ public final class SecurityPosition
    * @param netQuantity  the net quantity of the underlying security
    * @return the position
    */
-  public static SecurityPosition ofNet(SecurityId securityId, long netQuantity) {
+  public static SecurityPosition ofNet(SecurityId securityId, double netQuantity) {
     return ofNet(PositionInfo.empty(), securityId, netQuantity);
   }
 
@@ -100,9 +101,9 @@ public final class SecurityPosition
    * @param netQuantity  the net quantity of the underlying security
    * @return the position
    */
-  public static SecurityPosition ofNet(PositionInfo positionInfo, SecurityId securityId, long netQuantity) {
-    long longQuantity = netQuantity >= 0 ? netQuantity : 0;
-    long shortQuantity = netQuantity >= 0 ? 0 : Math.negateExact(netQuantity);
+  public static SecurityPosition ofNet(PositionInfo positionInfo, SecurityId securityId, double netQuantity) {
+    double longQuantity = netQuantity >= 0 ? netQuantity : 0;
+    double shortQuantity = netQuantity >= 0 ? 0 : -netQuantity;
     return new SecurityPosition(positionInfo, securityId, longQuantity, shortQuantity);
   }
 
@@ -116,7 +117,7 @@ public final class SecurityPosition
    * @param shortQuantity  the short quantity of the underlying security
    * @return the position
    */
-  public static SecurityPosition ofLongShort(SecurityId securityId, long longQuantity, long shortQuantity) {
+  public static SecurityPosition ofLongShort(SecurityId securityId, double longQuantity, double shortQuantity) {
     return ofLongShort(PositionInfo.empty(), securityId, longQuantity, shortQuantity);
   }
 
@@ -132,8 +133,8 @@ public final class SecurityPosition
   public static SecurityPosition ofLongShort(
       PositionInfo positionInfo,
       SecurityId securityId,
-      long longQuantity,
-      long shortQuantity) {
+      double longQuantity,
+      double shortQuantity) {
 
     return new SecurityPosition(positionInfo, securityId, longQuantity, shortQuantity);
   }
@@ -157,7 +158,7 @@ public final class SecurityPosition
    */
   @Override
   @DerivedProperty
-  public long getQuantity() {
+  public double getQuantity() {
     return longQuantity - shortQuantity;
   }
 
@@ -198,8 +199,8 @@ public final class SecurityPosition
   SecurityPosition(
       PositionInfo info,
       SecurityId securityId,
-      long longQuantity,
-      long shortQuantity) {
+      double longQuantity,
+      double shortQuantity) {
     JodaBeanUtils.notNull(securityId, "securityId");
     ArgChecker.notNegative(longQuantity, "longQuantity");
     ArgChecker.notNegative(shortQuantity, "shortQuantity");
@@ -256,7 +257,7 @@ public final class SecurityPosition
    * The quantity cannot be negative, as that would imply short selling.
    * @return the value of the property
    */
-  public long getLongQuantity() {
+  public double getLongQuantity() {
     return longQuantity;
   }
 
@@ -268,7 +269,7 @@ public final class SecurityPosition
    * The quantity cannot be negative, as that would imply the position is long.
    * @return the value of the property
    */
-  public long getShortQuantity() {
+  public double getShortQuantity() {
     return shortQuantity;
   }
 
@@ -290,8 +291,8 @@ public final class SecurityPosition
       SecurityPosition other = (SecurityPosition) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(securityId, other.securityId) &&
-          (longQuantity == other.longQuantity) &&
-          (shortQuantity == other.shortQuantity);
+          JodaBeanUtils.equal(longQuantity, other.longQuantity) &&
+          JodaBeanUtils.equal(shortQuantity, other.shortQuantity);
     }
     return false;
   }
@@ -342,18 +343,18 @@ public final class SecurityPosition
     /**
      * The meta-property for the {@code longQuantity} property.
      */
-    private final MetaProperty<Long> longQuantity = DirectMetaProperty.ofImmutable(
-        this, "longQuantity", SecurityPosition.class, Long.TYPE);
+    private final MetaProperty<Double> longQuantity = DirectMetaProperty.ofImmutable(
+        this, "longQuantity", SecurityPosition.class, Double.TYPE);
     /**
      * The meta-property for the {@code shortQuantity} property.
      */
-    private final MetaProperty<Long> shortQuantity = DirectMetaProperty.ofImmutable(
-        this, "shortQuantity", SecurityPosition.class, Long.TYPE);
+    private final MetaProperty<Double> shortQuantity = DirectMetaProperty.ofImmutable(
+        this, "shortQuantity", SecurityPosition.class, Double.TYPE);
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Long> quantity = DirectMetaProperty.ofDerived(
-        this, "quantity", SecurityPosition.class, Long.TYPE);
+    private final MetaProperty<Double> quantity = DirectMetaProperty.ofDerived(
+        this, "quantity", SecurityPosition.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -424,7 +425,7 @@ public final class SecurityPosition
      * The meta-property for the {@code longQuantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> longQuantity() {
+    public MetaProperty<Double> longQuantity() {
       return longQuantity;
     }
 
@@ -432,7 +433,7 @@ public final class SecurityPosition
      * The meta-property for the {@code shortQuantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> shortQuantity() {
+    public MetaProperty<Double> shortQuantity() {
       return shortQuantity;
     }
 
@@ -440,7 +441,7 @@ public final class SecurityPosition
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -481,8 +482,8 @@ public final class SecurityPosition
 
     private PositionInfo info;
     private SecurityId securityId;
-    private long longQuantity;
-    private long shortQuantity;
+    private double longQuantity;
+    private double shortQuantity;
 
     /**
      * Restricted constructor.
@@ -529,10 +530,10 @@ public final class SecurityPosition
           this.securityId = (SecurityId) newValue;
           break;
         case 611668775:  // longQuantity
-          this.longQuantity = (Long) newValue;
+          this.longQuantity = (Double) newValue;
           break;
         case -2094395097:  // shortQuantity
-          this.shortQuantity = (Long) newValue;
+          this.shortQuantity = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -607,7 +608,7 @@ public final class SecurityPosition
      * @param longQuantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder longQuantity(long longQuantity) {
+    public Builder longQuantity(double longQuantity) {
       ArgChecker.notNegative(longQuantity, "longQuantity");
       this.longQuantity = longQuantity;
       return this;
@@ -621,7 +622,7 @@ public final class SecurityPosition
      * @param shortQuantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder shortQuantity(long shortQuantity) {
+    public Builder shortQuantity(double shortQuantity) {
       ArgChecker.notNegative(shortQuantity, "shortQuantity");
       this.shortQuantity = shortQuantity;
       return this;
