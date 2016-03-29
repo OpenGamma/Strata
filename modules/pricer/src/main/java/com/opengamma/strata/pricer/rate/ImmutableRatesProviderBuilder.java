@@ -203,6 +203,23 @@ public final class ImmutableRatesProviderBuilder {
 
   //-------------------------------------------------------------------------
   /**
+   * Adds an index forward curve to the provider.
+   * <p>
+   * This adds the specified forward curve to the provider.
+   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * 
+   * @param index  the index of the curve
+   * @param forwardCurve  the Ibor index forward curve
+   * @return this, for chaining
+   */
+  public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(forwardCurve, "forwardCurve");
+    this.indexCurves.put(index, forwardCurve);
+    return this;
+  }
+
+  /**
    * Adds index forward curves to the provider.
    * <p>
    * This adds the specified index forward curves to the provider.
