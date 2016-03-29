@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import static com.opengamma.strata.basics.LongShort.SHORT;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
@@ -17,12 +18,9 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.LongShort;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -43,8 +41,14 @@ import com.opengamma.strata.product.fx.ResolvedFxVanillaOptionTrade;
 @Test
 public class BlackFxVanillaOptionTradePricerTest {
 
+  private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
+  private static final ZoneId ZONE = ZoneId.of("Z");
+  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
+  private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
+
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
-  private static final RatesProvider RATES_PROVIDER = RatesProviderFxDataSets.createProviderEURUSD();
+  private static final RatesProvider RATES_PROVIDER = RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE);
 
   private static final String NAME = "smileEurUsd";
   private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
@@ -57,13 +61,7 @@ public class BlackFxVanillaOptionTradePricerTest {
       {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120},
     {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } });
   private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
-      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
-          NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
-
-  private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
-  private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
-  private static final ZoneId ZONE = ZoneId.of("Z");
-  private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
       BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
@@ -73,18 +71,10 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
   private static final ResolvedFxSingle FX_PRODUCT = ResolvedFxSingle.of(EUR_AMOUNT, USD_AMOUNT, PAYMENT_DATE);
-
-  private static final double STRIKE_RATE = 1.45;
-  private static final FxRate STRIKE = FxRate.of(EUR, USD, STRIKE_RATE);
-  private static final PutCall CALL = PutCall.CALL;
-  private static final LongShort SHORT = LongShort.SHORT;
-  private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
   private static final ResolvedFxVanillaOption OPTION_PRODUCT = ResolvedFxVanillaOption.builder()
-      .putCall(CALL)
       .longShort(SHORT)
       .expiry(EXPIRY)
       .underlying(FX_PRODUCT)
-      .strike(STRIKE)
       .build();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
   private static final LocalDate CASH_SETTLE_DATE = LocalDate.of(2014, 1, 25);
