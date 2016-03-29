@@ -44,7 +44,7 @@ class SecurityMeasureCalculations {
 
     QuoteKey key = QuoteKey.of(security.getSecurityId().getStandardId());
     double price = marketData.getValue(key);
-    return security.getInfo().getPriceInfo().calculateMonetaryValue(quantity, price);
+    return security.getInfo().getPriceInfo().calculateMonetaryAmount(quantity, price);
   }
 
 }
