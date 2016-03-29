@@ -55,11 +55,11 @@ class MarketDataFxRateProvider implements FxRateProvider {
       return rateCounter1.get().crossRate(rateCounter2.get()).fxRate(baseCurrency, counterCurrency);
     }
     // Double triangulation
-    if(rateBase1.isPresent() && rateCounter2.isPresent()) {
+    if (rateBase1.isPresent() && rateCounter2.isPresent()) {
       Optional<FxRate> rateTriangular2 = marketData.findValue(FxRateKey.of(triangularBaseCcy, triangularCounterCcy));
-      if(rateTriangular2.isPresent()) {
+      if (rateTriangular2.isPresent()) {
         return rateBase1.get().crossRate(rateTriangular2.get()).crossRate(rateCounter2.get())
-            .fxRate(baseCurrency, counterCurrency);        
+            .fxRate(baseCurrency, counterCurrency);
       }
     }
     throw new IllegalArgumentException("No market data available for pair " + baseCurrency + "/" + counterCurrency);
