@@ -55,6 +55,12 @@ public class SecurityPriceInfoTest {
     assertEquals(test.getCurrency(), JPY);
   }
 
+  public void test_ofTradeUnitValue() {
+    SecurityPriceInfo priceInfo = SecurityPriceInfo.of(USD, 2000);
+    double value = priceInfo.calculateMonetaryValue(3, 2);
+    assertEquals(value, 12_000d);
+  }
+
   //-------------------------------------------------------------------------
   public void test_calculateMonetaryAmount1() {
     // CME-ED, 1bp = $25
@@ -80,6 +86,11 @@ public class SecurityPriceInfoTest {
     // contract size is simple multiplier
     SecurityPriceInfo test2 = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
     assertEquals(test2.calculateMonetaryValue(1, 98), 2 * 245_000d);
+  }
+
+  public void test_getTradeUnitValue() {
+    SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
+    assertEquals(test.getTradeUnitValue(), 5000d);
   }
 
   //-------------------------------------------------------------------------
