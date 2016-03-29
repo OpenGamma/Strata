@@ -140,7 +140,7 @@ final class StandardFixedIborSwapConventions {
    */
   public static final FixedIborSwapConvention JPY_FIXED_6M_LIBOR_6M =
       ImmutableFixedIborSwapConvention.of(
-          "JPY-FIXED-6M-TIBOR-JAPAN-6M",
+          "JPY-FIXED-6M-LIBOR-6M",
           FixedRateSwapLegConvention.of(JPY, ACT_365F, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_JPTO)),
           IborRateSwapLegConvention.of(IborIndices.JPY_LIBOR_6M));
 
