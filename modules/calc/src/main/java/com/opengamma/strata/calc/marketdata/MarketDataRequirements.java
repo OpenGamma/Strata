@@ -83,7 +83,7 @@ public final class MarketDataRequirements implements ImmutableBean {
       List<Column> columns,
       ReferenceData refData) {
 
-    return CalculationTasks.of(calculationRules, targets, columns).getRequirements(refData);
+    return CalculationTasks.of(calculationRules, targets, columns).requirements(refData);
   }
 
   /**
