@@ -151,6 +151,19 @@ public interface DayCount
     }
     return yearFraction(firstDate, secondDate, scheduleInfo);
   }
+  
+  /**
+   * Calculates the number of days between the specified dates using the rules of this day count.
+   * <p>
+   * A day count is typically defines as a count of days divided by a year estimate.
+   * This method returns the count of days, which is the numerator of the division.
+   * For example, the 'Act/Act' day count will return the actual number of days between
+   * the two dates, but the '30/360 ISDA' will return a value based on 30 day months.
+   * 
+   * @param firstDate  the first date
+   * @param secondDate  the second date, which may be before the first date
+   */
+  public abstract int days(LocalDate firstDate, LocalDate secondDate);
 
   /**
    * Gets the name that uniquely identifies this convention.
