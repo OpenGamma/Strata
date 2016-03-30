@@ -7,7 +7,6 @@ package com.opengamma.strata.basics.market;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
@@ -100,28 +99,22 @@ public interface ReferenceData {
    */
   public abstract <T> Optional<T> findValue(ReferenceDataId<T> id);
 
-  /**
-   * Gets the available identifiers.
-   * <p>
-   * This returns the set of reference data identifiers that are available.
-   * An implementation may choose to return a subset or an empty set if it
-   * is not possible to determine the available identifiers.
-   *
-   * @return the available identifiers
-   */
-  public abstract Set<ReferenceDataId<?>> identifiers();
-
   //-------------------------------------------------------------------------
   /**
    * Combines this reference data with another.
    * <p>
    * The result combines both sets reference data.
-   * If there is a conflict, an exception is thrown.
-   * 
+   * Values are taken from this set of reference data if available, otherwise they are looked
+   * up in the other set.
+   * <p>
+   * Therefore if the same ID is present in both sets of reference data the value in this object
+   * will be returned.
+   *
    * @param other  the other reference data
    * @return the combined reference data
-   * @throws IllegalArgumentException if a conflict is found
    */
-  public abstract ReferenceData combinedWith(ReferenceData other);
+  public default ReferenceData combinedWith(ReferenceData other) {
+    return new CombinedReferenceData(this, other);
+  }
 
 }
