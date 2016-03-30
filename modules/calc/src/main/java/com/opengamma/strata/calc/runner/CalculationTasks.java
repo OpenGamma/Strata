@@ -6,7 +6,6 @@
 package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.config.pricing.ConfiguredFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.collect.Messages;
 
@@ -49,10 +49,6 @@ public final class CalculationTasks {
    * calculations 5-9 are the second row and so on.
    */
   private final List<CalculationTask> calculationTasks;
-  /**
-   * The market data requirements.
-   */
-  private volatile MarketDataRequirements requirements;
 
   //-------------------------------------------------------------------------
   /**
@@ -249,16 +245,13 @@ public final class CalculationTasks {
    * @return the market data required for all calculations
    * @throws RuntimeException if unable to obtain the requirements
    */
-  public MarketDataRequirements getRequirements(ReferenceData refData) {
-    MarketDataRequirements reqs = requirements;
-    if (reqs == null) {
-      List<MarketDataRequirements> result = calculationTasks.stream()
-          .map(task -> task.requirements(refData))
-          .collect(toList());
-      reqs = requirements = MarketDataRequirements.combine(result);
-
+  public MarketDataRequirements requirements(ReferenceData refData) {
+    // use for loop not streams for shorter stack traces
+    MarketDataRequirementsBuilder builder = MarketDataRequirements.builder();
+    for (CalculationTask task : calculationTasks) {
+      builder.addRequirements(task.requirements(refData));
     }
-    return reqs;
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------

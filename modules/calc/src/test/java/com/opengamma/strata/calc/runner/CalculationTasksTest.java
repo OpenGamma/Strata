@@ -110,7 +110,7 @@ public class CalculationTasksTest {
 
     CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
 
-    MarketDataRequirements requirements = test.getRequirements(REF_DATA);
+    MarketDataRequirements requirements = test.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
