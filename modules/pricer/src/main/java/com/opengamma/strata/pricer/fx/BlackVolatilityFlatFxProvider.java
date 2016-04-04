@@ -131,7 +131,7 @@ public final class BlackVolatilityFlatFxProvider
         .surfaceName(SurfaceName.of(curve.getName().toString()))
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.STRIKE)
-        .zValueType(ValueType.VOLATILITY)
+        .zValueType(ValueType.BLACK_VOLATILITY)
         .build();
     return SurfaceCurrencyParameterSensitivity.of(metadata, point.getCurrency(), DoubleArray.copyOf(sensi));
   }
