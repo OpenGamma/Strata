@@ -32,7 +32,7 @@ import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * A template for creating Inflation swap trades.
+ * An template for creating inflation swap trades.
  * <p>
  * This defines almost all the data necessary to create a Inflation single currency {@link SwapTrade}.
  * The trade date, end date, lag, notional and fixed rate are required to complete the template and create the trade.

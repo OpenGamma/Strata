@@ -5,9 +5,7 @@
  */
 package com.opengamma.strata.product.swap.type;
 
-
 import static com.opengamma.strata.basics.currency.Currency.USD;
-
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
@@ -92,7 +90,7 @@ final class StandardFixedInflationSwapConventions {
           DaysAdjustment.ofBusinessDays(2, EUTA));
   
   /**
-   * EUR vanilla fixed vs Europe(Excluding Tobacco) CPI swap.
+   * EUR vanilla fixed vs Europe (Excluding Tobacco) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
    */
   public static final FixedInflationSwapConvention EUR_FIXED_6M_EU_EXT_CPI =
@@ -104,12 +102,12 @@ final class StandardFixedInflationSwapConventions {
           DaysAdjustment.ofBusinessDays(2, EUTA));
   
   /**
-   * JPY vanilla fixed vs Japan(Excluding Fresh Food) CPI swap.
+   * JPY vanilla fixed vs Japan (Excluding Fresh Food) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
    */
-  public static final FixedInflationSwapConvention JP_FIXED_6M_JP_CPI =
+  public static final FixedInflationSwapConvention JPY_FIXED_6M_JP_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "JP-FIXED-6M-JP-CPI",
+          "JPY-FIXED-6M-JP-CPI",
           FixedRateSwapLegConvention.of(JPY, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)),
           InflationRateSwapLegConvention.of(PriceIndices.JP_CPI_EXF),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO),

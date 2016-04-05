@@ -138,7 +138,7 @@ public interface FixedInflationSwapConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag       the positive period between the price index and the accrual date, typically a number of months.
+   * @param lag  the positive period between the price index and the accrual date, typically a number of months.
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -169,7 +169,7 @@ public interface FixedInflationSwapConvention
    * @param tradeInfo  additional information about the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag       the positive period between the price index and the accrual date, typically a number of months.
+   * @param lag  the positive period between the price index and the accrual date, typically a number of months.
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market

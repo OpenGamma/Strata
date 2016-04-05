@@ -32,7 +32,7 @@ public class FixedInflationSwapConventionsTest {
         {FixedInflationSwapConventions.GBP_FIXED_6M_GB_HCIP, PriceIndices.GB_HICP},
         {FixedInflationSwapConventions.GBP_FIXED_6M_GB_RPI, PriceIndices.GB_RPI},
         {FixedInflationSwapConventions.GBP_FIXED_6M_GB_RPIX, PriceIndices.GB_RPIX},
-        {FixedInflationSwapConventions.JP_FIXED_6M_JP_CPI, PriceIndices.JP_CPI_EXF},
+        {FixedInflationSwapConventions.JPY_FIXED_6M_JP_CPI, PriceIndices.JP_CPI_EXF},
         {FixedInflationSwapConventions.USD_FIXED_6M_US_CPI, PriceIndices.US_CPI_U},
     };
   }

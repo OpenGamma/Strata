@@ -54,18 +54,18 @@ public final class FixedInflationSwapConventions {
       FixedInflationSwapConvention.of(StandardFixedInflationSwapConventions.EUR_FIXED_6M_EU_AI_CPI.getName());
   
   /**
-   * Euro vanilla fixed vs Europe(Excluding Tobacco) CPI swap.
+   * Euro vanilla fixed vs Europe (Excluding Tobacco) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
    */
   public static final FixedInflationSwapConvention EUR_FIXED_6M_EU_EXT_CPI =
       FixedInflationSwapConvention.of(StandardFixedInflationSwapConventions.EUR_FIXED_6M_EU_EXT_CPI.getName());
   
   /**
-   * JPY vanilla fixed vs Japan(Excluding Fresh Food) CPI swap.
+   * JPY vanilla fixed vs Japan (Excluding Fresh Food) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
    */
-  public static final FixedInflationSwapConvention JP_FIXED_6M_JP_CPI =
-      FixedInflationSwapConvention.of(StandardFixedInflationSwapConventions.JP_FIXED_6M_JP_CPI.getName());
+  public static final FixedInflationSwapConvention JPY_FIXED_6M_JP_CPI =
+      FixedInflationSwapConvention.of(StandardFixedInflationSwapConventions.JPY_FIXED_6M_JP_CPI.getName());
   
   /**
    * USD(NY) vanilla fixed vs US Urban consumers CPI swap.
