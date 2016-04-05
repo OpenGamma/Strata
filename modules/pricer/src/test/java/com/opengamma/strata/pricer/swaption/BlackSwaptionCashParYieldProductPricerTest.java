@@ -118,7 +118,7 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)
-      .zValueType(ValueType.VOLATILITY)
+      .zValueType(ValueType.BLACK_VOLATILITY)
       .surfaceName(SurfaceName.of("Black Vol"))
       .build();
   private static final NodalSurface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
