@@ -30,6 +30,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * Hagan SABR formula.  
  * <p>
  * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
+ * <p>
+ * OpenGamma documentation: SABR Implementation, OpenGamma documentation n. 33, April 2016.
  */
 @BeanDefinition(style = "light")
 public final class SabrHaganVolatilityFunctionProvider
@@ -111,7 +113,6 @@ public final class SabrHaganVolatilityFunctionProvider
     }
     //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative
     return vol;
-    // return Math.max(0.0, vol);
   }
 
   /**
@@ -177,17 +178,11 @@ public final class SabrHaganVolatilityFunctionProvider
       rzxz = 1.0 - 0.5 * z * rho; //small z expansion to z^2 terms
     } else {
       if (DoubleMath.fuzzyEquals(rhoStar, 0.0, RHO_EPS)) {
-        if (z >= 1.0) {
-          if (rhoStar == 0.0) {
-            rzxz = 0.0;
-            xz = Double.POSITIVE_INFINITY;
-          } else {
-            xz = (Math.log(2 * (z - 1)) - Math.log(rhoStar));
-            rzxz = z / xz;
-          }
-        } else {
-          xz = -Math.log(1 - z) - 0.5 * Math.pow(z / (z - 1.0), 2) * rhoStar;
+        if (z < 1.0) {
+          xz = -Math.log(1.0d - z);
           rzxz = z / xz;
+        } else {
+          throw new IllegalArgumentException("can't handle z>=1, rho=1");
         }
       } else {
         double arg;
@@ -222,17 +217,11 @@ public final class SabrHaganVolatilityFunctionProvider
       zBar = -rho / 2 * rzxzBar;
     } else {
       if (DoubleMath.fuzzyEquals(rhoStar, 0.0, RHO_EPS)) {
-        if (z >= 1.0) {
-          if (z == 1.0) {
-            zBar = 0.0;
-          } else {
-            double chiDz = 1 / (z - 1);
-            xzBar = -rzxzBar * z / (xz * xz);
-            zBar = volatility / z + chiDz * xzBar;
-          }
-        } else {
-          zBar = -1.0 / Math.log(1 - z) * (1 + z / Math.log(1 - z) / (1 - z)) * rzxzBar;
+        if (z < 1.0) {
           xzBar = -z / (xz * xz) * rzxzBar;
+          zBar = 1.0d / xz * rzxzBar + 1.0d / (1.0d - z) * xzBar;
+        } else {
+          throw new IllegalArgumentException("can't handle z>=1, rho=1");
         }
       } else {
         if (z < LARGE_NEG_Z) {
@@ -498,15 +487,10 @@ public final class SabrHaganVolatilityFunctionProvider
 
     double rhoStar = 1 - rho;
     if (DoubleMath.fuzzyEquals(rhoStar, 0.0, RHO_EPS)) {
-      if (z > 1.0) {
-        if (rhoStar == 0.0) {
-          return 0.0;
-        }
-        return z / (Math.log(2 * (z - 1)) - Math.log(rhoStar));
-      } else if (z < 1.0) {
-        return z / (-Math.log(1 - z) - 0.5 * Math.pow(z / (z - 1.0), 2) * rhoStar);
+      if (z < 1.0) {
+        return -z / Math.log(1.0d - z);
       } else {
-        return 0.0;
+        throw new IllegalArgumentException("can't handle z>=1, rho=1");
       }
     }
 

@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
 import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -50,6 +51,8 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   private static EuropeanVanillaOption CALL_ATM = EuropeanVanillaOption.of(F, T, CALL);
   private static EuropeanVanillaOption CALL_ITM = EuropeanVanillaOption.of(STRIKE_ITM, T, CALL);
   private static EuropeanVanillaOption CALL_OTM = EuropeanVanillaOption.of(STRIKE_OTM, T, CALL);
+  
+  private static final double TOLERANCE_VOL_LIMIT = 1.0E-5;
 
   @Override
   protected VolatilityFunctionProvider<SabrFormulaData> getFunction() {
@@ -81,7 +84,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
       assertTrue(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) /
           (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0);
     }
-  }
+  }  
 
   @Test
   /**
@@ -213,14 +216,6 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   }
 
   @Test
-  public void testVolatilityAdjointLargeRhoZGreaterThan1() {
-    double eps = 1e-11;
-    double tol = 1e-4;
-    SabrFormulaData data = DATA.withRho(1.0 - 1e-9).withAlpha(0.15 * ALPHA);
-    testVolatilityAdjoint(F, CALL_ITM, data, eps, tol);
-  }
-
-  @Test
   /**
    * Tests the second order adjoint derivatives for the SABR Hagan volatility function. 
    * Only the derivatives with respect to the forward and the strike are provided.
@@ -297,16 +292,17 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   /**
    * Check that $\rho \simeq 1$ case is smoothly connected with a general case, i.e., 
    * comparing the approximated computation and full computation around the cutoff, which is currently $\rho = 1.0 - 1.0e-5$
-   * Note that the resulting numbers contain a large error if $\rho \simeq 1$ and $z \simeq 1$ are true at the same time
    */
   @Test
-  public void largeRhoSmoothnessTest() {
+  public void test_rho_close_to_1() {
     double rhoEps = 1.e-5;
     // rhoIn is larger than the cutoff, 
     // thus vol and sensitivities are computed by approximation formulas which are regular in the limit rho -> 1. 
     double rhoIn = 1.0 - 0.5 * rhoEps;
+    double rho1 = 1.0d;
     // rhoOut is smaller than the cutoff, thus vol and sensitivities are computed by full formula. 
     double rhoOut = 1.0 - 1.5 * rhoEps;
+    SabrFormulaData data1 = SabrFormulaData.of(ALPHA, BETA, rho1, NU);
     SabrFormulaData dataIn = SabrFormulaData.of(ALPHA, BETA, rhoIn, NU);
     SabrFormulaData dataOut = SabrFormulaData.of(ALPHA, BETA, rhoOut, NU);
 
@@ -324,9 +320,12 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double[] volatilityDIn = new double[6];
     double[][] volatilityD2In = new double[2][2];
     double volatility2In = FUNCTION.getVolatilityAdjoint2(F, STRIKE_OTM, T, dataIn, volatilityDIn, volatilityD2In);
+    
+    double volatility1 = FUNCTION.getVolatility(F, STRIKE_OTM, T, data1);
 
-    assertEquals(volatilityOut, volatilityIn, rhoEps);
-    assertEquals(volatility2Out, volatility2In, rhoEps);
+    assertEquals(volatilityOut, volatility1, TOLERANCE_VOL_LIMIT);
+    assertEquals(volatilityOut, volatilityIn, TOLERANCE_VOL_LIMIT);
+    assertEquals(volatility2Out, volatility2In, TOLERANCE_VOL_LIMIT);
     for (int i = 0; i < adjointOut.length; ++i) {
       double ref = adjointOut[i];
       assertEquals(adjointOut[i], adjointIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
@@ -335,38 +334,19 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
       double ref = volatilityDOut[i];
       assertEquals(volatilityDOut[i], volatilityDIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
     }
-
-    /*
-     * z>1 case, runs into infinity or 0. 
-     * Convergence speed is much faster (and typically smoother).
-     */
-    rhoIn = 1.0 - 0.999 * rhoEps;
-    rhoOut = 1.0 - 1.001 * rhoEps;
-    dataIn = SabrFormulaData.of(ALPHA, BETA, rhoIn, NU);
-    dataOut = SabrFormulaData.of(ALPHA, BETA, rhoOut, NU);
-
-    volatilityOut = FUNCTION.getVolatility(3.0 * F, STRIKE_ITM, T, dataOut);
-    adjointOut = toArray(FUNCTION.getVolatilityAdjoint(3.0 * F, STRIKE_ITM, T, dataOut));
-    volatilityDOut = new double[6];
-    volatilityD2Out = new double[2][2];
-    volatility2Out = FUNCTION.getVolatilityAdjoint2(3.0 * F, STRIKE_ITM, T, dataOut, volatilityDOut, volatilityD2Out);
-
-    volatilityIn = FUNCTION.getVolatility(3.0 * F, STRIKE_ITM, T, dataIn);
-    adjointIn = toArray(FUNCTION.getVolatilityAdjoint(3.0 * F, STRIKE_ITM, T, dataIn));
-    volatilityDIn = new double[6];
-    volatilityD2In = new double[2][2];
-    volatility2In = FUNCTION.getVolatilityAdjoint2(3.0 * F, STRIKE_ITM, T, dataIn, volatilityDIn, volatilityD2In);
-
-    assertEquals(volatilityOut, volatilityIn, rhoEps);
-    assertEquals(volatility2Out, volatility2In, rhoEps);
-    for (int i = 0; i < adjointOut.length; ++i) {
-      double ref = adjointOut[i];
-      assertEquals(ref, adjointIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-2);
-    }
-    for (int i = 0; i < volatilityDOut.length; ++i) {
-      double ref = volatilityDOut[i];
-      assertEquals(ref, volatilityDIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-2);
-    }
+    
+  }
+  
+  /**
+   * The limit for $rhp \to 1$ when $z \geq 1$ does not exists. Returning an illegal argument.
+   */
+  @Test
+  public void test_rho_close_to_1_large() {
+    double rhoEps = 1.e-5;
+    double rhoIn = 1.0 - 0.5 * rhoEps;
+    SabrFormulaData dataIn = SabrFormulaData.of(ALPHA, BETA, rhoIn, NU);
+    assertThrowsIllegalArg(() -> FUNCTION.getVolatility(10 * F, STRIKE_ITM, T, dataIn));
+    assertThrowsIllegalArg(() -> FUNCTION.getVolatilityAdjoint(10 * F, STRIKE_ITM, T, dataIn));
   }
 
   public void coverage() {
