@@ -28,12 +28,12 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -43,10 +43,8 @@ import com.opengamma.strata.pricer.impl.swap.DiscountingKnownAmountPaymentPeriod
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
@@ -86,6 +84,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
       .indexCalculationMethod(INTERPOLATED)
+      .firstIndexValue(START_INDEX)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
@@ -98,7 +97,9 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY);
   private static final PeriodicSchedule SCHEDULE =
       PeriodicSchedule.of(START, END, FREQUENCY, BUSINESS_ADJUST, StubConvention.NONE, RollConventions.NONE);
+  private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "BOND1");
   private static final CapitalIndexedBond PRODUCT = CapitalIndexedBond.builder()
+      .securityId(SECURITY_ID)
       .notional(NOTIONAL)
       .currency(USD)
       .dayCount(ACT_ACT_ICMA)
@@ -106,12 +107,12 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(US_IL_REAL)
       .settlementDateOffset(SETTLE_OFFSET)
-      .periodicSchedule(SCHEDULE)
-      .startIndexValue(START_INDEX)
+      .accrualSchedule(SCHEDULE)
       .build();
   private static final ResolvedCapitalIndexedBond RPRODUCT = PRODUCT.resolve(REF_DATA);
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.ofCalendarDays(-5, EX_COUPON_ADJ);
   private static final CapitalIndexedBond PRODUCT_EX_COUPON = CapitalIndexedBond.builder()
+      .securityId(SECURITY_ID)
       .notional(NOTIONAL)
       .currency(USD)
       .dayCount(ACT_ACT_ICMA)
@@ -119,12 +120,12 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(US_IL_REAL)
       .settlementDateOffset(SETTLE_OFFSET)
-      .periodicSchedule(SCHEDULE)
+      .accrualSchedule(SCHEDULE)
       .exCouponPeriod(EX_COUPON)
-      .startIndexValue(START_INDEX)
       .build();
   private static final ResolvedCapitalIndexedBond RPRODUCT_EX_COUPON = PRODUCT_EX_COUPON.resolve(REF_DATA);
   private static final CapitalIndexedBond PRODUCT_ILF = CapitalIndexedBond.builder()
+      .securityId(SECURITY_ID)
       .notional(NOTIONAL)
       .currency(USD)
       .dayCount(ACT_ACT_ICMA)
@@ -132,13 +133,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       .legalEntityId(LEGAL_ENTITY)
       .yieldConvention(INDEX_LINKED_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET)
-      .periodicSchedule(SCHEDULE)
-      .startIndexValue(START_INDEX)
+      .accrualSchedule(SCHEDULE)
       .build();
   private static final ResolvedCapitalIndexedBond RPRODUCT_ILF = PRODUCT_ILF.resolve(REF_DATA);
 
   private static final long QUANTITY = 100L;
-  private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "BOND1");
   private static final LocalDate SETTLEMENT_BEFORE = VALUATION.minusWeeks(1);
   private static final LocalDate SETTLEMENT_EARLY = VALUATION;
   private static final LocalDate SETTLEMENT_LATE = LocalDate.of(2015, 2, 19);
@@ -147,66 +146,56 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   private static final TradeInfo TRADE_INFO_EARLY = TradeInfo.builder().settlementDate(SETTLEMENT_EARLY).build();
   private static final TradeInfo TRADE_INFO_LATE = TradeInfo.builder().settlementDate(SETTLEMENT_LATE).build();
   private static final TradeInfo TRADE_INFO_STANDARD = TradeInfo.builder().settlementDate(SETTLEMENT_STANDARD).build();
-  private static final Security<CapitalIndexedBond> SECURITY =
-      UnitSecurity.builder(PRODUCT).standardId(SECURITY_ID).build();
-  private static final Security<CapitalIndexedBond> SECURITY_ILF =
-      UnitSecurity.builder(PRODUCT_ILF).standardId(SECURITY_ID).build();
-  private static final Security<CapitalIndexedBond> SECURITY_EX_COUPON =
-      UnitSecurity.builder(PRODUCT_EX_COUPON).standardId(SECURITY_ID).build();
-  private static final SecurityLink<CapitalIndexedBond> SECURITY_LINK = SecurityLink.resolved(SECURITY);
-  private static final SecurityLink<CapitalIndexedBond> SECURITY_LINK_ILF = SecurityLink.resolved(SECURITY_ILF);
-  private static final SecurityLink<CapitalIndexedBond> SECURITY_LINK_EX_COUPON = SecurityLink.resolved(SECURITY_EX_COUPON);
   private static final double TRADE_PRICE = 1.0203;
   private static final ResolvedCapitalIndexedBondTrade TRADE_SETTLED = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK)
-      .tradeInfo(TRADE_INFO_SETTLED)
+      .info(TRADE_INFO_SETTLED)
+      .product(PRODUCT)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_EARLY = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK)
-      .tradeInfo(TRADE_INFO_EARLY)
+      .info(TRADE_INFO_EARLY)
+      .product(PRODUCT)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_EX_COUPON_EARLY = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK_EX_COUPON)
-      .tradeInfo(TRADE_INFO_EARLY)
+      .info(TRADE_INFO_EARLY)
+      .product(PRODUCT_EX_COUPON)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_LATE = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK)
-      .tradeInfo(TRADE_INFO_LATE)
+      .info(TRADE_INFO_LATE)
+      .product(PRODUCT)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_STANDARD = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK)
-      .tradeInfo(TRADE_INFO_STANDARD)
+      .info(TRADE_INFO_STANDARD)
+      .product(PRODUCT)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_ILF_STANDARD = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK_ILF)
-      .tradeInfo(TRADE_INFO_STANDARD)
+      .info(TRADE_INFO_STANDARD)
+      .product(PRODUCT_ILF)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
   private static final ResolvedCapitalIndexedBondTrade TRADE_EX_COUPON_STANDARD = CapitalIndexedBondTrade.builder()
-      .securityLink(SECURITY_LINK_EX_COUPON)
-      .tradeInfo(TRADE_INFO_STANDARD)
+      .info(TRADE_INFO_STANDARD)
+      .product(PRODUCT_EX_COUPON)
       .quantity(QUANTITY)
-      .cleanPrice(TRADE_PRICE)
+      .price(TRADE_PRICE)
       .build()
       .resolve(REF_DATA);
-  
 
   private static final double TOL = 1.0e-12;
   private static final double EPS = 1.0e-6;
@@ -663,13 +652,13 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   private static final double CLEAN_REAL_FROM_CURVES_ZSPREAD;
   static {
     double dirtyNominal = PRODUCT_PRICER.dirtyNominalPriceFromCurves(
-        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
+        RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     double cleanNominal = PRODUCT_PRICER.cleanNominalPriceFromDirtyNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, dirtyNominal);
     CLEAN_REAL_FROM_CURVES = PRODUCT_PRICER.realPriceFromNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, cleanNominal);
     double dirtyNominalZSpread = PRODUCT_PRICER.dirtyNominalPriceFromCurvesWithZSpread(
-        RPRODUCT, SECURITY_ID, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+        RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalZSpread = PRODUCT_PRICER.cleanNominalPriceFromDirtyNominalPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, dirtyNominalZSpread);
     CLEAN_REAL_FROM_CURVES_ZSPREAD = PRODUCT_PRICER.realPriceFromNominalPrice(

@@ -29,17 +29,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.LinkResolutionException;
-import com.opengamma.strata.collect.id.LinkResolvable;
-import com.opengamma.strata.collect.id.LinkResolver;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Product;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
@@ -51,10 +47,17 @@ import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
  * <p>
  * This class represents the structure of a single option contract.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class BondFutureOption
-    implements Product, LinkResolvable<BondFutureOption>, Resolvable<ResolvedBondFutureOption>, ImmutableBean, Serializable {
+    implements SecuritizedProduct, Resolvable<ResolvedBondFutureOption>, ImmutableBean, Serializable {
 
+  /**
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final SecurityId securityId;
   /**
    * Whether the option is put or call.
    * <p>
@@ -113,29 +116,29 @@ public final class BondFutureOption
   @PropertyDefinition(validate = "notNull")
   private final Rounding rounding;
   /**
-   * The link to the underlying future.
-   * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
+   * The underlying future.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SecurityLink<BondFuture> underlyingLink;
+  private final BondFuture underlyingFuture;
 
   //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    if (underlyingLink.isResolved()) {
-      LocalDate lastTradeDate = underlyingLink.resolve(null).getProduct().getLastTradeDate();
-      ArgChecker.inOrderOrEqual(expiryDate, lastTradeDate, "expiryDate", "lastTradeDate");
-    }
-  }
-
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.rounding(Rounding.none());
   }
 
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.inOrderOrEqual(
+        expiryDate, underlyingFuture.getLastTradeDate(), "expiryDate", "underlyingFuture.lastTradeDate");
+  }
+
   //-------------------------------------------------------------------------
+  @Override
+  public Currency getCurrency() {
+    return underlyingFuture.getCurrency();
+  }
+
   /**
    * Gets the expiry date-time.
    * <p>
@@ -150,68 +153,10 @@ public final class BondFutureOption
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the underlying bond future security that was traded, throwing an exception if not resolved.
-   * <p>
-   * This method accesses the security via the {@link #getUnderlyingLink() underlyingLink} property.
-   * The link has two states, resolvable and resolved.
-   * <p>
-   * In the resolved state, the security is known and available for use.
-   * The security object will be directly embedded in the link held within this trade.
-   * <p>
-   * In the resolvable state, only the identifier and type of the security are known.
-   * These act as a pointer to the security, and as such the security is not directly available.
-   * The link must be resolved before use.
-   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
-   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
-   * 
-   * @return full details of the security
-   * @throws LinkResolutionException if the security is not resolved
-   */
-  public Security<BondFuture> getUnderlyingSecurity() {
-    return underlyingLink.resolvedTarget();
-  }
-
-  /**
-   * Gets the underlying bond future that was traded, throwing an exception if not resolved.
-   * <p>
-   * Returns the underlying product that captures the contracted financial details of the trade.
-   * This method accesses the security via the {@link #getUnderlyingLink() underlyingLink} property.
-   * The link has two states, resolvable and resolved.
-   * <p>
-   * In the resolved state, the security is known and available for use.
-   * The security object will be directly embedded in the link held within this trade.
-   * <p>
-   * In the resolvable state, only the identifier and type of the security are known.
-   * These act as a pointer to the security, and as such the security is not directly available.
-   * The link must be resolved before use.
-   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
-   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
-   * 
-   * @return the product underlying the option
-   * @throws LinkResolutionException if the security is not resolved
-   */
-  public BondFuture getUnderlying() {
-    return getUnderlyingSecurity().getProduct();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public BondFutureOption resolveLinks(LinkResolver resolver) {
-    return resolver.resolveLinksIn(this, underlyingLink, resolved -> toBuilder().underlyingLink(resolved).build());
-  }
-
   @Override
   public ResolvedBondFutureOption resolve(ReferenceData refData) {
-    return ResolvedBondFutureOption.builder()
-        .putCall(putCall)
-        .strikePrice(strikePrice)
-        .expiry(getExpiry())
-        .premiumStyle(premiumStyle)
-        .rounding(rounding)
-        .underlying(getUnderlying().resolve(refData))
-        .underlyingSecurityStandardId(getUnderlyingSecurity().getStandardId())
-        .build();
+    ResolvedBondFuture resolved = underlyingFuture.resolve(refData);
+    return new ResolvedBondFutureOption(securityId, putCall, strikePrice, getExpiry(), premiumStyle, rounding, resolved);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -241,7 +186,20 @@ public final class BondFutureOption
     return new BondFutureOption.Builder();
   }
 
-  private BondFutureOption(
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param putCall  the value of the property
+   * @param strikePrice  the value of the property
+   * @param expiryDate  the value of the property, not null
+   * @param expiryTime  the value of the property, not null
+   * @param expiryZone  the value of the property, not null
+   * @param premiumStyle  the value of the property, not null
+   * @param rounding  the value of the property, not null
+   * @param underlyingFuture  the value of the property, not null
+   */
+  BondFutureOption(
+      SecurityId securityId,
       PutCall putCall,
       double strikePrice,
       LocalDate expiryDate,
@@ -249,13 +207,15 @@ public final class BondFutureOption
       ZoneId expiryZone,
       FutureOptionPremiumStyle premiumStyle,
       Rounding rounding,
-      SecurityLink<BondFuture> underlyingLink) {
+      BondFuture underlyingFuture) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
     JodaBeanUtils.notNull(premiumStyle, "premiumStyle");
     JodaBeanUtils.notNull(rounding, "rounding");
-    JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
+    JodaBeanUtils.notNull(underlyingFuture, "underlyingFuture");
+    this.securityId = securityId;
     this.putCall = putCall;
     this.strikePrice = strikePrice;
     this.expiryDate = expiryDate;
@@ -263,7 +223,7 @@ public final class BondFutureOption
     this.expiryZone = expiryZone;
     this.premiumStyle = premiumStyle;
     this.rounding = rounding;
-    this.underlyingLink = underlyingLink;
+    this.underlyingFuture = underlyingFuture;
     validate();
   }
 
@@ -280,6 +240,18 @@ public final class BondFutureOption
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  @Override
+  public SecurityId getSecurityId() {
+    return securityId;
   }
 
   //-----------------------------------------------------------------------
@@ -369,14 +341,11 @@ public final class BondFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the underlying future.
-   * <p>
-   * This property returns a link to the security via a {@link StandardId}.
-   * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
+   * Gets the underlying future.
    * @return the value of the property, not null
    */
-  public SecurityLink<BondFuture> getUnderlyingLink() {
-    return underlyingLink;
+  public BondFuture getUnderlyingFuture() {
+    return underlyingFuture;
   }
 
   //-----------------------------------------------------------------------
@@ -395,14 +364,15 @@ public final class BondFutureOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureOption other = (BondFutureOption) obj;
-      return JodaBeanUtils.equal(putCall, other.putCall) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(putCall, other.putCall) &&
           JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
           JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
           JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
           JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
           JodaBeanUtils.equal(premiumStyle, other.premiumStyle) &&
           JodaBeanUtils.equal(rounding, other.rounding) &&
-          JodaBeanUtils.equal(underlyingLink, other.underlyingLink);
+          JodaBeanUtils.equal(underlyingFuture, other.underlyingFuture);
     }
     return false;
   }
@@ -410,6 +380,7 @@ public final class BondFutureOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
@@ -417,14 +388,15 @@ public final class BondFutureOption
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
     hash = hash * 31 + JodaBeanUtils.hashCode(premiumStyle);
     hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
-    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingLink);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingFuture);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("BondFutureOption{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("putCall").append('=').append(putCall).append(',').append(' ');
     buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
     buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
@@ -432,7 +404,7 @@ public final class BondFutureOption
     buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
     buf.append("premiumStyle").append('=').append(premiumStyle).append(',').append(' ');
     buf.append("rounding").append('=').append(rounding).append(',').append(' ');
-    buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink));
+    buf.append("underlyingFuture").append('=').append(JodaBeanUtils.toString(underlyingFuture));
     buf.append('}');
     return buf.toString();
   }
@@ -447,6 +419,11 @@ public final class BondFutureOption
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", BondFutureOption.class, SecurityId.class);
     /**
      * The meta-property for the {@code putCall} property.
      */
@@ -483,16 +460,16 @@ public final class BondFutureOption
     private final MetaProperty<Rounding> rounding = DirectMetaProperty.ofImmutable(
         this, "rounding", BondFutureOption.class, Rounding.class);
     /**
-     * The meta-property for the {@code underlyingLink} property.
+     * The meta-property for the {@code underlyingFuture} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SecurityLink<BondFuture>> underlyingLink = DirectMetaProperty.ofImmutable(
-        this, "underlyingLink", BondFutureOption.class, (Class) SecurityLink.class);
+    private final MetaProperty<BondFuture> underlyingFuture = DirectMetaProperty.ofImmutable(
+        this, "underlyingFuture", BondFutureOption.class, BondFuture.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "putCall",
         "strikePrice",
         "expiryDate",
@@ -500,7 +477,7 @@ public final class BondFutureOption
         "expiryZone",
         "premiumStyle",
         "rounding",
-        "underlyingLink");
+        "underlyingFuture");
 
     /**
      * Restricted constructor.
@@ -511,6 +488,8 @@ public final class BondFutureOption
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -525,8 +504,8 @@ public final class BondFutureOption
           return premiumStyle;
         case -142444:  // rounding
           return rounding;
-        case 1497199863:  // underlyingLink
-          return underlyingLink;
+        case -165476480:  // underlyingFuture
+          return underlyingFuture;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -547,6 +526,14 @@ public final class BondFutureOption
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     /**
      * The meta-property for the {@code putCall} property.
      * @return the meta-property, not null
@@ -604,17 +591,19 @@ public final class BondFutureOption
     }
 
     /**
-     * The meta-property for the {@code underlyingLink} property.
+     * The meta-property for the {@code underlyingFuture} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityLink<BondFuture>> underlyingLink() {
-      return underlyingLink;
+    public MetaProperty<BondFuture> underlyingFuture() {
+      return underlyingFuture;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((BondFutureOption) bean).getSecurityId();
         case -219971059:  // putCall
           return ((BondFutureOption) bean).getPutCall();
         case 50946231:  // strikePrice
@@ -629,8 +618,8 @@ public final class BondFutureOption
           return ((BondFutureOption) bean).getPremiumStyle();
         case -142444:  // rounding
           return ((BondFutureOption) bean).getRounding();
-        case 1497199863:  // underlyingLink
-          return ((BondFutureOption) bean).getUnderlyingLink();
+        case -165476480:  // underlyingFuture
+          return ((BondFutureOption) bean).getUnderlyingFuture();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -652,6 +641,7 @@ public final class BondFutureOption
    */
   public static final class Builder extends DirectFieldsBeanBuilder<BondFutureOption> {
 
+    private SecurityId securityId;
     private PutCall putCall;
     private double strikePrice;
     private LocalDate expiryDate;
@@ -659,7 +649,7 @@ public final class BondFutureOption
     private ZoneId expiryZone;
     private FutureOptionPremiumStyle premiumStyle;
     private Rounding rounding;
-    private SecurityLink<BondFuture> underlyingLink;
+    private BondFuture underlyingFuture;
 
     /**
      * Restricted constructor.
@@ -673,6 +663,7 @@ public final class BondFutureOption
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(BondFutureOption beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.putCall = beanToCopy.getPutCall();
       this.strikePrice = beanToCopy.getStrikePrice();
       this.expiryDate = beanToCopy.getExpiryDate();
@@ -680,13 +671,15 @@ public final class BondFutureOption
       this.expiryZone = beanToCopy.getExpiryZone();
       this.premiumStyle = beanToCopy.getPremiumStyle();
       this.rounding = beanToCopy.getRounding();
-      this.underlyingLink = beanToCopy.getUnderlyingLink();
+      this.underlyingFuture = beanToCopy.getUnderlyingFuture();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -701,17 +694,19 @@ public final class BondFutureOption
           return premiumStyle;
         case -142444:  // rounding
           return rounding;
-        case 1497199863:  // underlyingLink
-          return underlyingLink;
+        case -165476480:  // underlyingFuture
+          return underlyingFuture;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case -219971059:  // putCall
           this.putCall = (PutCall) newValue;
           break;
@@ -733,8 +728,8 @@ public final class BondFutureOption
         case -142444:  // rounding
           this.rounding = (Rounding) newValue;
           break;
-        case 1497199863:  // underlyingLink
-          this.underlyingLink = (SecurityLink<BondFuture>) newValue;
+        case -165476480:  // underlyingFuture
+          this.underlyingFuture = (BondFuture) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -769,6 +764,7 @@ public final class BondFutureOption
     @Override
     public BondFutureOption build() {
       return new BondFutureOption(
+          securityId,
           putCall,
           strikePrice,
           expiryDate,
@@ -776,10 +772,23 @@ public final class BondFutureOption
           expiryZone,
           premiumStyle,
           rounding,
-          underlyingLink);
+          underlyingFuture);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
     /**
      * Sets whether the option is put or call.
      * <p>
@@ -878,24 +887,22 @@ public final class BondFutureOption
     }
 
     /**
-     * Sets the link to the underlying future.
-     * <p>
-     * This property returns a link to the security via a {@link StandardId}.
-     * See {@link #getUnderlying()} and {@link SecurityLink} for more details.
-     * @param underlyingLink  the new value, not null
+     * Sets the underlying future.
+     * @param underlyingFuture  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlyingLink(SecurityLink<BondFuture> underlyingLink) {
-      JodaBeanUtils.notNull(underlyingLink, "underlyingLink");
-      this.underlyingLink = underlyingLink;
+    public Builder underlyingFuture(BondFuture underlyingFuture) {
+      JodaBeanUtils.notNull(underlyingFuture, "underlyingFuture");
+      this.underlyingFuture = underlyingFuture;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("BondFutureOption.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
@@ -903,7 +910,7 @@ public final class BondFutureOption
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
       buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
-      buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink));
+      buf.append("underlyingFuture").append('=').append(JodaBeanUtils.toString(underlyingFuture));
       buf.append('}');
       return buf.toString();
     }

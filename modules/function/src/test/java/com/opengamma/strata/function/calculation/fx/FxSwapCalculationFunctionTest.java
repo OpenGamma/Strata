@@ -63,7 +63,7 @@ public class FxSwapCalculationFunctionTest {
   private static final FxSingle LEG2 = FxSingle.of(GBP_P1000.negated(), USD_M1600.negated(), date(2015, 9, 30));
   private static final FxSwap PRODUCT = FxSwap.of(LEG1, LEG2);
   public static final FxSwapTrade TRADE = FxSwapTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(date(2015, 6, 1))
           .build())
       .product(PRODUCT)

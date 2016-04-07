@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.key.QuoteKey;
 
 /**

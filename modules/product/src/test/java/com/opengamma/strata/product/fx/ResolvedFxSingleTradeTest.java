@@ -23,15 +23,15 @@ public class ResolvedFxSingleTradeTest {
 
   private static final ResolvedFxSingle FWD1 = ResolvedFxSingleTest.sut();
   private static final ResolvedFxSingle FWD2 = ResolvedFxSingleTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2015, 1, 15)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     ResolvedFxSingleTrade test = ResolvedFxSingleTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FWD1)
         .build();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), FWD1);
   }
 
@@ -48,7 +48,7 @@ public class ResolvedFxSingleTradeTest {
   //-------------------------------------------------------------------------
   static ResolvedFxSingleTrade sut() {
     return ResolvedFxSingleTrade.builder()
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .product(FWD1)
         .build();
   }

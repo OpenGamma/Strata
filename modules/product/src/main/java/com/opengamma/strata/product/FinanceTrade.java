@@ -19,12 +19,12 @@ public interface FinanceTrade
     extends Trade {
 
   /**
-   * The additional trade information.
+   * Gets the standard trade information.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * All trades contain this standard set of information.
    * 
-   * @return the additional trade info
+   * @return the trade information
    */
-  public abstract TradeInfo getTradeInfo();
+  public abstract TradeInfo getInfo();
 
 }

@@ -58,7 +58,7 @@ final class IborFutureMeasureCalculations {
       ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
+    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.parSpread(trade, MarketDataRatesProvider.of(marketData), price);
   }
@@ -79,7 +79,7 @@ final class IborFutureMeasureCalculations {
       ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
+    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.presentValue(trade, MarketDataRatesProvider.of(marketData), price);
   }

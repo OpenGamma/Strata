@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -146,18 +147,19 @@ public final class ImmutableTermDepositConvention
 
   @Override
   public TermDepositTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
       double notional,
       double rate) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     return TermDepositTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(TermDeposit.builder()
             .buySell(buySell)
             .currency(currency)

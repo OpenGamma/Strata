@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -133,7 +134,7 @@ public final class ImmutableXCcyIborIborSwapConvention
   //-------------------------------------------------------------------------
   @Override
   public SwapTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -141,13 +142,14 @@ public final class ImmutableXCcyIborIborSwapConvention
       double notionalFlatLeg,
       double spread) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     SwapLeg leg1 = spreadLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notionalSpreadLeg, spread);
     SwapLeg leg2 = flatLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notionalFlatLeg);
     return SwapTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate)
-            .build())
+        .info(tradeInfo)
         .product(Swap.of(leg1, leg2))
         .build();
   }

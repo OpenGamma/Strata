@@ -21,8 +21,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -41,6 +41,7 @@ import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Test {@link LegalEntityDiscountingProvider}.
@@ -58,7 +59,7 @@ public class LegalEntityDiscountingProviderTest {
   private static final DiscountFactors DSC_FACTORS_REPO = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_REPO);
   private static final BondGroup GROUP_REPO_SECURITY = BondGroup.of("ISSUER1 BND 5Y");
   private static final BondGroup GROUP_REPO_ISSUER = BondGroup.of("ISSUER1");
-  private static final StandardId ID_SECURITY = StandardId.of("OG-Ticker", "Bond-5Y");
+  private static final SecurityId ID_SECURITY = SecurityId.of("OG-Ticker", "Bond-5Y");
 
   private static final CurveName NAME_ISSUER = CurveName.of("TestIssuerCurve");
   private static final CurveMetadata METADATA_ISSUER = Curves.zeroRates(NAME_ISSUER, ACT_365F);
@@ -76,7 +77,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build();
     assertEquals(
@@ -140,7 +141,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build());
     // issuer curve and valuation date are missing
@@ -148,7 +149,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
         .build());
     // issuer curve date is different from valuation date
     DiscountFactors dscFactorIssuer = ZeroRateDiscountFactors.of(GBP, date(2015, 6, 14), CURVE_ISSUER);
@@ -158,7 +159,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build());
     // repo curve rate is different from valuation date
@@ -169,7 +170,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), dscFactorRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build());
   }
@@ -179,14 +180,14 @@ public class LegalEntityDiscountingProviderTest {
     StandardId issuerId = StandardId.of("OG-Ticker", "Issuer-2");
     LegalEntityGroup issuerGroup = LegalEntityGroup.of("ISSUER2");
     BondGroup bondGroup = BondGroup.of("ISSUER2 BND 5Y");
-    StandardId securityId = StandardId.of("OG-Ticker", "Issuer-2-bond-5Y");
+    SecurityId securityId = SecurityId.of("OG-Ticker", "Issuer-2-bond-5Y");
     LegalEntityDiscountingProvider test = LegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
             Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER, issuerId, issuerGroup))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, GROUP_REPO_SECURITY, issuerId, bondGroup))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY, issuerId, bondGroup))
         .valuationDate(DATE)
         .build();
     assertThrowsIllegalArg(() -> test.issuerCurveDiscountFactors(ID_ISSUER, USD));
@@ -194,7 +195,7 @@ public class LegalEntityDiscountingProviderTest {
     assertThrowsIllegalArg(() -> test.issuerCurveDiscountFactors(issuerId, GBP));
     assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, USD));
     assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(
-        StandardId.of("OG-Ticker", "foo-bond"), StandardId.of("OG-Ticker", "foo"), GBP));
+        SecurityId.of("OG-Ticker", "foo-bond"), StandardId.of("OG-Ticker", "foo"), GBP));
     assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(securityId, issuerId, GBP));
   }
 
@@ -256,7 +257,7 @@ public class LegalEntityDiscountingProviderTest {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(StandardId.of("OG-Ticker", "foo"), GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(BondGroup.of("ISSUER2 BND 5Y"), GBP), dscFactorRepo))
-        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY, BondGroup.of("ISSUER2 BND 5Y")))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_SECURITY.getStandardId(), BondGroup.of("ISSUER2 BND 5Y")))
         .build();
     coverBeanEquals(test1, test2);
   }

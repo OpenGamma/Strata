@@ -16,11 +16,8 @@ import java.time.ZoneId;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.Rounding;
-import com.opengamma.strata.collect.id.StandardId;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityLink;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.UnitSecurity;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureOption;
@@ -39,19 +36,21 @@ public class IborFutureDummyData {
   private static final LocalDate TRADE_DATE = date(2015, 2, 17);
   private static final long FUTURE_QUANTITY = 35;
   private static final double FUTURE_INITIAL_PRICE = 1.015;
-  private static final StandardId FUTURE_ID = StandardId.of("OG-Ticker", "Future");
+  private static final SecurityId FUTURE_ID = SecurityId.of("OG-Ticker", "Future");
 
   private static final LocalDate EXPIRY_DATE = date(2015, 5, 20);
   private static final double STRIKE_PRICE = 1.075;
   private static final double STRIKE_PRICE_2 = 0.99;
   private static final long OPTION_QUANTITY = 65L;
   private static final double OPTION_INITIAL_PRICE = 0.065;
-  private static final StandardId OPTION_ID = StandardId.of("OG-Ticker", "Option");
+  private static final SecurityId OPTION_ID = SecurityId.of("OG-Ticker", "Option");
+  private static final SecurityId OPTION_ID2 = SecurityId.of("OG-Ticker", "Option2");
 
   /**
    * An IborFuture.
    */
   public static final IborFuture IBOR_FUTURE = IborFuture.builder()
+      .securityId(FUTURE_ID)
       .currency(GBP)
       .notional(NOTIONAL)
       .lastTradeDate(LAST_TRADE_DATE)
@@ -61,19 +60,11 @@ public class IborFutureDummyData {
       .build();
 
   /**
-   * Security for Ibor future.
-   */
-  private static final Security<IborFuture> IBOR_FUTURE_SECURITY =
-      UnitSecurity.builder(IBOR_FUTURE)
-          .standardId(FUTURE_ID)
-          .build();
-
-  /**
    * An IborFutureTrade.
    */
   public static final IborFutureTrade IBOR_FUTURE_TRADE = IborFutureTrade.builder()
-      .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-      .securityLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY))
+      .info(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+      .product(IBOR_FUTURE)
       .quantity(FUTURE_QUANTITY)
       .price(FUTURE_INITIAL_PRICE)
       .build();
@@ -82,43 +73,37 @@ public class IborFutureDummyData {
    * An IborFutureOption.
    */
   public static final IborFutureOption IBOR_FUTURE_OPTION = IborFutureOption.builder()
+      .securityId(OPTION_ID)
       .putCall(PutCall.CALL)
       .strikePrice(STRIKE_PRICE)
       .expiryDate(EXPIRY_DATE)
       .expiryTime(LocalTime.of(11, 0))
       .expiryZone(ZoneId.of("Europe/London"))
       .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-      .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY))
+      .underlyingFuture(IBOR_FUTURE)
       .build();
 
   /**
    * An IborFutureOption.
    */
   public static final IborFutureOption IBOR_FUTURE_OPTION_2 = IborFutureOption.builder()
+      .securityId(OPTION_ID2)
       .putCall(PutCall.CALL)
       .strikePrice(STRIKE_PRICE_2)
       .expiryDate(EXPIRY_DATE)
       .expiryTime(LocalTime.of(11, 0))
       .expiryZone(ZoneId.of("Europe/London"))
       .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
-      .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY))
+      .underlyingFuture(IBOR_FUTURE)
       .build();
-
-  /**
-   * Security for Ibor future option.
-   */
-  private static final Security<IborFutureOption> IBOR_FUTURE_OPTION_SECURITY =
-      UnitSecurity.builder(IBOR_FUTURE_OPTION)
-          .standardId(OPTION_ID)
-          .build();
 
   /**
    * An IborFutureOptionTrade.
    */
   public static final IborFutureOptionTrade IBOR_FUTURE_OPTION_TRADE =
       IborFutureOptionTrade.builder()
-          .tradeInfo(TradeInfo.builder().tradeDate(TRADE_DATE).build())
-          .securityLink(SecurityLink.resolved(IBOR_FUTURE_OPTION_SECURITY))
+          .info(TradeInfo.builder().tradeDate(TRADE_DATE).build())
+          .product(IBOR_FUTURE_OPTION)
           .quantity(OPTION_QUANTITY)
           .price(OPTION_INITIAL_PRICE)
           .build();

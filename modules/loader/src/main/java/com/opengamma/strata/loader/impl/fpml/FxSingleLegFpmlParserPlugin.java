@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.fx.FxNdf;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -69,7 +69,7 @@ final class FxSingleLegFpmlParserPlugin
     document.validateNotPresent(fxEl, "currency1ValueDate");
     document.validateNotPresent(fxEl, "currency2ValueDate");
     // amounts
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement curr1El = fxEl.getChild("exchangedCurrency1");
     XmlElement curr2El = fxEl.getChild("exchangedCurrency2");
     // pay/receive and counterparty
@@ -94,7 +94,7 @@ final class FxSingleLegFpmlParserPlugin
     Optional<XmlElement> ndfEl = fxEl.findChild("nonDeliverableSettlement");
     if (!ndfEl.isPresent()) {
       return FxSingleTrade.builder()
-          .tradeInfo(tradeInfoBuilder.build())
+          .info(tradeInfoBuilder.build())
           .product(FxSingle.of(curr1Amount, curr2Amount, valueDate))
           .build();
     }
@@ -108,7 +108,7 @@ final class FxSingleLegFpmlParserPlugin
       CurrencyAmount curr1Amount,
       CurrencyAmount curr2Amount,
       LocalDate valueDate,
-      TradeInfo.Builder tradeInfoBuilder) {
+      TradeInfoBuilder tradeInfoBuilder) {
 
     // rate
     XmlElement rateEl = fxEl.getChild("exchangeRate");
@@ -145,7 +145,7 @@ final class FxSingleLegFpmlParserPlugin
         .maturityDateOffset(offset)
         .build();
     return FxNdfTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(FxNdf.builder()
             .settlementCurrencyNotional(settleCurrAmount)
             .agreedFxRate(fxRate)

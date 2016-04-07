@@ -25,18 +25,18 @@ public class FxSwapTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FxSwap PRODUCT = FxSwapTest.sut();
   private static final FxSwap PRODUCT2 = FxSwapTest.sut2();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2011, 11, 14)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2011, 11, 14));
 
   //-------------------------------------------------------------------------
   public void test_of() {
     FxSwapTrade test = FxSwapTrade.of(TRADE_INFO, PRODUCT);
     assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     FxSwapTrade test = sut();
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
   }
 
@@ -61,7 +61,7 @@ public class FxSwapTradeTest {
   static FxSwapTrade sut() {
     return FxSwapTrade.builder()
         .product(PRODUCT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
   }
 

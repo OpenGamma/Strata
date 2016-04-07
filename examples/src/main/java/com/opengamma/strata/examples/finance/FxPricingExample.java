@@ -12,24 +12,24 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.Results;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
@@ -107,9 +107,9 @@ public class FxPricingExample {
     FxSingle fx = FxSingle.of(CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
     return FxSingleTrade.builder()
         .product(fx)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
-            .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 fwd"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -121,9 +121,9 @@ public class FxPricingExample {
     FxSingle fx = FxSingle.of(CurrencyAmount.of(USD, 15000), FxRate.of(GBP, USD, 1.62), LocalDate.of(2014, 9, 14));
     return FxSingleTrade.builder()
         .product(fx)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
-            .attributes(ImmutableMap.of("description", "USD 15,000/GBP @ 1.62 fwd"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "USD 15,000/GBP @ 1.62 fwd")
             .counterparty(StandardId.of("example", "BigBankB"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -136,9 +136,9 @@ public class FxPricingExample {
         CurrencyAmount.of(GBP, 10000), FxRate.of(GBP, USD, 1.62), 0.03, LocalDate.of(2014, 6, 14), LocalDate.of(2014, 9, 14));
     return FxSwapTrade.builder()
         .product(swap)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "3"))
-            .attributes(ImmutableMap.of("description", "GBP 10,000/USD @ 1.62 swap"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "GBP 10,000/USD @ 1.62 swap")
             .counterparty(StandardId.of("example", "BigBankA"))
             .settlementDate(LocalDate.of(2014, 9, 15))
             .build())
@@ -154,9 +154,9 @@ public class FxPricingExample {
         .build();
     return BulletPaymentTrade.builder()
         .product(bp)
-        .tradeInfo(TradeInfo.builder()
+        .info(TradeInfo.builder()
             .id(StandardId.of("example", "4"))
-            .attributes(ImmutableMap.of("description", "Bullet payment GBP 20,000"))
+            .addAttribute(TradeAttributeType.DESCRIPTION, "Bullet payment GBP 20,000")
             .counterparty(StandardId.of("example", "BigBankC"))
             .settlementDate(LocalDate.of(2014, 9, 16))
             .build())

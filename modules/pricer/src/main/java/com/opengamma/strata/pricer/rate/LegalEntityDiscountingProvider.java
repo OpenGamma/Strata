@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
@@ -40,6 +40,7 @@ import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * The discounting factors provider, used to calculate analytic measures. 
@@ -64,7 +65,7 @@ public final class LegalEntityDiscountingProvider
    * This map is used to convert the {@link StandardId} that identifies the bond to
    * the associated bond group in order to lookup a repo curve.
    * <p>
-   * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(StandardId, StandardId, Currency)}.
+   * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
    */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<StandardId, BondGroup> bondMap;
@@ -130,18 +131,18 @@ public final class LegalEntityDiscountingProvider
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
-   * @param securityID  the standard ID of security to get the discount factors for
-   * @param issuerID  the standard ID of legal entity to get the discount factors for
+   * @param securityId  the standard ID of security to get the discount factors for
+   * @param issuerId  the standard ID of legal entity to get the discount factors for
    * @param currency  the currency to get the discount factors for
    * @return the discount factors 
    * @throws IllegalArgumentException if the discount factors are not available
    */
-  public RepoCurveDiscountFactors repoCurveDiscountFactors(StandardId securityID, StandardId issuerID, Currency currency) {
-    BondGroup bondGroup = bondMap.get(securityID);
+  public RepoCurveDiscountFactors repoCurveDiscountFactors(SecurityId securityId, StandardId issuerId, Currency currency) {
+    BondGroup bondGroup = bondMap.get(securityId.getStandardId());
     if (bondGroup == null) {
-      bondGroup = bondMap.get(issuerID);
+      bondGroup = bondMap.get(issuerId);
       if (bondGroup == null) {
-        throw new IllegalArgumentException("Unable to find map for ID: " + securityID + ", " + issuerID);
+        throw new IllegalArgumentException("Unable to find map for ID: " + securityId + ", " + issuerId);
       }
     }
     return repoCurveDiscountFactors(bondGroup, currency);
@@ -162,15 +163,15 @@ public final class LegalEntityDiscountingProvider
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
-   * @param standardId  the standard ID to get the discount factors for
+   * @param issuerId  the standard ID to get the discount factors for
    * @param currency  the currency to get the discount factors for
    * @return the discount factors 
    * @throws IllegalArgumentException if the discount factors are not available
    */
-  public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId standardId, Currency currency) {
-    LegalEntityGroup legalEntityGroup = legalEntityMap.get(standardId);
+  public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency) {
+    LegalEntityGroup legalEntityGroup = legalEntityMap.get(issuerId);
     if (legalEntityGroup == null) {
-      throw new IllegalArgumentException("Unable to find map for ID: " + standardId);
+      throw new IllegalArgumentException("Unable to find map for ID: " + issuerId);
     }
     return issuerCurveDiscountFactors(legalEntityGroup, currency);
   }
@@ -291,7 +292,7 @@ public final class LegalEntityDiscountingProvider
    * This map is used to convert the {@link StandardId} that identifies the bond to
    * the associated bond group in order to lookup a repo curve.
    * <p>
-   * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(StandardId, StandardId, Currency)}.
+   * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
    * @return the value of the property, not null
    */
   private ImmutableMap<StandardId, BondGroup> getBondMap() {
@@ -667,7 +668,7 @@ public final class LegalEntityDiscountingProvider
      * This map is used to convert the {@link StandardId} that identifies the bond to
      * the associated bond group in order to lookup a repo curve.
      * <p>
-     * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(StandardId, StandardId, Currency)}.
+     * See {@link LegalEntityDiscountingProvider#repoCurveDiscountFactors(SecurityId, StandardId, Currency)}.
      * @param bondMap  the new value, not null
      * @return this, for chaining, not null
      */

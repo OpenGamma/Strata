@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -152,7 +153,7 @@ public final class ImmutableFxSwapConvention
   //-------------------------------------------------------------------------
   @Override
   public FxSwapTrade toTrade(
-      LocalDate tradeDate,
+      TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
@@ -160,11 +161,13 @@ public final class ImmutableFxSwapConvention
       double nearFxRate,
       double farLegForwardPoints) {
 
-    ArgChecker.inOrderOrEqual(tradeDate, startDate, "tradeDate", "startDate");
+    Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
+    if (tradeDate.isPresent()) {
+      ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
+    }
     double amount1 = BuySell.BUY.normalize(notional);
     return FxSwapTrade.builder()
-        .tradeInfo(TradeInfo.builder()
-            .tradeDate(tradeDate).build())
+        .info(tradeInfo)
         .product(FxSwap.ofForwardPoints(
             CurrencyAmount.of(currencyPair.getBase(), amount1),
             FxRate.of(currencyPair, nearFxRate),

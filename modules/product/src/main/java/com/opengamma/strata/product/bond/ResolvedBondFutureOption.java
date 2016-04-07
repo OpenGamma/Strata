@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
 
 /**
@@ -45,10 +45,17 @@ import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
  * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
  * Care must be taken when placing the resolved form in a cache or persistence layer.
  */
-@BeanDefinition
+@BeanDefinition(constructorScope = "package")
 public final class ResolvedBondFutureOption
     implements ResolvedProduct, ImmutableBean, Serializable {
 
+  /**
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
   /**
    * Whether the option is put or call.
    * <p>
@@ -93,23 +100,18 @@ public final class ResolvedBondFutureOption
    * The underlying future.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ResolvedBondFuture underlying;
-  /**
-   * The identifier of the underlying future security.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final StandardId underlyingSecurityStandardId;
+  private final ResolvedBondFuture underlyingFuture;
 
   //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    LocalDate lastTradeDate = underlying.getLastTradeDate();
-    ArgChecker.inOrderOrEqual(expiry.toLocalDate(), lastTradeDate, "expiry.date", "underlying.lastTradeDate");
-  }
-
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.rounding(Rounding.none());
+  }
+
+  @ImmutableValidator
+  private void validate() {
+    LocalDate lastTradeDate = underlyingFuture.getLastTradeDate();
+    ArgChecker.inOrderOrEqual(expiry.toLocalDate(), lastTradeDate, "expiry.date", "underlyingFuture.lastTradeDate");
   }
 
   //-------------------------------------------------------------------------
@@ -149,26 +151,36 @@ public final class ResolvedBondFutureOption
     return new ResolvedBondFutureOption.Builder();
   }
 
-  private ResolvedBondFutureOption(
+  /**
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param putCall  the value of the property
+   * @param strikePrice  the value of the property
+   * @param expiry  the value of the property, not null
+   * @param premiumStyle  the value of the property, not null
+   * @param rounding  the value of the property, not null
+   * @param underlyingFuture  the value of the property, not null
+   */
+  ResolvedBondFutureOption(
+      SecurityId securityId,
       PutCall putCall,
       double strikePrice,
       ZonedDateTime expiry,
       FutureOptionPremiumStyle premiumStyle,
       Rounding rounding,
-      ResolvedBondFuture underlying,
-      StandardId underlyingSecurityStandardId) {
+      ResolvedBondFuture underlyingFuture) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(premiumStyle, "premiumStyle");
     JodaBeanUtils.notNull(rounding, "rounding");
-    JodaBeanUtils.notNull(underlying, "underlying");
-    JodaBeanUtils.notNull(underlyingSecurityStandardId, "underlyingSecurityStandardId");
+    JodaBeanUtils.notNull(underlyingFuture, "underlyingFuture");
+    this.securityId = securityId;
     this.putCall = putCall;
     this.strikePrice = strikePrice;
     this.expiry = expiry;
     this.premiumStyle = premiumStyle;
     this.rounding = rounding;
-    this.underlying = underlying;
-    this.underlyingSecurityStandardId = underlyingSecurityStandardId;
+    this.underlyingFuture = underlyingFuture;
     validate();
   }
 
@@ -185,6 +197,17 @@ public final class ResolvedBondFutureOption
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
   }
 
   //-----------------------------------------------------------------------
@@ -252,17 +275,8 @@ public final class ResolvedBondFutureOption
    * Gets the underlying future.
    * @return the value of the property, not null
    */
-  public ResolvedBondFuture getUnderlying() {
-    return underlying;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the identifier of the underlying future security.
-   * @return the value of the property, not null
-   */
-  public StandardId getUnderlyingSecurityStandardId() {
-    return underlyingSecurityStandardId;
+  public ResolvedBondFuture getUnderlyingFuture() {
+    return underlyingFuture;
   }
 
   //-----------------------------------------------------------------------
@@ -281,13 +295,13 @@ public final class ResolvedBondFutureOption
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedBondFutureOption other = (ResolvedBondFutureOption) obj;
-      return JodaBeanUtils.equal(putCall, other.putCall) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(putCall, other.putCall) &&
           JodaBeanUtils.equal(strikePrice, other.strikePrice) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(premiumStyle, other.premiumStyle) &&
           JodaBeanUtils.equal(rounding, other.rounding) &&
-          JodaBeanUtils.equal(underlying, other.underlying) &&
-          JodaBeanUtils.equal(underlyingSecurityStandardId, other.underlyingSecurityStandardId);
+          JodaBeanUtils.equal(underlyingFuture, other.underlyingFuture);
     }
     return false;
   }
@@ -295,13 +309,13 @@ public final class ResolvedBondFutureOption
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(putCall);
     hash = hash * 31 + JodaBeanUtils.hashCode(strikePrice);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(premiumStyle);
     hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
-    hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
-    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingSecurityStandardId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(underlyingFuture);
     return hash;
   }
 
@@ -309,13 +323,13 @@ public final class ResolvedBondFutureOption
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("ResolvedBondFutureOption{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("putCall").append('=').append(putCall).append(',').append(' ');
     buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
     buf.append("expiry").append('=').append(expiry).append(',').append(' ');
     buf.append("premiumStyle").append('=').append(premiumStyle).append(',').append(' ');
     buf.append("rounding").append('=').append(rounding).append(',').append(' ');
-    buf.append("underlying").append('=').append(underlying).append(',').append(' ');
-    buf.append("underlyingSecurityStandardId").append('=').append(JodaBeanUtils.toString(underlyingSecurityStandardId));
+    buf.append("underlyingFuture").append('=').append(JodaBeanUtils.toString(underlyingFuture));
     buf.append('}');
     return buf.toString();
   }
@@ -330,6 +344,11 @@ public final class ResolvedBondFutureOption
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", ResolvedBondFutureOption.class, SecurityId.class);
     /**
      * The meta-property for the {@code putCall} property.
      */
@@ -356,27 +375,22 @@ public final class ResolvedBondFutureOption
     private final MetaProperty<Rounding> rounding = DirectMetaProperty.ofImmutable(
         this, "rounding", ResolvedBondFutureOption.class, Rounding.class);
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code underlyingFuture} property.
      */
-    private final MetaProperty<ResolvedBondFuture> underlying = DirectMetaProperty.ofImmutable(
-        this, "underlying", ResolvedBondFutureOption.class, ResolvedBondFuture.class);
-    /**
-     * The meta-property for the {@code underlyingSecurityStandardId} property.
-     */
-    private final MetaProperty<StandardId> underlyingSecurityStandardId = DirectMetaProperty.ofImmutable(
-        this, "underlyingSecurityStandardId", ResolvedBondFutureOption.class, StandardId.class);
+    private final MetaProperty<ResolvedBondFuture> underlyingFuture = DirectMetaProperty.ofImmutable(
+        this, "underlyingFuture", ResolvedBondFutureOption.class, ResolvedBondFuture.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "putCall",
         "strikePrice",
         "expiry",
         "premiumStyle",
         "rounding",
-        "underlying",
-        "underlyingSecurityStandardId");
+        "underlyingFuture");
 
     /**
      * Restricted constructor.
@@ -387,6 +401,8 @@ public final class ResolvedBondFutureOption
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -397,10 +413,8 @@ public final class ResolvedBondFutureOption
           return premiumStyle;
         case -142444:  // rounding
           return rounding;
-        case -1770633379:  // underlying
-          return underlying;
-        case 1733588565:  // underlyingSecurityStandardId
-          return underlyingSecurityStandardId;
+        case -165476480:  // underlyingFuture
+          return underlyingFuture;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -421,6 +435,14 @@ public final class ResolvedBondFutureOption
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     /**
      * The meta-property for the {@code putCall} property.
      * @return the meta-property, not null
@@ -462,25 +484,19 @@ public final class ResolvedBondFutureOption
     }
 
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code underlyingFuture} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ResolvedBondFuture> underlying() {
-      return underlying;
-    }
-
-    /**
-     * The meta-property for the {@code underlyingSecurityStandardId} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> underlyingSecurityStandardId() {
-      return underlyingSecurityStandardId;
+    public MetaProperty<ResolvedBondFuture> underlyingFuture() {
+      return underlyingFuture;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((ResolvedBondFutureOption) bean).getSecurityId();
         case -219971059:  // putCall
           return ((ResolvedBondFutureOption) bean).getPutCall();
         case 50946231:  // strikePrice
@@ -491,10 +507,8 @@ public final class ResolvedBondFutureOption
           return ((ResolvedBondFutureOption) bean).getPremiumStyle();
         case -142444:  // rounding
           return ((ResolvedBondFutureOption) bean).getRounding();
-        case -1770633379:  // underlying
-          return ((ResolvedBondFutureOption) bean).getUnderlying();
-        case 1733588565:  // underlyingSecurityStandardId
-          return ((ResolvedBondFutureOption) bean).getUnderlyingSecurityStandardId();
+        case -165476480:  // underlyingFuture
+          return ((ResolvedBondFutureOption) bean).getUnderlyingFuture();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -516,13 +530,13 @@ public final class ResolvedBondFutureOption
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedBondFutureOption> {
 
+    private SecurityId securityId;
     private PutCall putCall;
     private double strikePrice;
     private ZonedDateTime expiry;
     private FutureOptionPremiumStyle premiumStyle;
     private Rounding rounding;
-    private ResolvedBondFuture underlying;
-    private StandardId underlyingSecurityStandardId;
+    private ResolvedBondFuture underlyingFuture;
 
     /**
      * Restricted constructor.
@@ -536,19 +550,21 @@ public final class ResolvedBondFutureOption
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResolvedBondFutureOption beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.putCall = beanToCopy.getPutCall();
       this.strikePrice = beanToCopy.getStrikePrice();
       this.expiry = beanToCopy.getExpiry();
       this.premiumStyle = beanToCopy.getPremiumStyle();
       this.rounding = beanToCopy.getRounding();
-      this.underlying = beanToCopy.getUnderlying();
-      this.underlyingSecurityStandardId = beanToCopy.getUnderlyingSecurityStandardId();
+      this.underlyingFuture = beanToCopy.getUnderlyingFuture();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -219971059:  // putCall
           return putCall;
         case 50946231:  // strikePrice
@@ -559,10 +575,8 @@ public final class ResolvedBondFutureOption
           return premiumStyle;
         case -142444:  // rounding
           return rounding;
-        case -1770633379:  // underlying
-          return underlying;
-        case 1733588565:  // underlyingSecurityStandardId
-          return underlyingSecurityStandardId;
+        case -165476480:  // underlyingFuture
+          return underlyingFuture;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -571,6 +585,9 @@ public final class ResolvedBondFutureOption
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case -219971059:  // putCall
           this.putCall = (PutCall) newValue;
           break;
@@ -586,11 +603,8 @@ public final class ResolvedBondFutureOption
         case -142444:  // rounding
           this.rounding = (Rounding) newValue;
           break;
-        case -1770633379:  // underlying
-          this.underlying = (ResolvedBondFuture) newValue;
-          break;
-        case 1733588565:  // underlyingSecurityStandardId
-          this.underlyingSecurityStandardId = (StandardId) newValue;
+        case -165476480:  // underlyingFuture
+          this.underlyingFuture = (ResolvedBondFuture) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -625,16 +639,29 @@ public final class ResolvedBondFutureOption
     @Override
     public ResolvedBondFutureOption build() {
       return new ResolvedBondFutureOption(
+          securityId,
           putCall,
           strikePrice,
           expiry,
           premiumStyle,
           rounding,
-          underlying,
-          underlyingSecurityStandardId);
+          underlyingFuture);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
     /**
      * Sets whether the option is put or call.
      * <p>
@@ -705,23 +732,12 @@ public final class ResolvedBondFutureOption
 
     /**
      * Sets the underlying future.
-     * @param underlying  the new value, not null
+     * @param underlyingFuture  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder underlying(ResolvedBondFuture underlying) {
-      JodaBeanUtils.notNull(underlying, "underlying");
-      this.underlying = underlying;
-      return this;
-    }
-
-    /**
-     * Sets the identifier of the underlying future security.
-     * @param underlyingSecurityStandardId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder underlyingSecurityStandardId(StandardId underlyingSecurityStandardId) {
-      JodaBeanUtils.notNull(underlyingSecurityStandardId, "underlyingSecurityStandardId");
-      this.underlyingSecurityStandardId = underlyingSecurityStandardId;
+    public Builder underlyingFuture(ResolvedBondFuture underlyingFuture) {
+      JodaBeanUtils.notNull(underlyingFuture, "underlyingFuture");
+      this.underlyingFuture = underlyingFuture;
       return this;
     }
 
@@ -730,13 +746,13 @@ public final class ResolvedBondFutureOption
     public String toString() {
       StringBuilder buf = new StringBuilder(256);
       buf.append("ResolvedBondFutureOption.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
       buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
       buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
-      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
-      buf.append("underlyingSecurityStandardId").append('=').append(JodaBeanUtils.toString(underlyingSecurityStandardId));
+      buf.append("underlyingFuture").append('=').append(JodaBeanUtils.toString(underlyingFuture));
       buf.append('}');
       return buf.toString();
     }

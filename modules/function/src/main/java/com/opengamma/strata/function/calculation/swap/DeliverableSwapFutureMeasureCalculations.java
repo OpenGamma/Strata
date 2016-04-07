@@ -58,7 +58,7 @@ class DeliverableSwapFutureMeasureCalculations {
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    QuoteKey key = QuoteKey.of(trade.getSecurityStandardId());
+    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
     double price = marketData.getValue(key) / 100;  // convert market quote to value needed
     return PRICER.presentValue(trade, provider, price);
   }

@@ -39,29 +39,29 @@ public class ResolvedTermDepositTradeTest {
       .yearFraction(YEAR_FRACTION)
       .rate(RATE)
       .build();
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(date(2014, 6, 30)).build();
+  private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
   public void test_of() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.of(TRADE_INFO, DEPOSIT);
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   public void test_builder() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getTradeInfo(), TRADE_INFO);
+    assertEquals(test.getInfo(), TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     ResolvedTermDepositTrade test1 = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     coverImmutableBean(test1);
     ResolvedTermDepositTrade test2 = ResolvedTermDepositTrade.builder()
@@ -73,7 +73,7 @@ public class ResolvedTermDepositTradeTest {
   public void test_serialization() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
-        .tradeInfo(TRADE_INFO)
+        .info(TRADE_INFO)
         .build();
     assertSerialization(test);
   }

@@ -12,7 +12,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 
@@ -54,7 +54,7 @@ final class TermDepositFpmlParserPlugin
     // rejected elements:
     // 'features?'
     // 'payment*'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement termEl = tradeEl.getChild("termDeposit");
     document.validateNotPresent(termEl, "features");
     document.validateNotPresent(termEl, "payment");
@@ -76,7 +76,7 @@ final class TermDepositFpmlParserPlugin
     termBuilder.dayCount(document.parseDayCountFraction(termEl.getChild("dayCountFraction")));
 
     return TermDepositTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(termBuilder.build())
         .build();
   }

@@ -37,12 +37,13 @@ import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.product.ResolvedProduct;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
@@ -67,6 +68,13 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 public final class ResolvedCapitalIndexedBond
     implements ResolvedProduct, ImmutableBean, Serializable {
 
+  /**
+   * The security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SecurityId securityId;
   /**
    * The nominal payment of the product.
    * <p>
@@ -98,9 +106,9 @@ public final class ResolvedCapitalIndexedBond
   @PropertyDefinition(validate = "notNull")
   private final RollConvention rollConvention;
   /**
-   * The day count convention applicable. 
+   * The day count convention applicable.
    * <p>
-   * The conversion from dates to a numerical value is made based on this day count. 
+   * The conversion from dates to a numerical value is made based on this day count.
    * For the inflation-indexed bond, the day count convention is used to compute accrued interest.
    */
   @PropertyDefinition(validate = "notNull")
@@ -108,21 +116,21 @@ public final class ResolvedCapitalIndexedBond
   /**
    * Yield convention.
    * <p>
-   * The convention defines how to convert from yield to price and inversely.  
+   * The convention defines how to convert from yield to price and inversely.
    */
   @PropertyDefinition(validate = "notNull")
   private final CapitalIndexedBondYieldConvention yieldConvention;
   /**
    * The legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the bond product. 
+   * This identifier is used for the legal entity that issues the bond.
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId legalEntityId;
   /**
-   * The number of days between valuation date and settlement date. 
+   * The number of days between valuation date and settlement date.
    * <p>
-   * This is used to compute clean price. 
+   * This is used to compute clean price.
    * The clean price is the relative price to be paid at the standard settlement date in exchange for the bond.
    */
   @PropertyDefinition(validate = "notNull")
@@ -131,17 +139,11 @@ public final class ResolvedCapitalIndexedBond
    * The inflation rate calculation.
    * <p>
    * The reference index is interpolated index or monthly index.
-   * Real coupons are represented by {@code gearing} in this field.
+   * Real coupons are represented by {@code gearing} in the calculation.
+   * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
    */
   @PropertyDefinition(validate = "notNull")
   private final InflationRateCalculation rateCalculation;
-  /**
-   * Start index value. 
-   * <p>
-   * The price index value at the start of the bond. 
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
-  private final double startIndexValue;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
@@ -151,6 +153,7 @@ public final class ResolvedCapitalIndexedBond
         periodicPayments.stream().map(CapitalIndexedBondPaymentPeriod::getCurrency).collect(Collectors.toSet());
     currencies.add(currencyNominal);
     ArgChecker.isTrue(currencies.size() == 1, "Product must have a single currency, found: " + currencies);
+    ArgChecker.isTrue(rateCalculation.getFirstIndexValue().isPresent(), "Rate calculation must specify first index value");
   }
 
   //-------------------------------------------------------------------------
@@ -212,7 +215,7 @@ public final class ResolvedCapitalIndexedBond
   }
 
   /**
-   * Gets the notional amount.
+   * Gets the notional amount, must be positive.
    * <p>
    * The notional expressed here must be positive.
    * The currency of the notional is specified by {@link #getCurrency()}.
@@ -230,6 +233,17 @@ public final class ResolvedCapitalIndexedBond
    */
   public boolean hasExCouponPeriod() {
     return periodicPayments.get(0).hasExCouponPeriod();
+  }
+
+  /**
+   * Gets the first index value
+   * <p>
+   * This is the price index value at the start of the bond.
+   * 
+   * @return the first index value
+   */
+  public double getFirstIndexValue() {
+    return rateCalculation.getFirstIndexValue().getAsDouble();  // validated in constructor
   }
 
   //-------------------------------------------------------------------------
@@ -400,6 +414,7 @@ public final class ResolvedCapitalIndexedBond
   }
 
   private ResolvedCapitalIndexedBond(
+      SecurityId securityId,
       CapitalIndexedBondPaymentPeriod nominalPayment,
       List<CapitalIndexedBondPaymentPeriod> periodicPayments,
       Frequency frequency,
@@ -408,8 +423,8 @@ public final class ResolvedCapitalIndexedBond
       CapitalIndexedBondYieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset,
-      InflationRateCalculation rateCalculation,
-      double startIndexValue) {
+      InflationRateCalculation rateCalculation) {
+    JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(nominalPayment, "nominalPayment");
     JodaBeanUtils.notNull(periodicPayments, "periodicPayments");
     JodaBeanUtils.notNull(frequency, "frequency");
@@ -419,7 +434,7 @@ public final class ResolvedCapitalIndexedBond
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
     JodaBeanUtils.notNull(rateCalculation, "rateCalculation");
-    ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
+    this.securityId = securityId;
     this.nominalPayment = nominalPayment;
     this.periodicPayments = ImmutableList.copyOf(periodicPayments);
     this.frequency = frequency;
@@ -429,7 +444,6 @@ public final class ResolvedCapitalIndexedBond
     this.legalEntityId = legalEntityId;
     this.settlementDateOffset = settlementDateOffset;
     this.rateCalculation = rateCalculation;
-    this.startIndexValue = startIndexValue;
     validate();
   }
 
@@ -446,6 +460,17 @@ public final class ResolvedCapitalIndexedBond
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security identifier.
+   * <p>
+   * This identifier uniquely identifies the security within the system.
+   * @return the value of the property, not null
+   */
+  public SecurityId getSecurityId() {
+    return securityId;
   }
 
   //-----------------------------------------------------------------------
@@ -521,7 +546,7 @@ public final class ResolvedCapitalIndexedBond
   /**
    * Gets the legal entity identifier.
    * <p>
-   * This identifier is used for the legal entity which issues the bond product.
+   * This identifier is used for the legal entity that issues the bond.
    * @return the value of the property, not null
    */
   public StandardId getLegalEntityId() {
@@ -545,22 +570,12 @@ public final class ResolvedCapitalIndexedBond
    * Gets the inflation rate calculation.
    * <p>
    * The reference index is interpolated index or monthly index.
-   * Real coupons are represented by {@code gearing} in this field.
+   * Real coupons are represented by {@code gearing} in the calculation.
+   * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
    * @return the value of the property, not null
    */
   public InflationRateCalculation getRateCalculation() {
     return rateCalculation;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets start index value.
-   * <p>
-   * The price index value at the start of the bond.
-   * @return the value of the property
-   */
-  public double getStartIndexValue() {
-    return startIndexValue;
   }
 
   //-----------------------------------------------------------------------
@@ -579,7 +594,8 @@ public final class ResolvedCapitalIndexedBond
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ResolvedCapitalIndexedBond other = (ResolvedCapitalIndexedBond) obj;
-      return JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
+      return JodaBeanUtils.equal(securityId, other.securityId) &&
+          JodaBeanUtils.equal(nominalPayment, other.nominalPayment) &&
           JodaBeanUtils.equal(periodicPayments, other.periodicPayments) &&
           JodaBeanUtils.equal(frequency, other.frequency) &&
           JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
@@ -587,8 +603,7 @@ public final class ResolvedCapitalIndexedBond
           JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
           JodaBeanUtils.equal(legalEntityId, other.legalEntityId) &&
           JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
-          JodaBeanUtils.equal(rateCalculation, other.rateCalculation) &&
-          JodaBeanUtils.equal(startIndexValue, other.startIndexValue);
+          JodaBeanUtils.equal(rateCalculation, other.rateCalculation);
     }
     return false;
   }
@@ -596,6 +611,7 @@ public final class ResolvedCapitalIndexedBond
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(nominalPayment);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodicPayments);
     hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
@@ -605,7 +621,6 @@ public final class ResolvedCapitalIndexedBond
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityId);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(rateCalculation);
-    hash = hash * 31 + JodaBeanUtils.hashCode(startIndexValue);
     return hash;
   }
 
@@ -613,6 +628,7 @@ public final class ResolvedCapitalIndexedBond
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("ResolvedCapitalIndexedBond{");
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
     buf.append("nominalPayment").append('=').append(nominalPayment).append(',').append(' ');
     buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
     buf.append("frequency").append('=').append(frequency).append(',').append(' ');
@@ -621,8 +637,7 @@ public final class ResolvedCapitalIndexedBond
     buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
     buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
-    buf.append("rateCalculation").append('=').append(rateCalculation).append(',').append(' ');
-    buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue));
+    buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation));
     buf.append('}');
     return buf.toString();
   }
@@ -637,6 +652,11 @@ public final class ResolvedCapitalIndexedBond
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
+        this, "securityId", ResolvedCapitalIndexedBond.class, SecurityId.class);
     /**
      * The meta-property for the {@code nominalPayment} property.
      */
@@ -684,15 +704,11 @@ public final class ResolvedCapitalIndexedBond
     private final MetaProperty<InflationRateCalculation> rateCalculation = DirectMetaProperty.ofImmutable(
         this, "rateCalculation", ResolvedCapitalIndexedBond.class, InflationRateCalculation.class);
     /**
-     * The meta-property for the {@code startIndexValue} property.
-     */
-    private final MetaProperty<Double> startIndexValue = DirectMetaProperty.ofImmutable(
-        this, "startIndexValue", ResolvedCapitalIndexedBond.class, Double.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "securityId",
         "nominalPayment",
         "periodicPayments",
         "frequency",
@@ -701,8 +717,7 @@ public final class ResolvedCapitalIndexedBond
         "yieldConvention",
         "legalEntityId",
         "settlementDateOffset",
-        "rateCalculation",
-        "startIndexValue");
+        "rateCalculation");
 
     /**
      * Restricted constructor.
@@ -713,6 +728,8 @@ public final class ResolvedCapitalIndexedBond
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -44199542:  // nominalPayment
           return nominalPayment;
         case -367345944:  // periodicPayments
@@ -731,8 +748,6 @@ public final class ResolvedCapitalIndexedBond
           return settlementDateOffset;
         case -521703991:  // rateCalculation
           return rateCalculation;
-        case -1656407615:  // startIndexValue
-          return startIndexValue;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -753,6 +768,14 @@ public final class ResolvedCapitalIndexedBond
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     /**
      * The meta-property for the {@code nominalPayment} property.
      * @return the meta-property, not null
@@ -825,18 +848,12 @@ public final class ResolvedCapitalIndexedBond
       return rateCalculation;
     }
 
-    /**
-     * The meta-property for the {@code startIndexValue} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> startIndexValue() {
-      return startIndexValue;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return ((ResolvedCapitalIndexedBond) bean).getSecurityId();
         case -44199542:  // nominalPayment
           return ((ResolvedCapitalIndexedBond) bean).getNominalPayment();
         case -367345944:  // periodicPayments
@@ -855,8 +872,6 @@ public final class ResolvedCapitalIndexedBond
           return ((ResolvedCapitalIndexedBond) bean).getSettlementDateOffset();
         case -521703991:  // rateCalculation
           return ((ResolvedCapitalIndexedBond) bean).getRateCalculation();
-        case -1656407615:  // startIndexValue
-          return ((ResolvedCapitalIndexedBond) bean).getStartIndexValue();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -878,6 +893,7 @@ public final class ResolvedCapitalIndexedBond
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResolvedCapitalIndexedBond> {
 
+    private SecurityId securityId;
     private CapitalIndexedBondPaymentPeriod nominalPayment;
     private List<CapitalIndexedBondPaymentPeriod> periodicPayments = ImmutableList.of();
     private Frequency frequency;
@@ -887,7 +903,6 @@ public final class ResolvedCapitalIndexedBond
     private StandardId legalEntityId;
     private DaysAdjustment settlementDateOffset;
     private InflationRateCalculation rateCalculation;
-    private double startIndexValue;
 
     /**
      * Restricted constructor.
@@ -900,6 +915,7 @@ public final class ResolvedCapitalIndexedBond
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResolvedCapitalIndexedBond beanToCopy) {
+      this.securityId = beanToCopy.getSecurityId();
       this.nominalPayment = beanToCopy.getNominalPayment();
       this.periodicPayments = beanToCopy.getPeriodicPayments();
       this.frequency = beanToCopy.getFrequency();
@@ -909,13 +925,14 @@ public final class ResolvedCapitalIndexedBond
       this.legalEntityId = beanToCopy.getLegalEntityId();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
       this.rateCalculation = beanToCopy.getRateCalculation();
-      this.startIndexValue = beanToCopy.getStartIndexValue();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          return securityId;
         case -44199542:  // nominalPayment
           return nominalPayment;
         case -367345944:  // periodicPayments
@@ -934,8 +951,6 @@ public final class ResolvedCapitalIndexedBond
           return settlementDateOffset;
         case -521703991:  // rateCalculation
           return rateCalculation;
-        case -1656407615:  // startIndexValue
-          return startIndexValue;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -945,6 +960,9 @@ public final class ResolvedCapitalIndexedBond
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 1574023291:  // securityId
+          this.securityId = (SecurityId) newValue;
+          break;
         case -44199542:  // nominalPayment
           this.nominalPayment = (CapitalIndexedBondPaymentPeriod) newValue;
           break;
@@ -971,9 +989,6 @@ public final class ResolvedCapitalIndexedBond
           break;
         case -521703991:  // rateCalculation
           this.rateCalculation = (InflationRateCalculation) newValue;
-          break;
-        case -1656407615:  // startIndexValue
-          this.startIndexValue = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -1008,6 +1023,7 @@ public final class ResolvedCapitalIndexedBond
     @Override
     public ResolvedCapitalIndexedBond build() {
       return new ResolvedCapitalIndexedBond(
+          securityId,
           nominalPayment,
           periodicPayments,
           frequency,
@@ -1016,11 +1032,23 @@ public final class ResolvedCapitalIndexedBond
           yieldConvention,
           legalEntityId,
           settlementDateOffset,
-          rateCalculation,
-          startIndexValue);
+          rateCalculation);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the security identifier.
+     * <p>
+     * This identifier uniquely identifies the security within the system.
+     * @param securityId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder securityId(SecurityId securityId) {
+      JodaBeanUtils.notNull(securityId, "securityId");
+      this.securityId = securityId;
+      return this;
+    }
+
     /**
      * Sets the nominal payment of the product.
      * <p>
@@ -1115,7 +1143,7 @@ public final class ResolvedCapitalIndexedBond
     /**
      * Sets the legal entity identifier.
      * <p>
-     * This identifier is used for the legal entity which issues the bond product.
+     * This identifier is used for the legal entity that issues the bond.
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1143,7 +1171,8 @@ public final class ResolvedCapitalIndexedBond
      * Sets the inflation rate calculation.
      * <p>
      * The reference index is interpolated index or monthly index.
-     * Real coupons are represented by {@code gearing} in this field.
+     * Real coupons are represented by {@code gearing} in the calculation.
+     * The price index value at the start of the bond is represented by {@code firstIndexValue} in the calculation.
      * @param rateCalculation  the new value, not null
      * @return this, for chaining, not null
      */
@@ -1153,24 +1182,12 @@ public final class ResolvedCapitalIndexedBond
       return this;
     }
 
-    /**
-     * Sets start index value.
-     * <p>
-     * The price index value at the start of the bond.
-     * @param startIndexValue  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder startIndexValue(double startIndexValue) {
-      ArgChecker.notNegativeOrZero(startIndexValue, "startIndexValue");
-      this.startIndexValue = startIndexValue;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(352);
       buf.append("ResolvedCapitalIndexedBond.Builder{");
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("nominalPayment").append('=').append(JodaBeanUtils.toString(nominalPayment)).append(',').append(' ');
       buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
       buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
@@ -1179,8 +1196,7 @@ public final class ResolvedCapitalIndexedBond
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
       buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-      buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation)).append(',').append(' ');
-      buf.append("startIndexValue").append('=').append(JodaBeanUtils.toString(startIndexValue));
+      buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation));
       buf.append('}');
       return buf.toString();
     }

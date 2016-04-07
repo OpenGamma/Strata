@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
-import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 
@@ -48,7 +48,7 @@ final class BulletPaymentFpmlParserPlugin
     // 'payment/settlementInformation?'
     // 'payment/discountFactor?'
     // 'payment/presentValueAmount?'
-    TradeInfo.Builder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
     XmlElement bulletEl = tradeEl.getChild("bulletPayment");
     XmlElement paymentEl = bulletEl.getChild("payment");
     BulletPayment.Builder bulletBuilder = BulletPayment.builder();
@@ -60,7 +60,7 @@ final class BulletPaymentFpmlParserPlugin
     bulletBuilder.value(document.parseCurrencyAmount(paymentEl.getChild("paymentAmount")));
 
     return BulletPaymentTrade.builder()
-        .tradeInfo(tradeInfoBuilder.build())
+        .info(tradeInfoBuilder.build())
         .product(bulletBuilder.build())
         .build();
   }

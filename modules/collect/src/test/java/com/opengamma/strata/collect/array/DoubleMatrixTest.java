@@ -7,6 +7,7 @@ package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -337,6 +338,12 @@ public class DoubleMatrixTest {
       assertEquals(matrix.isEmpty(), false);
       assertEquals(matrix.isSquare(), matrix.rowCount() == matrix.columnCount());
     }
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(DoubleMatrix.EMPTY);
+    coverImmutableBean(DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
   }
 
 }

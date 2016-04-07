@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.bond;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.collect.id.StandardId;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Data provider of volatility for bond future options in the lognormal or Black model.
@@ -42,7 +42,7 @@ public interface BlackVolatilityBondFutureProvider extends BondFutureProvider {
    * 
    * @return the ID
    */
-  public abstract StandardId getFutureSecurityId();
+  public abstract SecurityId getFutureSecurityId();
 
   /**
    * Converts a date to a relative {@code double} time.

@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.id.StandardId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
@@ -66,25 +65,22 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
           PARAMETERS_PRICE, true, GBP_LIBOR_2M, ACT_365F, VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE));
 
   private static final ResolvedIborFutureOption OPTION = IborFutureDummyData.IBOR_FUTURE_OPTION_2.resolve(REF_DATA);
-  private static final StandardId OPTION_ID = StandardId.of("OG-Ticker", "OptionSec");
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE_TD = ResolvedIborFutureOptionTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(VAL_DATE)
           .build())
       .product(OPTION)
-      .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
       .price(TRADE_PRICE)
       .build();
   private static final ResolvedIborFutureOptionTrade FUTURE_OPTION_TRADE = ResolvedIborFutureOptionTrade.builder()
-      .tradeInfo(TradeInfo.builder()
+      .info(TradeInfo.builder()
           .tradeDate(TRADE_DATE)
           .build())
       .product(OPTION)
-      .securityStandardId(OPTION_ID)
       .quantity(OPTION_QUANTITY)
       .price(TRADE_PRICE)
       .build();
@@ -116,7 +112,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
     double futurePrice = 0.9875;
     double lastClosingPrice = 0.0150;
@@ -133,7 +129,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
     double lastClosingPrice = 0.0150;
     CurrencyAmount pvComputed = OPTION_TRADE_PRICER
@@ -151,7 +147,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
     PointSensitivities psProduct =
         OPTION_PRODUCT_PRICER.priceSensitivity(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
@@ -168,7 +164,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
-    when(mockIbor.rate(OPTION.getUnderlying().getIborRate().getObservation())).thenReturn(RATE);
+    when(mockIbor.rate(OPTION.getUnderlyingFuture().getIborRate().getObservation())).thenReturn(RATE);
 
     IborFutureOptionSensitivity psProduct =
         OPTION_PRODUCT_PRICER.priceSensitivityNormalVolatility(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
