@@ -947,7 +947,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_accruedInterest_jpi() {
     double accPositive = PRODUCT_JPI.accruedInterest(LocalDate.of(2016, 3, 9));
-    assertEquals(accPositive, 496d, 1.0);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT_JPI.getPeriodicPayments().get(1);
+    double yc = PRODUCT_JPI.getDayCount().relativeYearFraction(period.getStartDate(), period.getEndDate());
+    double expected = CPN_VALUE_JPI * 2d * yc * NTNL; // accrual of total period based on ACT/365F
+    assertEquals(accPositive, expected, TOL * NTNL);
     double accZero = PRODUCT_JPI.accruedInterest(LocalDate.of(2016, 3, 10));
     assertEquals(accZero, 0d);
   }
@@ -1034,7 +1037,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
 
   public void test_accruedInterest_jpw() {
     double accPositive = PRODUCT_JPW.accruedInterest(LocalDate.of(2016, 3, 9));
-    assertEquals(accPositive, 3967d, 1.0);
+    CapitalIndexedBondPaymentPeriod period = PRODUCT_JPW.getPeriodicPayments().get(4);
+    double yc = PRODUCT_JPW.getDayCount().relativeYearFraction(period.getStartDate(), period.getEndDate());
+    double expected = CPN_VALUE_JPW * 2d * yc * NTNL; // accrual of total period based on ACT/365F
+    assertEquals(accPositive, expected, NTNL * NOTIONAL);
     double accZero = PRODUCT_JPW.accruedInterest(LocalDate.of(2016, 3, 10));
     assertEquals(accZero, 0d);
   }
