@@ -15,6 +15,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -34,6 +35,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
@@ -66,17 +68,13 @@ public final class InflationRateSwapLegConvention
    */
   @PropertyDefinition(get = "field")
   private final Currency currency;
-  
   /**
-   * Sets how the reference index calculation occurs.
+   * Reference price index calculation method. 
    * <p>
-   * If true, the reference index is linearly interpolated between two months. The interpolation is done with 
-   * the number of days of the payment month. 
-   * <p>
-   * If false, the reference index is the price index of a month. The reference month is linked to the payment date
+   * This specifies how the reference index calculation occurs.
    */
-  @PropertyDefinition(get = "field")
-  private final boolean interpolated;
+  @PropertyDefinition(validate = "notNull")
+  private final PriceIndexCalculationMethod indexCalculationMethod;
   
   /**
    * The flag indicating whether to exchange the notional.
@@ -102,6 +100,12 @@ public final class InflationRateSwapLegConvention
     return InflationRateSwapLegConvention.builder()
         .index(index)
         .build();
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.indexCalculationMethod = PriceIndexCalculationMethod.MONTHLY;
   }
 
   //-------------------------------------------------------------------------
@@ -162,7 +166,7 @@ public final class InflationRateSwapLegConvention
             .build())
         .calculation(InflationRateCalculation.builder()
             .index(index)
-            .interpolated(interpolated)
+            .indexCalculationMethod(indexCalculationMethod)
             .lag(lag)
             .build())
         .notionalSchedule(NotionalSchedule.of(getCurrency(), notional))
@@ -199,12 +203,13 @@ public final class InflationRateSwapLegConvention
   private InflationRateSwapLegConvention(
       PriceIndex index,
       Currency currency,
-      boolean interpolated,
+      PriceIndexCalculationMethod indexCalculationMethod,
       boolean notionalExchange) {
     JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
     this.index = index;
     this.currency = currency;
-    this.interpolated = interpolated;
+    this.indexCalculationMethod = indexCalculationMethod;
     this.notionalExchange = notionalExchange;
   }
 
@@ -233,6 +238,17 @@ public final class InflationRateSwapLegConvention
    */
   public PriceIndex getIndex() {
     return index;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets reference price index calculation method.
+   * <p>
+   * This specifies how the reference index calculation occurs.
+   * @return the value of the property, not null
+   */
+  public PriceIndexCalculationMethod getIndexCalculationMethod() {
+    return indexCalculationMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -266,7 +282,7 @@ public final class InflationRateSwapLegConvention
       InflationRateSwapLegConvention other = (InflationRateSwapLegConvention) obj;
       return JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(currency, other.currency) &&
-          (interpolated == other.interpolated) &&
+          JodaBeanUtils.equal(indexCalculationMethod, other.indexCalculationMethod) &&
           (notionalExchange == other.notionalExchange);
     }
     return false;
@@ -277,7 +293,7 @@ public final class InflationRateSwapLegConvention
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(interpolated);
+    hash = hash * 31 + JodaBeanUtils.hashCode(indexCalculationMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(notionalExchange);
     return hash;
   }
@@ -288,7 +304,7 @@ public final class InflationRateSwapLegConvention
     buf.append("InflationRateSwapLegConvention{");
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("interpolated").append('=').append(interpolated).append(',').append(' ');
+    buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
     buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
     buf.append('}');
     return buf.toString();
@@ -315,10 +331,10 @@ public final class InflationRateSwapLegConvention
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", InflationRateSwapLegConvention.class, Currency.class);
     /**
-     * The meta-property for the {@code interpolated} property.
+     * The meta-property for the {@code indexCalculationMethod} property.
      */
-    private final MetaProperty<Boolean> interpolated = DirectMetaProperty.ofImmutable(
-        this, "interpolated", InflationRateSwapLegConvention.class, Boolean.TYPE);
+    private final MetaProperty<PriceIndexCalculationMethod> indexCalculationMethod = DirectMetaProperty.ofImmutable(
+        this, "indexCalculationMethod", InflationRateSwapLegConvention.class, PriceIndexCalculationMethod.class);
     /**
      * The meta-property for the {@code notionalExchange} property.
      */
@@ -331,7 +347,7 @@ public final class InflationRateSwapLegConvention
         this, null,
         "index",
         "currency",
-        "interpolated",
+        "indexCalculationMethod",
         "notionalExchange");
 
     /**
@@ -347,8 +363,8 @@ public final class InflationRateSwapLegConvention
           return index;
         case 575402001:  // currency
           return currency;
-        case 2096252803:  // interpolated
-          return interpolated;
+        case -1409010088:  // indexCalculationMethod
+          return indexCalculationMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
       }
@@ -388,11 +404,11 @@ public final class InflationRateSwapLegConvention
     }
 
     /**
-     * The meta-property for the {@code interpolated} property.
+     * The meta-property for the {@code indexCalculationMethod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> interpolated() {
-      return interpolated;
+    public MetaProperty<PriceIndexCalculationMethod> indexCalculationMethod() {
+      return indexCalculationMethod;
     }
 
     /**
@@ -411,8 +427,8 @@ public final class InflationRateSwapLegConvention
           return ((InflationRateSwapLegConvention) bean).getIndex();
         case 575402001:  // currency
           return ((InflationRateSwapLegConvention) bean).currency;
-        case 2096252803:  // interpolated
-          return ((InflationRateSwapLegConvention) bean).interpolated;
+        case -1409010088:  // indexCalculationMethod
+          return ((InflationRateSwapLegConvention) bean).getIndexCalculationMethod();
         case -159410813:  // notionalExchange
           return ((InflationRateSwapLegConvention) bean).isNotionalExchange();
       }
@@ -438,13 +454,14 @@ public final class InflationRateSwapLegConvention
 
     private PriceIndex index;
     private Currency currency;
-    private boolean interpolated;
+    private PriceIndexCalculationMethod indexCalculationMethod;
     private boolean notionalExchange;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -454,7 +471,7 @@ public final class InflationRateSwapLegConvention
     private Builder(InflationRateSwapLegConvention beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.currency = beanToCopy.currency;
-      this.interpolated = beanToCopy.interpolated;
+      this.indexCalculationMethod = beanToCopy.getIndexCalculationMethod();
       this.notionalExchange = beanToCopy.isNotionalExchange();
     }
 
@@ -466,8 +483,8 @@ public final class InflationRateSwapLegConvention
           return index;
         case 575402001:  // currency
           return currency;
-        case 2096252803:  // interpolated
-          return interpolated;
+        case -1409010088:  // indexCalculationMethod
+          return indexCalculationMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
         default:
@@ -484,8 +501,8 @@ public final class InflationRateSwapLegConvention
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
-        case 2096252803:  // interpolated
-          this.interpolated = (Boolean) newValue;
+        case -1409010088:  // indexCalculationMethod
+          this.indexCalculationMethod = (PriceIndexCalculationMethod) newValue;
           break;
         case -159410813:  // notionalExchange
           this.notionalExchange = (Boolean) newValue;
@@ -525,7 +542,7 @@ public final class InflationRateSwapLegConvention
       return new InflationRateSwapLegConvention(
           index,
           currency,
-          interpolated,
+          indexCalculationMethod,
           notionalExchange);
     }
 
@@ -561,17 +578,15 @@ public final class InflationRateSwapLegConvention
     }
 
     /**
-     * Sets sets how the reference index calculation occurs.
+     * Sets reference price index calculation method.
      * <p>
-     * If true, the reference index is linearly interpolated between two months. The interpolation is done with
-     * the number of days of the payment month.
-     * <p>
-     * If false, the reference index is the price index of a month. The reference month is linked to the payment date
-     * @param interpolated  the new value
+     * This specifies how the reference index calculation occurs.
+     * @param indexCalculationMethod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder interpolated(boolean interpolated) {
-      this.interpolated = interpolated;
+    public Builder indexCalculationMethod(PriceIndexCalculationMethod indexCalculationMethod) {
+      JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
+      this.indexCalculationMethod = indexCalculationMethod;
       return this;
     }
 
@@ -596,7 +611,7 @@ public final class InflationRateSwapLegConvention
       buf.append("InflationRateSwapLegConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("interpolated").append('=').append(JodaBeanUtils.toString(interpolated)).append(',').append(' ');
+      buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
       buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
       buf.append('}');
       return buf.toString();
