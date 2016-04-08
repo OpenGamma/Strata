@@ -53,7 +53,7 @@ public class TradeTokenEvaluatorTest {
     Trade trade = trade();
 
     EvaluationResult quantity = evaluator.evaluate(trade, "quantity", ImmutableList.of());
-    assertThat(quantity.getResult()).hasValue(123L);
+    assertThat(quantity.getResult()).hasValue(123d);
 
     EvaluationResult initialPrice = evaluator.evaluate(trade, "price", ImmutableList.of());
     assertThat(initialPrice.getResult()).hasValue(456d);

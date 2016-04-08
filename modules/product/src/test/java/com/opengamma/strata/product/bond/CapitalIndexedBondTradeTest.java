@@ -33,8 +33,8 @@ import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
 public class CapitalIndexedBondTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final long QUANTITY = 10;
-  private static final long QUANTITY2 = 20;
+  private static final double QUANTITY = 10;
+  private static final double QUANTITY2 = 20;
   private static final double PRICE = 0.995;
   private static final double PRICE2 = 0.9;
   private static final BusinessDayAdjustment SCHEDULE_ADJ =
@@ -115,7 +115,7 @@ public class CapitalIndexedBondTradeTest {
 
   public void test_resolve_noTradeOrSettlementDate() {
     CapitalIndexedBondTrade test = CapitalIndexedBondTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

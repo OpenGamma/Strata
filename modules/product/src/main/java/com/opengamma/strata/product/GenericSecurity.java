@@ -75,7 +75,7 @@ public final class GenericSecurity
   }
 
   @Override
-  public GenericSecurityTrade createTrade(TradeInfo info, long quantity, double tradePrice, ReferenceData refData) {
+  public GenericSecurityTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
     return new GenericSecurityTrade(info, this, quantity, tradePrice);
   }
 

@@ -29,8 +29,8 @@ public class IborFutureOptionTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
   private static final IborFutureOption PRODUCT = IborFutureOptionTest.sut();
   private static final IborFutureOption PRODUCT2 = IborFutureOptionTest.sut2();
-  private static final long QUANTITY = 35;
-  private static final long QUANTITY2 = 36;
+  private static final double QUANTITY = 35;
+  private static final double QUANTITY2 = 36;
   private static final double PRICE = 0.99;
   private static final double PRICE2 = 0.98;
 

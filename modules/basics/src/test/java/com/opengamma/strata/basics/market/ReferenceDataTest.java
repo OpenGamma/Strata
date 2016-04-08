@@ -6,7 +6,6 @@
 package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -18,7 +17,6 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Test {@link ReferenceData} and {@link ImmutableReferenceData}.
@@ -37,7 +35,6 @@ public class ReferenceDataTest {
   public void test_of() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     ReferenceData test = ReferenceData.of(dataMap);
-    assertEquals(test.identifiers(), ImmutableSet.of(ID1, ID2));
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);
@@ -54,7 +51,6 @@ public class ReferenceDataTest {
 
   public void test_of_single() {
     ReferenceData test = ImmutableReferenceData.of(ID1, VAL1);
-    assertEquals(test.identifiers(), ImmutableSet.of(ID1));
 
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.getValue(ID1), VAL1);
@@ -67,7 +63,6 @@ public class ReferenceDataTest {
 
   public void test_empty() {
     ReferenceData test = ReferenceData.empty();
-    assertEquals(test.identifiers(), ImmutableSet.of());
 
     assertEquals(test.containsValue(ID1), false);
     assertThrows(() -> test.getValue(ID1), ReferenceDataNotFoundException.class);
@@ -93,7 +88,6 @@ public class ReferenceDataTest {
     ReferenceData test2 = ReferenceData.of(dataMap2);
 
     ReferenceData test = test1.combinedWith(test2);
-    assertEquals(test.identifiers(), ImmutableSet.of(ID1, ID2));
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
   }
@@ -105,7 +99,6 @@ public class ReferenceDataTest {
     ReferenceData test2 = ReferenceData.of(dataMap2);
 
     ReferenceData test = test1.combinedWith(test2);
-    assertEquals(test.identifiers(), ImmutableSet.of(ID1, ID2));
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
   }
@@ -115,8 +108,8 @@ public class ReferenceDataTest {
     ReferenceData test1 = ReferenceData.of(dataMap1);
     Map<ReferenceDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
     ReferenceData test2 = ReferenceData.of(dataMap2);
-
-    assertThrowsIllegalArg(() -> test1.combinedWith(test2));
+    ReferenceData combined = test1.combinedWith(test2);
+    assertEquals(combined.getValue(ID1), VAL1);
   }
 
   //-------------------------------------------------------------------------

@@ -35,7 +35,7 @@ public class FixedCouponBondTradeTest {
   private static final TradeInfo TRADE_INFO2 = TradeInfo.builder()
       .tradeDate(TRADE_DATE)
       .build();
-  private static final long QUANTITY = 10;
+  private static final double QUANTITY = 10;
   private static final double PRICE = 123;
   private static final double PRICE2 = 200;
   private static final FixedCouponBond PRODUCT = FixedCouponBondTest.sut();
@@ -63,7 +63,7 @@ public class FixedCouponBondTradeTest {
 
   public void test_resolve_noTradeOrSettlementDate() {
     FixedCouponBondTrade test = FixedCouponBondTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .product(PRODUCT)
         .quantity(QUANTITY)
         .price(PRICE)

@@ -407,7 +407,7 @@ public class DiscountingFixedCouponBondTradePricer {
     double dirtyPrice = productPricer.dirtyPriceFromCleanPrice(product, settlementDate, cleanPrice);
     // calculate payment
     Currency currency = product.getCurrency();
-    long quantity = trade.getQuantity();
+    double quantity = trade.getQuantity();
     double notional = product.getNotional();
     return Payment.of(CurrencyAmount.of(currency, -quantity * notional * dirtyPrice), settlementDate);
   }

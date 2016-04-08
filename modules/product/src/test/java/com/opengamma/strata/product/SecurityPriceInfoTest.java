@@ -55,18 +55,42 @@ public class SecurityPriceInfoTest {
     assertEquals(test.getCurrency(), JPY);
   }
 
+  public void test_ofTradeUnitValue() {
+    SecurityPriceInfo priceInfo = SecurityPriceInfo.of(USD, 2000);
+    double value = priceInfo.calculateMonetaryValue(3, 2);
+    assertEquals(value, 12_000d);
+  }
+
   //-------------------------------------------------------------------------
-  public void test_calculateMonetaryValue1() {
+  public void test_calculateMonetaryAmount1() {
     // CME-ED, 1bp = $25
     SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 1);
-    assertEquals(test.calculateMonetaryValue(1, 98), CurrencyAmount.of(USD, 245_000));
-    assertEquals(test.calculateMonetaryValue(1, 98.02), CurrencyAmount.of(USD, 245_050));
+    assertEquals(test.calculateMonetaryAmount(1, 98), CurrencyAmount.of(USD, 245_000));
+    assertEquals(test.calculateMonetaryAmount(1, 98.02), CurrencyAmount.of(USD, 245_050));
     // quantity is simple multiplier
-    assertEquals(test.calculateMonetaryValue(2, 98), CurrencyAmount.of(USD, 2 * 245_000));
-    assertEquals(test.calculateMonetaryValue(3, 98), CurrencyAmount.of(USD, 3 * 245_000));
+    assertEquals(test.calculateMonetaryAmount(2, 98), CurrencyAmount.of(USD, 2 * 245_000));
+    assertEquals(test.calculateMonetaryAmount(3, 98), CurrencyAmount.of(USD, 3 * 245_000));
     // contract size is simple multiplier
     SecurityPriceInfo test2 = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
-    assertEquals(test2.calculateMonetaryValue(1, 98), CurrencyAmount.of(USD, 2 * 245_000));
+    assertEquals(test2.calculateMonetaryAmount(1, 98), CurrencyAmount.of(USD, 2 * 245_000));
+  }
+
+  public void test_calculateMonetaryValue() {
+    // CME-ED, 1bp = $25
+    SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 1);
+    assertEquals(test.calculateMonetaryValue(1, 98), 245_000d);
+    assertEquals(test.calculateMonetaryValue(1, 98.02), 245_050d);
+    // quantity is simple multiplier
+    assertEquals(test.calculateMonetaryValue(2, 98), 2 * 245_000d);
+    assertEquals(test.calculateMonetaryValue(3, 98), 3 * 245_000d);
+    // contract size is simple multiplier
+    SecurityPriceInfo test2 = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
+    assertEquals(test2.calculateMonetaryValue(1, 98), 2 * 245_000d);
+  }
+
+  public void test_getTradeUnitValue() {
+    SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
+    assertEquals(test.getTradeUnitValue(), 5000d);
   }
 
   //-------------------------------------------------------------------------

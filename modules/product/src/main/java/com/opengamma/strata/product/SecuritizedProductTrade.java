@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
  * Implementations of this interface must be immutable beans.
  */
 public interface SecuritizedProductTrade
-    extends ProductTrade {
+    extends ProductTrade, SecurityQuantity {
 
   /**
    * Gets the product of the security that was traded.
@@ -41,7 +41,8 @@ public interface SecuritizedProductTrade
    * 
    * @return the quantity
    */
-  public abstract long getQuantity();
+  @Override
+  public abstract double getQuantity();
 
   /**
    * Gets the price that was traded.
@@ -60,6 +61,7 @@ public interface SecuritizedProductTrade
    * 
    * @return the security identifier
    */
+  @Override
   public default SecurityId getSecurityId() {
     return getProduct().getSecurityId();
   }

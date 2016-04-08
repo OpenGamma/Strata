@@ -146,7 +146,7 @@ final class BlackVolatilitySmileFxProvider
         .surfaceName(SurfaceName.of(smile.getName()))
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.STRIKE)
-        .zValueType(ValueType.VOLATILITY)
+        .zValueType(ValueType.BLACK_VOLATILITY)
         .build();
     return SurfaceCurrencyParameterSensitivity.of(metadata, point.getCurrency(), DoubleArray.copyOf(sensiList));
   }

@@ -24,8 +24,8 @@ public class SecurityTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Id");
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "Id2");
-  private static final int QUANTITY = 100;
-  private static final int QUANTITY2 = 200;
+  private static final double QUANTITY = 100;
+  private static final double QUANTITY2 = 200;
   private static final double PRICE = 123.50;
   private static final double PRICE2 = 120.50;
 
@@ -49,7 +49,7 @@ public class SecurityTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolve() {
     GenericSecurity security = GenericSecurityTest.sut();
-    FinanceTrade test = sut().resolve(ImmutableReferenceData.of(SECURITY_ID, security));
+    FinanceTrade test = sut().resolveSecurity(ImmutableReferenceData.of(SECURITY_ID, security));
     GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, QUANTITY, PRICE);
     assertEquals(test, expected);
   }
@@ -76,7 +76,7 @@ public class SecurityTradeTest {
 
   static SecurityTrade sut2() {
     return SecurityTrade.builder()
-        .info(TradeInfo.EMPTY)
+        .info(TradeInfo.empty())
         .securityId(SECURITY_ID2)
         .quantity(QUANTITY2)
         .price(PRICE2)

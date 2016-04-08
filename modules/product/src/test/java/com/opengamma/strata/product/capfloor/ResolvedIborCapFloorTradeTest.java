@@ -36,7 +36,7 @@ public class ResolvedIborCapFloorTradeTest {
     ResolvedIborCapFloorTrade test = ResolvedIborCapFloorTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getPremium(), Optional.empty());
   }

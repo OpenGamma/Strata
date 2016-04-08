@@ -61,7 +61,7 @@ public class SwaptionNormalVolatilityDataSets {
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.YEAR_FRACTION)
-      .zValueType(ValueType.VOLATILITY)
+      .zValueType(ValueType.NORMAL_VOLATILITY)
       .surfaceName(SurfaceName.of("Normal Vol"))
       .build();
   private static final NodalSurface SURFACE_STD =

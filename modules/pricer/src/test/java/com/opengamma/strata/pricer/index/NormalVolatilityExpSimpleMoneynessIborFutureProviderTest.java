@@ -19,17 +19,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
+import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -118,7 +117,7 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
     double sensitivity = 123456;
     IborFutureOptionSensitivity point =
         IborFutureOptionSensitivity.of(EUR_EURIBOR_3M, expiry, fixing, strikePrice, futurePrice, sensitivity);
-    Map<DoublesPair, Double> ps = VOL_SIMPLE_MONEY_RATE.nodeSensitivity(point);
+    SurfaceUnitParameterSensitivity ps = VOL_SIMPLE_MONEY_RATE.nodeSensitivity(point);
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.getVolatility(expiry, fixing, strikePrice, futurePrice);
     for (int i = 0; i < NORMAL_VOL.size(); i++) {
@@ -128,7 +127,7 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
       NormalVolatilityExpSimpleMoneynessIborFutureProvider vol = NormalVolatilityExpSimpleMoneynessIborFutureProvider
           .of(param, false, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
       double vP = vol.getVolatility(expiry, fixing, strikePrice, futurePrice);
-      double s = ps.get(DoublesPair.of(TIMES.get(i), MONEYNESS_RATES.get(i)));
+      double s = ps.getSensitivity().get(i);
       assertEquals(s, (vP - v0) / shift * sensitivity, TOLERANCE_DELTA);
     }
   }

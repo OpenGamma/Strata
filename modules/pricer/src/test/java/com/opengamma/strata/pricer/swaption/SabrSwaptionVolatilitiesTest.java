@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -18,18 +19,16 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
@@ -118,13 +117,13 @@ public class SabrSwaptionVolatilitiesTest {
       SwaptionSabrSensitivity point = SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], USD,
           alphaSensi, betaSensi, rhoSensi, nuSensi);
       SurfaceCurrencyParameterSensitivities sensiComputed = prov.surfaceCurrencyParameterSensitivity(point);
-      Map<DoublesPair, Double> alphaMap = prov.getParameters().getAlphaSurface()
+      SurfaceUnitParameterSensitivity alphaSensitivities = prov.getParameters().getAlphaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      Map<DoublesPair, Double> betaMap = prov.getParameters().getBetaSurface()
+      SurfaceUnitParameterSensitivity betaSensitivities = prov.getParameters().getBetaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      Map<DoublesPair, Double> rhoMap = prov.getParameters().getRhoSurface()
+      SurfaceUnitParameterSensitivity rhoSensitivities = prov.getParameters().getRhoSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      Map<DoublesPair, Double> nuMap = prov.getParameters().getNuSurface()
+      SurfaceUnitParameterSensitivity nuSensitivities = prov.getParameters().getNuSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
       SurfaceCurrencyParameterSensitivity alphaSensiObj = sensiComputed.getSensitivity(
           SwaptionSabrRateVolatilityDataSet.META_ALPHA.getSurfaceName(), USD);
@@ -138,33 +137,21 @@ public class SabrSwaptionVolatilitiesTest {
       DoubleArray betaNodeSensiComputed = betaSensiObj.getSensitivity();
       DoubleArray rhoNodeSensiComputed = rhoSensiObj.getSensitivity();
       DoubleArray nuNodeSensiComputed = nuSensiObj.getSensitivity();
-      assertEquals(alphaMap.size(), alphaNodeSensiComputed.size());
-      assertEquals(betaMap.size(), betaNodeSensiComputed.size());
-      assertEquals(rhoMap.size(), rhoNodeSensiComputed.size());
-      assertEquals(nuMap.size(), nuNodeSensiComputed.size());
+      assertEquals(alphaSensitivities.getSensitivity().size(), alphaNodeSensiComputed.size());
+      assertEquals(betaSensitivities.getSensitivity().size(), betaNodeSensiComputed.size());
+      assertEquals(rhoSensitivities.getSensitivity().size(), rhoNodeSensiComputed.size());
+      assertEquals(nuSensitivities.getSensitivity().size(), nuNodeSensiComputed.size());
       for (int k = 0; k < alphaNodeSensiComputed.size(); ++k) {
-        SwaptionSurfaceExpiryTenorNodeMetadata meta = (SwaptionSurfaceExpiryTenorNodeMetadata)
-            alphaSensiObj.getMetadata().getParameterMetadata().get().get(k);
-        DoublesPair pair = DoublesPair.of(meta.getYearFraction(), meta.getTenor());
-        assertEquals(alphaNodeSensiComputed.get(k), alphaMap.get(pair) * alphaSensi, TOLERANCE_VOL);
+        assertEquals(alphaNodeSensiComputed.get(k), alphaSensitivities.getSensitivity().get(k) * alphaSensi, TOLERANCE_VOL);
       }
       for (int k = 0; k < betaNodeSensiComputed.size(); ++k) {
-        SwaptionSurfaceExpiryTenorNodeMetadata meta = (SwaptionSurfaceExpiryTenorNodeMetadata)
-            betaSensiObj.getMetadata().getParameterMetadata().get().get(k);
-        DoublesPair pair = DoublesPair.of(meta.getYearFraction(), meta.getTenor());
-        assertEquals(betaNodeSensiComputed.get(k), betaMap.get(pair) * betaSensi, TOLERANCE_VOL);
+        assertEquals(betaNodeSensiComputed.get(k), betaSensitivities.getSensitivity().get(k) * betaSensi, TOLERANCE_VOL);
       }
       for (int k = 0; k < rhoNodeSensiComputed.size(); ++k) {
-        SwaptionSurfaceExpiryTenorNodeMetadata meta = (SwaptionSurfaceExpiryTenorNodeMetadata)
-            rhoSensiObj.getMetadata().getParameterMetadata().get().get(k);
-        DoublesPair pair = DoublesPair.of(meta.getYearFraction(), meta.getTenor());
-        assertEquals(rhoNodeSensiComputed.get(k), rhoMap.get(pair) * rhoSensi, TOLERANCE_VOL);
+        assertEquals(rhoNodeSensiComputed.get(k), rhoSensitivities.getSensitivity().get(k) * rhoSensi, TOLERANCE_VOL);
       }
       for (int k = 0; k < nuNodeSensiComputed.size(); ++k) {
-        SwaptionSurfaceExpiryTenorNodeMetadata meta = (SwaptionSurfaceExpiryTenorNodeMetadata)
-            nuSensiObj.getMetadata().getParameterMetadata().get().get(k);
-        DoublesPair pair = DoublesPair.of(meta.getYearFraction(), meta.getTenor());
-        assertEquals(nuNodeSensiComputed.get(k), nuMap.get(pair) * nuSensi, TOLERANCE_VOL);
+        assertEquals(nuNodeSensiComputed.get(k), nuSensitivities.getSensitivity().get(k) * nuSensi, TOLERANCE_VOL);
       }
     }
   }

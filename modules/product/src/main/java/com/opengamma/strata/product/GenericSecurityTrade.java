@@ -31,11 +31,11 @@ import com.opengamma.strata.basics.currency.Currency;
  * <p>
  * This trade represents a trade in a security, defined by a quantity and price.
  * The security is embedded directly, however the underlying product model is not available.
- * The security may be of any kind, including equities, bonds and exchange traded derivative (ETD).
+ * The security may be of any kind, including equities, bonds and exchange traded derivatives (ETD).
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
-    implements FinanceTrade, ImmutableBean, Serializable {
+    implements FinanceTrade, SecurityQuantity, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.
@@ -54,10 +54,10 @@ public final class GenericSecurityTrade
    * <p>
    * This will be positive if buying and negative if selling.
    */
-  @PropertyDefinition
-  private final long quantity;
+  @PropertyDefinition(overrideGet = true)
+  private final double quantity;
   /**
-   * The price that was traded.
+   * The price agreed when the trade occurred.
    * <p>
    * This is the price agreed when the trade occurred.
    */
@@ -68,24 +68,24 @@ public final class GenericSecurityTrade
   /**
    * Obtains an instance from trade information, security, quantity and price.
    * 
-   * @param info  the trade information
+   * @param tradeInfo  the trade information
    * @param security  the security that was traded
    * @param quantity  the quantity that was traded
    * @param price  the price that was traded
    * @return the trade
    */
   public static GenericSecurityTrade of(
-      TradeInfo info,
+      TradeInfo tradeInfo,
       GenericSecurity security,
-      long quantity,
+      double quantity,
       double price) {
 
-    return new GenericSecurityTrade(info, security, quantity, price);
+    return new GenericSecurityTrade(tradeInfo, security, quantity, price);
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.info = TradeInfo.EMPTY;
+    builder.info = TradeInfo.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -96,6 +96,7 @@ public final class GenericSecurityTrade
    * 
    * @return the security identifier
    */
+  @Override
   public SecurityId getSecurityId() {
     return security.getSecurityId();
   }
@@ -148,7 +149,7 @@ public final class GenericSecurityTrade
   GenericSecurityTrade(
       TradeInfo info,
       GenericSecurity security,
-      long quantity,
+      double quantity,
       double price) {
     JodaBeanUtils.notNull(security, "security");
     this.info = info;
@@ -200,13 +201,14 @@ public final class GenericSecurityTrade
    * This will be positive if buying and negative if selling.
    * @return the value of the property
    */
-  public long getQuantity() {
+  @Override
+  public double getQuantity() {
     return quantity;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price that was traded.
+   * Gets the price agreed when the trade occurred.
    * <p>
    * This is the price agreed when the trade occurred.
    * @return the value of the property
@@ -233,7 +235,7 @@ public final class GenericSecurityTrade
       GenericSecurityTrade other = (GenericSecurityTrade) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(security, other.security) &&
-          (quantity == other.quantity) &&
+          JodaBeanUtils.equal(quantity, other.quantity) &&
           JodaBeanUtils.equal(price, other.price);
     }
     return false;
@@ -284,8 +286,8 @@ public final class GenericSecurityTrade
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", GenericSecurityTrade.class, Long.TYPE);
+    private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", GenericSecurityTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code price} property.
      */
@@ -358,7 +360,7 @@ public final class GenericSecurityTrade
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Long> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -405,7 +407,7 @@ public final class GenericSecurityTrade
 
     private TradeInfo info;
     private GenericSecurity security;
-    private long quantity;
+    private double quantity;
     private double price;
 
     /**
@@ -453,7 +455,7 @@ public final class GenericSecurityTrade
           this.security = (GenericSecurity) newValue;
           break;
         case -1285004149:  // quantity
-          this.quantity = (Long) newValue;
+          this.quantity = (Double) newValue;
           break;
         case 106934601:  // price
           this.price = (Double) newValue;
@@ -528,13 +530,13 @@ public final class GenericSecurityTrade
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder quantity(long quantity) {
+    public Builder quantity(double quantity) {
       this.quantity = quantity;
       return this;
     }
 
     /**
-     * Sets the price that was traded.
+     * Sets the price agreed when the trade occurred.
      * <p>
      * This is the price agreed when the trade occurred.
      * @param price  the new value

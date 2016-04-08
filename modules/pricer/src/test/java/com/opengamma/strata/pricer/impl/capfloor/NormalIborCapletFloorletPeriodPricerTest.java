@@ -17,9 +17,6 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
@@ -28,14 +25,10 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.BlackIborCapletFloorletExpiryStrikeVolatilities;
 import com.opengamma.strata.pricer.capfloor.NormalIborCapletFloorletExpiryStrikeVolatilities;
@@ -454,23 +447,14 @@ public class NormalIborCapletFloorletPeriodPricerTest {
     double pvBase = valueFn.apply(vols).getAmount();
     InterpolatedNodalSurface surfaceBase = (InterpolatedNodalSurface) vols.getSurface();
     int nParams = surfaceBase.getParameterCount();
-    Map<DoublesPair, Double> expectedMap = new HashMap<>();
     for (int i = 0; i < nParams; ++i) {
       DoubleArray zBumped = surfaceBase.getZValues().with(i, surfaceBase.getZValues().get(i) + EPS_FD);
       InterpolatedNodalSurface surfaceBumped = surfaceBase.withZValues(zBumped);
       NormalIborCapletFloorletExpiryStrikeVolatilities volsBumped = NormalIborCapletFloorletExpiryStrikeVolatilities
           .of(surfaceBumped, vols.getIndex(), vols.getValuationDateTime(), vols.getDayCount());
-      double value = (valueFn.apply(volsBumped).getAmount() - pvBase) / EPS_FD;
-      expectedMap.put(DoublesPair.of(surfaceBase.getXValues().get(i), surfaceBase.getYValues().get(i)), value);
-    }
-    List<SurfaceParameterMetadata> metaList = ((DefaultSurfaceMetadata) computed.getMetadata()).getParameterMetadata().get();
-    assertEquals(metaList.size(), nParams);
-    for (int i = 0; i < nParams; ++i) {
-      GenericVolatilitySurfaceYearFractionMetadata metaParam = (GenericVolatilitySurfaceYearFractionMetadata) metaList.get(i);
+      double fd = (valueFn.apply(volsBumped).getAmount() - pvBase) / EPS_FD;
       assertEquals(
-          computed.getSensitivity().get(i),
-          expectedMap.get(DoublesPair.of(metaParam.getYearFraction(), metaParam.getStrike().getValue())),
-          NOTIONAL * EPS_FD);
+          computed.getSensitivity().get(i), fd, NOTIONAL * EPS_FD);
     }
   }
 

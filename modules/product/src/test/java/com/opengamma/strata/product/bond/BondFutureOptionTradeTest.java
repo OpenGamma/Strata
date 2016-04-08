@@ -28,8 +28,8 @@ public class BondFutureOptionTradeTest {
   private static final BondFutureOption OPTION_PRODUCT2 = BondFutureOptionTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 3, 31));
   private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2014, 4, 1));
-  private static final long QUANTITY = 1234;
-  private static final long QUANTITY2 = 100;
+  private static final double QUANTITY = 1234;
+  private static final double QUANTITY2 = 100;
   private static final Double PRICE = 0.01;
   private static final Double PRICE2 = 0.02;
 

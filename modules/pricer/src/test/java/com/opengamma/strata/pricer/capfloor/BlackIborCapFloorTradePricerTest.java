@@ -69,7 +69,7 @@ public class BlackIborCapFloorTradePricerTest {
   private static final ResolvedIborCapFloorTrade TRADE_PREMIUM = ResolvedIborCapFloorTrade.builder()
       .product(CAP_ONE_LEG)
       .premium(PREMIUM)
-      .info(TradeInfo.EMPTY)
+      .info(TradeInfo.empty())
       .build();
   // valuation at payment of 1st period
   private static final double OBS_INDEX_1 = 0.012;

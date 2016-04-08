@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,7 +35,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
@@ -157,7 +158,7 @@ public final class FixedOvernightSwapCurveNode
     if (date.isFixed()) {
       return SimpleCurveNodeMetadata.of(nodeDate, label);
     }
-    return TenorCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
+    return TenorDateCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
   }
 
   // calculate the end date

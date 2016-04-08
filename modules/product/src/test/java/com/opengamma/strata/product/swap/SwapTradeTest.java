@@ -38,7 +38,7 @@ public class SwapTradeTest {
     SwapTrade test = SwapTrade.builder()
         .product(SWAP1)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.EMPTY);
+    assertEquals(test.getInfo(), TradeInfo.empty());
     assertEquals(test.getProduct(), SWAP1);
   }
 

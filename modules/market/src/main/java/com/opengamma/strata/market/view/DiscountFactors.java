@@ -126,6 +126,19 @@ public interface DiscountFactors
       int periodsPerYear);
 
   /**
+   * Gets the continuously compounded zero rate.
+   * <p>
+   * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
+   * year fraction which is computed internally in each implementation. 
+   * 
+   * @param date  the date to discount to
+   * @return the zero rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double zeroRate(LocalDate date);
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the zero rate point sensitivity at the specified date.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the curve

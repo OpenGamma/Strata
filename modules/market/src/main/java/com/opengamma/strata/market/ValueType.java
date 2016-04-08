@@ -67,13 +67,29 @@ public final class ValueType
   public static final ValueType ISDA_CREDIT = of("IsdaCredit");
 
   /**
-   * Type used when each value is a volatility - 'Volatility'.
+   * Type used when each value is a Black model implied volatility - 'BlackVolatility'.
    */
-  public static final ValueType VOLATILITY = of("Volatility");
+  public static final ValueType BLACK_VOLATILITY = of("BlackVolatility");
+  /**
+   * Type used when each value is a Normal (Bachelier) model implied volatility - 'NormalVolatility'.
+   */
+  public static final ValueType NORMAL_VOLATILITY = of("NormalVolatility");
+  /**
+   * Type used when each value is a Price - 'Price'.
+   */
+  public static final ValueType PRICE = of("Price");
   /**
    * Type used when each value is a strike - 'Strike'.
    */
   public static final ValueType STRIKE = of("Strike");
+  /**
+   * Type used when each value is simple-moneyness - 'SimpleMoneyness'.
+   */
+  public static final ValueType SIMPLE_MONEYNESS = of("SimpleMoneyness");
+  /**
+   * Type used when each value is log-moneyness - 'LogMoneyness'.
+   */
+  public static final ValueType LOG_MONEYNESS = of("LogMoneyness");
 
   //-------------------------------------------------------------------------
   /**

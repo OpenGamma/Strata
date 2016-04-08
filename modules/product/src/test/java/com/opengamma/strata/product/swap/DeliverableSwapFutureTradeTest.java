@@ -30,8 +30,8 @@ public class DeliverableSwapFutureTradeTest {
       .tradeDate(LocalDate.of(2014, 6, 12))
       .settlementDate(LocalDate.of(2014, 6, 14))
       .build();
-  private static final long QUANTITY = 100L;
-  private static final long QUANTITY2 = 200L;
+  private static final double QUANTITY = 100L;
+  private static final double QUANTITY2 = 200L;
   private static final double PRICE = 0.99;
   private static final double PRICE2 = 0.98;
 

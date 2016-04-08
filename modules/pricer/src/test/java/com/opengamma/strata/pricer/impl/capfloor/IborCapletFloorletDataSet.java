@@ -112,7 +112,7 @@ public class IborCapletFloorletDataSet {
   private static final SurfaceMetadata BLACK_METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.STRIKE)
-      .zValueType(ValueType.VOLATILITY)
+      .zValueType(ValueType.BLACK_VOLATILITY)
       .surfaceName(SurfaceName.of("Black Vol"))
       .build();
   private static final NodalSurface BLACK_SURFACE_EXP_STR =
@@ -136,7 +136,7 @@ public class IborCapletFloorletDataSet {
   private static final SurfaceMetadata NORMAL_METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.STRIKE)
-      .zValueType(ValueType.VOLATILITY)
+      .zValueType(ValueType.NORMAL_VOLATILITY)
       .surfaceName(SurfaceName.of("Normal Vol"))
       .build();
   private static final NodalSurface NORMAL_SURFACE_EXP_STR =

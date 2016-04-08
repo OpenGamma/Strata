@@ -165,7 +165,7 @@ public final class FixedCouponBondSecurity
   }
 
   @Override
-  public FixedCouponBondTrade createTrade(TradeInfo info, long quantity, double tradePrice, ReferenceData refData) {
+  public FixedCouponBondTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
     return new FixedCouponBondTrade(info, createProduct(refData), quantity, tradePrice);
   }
 

@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
@@ -213,11 +214,12 @@ public final class CalculationTask {
    * @return results of the calculation, one for every scenario in the market data
    */
   @SuppressWarnings("unchecked")
-  public CalculationResult execute(CalculationEnvironment scenarioData, ReferenceData refData) {
+  public CalculationResults execute(CalculationEnvironment scenarioData, ReferenceData refData) {
     CalculationMarketData calculationData = DefaultCalculationMarketData.of(scenarioData, marketDataMappings);
     Result<?> result = Result.wrap(() -> calculate(calculationData, refData));
     Result<?> converted = convertToReportingCurrency(result, calculationData, refData);
-    return CalculationResult.of(target, rowIndex, columnIndex, converted);
+    CalculationResult calcResult = CalculationResult.of(rowIndex, columnIndex, converted);
+    return CalculationResults.of(target, ImmutableList.of(calcResult));
   }
 
   /**
