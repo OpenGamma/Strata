@@ -6,9 +6,11 @@
 package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 
 import java.time.LocalDate;
@@ -54,6 +56,7 @@ public class CapitalIndexedBondCurveDataSet {
   private static final InterpolatedNodalCurve REPO_CURVE;
   private static final InterpolatedNodalCurve CPI_CURVE;
   private static final InterpolatedNodalCurve RPI_CURVE;
+  private static final InterpolatedNodalCurve CPIJ_CURVE;
   static {
     DoubleArray timeIssuer = DoubleArray.of(0.2493150684931507, 0.4986301369863014, 0.9397260273972603,
         1.9760386256456322, 4.975342465753425, 9.850355565536344);
@@ -85,6 +88,13 @@ public class CapitalIndexedBondCurveDataSet {
         342.4913522908549, 366.076015086898);
     CurveMetadata metaRpi = Curves.prices("rpiCurve");
     RPI_CURVE = InterpolatedNodalCurve.of(metaRpi, timeRpi, valueRpi, INTERPOLATOR);
+    DoubleArray timeCpij = DoubleArray.of(10, 22, 34, 46, 58, 70, 82, 94, 106, 118, 142, 178, 238, 298, 358);
+    DoubleArray valueCpij = DoubleArray.of(103.3374833371608, 104.2306743501241, 104.3107880426369, 104.27037709028433,
+        104.19961127790909, 104.062704760821, 103.89860712110973, 103.73391283682416, 103.78374038315715,
+        103.83356515845553, 104.18698970060639, 104.72128789312038, 106.46204440686186, 108.231124353441,
+        110.03241679315009);
+    CurveMetadata metaCpij = Curves.prices("cpijCurve");
+    CPIJ_CURVE = InterpolatedNodalCurve.of(metaCpij, timeCpij, valueCpij, INTERPOLATOR);
   }
 
   /**
@@ -126,6 +136,25 @@ public class CapitalIndexedBondCurveDataSet {
   }
 
   /**
+   * Obtains an immutable rates providers with valuation date and time series. 
+   * <p>
+   * The time series must contain historical data for the price index. 
+   * 
+   * @param valuationDate  the valuation date
+   * @param timeSeries  the time series
+   * @return the rates provider
+   */
+  public static ImmutableRatesProvider getRatesProviderJp(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
+    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(JP_CPI_EXF, valuationDate, CPIJ_CURVE, timeSeries);
+    ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(JP_CPI_EXF, indexCurve);
+    return ImmutableRatesProvider.builder(valuationDate)
+        .fxRateProvider(FxMatrix.empty())
+        .priceIndexValues(map)
+        .timeSeries(JP_CPI_EXF, timeSeries)
+        .build();
+  }
+
+  /**
    * Obtains legal entity discounting rates provider from valuation date. 
    * 
    * @param valuationDate  the valuation date
@@ -159,6 +188,25 @@ public class CapitalIndexedBondCurveDataSet {
         .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
         .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
             Pair.<BondGroup, Currency>of(GROUP_REPO, GBP), dscRepo))
+        .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID, GROUP_REPO))
+        .build();
+  }
+
+  /**
+   * Obtains legal entity discounting rates provider from valuation date. 
+   * 
+   * @param valuationDate  the valuation date
+   * @return the discounting rates provider
+   */
+  public static LegalEntityDiscountingProvider getLegalEntityDiscountingProviderJp(LocalDate valuationDate) {
+    DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(JPY, valuationDate, ISSUER_CURVE);
+    DiscountFactors dscRepo = ZeroRateDiscountFactors.of(JPY, valuationDate, REPO_CURVE);
+    return LegalEntityDiscountingProvider.builder()
+        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
+            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, JPY), dscIssuer))
+        .legalEntityMap(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.<Pair<BondGroup, Currency>, DiscountFactors>of(
+            Pair.<BondGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
         .bondMap(ImmutableMap.<StandardId, BondGroup>of(ISSUER_ID, GROUP_REPO))
         .build();
   }
@@ -266,7 +314,37 @@ public class CapitalIndexedBondCurveDataSet {
         builder.put(dates[i], values[i]);
       }
     }
+    return builder.build();
+  }
 
+  /**
+   * Obtains time series of price index up to valuation date. 
+   * 
+   * @param valuationDate  the valuation date
+   * @return the time series
+   */
+  public static LocalDateDoubleTimeSeries getTimeSeriesJp(LocalDate valuationDate) {
+    LocalDate[] dates = new LocalDate[] {LocalDate.of(2013, 1, 31), LocalDate.of(2013, 2, 28),
+      LocalDate.of(2013, 3, 31), LocalDate.of(2013, 4, 30), LocalDate.of(2013, 5, 31), LocalDate.of(2013, 6, 30),
+      LocalDate.of(2013, 7, 31), LocalDate.of(2013, 8, 31), LocalDate.of(2013, 9, 30), LocalDate.of(2013, 10, 31),
+      LocalDate.of(2013, 11, 30), LocalDate.of(2013, 12, 31), LocalDate.of(2014, 1, 31), LocalDate.of(2014, 2, 28),
+      LocalDate.of(2014, 3, 31), LocalDate.of(2014, 4, 30), LocalDate.of(2014, 5, 31), LocalDate.of(2014, 6, 30),
+      LocalDate.of(2014, 7, 31), LocalDate.of(2014, 8, 31), LocalDate.of(2014, 9, 30), LocalDate.of(2014, 10, 31),
+      LocalDate.of(2014, 11, 30), LocalDate.of(2014, 12, 31), LocalDate.of(2015, 1, 31), LocalDate.of(2015, 2, 28),
+      LocalDate.of(2015, 3, 31), LocalDate.of(2015, 4, 30), LocalDate.of(2015, 5, 31), LocalDate.of(2015, 6, 30),
+      LocalDate.of(2015, 7, 31), LocalDate.of(2015, 8, 31), LocalDate.of(2015, 9, 30), LocalDate.of(2015, 10, 31),
+      LocalDate.of(2015, 11, 30), LocalDate.of(2015, 12, 31), LocalDate.of(2016, 1, 31) };
+    double[] values = new double[] {
+      99.1, 99.2, 99.5, 99.8, 100, 100, 100.1, 100.4, 100.5, 100.7, 100.7, 100.6, 100.4, 100.5, 100.8, 103, 103.4,
+      103.4, 103.5, 103.5, 103.5, 103.6, 103.4, 103.2, 102.6, 102.5, 103, 103.3, 103.4, 103.4, 103.4, 103.4, 103.4,
+      103.5, 103.4, 103.3 };
+
+    LocalDateDoubleTimeSeriesBuilder builder = LocalDateDoubleTimeSeries.builder();
+    for (int i = 0; i < values.length; ++i) {
+      if (dates[i].isBefore(valuationDate)) {
+        builder.put(dates[i], values[i]);
+      }
+    }
     return builder.build();
   }
 }

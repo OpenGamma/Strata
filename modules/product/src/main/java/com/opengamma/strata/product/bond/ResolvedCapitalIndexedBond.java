@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -290,6 +291,21 @@ public final class ResolvedCapitalIndexedBond
    * @throws IllegalArgumentException if the dates are outside the range of the bond or start is after end
    */
   public double yearFraction(LocalDate startDate, LocalDate endDate) {
+    return yearFraction(startDate, endDate, dayCount);
+  }
+
+  /**
+   * Calculates the year fraction within the specified period and day count.
+   * <p>
+   * Year fractions on bonds are calculated on unadjusted dates.
+   * 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param dayCount the day count
+   * @return the year fraction
+   * @throws IllegalArgumentException if the dates are outside the range of the bond or start is after end
+   */
+  public double yearFraction(LocalDate startDate, LocalDate endDate, DayCount dayCount) {
     ArgChecker.inOrderOrEqual(getUnadjustedStartDate(), startDate, "bond.unadjustedStartDate", "startDate");
     ArgChecker.inOrderOrEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(endDate, getUnadjustedEndDate(), "endDate", "bond.unadjustedEndDate");
@@ -357,7 +373,10 @@ public final class ResolvedCapitalIndexedBond
     double realCoupon = period.getRealCoupon();
     double couponPerYear = getFrequency().eventsPerYear();
     double rate = realCoupon * couponPerYear;
-    double accruedInterest = yearFraction(previousAccrualDate, referenceDate) * rate * notional;
+    double accruedInterest = yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND) ||
+        yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE) ?
+        yearFraction(previousAccrualDate, referenceDate, DayCounts.ACT_365F) * rate * notional :
+        yearFraction(previousAccrualDate, referenceDate) * rate * notional;
     double result = 0d;
     if (hasExCouponPeriod() && !referenceDate.isBefore(period.getDetachmentDate())) {
       result = accruedInterest - notional * rate * yearFraction(previousAccrualDate, period.getUnadjustedEndDate());

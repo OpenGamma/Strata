@@ -38,7 +38,17 @@ public enum CapitalIndexedBondYieldConvention {
   /**
    * The UK real yield convention. Used for UK inflation linked corporate bond.
    */
-  UK_IL_BOND("UK-I/L-Bond");
+  UK_IL_BOND("UK-I/L-Bond"),
+
+  /**
+   * The Japan simple yield convention for inflation index bond.
+   */
+  JAPAN_IL_SIMPLE("Japan-I/L-Simple"),
+
+  /**
+   * The Japan compound yield convention for inflation index bond.
+   */
+  JAPAN_IL_COMPOUND("Japan-I/L-Compound");
 
   // name
   private final String name;

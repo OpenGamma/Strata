@@ -14,6 +14,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 
@@ -381,7 +382,7 @@ public final class SwapDummyData {
           .build())
       .calculation(InflationRateCalculation.builder()
           .index(GB_RPI)
-          .interpolated(false)
+          .indexCalculationMethod(MONTHLY)
           .lag(Period.ofMonths(3))
           .build())
       .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL))

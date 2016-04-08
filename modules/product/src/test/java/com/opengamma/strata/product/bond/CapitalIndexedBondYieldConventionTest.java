@@ -26,7 +26,9 @@ public class CapitalIndexedBondYieldConventionTest {
     return new Object[][] {
       {CapitalIndexedBondYieldConvention.US_IL_REAL, "US-I/L-Real" },
       {CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT, "Index-Linked-Float" },
-      {CapitalIndexedBondYieldConvention.UK_IL_BOND, "UK-I/L-Bond" }
+      {CapitalIndexedBondYieldConvention.UK_IL_BOND, "UK-I/L-Bond" },
+      {CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE, "Japan-I/L-Simple" },
+      {CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND, "Japan-I/L-Compound" }
     };
   }
 
