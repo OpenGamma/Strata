@@ -37,6 +37,7 @@ import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 
 /**
  * Test {@link CapitalIndexedBondSecurity}.
@@ -51,7 +52,8 @@ public class CapitalIndexedBondSecurityTest {
   private static final CapitalIndexedBondYieldConvention YIELD_CONVENTION = INDEX_LINKED_FLOAT;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
-  private static final InflationRateCalculation RATE = InflationRateCalculation.of(GB_HICP, 3, false, 120d);
+  private static final InflationRateCalculation RATE =
+      InflationRateCalculation.of(GB_HICP, 3, PriceIndexCalculationMethod.MONTHLY, 120d);
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUTA);
   private static final DayCount DAY_COUNT = DayCounts.ACT_365F;
   private static final LocalDate START_DATE = LocalDate.of(2015, 4, 12);

@@ -6,8 +6,6 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
-
-
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -31,6 +29,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
@@ -101,7 +100,7 @@ public class InflationRateSwapLegConventionTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
-        .calculation(InflationRateCalculation.of(GB_HICP, 3, false))
+        .calculation(InflationRateCalculation.of(GB_HICP, 3, PriceIndexCalculationMethod.MONTHLY))
         .build();
     assertEquals(test, expected);
   }
@@ -115,7 +114,7 @@ public class InflationRateSwapLegConventionTest {
     InflationRateSwapLegConvention test2 = InflationRateSwapLegConvention.builder()
         .index(GB_HICP)
         .currency(GBP)
-        .interpolated(false)
+        .indexCalculationMethod(PriceIndexCalculationMethod.MONTHLY)
         .notionalExchange(true)
         .build();
     coverBeanEquals(test, test2);

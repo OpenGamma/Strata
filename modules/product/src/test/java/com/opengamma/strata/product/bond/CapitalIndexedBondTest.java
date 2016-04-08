@@ -19,6 +19,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
+import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -68,7 +69,7 @@ public class CapitalIndexedBondTest {
       .gearing(COUPON)
       .index(US_CPI_U)
       .lag(Period.ofMonths(3))
-      .interpolated(true)
+      .indexCalculationMethod(INTERPOLATED)
       .firstIndexValue(START_INDEX)
       .build();
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
@@ -243,7 +244,7 @@ public class CapitalIndexedBondTest {
             InflationRateCalculation.builder()
                 .index(GB_RPI)
                 .lag(Period.ofMonths(2))
-                .interpolated(true)
+                .indexCalculationMethod(INTERPOLATED)
                 .firstIndexValue(124.556)
                 .build())
         .exCouponPeriod(EX_COUPON)

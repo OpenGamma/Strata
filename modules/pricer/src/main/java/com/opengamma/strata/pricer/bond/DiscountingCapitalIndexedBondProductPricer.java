@@ -660,6 +660,22 @@ public class DiscountingCapitalIndexedBondProductPricer {
         return pvAtFirstCoupon * Math.pow(v, rs);
       }
     }
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_SIMPLE)) {
+      LocalDate maturityDate = bond.getEndDate();
+      double maturity = bond.yearFraction(settlementDate, maturityDate);
+      double cleanPrice = (1d + realRate * couponPerYear * maturity) / (1d + yield * maturity);
+      return dirtyRealPriceFromCleanRealPrice(bond, settlementDate, cleanPrice);
+    }
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JAPAN_IL_COMPOUND)) {
+      double pvAtFirstCoupon = 0d;
+      for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+        CapitalIndexedBondPaymentPeriod paymentPeriod = bond.getPeriodicPayments().get(loopcpn + periodIndex);
+        pvAtFirstCoupon += paymentPeriod.getRealCoupon() * Math.pow(v, loopcpn);
+      }
+      pvAtFirstCoupon += Math.pow(v, nbCoupon - 1);
+      double factorToNext = factorToNextCoupon(bond, settlementDate);
+      return pvAtFirstCoupon * Math.pow(v, factorToNext);
+    }
     throw new IllegalArgumentException(
         "The convention " + bond.getYieldConvention().toString() + " is not supported.");
   }

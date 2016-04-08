@@ -103,6 +103,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -1030,7 +1031,7 @@ public class FpmlDocumentParserTest {
         .calculation(InflationRateCalculation.builder()
             .index(PriceIndices.US_CPI_U)
             .lag(Period.ofMonths(3))
-            .interpolated(true)
+            .indexCalculationMethod(PriceIndexCalculationMethod.INTERPOLATED)
             .build())
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
