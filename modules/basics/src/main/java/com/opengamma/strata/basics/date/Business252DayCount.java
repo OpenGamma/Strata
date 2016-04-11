@@ -93,6 +93,14 @@ final class Business252DayCount implements NamedLookup<DayCount> {
       return calendar.daysBetween(firstDate, secondDate) / 252d;
     }
 
+    @Override
+    public int days(LocalDate firstDate, LocalDate secondDate) {
+      if (secondDate.isBefore(firstDate)) {
+        throw new IllegalArgumentException("Dates must be in time-line order");
+      }
+      return calendar.daysBetween(firstDate, secondDate);
+    }
+
     //-------------------------------------------------------------------------
     @Override
     public String getName() {

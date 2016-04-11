@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.LocalDateUtils.daysBetween;
 import static com.opengamma.strata.basics.date.LocalDateUtils.doy;
 
+import static java.lang.Math.toIntExact;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -23,6 +24,11 @@ enum StandardDayCounts implements DayCount {
   ONE_ONE("1/1") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      return 1;
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
       return 1;
     }
   },
@@ -44,6 +50,12 @@ enum StandardDayCounts implements DayCount {
       return firstRemainderOfYear / firstYearLength +
           secondRemainderOfYear / secondYearLength +
           (y2 - y1 - 1);
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
     }
   },
 
@@ -118,6 +130,12 @@ enum StandardDayCounts implements DayCount {
       }
       return 0;
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
   },
 
   // AFB year-based calculation
@@ -141,6 +159,12 @@ enum StandardDayCounts implements DayCount {
       LocalDate nextLeap = DateAdjusters.nextOrSameLeapDay(firstDate);
       return years + (actualDays / (nextLeap.isBefore(end) ? 366d : 365d));
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
   },
 
   // actual days / 365 or 366
@@ -150,6 +174,12 @@ enum StandardDayCounts implements DayCount {
       long actualDays = daysBetween(firstDate, secondDate);
       LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
       return actualDays / (nextLeap.isAfter(secondDate) ? 365d : 366d);
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
     }
   },
 
@@ -171,6 +201,12 @@ enum StandardDayCounts implements DayCount {
         return actualDays / (nextCouponDate.isLeapYear() ? 366d : 365d);
       }
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
   },
 
   // simple actual days / 360
@@ -178,6 +214,12 @@ enum StandardDayCounts implements DayCount {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return daysBetween(firstDate, secondDate) / 360d;
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
     }
   },
 
@@ -187,6 +229,12 @@ enum StandardDayCounts implements DayCount {
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return daysBetween(firstDate, secondDate) / 364d;
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
   },
 
   // simple actual days / 365
@@ -195,6 +243,12 @@ enum StandardDayCounts implements DayCount {
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return daysBetween(firstDate, secondDate) / 365d;
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
   },
 
   // simple actual days / 365.25
@@ -202,6 +256,12 @@ enum StandardDayCounts implements DayCount {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return daysBetween(firstDate, secondDate) / 365.25d;
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
     }
   },
 
@@ -217,6 +277,18 @@ enum StandardDayCounts implements DayCount {
         temp = DateAdjusters.nextLeapDay(temp);
       }
       return (actualDays - numberOfLeapDays) / 365d;
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      int numberOfLeapDays = 0;
+      LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
+      while (temp.isAfter(secondDate) == false) {
+        numberOfLeapDays++;
+        temp = DateAdjusters.nextLeapDay(temp);
+      }
+      return toIntExact(actualDays) - numberOfLeapDays;
     }
   },
 
@@ -236,6 +308,21 @@ enum StandardDayCounts implements DayCount {
           firstDate.getYear(), firstDate.getMonthValue(), d1,
           secondDate.getYear(), secondDate.getMonthValue(), d2);
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (d1 == 31) {
+        d1 = 30;
+      }
+      if (d2 == 31 && d1 == 30) {
+        d2 = 30;
+      }
+      return thirty360Days(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
   },
 
   // US thirty day months / 360 with dynamic EOM rule
@@ -247,6 +334,11 @@ enum StandardDayCounts implements DayCount {
       } else {
         return THIRTY_360_ISDA.calculateYearFraction(firstDate, secondDate, scheduleInfo);
       }
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      return THIRTY_360_ISDA.days(firstDate, secondDate);
     }
   },
 
@@ -272,6 +364,27 @@ enum StandardDayCounts implements DayCount {
           firstDate.getYear(), firstDate.getMonthValue(), d1,
           secondDate.getYear(), secondDate.getMonthValue(), d2);
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (lastDayOfFebruary(firstDate)) {
+        if (lastDayOfFebruary(secondDate)) {
+          d2 = 30;
+        }
+        d1 = 30;
+      }
+      if (d1 == 31) {
+        d1 = 30;
+      }
+      if (d2 == 31 && d1 == 30) {
+        d2 = 30;
+      }
+      return thirty360Days(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
   },
 
   THIRTY_360_PSA("30/360 PSA") {
@@ -286,6 +399,21 @@ enum StandardDayCounts implements DayCount {
         d2 = 30;
       }
       return thirty360(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (d1 == 31 || lastDayOfFebruary(firstDate)) {
+        d1 = 30;
+      }
+      if (d2 == 31 && d1 == 30) {
+        d2 = 30;
+      }
+      return thirty360Days(
           firstDate.getYear(), firstDate.getMonthValue(), d1,
           secondDate.getYear(), secondDate.getMonthValue(), d2);
     }
@@ -307,6 +435,21 @@ enum StandardDayCounts implements DayCount {
           firstDate.getYear(), firstDate.getMonthValue(), d1,
           secondDate.getYear(), secondDate.getMonthValue(), d2);
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (d1 == 31 || lastDayOfFebruary(firstDate)) {
+        d1 = 30;
+      }
+      if (d2 == 31 || (lastDayOfFebruary(secondDate))) {
+        d2 = 30;
+      }
+      return thirty360Days(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
   },
 
   // E thirty day months / 360
@@ -322,6 +465,21 @@ enum StandardDayCounts implements DayCount {
         d2 = 30;
       }
       return thirty360(
+          firstDate.getYear(), firstDate.getMonthValue(), d1,
+          secondDate.getYear(), secondDate.getMonthValue(), d2);
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      if (d1 == 31) {
+        d1 = 30;
+      }
+      if (d2 == 31) {
+        d2 = 30;
+      }
+      return thirty360Days(
           firstDate.getYear(), firstDate.getMonthValue(), d1,
           secondDate.getYear(), secondDate.getMonthValue(), d2);
     }
@@ -346,6 +504,24 @@ enum StandardDayCounts implements DayCount {
           firstDate.getYear(), m1, d1,
           secondDate.getYear(), m2, d2);
     }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      int d1 = firstDate.getDayOfMonth();
+      int d2 = secondDate.getDayOfMonth();
+      int m1 = firstDate.getMonthValue();
+      int m2 = secondDate.getMonthValue();
+      if (d1 == 31) {
+        d1 = 30;
+      }
+      if (d2 == 31) {
+        d2 = 1;
+        m2 = m2 + 1;  // nature of calculation means no need to adjust Dec to Jan
+      }
+      return thirty360Days(
+          firstDate.getYear(), m1, d1,
+          secondDate.getYear(), m2, d2);
+    }
   };
 
   // name
@@ -359,6 +535,11 @@ enum StandardDayCounts implements DayCount {
   // calculate using the standard 30/360 function - 360(y2 - y1) + 30(m2 - m1) + (d2 - d1)) / 360
   private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
+  }
+
+  //calculate using the 30/360 function as above but does not divide by 360, as the number of days is needed, not the fraction.
+  private static int thirty360Days(int y1, int m1, int d1, int y2, int m2, int d2) {
+    return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
   }
 
   // determine if the date is the last day of february
@@ -375,6 +556,14 @@ enum StandardDayCounts implements DayCount {
   }
 
   @Override
+  public int days(LocalDate firstDate, LocalDate secondDate) {
+    if (secondDate.isBefore(firstDate)) {
+      throw new IllegalArgumentException("Dates must be in time-line order");
+    }
+    return calculateDays(firstDate, secondDate);
+  }
+
+  @Override
   public double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
     // override to avoid duplicate null checks
     if (secondDate.isBefore(firstDate)) {
@@ -385,6 +574,9 @@ enum StandardDayCounts implements DayCount {
 
   // calculate the year fraction, using validated inputs
   abstract double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
+
+  //calculate the number of days between the specified dates, using validated inputs
+  abstract int calculateDays(LocalDate firstDate, LocalDate secondDate);
 
   //-------------------------------------------------------------------------
   @Override

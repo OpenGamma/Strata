@@ -67,7 +67,7 @@ public class ResolvedCapitalIndexedBondTest {
   private static final CapitalIndexedBondPaymentPeriod[] PERIODIC = new CapitalIndexedBondPaymentPeriod[4];
   static {
     LocalDate[] unAdjDates = new LocalDate[] {LocalDate.of(2008, 1, 13), LocalDate.of(2008, 7, 13),
-      LocalDate.of(2009, 1, 13), LocalDate.of(2009, 7, 13), LocalDate.of(2010, 1, 13) };
+        LocalDate.of(2009, 1, 13), LocalDate.of(2009, 7, 13), LocalDate.of(2010, 1, 13)};
     for (int i = 0; i < 4; ++i) {
       LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
       LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);
@@ -113,7 +113,7 @@ public class ResolvedCapitalIndexedBondTest {
         test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA),
         SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));
   }
-  
+
   public void test_builder_fail() {
     CapitalIndexedBondPaymentPeriod period = CapitalIndexedBondPaymentPeriod.builder()
         .startDate(PERIODIC[2].getStartDate())
@@ -150,10 +150,14 @@ public class ResolvedCapitalIndexedBondTest {
       }
 
       @Override
+      public int days(LocalDate firstDate, LocalDate secondDate) {
+        return 182;
+      }
+
+      @Override
       public String getName() {
         return "";
       }
-
     };
     ResolvedCapitalIndexedBond test = base.toBuilder().dayCount(dc).build();
     assertEquals(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);

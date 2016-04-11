@@ -66,6 +66,16 @@ public class Business252DayCountTest {
     assertThrowsIllegalArg(() -> test.yearFraction(date1, date2));
   }
 
+  public void test_days() {
+    DayCount test = DayCount.of("Bus/252 EUTA");
+    LocalDate date1 = date(2014, 12, 1);
+    LocalDate date2 = date(2014, 12, 1);
+    for (int i = 0; i < 366; i++) {
+      assertEquals(test.days(date1, date2), EUTA.resolve(REF_DATA).daysBetween(date1, date2));
+      date2 = date2.plusDays(1);
+    }
+  }
+  
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
     DayCount a = DayCount.of("Bus/252 EUTA");

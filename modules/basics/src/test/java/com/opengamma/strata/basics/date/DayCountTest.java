@@ -74,17 +74,22 @@ public class DayCountTest {
     assertThrowsRuntime(() -> type.yearFraction(null, JAN_01));
     assertThrowsRuntime(() -> type.yearFraction(JAN_01, null));
     assertThrowsRuntime(() -> type.yearFraction(null, null));
+    assertThrowsRuntime(() -> type.days(null, JAN_01));
+    assertThrowsRuntime(() -> type.days(JAN_01, null));
+    assertThrowsRuntime(() -> type.days(null, null));
   }
 
   @Test(dataProvider = "types")
   public void test_wrongOrder(DayCount type) {
     assertThrowsIllegalArg(() -> type.yearFraction(JAN_02, JAN_01));
+    assertThrowsIllegalArg(() -> type.days(JAN_02, JAN_01));
   }
 
   @Test(dataProvider = "types")
   public void test_same(DayCount type) {
     if (type != ONE_ONE) {
       assertEquals(type.yearFraction(JAN_02, JAN_02), 0d, TOLERANCE_ZERO);
+      assertEquals(type.days(JAN_02, JAN_02), 0);
     }
   }
 
@@ -94,6 +99,7 @@ public class DayCountTest {
     if (type != ONE_ONE) {
       ScheduleInfo info = new Info(JAN_01, JAN_01_NEXT, JAN_01_NEXT, false, P12M);
       assertEquals(type.yearFraction(JAN_01, JUL_01, info), 0.5d, 0.01d);
+      assertEquals(type.days(JAN_01, JUL_01), 182, 2);
     }
   }
 
@@ -103,12 +109,15 @@ public class DayCountTest {
     if (type != ONE_ONE) {
       ScheduleInfo info = new Info(JAN_01, JAN_01_NEXT, JAN_01_NEXT, false, P12M);
       assertEquals(type.yearFraction(JAN_01, JAN_01_NEXT, info), 1d, 0.02d);
+      assertEquals(type.days(JAN_01, JAN_01_NEXT), 365, 5);
     }
   }
 
   //-------------------------------------------------------------------------
   // use flag to make it clearer when an adjustment is happening
   private static Double SIMPLE_30_360 = new Double(Double.NaN);
+
+  private static int SIMPLE_30_360Days = 0;
 
   @DataProvider(name = "yearFraction")
   static Object[][] data_yearFraction() {
@@ -311,6 +320,10 @@ public class DayCountTest {
     return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360d;
   }
 
+  private static int calc360Days(int y1, int m1, int d1, int y2, int m2, int d2) {
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+  }
+
   @Test(dataProvider = "yearFraction")
   public void test_yearFraction(DayCount dayCount, int y1, int m1, int d1, int y2, int m2, int d2, Double value) {
     double expected = (value == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : value);
@@ -335,6 +348,203 @@ public class DayCountTest {
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
     assertEquals(dayCount.relativeYearFraction(date2, date1), -expected, TOLERANCE_ZERO);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "days")
+  static Object[][] data_days() {
+    return new Object[][] {
+        {ONE_ONE, 2011, 12, 28, 2012, 2, 28, 1},
+        {ONE_ONE, 2011, 12, 28, 2012, 2, 29, 1},
+        {ONE_ONE, 2011, 12, 28, 2012, 3, 1, 1},
+        {ONE_ONE, 2011, 12, 28, 2016, 2, 28, 1},
+        {ONE_ONE, 2011, 12, 28, 2016, 2, 29, 1},
+        {ONE_ONE, 2011, 12, 28, 2016, 3, 1, 1},
+        {ONE_ONE, 2012, 2, 29, 2012, 3, 29, 1},
+        {ONE_ONE, 2012, 2, 29, 2012, 3, 28, 1},
+        {ONE_ONE, 2012, 3, 1, 2012, 3, 28, 1},
+
+        //-------------------------------------------------------
+        {ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_ACT_ISDA, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_ACT_ISDA, 2011, 12, 28, 2016, 2, 28, 1523},
+        {ACT_ACT_ISDA, 2011, 12, 28, 2016, 2, 29, 1524},
+        {ACT_ACT_ISDA, 2011, 12, 28, 2016, 3, 1, 1525},
+
+        //-------------------------------------------------------
+        {ACT_ACT_AFB, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_ACT_AFB, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_ACT_AFB, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_ACT_AFB, 2011, 12, 28, 2016, 2, 28, 1523},
+        {ACT_ACT_AFB, 2011, 12, 28, 2016, 2, 29, 1524},
+        {ACT_ACT_AFB, 2011, 12, 28, 2016, 3, 1, 1525},
+
+        //-------------------------------------------------------
+        {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
+        {ACT_365_ACTUAL, 2012, 2, 28, 2012, 3, 28, 29},
+        {ACT_365_ACTUAL, 2012, 2, 29, 2012, 3, 28, 28},
+        {ACT_365_ACTUAL, 2012, 3, 1, 2012, 3, 28, 27},
+
+        //-------------------------------------------------------
+        {ACT_360, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_360, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_360, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_360, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
+        {ACT_360, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
+        {ACT_360, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
+
+        //-------------------------------------------------------
+        {ACT_364, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_364, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_364, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_364, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
+        {ACT_364, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
+        {ACT_364, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
+        {ACT_364, 2012, 2, 28, 2012, 3, 28, 29},
+        {ACT_364, 2012, 2, 29, 2012, 3, 28, 28},
+        {ACT_364, 2012, 3, 1, 2012, 3, 28, 27},
+
+        //-------------------------------------------------------
+        {ACT_365F, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_365F, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_365F, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_365F, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
+        {ACT_365F, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
+        {ACT_365F, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
+        {ACT_365F, 2012, 2, 28, 2012, 3, 28, 29},
+        {ACT_365F, 2012, 2, 29, 2012, 3, 28, 28},
+        {ACT_365F, 2012, 3, 1, 2012, 3, 28, 27},
+
+        //-------------------------------------------------------
+        {ACT_365_25, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_365_25, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_365_25, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_365_25, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
+        {ACT_365_25, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
+        {ACT_365_25, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
+        {ACT_365_25, 2012, 2, 28, 2012, 3, 28, 29},
+        {ACT_365_25, 2012, 2, 29, 2012, 3, 28, 28},
+        {ACT_365_25, 2012, 3, 1, 2012, 3, 28, 27},
+
+        //-------------------------------------------------------
+        {NL_365, 2011, 12, 28, 2012, 2, 28, 62},
+        {NL_365, 2011, 12, 28, 2012, 2, 29, 62},
+        {NL_365, 2011, 12, 28, 2012, 3, 1, 63},
+        {NL_365, 2011, 12, 28, 2016, 2, 28, 62 + 365 + 365 + 365 + 365},
+        {NL_365, 2011, 12, 28, 2016, 2, 29, 62 + 365 + 365 + 365 + 365},
+        {NL_365, 2011, 12, 28, 2016, 3, 1, 63 + 365 + 365 + 365 + 365},
+        {NL_365, 2012, 2, 28, 2012, 3, 28, 28},
+        {NL_365, 2012, 2, 29, 2012, 3, 28, 28},
+        {NL_365, 2012, 3, 1, 2012, 3, 28, 27},
+        {NL_365, 2011, 12, 1, 2012, 12, 1, 365},
+
+        //-------------------------------------------------------
+        {THIRTY_360_ISDA, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 12, 28, 2016, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360Days},
+
+        {THIRTY_360_ISDA, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 2, 29, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 2, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2011, 2, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 2, 29, 2016, 2, 29, SIMPLE_30_360Days},
+
+        {THIRTY_360_ISDA, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 5, 29, 2013, 8, 31, SIMPLE_30_360Days},
+        {THIRTY_360_ISDA, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_ISDA, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_ISDA, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+
+        //-------------------------------------------------------
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360Days},
+
+        {THIRTY_360_PSA, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 2, 29, 2012, 3, 28, calc360Days(2012, 2, 30, 2012, 3, 28)},
+        {THIRTY_360_PSA, 2011, 2, 28, 2012, 2, 28, calc360Days(2011, 2, 30, 2012, 2, 28)},
+        {THIRTY_360_PSA, 2011, 2, 28, 2012, 2, 29, calc360Days(2011, 2, 30, 2012, 2, 29)},
+        {THIRTY_360_PSA, 2012, 2, 29, 2016, 2, 29, calc360Days(2012, 2, 30, 2016, 2, 29)},
+
+        {THIRTY_360_PSA, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 5, 29, 2013, 8, 31, SIMPLE_30_360Days},
+        {THIRTY_360_PSA, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_PSA, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_360_PSA, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+
+        //-------------------------------------------------------
+        {THIRTY_E_360, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 12, 28, 2016, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360Days},
+
+        {THIRTY_E_360, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 2, 29, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 2, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2011, 2, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 2, 29, 2016, 2, 29, SIMPLE_30_360Days},
+
+        {THIRTY_E_360, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_E_360, 2012, 5, 29, 2013, 8, 31, calc360Days(2012, 5, 29, 2013, 8, 30)},
+        {THIRTY_E_360, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_E_360, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_E_360, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+
+        //-------------------------------------------------------
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2016, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360Days},
+
+        {THIRTY_EPLUS_360, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 2, 29, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 2, 28, 2012, 2, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2011, 2, 28, 2012, 2, 29, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 2, 29, 2016, 2, 29, SIMPLE_30_360Days},
+
+        {THIRTY_EPLUS_360, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360Days},
+        {THIRTY_EPLUS_360, 2012, 5, 29, 2013, 8, 31, calc360Days(2012, 5, 29, 2013, 9, 1)},
+        {THIRTY_EPLUS_360, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 9, 1)},
+        {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 9, 1)},
+    };
+  }
+
+  @Test(dataProvider = "days")
+  public void test_days(DayCount dayCount, int y1, int m1, int d1, int y2, int m2, int d2, int value) {
+    int expected = (value == SIMPLE_30_360Days ? calc360Days(y1, m1, d1, y2, m2, d2) : value);
+    LocalDate date1 = LocalDate.of(y1, m1, d1);
+    LocalDate date2 = LocalDate.of(y2, m2, d2);
+    assertEquals(dayCount.days(date1, date2), expected, TOLERANCE_ZERO);
   }
 
   //-------------------------------------------------------------------------
@@ -817,6 +1027,11 @@ public class DayCountTest {
     DayCount dc = new DayCount() {
       @Override
       public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        return 1;
+      }
+
+      @Override
+      public int days(LocalDate firstDate, LocalDate secondDate) {
         return 1;
       }
 
