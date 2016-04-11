@@ -19,7 +19,7 @@ import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
 
 /**
- * Evaluates a token against a trade to produce another object.
+ * Evaluates a token against a security to produce another object.
  * <p>
  * This merges the {@link Security}, {@link SecurityInfo} and {@link SecurityPriceInfo}
  * objects, giving priority to {@code Security}.
