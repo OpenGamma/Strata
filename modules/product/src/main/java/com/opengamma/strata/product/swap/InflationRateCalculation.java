@@ -143,6 +143,7 @@ public final class InflationRateCalculation
       PriceIndex index,
       int monthLag,
       PriceIndexCalculationMethod indexCalculationMethod) {
+
     return InflationRateCalculation.builder()
         .index(index)
         .lag(Period.ofMonths(monthLag))
@@ -170,6 +171,7 @@ public final class InflationRateCalculation
       int monthLag,
       PriceIndexCalculationMethod indexCalculationMethod,
       double firstIndexValue) {
+
     return InflationRateCalculation.builder()
         .index(index)
         .lag(Period.ofMonths(monthLag))

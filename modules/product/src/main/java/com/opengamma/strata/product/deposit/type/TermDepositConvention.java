@@ -133,11 +133,11 @@ public interface TermDepositConvention
       BuySell buySell,
       double notional,
       double rate) {
-    
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
     return toTrade(tradeInfo, startDate, endDate, buySell, notional, rate);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>

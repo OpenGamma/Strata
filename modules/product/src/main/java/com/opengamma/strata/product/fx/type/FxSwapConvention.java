@@ -141,11 +141,11 @@ public interface FxSwapConvention
       double notional,
       double nearFxRate,
       double farLegForwardPoints) {
-    
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
     return toTrade(tradeInfo, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>

@@ -67,7 +67,7 @@ public final class TradeInfoBuilder {
       StandardId counterparty,
       LocalDate tradeDate,
       LocalTime tradeTime,
-      ZoneId zone, 
+      ZoneId zone,
       LocalDate settlementDate,
       Map<TradeAttributeType<?>, Object> attributes) {
 

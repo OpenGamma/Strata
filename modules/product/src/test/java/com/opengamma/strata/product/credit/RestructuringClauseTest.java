@@ -27,17 +27,25 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 
 /**
- * Test RestructuringClause.
+ * Test {@link RestructuringClause}.
  */
 @Test
 public class RestructuringClauseTest {
 
   //-----------------------------------------------------------------------
   public void test_constants() {
+    assertEquals(RestructuringClause.of("ModModRestructuring2014"), MOD_MOD_RESTRUCTURING_2014);
     assertEquals(RestructuringClause.valueOf("MOD_MOD_RESTRUCTURING_2014"), MOD_MOD_RESTRUCTURING_2014);
+
+    assertEquals(RestructuringClause.of("ModModRestructuring2003"), MOD_MOD_RESTRUCTURING_2003);
     assertEquals(RestructuringClause.valueOf("MOD_MOD_RESTRUCTURING_2003"), MOD_MOD_RESTRUCTURING_2003);
+
+    assertEquals(RestructuringClause.of("ModifiedRestructuring2014"), MODIFIED_RESTRUCTURING_2014);
     assertEquals(RestructuringClause.valueOf("MODIFIED_RESTRUCTURING_2014"), MODIFIED_RESTRUCTURING_2014);
+
+    assertEquals(RestructuringClause.of("ModifiedRestructuring2003"), MODIFIED_RESTRUCTURING_2003);
     assertEquals(RestructuringClause.valueOf("MODIFIED_RESTRUCTURING_2003"), MODIFIED_RESTRUCTURING_2003);
+
     assertEquals(RestructuringClause.valueOf("CUM_RESTRUCTURING_2014"), CUM_RESTRUCTURING_2014);
     assertEquals(RestructuringClause.valueOf("CUM_RESTRUCTURING_2003"), CUM_RESTRUCTURING_2003);
     assertEquals(RestructuringClause.valueOf("NO_RESTRUCTURING_2014"), NO_RESTRUCTURING_2014);
@@ -114,7 +122,7 @@ public class RestructuringClauseTest {
   //-----------------------------------------------------------------------
   public void test_toString() {
     RestructuringClause test = MOD_MOD_RESTRUCTURING_2014;
-    assertEquals("MOD_MOD_RESTRUCTURING_2014", test.toString());
+    assertEquals(test.toString(), "ModModRestructuring2014");
   }
 
   //-----------------------------------------------------------------------

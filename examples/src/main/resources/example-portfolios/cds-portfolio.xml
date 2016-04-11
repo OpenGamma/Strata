@@ -15,9 +15,9 @@
                 </businessDayAdjustment>
                 <referenceInformation type="com.opengamma.strata.product.credit.SingleNameReferenceInformation">
                     <referenceEntityId>MarkitRedCode~COMP01</referenceEntityId>
-                    <seniority>SENIOR_UNSECURED_FOREIGN</seniority>
+                    <seniority>SeniorUnsecuredForeign</seniority>
                     <currency>USD</currency>
-                    <restructuringClause>NO_RESTRUCTURING_2014</restructuringClause>
+                    <restructuringClause>NoRestructuring2014</restructuringClause>
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>
@@ -50,9 +50,9 @@
                 </businessDayAdjustment>
                 <referenceInformation type="SingleNameReferenceInformation">
                     <referenceEntityId>MarkitRedCode~COMP02</referenceEntityId>
-                    <seniority>SENIOR_UNSECURED_FOREIGN</seniority>
+                    <seniority>SeniorUnsecuredForeign</seniority>
                     <currency>USD</currency>
-                    <restructuringClause>NO_RESTRUCTURING_2014</restructuringClause>
+                    <restructuringClause>NoRestructuring2014</restructuringClause>
                 </referenceInformation>
                 <feeLeg>
                     <upfrontFee>

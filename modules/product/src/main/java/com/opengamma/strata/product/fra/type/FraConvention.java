@@ -154,11 +154,11 @@ public interface FraConvention
       BuySell buySell,
       double notional,
       double fixedRate) {
-    
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
     return toTrade(tradeInfo, startDate, endDate, paymentDate, buySell, notional, fixedRate);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>
