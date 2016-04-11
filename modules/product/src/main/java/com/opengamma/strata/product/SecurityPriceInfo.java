@@ -13,6 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
@@ -146,6 +147,7 @@ public final class SecurityPriceInfo
    * 
    * @return the currency
    */
+  @DerivedProperty
   public Currency getCurrency() {
     return tickValue.getCurrency();
   }
@@ -299,11 +301,12 @@ public final class SecurityPriceInfo
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SecurityPriceInfo{");
     buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
     buf.append("tickValue").append('=').append(tickValue).append(',').append(' ');
-    buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize));
+    buf.append("contractSize").append('=').append(contractSize).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -334,13 +337,19 @@ public final class SecurityPriceInfo
     private final MetaProperty<Double> contractSize = DirectMetaProperty.ofImmutable(
         this, "contractSize", SecurityPriceInfo.class, Double.TYPE);
     /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
+        this, "currency", SecurityPriceInfo.class, Currency.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "tickSize",
         "tickValue",
-        "contractSize");
+        "contractSize",
+        "currency");
 
     /**
      * Restricted constructor.
@@ -357,6 +366,8 @@ public final class SecurityPriceInfo
           return tickValue;
         case -1402368973:  // contractSize
           return contractSize;
+        case 575402001:  // currency
+          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -401,6 +412,14 @@ public final class SecurityPriceInfo
       return contractSize;
     }
 
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -411,6 +430,8 @@ public final class SecurityPriceInfo
           return ((SecurityPriceInfo) bean).getTickValue();
         case -1402368973:  // contractSize
           return ((SecurityPriceInfo) bean).getContractSize();
+        case 575402001:  // currency
+          return ((SecurityPriceInfo) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

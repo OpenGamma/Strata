@@ -49,7 +49,11 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
       case SECURITY:
         return EvaluationResult.of(resultsRow.getSecurity(), remainingTokens);
       case TRADE:
-        return EvaluationResult.success(resultsRow.getTrade(), remainingTokens);
+        return EvaluationResult.of(resultsRow.getTrade(), remainingTokens);
+      case POSITION:
+        return EvaluationResult.of(resultsRow.getPosition(), remainingTokens);
+      case TARGET:
+        return EvaluationResult.success(resultsRow.getTarget(), remainingTokens);
       default:
         throw new IllegalArgumentException("Unknown root token '" + rootType.token() + "'");
     }
@@ -59,7 +63,7 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
   private EvaluationResult evaluateMeasures(ResultsRow resultsRow, List<String> remainingTokens) {
     // if no measures, return list of valid measures
     if (remainingTokens.isEmpty() || Strings.nullToEmpty(remainingTokens.get(0)).trim().isEmpty()) {
-      List<String> measureNames = ResultsRow.measureNames(resultsRow.getTrade());
+      List<String> measureNames = ResultsRow.measureNames(resultsRow.getTarget());
       return EvaluationResult.failure("No measure specified. Use one of: {}", measureNames);
     }
     // evaluate the measure name
