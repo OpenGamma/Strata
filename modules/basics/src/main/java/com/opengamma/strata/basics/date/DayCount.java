@@ -151,7 +151,7 @@ public interface DayCount
     }
     return yearFraction(firstDate, secondDate, scheduleInfo);
   }
-  
+
   /**
    * Calculates the number of days between the specified dates using the rules of this day count.
    * <p>
@@ -162,6 +162,7 @@ public interface DayCount
    * 
    * @param firstDate  the first date
    * @param secondDate  the second date, which may be before the first date
+   * @return the number of days, as determined by the day count
    */
   public abstract int days(LocalDate firstDate, LocalDate secondDate);
 

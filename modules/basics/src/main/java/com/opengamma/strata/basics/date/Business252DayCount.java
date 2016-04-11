@@ -100,7 +100,7 @@ final class Business252DayCount implements NamedLookup<DayCount> {
       }
       return calendar.daysBetween(firstDate, secondDate);
     }
-    
+
     //-------------------------------------------------------------------------
     @Override
     public String getName() {

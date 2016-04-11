@@ -118,7 +118,7 @@ public class DayCountTest {
   private static Double SIMPLE_30_360 = new Double(Double.NaN);
 
   private static int SIMPLE_30_360Days = 0;
-  
+
   @DataProvider(name = "yearFraction")
   static Object[][] data_yearFraction() {
     return new Object[][] {
@@ -319,7 +319,7 @@ public class DayCountTest {
   private static double calc360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360d;
   }
-  
+
   private static int calc360Days(int y1, int m1, int d1, int y2, int m2, int d2) {
     return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
   }
@@ -385,7 +385,7 @@ public class DayCountTest {
         {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 29, 63},
         {ACT_365_ACTUAL, 2011, 12, 28, 2012, 3, 1, 64},
         {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 28, 62 + 366 + 365 + 365 + 365},
-        {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 29, 63+ 366 + 365 + 365 + 365},
+        {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 29, 63 + 366 + 365 + 365 + 365},
         {ACT_365_ACTUAL, 2011, 12, 28, 2016, 3, 1, 64 + 366 + 365 + 365 + 365},
         {ACT_365_ACTUAL, 2012, 2, 28, 2012, 3, 28, 29},
         {ACT_365_ACTUAL, 2012, 2, 29, 2012, 3, 28, 28},
@@ -546,7 +546,7 @@ public class DayCountTest {
     LocalDate date2 = LocalDate.of(y2, m2, d2);
     assertEquals(dayCount.days(date1, date2), expected, TOLERANCE_ZERO);
   }
-  
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "30U360")
   static Object[][] data_30U360() {
@@ -1031,13 +1031,13 @@ public class DayCountTest {
       }
 
       @Override
-      public String getName() {
-        return "";
+      public int days(LocalDate firstDate, LocalDate secondDate) {
+        return 1;
       }
 
       @Override
-      public int days(LocalDate firstDate, LocalDate secondDate) {
-        return 1;
+      public String getName() {
+        return "";
       }
     };
     LocalDate date1 = date(2015, 6, 1);

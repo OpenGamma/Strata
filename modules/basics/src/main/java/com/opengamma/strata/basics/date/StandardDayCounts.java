@@ -26,7 +26,7 @@ enum StandardDayCounts implements DayCount {
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return 1;
     }
-    
+
     @Override
     public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
       return 1;
@@ -135,7 +135,7 @@ enum StandardDayCounts implements DayCount {
     public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = daysBetween(firstDate, secondDate);
       return toIntExact(actualDays);
-    } 
+    }
   },
 
   // AFB year-based calculation
@@ -536,7 +536,7 @@ enum StandardDayCounts implements DayCount {
   private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
   }
-  
+
   //calculate using the 30/360 function as above but does not divide by 360, as the number of days is needed, not the fraction.
   private static int thirty360Days(int y1, int m1, int d1, int y2, int m2, int d2) {
     return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
@@ -554,7 +554,7 @@ enum StandardDayCounts implements DayCount {
     }
     return calculateYearFraction(firstDate, secondDate, scheduleInfo);
   }
-  
+
   @Override
   public int days(LocalDate firstDate, LocalDate secondDate) {
     if (secondDate.isBefore(firstDate)) {
@@ -574,7 +574,7 @@ enum StandardDayCounts implements DayCount {
 
   // calculate the year fraction, using validated inputs
   abstract double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
-  
+
   //calculate the number of days between the specified dates, using validated inputs
   abstract int calculateDays(LocalDate firstDate, LocalDate secondDate);
 

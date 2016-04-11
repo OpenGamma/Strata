@@ -63,15 +63,14 @@ public class ResolvedFixedCouponBondTest {
       }
 
       @Override
-      public String getName() {
-        return "";
-      }
-
-      @Override
       public int days(LocalDate firstDate, LocalDate secondDate) {
         return 182;
       }
 
+      @Override
+      public String getName() {
+        return "";
+      }
     };
     ResolvedFixedCouponBond test = base.toBuilder().dayCount(dc).build();
     assertEquals(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);
