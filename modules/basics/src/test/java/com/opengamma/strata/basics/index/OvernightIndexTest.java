@@ -10,7 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.NYFD;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -70,7 +70,7 @@ public class OvernightIndexTest {
     OvernightIndex test = OvernightIndex.of("USD-FED-FUND");
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getName(), "USD-FED-FUND");
-    assertEquals(test.getFixingCalendar(), NYFD);
+    assertEquals(test.getFixingCalendar(), USNY);
     assertEquals(test.getPublicationDateOffset(), 1);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_360);
