@@ -192,11 +192,11 @@ public interface ThreeLegBasisSwapConvention
       BuySell buySell,
       double notional,
       double spread) {
-    
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
     return toTrade(tradeInfo, startDate, endDate, buySell, notional, spread);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>

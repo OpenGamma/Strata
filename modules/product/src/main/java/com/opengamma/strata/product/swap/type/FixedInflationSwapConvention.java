@@ -85,7 +85,7 @@ public interface FixedInflationSwapConvention
    * @return the spot date offset, not null
    */
   public abstract BusinessDayAdjustment getSpotDateOffset();
-  
+
   /**
    * Gets the offset of the payment date.
    * 
@@ -103,7 +103,7 @@ public interface FixedInflationSwapConvention
    * 
    * @param tradeDate  the date of the trade
    * @param tenor  the tenor of the trade
-   * @param lag       the positive period between the price index and the accrual date, typically a number of months.
+   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -138,7 +138,7 @@ public interface FixedInflationSwapConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months.
+   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -152,11 +152,11 @@ public interface FixedInflationSwapConvention
       BuySell buySell,
       double notional,
       double fixedRate) {
-    
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
     return toTrade(tradeInfo, startDate, endDate, lag, buySell, notional, fixedRate);
   }
-  
+
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -169,7 +169,7 @@ public interface FixedInflationSwapConvention
    * @param tradeInfo  additional information about the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months.
+   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market

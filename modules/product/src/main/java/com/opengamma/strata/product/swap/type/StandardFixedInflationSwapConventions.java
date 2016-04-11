@@ -40,7 +40,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.GB_HICP),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
-  
+
   /**
    * GBP vanilla fixed vs UK RPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -52,7 +52,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.GB_RPI),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
-  
+
   /**
    * GBP vanilla fixed vs UK RPIX swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -64,7 +64,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.GB_RPIX),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
-  
+
   /**
    * CHF vanilla fixed vs Switzerland CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -76,7 +76,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.CH_CPI),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU),
           DaysAdjustment.ofBusinessDays(2, CHZU));
-  
+
   /**
    * EUR vanilla fixed vs Europe CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -88,7 +88,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.EU_AI_CPI),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
-  
+
   /**
    * EUR vanilla fixed vs Europe (Excluding Tobacco) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -100,7 +100,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.EU_EXT_CPI),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
-  
+
   /**
    * JPY vanilla fixed vs Japan (Excluding Fresh Food) CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -112,7 +112,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.JP_CPI_EXF),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO),
           DaysAdjustment.ofBusinessDays(2, JPTO));
-  
+
   /**
    * USD(NY) vanilla fixed vs US Urban consumers CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -124,7 +124,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.US_CPI_U),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY),
           DaysAdjustment.ofBusinessDays(2, USNY));
-  
+
   /**
    * EUR vanilla fixed vs France CPI swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
@@ -136,7 +136,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.FR_EXT_CPI),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA),
           DaysAdjustment.ofBusinessDays(2, FRPA));
-  
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.

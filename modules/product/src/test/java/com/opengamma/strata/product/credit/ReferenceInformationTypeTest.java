@@ -26,8 +26,8 @@ public class ReferenceInformationTypeTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {SINGLE_NAME, "SINGLE_NAME"},
-        {INDEX, "INDEX"}
+        {SINGLE_NAME, "SingleName"},
+        {INDEX, "Index"}
     };
   }
 
@@ -38,15 +38,11 @@ public class ReferenceInformationTypeTest {
 
   @Test(dataProvider = "name")
   public void test_of_lookup(ReferenceInformationType type, String name) {
-    assertEquals(ReferenceInformationType.valueOf(name), type);
+    assertEquals(ReferenceInformationType.of(name), type);
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> ReferenceInformationType.valueOf("Rubbish"), IllegalArgumentException.class);
-  }
-
-  public void test_of_lookup_null() {
-    assertThrows(() -> ReferenceInformationType.valueOf(null), NullPointerException.class);
+    assertThrows(() -> ReferenceInformationType.of("Rubbish"), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------

@@ -5,11 +5,10 @@
  */
 package com.opengamma.strata.product.swap;
 
-import java.util.Locale;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -26,33 +25,23 @@ public enum PriceIndexCalculationMethod {
    * The reference index is the price index of a month.
    * The reference month is linked to the payment date.
    */
-  MONTHLY("Monthly"),
-
+  MONTHLY,
   /**
    * The reference index is linearly interpolated between two months.
    * The interpolation is done with the number of days of the payment month.
    * The number of days is counted from the beginning of the month. 
    */
-  INTERPOLATED("Interpolated"),
-
+  INTERPOLATED,
   /**
    * The reference index is linearly interpolated between two months.
    * The interpolation is done with the number of days of the payment month.
    * The number of days is counted from the 10th day of the month. 
    */
-  INTERPOLATED_JAPAN("Interpolated-Japan");
-
-  // name
-  private final String name;
-
-  // create
-  private PriceIndexCalculationMethod(String name) {
-    this.name = name;
-  }
+  INTERPOLATED_JAPAN;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from the specified unique name.
+   * Obtains the type from a unique name.
    * 
    * @param uniqueName  the unique name
    * @return the type
@@ -61,10 +50,9 @@ public enum PriceIndexCalculationMethod {
   @FromString
   public static PriceIndexCalculationMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return valueOf(uniqueName.replace('-', '_').toUpperCase(Locale.ENGLISH));
+    return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Returns the formatted unique name of the type.
    * 
@@ -73,7 +61,7 @@ public enum PriceIndexCalculationMethod {
   @ToString
   @Override
   public String toString() {
-    return name;
+    return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
   }
 
 }

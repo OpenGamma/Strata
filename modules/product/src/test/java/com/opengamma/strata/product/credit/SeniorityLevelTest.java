@@ -31,10 +31,19 @@ public class SeniorityLevelTest {
 
   //-----------------------------------------------------------------------
   public void test_constants() {
+    assertEquals(SeniorityLevel.of("SeniorSecuredDomestic"), SENIOR_SECURED_DOMESTIC);
     assertEquals(SeniorityLevel.valueOf("SENIOR_SECURED_DOMESTIC"), SENIOR_SECURED_DOMESTIC);
+
+    assertEquals(SeniorityLevel.of("SeniorUnsecuredForeign"), SENIOR_UNSECURED_FOREIGN);
     assertEquals(SeniorityLevel.valueOf("SENIOR_UNSECURED_FOREIGN"), SENIOR_UNSECURED_FOREIGN);
+
+    assertEquals(SeniorityLevel.of("SubordinateLowerTier2"), SUBORDINATE_LOWER_TIER_2);
     assertEquals(SeniorityLevel.valueOf("SUBORDINATE_LOWER_TIER_2"), SUBORDINATE_LOWER_TIER_2);
+
+    assertEquals(SeniorityLevel.of("SubordinateTier1"), SUBORDINATE_TIER_1);
     assertEquals(SeniorityLevel.valueOf("SUBORDINATE_TIER_1"), SUBORDINATE_TIER_1);
+
+    assertEquals(SeniorityLevel.of("SubordinateUpperTier2"), SUBORDINATE_UPPER_TIER_2);
     assertEquals(SeniorityLevel.valueOf("SUBORDINATE_UPPER_TIER_2"), SUBORDINATE_UPPER_TIER_2);
   }
 
@@ -102,7 +111,7 @@ public class SeniorityLevelTest {
   //-----------------------------------------------------------------------
   public void test_toString() {
     SeniorityLevel test = SENIOR_SECURED_DOMESTIC;
-    assertEquals("SENIOR_SECURED_DOMESTIC", test.toString());
+    assertEquals("SeniorSecuredDomestic", test.toString());
   }
 
   //-----------------------------------------------------------------------
