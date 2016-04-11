@@ -16,7 +16,7 @@ The release process for Strata is as follows:
 `mvn clean deploy -Doss.jars -Ddist`
 
 1. Add git tag and push commit to GitHub  
-`git tag -a v0.11.0 -m "Version 0.11.0"`
+`git tag -a v0.11.0 -m "Release v0.11.0"`
 
 1. Add targets to GitHub releases page  
 (targets must be renamed to `strata-dist-0.11.0.zip` and `strata-report-tool-0.11.0.zip`)
