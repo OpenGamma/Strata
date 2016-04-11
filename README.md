@@ -58,6 +58,7 @@ Strata is formed from a number of modules:
 * [Report](modules/report/README.md)
 * [Function](modules/function/README.md)
 * [Calc](modules/calc/README.md)
+* [Loader](modules/loader/README.md)
 * [Pricer](modules/pricer/README.md)
 * [Market](modules/market/README.md)
 * [Product](modules/product/README.md)
