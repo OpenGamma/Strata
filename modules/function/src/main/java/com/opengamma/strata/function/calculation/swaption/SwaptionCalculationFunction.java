@@ -67,6 +67,11 @@ public class SwaptionCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<SwaptionTrade> targetType() {
+    return SwaptionTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

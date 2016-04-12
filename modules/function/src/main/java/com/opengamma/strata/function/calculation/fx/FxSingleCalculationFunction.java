@@ -76,6 +76,11 @@ public class FxSingleCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<FxSingleTrade> targetType() {
+    return FxSingleTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

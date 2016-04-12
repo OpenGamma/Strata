@@ -26,6 +26,11 @@ public class MissingConfigCalculationFunction
   // this must be public so that the constructor can be invoked
 
   @Override
+  public Class<CalculationTarget> targetType() {
+    return CalculationTarget.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return ImmutableSet.of();
   }

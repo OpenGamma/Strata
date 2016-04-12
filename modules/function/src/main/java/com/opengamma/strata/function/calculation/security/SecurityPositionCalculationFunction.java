@@ -59,6 +59,11 @@ public class SecurityPositionCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<SecurityPosition> targetType() {
+    return SecurityPosition.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

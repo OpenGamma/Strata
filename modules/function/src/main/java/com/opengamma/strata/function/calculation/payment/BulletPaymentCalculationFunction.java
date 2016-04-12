@@ -67,6 +67,11 @@ public class BulletPaymentCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<BulletPaymentTrade> targetType() {
+    return BulletPaymentTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

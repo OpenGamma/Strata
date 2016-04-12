@@ -84,6 +84,11 @@ public class FraCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<FraTrade> targetType() {
+    return FraTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

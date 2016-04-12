@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
@@ -296,7 +297,7 @@ public class CalculationTaskTest {
   }
 
   //-------------------------------------------------------------------------
-  private static class TestTarget implements CalculationTarget {
+  static class TestTarget implements CalculationTarget {
   }
 
   //-------------------------------------------------------------------------
@@ -304,6 +305,11 @@ public class CalculationTaskTest {
    * Function that returns a value that is not currency convertible.
    */
   public static final class TestFunction implements CalculationFunction<TestTarget> {
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {
@@ -358,6 +364,11 @@ public class CalculationTaskTest {
     }
 
     @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -401,6 +412,11 @@ public class CalculationTaskTest {
     }
 
     @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -437,6 +453,11 @@ public class CalculationTaskTest {
    * Function that returns requirements containing output currencies.
    */
   private static final class OutputCurrenciesFunction implements CalculationFunction<TestTarget> {
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {

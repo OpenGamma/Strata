@@ -70,6 +70,11 @@ public class IborFutureCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<IborFutureTrade> targetType() {
+    return IborFutureTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

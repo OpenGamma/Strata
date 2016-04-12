@@ -116,6 +116,11 @@ public class FunctionConfigTest {
   public static final class TestFunctionNoParams implements CalculationFunction<TestTarget> {
 
     @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -155,6 +160,11 @@ public class FunctionConfigTest {
     }
 
     @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -186,6 +196,11 @@ public class FunctionConfigTest {
   public static final class TestFunctionNoPublicConstructor implements CalculationFunction<TestTarget> {
 
     TestFunctionNoPublicConstructor() {
+    }
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
     }
 
     @Override
@@ -223,6 +238,11 @@ public class FunctionConfigTest {
     }
 
     public TestFunctionMultiplePublicConstructors(String s) {
+    }
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
     }
 
     @Override

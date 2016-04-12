@@ -73,6 +73,11 @@ public class FxNdfCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<FxNdfTrade> targetType() {
+    return FxNdfTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

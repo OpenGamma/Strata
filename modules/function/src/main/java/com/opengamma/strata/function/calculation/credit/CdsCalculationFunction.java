@@ -93,6 +93,11 @@ public class CdsCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<CdsTrade> targetType() {
+    return CdsTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }
