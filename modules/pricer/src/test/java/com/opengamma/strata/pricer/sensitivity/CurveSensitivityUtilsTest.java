@@ -10,8 +10,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
@@ -32,7 +34,7 @@ import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
  */
 @Test
 public class CurveSensitivityUtilsTest {
-  
+
   private static final CurveName NAME_1 = CurveName.of("CURVE 1");
   private static final Currency CCY_1 = Currency.EUR;
   private static final CurveName NAME_2 = CurveName.of("CURVE 2");
@@ -59,21 +61,50 @@ public class CurveSensitivityUtilsTest {
     SENSITIVITY_DATES.add(LocalDate.of(2055, 7, 4));
   }
   private static final double SENSITIVITY_AMOUNT = 123.45;
-  private static final double[] WEIGHTS_HC = 
-    {1.0, 1.0, 0.999190283, 0.295546559, 0.0, 0.831801471, 0.165441176, 1.0, 0.94955157, 0.0, 0.0 };
+  private static final double[] WEIGHTS_HC =
+  {1.0, 1.0, 0.999190283, 0.295546559, 0.0, 0.831801471, 0.165441176, 1.0, 0.94955157, 0.0, 0.0 };
   // weights externally provided and hard-coded here
   private static final int[] WEIGHTS_START = {0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2 };
   private static final double TOLERANCE_SENSI = 1.0E-5;
 
-  public void hard_coded_value_one_curve_one_date() {
+  public void hard_coded_value_one_curve_one_date_dated() {
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> SimpleCurveNodeMetadata.of(d, "test");
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES);
+    test_from_functions_one_curve_one_date(parameterMetadataFunction, rebucketFunction);
+  }
+
+  public void hard_coded_value_one_curve_one_date_tenor() {
+    final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> TenorCurveNodeMetadata.of(Tenor
+            .of(Period.ofDays((int) (d.toEpochDay() - sensitivityDate.toEpochDay()))));
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES, sensitivityDate);
+    test_from_functions_one_curve_one_date(parameterMetadataFunction, rebucketFunction);
+  }
+
+  public void hard_coded_value_one_curve_one_date_dated_sd() {
+    final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> SimpleCurveNodeMetadata.of(d, "test");
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES, sensitivityDate);
+    test_from_functions_one_curve_one_date(parameterMetadataFunction, rebucketFunction);
+  }
+
+  private void test_from_functions_one_curve_one_date(
+      Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction,
+      Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction) {
     for (int loopdate = 0; loopdate < SENSITIVITY_DATES.size(); loopdate++) {
       List<CurveParameterMetadata> pmdInput = new ArrayList<>();
-      pmdInput.add(SimpleCurveNodeMetadata.of(SENSITIVITY_DATES.get(loopdate), "test"));
+      pmdInput.add(parameterMetadataFunction.apply(SENSITIVITY_DATES.get(loopdate)));
       CurveMetadata cmd = DefaultCurveMetadata.builder().curveName(NAME_1).parameterMetadata(pmdInput).build();
       CurveCurrencyParameterSensitivity s =
           CurveCurrencyParameterSensitivity.of(cmd, CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
       CurveCurrencyParameterSensitivities s2 = CurveCurrencyParameterSensitivities.of(s);
-      CurveCurrencyParameterSensitivities sTarget = CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES);
+      CurveCurrencyParameterSensitivities sTarget = rebucketFunction.apply(s2);
       assertTrue(sTarget.getSensitivities().size() == 1);
       CurveCurrencyParameterSensitivity sTarget1 = sTarget.getSensitivities().get(0);
       assertTrue(sTarget1.getCurveName().equals(NAME_1));
@@ -81,16 +112,45 @@ public class CurveSensitivityUtilsTest {
       assertTrue(sTarget1.getSensitivity().size() == TARGET_DATES.size());
       assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate]),
           WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
-      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1), 
+      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1),
           (1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
     }
   }
 
   public void hard_coded_value_one_curve_all_dates() {
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> SimpleCurveNodeMetadata.of(d, "test");
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES);
+    test_from_functions_one_curve_all_dates(parameterMetadataFunction, rebucketFunction);
+  }
+
+  public void hard_coded_value_one_curve_all_dates_tenor() {
+    final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> TenorCurveNodeMetadata.of(Tenor
+            .of(Period.ofDays((int) (d.toEpochDay() - sensitivityDate.toEpochDay()))));
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES, sensitivityDate);
+    test_from_functions_one_curve_all_dates(parameterMetadataFunction, rebucketFunction);
+  }
+
+  public void hard_coded_value_one_curve_all_dates_dated_sd() {
+    final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
+    Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction =
+        (d) -> SimpleCurveNodeMetadata.of(d, "test");
+    Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction =
+        (s) -> CurveSensitivityUtils.linearRebucketing(s, TARGET_DATES, sensitivityDate);
+    test_from_functions_one_curve_all_dates(parameterMetadataFunction, rebucketFunction);
+  }
+
+  private void test_from_functions_one_curve_all_dates(
+      Function<LocalDate, CurveParameterMetadata> parameterMetadataFunction,
+      Function<CurveCurrencyParameterSensitivities, CurveCurrencyParameterSensitivities> rebucketFunction) {
     List<CurveParameterMetadata> pmdInput = new ArrayList<>();
     double[] sensiExpected = new double[TARGET_DATES.size()];
     for (int loopdate = 0; loopdate < SENSITIVITY_DATES.size(); loopdate++) {
-      pmdInput.add(SimpleCurveNodeMetadata.of(SENSITIVITY_DATES.get(loopdate), "test"));
+      pmdInput.add(parameterMetadataFunction.apply(SENSITIVITY_DATES.get(loopdate)));
       sensiExpected[WEIGHTS_START[loopdate]] += WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT;
       sensiExpected[WEIGHTS_START[loopdate] + 1] += (1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT;
     }
@@ -98,7 +158,7 @@ public class CurveSensitivityUtilsTest {
     CurveCurrencyParameterSensitivity s =
         CurveCurrencyParameterSensitivity.of(cmd, CCY_1, DoubleArray.of(SENSITIVITY_DATES.size(), (d) -> SENSITIVITY_AMOUNT));
     CurveCurrencyParameterSensitivities s2 = CurveCurrencyParameterSensitivities.of(s);
-    CurveCurrencyParameterSensitivities sTarget = CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES);
+    CurveCurrencyParameterSensitivities sTarget = rebucketFunction.apply(s2);
     assertTrue(sTarget.getSensitivities().size() == 1);
     CurveCurrencyParameterSensitivity sTarget1 = sTarget.getSensitivities().get(0);
     assertTrue(sTarget1.getCurveName().equals(NAME_1));
@@ -148,6 +208,8 @@ public class CurveSensitivityUtilsTest {
         CurveCurrencyParameterSensitivity.of(DefaultCurveMetadata.of(NAME_1), CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
     CurveCurrencyParameterSensitivities s2 = CurveCurrencyParameterSensitivities.of(s1);
     assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
+    final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
+    assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES, sensitivityDate));
   }
 
   public void wrong_metadata() {
@@ -155,7 +217,7 @@ public class CurveSensitivityUtilsTest {
     pmdInput.add(TenorCurveNodeMetadata.of(Tenor.TENOR_10M));
     CurveCurrencyParameterSensitivity s1 =
         CurveCurrencyParameterSensitivity.of(
-            DefaultCurveMetadata.builder().curveName(NAME_1).parameterMetadata(pmdInput).build(), 
+            DefaultCurveMetadata.builder().curveName(NAME_1).parameterMetadata(pmdInput).build(),
             CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
     CurveCurrencyParameterSensitivities s2 = CurveCurrencyParameterSensitivities.of(s1);
     assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
