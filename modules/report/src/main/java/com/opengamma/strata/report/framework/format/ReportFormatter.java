@@ -5,18 +5,17 @@
  */
 package com.opengamma.strata.report.framework.format;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import com.bethecoder.table.ASCIITableHeader;
-import com.bethecoder.table.AsciiTableInstance;
-import com.bethecoder.table.spec.AsciiTable;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.report.Report;
@@ -59,7 +58,7 @@ public abstract class ReportFormatter<R extends Report> {
     CsvOutput csvOut = new CsvOutput(outputWriter);
     csvOut.writeLine(report.getColumnHeaders());
     IntStream.range(0, report.getRowCount())
-        .mapToObj(rowIdx -> Arrays.asList(formatRow(report, rowIdx, ReportOutputFormat.CSV)))
+        .mapToObj(rowIdx -> formatRow(report, rowIdx, ReportOutputFormat.CSV))
         .forEach(csvOut::writeLine);
     Unchecked.wrap(outputWriter::flush);
   }
@@ -72,14 +71,41 @@ public abstract class ReportFormatter<R extends Report> {
    */
   public void writeAsciiTable(R report, OutputStream out) {
     List<Class<?>> columnTypes = getColumnTypes(report);
-    ASCIITableHeader[] headers = IntStream.range(0, columnTypes.size())
-        .mapToObj(i -> toAsciiTableHeader(report.getColumnHeaders().get(i), columnTypes.get(i)))
-        .toArray(ASCIITableHeader[]::new);
-    String[][] table = formatTable(report, ReportOutputFormat.ASCII_TABLE);
-    String asciiTable = AsciiTableInstance.get().getTable(headers, table);
+    List<AsciiTableAlignment> alignments = IntStream.range(0, columnTypes.size())
+        .mapToObj(i -> calculateAlignment(columnTypes.get(i)))
+        .collect(toImmutableList());
+    List<String> headers = report.getColumnHeaders();
+    ImmutableList<ImmutableList<String>> cells = formatAsciiTable(report);
+    String asciiTable = AsciiTable.generate(alignments, headers, cells);
     PrintWriter pw = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     pw.println(asciiTable);
     pw.flush();
+  }
+
+  // calculates the alignment to use
+  private AsciiTableAlignment calculateAlignment(Class<?> columnType) {
+    FormatSettings<Object> formatSettings = formatSettingsProvider.settings(columnType, defaultSettings);
+    boolean isNumeric =
+        formatSettings.getCategory() == FormatCategory.NUMERIC || formatSettings.getCategory() == FormatCategory.DATE;
+    return isNumeric ? AsciiTableAlignment.RIGHT : AsciiTableAlignment.LEFT;
+  }
+
+  // formats the ASCII table
+  private ImmutableList<ImmutableList<String>> formatAsciiTable(R report) {
+    ImmutableList.Builder<ImmutableList<String>> table = ImmutableList.builder();
+    for (int rowIdx = 0; rowIdx < report.getRowCount(); rowIdx++) {
+      table.add(formatRow(report, rowIdx, ReportOutputFormat.ASCII_TABLE));
+    }
+    return table.build();
+  }
+
+  // formats a single row
+  private ImmutableList<String> formatRow(R report, int rowIdx, ReportOutputFormat format) {
+    ImmutableList.Builder<String> tableRow = ImmutableList.builder();
+    for (int colIdx = 0; colIdx < report.getColumnCount(); colIdx++) {
+      tableRow.add(formatData(report, rowIdx, colIdx, format));
+    }
+    return tableRow.build();
   }
 
   //-------------------------------------------------------------------------
@@ -125,33 +151,6 @@ public abstract class ReportFormatter<R extends Report> {
     return format == ReportOutputFormat.CSV ?
         formatter.formatForCsv(formatValue) :
         formatter.formatForDisplay(formatValue);
-  }
-
-  //-------------------------------------------------------------------------
-  private ASCIITableHeader toAsciiTableHeader(String header, Class<?> columnType) {
-    FormatSettings<Object> formatSettings = formatSettingsProvider.settings(columnType, defaultSettings);
-    boolean isNumeric =
-        formatSettings.getCategory() == FormatCategory.NUMERIC ||
-            formatSettings.getCategory() == FormatCategory.DATE;
-    int align = isNumeric ? AsciiTable.ALIGN_RIGHT : AsciiTable.ALIGN_LEFT;
-    return ASCIITableHeader.h(header, align, align);
-  }
-
-  private String[][] formatTable(R report, ReportOutputFormat format) {
-    String[][] table = new String[report.getRowCount()][];
-
-    for (int r = 0; r < table.length; r++) {
-      table[r] = formatRow(report, r, format);
-    }
-    return table;
-  }
-
-  private String[] formatRow(R report, int rowIdx, ReportOutputFormat format) {
-    String[] tableRow = new String[report.getColumnCount()];
-    for (int colIdx = 0; colIdx < report.getColumnCount(); colIdx++) {
-      tableRow[colIdx] = formatData(report, rowIdx, colIdx, format);
-    }
-    return tableRow;
   }
 
 }
