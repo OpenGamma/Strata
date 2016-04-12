@@ -125,8 +125,10 @@ public final class RatesCalibrationCsvLoader {
   private static final Pattern FRA_TIME_REGEX = Pattern.compile("P?([0-9]+)M? ?X ?P?([0-9]+)M?");
   // Regex to parse FRA time string
   private static final Pattern FUT_TIME_REGEX = Pattern.compile("P?((?:[0-9]+D)?(?:[0-9]+W)?(?:[0-9]+M)?) ?[+] ?([0-9]+)");
-  // Regex to parse simple time string
-  private static final Pattern SIMPLE_TIME_REGEX = Pattern.compile("P?(([0-9]+M)?([0-9]+Y)?)");
+  // Regex to parse simple time string with years, months and days
+  private static final Pattern SIMPLE_YMD_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?([0-9]+D)?)");
+  // Regex to parse simple time string with years and months
+  private static final Pattern SIMPLE_YM_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?)");
 
   //-------------------------------------------------------------------------
   /**
@@ -280,7 +282,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Term Deposit: {}", timeStr));
     }
@@ -347,7 +349,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Fixed-Overnight swap: {}", timeStr));
     }
@@ -364,7 +366,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Fixed-Ibor swap: {}", timeStr));
     }
@@ -381,7 +383,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Ibor-Ibor swap: {}", timeStr));
     }
@@ -398,7 +400,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Three legs basis swap: {}", timeStr));
     }
@@ -415,7 +417,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Cross Currency Swap: {}", timeStr));
     }
@@ -436,7 +438,7 @@ public final class RatesCalibrationCsvLoader {
     if (!DoubleMath.fuzzyEquals(spread, 0d, 1e-10d)) {
       throw new IllegalArgumentException("Additional spread must be zero for FX swaps");
     }
-    Matcher matcher = SIMPLE_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for FX swap: {}", timeStr));
     }
