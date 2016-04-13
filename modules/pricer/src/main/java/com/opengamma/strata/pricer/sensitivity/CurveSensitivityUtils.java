@@ -10,23 +10,96 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
+import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
+import com.opengamma.strata.product.ResolvedTrade;
 
 /**
  * Utilities to transform sensitivities.
  */
 public class CurveSensitivityUtils {
+  /**
+   * The matrix algebra used for matrix inversion.
+   */
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
+  
+  /**
+   * Construct the inverse Jacobian matrix from the trades market quotes sensitivities.
+   * <p>
+   * All the trades and sensitivities must be in the same currency. The data should be coherent with the
+   * market quote sensitivities passed in an order coherent with the list of curves.
+   * <p>
+   * For each trade describing the market quotes, the sensitivity provided should be the sensitivity of that
+   * market quote to the curve parameters.
+   * 
+   * @param order  the order in which the curves should be represented in the jacobian
+   * @param marketQuoteSensitivities  the market quotes sensitivity to the curve parameters
+   * @return inverse jacobian matrix, which correspond to the sensitivity of the parameters to the market quotes.
+   */
+  public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
+      List<CurveParameterSize> order,
+      List<CurveCurrencyParameterSensitivities> marketQuoteSensitivities) {
+    Currency ccy = marketQuoteSensitivities.get(0).getSensitivities().get(0).getCurrency();
+    DoubleMatrix j = DoubleMatrix.ofArrayObjects(
+        marketQuoteSensitivities.size(),
+        marketQuoteSensitivities.size(),
+        i -> row(order, marketQuoteSensitivities.get(i), ccy));
+
+    return MATRIX_ALGEBRA.getInverse(j);
+  }
+
+  /**
+   * Computes the row corresponding to a trade for the Jacobian matrix.
+   * 
+   * @param order  the curve order
+   * @param s  the sensitivities
+   * @param ccy  the sensitivities currency
+   * @return
+   */
+  private static DoubleArray row(
+      List<CurveParameterSize> order,
+      CurveCurrencyParameterSensitivities s,
+      Currency ccy) {
+    DoubleArray row = DoubleArray.EMPTY;
+    for (CurveParameterSize n : order) {
+      Optional<CurveCurrencyParameterSensitivity> so = s.findSensitivity(n.getName(), ccy);
+      if (so.isPresent()) {
+        row = row.concat(so.get().getSensitivity());
+      } else {
+        row = row.concat(DoubleArray.ofUnsafe(new double[n.getParameterCount()]));
+      }
+    }
+    return row;
+  }
+  
+
+  public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
+      List<CurveParameterSize> order,
+      List<ResolvedTrade> trades,
+      Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction) {
+    List<CurveCurrencyParameterSensitivities> marketQuoteSensitivities = new ArrayList<>();
+    for (ResolvedTrade t : trades) {
+      marketQuoteSensitivities.add(sensitivityFunction.apply(t));
+    }
+    return jacobianFromMarketQuoteSensitivities(order, marketQuoteSensitivities);
+  }
 
   /**
    * Re-buckets a {@link CurveCurrencyParameterSensitivities} to a given set of dates. 
@@ -75,7 +148,6 @@ public class CurveSensitivityUtils {
     }
     return CurveCurrencyParameterSensitivities.of(sensitivityTarget);
   }
-
   /**
    * Re-buckets a {@link CurveCurrencyParameterSensitivities} to a given set of dates. 
    * <p>
