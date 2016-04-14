@@ -39,7 +39,7 @@ public class CurveSensitivityUtils {
    * The matrix algebra used for matrix inversion.
    */
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
-  
+
   /**
    * Construct the inverse Jacobian matrix from the trades market quotes sensitivities.
    * <p>
@@ -88,7 +88,6 @@ public class CurveSensitivityUtils {
     }
     return row;
   }
-  
 
   public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
       List<CurveParameterSize> order,
@@ -148,6 +147,7 @@ public class CurveSensitivityUtils {
     }
     return CurveCurrencyParameterSensitivities.of(sensitivityTarget);
   }
+  
   /**
    * Re-buckets a {@link CurveCurrencyParameterSensitivities} to a given set of dates. 
    * <p>
@@ -206,35 +206,35 @@ public class CurveSensitivityUtils {
     return CurveCurrencyParameterSensitivities.of(sensitivityTarget);
   }
 
-  /**
-   * Re-bucket one sensitivity at a specific date and add it to an existing array.
-   * 
-   * @param targetDates  the list of dates for the re-bucketing
-   * @param rebucketedSensitivityAmounts  the array of sensitivities; the array is modified by the method
-   * @param sensitivityAmount  the value of the sensitivity at the given data
-   * @param sensitivityDate  the date associated to the amount to re-bucket
-   */
-  private static void rebucketingArray(
-      List<LocalDate> targetDates, 
-      double[] rebucketedSensitivityAmounts, 
-      double sensitivityAmount, 
-      LocalDate sensitivityDate) {
-    int nbBuckets = targetDates.size();
-    if (!sensitivityDate.isAfter(targetDates.get(0))) {
-      rebucketedSensitivityAmounts[0] += sensitivityAmount;
-    } else if (!sensitivityDate.isBefore(targetDates.get(nbBuckets - 1))) {
-      rebucketedSensitivityAmounts[nbBuckets - 1] += sensitivityAmount;
-    } else {
-      int indexSensitivityDate = 0;
-      while (sensitivityDate.isAfter(targetDates.get(indexSensitivityDate))) {
-        indexSensitivityDate++;
-      } // 'indexSensitivityDate' contains the index of the node after the sensitivity date 
-      long intervalLength = targetDates.get(indexSensitivityDate).toEpochDay() - targetDates.get(indexSensitivityDate - 1).toEpochDay();
-      double weight = ((double) (targetDates.get(indexSensitivityDate).toEpochDay() - sensitivityDate.toEpochDay())) / intervalLength;
-      rebucketedSensitivityAmounts[indexSensitivityDate - 1] += weight * sensitivityAmount;
-      rebucketedSensitivityAmounts[indexSensitivityDate] += (1.0d - weight) * sensitivityAmount;
-    }
+/**
+ * Re-bucket one sensitivity at a specific date and add it to an existing array.
+ * 
+ * @param targetDates  the list of dates for the re-bucketing
+ * @param rebucketedSensitivityAmounts  the array of sensitivities; the array is modified by the method
+ * @param sensitivityAmount  the value of the sensitivity at the given data
+ * @param sensitivityDate  the date associated to the amount to re-bucket
+ */
+private static void rebucketingArray(
+    List<LocalDate> targetDates, 
+    double[] rebucketedSensitivityAmounts, 
+    double sensitivityAmount, 
+    LocalDate sensitivityDate) {
+  int nbBuckets = targetDates.size();
+  if (!sensitivityDate.isAfter(targetDates.get(0))) {
+    rebucketedSensitivityAmounts[0] += sensitivityAmount;
+  } else if (!sensitivityDate.isBefore(targetDates.get(nbBuckets - 1))) {
+    rebucketedSensitivityAmounts[nbBuckets - 1] += sensitivityAmount;
+  } else {
+    int indexSensitivityDate = 0;
+    while (sensitivityDate.isAfter(targetDates.get(indexSensitivityDate))) {
+      indexSensitivityDate++;
+    } // 'indexSensitivityDate' contains the index of the node after the sensitivity date 
+    long intervalLength = targetDates.get(indexSensitivityDate).toEpochDay() - targetDates.get(indexSensitivityDate - 1).toEpochDay();
+    double weight = ((double) (targetDates.get(indexSensitivityDate).toEpochDay() - sensitivityDate.toEpochDay())) / intervalLength;
+    rebucketedSensitivityAmounts[indexSensitivityDate - 1] += weight * sensitivityAmount;
+    rebucketedSensitivityAmounts[indexSensitivityDate] += (1.0d - weight) * sensitivityAmount;
   }
+}
 
   // Check that the dates in the list are sorted in chronological order.
   private static void checkSortedDates(List<LocalDate> dates) {
