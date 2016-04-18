@@ -121,6 +121,11 @@ public class PricingRuleTest {
   public static final class TestFunction1 implements CalculationFunction<TestTrade1> {
 
     @Override
+    public Class<TestTrade1> targetType() {
+      return TestTrade1.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return ImmutableSet.of(Measures.PRESENT_VALUE);
     }
@@ -150,6 +155,11 @@ public class PricingRuleTest {
   //-------------------------------------------------------------------------
   // function for testing
   public static final class TestFunction2 implements CalculationFunction<TestTrade1> {
+
+    @Override
+    public Class<TestTrade1> targetType() {
+      return TestTrade1.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {

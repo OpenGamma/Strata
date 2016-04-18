@@ -59,6 +59,11 @@ public class GenericSecurityTradeCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<GenericSecurityTrade> targetType() {
+    return GenericSecurityTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

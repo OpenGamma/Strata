@@ -69,6 +69,11 @@ public class TermDepositCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<TermDepositTrade> targetType() {
+    return TermDepositTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

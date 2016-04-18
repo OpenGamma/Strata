@@ -227,6 +227,11 @@ public class CurveEndToEndTest {
       implements CalculationFunction<FraTrade> {
 
     @Override
+    public Class<FraTrade> targetType() {
+      return FraTrade.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return ImmutableSet.of(Measures.PRESENT_VALUE);
     }

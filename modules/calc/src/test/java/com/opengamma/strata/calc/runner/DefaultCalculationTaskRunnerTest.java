@@ -34,6 +34,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
@@ -123,11 +124,12 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   //-------------------------------------------------------------------------
-  private static class TestTarget implements CalculationTarget {
-  }
-
-  //-------------------------------------------------------------------------
   public static final class TestFunction implements CalculationFunction<TestTarget> {
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {
@@ -171,6 +173,11 @@ public class DefaultCalculationTaskRunnerTest {
     private ScenarioResultFunction(Measure measure, ScenarioResult<String> result) {
       this.measure = measure;
       this.result = result;
+    }
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
     }
 
     @Override

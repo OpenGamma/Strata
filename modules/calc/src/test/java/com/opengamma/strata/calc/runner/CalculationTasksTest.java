@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
@@ -40,6 +39,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestKey;
 import com.opengamma.strata.calc.marketdata.mapping.DefaultMarketDataMappings;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
@@ -141,12 +141,13 @@ public class CalculationTasksTest {
   }
 
   //-------------------------------------------------------------------------
-  private static class TestTarget implements CalculationTarget {
-
-  }
-
   // function for testing
   public static final class TestFunction implements CalculationFunction<TestTarget> {
+
+    @Override
+    public Class<TestTarget> targetType() {
+      return TestTarget.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {

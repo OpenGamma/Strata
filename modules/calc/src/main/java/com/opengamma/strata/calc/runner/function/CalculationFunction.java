@@ -26,6 +26,8 @@ import com.opengamma.strata.collect.result.Result;
  * for a target (trade) using one or more sets of market data (scenarios).
  * The methods of the function allow the {@link CalculationRunner} to correctly invoke the function:
  * <ul>
+ * <li>{@link #targetType()}
+ *  - the target type that the function applies to
  * <li>{@link #supportedMeasures()}
  *  - the set of measures that can be calculated
  * <li>{@link #naturalCurrency(CalculationTarget, ReferenceData)}
@@ -42,6 +44,15 @@ import com.opengamma.strata.collect.result.Result;
  * @param <T>  the type of target handled by this function
  */
 public interface CalculationFunction<T extends CalculationTarget> {
+
+  /**
+   * Gets the target type that this function applies to.
+   * <p>
+   * The target type will typically be a concrete class.
+   *
+   * @return the target type
+   */
+  public abstract Class<T> targetType();
 
   /**
    * Returns the set of measures that the function can calculate.
@@ -81,7 +92,10 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * @param refData  the reference data to be used in the calculation
    * @return the requirements specifying the market data the function needs to perform calculations
    */
-  public abstract FunctionRequirements requirements(T target, Set<Measure> measures, ReferenceData refData);
+  public abstract FunctionRequirements requirements(
+      T target,
+      Set<Measure> measures,
+      ReferenceData refData);
 
   /**
    * Calculates values of multiple measures for the target using multiple sets of market data.

@@ -75,6 +75,11 @@ public class DeliverableSwapFutureCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<DeliverableSwapFutureTrade> targetType() {
+    return DeliverableSwapFutureTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }

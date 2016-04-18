@@ -133,6 +133,11 @@ public class PricingRulesTest {
   public static final class TestFunction1 implements CalculationFunction<TestTrade1> {
 
     @Override
+    public Class<TestTrade1> targetType() {
+      return TestTrade1.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -164,6 +169,11 @@ public class PricingRulesTest {
   public static final class TestFunction2 implements CalculationFunction<TestTrade1> {
 
     @Override
+    public Class<TestTrade1> targetType() {
+      return TestTrade1.class;
+    }
+
+    @Override
     public Set<Measure> supportedMeasures() {
       return MEASURES;
     }
@@ -193,6 +203,11 @@ public class PricingRulesTest {
   //-------------------------------------------------------------------------
   // function for testing
   public static final class TestFunction3 implements CalculationFunction<TestTrade2> {
+
+    @Override
+    public Class<TestTrade2> targetType() {
+      return TestTrade2.class;
+    }
 
     @Override
     public Set<Measure> supportedMeasures() {

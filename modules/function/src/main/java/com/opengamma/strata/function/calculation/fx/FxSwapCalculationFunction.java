@@ -75,6 +75,11 @@ public class FxSwapCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<FxSwapTrade> targetType() {
+    return FxSwapTrade.class;
+  }
+
+  @Override
   public Set<Measure> supportedMeasures() {
     return MEASURES;
   }
