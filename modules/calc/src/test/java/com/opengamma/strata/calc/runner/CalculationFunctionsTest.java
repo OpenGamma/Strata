@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestFunction;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * Test {@link CalculationFunctions}.
@@ -25,43 +26,39 @@ import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 @Test
 public class CalculationFunctionsTest {
 
-  private static final TestFunction TARGET = new TestFunction();
+  private static final CalculationFunction<TestTarget> TARGET = new TestFunction();
 
   public void empty() {
     CalculationFunctions test = CalculationFunctions.empty();
-    assertEquals(test.getFunctions().size(), 0);
-    assertEquals(test.getFunction(new TestTarget(), TARGET), TARGET);
+    assertEquals(test.getFunction(new TestTarget()).supportedMeasures().size(), 0);
     assertEquals(test.findFunction(new TestTarget()), Optional.empty());
   }
 
   public void of_array() {
     CalculationFunctions test = CalculationFunctions.of(TARGET);
-    assertEquals(test.getFunctions().size(), 1);
-    assertEquals(test.getFunction(new TestTarget(), null), TARGET);
+    assertEquals(test.getFunction(new TestTarget()), TARGET);
     assertEquals(test.findFunction(new TestTarget()), Optional.of(TARGET));
   }
 
   public void of_list() {
     CalculationFunctions test = CalculationFunctions.of(ImmutableList.of(TARGET));
-    assertEquals(test.getFunctions().size(), 1);
-    assertEquals(test.getFunction(new TestTarget(), null), TARGET);
+    assertEquals(test.getFunction(new TestTarget()), TARGET);
     assertEquals(test.findFunction(new TestTarget()), Optional.of(TARGET));
   }
 
   public void of_map() {
     CalculationFunctions test = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, TARGET));
-    assertEquals(test.getFunctions().size(), 1);
-    assertEquals(test.getFunction(new TestTarget(), null), TARGET);
+    assertEquals(test.getFunction(new TestTarget()), TARGET);
     assertEquals(test.findFunction(new TestTarget()), Optional.of(TARGET));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CalculationFunctions test = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, TARGET));
+    DefaultCalculationFunctions test = DefaultCalculationFunctions.of(ImmutableMap.of(TestTarget.class, TARGET));
     coverImmutableBean(test);
-    CalculationFunctions test2 = CalculationFunctions.empty();
+    DefaultCalculationFunctions test2 = DefaultCalculationFunctions.EMPTY;
     coverBeanEquals(test, test2);
-    assertNotNull(CalculationFunctions.meta());
+    assertNotNull(DefaultCalculationFunctions.meta());
   }
 
 }

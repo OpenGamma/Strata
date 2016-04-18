@@ -25,6 +25,11 @@ public class MissingConfigCalculationFunction
     implements CalculationFunction<CalculationTarget> {
   // this must be public so that the constructor can be invoked
 
+  /**
+   * Shared instance.
+   */
+  public static final CalculationFunction<CalculationTarget> INSTANCE = new MissingConfigCalculationFunction();
+
   @Override
   public Class<CalculationTarget> targetType() {
     return CalculationTarget.class;
@@ -53,7 +58,7 @@ public class MissingConfigCalculationFunction
       ReferenceData refData) {
 
     throw new IllegalStateException(Messages.format(
-        "No rule configured for measures {} on '{}'", measures, target.getClass().getSimpleName()));
+        "No function configured for measures {} on '{}'", measures, target.getClass().getSimpleName()));
   }
 
 }

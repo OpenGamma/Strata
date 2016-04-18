@@ -48,7 +48,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
   /**
    * Gets the target type that this function applies to.
    * <p>
-   * The target type will be matched exactly, thus it should be a class, not an interface.
+   * The target type will typically be a concrete class.
    *
    * @return the target type
    */

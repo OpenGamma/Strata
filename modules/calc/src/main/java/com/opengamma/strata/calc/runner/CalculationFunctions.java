@@ -7,63 +7,42 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.light.LightMetaBean;
-
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.config.MissingConfigCalculationFunction;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The calculation functions.
  * <p>
  * This provides the complete set of functions that will be used in a calculation.
- * Each {@link CalculationFunction} handles a specific type of {@link CalculationTarget},
- * thus the functions are keyed in a {@code Map} by the target type {@code Class}.
+ * <p>
+ * The default implementation is accessed by the static factory methods.
+ * It matches the {@link CalculationFunction} by the type of the {@link CalculationTarget}.
+ * As such, the default implementation is essentially a {@code Map} where the keys are the
+ * target type {@code Class} that the function operates on.
  */
-@BeanDefinition(style = "light")
-public final class CalculationFunctions implements ImmutableBean, Serializable {
+public interface CalculationFunctions {
 
-  /**
-   * An empty instance.
-   */
-  private static final CalculationFunctions EMPTY = new CalculationFunctions(ImmutableMap.of());
-
-  /**
-   * The functions, keyed by target type.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Class<?>, CalculationFunction<?>> functions;
-
-  //-------------------------------------------------------------------------
   /**
    * Obtains an empty instance with no functions.
    * 
    * @return the empty instance
    */
   public static CalculationFunctions empty() {
-    return EMPTY;
+    return DefaultCalculationFunctions.EMPTY;
   }
 
   /**
    * Obtains an instance from the specified functions.
    * <p>
-   * The list will be converted to a {@code Map} using {@link CalculationFunction#targetType()}.
+   * This returns an implementation that matches the function by the type of the
+   * target, as returned by {@link CalculationFunction#targetType()}.
+   * The list will be converted to a {@code Map} keyed by the target type.
    * Each function must refer to a different target type.
    * 
    * @param functions  the functions
@@ -71,25 +50,29 @@ public final class CalculationFunctions implements ImmutableBean, Serializable {
    */
   @SafeVarargs
   public static CalculationFunctions of(CalculationFunction<?>... functions) {
-    return new CalculationFunctions(Stream.of(functions).collect(toImmutableMap(fn -> fn.targetType())));
+    return DefaultCalculationFunctions.of(Stream.of(functions).collect(toImmutableMap(fn -> fn.targetType())));
   }
 
   /**
    * Obtains an instance from the specified functions.
    * <p>
-   * The list will be converted to a {@code Map} using {@link CalculationFunction#targetType()}.
+   * This returns an implementation that matches the function by the type of the
+   * target, as returned by {@link CalculationFunction#targetType()}.
+   * The list will be converted to a {@code Map} keyed by the target type.
    * Each function must refer to a different target type.
    * 
    * @param functions  the functions
    * @return the calculation functions
    */
   public static CalculationFunctions of(List<? extends CalculationFunction<?>> functions) {
-    return new CalculationFunctions(functions.stream().collect(toImmutableMap(fn -> fn.targetType())));
+    return DefaultCalculationFunctions.of(functions.stream().collect(toImmutableMap(fn -> fn.targetType())));
   }
 
   /**
    * Obtains an instance from the specified functions.
    * <p>
+   * This returns an implementation that matches the function by the type of the target.
+   * When finding the matching function, the target type is looked up in the specified map.
    * The map will be validated to ensure the {@code Class} is consistent with
    * {@link CalculationFunction#targetType()}.
    * 
@@ -97,125 +80,32 @@ public final class CalculationFunctions implements ImmutableBean, Serializable {
    * @return the calculation functions
    */
   public static CalculationFunctions of(Map<Class<?>, ? extends CalculationFunction<?>> functions) {
-    return new CalculationFunctions(ImmutableMap.copyOf(functions));
-  }
-
-  @ImmutableValidator
-  private void validate() {
-    for (Entry<Class<?>, CalculationFunction<?>> entry : functions.entrySet()) {
-      ArgChecker.isTrue(
-          entry.getValue().targetType().isAssignableFrom(entry.getKey()),
-          "Invalid map, key and function mismatch: {}", entry.getKey());
-    }
+    return DefaultCalculationFunctions.of(functions);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the function that handles the specified target.
+   * <p>
+   * If no function is found, a suitable default that can perform no calculations is provided.
    * 
+   * @param <T>  the target type
    * @param target  the calculation target, such as a trade
-   * @param defaultFunction  the default function to use if not found
    * @return the function
    */
-  public CalculationFunction<?> getFunction(CalculationTarget target, CalculationFunction<?> defaultFunction) {
-    CalculationFunction<?> function = functions.get(target.getClass());
-    return function != null ? function : defaultFunction;
+  public default <T extends CalculationTarget> CalculationFunction<? super T> getFunction(T target) {
+    return findFunction(target).orElse(MissingConfigCalculationFunction.INSTANCE);
   }
 
   /**
    * Finds the function that handles the specified target.
+   * <p>
+   * If no function is found the result is empty.
    * 
+   * @param <T>  the target type
    * @param target  the calculation target, such as a trade
-   * @return the function
+   * @return the function, empty if not found
    */
-  public Optional<CalculationFunction<?>> findFunction(CalculationTarget target) {
-    return Optional.ofNullable(functions.get(target.getClass()));
-  }
+  public abstract <T extends CalculationTarget> Optional<CalculationFunction<? super T>> findFunction(T target);
 
-  //------------------------- AUTOGENERATED START -------------------------
-  ///CLOVER:OFF
-  /**
-   * The meta-bean for {@code CalculationFunctions}.
-   */
-  private static MetaBean META_BEAN = LightMetaBean.of(CalculationFunctions.class);
-
-  /**
-   * The meta-bean for {@code CalculationFunctions}.
-   * @return the meta-bean, not null
-   */
-  public static MetaBean meta() {
-    return META_BEAN;
-  }
-
-  static {
-    JodaBeanUtils.registerMetaBean(META_BEAN);
-  }
-
-  /**
-   * The serialization version id.
-   */
-  private static final long serialVersionUID = 1L;
-
-  private CalculationFunctions(
-      Map<Class<?>, CalculationFunction<?>> functions) {
-    JodaBeanUtils.notNull(functions, "functions");
-    this.functions = ImmutableMap.copyOf(functions);
-    validate();
-  }
-
-  @Override
-  public MetaBean metaBean() {
-    return META_BEAN;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the functions, keyed by target type.
-   * @return the value of the property, not null
-   */
-  public ImmutableMap<Class<?>, CalculationFunction<?>> getFunctions() {
-    return functions;
-  }
-
-  //-----------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CalculationFunctions other = (CalculationFunctions) obj;
-      return JodaBeanUtils.equal(functions, other.functions);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(functions);
-    return hash;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(64);
-    buf.append("CalculationFunctions{");
-    buf.append("functions").append('=').append(JodaBeanUtils.toString(functions));
-    buf.append('}');
-    return buf.toString();
-  }
-
-  ///CLOVER:ON
-  //-------------------------- AUTOGENERATED END --------------------------
 }

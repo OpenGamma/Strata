@@ -50,6 +50,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Factory methods for creating standard Strata components.
@@ -179,7 +180,7 @@ public class StandardComponents {
   /**
    * Returns the standard calculation functions.
    * <p>
-   * These rules define how to calculate the standard measures for the standard asset classes.
+   * These define how to calculate the standard measures for the standard asset classes.
    * <p>
    * The standard calculation functions require no further configuration and are designed to allow
    * easy access to all built-in asset class coverage.
@@ -195,6 +196,7 @@ public class StandardComponents {
    *  <li>Generic Security - {@link GenericSecurityTrade}
    *  <li>STIR Future (Ibor) - {@link IborFutureTrade}
    *  <li>Rate Swap - {@link SwapTrade}
+   *  <li>Swaption - {@link SwaptionTrade}
    *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
