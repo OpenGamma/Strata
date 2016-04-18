@@ -19,18 +19,20 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class AsciiTableTest {
 
+  private static final String LINE_SEPARATOR = System.lineSeparator();
+
   public void test_generate_padData() {
     List<AsciiTableAlignment> alignments = ImmutableList.of(AsciiTableAlignment.LEFT, AsciiTableAlignment.RIGHT);
     List<String> headers = ImmutableList.of("Alpha", "Beta");
     List<List<String>> cells = ImmutableList.of(ImmutableList.of("12", "23"), ImmutableList.of("12345", ""));
     String test = AsciiTable.generate(alignments, headers, cells);
     String expected = "" +
-        "+-------+------+\n" +
-        "| Alpha | Beta |\n" +
-        "+-------+------+\n" +
-        "| 12    |   23 |\n" +
-        "| 12345 |      |\n" +
-        "+-------+------+\n";
+        "+-------+------+" + LINE_SEPARATOR +
+        "| Alpha | Beta |" + LINE_SEPARATOR +
+        "+-------+------+" + LINE_SEPARATOR +
+        "| 12    |   23 |" + LINE_SEPARATOR +
+        "| 12345 |      |" + LINE_SEPARATOR +
+        "+-------+------+" + LINE_SEPARATOR;
     assertEquals(test, expected);
   }
 
@@ -40,12 +42,12 @@ public class AsciiTableTest {
     List<List<String>> cells = ImmutableList.of(ImmutableList.of("12", "23"), ImmutableList.of("12345", ""));
     String test = AsciiTable.generate(alignments, headers, cells);
     String expected = "" +
-        "+-------+----+\n" +
-        "| A     |  B |\n" +
-        "+-------+----+\n" +
-        "| 12    | 23 |\n" +
-        "| 12345 |    |\n" +
-        "+-------+----+\n";
+        "+-------+----+" + LINE_SEPARATOR +
+        "| A     |  B |" + LINE_SEPARATOR +
+        "+-------+----+" + LINE_SEPARATOR +
+        "| 12    | 23 |" + LINE_SEPARATOR +
+        "| 12345 |    |" + LINE_SEPARATOR +
+        "+-------+----+" + LINE_SEPARATOR;
     assertEquals(test, expected);
   }
 
