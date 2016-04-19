@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.pricer.sensitivity;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
@@ -48,7 +49,7 @@ public class CurveSensitivityUtils {
     int nbBuckets = targetDates.size();    
     List<CurveParameterMetadata> pmdTarget = targetDates.stream()
         .map(date -> SimpleCurveNodeMetadata.of(date, date.toString()))
-        .collect(Collectors.toList());
+        .collect(toList());
     ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
     List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
     for (CurveCurrencyParameterSensitivity sensitivity : sensitivitiesList) {
@@ -99,7 +100,7 @@ public class CurveSensitivityUtils {
     int nbBuckets = targetDates.size(); 
     List<CurveParameterMetadata> pmdTarget = targetDates.stream()
         .map(date -> SimpleCurveNodeMetadata.of(date, date.toString()))
-        .collect(Collectors.toList());
+        .collect(toList());
     ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
     List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
     for (CurveCurrencyParameterSensitivity sensitivity : sensitivitiesList) {
