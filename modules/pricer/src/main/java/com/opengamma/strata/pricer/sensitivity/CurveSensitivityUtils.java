@@ -58,11 +58,12 @@ public class CurveSensitivityUtils {
       List<CurveParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
           .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
-        ArgChecker.isTrue(parameterMetadataList.get(loopnode) instanceof DatedCurveParameterMetadata,
+        CurveParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
+        ArgChecker.isTrue(nodeMetadata instanceof DatedCurveParameterMetadata,
             "re-bucketing requires sensitivity date for node {} which is of type {} while 'DatedCurveParameterMetadata' is expected", 
-            parameterMetadataList.get(loopnode).getLabel(), parameterMetadataList.get(loopnode).getClass());
-        DatedCurveParameterMetadata dpm = (DatedCurveParameterMetadata) parameterMetadataList.get(loopnode);
-        LocalDate nodeDate = dpm.getDate();
+            nodeMetadata.getLabel(), nodeMetadata.getClass().getName());
+        DatedCurveParameterMetadata datedParameterMetadata = (DatedCurveParameterMetadata) nodeMetadata;
+        LocalDate nodeDate = datedParameterMetadata.getDate();
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);
       }
       CurveCurrencyParameterSensitivity rebucketedSensitivity =
@@ -108,17 +109,18 @@ public class CurveSensitivityUtils {
       List<CurveParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
           .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
-        ArgChecker.isTrue((parameterMetadataList.get(loopnode) instanceof DatedCurveParameterMetadata) ||
-            (parameterMetadataList.get(loopnode) instanceof TenorCurveNodeMetadata), 
+        CurveParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
+        ArgChecker.isTrue((nodeMetadata instanceof DatedCurveParameterMetadata) ||
+            (nodeMetadata instanceof TenorCurveNodeMetadata), 
             "re-bucketing requires sensitivity date or node for node {} which is of type {}", 
-            parameterMetadataList.get(loopnode).getLabel(), parameterMetadataList.get(loopnode).getClass());
+            nodeMetadata.getLabel(), nodeMetadata.getClass().getName());
         LocalDate nodeDate;
-        if (parameterMetadataList.get(loopnode) instanceof DatedCurveParameterMetadata) {
-          DatedCurveParameterMetadata dpm = (DatedCurveParameterMetadata) parameterMetadataList.get(loopnode);
-          nodeDate = dpm.getDate();
+        if (nodeMetadata instanceof DatedCurveParameterMetadata) {
+          DatedCurveParameterMetadata datedParameterMetadata = (DatedCurveParameterMetadata) nodeMetadata;
+          nodeDate = datedParameterMetadata.getDate();
         } else {
-          TenorCurveNodeMetadata tpm = (TenorCurveNodeMetadata) parameterMetadataList.get(loopnode);
-          nodeDate = sensitivityDate.plus(tpm.getTenor());
+          TenorCurveNodeMetadata tenorParameterMetadata = (TenorCurveNodeMetadata) nodeMetadata;
+          nodeDate = sensitivityDate.plus(tenorParameterMetadata.getTenor());
         }
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);
       }
