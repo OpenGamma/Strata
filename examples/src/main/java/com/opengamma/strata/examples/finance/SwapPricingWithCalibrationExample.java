@@ -129,7 +129,7 @@ public class SwapPricingWithCalibrationExample {
 
     // create the market data used for calculations
     MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
-        .addValues(quotes)
+        .addSingleValues(quotes)
         .addTimeSeries(fixings)
         .build();
 

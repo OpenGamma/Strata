@@ -81,9 +81,9 @@ import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
-import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -182,7 +182,7 @@ public class CurveEndToEndTest {
 
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
     MarketEnvironment knownMarketData = MarketEnvironment.builder(date(2011, 3, 8))
-        .addValues(parRateData)
+        .addSingleValues(parRateData)
         .build();
 
     // using the direct executor means there is no need to close/shutdown the runner

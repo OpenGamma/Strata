@@ -185,8 +185,8 @@ public class CalibrationXCcyCheckExample {
 
     // create the market data used for calculations
     MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
-        .addValues(quotes)
-        .addValues(fxRates)
+        .addSingleValues(quotes)
+        .addSingleValues(fxRates)
         .build();
 
     // create the market data used for building trades
