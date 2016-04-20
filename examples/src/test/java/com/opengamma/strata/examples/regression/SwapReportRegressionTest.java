@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -77,11 +76,8 @@ public class SwapReportRegressionTest {
 
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
-    CalculationRules rules = CalculationRules.builder()
-        .pricingRules(StandardComponents.pricingRules())
-        .marketDataRules(marketDataBuilder.rules())
-        .reportingCurrency(ReportingCurrency.of(Currency.USD))
-        .build();
+    CalculationRules rules = CalculationRules.of(
+        StandardComponents.calculationFunctions(), marketDataBuilder.rules(), Currency.USD);
 
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);

@@ -57,7 +57,8 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapScenarioResults() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
     Column column = Column.of(Measures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -83,7 +84,8 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapMultipleScenarioResults() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PAR_RATE, scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PAR_RATE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PAR_RATE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
     Column column = Column.of(Measures.PAR_RATE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -100,7 +102,8 @@ public class DefaultCalculationTaskRunnerTest {
   public void unwrapScenarioResultsAsync() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MarketDataMappings.empty(), NATURAL);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
     Column column = Column.of(Measures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -142,7 +145,11 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -191,7 +198,11 @@ public class DefaultCalculationTaskRunnerTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.empty();
     }
 

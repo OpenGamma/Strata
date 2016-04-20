@@ -16,6 +16,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.TaskBuilder;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
@@ -30,6 +31,8 @@ import com.opengamma.strata.collect.result.Result;
  *  - the target type that the function applies to
  * <li>{@link #supportedMeasures()}
  *  - the set of measures that can be calculated
+ * <li>{@link #manageTasks(TaskBuilder)}
+ *  - the execution tasks that are needed
  * <li>{@link #naturalCurrency(CalculationTarget, ReferenceData)}
  *  - the "natural" currency of the target
  * <li>{@link #requirements(CalculationTarget, Set, ReferenceData)}
@@ -81,6 +84,20 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * @throws IllegalStateException if the function calculates no currency-convertible measures
    */
   public abstract Currency naturalCurrency(T target, ReferenceData refData);
+
+  /**
+   * Manages the calculation tasks.
+   * <p>
+   * This allows a function to control the tasks that are executed to calculate the results.
+   * <p>
+   * The tasks are created using a dedicated builder that provides access to the target and columns.
+   * Customization of the tasks can be achieved by calling methods on the builder.
+   * 
+   * @param builder  the calculation task builder
+   */
+  public default void manageTasks(TaskBuilder builder) {
+    // default behavior is to do nothing
+  }
 
   /**
    * Determines the market data required by this function to perform its calculations.

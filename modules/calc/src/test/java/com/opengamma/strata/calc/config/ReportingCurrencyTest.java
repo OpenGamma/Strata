@@ -26,6 +26,7 @@ public class ReportingCurrencyTest {
     assertEquals(test.getType(), ReportingCurrencyType.NATURAL);
     assertEquals(test.isNatural(), true);
     assertEquals(test.isSpecific(), false);
+    assertEquals(test.toString(), "Natural");
     assertThrows(() -> test.getCurrency(), IllegalStateException.class);
   }
 
@@ -35,6 +36,7 @@ public class ReportingCurrencyTest {
     assertEquals(test.isNatural(), false);
     assertEquals(test.isSpecific(), true);
     assertEquals(test.getCurrency(), USD);
+    assertEquals(test.toString(), "Specific:USD");
   }
 
   public void test_type() {
