@@ -41,7 +41,7 @@ public class CurveSensitivityUtils {
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
 
   /**
-   * Construct the inverse Jacobian matrix from the trades market quotes sensitivities.
+   * Construct the inverse Jacobian matrix from the sensitivities of the trades market quotes to the curve parameters.
    * <p>
    * All the trades and sensitivities must be in the same currency. The data should be coherent with the
    * market quote sensitivities passed in an order coherent with the list of curves.
@@ -61,7 +61,6 @@ public class CurveSensitivityUtils {
         marketQuoteSensitivities.size(),
         marketQuoteSensitivities.size(),
         i -> row(order, marketQuoteSensitivities.get(i), ccy));
-
     return MATRIX_ALGEBRA.getInverse(j);
   }
 
@@ -69,8 +68,8 @@ public class CurveSensitivityUtils {
    * Computes the row corresponding to a trade for the Jacobian matrix.
    * 
    * @param order  the curve order
-   * @param s  the sensitivities
-   * @param ccy  the sensitivities currency
+   * @param sensitivities  the sensitivities 
+   * @param ccy  the currency common to all sensitivities
    * @return
    */
   private static DoubleArray row(
@@ -89,6 +88,18 @@ public class CurveSensitivityUtils {
     return row;
   }
 
+
+  /**
+   * Construct the inverse Jacobian matrix from the trades and a function used to compute the sensitivities of the 
+   * market quotes to the curve parameters.
+   * <p>
+   * All the trades must be in the same currency. The trades should be coherent with the curves order.
+   * 
+   * @param order  the order in which the curves should be represented in the jacobian
+   * @param trades  the list of trades
+   * @param sensitivityFunction  the function from a trade to the market quote sensitivity to curve parameters
+   * @return inverse jacobian matrix, which correspond to the sensitivity of the parameters to the market quotes.
+   */
   public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
       List<CurveParameterSize> order,
       List<ResolvedTrade> trades,

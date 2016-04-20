@@ -57,6 +57,9 @@ import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
+/**
+ * Tests {@link CurveSensitivityUtils}.
+ */
 @Test
 public class CurveSensitivityUtilsJacobianTest {
 
@@ -218,7 +221,8 @@ public class CurveSensitivityUtilsJacobianTest {
     assertEquals(jiComputed.columnCount(), jiExpected.columnCount());
     for (int i = 0; i < jiComputed.rowCount(); i++) {
       for (int j = 0; j < jiComputed.columnCount(); j++) {
-        assertEquals(jiComputed.get(i, j), jiExpected.get(i, j), TOLERANCE_JAC_APPROX);
+        assertEquals(jiComputed.get(i, j), jiExpected.get(i, j), TOLERANCE_JAC_APPROX); 
+        // The comparison is not perfect due to the incoherences introduced by the re-bucketing
       }
     }
   }
