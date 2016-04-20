@@ -185,17 +185,65 @@ public final class MarketEnvironmentBuilder {
   //-------------------------------------------------------------------------
   /**
    * Adds multiple items of market data, replacing any existing values with the same IDs.
+   * <p>
+   * Each value in the map is a single item of market data used in all scenarios.
    *
    * @param values  the items of market data, keyed by ID
    * @return this builder
    */
-  public MarketEnvironmentBuilder addValues(Map<? extends MarketDataId<?>, ?> values) {
+  public <T> MarketEnvironmentBuilder addSingleValues(Map<? extends MarketDataId<T>, T> values) {
     ArgChecker.notNull(values, "values");
     values.forEach((id, value) -> checkValueType(id, value));
     // extra <Object> for Eclipse
     Map<? extends MarketDataId<?>, MarketDataBox<Object>> boxedValues =
         MapStream.of(values).mapValues(value -> MarketDataBox.<Object>ofSingleValue(value)).toMap();
 
+    this.values.putAll(boxedValues);
+    return this;
+  }
+
+  /**
+   * Adds multiple items of market data, replacing any existing values with the same IDs.
+   * <p>
+   * Each value in the map contains multiple market data items, one for each scenario.
+   *
+   * @param values  the items of market data, keyed by ID
+   * @param <T>  the type of the market data value used in each scenario
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addScenarioValues(
+      Map<? extends MarketDataId<T>, ? extends ScenarioMarketDataValue<T>> values) {
+
+    ArgChecker.notNull(values, "values");
+    Map<? extends MarketDataId<T>, MarketDataBox<T>> boxedValues =
+        MapStream.of(values).mapValues(value -> MarketDataBox.ofScenarioValue(value)).toMap();
+
+    boxedValues.forEach((id, value) -> {
+      checkBoxType(id, value);
+      updateScenarioCount(value);
+    });
+    this.values.putAll(boxedValues);
+    return this;
+  }
+
+  /**
+   * Adds multiple items of market data, replacing any existing values with the same IDs.
+   * <p>
+   * Each value in the map is a list of market data items, one for each scenario.
+   *
+   * @param values  the items of market data, keyed by ID
+   * @param <T>  the type of the market data value used in each scenario
+   * @return this builder
+   */
+  public <T> MarketEnvironmentBuilder addScenarioValueLists(Map<? extends MarketDataId<T>, ? extends List<T>> values) {
+    ArgChecker.notNull(values, "values");
+    Map<? extends MarketDataId<T>, MarketDataBox<T>> boxedValues =
+        MapStream.of(values).mapValues(value -> MarketDataBox.ofScenarioValues(value)).toMap();
+
+    boxedValues.forEach((id, value) -> {
+      checkBoxType(id, value);
+      updateScenarioCount(value);
+    });
     this.values.putAll(boxedValues);
     return this;
   }

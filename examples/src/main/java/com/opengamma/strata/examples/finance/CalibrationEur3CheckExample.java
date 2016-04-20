@@ -175,7 +175,7 @@ public class CalibrationEur3CheckExample {
 
     // create the market data used for calculations
     MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
-        .addValues(quotes)
+        .addSingleValues(quotes)
         .build();
 
     // create the market data used for building trades

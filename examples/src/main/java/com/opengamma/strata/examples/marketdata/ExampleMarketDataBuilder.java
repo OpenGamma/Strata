@@ -318,7 +318,7 @@ public abstract class ExampleMarketDataBuilder {
 
     try {
       Map<QuoteId, Double> quotes = QuotesCsvLoader.load(marketDataDate, quotesResource);
-      builder.addValues(quotes);
+      builder.addSingleValues(quotes);
 
     } catch (Exception ex) {
       log.error("Error loading quotes", ex);
