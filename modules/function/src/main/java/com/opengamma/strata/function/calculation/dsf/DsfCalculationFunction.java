@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.swap;
+package com.opengamma.strata.function.calculation.dsf;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
@@ -31,12 +31,12 @@ import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.MarketDataKeys;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.DsfTrade;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
- * Perform calculations on a single {@code DeliverableSwapFutureTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code DsfTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
@@ -49,17 +49,17 @@ import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
  * <p>
  * The "natural" currency is the currency of the swap leg that is received.
  */
-public class DeliverableSwapFutureCalculationFunction
-    implements CalculationFunction<DeliverableSwapFutureTrade> {
+public class DsfCalculationFunction
+    implements CalculationFunction<DsfTrade> {
 
   /**
    * The calculations by measure.
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, DeliverableSwapFutureMeasureCalculations::presentValue)
-          .put(Measures.PV01, DeliverableSwapFutureMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, DeliverableSwapFutureMeasureCalculations::bucketedPv01)
+          .put(Measures.PRESENT_VALUE, DsfMeasureCalculations::presentValue)
+          .put(Measures.PV01, DsfMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, DsfMeasureCalculations::bucketedPv01)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
@@ -70,13 +70,13 @@ public class DeliverableSwapFutureCalculationFunction
   /**
    * Creates an instance.
    */
-  public DeliverableSwapFutureCalculationFunction() {
+  public DsfCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<DeliverableSwapFutureTrade> targetType() {
-    return DeliverableSwapFutureTrade.class;
+  public Class<DsfTrade> targetType() {
+    return DsfTrade.class;
   }
 
   @Override
@@ -85,14 +85,14 @@ public class DeliverableSwapFutureCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(DeliverableSwapFutureTrade trade, ReferenceData refData) {
+  public Currency naturalCurrency(DsfTrade trade, ReferenceData refData) {
     return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(DeliverableSwapFutureTrade trade, Set<Measure> measures, ReferenceData refData) {
-    DeliverableSwapFuture product = trade.getProduct();
+  public FunctionRequirements requirements(DsfTrade trade, Set<Measure> measures, ReferenceData refData) {
+    Dsf product = trade.getProduct();
     QuoteKey quoteKey = QuoteKey.of(trade.getSecurityId().getStandardId());
     Set<Index> indices = product.getUnderlyingSwap().allIndices();
     Set<ObservableKey> indexRateKeys =
@@ -120,13 +120,13 @@ public class DeliverableSwapFutureCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      DeliverableSwapFutureTrade trade,
+      DsfTrade trade,
       Set<Measure> measures,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedDeliverableSwapFutureTrade resolved = trade.resolve(refData);
+    ResolvedDsfTrade resolved = trade.resolve(refData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
@@ -141,7 +141,7 @@ public class DeliverableSwapFutureCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       CalculationMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -155,7 +155,7 @@ public class DeliverableSwapFutureCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
-        ResolvedDeliverableSwapFutureTrade trade,
+        ResolvedDsfTrade trade,
         CalculationMarketData marketData);
   }
 

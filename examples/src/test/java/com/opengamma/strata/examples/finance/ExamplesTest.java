@@ -37,7 +37,7 @@ public class ExamplesTest {
 
   //-------------------------------------------------------------------------
   public void test_dsfPricing_standalone() {
-    assertValidCapturedAsciiTable(caputureSystemOut(() -> DeliverableSwapFuturePricingExample.main(NO_ARGS)));
+    assertValidCapturedAsciiTable(caputureSystemOut(() -> DsfPricingExample.main(NO_ARGS)));
   }
 
   public void test_dsfPricing_tool() {

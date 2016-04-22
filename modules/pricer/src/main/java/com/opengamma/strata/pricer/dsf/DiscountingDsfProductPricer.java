@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swap;
+package com.opengamma.strata.pricer.dsf;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -11,21 +11,22 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 
 /**
- * Pricer for for deliverable swap futures.
+ * Pricer for for Deliverable Swap Futures (DSFs).
  * <p>
- * This function provides the ability to price a {@link ResolvedDeliverableSwapFuture}.
+ * This function provides the ability to price a {@link ResolvedDsf}.
  */
-public final class DiscountingDeliverableSwapFutureProductPricer extends AbstractDeliverableSwapFutureProductPricer {
+public final class DiscountingDsfProductPricer extends AbstractDsfProductPricer {
 
   /**
    * Default implementation.
    */
-  public static final DiscountingDeliverableSwapFutureProductPricer DEFAULT =
-      new DiscountingDeliverableSwapFutureProductPricer(DiscountingSwapProductPricer.DEFAULT);
+  public static final DiscountingDsfProductPricer DEFAULT =
+      new DiscountingDsfProductPricer(DiscountingSwapProductPricer.DEFAULT);
 
   /**
    * Pricer for {@link ResolvedSwap}.
@@ -37,7 +38,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * 
    * @param swapPricer  the pricer for {@link ResolvedSwap}.
    */
-  public DiscountingDeliverableSwapFutureProductPricer(DiscountingSwapProductPricer swapPricer) {
+  public DiscountingDsfProductPricer(DiscountingSwapProductPricer swapPricer) {
     this.swapPricer = ArgChecker.notNull(swapPricer, "swapPricer");
   }
 
@@ -61,7 +62,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @param ratesProvider  the rates provider
    * @return the price of the product, in decimal form
    */
-  public double price(ResolvedDeliverableSwapFuture future, RatesProvider ratesProvider) {
+  public double price(ResolvedDsf future, RatesProvider ratesProvider) {
     ResolvedSwap swap = future.getUnderlyingSwap();
     Currency currency = future.getCurrency();
     CurrencyAmount pvSwap = swapPricer.presentValue(swap, currency, ratesProvider);
@@ -79,7 +80,7 @@ public final class DiscountingDeliverableSwapFutureProductPricer extends Abstrac
    * @param ratesProvider  the rates provider
    * @return the price curve sensitivity of the product
    */
-  public PointSensitivities priceSensitivity(ResolvedDeliverableSwapFuture future, RatesProvider ratesProvider) {
+  public PointSensitivities priceSensitivity(ResolvedDsf future, RatesProvider ratesProvider) {
     ResolvedSwap swap = future.getUnderlyingSwap();
     Currency currency = future.getCurrency();
     double pvSwap = swapPricer.presentValue(swap, currency, ratesProvider).getAmount();

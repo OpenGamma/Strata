@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.swap;
+package com.opengamma.strata.function.calculation.dsf;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -50,22 +50,22 @@ import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
-import com.opengamma.strata.pricer.swap.DiscountingDeliverableSwapFutureTradePricer;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.DsfTrade;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 
 /**
- * Test {@link DeliverableSwapFutureCalculationFunction}.
+ * Test {@link DsfCalculationFunction}.
  */
 @Test
-public class DeliverableSwapFutureCalculationFunctionTest {
+public class DsfCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
@@ -80,7 +80,7 @@ public class DeliverableSwapFutureCalculationFunctionTest {
   private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
   private static final double NOTIONAL = 100000;
   private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final DeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
+  private static final Dsf FUTURE = Dsf.builder()
       .securityId(SecurityId.of(DSF_ID))
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
@@ -91,30 +91,30 @@ public class DeliverableSwapFutureCalculationFunctionTest {
   private static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final double MARKET_PRICE = REF_PRICE * 100;
   private static final long QUANTITY = 1234L;
-  private static final DeliverableSwapFutureTrade TRADE = DeliverableSwapFutureTrade.builder()
+  private static final DsfTrade TRADE = DsfTrade.builder()
       .product(FUTURE)
       .quantity(QUANTITY)
       .price(TRADE_PRICE)
       .build();
-  private static final ResolvedDeliverableSwapFutureTrade RTRADE = TRADE.resolve(REF_DATA);
+  private static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
   private static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
   private static final LocalDate VAL_DATE = LAST_TRADE.minusDays(7);
 
   //-------------------------------------------------------------------------
   public void test_group() {
-    FunctionGroup<DeliverableSwapFutureTrade> test = DeliverableSwapFutureFunctionGroups.discounting();
+    FunctionGroup<DsfTrade> test = DsfFunctionGroups.discounting();
     assertThat(test.configuredMeasures(TRADE)).contains(
         Measures.PRESENT_VALUE,
         Measures.PV01,
         Measures.BUCKETED_PV01);
-    FunctionConfig<DeliverableSwapFutureTrade> config =
-        DeliverableSwapFutureFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(DeliverableSwapFutureCalculationFunction.class);
+    FunctionConfig<DsfTrade> config =
+        DsfFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
+    assertThat(config.createFunction()).isInstanceOf(DsfCalculationFunction.class);
   }
 
   public void test_requirementsAndCurrency() {
-    DeliverableSwapFutureCalculationFunction function = new DeliverableSwapFutureCalculationFunction();
+    DsfCalculationFunction function = new DsfCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -128,10 +128,10 @@ public class DeliverableSwapFutureCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    DeliverableSwapFutureCalculationFunction function = new DeliverableSwapFutureCalculationFunction();
+    DsfCalculationFunction function = new DsfCalculationFunction();
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
-    DiscountingDeliverableSwapFutureTradePricer pricer = DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
+    DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
@@ -143,10 +143,10 @@ public class DeliverableSwapFutureCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    DeliverableSwapFutureCalculationFunction function = new DeliverableSwapFutureCalculationFunction();
+    DsfCalculationFunction function = new DsfCalculationFunction();
     CalculationMarketData md = marketData();
     MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
-    DiscountingDeliverableSwapFutureTradePricer pricer = DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
+    DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
@@ -175,8 +175,8 @@ public class DeliverableSwapFutureCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(DeliverableSwapFutureFunctionGroups.class);
-    coverPrivateConstructor(DeliverableSwapFutureMeasureCalculations.class);
+    coverPrivateConstructor(DsfFunctionGroups.class);
+    coverPrivateConstructor(DsfMeasureCalculations.class);
   }
 
 }

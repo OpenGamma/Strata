@@ -19,6 +19,7 @@ import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.function.calculation.credit.CdsCalculationFunction;
 import com.opengamma.strata.function.calculation.deposit.TermDepositCalculationFunction;
+import com.opengamma.strata.function.calculation.dsf.DsfCalculationFunction;
 import com.opengamma.strata.function.calculation.fra.FraCalculationFunction;
 import com.opengamma.strata.function.calculation.fx.FxNdfCalculationFunction;
 import com.opengamma.strata.function.calculation.fx.FxSingleCalculationFunction;
@@ -28,7 +29,6 @@ import com.opengamma.strata.function.calculation.payment.BulletPaymentCalculatio
 import com.opengamma.strata.function.calculation.security.GenericSecurityTradeCalculationFunction;
 import com.opengamma.strata.function.calculation.security.SecurityPositionCalculationFunction;
 import com.opengamma.strata.function.calculation.security.SecurityTradeCalculationFunction;
-import com.opengamma.strata.function.calculation.swap.DeliverableSwapFutureCalculationFunction;
 import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.calculation.swaption.SwaptionCalculationFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
@@ -42,13 +42,13 @@ import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.dsf.DsfTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
@@ -72,7 +72,7 @@ public class StandardComponents {
   private static final CalculationFunctions STANDARD = CalculationFunctions.of(
       new BulletPaymentCalculationFunction(),
       new CdsCalculationFunction(),
-      new DeliverableSwapFutureCalculationFunction(),
+      new DsfCalculationFunction(),
       new FraCalculationFunction(),
       new FxNdfCalculationFunction(),
       new FxSingleCalculationFunction(),
@@ -159,7 +159,7 @@ public class StandardComponents {
    * <ul>
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
-   *  <li>Deliverable Swap Future - {@link DeliverableSwapFutureTrade}
+   *  <li>Deliverable Swap Future - {@link DsfTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX single (spot/forward) - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}
@@ -188,7 +188,7 @@ public class StandardComponents {
    * <ul>
    *  <li>Bullet Payment - {@link BulletPaymentTrade}
    *  <li>Credit Default Swap - {@link CdsTrade}
-   *  <li>Deliverable Swap Future - {@link DeliverableSwapFutureTrade}
+   *  <li>Deliverable Swap Future - {@link DsfTrade}
    *  <li>Forward Rate Agreement - {@link FraTrade}
    *  <li>FX spot and FX forward - {@link FxSingleTrade}
    *  <li>FX NDF - {@link FxNdfTrade}

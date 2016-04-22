@@ -24,6 +24,7 @@
 <listEntry value="com.opengamma.strata.pricer.credit"/>
 <listEntry value="com.opengamma.strata.pricer.datasets"/>
 <listEntry value="com.opengamma.strata.pricer.deposit"/>
+<listEntry value="com.opengamma.strata.pricer.dsf"/>
 <listEntry value="com.opengamma.strata.pricer.fra"/>
 <listEntry value="com.opengamma.strata.pricer.fx"/>
 <listEntry value="com.opengamma.strata.pricer.impl"/>
