@@ -3,23 +3,23 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swap;
+package com.opengamma.strata.pricer.dsf;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
- * Base pricer for deliverable swap futures.
+ * Base pricer for Deliverable Swap Futures (DSFs).
  * <p>
- * This function provides common code used when pricing an {@link ResolvedDeliverableSwapFutureTrade}.
+ * This function provides common code used when pricing an {@link ResolvedDsfTrade}.
  */
-public abstract class AbstractDeliverableSwapFutureTradePricer {
+public abstract class AbstractDsfTradePricer {
 
   /**
    * Creates an instance.
    */
-  protected AbstractDeliverableSwapFutureTradePricer() {
+  protected AbstractDsfTradePricer() {
   }
 
   //-------------------------------------------------------------------------
@@ -28,7 +28,7 @@ public abstract class AbstractDeliverableSwapFutureTradePricer {
    * 
    * @return the pricer
    */
-  protected abstract AbstractDeliverableSwapFutureProductPricer getProductPricer();
+  protected abstract AbstractDsfProductPricer getProductPricer();
 
   /**
    * Calculates the present value of the deliverable swap futures trade from the current price.
@@ -42,11 +42,11 @@ public abstract class AbstractDeliverableSwapFutureTradePricer {
    * @return the present value
    */
   public CurrencyAmount presentValue(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       double currentPrice,
       double referencePrice) {
 
-    ResolvedDeliverableSwapFuture future = trade.getProduct();
+    ResolvedDsf future = trade.getProduct();
     double priceIndex = getProductPricer().marginIndex(future, currentPrice);
     double referenceIndex = getProductPricer().marginIndex(future, referencePrice);
     double pv = (priceIndex - referenceIndex) * trade.getQuantity();

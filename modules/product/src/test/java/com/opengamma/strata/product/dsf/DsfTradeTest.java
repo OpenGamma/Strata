@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.swap;
+package com.opengamma.strata.product.dsf;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -16,16 +16,19 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.DsfTrade;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
- * Test {@link DeliverableSwapFutureTrade}.
+ * Test {@link DsfTrade}.
  */
 @Test
-public class DeliverableSwapFutureTradeTest {
+public class DsfTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  static final DeliverableSwapFuture PRODUCT = DeliverableSwapFutureTest.sut();
-  static final DeliverableSwapFuture PRODUCT2 = DeliverableSwapFutureTest.sut2();
+  static final Dsf PRODUCT = DsfTest.sut();
+  static final Dsf PRODUCT2 = DsfTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(LocalDate.of(2014, 6, 12))
       .settlementDate(LocalDate.of(2014, 6, 14))
@@ -37,7 +40,7 @@ public class DeliverableSwapFutureTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    DeliverableSwapFutureTrade test = sut();
+    DsfTrade test = sut();
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -48,8 +51,8 @@ public class DeliverableSwapFutureTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
-    DeliverableSwapFutureTrade test = sut();
-    ResolvedDeliverableSwapFutureTrade expected = ResolvedDeliverableSwapFutureTrade.builder()
+    DsfTrade test = sut();
+    ResolvedDsfTrade expected = ResolvedDsfTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
@@ -69,8 +72,8 @@ public class DeliverableSwapFutureTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static DeliverableSwapFutureTrade sut() {
-    return DeliverableSwapFutureTrade.builder()
+  static DsfTrade sut() {
+    return DsfTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
@@ -78,8 +81,8 @@ public class DeliverableSwapFutureTradeTest {
         .build();
   }
 
-  static DeliverableSwapFutureTrade sut2() {
-    return DeliverableSwapFutureTrade.builder()
+  static DsfTrade sut2() {
+    return DsfTrade.builder()
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

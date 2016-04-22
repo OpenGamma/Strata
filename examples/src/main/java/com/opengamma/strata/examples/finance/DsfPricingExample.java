@@ -27,8 +27,8 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.DsfTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -40,7 +40,7 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  * <p>
  * This makes use of the example engine and the example market data environment.
  */
-public class DeliverableSwapFuturePricingExample {
+public class DsfPricingExample {
 
   /**
    * Runs the example, pricing the instruments, producing the output as an ASCII table.
@@ -100,7 +100,7 @@ public class DeliverableSwapFuturePricingExample {
     Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
         LocalDate.of(2015, 3, 18), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
-    DeliverableSwapFuture product = DeliverableSwapFuture.builder()
+    Dsf product = Dsf.builder()
         .securityId(SecurityId.of("OG-Future", "CME-F1U-Mar15"))
         .lastTradeDate(LocalDate.of(2015, 3, 16))
         .deliveryDate(LocalDate.of(2015, 3, 18))
@@ -108,7 +108,7 @@ public class DeliverableSwapFuturePricingExample {
         .underlyingSwap(swap)
         .build();
 
-    return DeliverableSwapFutureTrade.builder()
+    return DsfTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
             .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Mar15")
@@ -127,7 +127,7 @@ public class DeliverableSwapFuturePricingExample {
     Swap swap = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.createTrade(
         LocalDate.of(2015, 6, 17), Tenor.TENOR_5Y, BuySell.SELL, 1, 0.02, refData).getProduct();
 
-    DeliverableSwapFuture product = DeliverableSwapFuture.builder()
+    Dsf product = Dsf.builder()
         .securityId(SecurityId.of("OG-Future", "CME-F1U-Jun15"))
         .lastTradeDate(LocalDate.of(2015, 6, 15))
         .deliveryDate(LocalDate.of(2015, 6, 17))
@@ -135,7 +135,7 @@ public class DeliverableSwapFuturePricingExample {
         .underlyingSwap(swap)
         .build();
 
-    return DeliverableSwapFutureTrade.builder()
+    return DsfTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "2"))
             .addAttribute(TradeAttributeType.DESCRIPTION, "CME-5Y-DSF Jun15")

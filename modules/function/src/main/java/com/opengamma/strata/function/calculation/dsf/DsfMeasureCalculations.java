@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.swap;
+package com.opengamma.strata.function.calculation.dsf;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -15,36 +15,36 @@ import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.DiscountingDeliverableSwapFutureTradePricer;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
  * Multi-scenario measure calculations for Deliverable Swap Future trades.
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class DeliverableSwapFutureMeasureCalculations {
+class DsfMeasureCalculations {
 
   /**
    * The pricer to use.
    */
-  private static final DiscountingDeliverableSwapFutureTradePricer PRICER =
-      DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
+  private static final DiscountingDsfTradePricer PRICER =
+      DiscountingDsfTradePricer.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
   // restricted constructor
-  private DeliverableSwapFutureMeasureCalculations() {
+  private DsfMeasureCalculations() {
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       CalculationMarketData marketData) {
 
     return CurrencyValuesArray.of(
@@ -54,7 +54,7 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
@@ -66,7 +66,7 @@ class DeliverableSwapFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       CalculationMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
@@ -76,7 +76,7 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
@@ -87,7 +87,7 @@ class DeliverableSwapFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       CalculationMarketData marketData) {
 
     return ScenarioResult.of(
@@ -97,7 +97,7 @@ class DeliverableSwapFutureMeasureCalculations {
 
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);

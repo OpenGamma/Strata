@@ -3,22 +3,22 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swap;
+package com.opengamma.strata.pricer.dsf;
 
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
 
 /**
- * Base pricer for deliverable swap futures.
+ * Base pricer for Deliverable Swap Futures (DSFs).
  * <p>
- * This function provides common code used when pricing an {@link ResolvedDeliverableSwapFuture}.
+ * This function provides common code used when pricing an {@link ResolvedDsf}.
  */
-public abstract class AbstractDeliverableSwapFutureProductPricer {
+public abstract class AbstractDsfProductPricer {
 
   /**
    * Creates an instance.
    */
-  protected AbstractDeliverableSwapFutureProductPricer() {
+  protected AbstractDsfProductPricer() {
   }
 
   //-------------------------------------------------------------------------
@@ -32,7 +32,7 @@ public abstract class AbstractDeliverableSwapFutureProductPricer {
    * @param price  the price of the product, in decimal form
    * @return the index
    */
-  protected double marginIndex(ResolvedDeliverableSwapFuture future, double price) {
+  protected double marginIndex(ResolvedDsf future, double price) {
     return price * future.getNotional();
   }
 
@@ -48,7 +48,7 @@ public abstract class AbstractDeliverableSwapFutureProductPricer {
    * @return the index sensitivity
    */
   protected PointSensitivities marginIndexSensitivity(
-      ResolvedDeliverableSwapFuture future,
+      ResolvedDsf future,
       PointSensitivities priceSensitivity) {
 
     return priceSensitivity.multipliedBy(future.getNotional());

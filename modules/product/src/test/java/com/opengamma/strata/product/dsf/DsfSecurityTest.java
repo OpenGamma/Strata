@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.swap;
+package com.opengamma.strata.product.dsf;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
@@ -41,17 +41,28 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.DsfSecurity;
+import com.opengamma.strata.product.dsf.DsfTrade;
+import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
+import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.Swap;
+import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
 /**
- * Test {@link DeliverableSwapFutureSecurity}.
+ * Test {@link DsfSecurity}.
  */
 @Test
-public class DeliverableSwapFutureSecurityTest {
+public class DsfSecurityTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final DeliverableSwapFuture PRODUCT = DeliverableSwapFutureTest.sut();
-  private static final DeliverableSwapFuture PRODUCT2 = DeliverableSwapFutureTest.sut2();
+  private static final Dsf PRODUCT = DsfTest.sut();
+  private static final Dsf PRODUCT2 = DsfTest.sut2();
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.1, CurrencyAmount.of(GBP, 25));
   private static final SecurityInfo INFO = SecurityInfo.of(PRODUCT.getSecurityId(), PRICE_INFO);
   private static final SecurityInfo INFO2 = SecurityInfo.of(PRODUCT2.getSecurityId(), PRICE_INFO);
@@ -65,7 +76,7 @@ public class DeliverableSwapFutureSecurityTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    DeliverableSwapFutureSecurity test = sut();
+    DsfSecurity test = sut();
     assertEquals(test.getInfo(), INFO);
     assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
     assertEquals(test.getCurrency(), PRODUCT.getCurrency());
@@ -135,20 +146,20 @@ public class DeliverableSwapFutureSecurityTest {
     Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
-    assertThrowsIllegalArg(() -> DeliverableSwapFutureSecurity.builder()
+    assertThrowsIllegalArg(() -> DsfSecurity.builder()
         .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap1)
         .build());
-    assertThrowsIllegalArg(() -> DeliverableSwapFutureSecurity.builder()
+    assertThrowsIllegalArg(() -> DsfSecurity.builder()
         .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap2)
         .build());
     // should succeed normally (no notional to validate on known amount leg)
-    DeliverableSwapFutureSecurity.builder()
+    DsfSecurity.builder()
         .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
@@ -158,10 +169,10 @@ public class DeliverableSwapFutureSecurityTest {
 
   //-------------------------------------------------------------------------
   public void test_createProduct() {
-    DeliverableSwapFutureSecurity test = sut();
+    DsfSecurity test = sut();
     assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
     TradeInfo tradeInfo = TradeInfo.of(PRODUCT.getLastTradeDate().minusDays(1));
-    DeliverableSwapFutureTrade expectedTrade = DeliverableSwapFutureTrade.builder()
+    DsfTrade expectedTrade = DsfTrade.builder()
         .info(tradeInfo)
         .product(PRODUCT)
         .quantity(100)
@@ -181,8 +192,8 @@ public class DeliverableSwapFutureSecurityTest {
   }
 
   //-------------------------------------------------------------------------
-  static DeliverableSwapFutureSecurity sut() {
-    return DeliverableSwapFutureSecurity.builder()
+  static DsfSecurity sut() {
+    return DsfSecurity.builder()
         .info(INFO)
         .notional(PRODUCT.getNotional())
         .lastTradeDate(PRODUCT.getLastTradeDate())
@@ -190,8 +201,8 @@ public class DeliverableSwapFutureSecurityTest {
         .build();
   }
 
-  static DeliverableSwapFutureSecurity sut2() {
-    return DeliverableSwapFutureSecurity.builder()
+  static DsfSecurity sut2() {
+    return DsfSecurity.builder()
         .info(INFO2)
         .notional(PRODUCT2.getNotional())
         .lastTradeDate(PRODUCT2.getLastTradeDate())

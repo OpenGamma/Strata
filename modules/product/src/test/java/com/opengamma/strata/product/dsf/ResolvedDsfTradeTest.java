@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.product.swap;
+package com.opengamma.strata.product.dsf;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -14,15 +14,17 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
- * Test {@link ResolvedDeliverableSwapFutureTrade}. 
+ * Test {@link ResolvedDsfTrade}. 
  */
 @Test
-public class ResolvedDeliverableSwapFutureTradeTest {
+public class ResolvedDsfTradeTest {
 
-  private static final ResolvedDeliverableSwapFuture PRODUCT = ResolvedDeliverableSwapFutureTest.sut();
-  private static final ResolvedDeliverableSwapFuture PRODUCT2 = ResolvedDeliverableSwapFutureTest.sut2();
+  private static final ResolvedDsf PRODUCT = ResolvedDsfTest.sut();
+  private static final ResolvedDsf PRODUCT2 = ResolvedDsfTest.sut2();
   private static final double QUANTITY = 100;
   private static final double QUANTITY2 = 200;
   private static final double PRICE = 0.99;
@@ -31,7 +33,7 @@ public class ResolvedDeliverableSwapFutureTradeTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    ResolvedDeliverableSwapFutureTrade test = sut();
+    ResolvedDsfTrade test = sut();
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getQuantity(), QUANTITY);
@@ -49,8 +51,8 @@ public class ResolvedDeliverableSwapFutureTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static ResolvedDeliverableSwapFutureTrade sut() {
-    return ResolvedDeliverableSwapFutureTrade.builder()
+  static ResolvedDsfTrade sut() {
+    return ResolvedDsfTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
@@ -58,8 +60,8 @@ public class ResolvedDeliverableSwapFutureTradeTest {
         .build();
   }
 
-  static ResolvedDeliverableSwapFutureTrade sut2() {
-    return ResolvedDeliverableSwapFutureTrade.builder()
+  static ResolvedDsfTrade sut2() {
+    return ResolvedDsfTrade.builder()
         .product(PRODUCT2)
         .quantity(QUANTITY2)
         .price(PRICE2)

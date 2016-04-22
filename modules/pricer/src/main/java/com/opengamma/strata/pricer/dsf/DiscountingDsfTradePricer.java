@@ -3,49 +3,49 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swap;
+package com.opengamma.strata.pricer.dsf;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.Dsf;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
+import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
- * Pricer implementation for deliverable swap futures.
+ * Pricer implementation for Deliverable Swap Futures (DSFs).
  * <p>
- * This function provides the ability to price a {@link ResolvedDeliverableSwapFutureTrade}.
+ * This function provides the ability to price a {@link ResolvedDsfTrade}.
  */
-public class DiscountingDeliverableSwapFutureTradePricer
-    extends AbstractDeliverableSwapFutureTradePricer {
+public class DiscountingDsfTradePricer
+    extends AbstractDsfTradePricer {
 
   /**
   * Default implementation.
   */
-  public static final DiscountingDeliverableSwapFutureTradePricer DEFAULT =
-      new DiscountingDeliverableSwapFutureTradePricer(DiscountingDeliverableSwapFutureProductPricer.DEFAULT);
+  public static final DiscountingDsfTradePricer DEFAULT =
+      new DiscountingDsfTradePricer(DiscountingDsfProductPricer.DEFAULT);
 
   /**
   * Underlying pricer.
   */
-  private final DiscountingDeliverableSwapFutureProductPricer productPricer;
+  private final DiscountingDsfProductPricer productPricer;
 
   /**
   * Creates an instance.
   * 
-  * @param productPricer  the pricer for {@link DeliverableSwapFuture}
+  * @param productPricer  the pricer for {@link Dsf}
   */
-  public DiscountingDeliverableSwapFutureTradePricer(
-      DiscountingDeliverableSwapFutureProductPricer productPricer) {
+  public DiscountingDsfTradePricer(
+      DiscountingDsfProductPricer productPricer) {
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected DiscountingDeliverableSwapFutureProductPricer getProductPricer() {
+  protected DiscountingDsfProductPricer getProductPricer() {
     return productPricer;
   }
 
@@ -59,7 +59,7 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * @param provider  the rates provider
   * @return the price of the trade, in decimal form
   */
-  public double price(ResolvedDeliverableSwapFutureTrade trade, RatesProvider provider) {
+  public double price(ResolvedDsfTrade trade, RatesProvider provider) {
     return productPricer.price(trade.getProduct(), provider);
   }
 
@@ -75,7 +75,7 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * @return the present value
   */
   public CurrencyAmount presentValue(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       RatesProvider provider,
       double referencePrice) {
 
@@ -93,8 +93,8 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * @param provider  the rates provider
   * @return the present value curve sensitivity of the trade
   */
-  public PointSensitivities presentValueSensitivity(ResolvedDeliverableSwapFutureTrade trade, RatesProvider provider) {
-    ResolvedDeliverableSwapFuture product = trade.getProduct();
+  public PointSensitivities presentValueSensitivity(ResolvedDsfTrade trade, RatesProvider provider) {
+    ResolvedDsf product = trade.getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
     PointSensitivities marginIndexSensi = productPricer.marginIndexSensitivity(product, priceSensi);
     return marginIndexSensi.multipliedBy(trade.getQuantity());
@@ -112,7 +112,7 @@ public class DiscountingDeliverableSwapFutureTradePricer
   * @return the currency exposure of the trade
   */
   public MultiCurrencyAmount currencyExposure(
-      ResolvedDeliverableSwapFutureTrade trade,
+      ResolvedDsfTrade trade,
       RatesProvider provider,
       double referencePrice) {
 

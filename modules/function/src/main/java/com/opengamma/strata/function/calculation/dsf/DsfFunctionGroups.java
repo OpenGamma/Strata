@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.calculation.swap;
+package com.opengamma.strata.function.calculation.dsf;
 
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
 import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
+import com.opengamma.strata.product.dsf.DsfTrade;
 
 /**
  * Contains function groups for built-in Deliverable Swap Future calculation functions.
@@ -16,23 +16,23 @@ import com.opengamma.strata.product.swap.DeliverableSwapFutureTrade;
  * Function groups are used in pricing rules to allow the engine to calculate the
  * measures provided by the functions in the group.
  */
-public final class DeliverableSwapFutureFunctionGroups {
+public final class DsfFunctionGroups {
 
   /**
    * The group with pricers based on discounting methods.
    */
-  private static final FunctionGroup<DeliverableSwapFutureTrade> DISCOUNTING_GROUP =
-      DefaultFunctionGroup.builder(DeliverableSwapFutureTrade.class).name("DeliverableSwapFutureDiscounting")
-          .addFunction(Measures.PRESENT_VALUE, DeliverableSwapFutureCalculationFunction.class)
-          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, DeliverableSwapFutureCalculationFunction.class)
-          .addFunction(Measures.PV01, DeliverableSwapFutureCalculationFunction.class)
-          .addFunction(Measures.BUCKETED_PV01, DeliverableSwapFutureCalculationFunction.class)
+  private static final FunctionGroup<DsfTrade> DISCOUNTING_GROUP =
+      DefaultFunctionGroup.builder(DsfTrade.class).name("DsfDiscounting")
+          .addFunction(Measures.PRESENT_VALUE, DsfCalculationFunction.class)
+          .addFunction(Measures.PRESENT_VALUE_MULTI_CCY, DsfCalculationFunction.class)
+          .addFunction(Measures.PV01, DsfCalculationFunction.class)
+          .addFunction(Measures.BUCKETED_PV01, DsfCalculationFunction.class)
           .build();
 
   /**
    * Restricted constructor.
    */
-  private DeliverableSwapFutureFunctionGroups() {
+  private DsfFunctionGroups() {
   }
 
   //-------------------------------------------------------------------------
@@ -50,7 +50,7 @@ public final class DeliverableSwapFutureFunctionGroups {
    * 
    * @return the function group
    */
-  public static FunctionGroup<DeliverableSwapFutureTrade> discounting() {
+  public static FunctionGroup<DsfTrade> discounting() {
     return DISCOUNTING_GROUP;
   }
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.swap;
+package com.opengamma.strata.pricer.dsf;
 
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
@@ -23,13 +23,11 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -42,32 +40,31 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.dsf.DiscountingDsfProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.DeliverableSwapFuture;
+import com.opengamma.strata.product.dsf.ResolvedDsf;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFuture;
-import com.opengamma.strata.product.swap.ResolvedDeliverableSwapFutureTrade;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
- * Test {@link DiscountingDeliverableSwapFutureTradePricer}.
+ * Test {@link DiscountingDsfProductPricer}.
  */
 @Test
-public class DiscountingDeliverableSwapFutureTradePricerTest {
+public class DiscountingDsfProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   // curves
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
-  private static final LocalDate VAL_DATE = LocalDate.of(2013, 3, 28);
+  private static final LocalDate VAL_DATE = LocalDate.of(2012, 9, 20);
   private static final DoubleArray USD_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
   private static final DoubleArray USD_DSC_RATE = DoubleArray.of(0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140);
   private static final CurveName USD_DSC_NAME = CurveName.of("USD Dsc");
@@ -89,7 +86,7 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CALENDAR);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CALENDAR);
-  private static final LocalDate START = LocalDate.of(2013, 6, 19);
+  private static final LocalDate START = LocalDate.of(2012, 12, 19);
   private static final LocalDate END = START.plusYears(10);
   private static final double RATE = 0.0175;
   private static final SwapLeg FIXED_LEG = RateCalculationSwapLeg.builder()
@@ -131,84 +128,49 @@ public class DiscountingDeliverableSwapFutureTradePricerTest {
           .build())
       .build();
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
+  private static final ResolvedSwap RSWAP = SWAP.resolve(REF_DATA);
+
   // deliverable swap future
-  private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);
-  private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
+  private static final LocalDate LAST_TRADE = LocalDate.of(2012, 12, 17);
+  private static final LocalDate DELIVERY = LocalDate.of(2012, 12, 19);
   private static final double NOTIONAL = 100000;
-  private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final ResolvedDeliverableSwapFuture FUTURE = DeliverableSwapFuture.builder()
-      .securityId(SecurityId.of(DSF_ID))
+  private static final ResolvedDsf FUTURE = ResolvedDsf.builder()
+      .securityId(SecurityId.of("OG-Test", "DSF"))
       .deliveryDate(DELIVERY)
       .lastTradeDate(LAST_TRADE)
       .notional(NOTIONAL)
-      .underlyingSwap(SWAP)
-      .build()
-      .resolve(REF_DATA);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VAL_DATE).build();
-  private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final long QUANTITY = 1234L;
-  private static final ResolvedDeliverableSwapFutureTrade FUTURE_TRADE = ResolvedDeliverableSwapFutureTrade.builder()
-      .info(TRADE_INFO)
-      .product(FUTURE)
-      .quantity(QUANTITY)
-      .price(TRADE_PRICE)
+      .underlyingSwap(SWAP.resolve(REF_DATA))
       .build();
-  private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0;
   // calculators
   private static final double TOL = 1.0e-13;
   private static final double EPS = 1.0e-6;
-  private static final DiscountingDeliverableSwapFutureProductPricer PRODUCT_PRICER =
-      DiscountingDeliverableSwapFutureProductPricer.DEFAULT;
-  private static final DiscountingDeliverableSwapFutureTradePricer TRADE_PRICER =
-      DiscountingDeliverableSwapFutureTradePricer.DEFAULT;
+  private static final DiscountingDsfProductPricer PRICER =
+      DiscountingDsfProductPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
+  //-------------------------------------------------------------------------
   public void test_price() {
-    double computed = TRADE_PRICER.price(FUTURE_TRADE, PROVIDER);
-    double expected = PRODUCT_PRICER.price(FUTURE, PROVIDER);
+    double computed = PRICER.price(FUTURE, PROVIDER);
+    double pvSwap = PRICER.getSwapPricer().presentValue(RSWAP, PROVIDER).getAmount(USD).getAmount();
+    double yc = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, DELIVERY);
+    double df = Math.exp(-USD_DSC.yValue(yc) * yc);
+    double expected = 1d + pvSwap / df;
     assertEquals(computed, expected, TOL);
   }
 
-  public void test_presentValue() {
-    CurrencyAmount computed = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
-    double expected = QUANTITY * NOTIONAL * (PRODUCT_PRICER.price(FUTURE, PROVIDER) - LASTMARG_PRICE);
-    assertEquals(computed.getCurrency(), USD);
-    assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
-  }
-
-  public void test_presentValueSensitivity() {
-    PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
+  public void test_priceSensitivity() {
+    PointSensitivities point = PRICER.priceSensitivity(FUTURE, PROVIDER);
     CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
-        PROVIDER, (p) -> TRADE_PRICER.presentValue(FUTURE_TRADE, (p), LASTMARG_PRICE));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS * 10d));
-  }
-
-  public void test_currencyExposure() {
-    CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
-    PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
-    MultiCurrencyAmount expected = PROVIDER.currencyExposure(point).plus(pv);
-    MultiCurrencyAmount computed = TRADE_PRICER.currencyExposure(FUTURE_TRADE, PROVIDER, LASTMARG_PRICE);
-    assertEquals(computed, expected);
+    CurveCurrencyParameterSensitivities expected =
+        FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD, PRICER.price(FUTURE, (p))));
+    assertTrue(computed.equalWithTolerance(expected, 10d * EPS));
   }
 
   //-------------------------------------------------------------------------
-  // regression to 2.x
   public void regression() {
-    CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, TRADE_PRICE);
-    assertEquals(pv.getAmount(), 4022633.290539182, NOTIONAL * QUANTITY * TOL);
-    DoubleArray dscExp = DoubleArray.of(
-        347963.1427498563, 240275.26230191416, 123908.37739051704,
-        -1302968.1341957184, -8402797.591029292, -9024590.733895564);
-    DoubleArray fwdExp =DoubleArray.of(
-        1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933,
-        -9496881.09854053, -3.583343769759877E7, -1.1342379328462188E9);
-    PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
-    CurveCurrencyParameterSensitivities sensi = PROVIDER.curveParameterSensitivity(point);
-    double tolerance = NOTIONAL * QUANTITY * EPS;
-    assertTrue(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity().equalWithTolerance(dscExp, tolerance));
-    assertTrue(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity().equalWithTolerance(fwdExp, tolerance));
+    double price = PRICER.price(FUTURE, PROVIDER);
+    assertEquals(price, 1.022245377054993, TOL); // 2.x
   }
 
 }
