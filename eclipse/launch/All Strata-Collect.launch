@@ -20,7 +20,6 @@
 <listEntry value="com.opengamma.strata.collect.function"/>
 <listEntry value="com.opengamma.strata.collect.io"/>
 <listEntry value="com.opengamma.strata.collect.named"/>
-<listEntry value="com.opengamma.strata.collect.range"/>
 <listEntry value="com.opengamma.strata.collect.result"/>
 <listEntry value="com.opengamma.strata.collect.timeseries"/>
 <listEntry value="com.opengamma.strata.collect.tuple"/>

@@ -24,8 +24,6 @@ import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.collect.range.LocalDateRange;
-
 /**
  * Test {@link HolidayCalendar}.
  */
@@ -54,8 +52,7 @@ public class HolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_NO_HOLIDAYS() {
     HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS;
-    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
-    range.stream().forEach(date -> {
+    LocalDateUtils.stream(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31)).forEach(date -> {
       assertEquals(test.isBusinessDay(date), true);
       assertEquals(test.isHoliday(date), false);
     });
@@ -102,10 +99,6 @@ public class HolidayCalendarTest {
     assertEquals(HolidayCalendars.NO_HOLIDAYS.daysBetween(FRI_2014_07_11, MON_2014_07_14), 3);
   }
 
-  public void test_NO_HOLIDAYS_daysBetween_LocalDateRange() {
-    assertEquals(HolidayCalendars.NO_HOLIDAYS.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 4);
-  }
-
   public void test_NO_HOLIDAYS_combineWith() {
     HolidayCalendar base = new MockHolCal();
     HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS.combinedWith(base);
@@ -115,8 +108,7 @@ public class HolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_SAT_SUN() {
     HolidayCalendar test = HolidayCalendars.SAT_SUN;
-    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
-    range.stream().forEach(date -> {
+    LocalDateUtils.stream(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31)).forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != SATURDAY && date.getDayOfWeek() != SUNDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
       assertEquals(test.isHoliday(date), !isBusinessDay);
@@ -168,15 +160,10 @@ public class HolidayCalendarTest {
     assertEquals(HolidayCalendars.SAT_SUN.daysBetween(FRI_2014_07_11, MON_2014_07_14), 1);
   }
 
-  public void test_SAT_SUN_daysBetween_LocalDateRange() {
-    assertEquals(HolidayCalendars.SAT_SUN.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 2);
-  }
-
   //-------------------------------------------------------------------------
   public void test_FRI_SAT() {
     HolidayCalendar test = HolidayCalendars.FRI_SAT;
-    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
-    range.stream().forEach(date -> {
+    LocalDateUtils.stream(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31)).forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != FRIDAY && date.getDayOfWeek() != SATURDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
       assertEquals(test.isHoliday(date), !isBusinessDay);
@@ -229,15 +216,10 @@ public class HolidayCalendarTest {
     assertEquals(HolidayCalendars.FRI_SAT.daysBetween(FRI_2014_07_11, MON_2014_07_14), 1);
   }
 
-  public void test_FRI_SAT_daysBetween_LocalDateRange() {
-    assertEquals(HolidayCalendars.FRI_SAT.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 2);
-  }
-
   //-------------------------------------------------------------------------
   public void test_THU_FRI() {
     HolidayCalendar test = HolidayCalendars.THU_FRI;
-    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
-    range.stream().forEach(date -> {
+    LocalDateUtils.stream(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31)).forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != THURSDAY && date.getDayOfWeek() != FRIDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
       assertEquals(test.isHoliday(date), !isBusinessDay);
@@ -285,10 +267,6 @@ public class HolidayCalendarTest {
 
   public void test_THU_FRI_daysBetween_LocalDateLocalDate() {
     assertEquals(HolidayCalendars.THU_FRI.daysBetween(FRI_2014_07_11, MON_2014_07_14), 2);
-  }
-
-  public void test_THU_FRI_daysBetween_LocalDateRange() {
-    assertEquals(HolidayCalendars.THU_FRI.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 3);
   }
 
   //-------------------------------------------------------------------------
@@ -574,12 +552,6 @@ public class HolidayCalendarTest {
   public void test_daysBetween_LocalDateLocalDate(LocalDate start, LocalDate end, int expected) {
     HolidayCalendar test = new MockHolCal();
     assertEquals(test.daysBetween(start, end), expected);
-  }
-
-  @Test(dataProvider = "daysBetween")
-  public void test_daysBetween_LocalDateRange(LocalDate start, LocalDate end, int expected) {
-    HolidayCalendar test = new MockHolCal();
-    assertEquals(test.daysBetween(LocalDateRange.of(start, end)), expected);
   }
 
   //-------------------------------------------------------------------------
