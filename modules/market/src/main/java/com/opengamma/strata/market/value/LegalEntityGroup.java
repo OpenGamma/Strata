@@ -7,7 +7,7 @@ package com.opengamma.strata.market.value;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * Legal entity group.

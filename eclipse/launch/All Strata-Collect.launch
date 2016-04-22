@@ -24,7 +24,6 @@
 <listEntry value="com.opengamma.strata.collect.result"/>
 <listEntry value="com.opengamma.strata.collect.timeseries"/>
 <listEntry value="com.opengamma.strata.collect.tuple"/>
-<listEntry value="com.opengamma.strata.collect.type"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

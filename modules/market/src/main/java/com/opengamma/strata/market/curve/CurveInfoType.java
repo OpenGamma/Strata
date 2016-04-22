@@ -8,7 +8,7 @@ package com.opengamma.strata.market.curve;
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The type of additional curve information.
