@@ -14,7 +14,6 @@ import java.time.temporal.TemporalAdjusters;
 
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * A holiday calendar, classifying dates as holidays or business days.
@@ -232,20 +231,7 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
-    return daysBetween(LocalDateRange.of(startInclusive, endExclusive));
-  }
-
-  /**
-   * Calculates the number of business days in a date range.
-   * <p>
-   * This calculates the number of business days within the range.
-   * 
-   * @param dateRange  the date range to calculate business days for
-   * @return the total number of business days between the start and end date
-   * @throws IllegalArgumentException if the calculation is outside the supported range
-   */
-  public default int daysBetween(LocalDateRange dateRange) {
-    return Math.toIntExact(dateRange.stream()
+    return Math.toIntExact(LocalDateUtils.stream(startInclusive, endExclusive)
         .filter(this::isBusinessDay)
         .count());
   }

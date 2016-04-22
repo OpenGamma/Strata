@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * Test {@link ImmutableHolidayCalendar}.
@@ -40,9 +39,6 @@ public class ImmutableHolidayCalendarTest {
 
   private static final HolidayCalendarId TEST_ID = HolidayCalendarId.of("Test1");
   private static final HolidayCalendarId TEST_ID2 = HolidayCalendarId.of("Test2");
-
-  private static final LocalDateRange RANGE_2014 = LocalDateRange.ofClosed(
-      LocalDate.of(2014, 1, 1), LocalDate.of(2014, 12, 31));
 
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
@@ -132,7 +128,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -145,7 +140,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
   }
 
   //-------------------------------------------------------------------------
@@ -174,7 +168,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY));
-    assertEquals(test.getRange(), RANGE_2014);
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -187,7 +180,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY));
-    assertEquals(test.getRange(), RANGE_2014);
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +208,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -229,7 +220,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
   }
 
   //-------------------------------------------------------------------------
@@ -259,7 +249,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY, SATURDAY));
-    assertEquals(test.getRange(), RANGE_2014);
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -290,7 +279,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of());
-    assertEquals(test.getRange(), RANGE_2014);
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -321,7 +309,6 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
-    assertEquals(test.getRange(), LocalDateRange.ofClosed(LocalDate.MIN, LocalDate.MAX));
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
@@ -358,7 +345,6 @@ public class ImmutableHolidayCalendarTest {
         .build();
     assertEquals(test.getHolidays(), holidays);
     assertEquals(test.getWeekendDays(), weekendDays);
-    assertEquals(test.getRange(), RANGE_2014);
   }
 
   public void test_beanBuilder_noHolidays() {
@@ -371,7 +357,6 @@ public class ImmutableHolidayCalendarTest {
         .build();
     assertEquals(test.getHolidays(), holidays);
     assertEquals(test.getWeekendDays(), weekendDays);
-    assertEquals(test.getRange(), LocalDateRange.ALL);
   }
 
   //-------------------------------------------------------------------------
@@ -764,11 +749,6 @@ public class ImmutableHolidayCalendarTest {
   @Test(dataProvider = "daysBetween")
   public void test_daysBetween_LocalDateLocalDate(LocalDate start, LocalDate end, int expected) {
     assertEquals(HOLCAL_MON_WED.daysBetween(start, end), expected);
-  }
-
-  @Test(dataProvider = "daysBetween")
-  public void test_daysBetween_LocalDateRange(LocalDate start, LocalDate end, int expected) {
-    assertEquals(HOLCAL_MON_WED.daysBetween(LocalDateRange.of(start, end)), expected);
   }
 
   //-------------------------------------------------------------------------
