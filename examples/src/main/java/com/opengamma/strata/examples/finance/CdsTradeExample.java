@@ -16,12 +16,12 @@ import java.util.List;
 import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.examples.report.TradePortfolio;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.SingleNameReferenceInformation;

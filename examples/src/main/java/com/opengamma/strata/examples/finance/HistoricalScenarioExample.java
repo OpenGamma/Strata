@@ -21,7 +21,6 @@ import java.util.SortedMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -56,6 +55,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.IborRateCalculation;

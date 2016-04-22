@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.Trade;
-
 /**
  * The product details of a financial instrument.
  * <p>

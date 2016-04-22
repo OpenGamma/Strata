@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,12 +33,11 @@ public class CompositeCalculationFunctionsTest {
     CalculationFunctions fns2 = CalculationFunctions.of(fn1b, fn2);
     CalculationFunctions composed = fns1.composedWith(fns2);
 
-    assertThat(composed.getFunction(new Target1())).isEqualTo(fn1a);
-    assertThat(composed.getFunction(new Target2())).isEqualTo(fn2);
+    assertEquals(composed.getFunction(new Target1()), fn1a);
+    assertEquals(composed.getFunction(new Target2()), fn2);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   private static final class Fn1 implements CalculationFunction<Target1> {
 
     @Override

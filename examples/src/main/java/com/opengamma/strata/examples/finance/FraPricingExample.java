@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -26,6 +25,7 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;

@@ -17,7 +17,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -26,6 +25,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;

@@ -16,7 +16,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
@@ -32,7 +31,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.product.FinanceTrade;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
 import com.opengamma.strata.report.ReportRequirements;
@@ -181,8 +180,6 @@ public class ReportRunnerTool implements AutoCloseable {
       trades = portfolio.getTrades();
     } else {
       trades = portfolio.getTrades().stream()
-          .filter(t -> t instanceof FinanceTrade)
-          .map(t -> (FinanceTrade) t)
           .filter(t -> t.getInfo().getId().isPresent())
           .filter(t -> t.getInfo().getId().get().getValue().equals(idSearch))
           .collect(toImmutableList());

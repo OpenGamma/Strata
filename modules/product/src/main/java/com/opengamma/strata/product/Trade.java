@@ -5,18 +5,21 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.CalculationTarget;
 
 /**
  * A trade with additional structured information.
  * <p>
- * This extends {@link Trade} to add a reference to {@link TradeInfo}, which captures
- * structured information common to different types of trade.
+ * A trade is a transaction that occurred on a specific date between two counterparties.
+ * For example, an interest rate swap trade agreed on a particular date for
+ * cash-flows in the future.
+ * <p>
+ * The reference to {@link TradeInfo} captures structured information common to different types of trade.
  * <p>
  * Implementations of this interface must be immutable beans.
  */
-public interface FinanceTrade
-    extends Trade {
+public interface Trade
+    extends CalculationTarget {
 
   /**
    * Gets the standard trade information.

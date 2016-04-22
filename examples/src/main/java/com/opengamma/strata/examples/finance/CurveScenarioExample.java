@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -47,6 +46,7 @@ import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurveParallelShifts;
 import com.opengamma.strata.function.marketdata.scenario.curve.AnyCurveFilter;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.FixedRateCalculation;

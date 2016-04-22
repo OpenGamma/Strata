@@ -13,7 +13,6 @@ import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -33,6 +32,7 @@ import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
