@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +27,8 @@ import com.opengamma.strata.basics.CalculationTarget;
  * Each individual result relates to a single cell in the output grid.
  */
 @BeanDefinition(style = "light")
-public final class CalculationResults implements ImmutableBean {
+public final class CalculationResults
+    implements ImmutableBean, Serializable {
 
   /**
    * The target of the calculation, often a trade.
@@ -70,6 +72,11 @@ public final class CalculationResults implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CalculationResults(
       CalculationTarget target,

@@ -6,12 +6,24 @@
 package com.opengamma.strata.calc.runner;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * The base interface for calculation parameters.
  * <p>
  * Parameters are used to control the calculation.
+ * <p>
+ * For example, {@link ReportingCurrency} is a parameter that controls currency conversion.
+ * If specified, on a {@link Column}, or in {@link CalculationRules}, then the output will
+ * be converted to the specified currency.
+ * <p>
+ * Applications may implement this interface to add new parameters to the system.
+ * In order to be used, new implementations of {@link CalculationFunction} must be written
+ * that receive the parameters and perform appropriate behavior.
  */
 public interface CalculationParameter {
 
@@ -23,7 +35,7 @@ public interface CalculationParameter {
    * 
    * @return the type of the parameter implementation
    */
-  public abstract Class<?> queryType();
+  public abstract Class<? extends CalculationParameter> queryType();
 
   /**
    * Checks if this parameter applies to the specified target and measure.

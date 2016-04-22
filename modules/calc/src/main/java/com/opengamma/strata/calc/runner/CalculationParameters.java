@@ -25,7 +25,10 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.collect.MapStream;
 
 /**
@@ -34,6 +37,11 @@ import com.opengamma.strata.collect.MapStream;
  * This provides a set of parameters that will be used in a calculation.
  * Each parameter defines a {@linkplain CalculationParameter#queryType() query type},
  * thus the functions are keyed in a {@code Map} by the query type {@code Class}.
+ * <p>
+ * Parameters exist to provide control over the calculation.
+ * For example, {@link ReportingCurrency} is a parameter that controls currency conversion.
+ * If specified, on a {@link Column}, or in {@link CalculationRules}, then the output will
+ * be converted to the specified currency.
  */
 @BeanDefinition(style = "light")
 public final class CalculationParameters implements ImmutableBean, Serializable {
@@ -47,7 +55,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * The parameters, keyed by query type.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Class<?>, CalculationParameter> parameters;
+  private final ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> parameters;
 
   //-------------------------------------------------------------------------
   /**
@@ -92,7 +100,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
   }
 
   // create checking for empty
-  private CalculationParameters of(Map<Class<?>, CalculationParameter> map) {
+  private CalculationParameters of(Map<Class<? extends CalculationParameter>, CalculationParameter> map) {
     if (map.isEmpty()) {
       return EMPTY;
     }
@@ -109,7 +117,13 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * @return the combined calculation parameters
    */
   public CalculationParameters combinedWith(CalculationParameters other) {
-    Map<Class<?>, CalculationParameter> map = new HashMap<>(other.getParameters());
+    if (other.parameters.isEmpty()) {
+      return this;
+    }
+    if (parameters.isEmpty()) {
+      return other;
+    }
+    Map<Class<? extends CalculationParameter>, CalculationParameter> map = new HashMap<>(other.getParameters());
     map.putAll(parameters);
     return of(map);
   }
@@ -122,7 +136,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * @return the filtered calculation parameters
    */
   public CalculationParameters filter(CalculationTarget target, Measure measure) {
-    ImmutableMap<Class<?>, CalculationParameter> map = MapStream.of(parameters)
+    ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> map = MapStream.of(parameters)
         .filterValues(cp -> cp.appliesTo(target, measure))
         .toMap();
     return of(map);
@@ -138,7 +152,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
     if (!parameters.containsKey(type)) {
       return this;
     }
-    Map<Class<?>, CalculationParameter> map = new HashMap<>(parameters);
+    Map<Class<? extends CalculationParameter>, CalculationParameter> map = new HashMap<>(parameters);
     map.remove(type);
     return of(map);
   }
@@ -152,7 +166,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * @return the parameter
    */
   @SuppressWarnings("unchecked")
-  public <T> Optional<T> findParameter(Class<T> type) {
+  public <T extends CalculationParameter> Optional<T> findParameter(Class<T> type) {
     return Optional.ofNullable((T) parameters.get(type));
   }
 
@@ -181,7 +195,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
   private static final long serialVersionUID = 1L;
 
   private CalculationParameters(
-      Map<Class<?>, CalculationParameter> parameters) {
+      Map<Class<? extends CalculationParameter>, CalculationParameter> parameters) {
     JodaBeanUtils.notNull(parameters, "parameters");
     this.parameters = ImmutableMap.copyOf(parameters);
   }
@@ -206,7 +220,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * Gets the parameters, keyed by query type.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Class<?>, CalculationParameter> getParameters() {
+  public ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> getParameters() {
     return parameters;
   }
 

@@ -82,7 +82,7 @@ public interface MarketDataRules extends CalculationParameter {
 
   //-------------------------------------------------------------------------
   @Override
-  public default Class<?> queryType() {
+  public default Class<MarketDataRules> queryType() {
     return MarketDataRules.class;
   }
 

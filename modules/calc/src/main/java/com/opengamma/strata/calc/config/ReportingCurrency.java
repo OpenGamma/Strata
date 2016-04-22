@@ -126,7 +126,7 @@ public final class ReportingCurrency
 
   //-----------------------------------------------------------------------
   @Override
-  public Class<?> queryType() {
+  public Class<ReportingCurrency> queryType() {
     return ReportingCurrency.class;
   }
 

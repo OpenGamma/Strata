@@ -40,7 +40,7 @@ import com.opengamma.strata.collect.Messages;
 public final class CalculationTasks implements ImmutableBean {
 
   /**
-   * The targets that will be calculated.
+   * The targets that calculations will be performed on.
    * <p>
    * The result of the calculations will be a grid where each row is taken from this list.
    */
@@ -56,10 +56,8 @@ public final class CalculationTasks implements ImmutableBean {
   /**
    * The tasks that perform the individual calculations.
    * <p>
-   * The results can be visualized as a grid of columns with a row for each target.
-   * There is one calculation for each cell in the grid. The calculations in the list are arranged in row order.
-   * For example, if a grid has 5 columns, the calculations 0-4 in the list are the first row, calculations 5-9 are
-   * the second row and so on.
+   * The results can be visualized as a grid, with a row for each target and a column for each measure.
+   * Each task can calculate the result for one or more cells in the grid.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final List<CalculationTask> tasks;
@@ -136,32 +134,33 @@ public final class CalculationTasks implements ImmutableBean {
     this.tasks = ImmutableList.copyOf(tasks);
 
     // validate the number of tasks and number of columns tally
-    long taskCount = tasks.stream()
+    long cellCount = tasks.stream()
         .flatMap(task -> task.getCells().stream())
         .count();
     int columnCount = columns.size();
-    if (taskCount != 0) {
+    if (cellCount != 0) {
       if (columnCount == 0) {
         throw new IllegalArgumentException("There must be at least one column");
       }
-      if (taskCount % columnCount != 0) {
+      if (cellCount % columnCount != 0) {
         throw new IllegalArgumentException(
             Messages.format(
-                "Number of tasks ({}) must be exactly divisible by the number of columns ({})",
-                taskCount,
+                "Number of cells ({}) must be exactly divisible by the number of columns ({})",
+                cellCount,
                 columnCount));
       }
     }
 
     // pull out the targets from the tasks
-    int targetCount = (int) taskCount / columnCount;
+    int targetCount = (int) cellCount / columnCount;
     CalculationTarget[] targets = new CalculationTarget[targetCount];
     for (CalculationTask task : tasks) {
-      int rowIndex = task.getRowIndex();
-      if (targets[rowIndex] == null) {
-        targets[rowIndex] = task.getTarget();
-      } else if (targets[rowIndex] != task.getTarget()) {
-        throw new IllegalArgumentException("Tasks define two different targets for the same row");
+      int rowIdx = task.getRowIndex();
+      if (targets[rowIdx] == null) {
+        targets[rowIdx] = task.getTarget();
+      } else if (targets[rowIdx] != task.getTarget()) {
+        throw new IllegalArgumentException(Messages.format(
+            "Tasks define two different targets for row {}: {} and {}", rowIdx, targets[rowIdx], task.getTarget()));
       }
     }
     this.targets = ImmutableList.copyOf(targets);  // missing targets will be caught here by null check
@@ -240,7 +239,7 @@ public final class CalculationTasks implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the targets that will be calculated.
+   * Gets the targets that calculations will be performed on.
    * <p>
    * The result of the calculations will be a grid where each row is taken from this list.
    * @return the value of the property, not empty
@@ -264,10 +263,8 @@ public final class CalculationTasks implements ImmutableBean {
   /**
    * Gets the tasks that perform the individual calculations.
    * <p>
-   * The results can be visualized as a grid of columns with a row for each target.
-   * There is one calculation for each cell in the grid. The calculations in the list are arranged in row order.
-   * For example, if a grid has 5 columns, the calculations 0-4 in the list are the first row, calculations 5-9 are
-   * the second row and so on.
+   * The results can be visualized as a grid, with a row for each target and a column for each measure.
+   * Each task can calculate the result for one or more cells in the grid.
    * @return the value of the property, not empty
    */
   public List<CalculationTask> getTasks() {

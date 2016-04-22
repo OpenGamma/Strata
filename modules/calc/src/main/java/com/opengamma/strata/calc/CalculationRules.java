@@ -62,10 +62,11 @@ public final class CalculationRules implements ImmutableBean {
    * The calculation parameters, used to control the how the calculation is performed.
    * <p>
    * Parameters are used to parameterize the {@link Measure} to be calculated.
-   * Each {@link Column} specifies the measure and column-specific parameters.
-   * These parameters are are the defaults that apply to all columns.
-   * If a specific type of parameter is defined in both the rules and column,
-   * then the column parameter takes precedence.
+   * They may be specified in two places - here and in the {@link Column}.
+   * The parameters specified here are the defaults that apply to all columns.
+   * <p>
+   * If a parameter is defined here and in the column with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
    * <p>
    * There are many possible parameter implementations.
    * Two common ones are {@link ReportingCurrency} and {@link MarketDataRules}.
@@ -190,10 +191,11 @@ public final class CalculationRules implements ImmutableBean {
    * Gets the calculation parameters, used to control the how the calculation is performed.
    * <p>
    * Parameters are used to parameterize the {@link Measure} to be calculated.
-   * Each {@link Column} specifies the measure and column-specific parameters.
-   * These parameters are are the defaults that apply to all columns.
-   * If a specific type of parameter is defined in both the rules and column,
-   * then the column parameter takes precedence.
+   * They may be specified in two places - here and in the {@link Column}.
+   * The parameters specified here are the defaults that apply to all columns.
+   * <p>
+   * If a parameter is defined here and in the column with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
    * <p>
    * There are many possible parameter implementations.
    * Two common ones are {@link ReportingCurrency} and {@link MarketDataRules}.

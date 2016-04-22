@@ -197,22 +197,22 @@ public final class CalculationTask implements ImmutableBean {
    * <p>
    * This invokes the function with the correct set of market data.
    *
-   * @param completeMarketData  the market data used in the calculation
+   * @param marketData  the market data used in the calculation
    * @param refData  the reference data
    * @return results of the calculation, one for every scenario in the market data
    */
   @SuppressWarnings("unchecked")
-  public CalculationResults execute(CalculationEnvironment completeMarketData, ReferenceData refData) {
+  public CalculationResults execute(CalculationEnvironment marketData, ReferenceData refData) {
     // use the mappings to filter the complete market data to the subset needed here
-    CalculationMarketData marketData = DefaultCalculationMarketData.of(completeMarketData, marketDataMappings);
+    CalculationMarketData selectedMarketData = DefaultCalculationMarketData.of(marketData, marketDataMappings);
 
     // calculate the results
-    Map<Measure, Result<?>> results = calculate(marketData, refData);
+    Map<Measure, Result<?>> results = calculate(selectedMarketData, refData);
 
     // convert the results, using a normal loop for better stack traces
     ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
     for (CalculationTaskCell cell : cells) {
-      resultBuilder.add(cell.createResult(this, target, results, marketData, refData));
+      resultBuilder.add(cell.createResult(this, target, results, selectedMarketData, refData));
     }
 
     // return the result

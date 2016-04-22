@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
@@ -24,7 +25,8 @@ import com.opengamma.strata.collect.result.Result;
  * A set of related results for a single target can be stored in a {@link CalculationResults} instance.
  */
 @BeanDefinition(style = "light")
-public final class CalculationResult implements ImmutableBean {
+public final class CalculationResult
+    implements ImmutableBean, Serializable {
 
   /**
    * The row index of the value in the results grid.
@@ -88,6 +90,11 @@ public final class CalculationResult implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(META_BEAN);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private CalculationResult(
       int rowIndex,

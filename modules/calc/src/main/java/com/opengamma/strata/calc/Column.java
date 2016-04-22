@@ -61,8 +61,8 @@ public final class Column implements ImmutableBean {
    * The calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
-   * If a parameter with the same name is specified here and in {@link CalculationRules},
-   * the parameter specified here takes precedence.
+   * If a parameter is defined here and in the rules with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
    * <p>
    * There are many possible parameter implementations.
    * Two common ones are {@link ReportingCurrency} and {@link MarketDataRules}.
@@ -249,8 +249,8 @@ public final class Column implements ImmutableBean {
    * Gets the calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
-   * If a parameter with the same name is specified here and in {@link CalculationRules},
-   * the parameter specified here takes precedence.
+   * If a parameter is defined here and in the rules with the same
+   * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
    * <p>
    * There are many possible parameter implementations.
    * Two common ones are {@link ReportingCurrency} and {@link MarketDataRules}.
@@ -545,8 +545,8 @@ public final class Column implements ImmutableBean {
      * Sets the calculation parameters that apply to this column, used to control the how the calculation is performed.
      * <p>
      * The parameters from {@link CalculationRules} and {@code Column} are combined.
-     * If a parameter with the same name is specified here and in {@link CalculationRules},
-     * the parameter specified here takes precedence.
+     * If a parameter is defined here and in the rules with the same
+     * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
      * <p>
      * There are many possible parameter implementations.
      * Two common ones are {@link ReportingCurrency} and {@link MarketDataRules}.
