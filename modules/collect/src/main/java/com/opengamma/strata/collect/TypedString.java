@@ -3,14 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.collect.type;
+package com.opengamma.strata.collect;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.joda.convert.ToString;
-
-import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An abstract class designed to enable typed strings.

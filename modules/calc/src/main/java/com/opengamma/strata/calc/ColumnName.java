@@ -7,7 +7,7 @@ package com.opengamma.strata.calc;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The name of a column in the grid of calculation results.

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The type of a value.

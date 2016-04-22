@@ -1,22 +1,18 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.collect.type;
-
-import java.util.regex.Pattern;
+package com.opengamma.strata.collect;
 
 import org.joda.convert.FromString;
 
 /**
  * The sample type.
  */
-public final class SampleValidatedType
-    extends TypedString<SampleValidatedType> {
+public final class SampleType
+    extends TypedString<SampleType> {
 
-  /** Validation of name. */
-  private static final Pattern PATTERN = Pattern.compile("[A-Z]+");
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -27,8 +23,8 @@ public final class SampleValidatedType
    * @return the type matching the name, not null
    */
   @FromString
-  public static SampleValidatedType of(String name) {
-    return new SampleValidatedType(name);
+  public static SampleType of(String name) {
+    return new SampleType(name);
   }
 
   //-------------------------------------------------------------------------
@@ -37,8 +33,8 @@ public final class SampleValidatedType
    * 
    * @param name  the name, not null
    */
-  private SampleValidatedType(String name) {
-    super(name, PATTERN, "Name must be letters");
+  private SampleType(String name) {
+    super(name);
   }
 
 }

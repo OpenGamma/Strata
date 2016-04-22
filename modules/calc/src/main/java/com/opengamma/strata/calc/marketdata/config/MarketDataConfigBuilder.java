@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * A mutable builder for building an instance of {@link MarketDataConfig}.

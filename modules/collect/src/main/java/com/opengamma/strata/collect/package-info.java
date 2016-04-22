@@ -17,7 +17,6 @@
  * <li>Result - functional result model</li>
  * <li>Time-Series - a series of values over time</li>
  * <li>Tuple - pair and triple</li>
- * <li>Type - typed strings, to avoid stringly typed systems</li>
  * </ul>
  */
 package com.opengamma.strata.collect;

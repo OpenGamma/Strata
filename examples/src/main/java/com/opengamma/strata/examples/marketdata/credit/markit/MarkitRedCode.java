@@ -10,7 +10,7 @@ import org.joda.convert.FromString;
 import com.google.common.base.Preconditions;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * A simple string type to contain a 6 or 9 character Markit RED Code.

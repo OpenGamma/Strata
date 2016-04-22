@@ -7,7 +7,7 @@ package com.opengamma.strata.basics.market;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.collect.type.TypedString;
+import com.opengamma.strata.collect.TypedString;
 
 /**
  * The name of a field in a market data record.
