@@ -7,7 +7,6 @@ package com.opengamma.strata.product.swap.type;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -127,7 +126,6 @@ public final class ImmutableFixedInflationSwapConvention
       TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
-      Period lag,
       BuySell buySell,
       double notional,
       double fixedRate) {
@@ -141,7 +139,6 @@ public final class ImmutableFixedInflationSwapConvention
         startDate,
         endDate,
         PayReceive.ofPay(buySell.isSell()),
-        lag,
         spotDateOffset,
         paymentDateOffset,
         notional);

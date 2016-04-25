@@ -103,7 +103,6 @@ public interface FixedInflationSwapConvention
    * 
    * @param tradeDate  the date of the trade
    * @param tenor  the tenor of the trade
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -114,7 +113,6 @@ public interface FixedInflationSwapConvention
   public default SwapTrade createTrade(
       LocalDate tradeDate,
       Tenor tenor,
-      Period lag,
       BuySell buySell,
       double notional,
       double fixedRate,
@@ -123,7 +121,7 @@ public interface FixedInflationSwapConvention
     LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate startDate = spotValue.plus(Period.ZERO);
     LocalDate endDate = startDate.plus(tenor.getPeriod());
-    return toTrade(tradeDate, startDate, endDate, lag, buySell, notional, fixedRate);
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
   /**
@@ -138,7 +136,6 @@ public interface FixedInflationSwapConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -148,13 +145,12 @@ public interface FixedInflationSwapConvention
       LocalDate tradeDate,
       LocalDate startDate,
       LocalDate endDate,
-      Period lag,
       BuySell buySell,
       double notional,
       double fixedRate) {
 
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
-    return toTrade(tradeInfo, startDate, endDate, lag, buySell, notional, fixedRate);
+    return toTrade(tradeInfo, startDate, endDate, buySell, notional, fixedRate);
   }
 
   /**
@@ -169,7 +165,6 @@ public interface FixedInflationSwapConvention
    * @param tradeInfo  additional information about the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
    * @param fixedRate  the fixed rate, typically derived from the market
@@ -179,7 +174,6 @@ public interface FixedInflationSwapConvention
       TradeInfo tradeInfo,
       LocalDate startDate,
       LocalDate endDate,
-      Period lag,
       BuySell buySell,
       double notional,
       double fixedRate);
