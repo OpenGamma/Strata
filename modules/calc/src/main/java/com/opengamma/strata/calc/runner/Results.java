@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -30,7 +31,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
-import org.joda.beans.BeanBuilder;
 
 /**
  * Results of performing calculations for a set of targets over a set of scenarios.
@@ -40,7 +40,6 @@ public final class Results implements ImmutableBean {
 
   /**
    * The number of rows in the results.
-   * This is used to interpret the list of 
    */
   @PropertyDefinition
   private final int rowCount;
@@ -180,7 +179,6 @@ public final class Results implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the number of rows in the results.
-   * This is used to interpret the list of
    * @return the value of the property
    */
   public int getRowCount() {

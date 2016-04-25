@@ -148,7 +148,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * @param type  the type to remove
    * @return the filtered calculation parameters
    */
-  public CalculationParameters without(Class<?> type) {
+  public CalculationParameters without(Class<? extends CalculationParameter> type) {
     if (!parameters.containsKey(type)) {
       return this;
     }

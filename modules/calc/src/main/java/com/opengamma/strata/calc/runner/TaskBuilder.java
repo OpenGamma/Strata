@@ -188,8 +188,7 @@ public final class TaskBuilder {
     public boolean equals(Object obj) {
       if (obj instanceof GroupingKey) {
         GroupingKey other = (GroupingKey) obj;
-        // mappings matched by ==, parameters by equals()
-        return mappings == other.mappings &&
+        return mappings.equals(other.mappings) &&
             parameters.equals(other.parameters);
       }
       return false;

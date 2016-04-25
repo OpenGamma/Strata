@@ -79,7 +79,6 @@ public final class TaskColumn implements ImmutableBean {
     // filter the parameters to remove extracted items
     CalculationParameters filteredParams = parameters
         .filter(target, measure)
-        .without(MarketDataRules.class)
         .without(ReportingCurrency.class);
 
     // build
