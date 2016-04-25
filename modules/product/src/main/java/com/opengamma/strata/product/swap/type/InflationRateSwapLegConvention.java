@@ -57,20 +57,25 @@ public final class InflationRateSwapLegConvention
   @PropertyDefinition(validate = "notNull")
   private final PriceIndex index;
   /**
-   * The leg currency.
+   * The positive period between the price index and the accrual date,
+   * typically a number of months.
    * <p>
-   * This is the currency of the swap leg and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
-   * however the two are typically the same.
+   * A price index is typically published monthly and has a delay before publication.
+   * The lag is subtracted from the accrual start and end date to locate the
+   * month of the data to be observed.
    * <p>
-   * This will default to the currency of the index if not specified.
+   * For example, the September data may be published in October or November.
+   * A 3 month lag will cause an accrual date in December to be based on the
+   * observed data for September, which should be available by then.
    */
-  @PropertyDefinition(get = "field")
-  private final Currency currency;
+  @PropertyDefinition(validate = "notNull")
+  private final Period lag;
   /**
    * Reference price index calculation method.
    * <p>
    * This specifies how the reference index calculation occurs.
+   * <p>
+   * This will default to 'Monthly' if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final PriceIndexCalculationMethod indexCalculationMethod;
@@ -88,16 +93,14 @@ public final class InflationRateSwapLegConvention
   /**
    * Obtains a convention based on the specified index.
    * <p>
-   * The standard market convention for an Inflation rate leg is based on the index
+   * The standard market convention for an Inflation rate leg is based on the index.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
    * @return the convention
    */
-  public static InflationRateSwapLegConvention of(PriceIndex index) {
-    return InflationRateSwapLegConvention.builder()
-        .index(index)
-        .build();
+  public static InflationRateSwapLegConvention of(PriceIndex index, Period lag) {
+    return new InflationRateSwapLegConvention(index, lag, PriceIndexCalculationMethod.MONTHLY, false);
   }
 
   //-------------------------------------------------------------------------
@@ -108,18 +111,12 @@ public final class InflationRateSwapLegConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the leg currency.
-   * <p>
-   * This is the currency of the swap leg and the currency that payment is made in.
-   * The data model permits this currency to differ from that of the index,
-   * however the two are typically the same.
-   * <p>
-   * This will default to the currency of the index if not specified.
+   * Gets the currency of the leg from the index.
    * 
-   * @return the start date business day adjustment, not null
+   * @return the currency
    */
   public Currency getCurrency() {
-    return currency != null ? currency : index.getCurrency();
+    return index.getCurrency();
   }
 
   //-------------------------------------------------------------------------
@@ -134,7 +131,6 @@ public final class InflationRateSwapLegConvention
    * @param startDate  the start date
    * @param endDate  the end date
    * @param payReceive  determines if the leg is to be paid or received
-   * @param lag  the positive period between the price index and the accrual date, typically a number of months
    * @param paymentDateOffset an adjustment that alters the payment date by adding a period of days
    * @param businessDayAdjustment the business day adjustment to apply. 
    * @param notional  the notional
@@ -144,7 +140,6 @@ public final class InflationRateSwapLegConvention
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
-      Period lag,
       BusinessDayAdjustment businessDayAdjustment,
       DaysAdjustment paymentDateOffset,
       double notional) {
@@ -200,13 +195,14 @@ public final class InflationRateSwapLegConvention
 
   private InflationRateSwapLegConvention(
       PriceIndex index,
-      Currency currency,
+      Period lag,
       PriceIndexCalculationMethod indexCalculationMethod,
       boolean notionalExchange) {
     JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(lag, "lag");
     JodaBeanUtils.notNull(indexCalculationMethod, "indexCalculationMethod");
     this.index = index;
-    this.currency = currency;
+    this.lag = lag;
     this.indexCalculationMethod = indexCalculationMethod;
     this.notionalExchange = notionalExchange;
   }
@@ -240,9 +236,29 @@ public final class InflationRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the positive period between the price index and the accrual date,
+   * typically a number of months.
+   * <p>
+   * A price index is typically published monthly and has a delay before publication.
+   * The lag is subtracted from the accrual start and end date to locate the
+   * month of the data to be observed.
+   * <p>
+   * For example, the September data may be published in October or November.
+   * A 3 month lag will cause an accrual date in December to be based on the
+   * observed data for September, which should be available by then.
+   * @return the value of the property, not null
+   */
+  public Period getLag() {
+    return lag;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets reference price index calculation method.
    * <p>
    * This specifies how the reference index calculation occurs.
+   * <p>
+   * This will default to 'Monthly' if not specified.
    * @return the value of the property, not null
    */
   public PriceIndexCalculationMethod getIndexCalculationMethod() {
@@ -279,7 +295,7 @@ public final class InflationRateSwapLegConvention
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationRateSwapLegConvention other = (InflationRateSwapLegConvention) obj;
       return JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(currency, other.currency) &&
+          JodaBeanUtils.equal(lag, other.lag) &&
           JodaBeanUtils.equal(indexCalculationMethod, other.indexCalculationMethod) &&
           (notionalExchange == other.notionalExchange);
     }
@@ -290,7 +306,7 @@ public final class InflationRateSwapLegConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lag);
     hash = hash * 31 + JodaBeanUtils.hashCode(indexCalculationMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(notionalExchange);
     return hash;
@@ -301,7 +317,7 @@ public final class InflationRateSwapLegConvention
     StringBuilder buf = new StringBuilder(160);
     buf.append("InflationRateSwapLegConvention{");
     buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("lag").append('=').append(lag).append(',').append(' ');
     buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
     buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
     buf.append('}');
@@ -324,10 +340,10 @@ public final class InflationRateSwapLegConvention
     private final MetaProperty<PriceIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", InflationRateSwapLegConvention.class, PriceIndex.class);
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code lag} property.
      */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", InflationRateSwapLegConvention.class, Currency.class);
+    private final MetaProperty<Period> lag = DirectMetaProperty.ofImmutable(
+        this, "lag", InflationRateSwapLegConvention.class, Period.class);
     /**
      * The meta-property for the {@code indexCalculationMethod} property.
      */
@@ -344,7 +360,7 @@ public final class InflationRateSwapLegConvention
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "currency",
+        "lag",
         "indexCalculationMethod",
         "notionalExchange");
 
@@ -359,8 +375,8 @@ public final class InflationRateSwapLegConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
+        case 106898:  // lag
+          return lag;
         case -1409010088:  // indexCalculationMethod
           return indexCalculationMethod;
         case -159410813:  // notionalExchange
@@ -394,11 +410,11 @@ public final class InflationRateSwapLegConvention
     }
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code lag} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return currency;
+    public MetaProperty<Period> lag() {
+      return lag;
     }
 
     /**
@@ -423,8 +439,8 @@ public final class InflationRateSwapLegConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((InflationRateSwapLegConvention) bean).getIndex();
-        case 575402001:  // currency
-          return ((InflationRateSwapLegConvention) bean).currency;
+        case 106898:  // lag
+          return ((InflationRateSwapLegConvention) bean).getLag();
         case -1409010088:  // indexCalculationMethod
           return ((InflationRateSwapLegConvention) bean).getIndexCalculationMethod();
         case -159410813:  // notionalExchange
@@ -451,7 +467,7 @@ public final class InflationRateSwapLegConvention
   public static final class Builder extends DirectFieldsBeanBuilder<InflationRateSwapLegConvention> {
 
     private PriceIndex index;
-    private Currency currency;
+    private Period lag;
     private PriceIndexCalculationMethod indexCalculationMethod;
     private boolean notionalExchange;
 
@@ -468,7 +484,7 @@ public final class InflationRateSwapLegConvention
      */
     private Builder(InflationRateSwapLegConvention beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.currency = beanToCopy.currency;
+      this.lag = beanToCopy.getLag();
       this.indexCalculationMethod = beanToCopy.getIndexCalculationMethod();
       this.notionalExchange = beanToCopy.isNotionalExchange();
     }
@@ -479,8 +495,8 @@ public final class InflationRateSwapLegConvention
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 575402001:  // currency
-          return currency;
+        case 106898:  // lag
+          return lag;
         case -1409010088:  // indexCalculationMethod
           return indexCalculationMethod;
         case -159410813:  // notionalExchange
@@ -496,8 +512,8 @@ public final class InflationRateSwapLegConvention
         case 100346066:  // index
           this.index = (PriceIndex) newValue;
           break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
+        case 106898:  // lag
+          this.lag = (Period) newValue;
           break;
         case -1409010088:  // indexCalculationMethod
           this.indexCalculationMethod = (PriceIndexCalculationMethod) newValue;
@@ -539,7 +555,7 @@ public final class InflationRateSwapLegConvention
     public InflationRateSwapLegConvention build() {
       return new InflationRateSwapLegConvention(
           index,
-          currency,
+          lag,
           indexCalculationMethod,
           notionalExchange);
     }
@@ -560,18 +576,22 @@ public final class InflationRateSwapLegConvention
     }
 
     /**
-     * Sets the leg currency.
+     * Sets the positive period between the price index and the accrual date,
+     * typically a number of months.
      * <p>
-     * This is the currency of the swap leg and the currency that payment is made in.
-     * The data model permits this currency to differ from that of the index,
-     * however the two are typically the same.
+     * A price index is typically published monthly and has a delay before publication.
+     * The lag is subtracted from the accrual start and end date to locate the
+     * month of the data to be observed.
      * <p>
-     * This will default to the currency of the index if not specified.
-     * @param currency  the new value
+     * For example, the September data may be published in October or November.
+     * A 3 month lag will cause an accrual date in December to be based on the
+     * observed data for September, which should be available by then.
+     * @param lag  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder currency(Currency currency) {
-      this.currency = currency;
+    public Builder lag(Period lag) {
+      JodaBeanUtils.notNull(lag, "lag");
+      this.lag = lag;
       return this;
     }
 
@@ -579,6 +599,8 @@ public final class InflationRateSwapLegConvention
      * Sets reference price index calculation method.
      * <p>
      * This specifies how the reference index calculation occurs.
+     * <p>
+     * This will default to 'Monthly' if not specified.
      * @param indexCalculationMethod  the new value, not null
      * @return this, for chaining, not null
      */
@@ -608,7 +630,7 @@ public final class InflationRateSwapLegConvention
       StringBuilder buf = new StringBuilder(160);
       buf.append("InflationRateSwapLegConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
       buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
       buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
       buf.append('}');

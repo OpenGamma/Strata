@@ -5,19 +5,21 @@
  */
 package com.opengamma.strata.product.swap.type;
 
-import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
+
+import java.time.Period;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -30,6 +32,11 @@ import com.opengamma.strata.basics.schedule.Frequency;
 final class StandardFixedInflationSwapConventions {
 
   /**
+   * Three month lag.
+   */
+  private static final Period LAG_3M = Period.ofMonths(3);
+
+  /**
    * GBP vanilla fixed vs UK HCIP swap.
    * The fixed leg pays every 6 months with day count '30U/360'.
    */
@@ -37,7 +44,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "GBP-FIXED-6M-GB-HCIP",
           FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
-          InflationRateSwapLegConvention.of(PriceIndices.GB_HICP),
+          InflationRateSwapLegConvention.of(PriceIndices.GB_HICP, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
@@ -49,7 +56,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "GBP-FIXED-6M-GB-RPI",
           FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
-          InflationRateSwapLegConvention.of(PriceIndices.GB_RPI),
+          InflationRateSwapLegConvention.of(PriceIndices.GB_RPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
@@ -61,7 +68,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "GBP-FIXED-6M-GB-RPIX",
           FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
-          InflationRateSwapLegConvention.of(PriceIndices.GB_RPIX),
+          InflationRateSwapLegConvention.of(PriceIndices.GB_RPIX, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
@@ -73,7 +80,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "CHF-FIXED-6M-CH-CPI",
           FixedRateSwapLegConvention.of(CHF, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU)),
-          InflationRateSwapLegConvention.of(PriceIndices.CH_CPI),
+          InflationRateSwapLegConvention.of(PriceIndices.CH_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU),
           DaysAdjustment.ofBusinessDays(2, CHZU));
 
@@ -85,7 +92,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "EUR-FIXED-6M-EU-AI-CPI",
           FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)),
-          InflationRateSwapLegConvention.of(PriceIndices.EU_AI_CPI),
+          InflationRateSwapLegConvention.of(PriceIndices.EU_AI_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
 
@@ -97,7 +104,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "EUR-FIXED-6M-EU-EXT-CPI",
           FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)),
-          InflationRateSwapLegConvention.of(PriceIndices.EU_EXT_CPI),
+          InflationRateSwapLegConvention.of(PriceIndices.EU_EXT_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
 
@@ -109,7 +116,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "JPY-FIXED-6M-JP-CPI",
           FixedRateSwapLegConvention.of(JPY, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)),
-          InflationRateSwapLegConvention.of(PriceIndices.JP_CPI_EXF),
+          InflationRateSwapLegConvention.of(PriceIndices.JP_CPI_EXF, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO),
           DaysAdjustment.ofBusinessDays(2, JPTO));
 
@@ -121,7 +128,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "USD-FIXED-6M-US-CPI",
           FixedRateSwapLegConvention.of(USD, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY)),
-          InflationRateSwapLegConvention.of(PriceIndices.US_CPI_U),
+          InflationRateSwapLegConvention.of(PriceIndices.US_CPI_U, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY),
           DaysAdjustment.ofBusinessDays(2, USNY));
 
@@ -133,7 +140,7 @@ final class StandardFixedInflationSwapConventions {
       ImmutableFixedInflationSwapConvention.of(
           "Eur-FIXED-6M-FR-CPI",
           FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA)),
-          InflationRateSwapLegConvention.of(PriceIndices.FR_EXT_CPI),
+          InflationRateSwapLegConvention.of(PriceIndices.FR_EXT_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA),
           DaysAdjustment.ofBusinessDays(2, FRPA));
 

@@ -45,6 +45,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 @Test
 public class FixedInflationSwapConventionTest {
 
+  private static final Period LAG_3M = Period.ofMonths(3);
   private static final double NOTIONAL_2M = 2_000_000d;
   private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
@@ -55,9 +56,9 @@ public class FixedInflationSwapConventionTest {
       FixedRateSwapLegConvention.of(GBP, ACT_360, P6M, BDA_FOLLOW);
   private static final FixedRateSwapLegConvention FIXED2 =
       FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP);
-  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(GB_RPI);
-  private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX);
+  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
+  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(GB_RPI, LAG_3M);
+  private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M);
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -112,10 +113,10 @@ public class FixedInflationSwapConventionTest {
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
     LocalDate endDate = date(2015, 11, 5);
-    SwapTrade test = base.toTrade(tradeDate, startDate, endDate, Period.ofMonths(3), BUY, NOTIONAL_2M, 0.25d);
+    SwapTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
-        INFL.toLeg(startDate, endDate, RECEIVE, Period.ofMonths(3), BDA_FOLLOW, PLUS_ONE_DAY, NOTIONAL_2M));
+        INFL.toLeg(startDate, endDate, RECEIVE, BDA_FOLLOW, PLUS_ONE_DAY, NOTIONAL_2M));
     assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
