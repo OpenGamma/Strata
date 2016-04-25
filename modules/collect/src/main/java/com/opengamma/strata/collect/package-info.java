@@ -13,7 +13,6 @@
  * <li>Functions - additional Java SE 8 functional interfaces</li>
  * <li>IO - common file formats</li>
  * <li>Named - extended enums</li>
- * <li>Ranges - ranges of values</li>
  * <li>Result - functional result model</li>
  * <li>Time-Series - a series of values over time</li>
  * <li>Tuple - pair and triple</li>

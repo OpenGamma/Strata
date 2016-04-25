@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * A holiday calendar implementation that has no holidays.
@@ -95,11 +94,6 @@ final class NoHolidaysCalendar
   @Override
   public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
     return Math.toIntExact(LocalDateUtils.daysBetween(startInclusive, endExclusive));
-  }
-
-  @Override
-  public int daysBetween(LocalDateRange dateRange) {
-    return daysBetween(dateRange.getStart(), dateRange.getEndExclusive());
   }
 
   @Override

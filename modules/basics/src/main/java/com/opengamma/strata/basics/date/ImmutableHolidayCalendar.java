@@ -8,7 +8,6 @@ package com.opengamma.strata.basics.date;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -34,7 +33,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.range.LocalDateRange;
 
 /**
  * A holiday calendar implementation based on an immutable set of holiday dates and weekends.
@@ -92,12 +90,6 @@ public final class ImmutableHolidayCalendar
    * Trailing bits are set to 0 so they act as holidays, avoiding month length logic.
    */
   private final int[] lookup;
-  /**
-   * The principal range of dates.
-   * <p>
-   * Holiday queries are optimized for this range.
-   */
-  private final LocalDateRange range;
 
   //-------------------------------------------------------------------------
   /**
@@ -155,10 +147,7 @@ public final class ImmutableHolidayCalendar
     if (cal1 == cal2) {
       return ArgChecker.notNull(cal1, "cal1");
     }
-    LocalDateRange newRange = cal1.range.union(cal2.range);  // exception if no overlap
-    ImmutableSortedSet<LocalDate> newHolidays =
-        ImmutableSortedSet.copyOf(Iterables.concat(cal1.holidays, cal2.holidays))
-            .subSet(newRange.getStart(), newRange.getEndExclusive());
+    ImmutableSortedSet<LocalDate> newHolidays = ImmutableSortedSet.copyOf(Iterables.concat(cal1.holidays, cal2.holidays));
     ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(cal1.weekendDays, cal2.weekendDays));
     return new ImmutableHolidayCalendar(cal1.id.combinedWith(cal2.id), newHolidays, newWeekends);
   }
@@ -181,16 +170,12 @@ public final class ImmutableHolidayCalendar
     this.weekendDays = Sets.immutableEnumSet(weekendDays);
     if (holidays.isEmpty()) {
       // special case where no holiday dates are specified
-      this.range = LocalDateRange.ALL;
       this.startYear = 0;
       this.lookup = new int[0];
     } else {
       // normal case where holidays are specified
-      this.range = LocalDateRange.ofClosed(
-          holidays.first().with(TemporalAdjusters.firstDayOfYear()),
-          holidays.last().with(TemporalAdjusters.lastDayOfYear()));
-      this.startYear = range.getStart().getYear();
-      int endYearExclusive = range.getEndExclusive().getYear();
+      this.startYear = holidays.first().getYear();
+      int endYearExclusive = holidays.last().getYear() + 1;
       this.lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive);
     }
   }
@@ -231,18 +216,6 @@ public final class ImmutableHolidayCalendar
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the range of dates that may be queried.
-   * <p>
-   * If a holiday query is made for a date outside this range, an exception is thrown.
-   * 
-   * @return the range of dates that may be queried
-   */
-  public LocalDateRange getRange() {
-    return range;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean isHoliday(LocalDate date) {
     try {
@@ -261,7 +234,7 @@ public final class ImmutableHolidayCalendar
     if (date.getYear() >= 0 && date.getYear() < 10000) {
       return weekendDays.contains(date.getDayOfWeek());
     }
-    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
   }
 
   //-------------------------------------------------------------------------
@@ -287,7 +260,7 @@ public final class ImmutableHolidayCalendar
     if (date.getYear() >= 0 && date.getYear() < 10000) {
       return HolidayCalendar.super.shift(date, amount);
     }
-    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
   }
 
   //-------------------------------------------------------------------------
@@ -365,7 +338,7 @@ public final class ImmutableHolidayCalendar
     if (date.getYear() >= 0 && date.getYear() < 10000) {
       return HolidayCalendar.super.previous(date);
     }
-    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
   }
 
   //-------------------------------------------------------------------------
@@ -425,7 +398,7 @@ public final class ImmutableHolidayCalendar
     if (date.getYear() >= 0 && date.getYear() < 10000) {
       return HolidayCalendar.super.isLastBusinessDayOfMonth(date);
     }
-    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
   }
 
   //-------------------------------------------------------------------------
@@ -449,7 +422,7 @@ public final class ImmutableHolidayCalendar
     if (date.getYear() >= 0 && date.getYear() < 10000) {
       return HolidayCalendar.super.lastBusinessDayOfMonth(date);
     }
-    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date + ", " + range);
+    throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
   }
 
   //-------------------------------------------------------------------------
