@@ -60,6 +60,24 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * FpML parser for Swaps.
  * <p>
  * This parser handles the subset of FpML necessary to populate the trade model.
+ * <p>
+ * The following features are not available in the Strata trade model:
+ * <ul>
+ * <li>initial fixing date
+ * <li>first payment date
+ * <li>last regular payment date
+ * <li>weekly reset frequency
+ * <li>known amount in a stub
+ * <li>spread/gearing in a stub
+ * <li>overnight leg first rate is known
+ * <li>overnight leg stubs
+ * <li>FRA discounting
+ * <li>future value notional
+ * <li>non-delivered settlement
+ * <li>rate treatment
+ * <li>FX reset first rate is known
+ * <li>notional varies by formula
+ * </ul>
  */
 final class SwapFpmlParserPlugin
     implements FpmlParserPlugin {
