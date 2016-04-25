@@ -71,9 +71,8 @@ public final class TaskColumn implements ImmutableBean {
     CalculationParameters parameters = column.getParameters();
 
     // extract the known parameters
-    MarketDataMappings mappings = parameters.findParameter(MarketDataRules.class)
-        .flatMap(rules -> rules.mappings(target))
-        .orElse(NoMatchingRuleMappings.INSTANCE);
+    MarketDataRules mdRules = column.getMarketDataRules();
+    MarketDataMappings mappings = mdRules.mappings(target).orElse(NoMatchingRuleMappings.INSTANCE);
     ReportingCurrency reportingCurrency = parameters.findParameter(ReportingCurrency.class)
         .orElse(ReportingCurrency.NATURAL);
 

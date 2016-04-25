@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.calc;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -21,10 +24,14 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 @Test
 public class ColumnTest {
 
+  private static final MarketDataRules MD_RULES = MarketDataRules.empty();
+
+  //-------------------------------------------------------------------------
   public void test_builder_columnNameFromMeasure() {
-    Column test = Column.builder().measure(Measures.PRESENT_VALUE).build();
+    Column test = Column.builder().measure(Measures.PRESENT_VALUE).marketDataRules(MD_RULES).build();
     assertEquals(test.getName(), ColumnName.of(Measures.PRESENT_VALUE.getName()));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MD_RULES);
     assertEquals(test.getParameters(), CalculationParameters.empty());
   }
 
@@ -32,35 +39,67 @@ public class ColumnTest {
     Column test = Column.builder().measure(Measures.PRESENT_VALUE).name(ColumnName.of("NPV")).build();
     assertEquals(test.getName(), ColumnName.of("NPV"));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
     assertEquals(test.getParameters(), CalculationParameters.empty());
   }
 
+  public void test_builder_missingData() {
+    assertThrowsIllegalArg(() -> Column.builder().build());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_of_Measure() {
     Column test = Column.of(Measures.PRESENT_VALUE);
     assertEquals(test.getName(), ColumnName.of(Measures.PRESENT_VALUE.getName()));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
     assertEquals(test.getParameters(), CalculationParameters.empty());
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
+  }
+
+  public void test_of_MeasureCurrency() {
+    Column test = Column.of(Measures.PRESENT_VALUE, USD);
+    assertEquals(test.getName(), ColumnName.of(Measures.PRESENT_VALUE.getName()));
+    assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
+    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
   }
 
   public void test_of_MeasureCalculationParameters() {
-    Column test = Column.of(Measures.PRESENT_VALUE, ReportingCurrency.NATURAL);
+    Column test = Column.of(Measures.PRESENT_VALUE, ReportingCurrency.of(USD));
     assertEquals(test.getName(), ColumnName.of(Measures.PRESENT_VALUE.getName()));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
-    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.NATURAL));
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
+    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
   }
 
   public void test_of_MeasureString() {
     Column test = Column.of(Measures.PRESENT_VALUE, "NPV");
     assertEquals(test.getName(), ColumnName.of("NPV"));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
     assertEquals(test.getParameters(), CalculationParameters.empty());
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
+  }
+
+  public void test_of_MeasureStringCurrency() {
+    Column test = Column.of(Measures.PRESENT_VALUE, "NPV", USD);
+    assertEquals(test.getName(), ColumnName.of("NPV"));
+    assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
+    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
   }
 
   public void test_of_MeasureStringCalculationParameters() {
-    Column test = Column.of(Measures.PRESENT_VALUE, "NPV", ReportingCurrency.NATURAL);
+    Column test = Column.of(Measures.PRESENT_VALUE, "NPV", ReportingCurrency.of(USD));
     assertEquals(test.getName(), ColumnName.of("NPV"));
     assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
-    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.NATURAL));
+    assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
+    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
   }
 
   //-------------------------------------------------------------------------

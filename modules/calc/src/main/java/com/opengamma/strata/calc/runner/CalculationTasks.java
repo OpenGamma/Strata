@@ -83,7 +83,7 @@ public final class CalculationTasks implements ImmutableBean {
     // this is done once as it is the same for all targets
     List<Column> effectiveColumns =
         columns.stream()
-            .map(column -> column.combineWithDefaults(rules.getParameters()))
+            .map(column -> column.combineWithDefaults(rules.getMarketDataRules(), rules.getParameters()))
             .collect(toImmutableList());
 
     // loop around the targets, then the columns, to build the tasks

@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.CalculationParameter;
 
 /**
  * Market data rules specify what market data should be used when calculating measures for a target.
@@ -18,7 +17,7 @@ import com.opengamma.strata.calc.runner.CalculationParameter;
  * multiple curve groups, each with a USD discounting curve. The market data rules allow the system
  * to choose the correct curve.
  */
-public interface MarketDataRules extends CalculationParameter {
+public interface MarketDataRules {
 
   /**
    * Returns set a of market data rules matching any target which is an instance of any of the target types.
@@ -78,17 +77,6 @@ public interface MarketDataRules extends CalculationParameter {
     rulesArray[0] = this;
     System.arraycopy(otherRules, 0, rulesArray, 1, otherRules.length);
     return CompositeMarketDataRules.of(rulesArray);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public default Class<MarketDataRules> queryType() {
-    return MarketDataRules.class;
-  }
-
-  @Override
-  public default boolean appliesTo(CalculationTarget target, Measure measure) {
-    return mappings(target).isPresent();
   }
 
 }

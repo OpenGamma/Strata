@@ -30,24 +30,28 @@ public class CalculationRulesTest {
   public void test_of_MarketRules() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES);
     assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getParameters(), CalculationParameters.of(MD_RULES));
+    assertEquals(test.getMarketDataRules(), MD_RULES);
+    assertEquals(test.getParameters(), CalculationParameters.empty());
   }
 
   public void test_of_MarketRulesCurrency() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, USD);
     assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getParameters(), CalculationParameters.of(MD_RULES, ReportingCurrency.of(USD)));
+    assertEquals(test.getMarketDataRules(), MD_RULES);
+    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
   }
 
   public void test_of_ParametersArray() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, ReportingCurrency.of(USD));
+    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, ReportingCurrency.of(USD));
     assertEquals(test.getFunctions(), FUNCTIONS);
+    assertEquals(test.getMarketDataRules(), MD_RULES);
     assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
   }
 
   public void test_of_Parameters() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, CalculationParameters.of(ReportingCurrency.of(USD)));
+    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, CalculationParameters.of(ReportingCurrency.of(USD)));
     assertEquals(test.getFunctions(), FUNCTIONS);
+    assertEquals(test.getMarketDataRules(), MD_RULES);
     assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
   }
 
