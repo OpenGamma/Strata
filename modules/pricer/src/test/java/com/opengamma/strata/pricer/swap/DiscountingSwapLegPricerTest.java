@@ -53,6 +53,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -101,8 +102,12 @@ import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConventions;
 import com.opengamma.strata.product.swap.type.IborIborSwapConventions;
 
 /**
@@ -785,5 +790,19 @@ public class DiscountingSwapLegPricerTest {
     DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, PaymentEventPricer.instance());
     CurrencyAmount computed = pricer.currentCash(expSwapLeg, prov);
     assertEquals(computed, CurrencyAmount.of(expSwapLeg.getCurrency(), expected));
+  }  
+
+  public void test_currentCash_convention() { // Check that standard conventions return a compounded ZC fixed leg
+    FixedInflationSwapConvention US_CPI = FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI;
+    double rate = 0.10;
+    int nbYears = 5;
+    LocalDate endDate = VAL_DATE_INFLATION.plusYears(nbYears);
+    SwapTrade swap = US_CPI.toTrade(VAL_DATE_INFLATION, VAL_DATE_INFLATION, endDate, BuySell.BUY, NOTIONAL, rate);
+    ResolvedSwap resolved = swap.getProduct().resolve(REF_DATA);
+    DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
+    RatesProvider providerEndDate = new MockRatesProvider(endDate);
+    MultiCurrencyAmount c = pricer.currentCash(resolved, providerEndDate);
+    assertEquals(c.getAmount(USD).getAmount(), -(Math.pow(1 + rate, nbYears) - 1.0) * NOTIONAL, NOTIONAL * EPS);
   }
+  
 }

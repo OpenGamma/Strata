@@ -11,7 +11,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
+import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
@@ -21,10 +21,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 
 import java.time.Period;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.product.swap.CompoundingMethod;
 
 /**
  * Fixed-Inflation swap conventions.
@@ -38,111 +41,125 @@ final class StandardFixedInflationSwapConventions {
 
   /**
    * GBP vanilla fixed vs UK HCIP swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention GBP_FIXED_6M_GB_HCIP =
+  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_HCIP =
       ImmutableFixedInflationSwapConvention.of(
-          "GBP-FIXED-6M-GB-HCIP",
-          FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
+          "GBP-FIXED-ZC-GB-HCIP",
+          fixedLegZcConvention(GBP, GBLO),
           InflationRateSwapLegConvention.of(PriceIndices.GB_HICP, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
   /**
    * GBP vanilla fixed vs UK RPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention GBP_FIXED_6M_GB_RPI =
+  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_RPI =
       ImmutableFixedInflationSwapConvention.of(
-          "GBP-FIXED-6M-GB-RPI",
-          FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
+          "GBP-FIXED-ZC-GB-RPI",
+          fixedLegZcConvention(GBP, GBLO),
           InflationRateSwapLegConvention.of(PriceIndices.GB_RPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
   /**
    * GBP vanilla fixed vs UK RPIX swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention GBP_FIXED_6M_GB_RPIX =
+  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_RPIX =
       ImmutableFixedInflationSwapConvention.of(
-          "GBP-FIXED-6M-GB-RPIX",
-          FixedRateSwapLegConvention.of(GBP, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
+          "GBP-FIXED-ZC-GB-RPIX",
+          fixedLegZcConvention(GBP, GBLO),
           InflationRateSwapLegConvention.of(PriceIndices.GB_RPIX, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO),
           DaysAdjustment.ofBusinessDays(2, GBLO));
 
   /**
    * CHF vanilla fixed vs Switzerland CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention CHF_FIXED_6M_CH_CPI =
+  public static final FixedInflationSwapConvention CHF_FIXED_ZC_CH_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "CHF-FIXED-6M-CH-CPI",
-          FixedRateSwapLegConvention.of(CHF, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU)),
+          "CHF-FIXED-ZC-CH-CPI",
+          fixedLegZcConvention(CHF, CHZU),
           InflationRateSwapLegConvention.of(PriceIndices.CH_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU),
           DaysAdjustment.ofBusinessDays(2, CHZU));
 
   /**
    * EUR vanilla fixed vs Europe CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention EUR_FIXED_6M_EU_AI_CPI =
+  public static final FixedInflationSwapConvention EUR_FIXED_ZC_EU_AI_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "EUR-FIXED-6M-EU-AI-CPI",
-          FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)),
+          "EUR-FIXED-ZC-EU-AI-CPI",
+          fixedLegZcConvention(EUR, EUTA),
           InflationRateSwapLegConvention.of(PriceIndices.EU_AI_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
 
   /**
    * EUR vanilla fixed vs Europe (Excluding Tobacco) CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention EUR_FIXED_6M_EU_EXT_CPI =
+  public static final FixedInflationSwapConvention EUR_FIXED_ZC_EU_EXT_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "EUR-FIXED-6M-EU-EXT-CPI",
-          FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)),
+          "EUR-FIXED-ZC-EU-EXT-CPI",
+          fixedLegZcConvention(EUR, EUTA),
           InflationRateSwapLegConvention.of(PriceIndices.EU_EXT_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
 
   /**
    * JPY vanilla fixed vs Japan (Excluding Fresh Food) CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention JPY_FIXED_6M_JP_CPI =
+  public static final FixedInflationSwapConvention JPY_FIXED_ZC_JP_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "JPY-FIXED-6M-JP-CPI",
-          FixedRateSwapLegConvention.of(JPY, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)),
+          "JPY-FIXED-ZC-JP-CPI",
+          fixedLegZcConvention(JPY, JPTO),
           InflationRateSwapLegConvention.of(PriceIndices.JP_CPI_EXF, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO),
           DaysAdjustment.ofBusinessDays(2, JPTO));
 
   /**
-   * USD(NY) vanilla fixed vs US Urban consumers CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * USD vanilla fixed vs US Urban consumers CPI swap.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention USD_FIXED_6M_US_CPI =
+  public static final FixedInflationSwapConvention USD_FIXED_ZC_US_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "USD-FIXED-6M-US-CPI",
-          FixedRateSwapLegConvention.of(USD, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY)),
+          "USD-FIXED-ZC-US-CPI",
+          fixedLegZcConvention(USD, USNY),
           InflationRateSwapLegConvention.of(PriceIndices.US_CPI_U, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY),
           DaysAdjustment.ofBusinessDays(2, USNY));
 
   /**
    * EUR vanilla fixed vs France CPI swap.
-   * The fixed leg pays every 6 months with day count '30U/360'.
+   * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention EUR_FIXED_6M_FR_CPI =
+  public static final FixedInflationSwapConvention EUR_FIXED_ZC_FR_CPI =
       ImmutableFixedInflationSwapConvention.of(
-          "Eur-FIXED-6M-FR-CPI",
-          FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, Frequency.TERM, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA)),
+          "EUR-FIXED-ZC-FR-CPI",
+          fixedLegZcConvention(EUR, EUTA),
           InflationRateSwapLegConvention.of(PriceIndices.FR_EXT_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA),
-          DaysAdjustment.ofBusinessDays(2, FRPA));
+          DaysAdjustment.ofBusinessDays(2, EUTA));
+  
+  // Create a zero-coupon fixed leg convention
+  private static FixedRateSwapLegConvention fixedLegZcConvention(Currency ccy, HolidayCalendarId cal) {
+    return FixedRateSwapLegConvention.builder()
+        .paymentFrequency(Frequency.TERM)
+        .accrualFrequency(Frequency.P12M)
+        .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, cal))
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, cal))
+        .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, cal))
+        .compoundingMethod(CompoundingMethod.STRAIGHT)
+        .dayCount(ONE_ONE)
+        .currency(ccy)
+        .build();
+  }
 
   //-------------------------------------------------------------------------
   /**
