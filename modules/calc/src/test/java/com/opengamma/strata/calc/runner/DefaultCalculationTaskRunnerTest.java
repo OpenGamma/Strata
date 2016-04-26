@@ -148,6 +148,7 @@ public class DefaultCalculationTaskRunnerTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
@@ -163,6 +164,7 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 
@@ -201,6 +203,7 @@ public class DefaultCalculationTaskRunnerTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.empty();
@@ -210,6 +213,7 @@ public class DefaultCalculationTaskRunnerTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 

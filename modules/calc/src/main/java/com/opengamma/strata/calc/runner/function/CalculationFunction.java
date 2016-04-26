@@ -16,6 +16,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
@@ -32,9 +33,9 @@ import com.opengamma.strata.collect.result.Result;
  *  - the set of measures that can be calculated
  * <li>{@link #naturalCurrency(CalculationTarget, ReferenceData)}
  *  - the "natural" currency of the target
- * <li>{@link #requirements(CalculationTarget, Set, ReferenceData)}
+ * <li>{@link #requirements(CalculationTarget, Set, CalculationParameters, ReferenceData)}
  *  - the market data requirements for performing the calculation
- * <li>{@link #calculate(CalculationTarget, Set, CalculationMarketData, ReferenceData)}
+ * <li>{@link #calculate(CalculationTarget, Set, CalculationParameters, CalculationMarketData, ReferenceData)}
  *  - perform the calculation
  * </ul>
  * <p>
@@ -89,12 +90,14 @@ public interface CalculationFunction<T extends CalculationTarget> {
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to be calculated
+   * @param parameters  the parameters that affect how the calculation is performed
    * @param refData  the reference data to be used in the calculation
    * @return the requirements specifying the market data the function needs to perform calculations
    */
   public abstract FunctionRequirements requirements(
       T target,
       Set<Measure> measures,
+      CalculationParameters parameters,
       ReferenceData refData);
 
   /**
@@ -102,7 +105,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * <p>
    * The set of measures must only contain measures that the function supports,
    * as returned by {@link #supportedMeasures()}. The market data must provide at least the
-   * set of data requested by {@link #requirements(CalculationTarget, Set, ReferenceData)}.
+   * set of data requested by {@link #requirements(CalculationTarget, Set, CalculationParameters, ReferenceData)}.
    * <p>
    * The result of this method will often be an instance of {@link ScenarioResult}, which
    * handles the common case where there is one calculated value for each scenario.
@@ -112,6 +115,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to calculate
+   * @param parameters  the parameters that affect how the calculation is performed
    * @param marketData  the multi-scenario market data to be used in the calculation
    * @param refData  the reference data to be used in the calculation
    * @return the read-only map of calculated values, keyed by their measure
@@ -119,6 +123,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
   public abstract Map<Measure, Result<?>> calculate(
       T target,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData marketData,
       ReferenceData refData);
 

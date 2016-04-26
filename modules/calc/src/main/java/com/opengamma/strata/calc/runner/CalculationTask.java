@@ -152,7 +152,7 @@ public final class CalculationTask implements ImmutableBean {
   @SuppressWarnings("unchecked")
   public MarketDataRequirements requirements(ReferenceData refData) {
     // determine market data requirements of the function
-    FunctionRequirements functionRequirements = function.requirements(target, getMeasures(), refData);
+    FunctionRequirements functionRequirements = function.requirements(target, getMeasures(), parameters, refData);
 
     // convert function requirements to market data requirements
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
@@ -222,7 +222,7 @@ public final class CalculationTask implements ImmutableBean {
   // calculates the result
   private Map<Measure, Result<?>> calculate(CalculationMarketData marketData, ReferenceData refData) {
     try {
-      return function.calculate(target, getMeasures(), marketData, refData);
+      return function.calculate(target, getMeasures(), parameters, marketData, refData);
 
     } catch (RuntimeException ex) {
       // return a failure for each requested measure with details of the problem

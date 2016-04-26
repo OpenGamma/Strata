@@ -33,12 +33,11 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -71,6 +70,7 @@ public class SwaptionCalculationFunctionTest {
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
@@ -97,19 +97,10 @@ public class SwaptionCalculationFunctionTest {
   private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<SwaptionTrade> test = SwaptionFunctionGroups.standard();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PRESENT_VALUE);
-    FunctionConfig<SwaptionTrade> config =
-        SwaptionFunctionGroups.standard().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(SwaptionCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     SwaptionCalculationFunction function = new SwaptionCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(
@@ -129,7 +120,7 @@ public class SwaptionCalculationFunctionTest {
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -151,7 +142,6 @@ public class SwaptionCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(SwaptionFunctionGroups.class);
     coverPrivateConstructor(SwaptionMeasureCalculations.class);
   }
 

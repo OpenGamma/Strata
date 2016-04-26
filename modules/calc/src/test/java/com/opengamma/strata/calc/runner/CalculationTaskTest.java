@@ -356,6 +356,7 @@ public class CalculationTaskTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
@@ -371,6 +372,7 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 
@@ -417,6 +419,7 @@ public class CalculationTaskTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.empty();
@@ -426,6 +429,7 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 
@@ -469,6 +473,7 @@ public class CalculationTaskTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.empty();
@@ -479,6 +484,7 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 
@@ -516,6 +522,7 @@ public class CalculationTaskTest {
     public FunctionRequirements requirements(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
@@ -527,6 +534,7 @@ public class CalculationTaskTest {
     public Map<Measure, Result<?>> calculate(
         TestTarget target,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 

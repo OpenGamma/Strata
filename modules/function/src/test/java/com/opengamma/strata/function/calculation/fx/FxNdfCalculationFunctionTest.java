@@ -26,12 +26,11 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -57,6 +56,7 @@ import com.opengamma.strata.product.fx.ResolvedFxNdf;
 public class FxNdfCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final CurrencyAmount NOTIONAL = CurrencyAmount.of(GBP, (double) 100_000_000);
   private static final FxNdf PRODUCT = FxNdf.builder()
@@ -74,24 +74,10 @@ public class FxNdfCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<FxNdfTrade> test = FxNdfFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PRESENT_VALUE,
-        Measures.PV01,
-        Measures.BUCKETED_PV01,
-        Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH,
-        Measures.FORWARD_FX_RATE);
-    FunctionConfig<FxNdfTrade> config =
-        FxNdfFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(FxNdfCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     FxNdfCalculationFunction function = new FxNdfCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(GBP), DiscountCurveKey.of(USD)));
@@ -116,7 +102,7 @@ public class FxNdfCalculationFunctionTest {
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
         Measures.FORWARD_FX_RATE);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -141,7 +127,7 @@ public class FxNdfCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -164,7 +150,6 @@ public class FxNdfCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FxNdfFunctionGroups.class);
     coverPrivateConstructor(FxNdfMeasureCalculations.class);
   }
 

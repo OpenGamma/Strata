@@ -25,12 +25,11 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
@@ -55,6 +54,7 @@ import com.opengamma.strata.product.fx.ResolvedFxSingle;
 public class FxSingleCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final FxSingle PRODUCT = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
@@ -62,25 +62,10 @@ public class FxSingleCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<FxSingleTrade> test = FxSingleFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PAR_SPREAD,
-        Measures.PRESENT_VALUE,
-        Measures.PV01,
-        Measures.BUCKETED_PV01,
-        Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH,
-        Measures.FORWARD_FX_RATE);
-    FunctionConfig<FxSingleTrade> config =
-        FxSingleFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(FxSingleCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     FxSingleCalculationFunction function = new FxSingleCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(GBP), DiscountCurveKey.of(USD)));
@@ -107,7 +92,7 @@ public class FxSingleCalculationFunctionTest {
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
         Measures.FORWARD_FX_RATE);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -134,7 +119,7 @@ public class FxSingleCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -157,7 +142,6 @@ public class FxSingleCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FxSingleFunctionGroups.class);
     coverPrivateConstructor(FxSingleMeasureCalculations.class);
   }
 

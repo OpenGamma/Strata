@@ -24,12 +24,11 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
@@ -61,36 +60,16 @@ public class SwapCalculationFunctionTest {
   public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
       .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
 
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<SwapTrade> test = SwapFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PAR_RATE,
-        Measures.PAR_SPREAD,
-        Measures.PRESENT_VALUE,
-        Measures.EXPLAIN_PRESENT_VALUE,
-        Measures.CASH_FLOWS,
-        Measures.PV01,
-        Measures.BUCKETED_PV01,
-        Measures.BUCKETED_GAMMA_PV01,
-        Measures.ACCRUED_INTEREST,
-        Measures.LEG_INITIAL_NOTIONAL,
-        Measures.LEG_PRESENT_VALUE,
-        Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH        );
-    FunctionConfig<SwapTrade> config =
-        SwapFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(SwapCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     SwapCalculationFunction function = new SwapCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
@@ -118,7 +97,7 @@ public class SwapCalculationFunctionTest {
         Measures.PAR_SPREAD,
         Measures.EXPLAIN_PRESENT_VALUE,
         Measures.CASH_FLOWS, Measures.CURRENCY_EXPOSURE, Measures.CURRENT_CASH);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -149,7 +128,7 @@ public class SwapCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -168,7 +147,6 @@ public class SwapCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(SwapFunctionGroups.class);
     coverPrivateConstructor(SwapMeasureCalculations.class);
   }
 
