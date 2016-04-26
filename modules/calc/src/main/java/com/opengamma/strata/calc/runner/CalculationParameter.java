@@ -32,10 +32,15 @@ public interface CalculationParameter {
    * <p>
    * Parameters can be queried using {@link CalculationParameters#findParameter(Class)}.
    * This type is the key that callers must use in that method.
+   * <p>
+   * By default, this is just {@link Object#getClass()}.
+   * It will only differ if the query type is an interface rather than the concrete class.
    * 
    * @return the type of the parameter implementation
    */
-  public abstract Class<? extends CalculationParameter> queryType();
+  public default Class<? extends CalculationParameter> queryType() {
+    return getClass();
+  }
 
   /**
    * Checks if this parameter applies to the specified target and measure.
