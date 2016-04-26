@@ -53,8 +53,9 @@ public final class ColumnHeader implements ImmutableBean {
   /**
    * The currency of the result.
    * <p>
-   * If the measure is {@linkplain Measure#isCurrencyConvertible() currency-convertible}
-   * and a specific {@link ReportingCurrency} was specified, then the currency will be stored here.
+   * If the measure can be {@linkplain Measure#isCurrencyConvertible() automatically converted}
+   * to a different currency, and a specific {@link ReportingCurrency} was specified,
+   * then the currency will be stored here.
    * If the reporting currency is "natural", or the result has no currency, then this will be empty.
    */
   @PropertyDefinition(get = "optional")
@@ -150,8 +151,9 @@ public final class ColumnHeader implements ImmutableBean {
   /**
    * Gets the currency of the result.
    * <p>
-   * If the measure is {@linkplain Measure#isCurrencyConvertible() currency-convertible}
-   * and a specific {@link ReportingCurrency} was specified, then the currency will be stored here.
+   * If the measure can be {@linkplain Measure#isCurrencyConvertible() automatically converted}
+   * to a different currency, and a specific {@link ReportingCurrency} was specified,
+   * then the currency will be stored here.
    * If the reporting currency is "natural", or the result has no currency, then this will be empty.
    * @return the optional value of the property, not null
    */

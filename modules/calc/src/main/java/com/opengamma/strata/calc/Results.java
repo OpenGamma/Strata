@@ -103,7 +103,7 @@ public final class Results implements ImmutableBean {
   /**
    * Gets the number of rows in the results.
    * <p>
-   * The number of rows equals the number of target input to the calculation.
+   * The number of rows equals the number of targets input to the calculation.
    *
    * @return the number of rows
    */
