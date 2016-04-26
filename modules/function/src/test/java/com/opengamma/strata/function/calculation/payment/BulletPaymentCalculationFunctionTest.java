@@ -26,12 +26,11 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -69,25 +68,15 @@ public class BulletPaymentCalculationFunctionTest {
       .build();
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<BulletPaymentTrade> test = BulletPaymentFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PRESENT_VALUE,
-        Measures.PV01,
-        Measures.BUCKETED_PV01);
-    FunctionConfig<BulletPaymentTrade> config =
-        BulletPaymentFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(BulletPaymentCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(CURRENCY)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
@@ -103,7 +92,7 @@ public class BulletPaymentCalculationFunctionTest {
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -122,7 +111,7 @@ public class BulletPaymentCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -141,7 +130,6 @@ public class BulletPaymentCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(BulletPaymentFunctionGroups.class);
     coverPrivateConstructor(BulletPaymentMeasureCalculations.class);
   }
 

@@ -22,12 +22,11 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -59,31 +58,16 @@ public class FraCalculationFunctionTest {
   public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<FraTrade> test = FraFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PAR_RATE,
-        Measures.PAR_SPREAD,
-        Measures.PRESENT_VALUE,
-        Measures.EXPLAIN_PRESENT_VALUE,
-        Measures.CASH_FLOWS,
-        Measures.PV01,
-        Measures.BUCKETED_PV01,
-        Measures.BUCKETED_GAMMA_PV01);
-    FunctionConfig<FraTrade> config =
-        FraFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(FraCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     FraCalculationFunction function = new FraCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
@@ -105,7 +89,7 @@ public class FraCalculationFunctionTest {
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE, Measures.PAR_RATE, Measures.PAR_SPREAD, Measures.EXPLAIN_PRESENT_VALUE, Measures.CASH_FLOWS);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -132,7 +116,7 @@ public class FraCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -151,7 +135,6 @@ public class FraCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FraFunctionGroups.class);
     coverPrivateConstructor(FraMeasureCalculations.class);
   }
 

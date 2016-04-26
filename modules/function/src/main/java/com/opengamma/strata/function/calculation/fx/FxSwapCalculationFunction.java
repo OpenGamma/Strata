@@ -18,6 +18,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -94,7 +95,12 @@ public class FxSwapCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FxSwapTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      FxSwapTrade trade,
+      Set<Measure> measures,
+      CalculationParameters parameters,
+      ReferenceData refData) {
+
     FxSwap fx = trade.getProduct();
     Currency baseCurrency = fx.getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getNearLeg().getCounterCurrencyAmount().getCurrency();
@@ -114,6 +120,7 @@ public class FxSwapCalculationFunction
   public Map<Measure, Result<?>> calculate(
       FxSwapTrade trade,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 

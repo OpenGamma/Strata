@@ -21,12 +21,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -42,6 +41,7 @@ import com.opengamma.strata.product.SecurityPosition;
 @Test
 public class SecurityPositionCalculationFunctionTest {
 
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final double MARKET_PRICE = 99.42;
   private static final double TICK_SIZE = 0.01;
   private static final int TICK_VALUE = 10;
@@ -55,19 +55,10 @@ public class SecurityPositionCalculationFunctionTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2013, 12, 8);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<SecurityPosition> test = SecurityPositionFunctionGroups.market();
-    assertThat(test.configuredMeasures(POSITION)).contains(
-        Measures.PRESENT_VALUE);
-    FunctionConfig<SecurityPosition> config =
-        SecurityPositionFunctionGroups.market().functionConfig(POSITION, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(SecurityPositionCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     SecurityPositionCalculationFunction function = new SecurityPositionCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(POSITION, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(POSITION, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteKey.of(SEC_ID.getStandardId())));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
@@ -82,7 +73,7 @@ public class SecurityPositionCalculationFunctionTest {
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
-    assertThat(function.calculate(POSITION, measures, md, REF_DATA))
+    assertThat(function.calculate(POSITION, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -100,7 +91,6 @@ public class SecurityPositionCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(SecurityPositionFunctionGroups.class);
     coverPrivateConstructor(SecurityMeasureCalculations.class);
   }
 

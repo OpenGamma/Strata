@@ -22,17 +22,16 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Function used when there is no function registered that can calculate a requested value.
  */
-public class MissingConfigCalculationFunction
+class MissingConfigCalculationFunction
     implements CalculationFunction<CalculationTarget> {
-  // TODO package scoped
 
   /**
    * Shared instance.
    */
-  public static final CalculationFunction<CalculationTarget> INSTANCE = new MissingConfigCalculationFunction();
+  static final CalculationFunction<CalculationTarget> INSTANCE = new MissingConfigCalculationFunction();
 
   // restricted constructor
-  public MissingConfigCalculationFunction() {
+  private MissingConfigCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------
@@ -55,6 +54,7 @@ public class MissingConfigCalculationFunction
   public FunctionRequirements requirements(
       CalculationTarget target,
       Set<Measure> measures,
+      CalculationParameters parameters,
       ReferenceData refData) {
 
     return FunctionRequirements.empty();
@@ -64,6 +64,7 @@ public class MissingConfigCalculationFunction
   public Map<Measure, Result<?>> calculate(
       CalculationTarget target,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData marketData,
       ReferenceData refData) {
 

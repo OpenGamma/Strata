@@ -17,6 +17,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -89,7 +90,12 @@ public class FxNdfCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FxNdfTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      FxNdfTrade trade,
+      Set<Measure> measures,
+      CalculationParameters parameters,
+      ReferenceData refData) {
+
     FxNdf fx = trade.getProduct();
     Currency settleCurrency = fx.getSettlementCurrency();
     Currency otherCurrency = fx.getNonDeliverableCurrency();
@@ -109,6 +115,7 @@ public class FxNdfCalculationFunction
   public Map<Measure, Result<?>> calculate(
       FxNdfTrade trade,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 

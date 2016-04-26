@@ -53,6 +53,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
@@ -223,7 +224,12 @@ public class CurveEndToEndTest {
     }
 
     @Override
-    public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        FraTrade trade,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ReferenceData refData) {
+
       Fra fra = trade.getProduct();
 
       Set<Index> indices = new HashSet<>();
@@ -254,6 +260,7 @@ public class CurveEndToEndTest {
     public Map<Measure, Result<?>> calculate(
         FraTrade trade,
         Set<Measure> measures,
+        CalculationParameters parameters,
         CalculationMarketData marketData,
         ReferenceData refData) {
 

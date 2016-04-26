@@ -24,12 +24,11 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -71,27 +70,15 @@ public class TermDepositCalculationFunctionTest {
       .build();
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getEndDate().minusDays(7);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<TermDepositTrade> test = TermDepositFunctionGroups.discounting();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PAR_RATE,
-        Measures.PAR_SPREAD,
-        Measures.PRESENT_VALUE,
-        Measures.PV01,
-        Measures.BUCKETED_PV01);
-    FunctionConfig<TermDepositTrade> config =
-        TermDepositFunctionGroups.discounting().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(TermDepositCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     TermDepositCalculationFunction function = new TermDepositCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(CURRENCY)));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
@@ -113,7 +100,7 @@ public class TermDepositCalculationFunctionTest {
         Measures.PRESENT_VALUE_MULTI_CCY,
         Measures.PAR_RATE,
         Measures.PAR_SPREAD);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -136,7 +123,7 @@ public class TermDepositCalculationFunctionTest {
     CurveCurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
@@ -155,7 +142,6 @@ public class TermDepositCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(TermDepositFunctionGroups.class);
     coverPrivateConstructor(TermDepositMeasureCalculations.class);
   }
 

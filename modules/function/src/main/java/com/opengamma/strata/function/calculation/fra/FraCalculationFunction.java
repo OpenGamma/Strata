@@ -24,6 +24,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -100,7 +101,12 @@ public class FraCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(FraTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      FraTrade trade,
+      Set<Measure> measures,
+      CalculationParameters parameters,
+      ReferenceData refData) {
+
     Fra product = trade.getProduct();
 
     // Create a set of all indices referenced by the FRA
@@ -137,6 +143,7 @@ public class FraCalculationFunction
   public Map<Measure, Result<?>> calculate(
       FraTrade trade,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 

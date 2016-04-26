@@ -18,6 +18,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -83,7 +84,12 @@ public class SwaptionCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(SwaptionTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      SwaptionTrade trade,
+      Set<Measure> measures,
+      CalculationParameters parameters,
+      ReferenceData refData) {
+
     Swaption product = trade.getProduct();
 
     IborIndex index = product.getIndex();
@@ -104,6 +110,7 @@ public class SwaptionCalculationFunction
   public Map<Measure, Result<?>> calculate(
       SwaptionTrade trade,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 

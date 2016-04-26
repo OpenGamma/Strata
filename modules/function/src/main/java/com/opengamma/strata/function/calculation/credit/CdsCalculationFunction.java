@@ -19,6 +19,7 @@ import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -109,7 +110,12 @@ public class CdsCalculationFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(CdsTrade trade, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      CdsTrade trade,
+      Set<Measure> measures,
+      CalculationParameters parameters,
+      ReferenceData refData) {
+
     Cds cds = trade.getProduct();
 
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
@@ -151,6 +157,7 @@ public class CdsCalculationFunction
   public Map<Measure, Result<?>> calculate(
       CdsTrade trade,
       Set<Measure> measures,
+      CalculationParameters parameters,
       CalculationMarketData scenarioMarketData,
       ReferenceData refData) {
 

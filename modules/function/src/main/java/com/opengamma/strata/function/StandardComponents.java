@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.calc.CalculationRunner;
-import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -146,35 +145,6 @@ public class StandardComponents {
         new CurveGroupMarketDataFunction(),
         new CurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction());
-  }
-
-  /**
-   * Returns the standard pricing rules.
-   * <p>
-   * These rules define how to calculate the standard measures for the standard asset classes.
-   * <p>
-   * The standard pricing rules require no further configuration and are designed to allow
-   * easy access to all built-in asset class coverage.
-   * The supported asset classes are:
-   * <ul>
-   *  <li>Bullet Payment - {@link BulletPaymentTrade}
-   *  <li>Credit Default Swap - {@link CdsTrade}
-   *  <li>Deliverable Swap Future - {@link DsfTrade}
-   *  <li>Forward Rate Agreement - {@link FraTrade}
-   *  <li>FX single (spot/forward) - {@link FxSingleTrade}
-   *  <li>FX NDF - {@link FxNdfTrade}
-   *  <li>FX swap - {@link FxSwapTrade}
-   *  <li>Generic Security - {@link GenericSecurityTrade}
-   *  <li>Ibor Future (STIR) - {@link IborFutureTrade}
-   *  <li>Rate Swap - {@link SwapTrade}
-   *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
-   *  <li>Term Deposit - {@link TermDepositTrade}
-   * </ul>
-   *
-   * @return pricing rules defining how to calculate the standard measures for the standard asset classes
-   */
-  public static PricingRules pricingRules() {
-    return StandardPricingRules.standard();
   }
 
   /**

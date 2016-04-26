@@ -20,12 +20,11 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.FunctionConfig;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -43,6 +42,7 @@ import com.opengamma.strata.product.TradeInfo;
 public class GenericSecurityTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final double MARKET_PRICE = 99.42;
   private static final double TICK_SIZE = 0.01;
   private static final int TICK_VALUE = 10;
@@ -62,19 +62,10 @@ public class GenericSecurityTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2013, 12, 8);
 
   //-------------------------------------------------------------------------
-  public void test_group() {
-    FunctionGroup<GenericSecurityTrade> test = GenericSecurityTradeFunctionGroups.market();
-    assertThat(test.configuredMeasures(TRADE)).contains(
-        Measures.PRESENT_VALUE);
-    FunctionConfig<GenericSecurityTrade> config =
-        GenericSecurityTradeFunctionGroups.market().functionConfig(TRADE, Measures.PRESENT_VALUE).get();
-    assertThat(config.createFunction()).isInstanceOf(GenericSecurityTradeCalculationFunction.class);
-  }
-
   public void test_requirementsAndCurrency() {
     GenericSecurityTradeCalculationFunction function = new GenericSecurityTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
-    FunctionRequirements reqs = function.requirements(TRADE, measures, REF_DATA);
+    FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteKey.of(SEC_ID.getStandardId())));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
@@ -89,7 +80,7 @@ public class GenericSecurityTradeCalculationFunctionTest {
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE);
-    assertThat(function.calculate(TRADE, measures, md, REF_DATA))
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
@@ -107,7 +98,7 @@ public class GenericSecurityTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(GenericSecurityTradeFunctionGroups.class);
+    coverPrivateConstructor(SecurityMeasureCalculations.class);
   }
 
 }
