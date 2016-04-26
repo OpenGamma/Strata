@@ -25,15 +25,15 @@ public class FixedInflationSwapConventionsTest {
   @DataProvider(name = "floatLeg")
   static Object[][] data_float_leg() {
     return new Object[][] {
-        {FixedInflationSwapConventions.CHF_FIXED_6M_CH_CPI, PriceIndices.CH_CPI},
-        {FixedInflationSwapConventions.EUR_FIXED_6M_EU_AI_CPI, PriceIndices.EU_AI_CPI},
-        {FixedInflationSwapConventions.EUR_FIXED_6M_EU_EXT_CPI, PriceIndices.EU_EXT_CPI},
-        {FixedInflationSwapConventions.EUR_FIXED_6M_FR_CPI, PriceIndices.FR_EXT_CPI},
-        {FixedInflationSwapConventions.GBP_FIXED_6M_GB_HCIP, PriceIndices.GB_HICP},
-        {FixedInflationSwapConventions.GBP_FIXED_6M_GB_RPI, PriceIndices.GB_RPI},
-        {FixedInflationSwapConventions.GBP_FIXED_6M_GB_RPIX, PriceIndices.GB_RPIX},
-        {FixedInflationSwapConventions.JPY_FIXED_6M_JP_CPI, PriceIndices.JP_CPI_EXF},
-        {FixedInflationSwapConventions.USD_FIXED_6M_US_CPI, PriceIndices.US_CPI_U},
+        {FixedInflationSwapConventions.CHF_FIXED_ZC_CH_CPI, PriceIndices.CH_CPI},
+        {FixedInflationSwapConventions.EUR_FIXED_ZC_EU_AI_CPI, PriceIndices.EU_AI_CPI},
+        {FixedInflationSwapConventions.EUR_FIXED_ZC_EU_EXT_CPI, PriceIndices.EU_EXT_CPI},
+        {FixedInflationSwapConventions.EUR_FIXED_ZC_FR_CPI, PriceIndices.FR_EXT_CPI},
+        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HCIP, PriceIndices.GB_HICP},
+        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI, PriceIndices.GB_RPI},
+        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPIX, PriceIndices.GB_RPIX},
+        {FixedInflationSwapConventions.JPY_FIXED_ZC_JP_CPI, PriceIndices.JP_CPI_EXF},
+        {FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI, PriceIndices.US_CPI_U},
     };
   }
 
