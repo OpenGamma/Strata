@@ -18,16 +18,23 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.config.MarketDataRules;
+import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
+import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * The tasks that will be used to perform the calculations.
@@ -94,23 +101,45 @@ public final class CalculationTasks implements ImmutableBean {
       // find the applicable function
       CalculationFunction<?> fn = rules.getFunctions().getFunction(target);
 
-      // ensure the columns are filtered for the target
-      ImmutableList.Builder<TaskColumn> columnBuilder = ImmutableList.builder();
-      for (int colIndex = 0; colIndex < effectiveColumns.size(); colIndex++) {
-        Column column = effectiveColumns.get(colIndex);
-        columnBuilder.add(TaskColumn.of(target, column, colIndex));
-      }
-
       // create the tasks
-      TaskBuilder targetTaskBuilder = TaskBuilder.of(target, rowIndex, fn, columnBuilder.build());
-      fn.manageTasks(targetTaskBuilder);
-      taskBuilder.addAll(targetTaskBuilder.build());
+      List<CalculationTask> targetTasks = createTargetTasks(target, rowIndex, fn, effectiveColumns);
+      taskBuilder.addAll(targetTasks);
     }
 
     // calculation tasks holds the original user-specified columns, not the derived ones
     return new CalculationTasks(taskBuilder.build(), columns);
   }
 
+  // creates the tasks for a single target
+  private static List<CalculationTask> createTargetTasks(
+      CalculationTarget target,
+      int rowIndex,
+      CalculationFunction<?> function,
+      List<Column> columns) {
+
+    // create the cells and group them
+    ListMultimap<Pair<MarketDataMappings, CalculationParameters>, CalculationTaskCell> grouped = ArrayListMultimap.create();
+    for (int colIndex = 0; colIndex < columns.size(); colIndex++) {
+      Column column = columns.get(colIndex);
+      Measure measure = column.getMeasure();
+      MarketDataRules mdRules = column.getMarketDataRules();
+
+      MarketDataMappings mappings = mdRules.mappings(target).orElse(NoMatchingRuleMappings.INSTANCE);
+      CalculationTaskCell cell = CalculationTaskCell.of(rowIndex, colIndex, measure, column.getReportingCurrency());
+      // group to find cells that can be shared, with same mappings and params (minus reporting currency)
+      CalculationParameters params = column.getParameters().filter(target, measure).without(ReportingCurrency.class);
+      grouped.put(Pair.of(mappings, params), cell);
+    }
+
+    // build tasks
+    ImmutableList.Builder<CalculationTask> taskBuilder = ImmutableList.builder();
+    for (Pair<MarketDataMappings, CalculationParameters> key : grouped.keySet()) {
+      taskBuilder.add(CalculationTask.of(target, function, key.getFirst(), key.getSecond(), grouped.get(key)));
+    }
+    return taskBuilder.build();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance from a set of tasks and columns.
    * 
