@@ -19,9 +19,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -38,7 +38,7 @@ public class TestCalculator implements Calculator {
 
   @Override
   public double calculateScalarValue(LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
-    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
+    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getCells().get(0);
     if (result.getValue() instanceof CurrencyAmount) {
       CurrencyAmount value = (CurrencyAmount) result.getValue();
       return value.getAmount();
@@ -54,7 +54,7 @@ public class TestCalculator implements Calculator {
   public DoubleArray calculateVectorValue(
       LocalDate valuationDate, TradeSource tradeSource, Measure measure) {
 
-    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getItems().get(0);
+    Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getCells().get(0);
     Preconditions.checkArgument(
         result.getValue() instanceof CurveCurrencyParameterSensitivities,
         "Expecting a vector CurveCurrencyParameterSensitivities, found " + result.getValue());

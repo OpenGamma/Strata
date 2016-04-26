@@ -14,7 +14,6 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
-import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

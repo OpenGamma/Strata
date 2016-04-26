@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 
 /**

@@ -13,7 +13,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
-import com.opengamma.strata.calc.runner.Results;
 
 /**
  * Component that provides the ability to perform calculations on multiple targets, measures and scenarios.

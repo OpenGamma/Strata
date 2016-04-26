@@ -24,13 +24,13 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
@@ -110,7 +110,7 @@ public class CalibrationSimpleForwardCheckExample {
     // check that all trades have a PV of near 0
     for (int i = 0; i < results.getFirst().size(); i++) {
       Trade trade = results.getFirst().get(i);
-      Result<?> pv = results.getSecond().getItems().get(i);
+      Result<?> pv = results.getSecond().getCells().get(i);
       String output = "  |--> PV for " + trade.getClass().getSimpleName() + " computed: " + pv.isSuccess();
       Object pvValue = pv.getValue();
       ArgChecker.isTrue((pvValue instanceof MultiCurrencyAmount) || (pvValue instanceof CurrencyAmount), "result type");

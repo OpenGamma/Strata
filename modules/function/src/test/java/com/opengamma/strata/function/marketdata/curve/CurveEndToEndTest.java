@@ -43,6 +43,7 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -56,7 +57,6 @@ import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
-import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
@@ -186,7 +186,7 @@ public class CurveEndToEndTest {
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
 
-    results.getItems().stream().forEach(this::checkPvIsZero);
+    results.getCells().stream().forEach(this::checkPvIsZero);
   }
 
   private void checkPvIsZero(Result<?> result) {

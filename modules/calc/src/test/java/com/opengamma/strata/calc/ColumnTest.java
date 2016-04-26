@@ -11,6 +11,8 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.calc.config.MarketDataRules;
@@ -100,6 +102,28 @@ public class ColumnTest {
     assertEquals(test.getMarketDataRules(), MarketDataRules.empty());
     assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
     assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toHeader_withCurrency() {
+    ColumnHeader test = Column.of(Measures.PRESENT_VALUE, "NPV", USD).toHeader();
+    assertEquals(test.getName(), ColumnName.of("NPV"));
+    assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getCurrency(), Optional.of(USD));
+  }
+
+  public void test_toHeader_withoutCurrency() {
+    ColumnHeader test = Column.of(Measures.PRESENT_VALUE, "NPV").toHeader();
+    assertEquals(test.getName(), ColumnName.of("NPV"));
+    assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getCurrency(), Optional.empty());
+  }
+
+  public void test_toHeader_withNonConvertibleMeasure() {
+    ColumnHeader test = Column.of(Measures.PAR_RATE, "NPV", USD).toHeader();
+    assertEquals(test.getName(), ColumnName.of("NPV"));
+    assertEquals(test.getMeasure(), Measures.PAR_RATE);
+    assertEquals(test.getCurrency(), Optional.empty());
   }
 
   //-------------------------------------------------------------------------
