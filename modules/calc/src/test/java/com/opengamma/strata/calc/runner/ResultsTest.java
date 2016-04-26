@@ -71,11 +71,6 @@ public class ResultsTest {
     return Arrays.stream(items).map(Result::success).collect(toImmutableList());
   }
 
-  public void test_map() {
-    Results test = Results.of(2, 3, results(1, 2, 3, 4, 5, 6));
-    assertThat(test.map(r -> r.map(v -> ((Integer) v) * 2)).getItems()).isEqualTo(results(2, 4, 6, 8, 10, 12));
-  }
-
   //-------------------------------------------------------------------------
   public void covergage() {
     Results test = Results.of(2, 3, results(1, 2, 3, 4, 5, 6));

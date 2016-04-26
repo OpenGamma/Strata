@@ -103,9 +103,13 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
     // unwrap the results
     // since there is only one scenario it is not desirable to return scenario result containers
-    return results.map(r -> unwrapScenarioResult(r));
+    List<Result<?>> mappedResults = results.getItems().stream()
+        .map(r -> unwrapScenarioResult(r))
+        .collect(toImmutableList());
+    return Results.of(results.getRowCount(), results.getColumnCount(), mappedResults);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Unwraps the result from an instance of {@link ScenarioResult} containing a single result.
    * <p>
