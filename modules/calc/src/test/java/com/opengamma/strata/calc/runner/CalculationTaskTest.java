@@ -10,8 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +63,7 @@ public class CalculationTaskTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final MarketDataMappings MAPPINGS = MarketDataMappings.of(MarketDataFeed.NONE);
-  private static final ReportingCurrency REPORTING_CURRENCY_EMPTY = ReportingCurrency.NATURAL;
+  private static final ReportingCurrency NATURAL = ReportingCurrency.NATURAL;
   private static final ReportingCurrency REPORTING_CURRENCY_USD = ReportingCurrency.of(Currency.USD);
   private static final TestTarget TARGET = new TestTarget();
   private static final Set<Measure> MEASURES =
@@ -73,8 +76,8 @@ public class CalculationTaskTest {
             .mappings(ImmutableMap.of(TestKey.class, new TestMapping("foo", marketDataFeed)))
             .marketDataFeed(marketDataFeed)
             .build();
-    CalculationTask task =
-        CalculationTask.of(new TestTarget(), Measures.PRESENT_VALUE, 0, 0, new TestFunction(), marketDataMappings, REPORTING_CURRENCY_EMPTY);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, new TestFunction(), marketDataMappings, cell);
     MarketDataRequirements requirements = task.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
@@ -107,7 +110,8 @@ public class CalculationTaskTest {
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
@@ -130,8 +134,8 @@ public class CalculationTaskTest {
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
-    CalculationTask task =
-        CalculationTask.of(TARGET, Measures.PRESENT_VALUE_MULTI_CCY, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
 
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(GBP, values);
 
@@ -154,7 +158,8 @@ public class CalculationTaskTest {
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_EMPTY);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
 
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
     CurrencyValuesArray expectedArray = CurrencyValuesArray.of(USD, expectedValues);
@@ -171,12 +176,13 @@ public class CalculationTaskTest {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> {
       throw new RuntimeException("This is a failure");
     }, GBP);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasFailureMessageMatching("This is a failure");
+    assertThat(result).hasFailureMessageMatching("Function '.*' threw an exception: This is a failure");
   }
 
   /**
@@ -184,7 +190,8 @@ public class CalculationTaskTest {
    */
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
@@ -197,7 +204,8 @@ public class CalculationTaskTest {
    */
   public void nonConvertibleResultReturnedWhenNoReportingCurrency() {
     TestFunction fn = new TestFunction();
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_EMPTY);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
@@ -214,11 +222,12 @@ public class CalculationTaskTest {
     // Market data doesn't include FX rates, conversion to USD will fail
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasFailureMessageMatching("Failed to convert value .* to currency USD");
+    assertThat(result).hasFailureMessageMatching("Failed to convert value '.*' to currency 'USD'");
   }
 
   /**
@@ -226,7 +235,8 @@ public class CalculationTaskTest {
    */
   public void execute() {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
@@ -241,12 +251,14 @@ public class CalculationTaskTest {
     SupplierFunction<String> fn = SupplierFunction.of(() -> {
       throw new IllegalArgumentException("foo");
     });
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).isFailure(FailureReason.ERROR).hasFailureMessageMatching("foo");
+    assertThat(result).isFailure(FailureReason.ERROR)
+        .hasFailureMessageMatching("Function 'SupplierFunction' threw an exception: foo");
   }
 
   /**
@@ -255,7 +267,8 @@ public class CalculationTaskTest {
   public void executeSuccessResultValue() {
     SupplierFunction<Result<ScenarioResult<String>>> fn =
         SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
@@ -269,7 +282,8 @@ public class CalculationTaskTest {
   public void executeFailureResultValue() {
     SupplierFunction<Result<String>> fn =
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
@@ -282,7 +296,8 @@ public class CalculationTaskTest {
    */
   public void fxConversionRequirements() {
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 0, 0, fn, MAPPINGS, REPORTING_CURRENCY_USD);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
     MarketDataRequirements requirements = task.requirements(REF_DATA);
 
     assertThat(requirements.getNonObservables()).containsOnly(
@@ -292,8 +307,24 @@ public class CalculationTaskTest {
 
   public void testToString() {
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
-    CalculationTask task = CalculationTask.of(TARGET, Measures.PRESENT_VALUE, 1, 2, fn, MAPPINGS, REPORTING_CURRENCY_USD);
-    assertThat(task.toString()).isEqualTo("CalculationTask[cell=(1, 2), measure=PresentValue]");
+    CalculationTaskCell cell = CalculationTaskCell.of(1, 2, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
+    assertThat(task.toString())
+        .isEqualTo("CalculationTask[CalculationTaskCell[(1, 2), measure=PresentValue, currency=Specific:USD]]");
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
+    CalculationTaskCell cell = CalculationTaskCell.of(1, 2, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask test = CalculationTask.of(TARGET, fn, MAPPINGS, cell);
+    coverImmutableBean(test);
+
+    OutputCurrenciesFunction fn2 = new OutputCurrenciesFunction();
+    CalculationTaskCell cell2 = CalculationTaskCell.of(1, 3, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask test2 = CalculationTask.of(new TestTarget(), fn2, MAPPINGS, cell2);
+    coverBeanEquals(test, test2);
+    assertNotNull(CalculationTask.meta());
   }
 
   //-------------------------------------------------------------------------
@@ -322,7 +353,11 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
@@ -379,7 +414,11 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.empty();
     }
 
@@ -427,7 +466,11 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.empty();
     }
 
@@ -470,7 +513,11 @@ public class CalculationTaskTest {
     }
 
     @Override
-    public FunctionRequirements requirements(TestTarget target, Set<Measure> measures, ReferenceData refData) {
+    public FunctionRequirements requirements(
+        TestTarget target,
+        Set<Measure> measures,
+        ReferenceData refData) {
+
       return FunctionRequirements.builder()
           .outputCurrencies(GBP, EUR, USD)
           .build();

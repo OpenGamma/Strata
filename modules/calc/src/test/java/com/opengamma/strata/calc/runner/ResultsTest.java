@@ -8,6 +8,9 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +39,9 @@ public class ResultsTest {
     assertThat(results.getColumnCount()).isEqualTo(3);
     assertThat(results.get(0, 0)).hasValue(1);
     assertThat(results.get(1, 2)).hasValue(6);
+    assertThrows(() -> results.get(-1, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
     assertThrows(() -> results.get(2, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
+    assertThrows(() -> results.get(0, -1), IllegalArgumentException.class, "Column index must be greater than or.*");
     assertThrows(() -> results.get(0, 3), IllegalArgumentException.class, "Column index must be greater than or.*");
   }
 
@@ -65,4 +70,13 @@ public class ResultsTest {
   private static <T> List<Result<T>> results(T... items) {
     return Arrays.stream(items).map(Result::success).collect(toImmutableList());
   }
+
+  //-------------------------------------------------------------------------
+  public void covergage() {
+    Results test = Results.of(2, 3, results(1, 2, 3, 4, 5, 6));
+    coverImmutableBean(test);
+    Results test2 = Results.of(1, 1, results(9));
+    coverBeanEquals(test, test2);
+  }
+
 }

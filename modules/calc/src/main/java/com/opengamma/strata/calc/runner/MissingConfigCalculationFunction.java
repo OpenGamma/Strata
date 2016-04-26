@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.config;
+package com.opengamma.strata.calc.runner;
 
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
@@ -23,13 +24,18 @@ import com.opengamma.strata.collect.result.Result;
  */
 public class MissingConfigCalculationFunction
     implements CalculationFunction<CalculationTarget> {
-  // this must be public so that the constructor can be invoked
+  // TODO package scoped
 
   /**
    * Shared instance.
    */
   public static final CalculationFunction<CalculationTarget> INSTANCE = new MissingConfigCalculationFunction();
 
+  // restricted constructor
+  public MissingConfigCalculationFunction() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Class<CalculationTarget> targetType() {
     return CalculationTarget.class;
@@ -46,7 +52,11 @@ public class MissingConfigCalculationFunction
   }
 
   @Override
-  public FunctionRequirements requirements(CalculationTarget target, Set<Measure> measures, ReferenceData refData) {
+  public FunctionRequirements requirements(
+      CalculationTarget target,
+      Set<Measure> measures,
+      ReferenceData refData) {
+
     return FunctionRequirements.empty();
   }
 

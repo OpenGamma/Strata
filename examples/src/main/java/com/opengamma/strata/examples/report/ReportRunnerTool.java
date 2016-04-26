@@ -21,10 +21,10 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.pricing.PricingRules;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.ArgChecker;
@@ -167,15 +167,11 @@ public class ReportRunnerTool implements AutoCloseable {
   private ReportCalculationResults runCalculationRequirements(ReportRequirements requirements) {
     List<Column> columns = requirements.getTradeMeasureRequirements();
 
-    PricingRules pricingRules = StandardComponents.pricingRules();
-
     ExampleMarketDataBuilder marketDataBuilder = marketDataRoot == null ?
         ExampleMarketData.builder() : ExampleMarketDataBuilder.ofPath(marketDataRoot.toPath());
 
-    CalculationRules rules = CalculationRules.builder()
-        .pricingRules(pricingRules)
-        .marketDataRules(marketDataBuilder.rules())
-        .build();
+    CalculationFunctions functions = StandardComponents.calculationFunctions();
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
 
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 

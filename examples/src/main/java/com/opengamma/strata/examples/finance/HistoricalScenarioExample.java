@@ -41,6 +41,7 @@ import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
@@ -107,10 +108,8 @@ public class HistoricalScenarioExample {
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketDataBuilder.ofResource(MARKET_DATA_RESOURCE_ROOT);
 
     // the complete set of rules for calculating measures
-    CalculationRules rules = CalculationRules.builder()
-        .pricingRules(StandardComponents.pricingRules())
-        .marketDataRules(marketDataBuilder.rules())
-        .build();
+    CalculationFunctions functions = StandardComponents.calculationFunctions();
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
 
     // load the historical calibrated curves from which we will build our scenarios
     // these curves are provided in the example data environment

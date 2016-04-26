@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -41,15 +42,11 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.ReportingCurrency;
-import com.opengamma.strata.calc.config.pricing.DefaultFunctionGroup;
-import com.opengamma.strata.calc.config.pricing.DefaultPricingRules;
-import com.opengamma.strata.calc.config.pricing.FunctionGroup;
-import com.opengamma.strata.calc.config.pricing.PricingRule;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.calc.runner.Results;
@@ -126,17 +123,8 @@ public class SwapPricingTest {
         .addValue(CurveGroupId.of(CURVE_GROUP_NAME), CURVE_GROUP)
         .build();
 
-    FunctionGroup<SwapTrade> functionGroup = DefaultFunctionGroup.builder(SwapTrade.class)
-        .addFunction(Measures.PRESENT_VALUE, SwapCalculationFunction.class)
-        .name("FunctionGroup")
-        .build();
-
-    PricingRule<SwapTrade> pricingRule = PricingRule.builder(SwapTrade.class)
-        .addMeasures(Measures.PRESENT_VALUE)
-        .functionGroup(functionGroup)
-        .build();
-
-    DefaultPricingRules pricingRules = DefaultPricingRules.of(pricingRule);
+    CalculationFunctions functions = CalculationFunctions.of(
+        ImmutableMap.of(SwapTrade.class, new SwapCalculationFunction()));
 
     MarketDataMappings marketDataMappings = MarketDataMappingsBuilder.create()
         .curveGroup(CURVE_GROUP_NAME)
@@ -147,7 +135,7 @@ public class SwapPricingTest {
     // create the calculation runner
     List<SwapTrade> trades = ImmutableList.of(trade);
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
-    CalculationRules rules = CalculationRules.of(pricingRules, marketDataRules, ReportingCurrency.of(USD));
+    CalculationRules rules = CalculationRules.of(functions, marketDataRules, USD);
 
     // calculate results using the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);

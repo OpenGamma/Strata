@@ -27,6 +27,7 @@ import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -151,10 +152,8 @@ public class SwapPricingWithCalibrationExample {
             .build());
 
     // the complete set of rules for calculating measures
-    CalculationRules rules = CalculationRules.builder()
-        .pricingRules(StandardComponents.pricingRules())
-        .marketDataRules(marketDataRules)
-        .build();
+    CalculationFunctions functions = StandardComponents.calculationFunctions();
+    CalculationRules rules = CalculationRules.of(functions, marketDataRules);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();

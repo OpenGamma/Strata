@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Primitives;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.runner.MissingConfigCalculationFunction;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
 

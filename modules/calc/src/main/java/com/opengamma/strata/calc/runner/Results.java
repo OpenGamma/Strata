@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -31,29 +32,36 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Results of performing calculations for a set of targets over a set of scenarios.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class Results implements ImmutableBean {
 
-  /** The number of rows in the results. */
+  /**
+   * The number of rows in the results.
+   */
   @PropertyDefinition
   private final int rowCount;
-
-  /** The number of columns in the results. */
+  /**
+   * The number of columns in the results.
+   */
   @PropertyDefinition
   private final int columnCount;
-
   /**
-   * The results, with results for each target grouped together, ordered by column.
+   * The grid of results, stored as a flat list.
    * <p>
-   * For example, given a set of results with two target, t1 and t2, and two columns c1 and c2, the
-   * results will be:
+   * This list contains the calculated result for each cell in the grid.
+   * The cells are grouped by target, then column.
+   * Thus, the index of a given cell is {@code (targetRowIndex * columnCount) + columnIndex}.
+   * <p>
+   * For example, given a set of results with two targets, t1 and t2,
+   * and three columns c1, c2, and c3, the results will be:
    * <pre>
-   *   [t1c1, t1c2, t2c1, t2c2]
+   *   [t1c1, t1c2, t1c3, t2c1, t2c2, t2c3]
    * </pre>
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<Result<?>> items;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a set of results for some calculations.
    * <p>
@@ -133,14 +141,6 @@ public final class Results implements ImmutableBean {
     JodaBeanUtils.registerMetaBean(Results.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static Results.Builder builder() {
-    return new Results.Builder();
-  }
-
   @Override
   public Results.Meta metaBean() {
     return Results.Meta.INSTANCE;
@@ -176,12 +176,16 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the results, with results for each target grouped together, ordered by column.
+   * Gets the grid of results, stored as a flat list.
    * <p>
-   * For example, given a set of results with two target, t1 and t2, and two columns c1 and c2, the
-   * results will be:
+   * This list contains the calculated result for each cell in the grid.
+   * The cells are grouped by target, then column.
+   * Thus, the index of a given cell is {@code (targetRowIndex * columnCount) + columnIndex}.
+   * <p>
+   * For example, given a set of results with two targets, t1 and t2,
+   * and three columns c1, c2, and c3, the results will be:
    * <pre>
-   * [t1c1, t1c2, t2c1, t2c2]
+   * [t1c1, t1c2, t1c3, t2c1, t2c2, t2c3]
    * </pre>
    * @return the value of the property, not null
    */
@@ -190,14 +194,6 @@ public final class Results implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -287,7 +283,7 @@ public final class Results implements ImmutableBean {
     }
 
     @Override
-    public Results.Builder builder() {
+    public BeanBuilder<? extends Results> builder() {
       return new Results.Builder();
     }
 
@@ -355,7 +351,7 @@ public final class Results implements ImmutableBean {
   /**
    * The bean-builder for {@code Results}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<Results> {
+  private static final class Builder extends DirectFieldsBeanBuilder<Results> {
 
     private int rowCount;
     private int columnCount;
@@ -365,16 +361,6 @@ public final class Results implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(Results beanToCopy) {
-      this.rowCount = beanToCopy.getRowCount();
-      this.columnCount = beanToCopy.getColumnCount();
-      this.items = beanToCopy.getItems();
     }
 
     //-----------------------------------------------------------------------
@@ -441,54 +427,6 @@ public final class Results implements ImmutableBean {
           rowCount,
           columnCount,
           items);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the number of rows in the results.
-     * @param rowCount  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rowCount(int rowCount) {
-      this.rowCount = rowCount;
-      return this;
-    }
-
-    /**
-     * Sets the number of columns in the results.
-     * @param columnCount  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder columnCount(int columnCount) {
-      this.columnCount = columnCount;
-      return this;
-    }
-
-    /**
-     * Sets the results, with results for each target grouped together, ordered by column.
-     * <p>
-     * For example, given a set of results with two target, t1 and t2, and two columns c1 and c2, the
-     * results will be:
-     * <pre>
-     * [t1c1, t1c2, t2c1, t2c2]
-     * </pre>
-     * @param items  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder items(List<Result<?>> items) {
-      JodaBeanUtils.notNull(items, "items");
-      this.items = items;
-      return this;
-    }
-
-    /**
-     * Sets the {@code items} property in the builder
-     * from an array of objects.
-     * @param items  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder items(Result<?>... items) {
-      return items(ImmutableList.copyOf(items));
     }
 
     //-----------------------------------------------------------------------

@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import org.testng.annotations.Test;
 
@@ -40,6 +41,7 @@ public class CalculationResultsTest {
     coverImmutableBean(test);
     CalculationResults test2 = CalculationResults.of(TARGET2, ImmutableList.of(CALC_RESULT2));
     coverBeanEquals(test, test2);
+    assertNotNull(CalculationResults.meta());
   }
 
 }

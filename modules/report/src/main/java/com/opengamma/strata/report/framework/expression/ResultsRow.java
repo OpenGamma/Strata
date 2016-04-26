@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.calc.Column;
@@ -180,8 +181,10 @@ class ResultsRow {
 
   // determine the available measures
   static List<String> measureNames(CalculationTarget target) {
-    // TODO The pricing rules should be an argument, not hard-coded to be the standard rules
-    Set<Measure> validMeasures = StandardComponents.pricingRules().configuredMeasures(target);
+    // TODO The calculation functions should be an argument, not hard-coded to be the standard rules
+    Set<Measure> validMeasures = StandardComponents.calculationFunctions().findFunction(target)
+        .map(fn -> fn.supportedMeasures())
+        .orElse(ImmutableSet.of());
     return validMeasures.stream()
         .map(Measure::getName)
         .sorted()

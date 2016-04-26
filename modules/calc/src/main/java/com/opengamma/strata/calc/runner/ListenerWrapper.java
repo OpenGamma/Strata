@@ -40,8 +40,8 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
   /** Protects the queue and the executing flag. */
   private final Lock lock = new ReentrantLock();
 
-  /** The total number of results expected. */
-  private final int expectedResultCount;
+  /** The total number of tasks to be executed. */
+  private final int tasksExpected;
 
   // Mutable state -----------------------------------------------------
 
@@ -55,24 +55,24 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
 
   /**
    * Flags whether the calculations are complete.
-   * This is set when the number of results received equals {@link #expectedResultCount}.
+   * This is set when the number of results received equals {@link #tasksExpected}.
    * This causes a call to {@link CalculationListener#calculationsComplete()}.
    */
   private boolean complete;
 
-  /** The number of results received. */
-  private int resultCount;
+  /** The number of task results that have been received. */
+  private int tasksReceived;
 
   //-------------------------------------------------------------------------
   /**
    * Creates an instance wrapping the specified listener.
    * 
    * @param listener  the underlying listener wrapped by this object
-   * @param expectedResultCount  the number of results expected
+   * @param tasksExpected  the number of tasks to be executed
    */
-  ListenerWrapper(CalculationListener listener, int expectedResultCount) {
+  ListenerWrapper(CalculationListener listener, int tasksExpected) {
     this.listener = ArgChecker.notNull(listener, "listener");
-    this.expectedResultCount = ArgChecker.notNegativeOrZero(expectedResultCount, "expectedResultCount");
+    this.tasksExpected = ArgChecker.notNegativeOrZero(tasksExpected, "tasksExpected");
   }
 
   //-------------------------------------------------------------------------
@@ -126,7 +126,7 @@ final class ListenerWrapper implements Consumer<CalculationResults> {
       }
       lock.lock();
       try {
-        if (++resultCount == expectedResultCount) {
+        if (++tasksReceived == tasksExpected) {
           // The expected number of results have been received. Set the complete
           // flag to trigger a call to listener.calculationsComplete after unlocking
           complete = true;

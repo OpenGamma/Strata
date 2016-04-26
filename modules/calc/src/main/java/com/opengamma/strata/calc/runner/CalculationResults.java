@@ -7,22 +7,15 @@ package com.opengamma.strata.calc.runner;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
@@ -33,8 +26,9 @@ import com.opengamma.strata.basics.CalculationTarget;
  * This contains a list of {@link CalculationResult}, produced by a single {@link CalculationTask}.
  * Each individual result relates to a single cell in the output grid.
  */
-@BeanDefinition(builderScope = "private")
-public final class CalculationResults implements ImmutableBean, Serializable {
+@BeanDefinition(style = "light")
+public final class CalculationResults
+    implements ImmutableBean, Serializable {
 
   /**
    * The target of the calculation, often a trade.
@@ -64,14 +58,19 @@ public final class CalculationResults implements ImmutableBean, Serializable {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code CalculationResults}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(CalculationResults.class);
+
+  /**
+   * The meta-bean for {@code CalculationResults}.
    * @return the meta-bean, not null
    */
-  public static CalculationResults.Meta meta() {
-    return CalculationResults.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CalculationResults.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -89,8 +88,8 @@ public final class CalculationResults implements ImmutableBean, Serializable {
   }
 
   @Override
-  public CalculationResults.Meta metaBean() {
-    return CalculationResults.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -152,195 +151,6 @@ public final class CalculationResults implements ImmutableBean, Serializable {
     buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code CalculationResults}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code target} property.
-     */
-    private final MetaProperty<CalculationTarget> target = DirectMetaProperty.ofImmutable(
-        this, "target", CalculationResults.class, CalculationTarget.class);
-    /**
-     * The meta-property for the {@code cells} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<CalculationResult>> cells = DirectMetaProperty.ofImmutable(
-        this, "cells", CalculationResults.class, (Class) ImmutableList.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "target",
-        "cells");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return target;
-        case 94544721:  // cells
-          return cells;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends CalculationResults> builder() {
-      return new CalculationResults.Builder();
-    }
-
-    @Override
-    public Class<? extends CalculationResults> beanType() {
-      return CalculationResults.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code target} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CalculationTarget> target() {
-      return target;
-    }
-
-    /**
-     * The meta-property for the {@code cells} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableList<CalculationResult>> cells() {
-      return cells;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return ((CalculationResults) bean).getTarget();
-        case 94544721:  // cells
-          return ((CalculationResults) bean).getCells();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code CalculationResults}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<CalculationResults> {
-
-    private CalculationTarget target;
-    private List<CalculationResult> cells = ImmutableList.of();
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          return target;
-        case 94544721:  // cells
-          return cells;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case -880905839:  // target
-          this.target = (CalculationTarget) newValue;
-          break;
-        case 94544721:  // cells
-          this.cells = (List<CalculationResult>) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public CalculationResults build() {
-      return new CalculationResults(
-          target,
-          cells);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("CalculationResults.Builder{");
-      buf.append("target").append('=').append(JodaBeanUtils.toString(target)).append(',').append(' ');
-      buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON

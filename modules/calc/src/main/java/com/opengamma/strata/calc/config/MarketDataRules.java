@@ -78,4 +78,5 @@ public interface MarketDataRules {
     System.arraycopy(otherRules, 0, rulesArray, 1, otherRules.length);
     return CompositeMarketDataRules.of(rulesArray);
   }
+
 }

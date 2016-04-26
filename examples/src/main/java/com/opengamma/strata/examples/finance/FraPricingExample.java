@@ -11,6 +11,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.Trade;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -19,6 +20,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -69,10 +71,8 @@ public class FraPricingExample {
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
-    CalculationRules rules = CalculationRules.builder()
-        .pricingRules(StandardComponents.pricingRules())
-        .marketDataRules(marketDataBuilder.rules())
-        .build();
+    CalculationFunctions functions = StandardComponents.calculationFunctions();
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules(), Currency.USD);
 
     // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);

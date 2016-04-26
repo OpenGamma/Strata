@@ -6,22 +6,15 @@
 package com.opengamma.strata.calc.runner;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.result.Result;
 
@@ -31,8 +24,9 @@ import com.opengamma.strata.collect.result.Result;
  * This stores the calculated result for a single cell in the output grid.
  * A set of related results for a single target can be stored in a {@link CalculationResults} instance.
  */
-@BeanDefinition(builderScope = "private")
-public final class CalculationResult implements ImmutableBean, Serializable {
+@BeanDefinition(style = "light")
+public final class CalculationResult
+    implements ImmutableBean, Serializable {
 
   /**
    * The row index of the value in the results grid.
@@ -82,14 +76,19 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code CalculationResult}.
+   */
+  private static MetaBean META_BEAN = LightMetaBean.of(CalculationResult.class);
+
+  /**
+   * The meta-bean for {@code CalculationResult}.
    * @return the meta-bean, not null
    */
-  public static CalculationResult.Meta meta() {
-    return CalculationResult.Meta.INSTANCE;
+  public static MetaBean meta() {
+    return META_BEAN;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CalculationResult.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(META_BEAN);
   }
 
   /**
@@ -108,8 +107,8 @@ public final class CalculationResult implements ImmutableBean, Serializable {
   }
 
   @Override
-  public CalculationResult.Meta metaBean() {
-    return CalculationResult.Meta.INSTANCE;
+  public MetaBean metaBean() {
+    return META_BEAN;
   }
 
   @Override
@@ -183,220 +182,6 @@ public final class CalculationResult implements ImmutableBean, Serializable {
     buf.append("result").append('=').append(JodaBeanUtils.toString(result));
     buf.append('}');
     return buf.toString();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code CalculationResult}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code rowIndex} property.
-     */
-    private final MetaProperty<Integer> rowIndex = DirectMetaProperty.ofImmutable(
-        this, "rowIndex", CalculationResult.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code columnIndex} property.
-     */
-    private final MetaProperty<Integer> columnIndex = DirectMetaProperty.ofImmutable(
-        this, "columnIndex", CalculationResult.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code result} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Result<?>> result = DirectMetaProperty.ofImmutable(
-        this, "result", CalculationResult.class, (Class) Result.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "rowIndex",
-        "columnIndex",
-        "result");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 23238424:  // rowIndex
-          return rowIndex;
-        case -855241956:  // columnIndex
-          return columnIndex;
-        case -934426595:  // result
-          return result;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends CalculationResult> builder() {
-      return new CalculationResult.Builder();
-    }
-
-    @Override
-    public Class<? extends CalculationResult> beanType() {
-      return CalculationResult.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code rowIndex} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> rowIndex() {
-      return rowIndex;
-    }
-
-    /**
-     * The meta-property for the {@code columnIndex} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> columnIndex() {
-      return columnIndex;
-    }
-
-    /**
-     * The meta-property for the {@code result} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Result<?>> result() {
-      return result;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 23238424:  // rowIndex
-          return ((CalculationResult) bean).getRowIndex();
-        case -855241956:  // columnIndex
-          return ((CalculationResult) bean).getColumnIndex();
-        case -934426595:  // result
-          return ((CalculationResult) bean).getResult();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code CalculationResult}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<CalculationResult> {
-
-    private int rowIndex;
-    private int columnIndex;
-    private Result<?> result;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 23238424:  // rowIndex
-          return rowIndex;
-        case -855241956:  // columnIndex
-          return columnIndex;
-        case -934426595:  // result
-          return result;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case 23238424:  // rowIndex
-          this.rowIndex = (Integer) newValue;
-          break;
-        case -855241956:  // columnIndex
-          this.columnIndex = (Integer) newValue;
-          break;
-        case -934426595:  // result
-          this.result = (Result<?>) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public CalculationResult build() {
-      return new CalculationResult(
-          rowIndex,
-          columnIndex,
-          result);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("CalculationResult.Builder{");
-      buf.append("rowIndex").append('=').append(JodaBeanUtils.toString(rowIndex)).append(',').append(' ');
-      buf.append("columnIndex").append('=').append(JodaBeanUtils.toString(columnIndex)).append(',').append(' ');
-      buf.append("result").append('=').append(JodaBeanUtils.toString(result));
-      buf.append('}');
-      return buf.toString();
-    }
-
   }
 
   ///CLOVER:ON
