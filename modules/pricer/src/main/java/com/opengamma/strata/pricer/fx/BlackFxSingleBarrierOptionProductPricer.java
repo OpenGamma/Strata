@@ -65,6 +65,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * <p>
    * The present value of the product is the value on the valuation date. 
    * It is expressed in the counter currency.
+   * <p>
+   * The volatility used in this computation is the Black implied volatility at expiry time and strike. 
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -87,6 +89,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * The price of the product is the value on the valuation date for one unit of the base currency 
    * and is expressed in the counter currency. The price does not take into account the long/short flag. 
    * See {@link #presentValue} for scaling and currency.
+   * <p>
+   * The volatility used in this computation is the Black implied volatility at expiry time and strike. 
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
@@ -116,18 +120,18 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double costOfCarry = rateCounter - rateBase;
     double dfBase = baseDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
     double dfCounter = counterDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
-    double spot = ratesProvider.fxRate(currencyPair);
+    double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
-    double forward = spot * dfBase / dfCounter;
+    double forward = todayFx * dfBase / dfCounter;
     double volatility = volatilityProvider.getVolatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
     double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
     double price = BARRIER_PRICER.price(
-        spot, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
+        todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
     if (option.getRebate().isPresent()) {
       CurrencyAmount rebate = option.getRebate().get();
       double priceRebate = rebate.getCurrency().equals(ccyCounter) ?
-          CASH_REBATE_PRICER.price(spot, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType()) :
-          ASSET_REBATE_PRICER.price(spot, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType());
+          CASH_REBATE_PRICER.price(todayFx, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType()) :
+          ASSET_REBATE_PRICER.price(todayFx, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType());
       price += priceRebate * rebate.getAmount() / Math.abs(underlyingFx.getBaseCurrencyPayment().getAmount());
     }
     return price;
@@ -140,14 +144,14 @@ public class BlackFxSingleBarrierOptionProductPricer {
    * The present value sensitivity of the product is the sensitivity of {@link #presentValue} to
    * the underlying curves.
    * <p>
-   * The volatility is fixed in this sensitivity computation.
+   * The volatility is fixed in this sensitivity computation, i.e., sticky-strike.
    * 
    * @param option  the option product
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the product
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
@@ -282,8 +286,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
     Currency ccyCounter = currencyPair.getCounter();
     double dfBase = ratesProvider.discountFactor(ccyBase, underlyingFx.getPaymentDate());
     double dfCounter = ratesProvider.discountFactor(ccyCounter, underlyingFx.getPaymentDate());
-    double spot = ratesProvider.fxRate(currencyPair);
-    double forward = spot * dfBase / dfCounter;
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    double forward = todayFx * dfBase / dfCounter;
     return FxOptionSensitivity.of(
         currencyPair,
         underlyingOption.getExpiry(),
@@ -374,9 +378,9 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double price = priceDerivatives.getValue();
     double delta = priceDerivatives.getDerivative(0);
     CurrencyPair currencyPair = underlyingOption.getUnderlying().getCurrencyPair();
-    double spot = ratesProvider.fxRate(currencyPair);
+    double todayFx = ratesProvider.fxRate(currencyPair);
     double signedNotional = signedNotional(underlyingOption);
-    CurrencyAmount domestic = CurrencyAmount.of(currencyPair.getCounter(), (price - delta * spot) * signedNotional);
+    CurrencyAmount domestic = CurrencyAmount.of(currencyPair.getCounter(), (price - delta * todayFx) * signedNotional);
     CurrencyAmount foreign = CurrencyAmount.of(currencyPair.getBase(), delta * signedNotional);
     return MultiCurrencyAmount.of(domestic, foreign);
   }
@@ -407,20 +411,20 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double costOfCarry = rateCounter - rateBase;
     double dfBase = baseDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
     double dfCounter = counterDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
-    double spot = ratesProvider.fxRate(currencyPair);
+    double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
-    double forward = spot * dfBase / dfCounter;
+    double forward = todayFx * dfBase / dfCounter;
     double volatility = volatilityProvider.getVolatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
     double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
     ValueDerivatives valueDerivatives = BARRIER_PRICER.priceAdjoint(
-        spot, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
+        todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
     if (!option.getRebate().isPresent()) {
       return valueDerivatives;
     }
     CurrencyAmount rebate = option.getRebate().get();
     ValueDerivatives valueDerivativesRebate = rebate.getCurrency().equals(ccyCounter) ?
-        CASH_REBATE_PRICER.priceAdjoint(spot, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType()) :
-        ASSET_REBATE_PRICER.priceAdjoint(spot, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType());
+        CASH_REBATE_PRICER.priceAdjoint(todayFx, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType()) :
+        ASSET_REBATE_PRICER.priceAdjoint(todayFx, timeToExpiry, costOfCarry, rateCounter, volatility, barrier.inverseKnockType());
     double rebateRate = rebate.getAmount() / Math.abs(underlyingFx.getBaseCurrencyPayment().getAmount());
     double price = valueDerivatives.getValue() + rebateRate * valueDerivativesRebate.getValue();
     derivatives[0] = valueDerivatives.getDerivative(0) + rebateRate * valueDerivativesRebate.getDerivative(0);

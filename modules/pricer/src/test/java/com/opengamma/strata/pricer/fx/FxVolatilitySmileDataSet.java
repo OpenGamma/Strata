@@ -30,6 +30,14 @@ public class FxVolatilitySmileDataSet {
   private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM_5 =
       InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_5, DELTA, ATM_5, RISK_REVERSAL_5, STRANGLE_5);
 
+  private static final DoubleMatrix RISK_REVERSAL_5_FLAT = DoubleMatrix.ofUnsafe(
+      new double[][] { {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 } });
+  private static final DoubleMatrix STRANGLE_5_FLAT = DoubleMatrix.ofUnsafe(
+      new double[][] { {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 } });
+  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM_5_FLAT =
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
+          NAME, TIME_5, DELTA, ATM_5, RISK_REVERSAL_5_FLAT, STRANGLE_5_FLAT);
+
   private static final DoubleArray TIME_6 = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
   private static final DoubleArray ATM_6 = DoubleArray.of(0.175, 0.185, 0.18, 0.17, 0.16, 0.16);
   private static final DoubleMatrix RISK_REVERSAL_6 = DoubleMatrix.ofUnsafe(new double[][] {
@@ -51,6 +59,19 @@ public class FxVolatilitySmileDataSet {
    */
   public static BlackVolatilitySmileFxProvider createVolatilitySmileProvider5(ZonedDateTime dateTime) {
     return BlackVolatilitySmileFxProvider.of(SMILE_TERM_5, CURRENCY_PAIR, ACT_ACT_ISDA, dateTime);
+  }
+
+  /**
+   * Creates volatility provider with term structure of smile parameters. 
+   * <p>
+   * The resulting volatility surface is flat along the strike direction.
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * 
+   * @param dateTime  the valuation date time
+   * @return  the volatility provider
+   */
+  public static BlackVolatilitySmileFxProvider createVolatilitySmileProvider5Flat(ZonedDateTime dateTime) {
+    return BlackVolatilitySmileFxProvider.of(SMILE_TERM_5_FLAT, CURRENCY_PAIR, ACT_ACT_ISDA, dateTime);
   }
 
   /**

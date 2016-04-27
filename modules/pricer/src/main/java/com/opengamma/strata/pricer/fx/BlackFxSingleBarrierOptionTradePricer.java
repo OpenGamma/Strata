@@ -67,21 +67,21 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * The present value sensitivity of the trade is the sensitivity of the present value to
    * the underlying curves.
    * <p>
-   * The volatility is fixed in this sensitivity computation.
+   * The volatility is fixed in this sensitivity computation, i.e., sticky-strike.
    * 
    * @param trade  the option trade
    * @param ratesProvider  the rates provider
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxSingleBarrierOption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
-        PRICER_PRODUCT.presentValueSensitivity(product, ratesProvider, volatilityProvider);
+        PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, ratesProvider, volatilityProvider);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider);
     return pvcsProduct.combinedWith(pvcsPremium);

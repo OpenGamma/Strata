@@ -67,7 +67,8 @@ public final class FxSingleBarrierOption
   @PropertyDefinition(validate = "notNull")
   private final Barrier barrier;
   /**
-   * The amount paid back to the option holder in case the option becomes inactive.
+   * For a 'out' option, the amount is paid when the barrier is reached; 
+   * for a 'in' option, the amount is paid at expiry if the barrier is not reached.
    * <p>
    * This is the notional amount represented in one of the currency pair. 
    * The amount should be positive. 
@@ -189,7 +190,8 @@ public final class FxSingleBarrierOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount paid back to the option holder in case the option becomes inactive.
+   * Gets for a 'out' option, the amount is paid when the barrier is reached;
+   * for a 'in' option, the amount is paid at expiry if the barrier is not reached.
    * <p>
    * This is the notional amount represented in one of the currency pair.
    * The amount should be positive.

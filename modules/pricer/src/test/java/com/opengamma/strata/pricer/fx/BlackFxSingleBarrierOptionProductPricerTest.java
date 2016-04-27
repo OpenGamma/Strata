@@ -58,6 +58,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(VAL_DATETIME);
   private static final ImmutableRatesProvider RATE_PROVIDER =
       RatesProviderFxDataSets.createProviderEurUsdActActIsda(VAL_DATE);
+  private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_FLAT =
+      FxVolatilitySmileDataSet.createVolatilitySmileProvider5Flat(VAL_DATETIME);
   // providers - valuation at expiry
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_EXPIRY =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(EXPIRY_DATETIME);
@@ -233,29 +235,105 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     assertEquals(computedPvPutDw.getAmount(), pvPut.getAmount(), NOTIONAL * TOL);
     // curve sensitivity
     PointSensitivities pvSensiCall = VANILLA_PRICER.presentValueSensitivity(CALL, RATE_PROVIDER, VOL_PROVIDER);
-    PointSensitivities computedPvSensiCallUp = PRICER.presentValueSensitivity(callUKO, RATE_PROVIDER, VOL_PROVIDER)
-        .combinedWith(PRICER.presentValueSensitivity(callUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
-    PointSensitivities computedPvSensiCallDw = PRICER.presentValueSensitivity(callDKO, RATE_PROVIDER, VOL_PROVIDER)
-        .combinedWith(PRICER.presentValueSensitivity(callDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
+    PointSensitivities computedPvSensiCallUp = PRICER.presentValueSensitivityStickyStrike(callUKO, RATE_PROVIDER, VOL_PROVIDER)
+        .combinedWith(PRICER.presentValueSensitivityStickyStrike(callUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
+    PointSensitivities computedPvSensiCallDw = PRICER.presentValueSensitivityStickyStrike(callDKO, RATE_PROVIDER, VOL_PROVIDER)
+        .combinedWith(PRICER.presentValueSensitivityStickyStrike(callDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
     assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiCall).equalWithTolerance(
         RATE_PROVIDER.curveParameterSensitivity(computedPvSensiCallUp), TOL * NOTIONAL));
     assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiCall).equalWithTolerance(
         RATE_PROVIDER.curveParameterSensitivity(computedPvSensiCallDw), TOL * NOTIONAL));
     PointSensitivities pvSensiPut = VANILLA_PRICER.presentValueSensitivity(PUT, RATE_PROVIDER, VOL_PROVIDER);
-    PointSensitivities computedPvSensiPutUp = PRICER.presentValueSensitivity(putUKO, RATE_PROVIDER, VOL_PROVIDER)
-        .combinedWith(PRICER.presentValueSensitivity(putUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
-    PointSensitivities computedPvSensiPutDw = PRICER.presentValueSensitivity(putDKO, RATE_PROVIDER, VOL_PROVIDER)
-        .combinedWith(PRICER.presentValueSensitivity(putDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
+    PointSensitivities computedPvSensiPutUp = PRICER.presentValueSensitivityStickyStrike(putUKO, RATE_PROVIDER, VOL_PROVIDER)
+        .combinedWith(PRICER.presentValueSensitivityStickyStrike(putUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
+    PointSensitivities computedPvSensiPutDw = PRICER.presentValueSensitivityStickyStrike(putDKO, RATE_PROVIDER, VOL_PROVIDER)
+        .combinedWith(PRICER.presentValueSensitivityStickyStrike(putDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
     assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiPut).equalWithTolerance(
         RATE_PROVIDER.curveParameterSensitivity(computedPvSensiPutUp), TOL * NOTIONAL));
     assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiPut).equalWithTolerance(
         RATE_PROVIDER.curveParameterSensitivity(computedPvSensiPutDw), TOL * NOTIONAL));
   }
 
+  public void farBarrierOutTest() {
+    double smallBarrier = 1.0e-6;
+    double largeBarrier = 1.0e6;
+    SimpleConstantContinuousBarrier dkoSmall =
+        SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, smallBarrier);
+    SimpleConstantContinuousBarrier uKoLarge =
+        SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, largeBarrier);
+    ResolvedFxSingleBarrierOption callDko = ResolvedFxSingleBarrierOption.of(CALL, dkoSmall, REBATE);
+    ResolvedFxSingleBarrierOption callUko = ResolvedFxSingleBarrierOption.of(CALL, uKoLarge, REBATE_BASE);
+    ResolvedFxSingleBarrierOption putDko = ResolvedFxSingleBarrierOption.of(PUT, dkoSmall, REBATE);
+    ResolvedFxSingleBarrierOption putUko = ResolvedFxSingleBarrierOption.of(PUT, uKoLarge, REBATE_BASE);
+    // pv
+    CurrencyAmount pvCallDko = PRICER.presentValue(callDko, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvCallUko = PRICER.presentValue(callUko, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvCall = VANILLA_PRICER.presentValue(CALL, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvPutDko = PRICER.presentValue(putDko, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvPutUko = PRICER.presentValue(putUko, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvPut = VANILLA_PRICER.presentValue(PUT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pvCallDko.getAmount(), pvCall.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvCallUko.getAmount(), pvCall.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvPutDko.getAmount(), pvPut.getAmount(), NOTIONAL * TOL);
+    assertEquals(pvPutUko.getAmount(), pvPut.getAmount(), NOTIONAL * TOL);
+    // currency exposure
+    MultiCurrencyAmount ceCallDko = PRICER.currencyExposure(callDko, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceCallUko = PRICER.currencyExposure(callUko, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceCall = VANILLA_PRICER.currencyExposure(CALL, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(ceCallDko.getAmount(EUR).getAmount(), ceCall.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceCallDko.getAmount(USD).getAmount(), ceCall.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceCallUko.getAmount(EUR).getAmount(), ceCall.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(ceCallUko.getAmount(USD).getAmount(), ceCall.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    MultiCurrencyAmount cePutDko = PRICER.currencyExposure(putDko, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount cePutUko = PRICER.currencyExposure(putUko, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount cePut = VANILLA_PRICER.currencyExposure(PUT, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(cePutDko.getAmount(EUR).getAmount(), cePut.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(cePutDko.getAmount(USD).getAmount(), cePut.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertEquals(cePutUko.getAmount(EUR).getAmount(), cePut.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertEquals(cePutUko.getAmount(USD).getAmount(), cePut.getAmount(USD).getAmount(), NOTIONAL * TOL);
+  }
+
+  public void farBarrierInTest() {
+    double smallBarrier = 1.0e-6;
+    double largeBarrier = 1.0e6;
+    SimpleConstantContinuousBarrier dkiSmall =
+        SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, smallBarrier);
+    SimpleConstantContinuousBarrier uKiLarge =
+        SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, largeBarrier);
+    ResolvedFxSingleBarrierOption callDki = ResolvedFxSingleBarrierOption.of(CALL, dkiSmall, REBATE);
+    ResolvedFxSingleBarrierOption callUki = ResolvedFxSingleBarrierOption.of(CALL, uKiLarge, REBATE_BASE);
+    ResolvedFxSingleBarrierOption putDki = ResolvedFxSingleBarrierOption.of(PUT, dkiSmall, REBATE);
+    ResolvedFxSingleBarrierOption putUki = ResolvedFxSingleBarrierOption.of(PUT, uKiLarge, REBATE_BASE);
+    // pv
+    CurrencyAmount pvCallDki = PRICER.presentValue(callDki, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvCallUki = PRICER.presentValue(callUki, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvPutDki = PRICER.presentValue(putDki, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyAmount pvPutUki = PRICER.presentValue(putUki, RATE_PROVIDER, VOL_PROVIDER);
+    double dfUsd = RATE_PROVIDER.discountFactor(USD, PAY_DATE);
+    double dfEur = RATE_PROVIDER.discountFactor(EUR, PAY_DATE);
+    assertEquals(pvCallDki.getAmount(), REBATE_AMOUNT * dfUsd, NOTIONAL * TOL);
+    assertEquals(pvCallUki.getAmount(), REBATE_AMOUNT * SPOT * dfEur, NOTIONAL * TOL);
+    assertEquals(pvPutDki.getAmount(), -REBATE_AMOUNT * dfUsd, NOTIONAL * TOL);
+    assertEquals(pvPutUki.getAmount(), -REBATE_AMOUNT * SPOT * dfEur, NOTIONAL * TOL);
+    // currency exposure
+    MultiCurrencyAmount ceCallDki = PRICER.currencyExposure(callDki, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount ceCallUki = PRICER.currencyExposure(callUki, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(ceCallDki.getAmount(EUR).getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(ceCallDki.getAmount(USD).getAmount(), REBATE_AMOUNT * dfUsd, NOTIONAL * TOL);
+    assertEquals(ceCallUki.getAmount(EUR).getAmount(), REBATE_AMOUNT * dfEur, NOTIONAL * TOL);
+    assertEquals(ceCallUki.getAmount(USD).getAmount(), 0d, NOTIONAL * TOL);
+    MultiCurrencyAmount cePutDki = PRICER.currencyExposure(putDki, RATE_PROVIDER, VOL_PROVIDER);
+    MultiCurrencyAmount cePutUki = PRICER.currencyExposure(putUki, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(cePutDki.getAmount(EUR).getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(cePutDki.getAmount(USD).getAmount(), -REBATE_AMOUNT * dfUsd, NOTIONAL * TOL);
+    assertEquals(cePutUki.getAmount(EUR).getAmount(), -REBATE_AMOUNT * dfEur, NOTIONAL * TOL);
+    assertEquals(cePutUki.getAmount(USD).getAmount(), 0d, NOTIONAL * TOL);
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
-      PointSensitivityBuilder point = PRICER.presentValueSensitivity(option, RATE_PROVIDER, VOL_PROVIDER);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATE_PROVIDER, VOL_PROVIDER);
       CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point.build());
       CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
           p -> PRICER.presentValue(option, p, VOL_PROVIDER));
@@ -270,7 +348,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
 
   public void test_presentValueSensitivity_atExpiry() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
-      PointSensitivityBuilder point = PRICER.presentValueSensitivity(option, RATE_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATE_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
       CurveCurrencyParameterSensitivities computed = RATE_PROVIDER_EXPIRY.curveParameterSensitivity(point.build());
       CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER_EXPIRY,
           p -> PRICER.presentValue(option, p, VOL_PROVIDER_EXPIRY));
@@ -280,7 +358,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
 
   public void test_presentValueSensitivity_afterExpiry() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
-      PointSensitivityBuilder point = PRICER.presentValueSensitivity(option, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER);
       assertEquals(point, PointSensitivityBuilder.none());
     }
   }
@@ -353,15 +431,15 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
-      CurrencyAmount pv = PRICER.presentValue(option, RATE_PROVIDER, VOL_PROVIDER);
-      MultiCurrencyAmount computed = PRICER.currencyExposure(option, RATE_PROVIDER, VOL_PROVIDER);
+      CurrencyAmount pv = PRICER.presentValue(option, RATE_PROVIDER, VOL_PROVIDER_FLAT);
+      MultiCurrencyAmount computed = PRICER.currencyExposure(option, RATE_PROVIDER, VOL_PROVIDER_FLAT);
       FxMatrix fxMatrix = FxMatrix.builder().addRate(EUR, USD, SPOT + FD_EPS).build();
       ImmutableRatesProvider provBumped = RATE_PROVIDER.toBuilder().fxRateProvider(fxMatrix).build();
-      CurrencyAmount pvBumped = PRICER.presentValue(option, provBumped, VOL_PROVIDER);
+      CurrencyAmount pvBumped = PRICER.presentValue(option, provBumped, VOL_PROVIDER_FLAT);
       double ceCounterFD = pvBumped.getAmount() - pv.getAmount();
-      double ceBaseFD = pvBumped.getAmount() * (SPOT + FD_EPS) - pv.getAmount() * SPOT;
-      assertEquals(computed.getAmount(EUR).getAmount() * FD_EPS, ceCounterFD, NOTIONAL * FD_EPS);
-      assertEquals(-(computed.getAmount(USD).getAmount() - pv.getAmount()) * FD_EPS, ceBaseFD, NOTIONAL * FD_EPS);
+      double ceBaseFD = pvBumped.getAmount() / (SPOT + FD_EPS) - pv.getAmount() / SPOT;
+      assertEquals(computed.getAmount(EUR).getAmount() * FD_EPS, ceCounterFD, NOTIONAL * TOL);
+      assertEquals(computed.getAmount(USD).getAmount() * (1.0d / (SPOT + FD_EPS) - 1.0d / SPOT), ceBaseFD, NOTIONAL * TOL);
     }
   }
 
@@ -561,7 +639,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   }
 
   public void regression_curveSensitivity() {
-    PointSensitivityBuilder point = PRICER.presentValueSensitivity(CALL_DKI, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(CALL_DKI, RATE_PROVIDER, VOL_PROVIDER);
     CurveCurrencyParameterSensitivities pvSensi = RATE_PROVIDER.curveParameterSensitivity(point.build());
     double[] eurSensi = new double[] {0.0, 0.0, 0.0, -8.23599758653779E7, -5.943903918586236E7 };
     double[] usdSensi = new double[] {0.0, 0.0, 0.0, 6.526531701730868E7, 4.710185614928411E7 };
@@ -573,7 +651,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         usdSensi,
         pvSensi.getSensitivity(RatesProviderFxDataSets.getCurveName(USD), USD).getSensitivity().toArray(),
         NOTIONAL * TOL));
-    PointSensitivityBuilder pointBase = PRICER.presentValueSensitivity(CALL_DKI_BASE, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivityBuilder pointBase = PRICER.presentValueSensitivityStickyStrike(CALL_DKI_BASE, RATE_PROVIDER,
+        VOL_PROVIDER);
     CurveCurrencyParameterSensitivities pvSensiBase =
         RATE_PROVIDER.curveParameterSensitivity(pointBase.build()).convertedTo(EUR, RATE_PROVIDER);
     double[] eurSensiBase = new double[] {0.0, 0.0, 0.0, -5.885393657463378E7, -4.247477498074986E7 };
@@ -587,7 +666,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         pvSensiBase.getSensitivity(RatesProviderFxDataSets.getCurveName(USD), EUR).getSensitivity().toArray(),
         NOTIONAL * TOL));
     PointSensitivityBuilder pointPut =
-        PRICER.presentValueSensitivity(PUT_DKO, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
+        PRICER.presentValueSensitivityStickyStrike(PUT_DKO, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
     CurveCurrencyParameterSensitivities pvSensiPut = RATE_PROVIDER.curveParameterSensitivity(pointPut.build());
     double[] eurSensiPut = new double[] {0.0, 0.0, 0.0, 22176.623866383557, 16004.827601682477 };
     double[] usdSensiPut = new double[] {0.0, 0.0, 0.0, -48509.60688347871, -35009.29176024644 };
@@ -600,7 +679,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         pvSensiPut.getSensitivity(RatesProviderFxDataSets.getCurveName(USD), USD).getSensitivity().toArray(),
         NOTIONAL * TOL));
     PointSensitivityBuilder pointPutBase =
-        PRICER.presentValueSensitivity(PUT_DKO_BASE, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
+        PRICER.presentValueSensitivityStickyStrike(PUT_DKO_BASE, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
     CurveCurrencyParameterSensitivities pvSensiPutBase =
         RATE_PROVIDER.curveParameterSensitivity(pointPutBase.build()).convertedTo(EUR, RATE_PROVIDER);
     double[] eurSensiPutBase = new double[] {0.0, 0.0, 0.0, 24062.637495868825, 17365.96007956571 };
