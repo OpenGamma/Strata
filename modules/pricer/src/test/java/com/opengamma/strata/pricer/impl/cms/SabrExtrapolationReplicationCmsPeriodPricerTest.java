@@ -141,13 +141,13 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvCaplet = PRICER.presentValue(CAPLET_ZERO, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvFloorlet = PRICER.presentValue(FLOORLET_ZERO, RATES_PROVIDER, VOLATILITIES);
     assertEquals(pv.getAmount(), pvCaplet.getAmount(), NOTIONAL * TOL);
-    assertEquals(pvFloorlet.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvFloorlet.getAmount(), 0d, 2.0d * NOTIONAL * TOL);
     CurrencyAmount pvShift = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvCapletShift = PRICER.presentValue(CAPLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvFloorletShift = PRICER.presentValue(FLOORLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
     double dfPayment = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
     assertEquals(pvShift.getAmount(), pvCapletShift.getAmount() - SHIFT * dfPayment * NOTIONAL * ACC_FACTOR, NOTIONAL * TOL);
-    assertEquals(pvFloorletShift.getAmount(), 0d, NOTIONAL * TOL);
+    assertEquals(pvFloorletShift.getAmount(), 0d, 2.0d * NOTIONAL * TOL);
   }
 
   public void test_presentValue_buySell() {

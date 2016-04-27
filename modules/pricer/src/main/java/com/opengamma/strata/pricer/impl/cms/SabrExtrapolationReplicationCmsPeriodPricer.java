@@ -81,6 +81,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * The maximum iteration count.
    */
   private static final int MAX_COUNT = 10;
+  /** Shift from zero bound for floor. To avoid numerical instability of the SABR function around 0. Shift by 0.01 bps. */
+  private static final double ZERO_SHIFT =  1.0E-6;
 
   /**
    * Pricer for the underlying swap. 
@@ -204,7 +206,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         integralPart = dfPayment *
             integrateCall(integrator, integrant, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
       } else {
-        integralPart = - dfPayment * integrator.integrate(integrant, -shift, strikeCpn);
+        integralPart = - dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
       }
     } catch (Exception e) {
       throw new MathException(e);
@@ -291,7 +293,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         integralPart = dfPayment *
             integrateCall(integrator, integrantDelta, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
       } else {
-        integralPartPrice = - integrator.integrate(integrant, -shift, strikeCpn);
+        integralPartPrice = - integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
         integralPart = - dfPayment * integrator.integrate(integrantDelta, -shift, strikeCpn);
       }
     } catch (Exception e) {
@@ -369,7 +371,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           integralPart = dfPayment *
               integrateCall(integrator, integrant, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
         } else {
-          integralPart = - dfPayment * integrator.integrate(integrant, -shift, strikeCpn);
+          integralPart = - dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
         }
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -447,7 +449,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       thirdPart = integrateCall(integrator, integrant, swaptionVolatilities, forward, strike, expiryTime, tenor);
     } else {
       firstPart = - kpkpp[0] * intProv.bs(strike);
-      thirdPart = - integrator.integrate(integrant, -shift, strike);
+      thirdPart = - integrator.integrate(integrant, -shift + ZERO_SHIFT, strike);
     }
     double secondPart =
         intProv.k(strike) * intProv.getSabrExtrapolation().priceDerivativeStrike(strike + shift, intProv.getPutCall());
@@ -465,8 +467,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     double res;
     double vol = swaptionVolatilities.volatility(expiryTime, tenor, forward, forward);
-    double upper = Math.max(forward * Math.exp(6d * vol * Math.sqrt(expiryTime)),
-        Math.max(cutOffStrike, 2.0d * strike)); // To ensure that the integral covers a good part of the smile
+    double upper = 
+        Math.min(
+            Math.max(forward * Math.exp(6d * vol * Math.sqrt(expiryTime)),
+        Math.max(cutOffStrike, 2.0d * strike)),// To ensure that the integral covers a good part of the smile
+        1.00); // To ensure that we don't miss the meaningful part
     res = integrator.integrate(integrant, strike, upper);
     double reminder = integrant.apply(upper) * upper;
     double error = reminder / res;

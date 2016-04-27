@@ -51,6 +51,7 @@ public final class SabrHaganVolatilityFunctionProvider
   private static final double RHO_EPS = 1e-5;
   private static final double RHO_EPS_NEGATIVE = 1e-8;
   private static final double ATM_EPS = 1e-7;
+  private static final double MIN_VOL = 1e-6; // Minimal volatility, to avoid negative volatility for extreme parameters
 
   //-------------------------------------------------------------------------
   @Override
@@ -112,7 +113,7 @@ public final class SabrHaganVolatilityFunctionProvider
       }
     }
     //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative
-    return vol;
+     return Math.max(MIN_VOL, vol);
   }
 
   /**
@@ -204,7 +205,7 @@ public final class SabrHaganVolatilityFunctionProvider
     double sf1 = sfK * (1 + betaStar * betaStar / 24 * (lnrfK * lnrfK) + Math.pow(betaStar, 4) / 1920 * Math.pow(lnrfK, 4));
     double sf2 = (1 + (Math.pow(betaStar * alpha / sfK, 2) / 24 + (rho * beta * nu * alpha) /
         (4 * sfK) + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
-    double volatility = alpha / sf1 * rzxz * sf2;
+    double volatility = Math.max(MIN_VOL, alpha / sf1 * rzxz * sf2);
 
     // Implementation note: Backward sweep.
     double vBar = 1;
