@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -15,6 +16,8 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
@@ -45,6 +48,12 @@ public class CalculationParametersTest {
   public void of_list_empty() {
     CalculationParameters test = CalculationParameters.of(ImmutableList.of());
     assertEquals(test.getParameters().size(), 0);
+  }
+
+  public void getParameter() {
+    CalculationParameters test = CalculationParameters.of(ImmutableList.of(ReportingCurrency.NATURAL));
+    assertEquals(test.getParameter(ReportingCurrency.class), ReportingCurrency.NATURAL);
+    assertThrowsIllegalArg(() -> test.getParameter(TestParameter.class));
   }
 
   //-------------------------------------------------------------------------
@@ -90,4 +99,13 @@ public class CalculationParametersTest {
     assertNotNull(CalculationParameters.meta());
   }
 
+  //--------------------------------------------------------------------------------------------------
+
+  private static final class TestParameter implements CalculationParameter {
+
+    @Override
+    public boolean appliesTo(CalculationTarget target, Measure measure) {
+      throw new UnsupportedOperationException("appliesTo not implemented");
+    }
+  }
 }

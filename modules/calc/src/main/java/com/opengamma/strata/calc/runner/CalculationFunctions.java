@@ -47,7 +47,6 @@ public interface CalculationFunctions {
    * @param functions  the functions
    * @return the calculation functions
    */
-  @SafeVarargs
   public static CalculationFunctions of(CalculationFunction<?>... functions) {
     return DefaultCalculationFunctions.of(Stream.of(functions).collect(toImmutableMap(fn -> fn.targetType())));
   }
@@ -107,4 +106,15 @@ public interface CalculationFunctions {
    */
   public abstract <T extends CalculationTarget> Optional<CalculationFunction<? super T>> findFunction(T target);
 
+  /**
+   * Returns a set of calculation functions which combines the functions in this set with the functions in another.
+   * <p>
+   * If both sets of functions contain a function for a target then the function from this set is returned.
+   *
+   * @param other  another set of calculation functions
+   * @return a set of calculation functions which combines the functions in this set with the functions in the other
+   */
+  public default CalculationFunctions composedWith(CalculationFunctions other) {
+    return CompositeCalculationFunctions.of(this, other);
+  }
 }
