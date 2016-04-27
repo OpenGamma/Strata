@@ -115,6 +115,6 @@ public interface CalculationFunctions {
    * @return a set of calculation functions which combines the functions in this set with the functions in the other
    */
   public default CalculationFunctions composedWith(CalculationFunctions other) {
-    return new CompositeCalculationFunctions(this, other);
+    return CompositeCalculationFunctions.of(this, other);
   }
 }

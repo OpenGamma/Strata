@@ -39,11 +39,11 @@ public class CompositeCalculationFunctionsTest {
 
   //--------------------------------------------------------------------------------------------------
 
-    private static final class Fn1 implements CalculationFunction<Target1> {
+  private static final class Fn1 implements CalculationFunction<Target1> {
 
     @Override
-      public Class<Target1> targetType() {
-        return Target1.class;
+    public Class<Target1> targetType() {
+      return Target1.class;
     }
 
     @Override
@@ -52,31 +52,31 @@ public class CompositeCalculationFunctionsTest {
     }
 
     @Override
-      public Currency naturalCurrency(Target1 target, ReferenceData refData) {
+    public Currency naturalCurrency(Target1 target, ReferenceData refData) {
       throw new UnsupportedOperationException("naturalCurrency not implemented");
     }
 
-      @Override
-      public Map<Measure, Result<?>> calculate(
-          Target1 target,
-          Set<Measure> measures,
-          CalculationParameters parameters,
-          CalculationMarketData marketData,
-          ReferenceData refData) {
+    @Override
+    public Map<Measure, Result<?>> calculate(
+        Target1 target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        CalculationMarketData marketData,
+        ReferenceData refData) {
 
-        throw new UnsupportedOperationException("calculate not implemented");
-      }
-
-      @Override
-      public FunctionRequirements requirements(
-          Target1 target,
-          Set<Measure> measures,
-          CalculationParameters parameters,
-          ReferenceData refData) {
-
-        throw new UnsupportedOperationException("requirements not implemented");
-      }
+      throw new UnsupportedOperationException("calculate not implemented");
     }
+
+    @Override
+    public FunctionRequirements requirements(
+        Target1 target,
+        Set<Measure> measures,
+        CalculationParameters parameters,
+        ReferenceData refData) {
+
+      throw new UnsupportedOperationException("requirements not implemented");
+    }
+  }
 
   private static final class Fn2 implements CalculationFunction<Target2> {
 
@@ -118,8 +118,10 @@ public class CompositeCalculationFunctionsTest {
   }
 
   private static final class Target1 implements CalculationTarget {
+
   }
 
   private static final class Target2 implements CalculationTarget {
+
   }
 }
