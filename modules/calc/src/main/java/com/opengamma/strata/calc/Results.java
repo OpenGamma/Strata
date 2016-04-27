@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner;
+package com.opengamma.strata.calc;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 
@@ -36,15 +35,13 @@ import com.opengamma.strata.collect.result.Result;
 public final class Results implements ImmutableBean {
 
   /**
-   * The number of rows in the results.
+   * The column headers.
+   * <p>
+   * Each column in the results is defined by a header consisting of the name and measure.
+   * The size of this list defines the number of columns, which is needed to interpret the list of cells.
    */
-  @PropertyDefinition
-  private final int rowCount;
-  /**
-   * The number of columns in the results.
-   */
-  @PropertyDefinition
-  private final int columnCount;
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<ColumnHeader> columns;
   /**
    * The grid of results, stored as a flat list.
    * <p>
@@ -58,45 +55,72 @@ public final class Results implements ImmutableBean {
    *   [t1c1, t1c2, t1c3, t2c1, t2c2, t2c3]
    * </pre>
    */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<Result<?>> items;
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends Result<?>>")
+  private final ImmutableList<Result<?>> cells;
+  /**
+   * The number of rows.
+   */
+  private final int rowCount;  // derived, not a property
+  /**
+   * The number of columns.
+   */
+  private final int columnCount;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a set of results for some calculations.
+   * Obtains an instance containing the results of the calculation for each cell.
    * <p>
-   * The number of values must be exactly divisible by the column count.
+   * The number of cells must be exactly divisible by the number of columns.
    *
-   * @param rowCount  the number of rows in the results
-   * @param columnCount  the number of columns in the results
-   * @param values  the calculated values
+   * @param columns  the names of each column
+   * @param cells  the calculated results, one for each cell
    * @return a set of results for the calculations
    */
-  public static Results of(int rowCount, int columnCount, List<? extends Result<?>> values) {
-    return new Results(rowCount, columnCount, values);
+  public static Results of(List<ColumnHeader> columns, List<? extends Result<?>> cells) {
+    return new Results(columns, cells);
   }
 
-  // This is hand written to allow the signature to be customised.
-  // The type of the items parameter needs to include a wildcard for the list elements.
-  // The corresponding field can't have a wildcard because of a limitation of Joda Beans.
-  // The generated constructor parameter has the same type as the field, so in order to have
-  // different types for the field and parameter the constructor must be hand written.
   @ImmutableConstructor
-  private Results(int rowCount, int columnCount, List<? extends Result<?>> items) {
-    this.rowCount = ArgChecker.notNegative(rowCount, "rowCount");
-    this.columnCount = ArgChecker.notNegative(columnCount, "columnCount");
-    this.items = ImmutableList.copyOf(items);
+  private Results(List<ColumnHeader> columns, List<? extends Result<?>> cells) {
+    JodaBeanUtils.notNull(columns, "columns");
+    JodaBeanUtils.notNull(cells, "cells");
+    this.columns = ImmutableList.copyOf(columns);
+    this.cells = ImmutableList.copyOf(cells);
+    this.columnCount = columns.size();
+    this.rowCount = (columnCount == 0 ? 0 : cells.size() / columnCount);
 
-    if (rowCount * columnCount != items.size()) {
+    if (rowCount * columnCount != cells.size()) {
       throw new IllegalArgumentException(
           Messages.format(
-              "The number of items ({}) must equal the number of rows ({}) multiplied by the number of columns ({})",
-              this.items.size(),
+              "The number of cells ({}) must equal the number of rows ({}) multiplied by the number of columns ({})",
+              this.cells.size(),
               this.rowCount,
               this.columnCount));
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the number of rows in the results.
+   * <p>
+   * The number of rows equals the number of targets input to the calculation.
+   *
+   * @return the number of rows
+   */
+  public int getRowCount() {
+    return rowCount;
+  }
+
+  /**
+   * Gets the number of columns in the results.
+   *
+   * @return the number of columns
+   */
+  public int getColumnCount() {
+    return columnCount;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the results for a target and column for a set of scenarios.
    *
@@ -112,7 +136,7 @@ public final class Results implements ImmutableBean {
       throw new IllegalArgumentException(invalidColumnIndexMessage(columnIndex));
     }
     int index = (rowIndex * columnCount) + columnIndex;
-    return items.get(index);
+    return cells.get(index);
   }
 
   private String invalidRowIndexMessage(int rowIndex) {
@@ -158,20 +182,14 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of rows in the results.
-   * @return the value of the property
+   * Gets the column headers.
+   * <p>
+   * Each column in the results is defined by a header consisting of the name and measure.
+   * The size of this list defines the number of columns, which is needed to interpret the list of cells.
+   * @return the value of the property, not null
    */
-  public int getRowCount() {
-    return rowCount;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the number of columns in the results.
-   * @return the value of the property
-   */
-  public int getColumnCount() {
-    return columnCount;
+  public ImmutableList<ColumnHeader> getColumns() {
+    return columns;
   }
 
   //-----------------------------------------------------------------------
@@ -189,8 +207,8 @@ public final class Results implements ImmutableBean {
    * </pre>
    * @return the value of the property, not null
    */
-  public ImmutableList<Result<?>> getItems() {
-    return items;
+  public ImmutableList<Result<?>> getCells() {
+    return cells;
   }
 
   //-----------------------------------------------------------------------
@@ -201,9 +219,8 @@ public final class Results implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Results other = (Results) obj;
-      return (rowCount == other.rowCount) &&
-          (columnCount == other.columnCount) &&
-          JodaBeanUtils.equal(items, other.items);
+      return JodaBeanUtils.equal(columns, other.columns) &&
+          JodaBeanUtils.equal(cells, other.cells);
     }
     return false;
   }
@@ -211,19 +228,17 @@ public final class Results implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(rowCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(columnCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(items);
+    hash = hash * 31 + JodaBeanUtils.hashCode(columns);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cells);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("Results{");
-    buf.append("rowCount").append('=').append(rowCount).append(',').append(' ');
-    buf.append("columnCount").append('=').append(columnCount).append(',').append(' ');
-    buf.append("items").append('=').append(JodaBeanUtils.toString(items));
+    buf.append("columns").append('=').append(columns).append(',').append(' ');
+    buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
     buf.append('}');
     return buf.toString();
   }
@@ -239,29 +254,24 @@ public final class Results implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code rowCount} property.
-     */
-    private final MetaProperty<Integer> rowCount = DirectMetaProperty.ofImmutable(
-        this, "rowCount", Results.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code columnCount} property.
-     */
-    private final MetaProperty<Integer> columnCount = DirectMetaProperty.ofImmutable(
-        this, "columnCount", Results.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code items} property.
+     * The meta-property for the {@code columns} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<Result<?>>> items = DirectMetaProperty.ofImmutable(
-        this, "items", Results.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<ColumnHeader>> columns = DirectMetaProperty.ofImmutable(
+        this, "columns", Results.class, (Class) ImmutableList.class);
+    /**
+     * The meta-property for the {@code cells} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<Result<?>>> cells = DirectMetaProperty.ofImmutable(
+        this, "cells", Results.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "rowCount",
-        "columnCount",
-        "items");
+        "columns",
+        "cells");
 
     /**
      * Restricted constructor.
@@ -272,12 +282,10 @@ public final class Results implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 17743701:  // rowCount
-          return rowCount;
-        case -860736679:  // columnCount
-          return columnCount;
-        case 100526016:  // items
-          return items;
+        case 949721053:  // columns
+          return columns;
+        case 94544721:  // cells
+          return cells;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -299,39 +307,29 @@ public final class Results implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code rowCount} property.
+     * The meta-property for the {@code columns} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> rowCount() {
-      return rowCount;
+    public MetaProperty<ImmutableList<ColumnHeader>> columns() {
+      return columns;
     }
 
     /**
-     * The meta-property for the {@code columnCount} property.
+     * The meta-property for the {@code cells} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> columnCount() {
-      return columnCount;
-    }
-
-    /**
-     * The meta-property for the {@code items} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableList<Result<?>>> items() {
-      return items;
+    public MetaProperty<ImmutableList<Result<?>>> cells() {
+      return cells;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 17743701:  // rowCount
-          return ((Results) bean).getRowCount();
-        case -860736679:  // columnCount
-          return ((Results) bean).getColumnCount();
-        case 100526016:  // items
-          return ((Results) bean).getItems();
+        case 949721053:  // columns
+          return ((Results) bean).getColumns();
+        case 94544721:  // cells
+          return ((Results) bean).getCells();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -353,9 +351,8 @@ public final class Results implements ImmutableBean {
    */
   private static final class Builder extends DirectFieldsBeanBuilder<Results> {
 
-    private int rowCount;
-    private int columnCount;
-    private List<Result<?>> items = ImmutableList.of();
+    private List<ColumnHeader> columns = ImmutableList.of();
+    private List<? extends Result<?>> cells = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -367,12 +364,10 @@ public final class Results implements ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 17743701:  // rowCount
-          return rowCount;
-        case -860736679:  // columnCount
-          return columnCount;
-        case 100526016:  // items
-          return items;
+        case 949721053:  // columns
+          return columns;
+        case 94544721:  // cells
+          return cells;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -382,14 +377,11 @@ public final class Results implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 17743701:  // rowCount
-          this.rowCount = (Integer) newValue;
+        case 949721053:  // columns
+          this.columns = (List<ColumnHeader>) newValue;
           break;
-        case -860736679:  // columnCount
-          this.columnCount = (Integer) newValue;
-          break;
-        case 100526016:  // items
-          this.items = (List<Result<?>>) newValue;
+        case 94544721:  // cells
+          this.cells = (List<? extends Result<?>>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -424,19 +416,17 @@ public final class Results implements ImmutableBean {
     @Override
     public Results build() {
       return new Results(
-          rowCount,
-          columnCount,
-          items);
+          columns,
+          cells);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("Results.Builder{");
-      buf.append("rowCount").append('=').append(JodaBeanUtils.toString(rowCount)).append(',').append(' ');
-      buf.append("columnCount").append('=').append(JodaBeanUtils.toString(columnCount)).append(',').append(' ');
-      buf.append("items").append('=').append(JodaBeanUtils.toString(items));
+      buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
+      buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
       buf.append('}');
       return buf.toString();
     }

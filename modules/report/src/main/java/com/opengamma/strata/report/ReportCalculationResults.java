@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.runner.Results;
+import com.opengamma.strata.calc.Results;
 
 /**
  * Stores a set of engine calculation results along with the context required to run reports.

@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;

@@ -20,6 +20,8 @@ import java.util.function.Supplier;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.ColumnHeader;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
@@ -103,10 +105,10 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
     // unwrap the results
     // since there is only one scenario it is not desirable to return scenario result containers
-    List<Result<?>> mappedResults = results.getItems().stream()
+    List<Result<?>> mappedResults = results.getCells().stream()
         .map(r -> unwrapScenarioResult(r))
         .collect(toImmutableList());
-    return Results.of(results.getRowCount(), results.getColumnCount(), mappedResults);
+    return Results.of(results.getColumns(), mappedResults);
   }
 
   //-------------------------------------------------------------------------
@@ -240,12 +242,12 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
     private static Results buildResults(List<CalculationResult> calculationResults, List<Column> columns) {
       List<Result<?>> results =
           calculationResults.stream()
-              .map(CalculationResult::getResult)
+              .map(r -> r.getResult())
               .collect(toImmutableList());
-
-      int columnCount = columns.size();
-      int rowCount = (columnCount == 0) ? 0 : calculationResults.size() / columnCount;
-      return Results.of(rowCount, columnCount, results);
+      List<ColumnHeader> headers = columns.stream()
+          .map(c -> c.toHeader())
+          .collect(toImmutableList());
+      return Results.of(headers, results);
     }
   }
 

@@ -23,8 +23,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.runner.Results;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.Fra;
@@ -78,12 +78,12 @@ public class ReportCalculationResultsTest {
 
   //-------------------------------------------------------------------------
   static ReportCalculationResults sut() {
-    Results results = Results.of(1, 1, ImmutableList.of(Result.success(PV)));
+    Results results = Results.of(ImmutableList.of(COLUMN.toHeader()), ImmutableList.of(Result.success(PV)));
     return ReportCalculationResults.of(VAL_DATE, ImmutableList.of(TRADE), ImmutableList.of(COLUMN), results);
   }
 
   static ReportCalculationResults sut2() {
-    Results results = Results.of(1, 1, ImmutableList.of(Result.success(Double.valueOf(25))));
+    Results results = Results.of(ImmutableList.of(COLUMN.toHeader()), ImmutableList.of(Result.success(Double.valueOf(25))));
     return ReportCalculationResults.of(VAL_DATE2, ImmutableList.of(TRADE2), ImmutableList.of(COLUMN2), results);
   }
 
