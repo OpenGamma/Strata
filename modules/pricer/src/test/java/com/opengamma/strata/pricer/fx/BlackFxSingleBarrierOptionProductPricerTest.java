@@ -451,9 +451,9 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
       ImmutableRatesProvider provBumped = RATE_PROVIDER_EXPIRY.toBuilder().fxRateProvider(fxMatrix).build();
       CurrencyAmount pvBumped = PRICER.presentValue(option, provBumped, VOL_PROVIDER_EXPIRY);
       double ceCounterFD = pvBumped.getAmount() - pv.getAmount();
-      double ceBaseFD = pvBumped.getAmount() * (SPOT + FD_EPS) - pv.getAmount() * SPOT;
-      assertEquals(computed.getAmount(EUR).getAmount() * FD_EPS, ceCounterFD, NOTIONAL * FD_EPS);
-      assertEquals(-(computed.getAmount(USD).getAmount() - pv.getAmount()) * FD_EPS, ceBaseFD, NOTIONAL * FD_EPS);
+      double ceBaseFD = pvBumped.getAmount() / (SPOT + FD_EPS) - pv.getAmount() / SPOT;
+      assertEquals(computed.getAmount(EUR).getAmount() * FD_EPS, ceCounterFD, NOTIONAL * TOL);
+      assertEquals(computed.getAmount(USD).getAmount() * (1.0d / (SPOT + FD_EPS) - 1.0d / SPOT), ceBaseFD, NOTIONAL * TOL);
     }
   }
 
