@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 
 import java.time.LocalDate;
 
@@ -19,6 +20,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
@@ -38,10 +40,6 @@ public class RatesProviderFxDataSets {
   public static final LocalDate VAL_DATE_2014_01_22 = RatesProviderDataSets.VAL_DATE_2014_01_22;
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final String DISCOUNTING_EUR = "Discounting EUR";
-  private static final String DISCOUNTING_USD = "Discounting USD";
-  private static final String DISCOUNTING_GBP = "Discounting GBP";
-  private static final String DISCOUNTING_KRW = "Discounting KRW";
   private static final double EUR_USD = 1.40;
   private static final double USD_KRW = 1111.11;
   private static final double GBP_USD = 1.50;
@@ -58,12 +56,18 @@ public class RatesProviderFxDataSets {
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates("USD Dsc", ACT_360);
   private static final InterpolatedNodalCurve USD_DSC =
       InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
+  private static final CurveMetadata USD_DSC_METADATA_ISDA = Curves.zeroRates("USD Dsc", ACT_ACT_ISDA);
+  private static final InterpolatedNodalCurve USD_DSC_ISDA =
+      InterpolatedNodalCurve.of(USD_DSC_METADATA_ISDA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
 
   private static final DoubleArray EUR_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0);
   private static final DoubleArray EUR_DSC_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150);
   private static final CurveMetadata EUR_DSC_METADATA = Curves.zeroRates("EUR Dsc", ACT_360);
   private static final InterpolatedNodalCurve EUR_DSC =
       InterpolatedNodalCurve.of(EUR_DSC_METADATA, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
+  private static final CurveMetadata EUR_DSC_METADATA_ISDA = Curves.zeroRates("EUR Dsc", ACT_ACT_ISDA);
+  private static final InterpolatedNodalCurve EUR_DSC_ISDA =
+      InterpolatedNodalCurve.of(EUR_DSC_METADATA_ISDA, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
 
   private static final DoubleArray GBP_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0);
   private static final DoubleArray GBP_DSC_RATE = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0160);
@@ -134,10 +138,47 @@ public class RatesProviderFxDataSets {
         .build();
   }
 
-  public static String[] curveNames() {
-    return new String[] {DISCOUNTING_EUR, DISCOUNTING_USD, DISCOUNTING_GBP, DISCOUNTING_KRW};
+  /**
+   * Creates rates provider for EUR, USD with FX matrix. 
+   * <p>
+   * The discount curves are based on the day count convention, ACT/ACT ISDA.
+   * 
+   * @param valuationDate  the valuation date
+   * @return the rates provider
+   */
+  public static ImmutableRatesProvider createProviderEurUsdActActIsda(LocalDate valuationDate) {
+    FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
+    return ImmutableRatesProvider.builder(valuationDate)
+        .discountCurve(EUR, EUR_DSC_ISDA)
+        .discountCurve(USD, USD_DSC_ISDA)
+        .fxRateProvider(fxMatrix)
+        .build();
   }
 
+  /**
+   * Get the curve name of the curve for a given currency.
+   * 
+   * @param currency the currency
+   * @return the curve name
+   */
+  public static CurveName getCurveName(Currency currency) {
+    if (currency.equals(EUR)) {
+      return EUR_DSC.getName();
+    }
+    if (currency.equals(USD)) {
+      return USD_DSC.getName();
+    }
+    if (currency.equals(GBP)) {
+      return GBP_DSC.getName();
+    }
+    throw new IllegalArgumentException();
+  }
+
+  /**
+   * Gets the FX matrix.
+   * 
+   * @return the FX matrix
+   */
   public static FxMatrix fxMatrix() {
     return FX_MATRIX;
   }

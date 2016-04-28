@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.LongShort.LONG;
 import static com.opengamma.strata.basics.LongShort.SHORT;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -24,8 +23,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -56,27 +53,16 @@ public class BlackFxVanillaOptionProductPricerTest {
       RatesProviderFxDataSets.createProviderEURUSD(EXPIRY.toLocalDate());
   private static final RatesProvider RATES_PROVIDER_AFTER =
       RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE_AFTER);
-
-  private static final String NAME = "smileEurUsd";
-  private static final DoubleArray TIME_TO_EXPIRY = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
-  private static final DoubleArray ATM = DoubleArray.of(0.175, 0.185, 0.18, 0.17, 0.16, 0.16);
-  private static final DoubleArray DELTA = DoubleArray.of(0.10, 0.25);
-  private static final DoubleMatrix RISK_REVERSAL = DoubleMatrix.ofUnsafe(new double[][] {
-      {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070},
-    {-0.013, -0.0080 }, {-0.014, -0.0090 }, {-0.014, -0.0090 } });
-  private static final DoubleMatrix STRANGLE = DoubleMatrix.ofUnsafe(new double[][] {
-      {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120},
-    {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } });
-  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
-      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(NAME, TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
-  private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATETIME);
+      FxVolatilitySmileDataSet.createVolatilitySmileProvider6(VAL_DATETIME);
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_EXPIRY =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, EXPIRY);
+      FxVolatilitySmileDataSet.createVolatilitySmileProvider6(EXPIRY);
   private static final BlackVolatilitySmileFxProvider VOL_PROVIDER_AFTER =
-      BlackVolatilitySmileFxProvider.of(SMILE_TERM, CURRENCY_PAIR, ACT_365F, VAL_DATETIME_AFTER);
+      FxVolatilitySmileDataSet.createVolatilitySmileProvider6(VAL_DATETIME_AFTER);
+  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM =
+      FxVolatilitySmileDataSet.getSmileDeltaTermStructure6();
 
+  private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final double NOTIONAL = 1.0e6;
   private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
   private static final double STRIKE_RATE_HIGH = 1.44;
