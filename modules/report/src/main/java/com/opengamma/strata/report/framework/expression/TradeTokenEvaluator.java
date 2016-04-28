@@ -46,10 +46,10 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
 
     if (tradePropertyName.isPresent()) {
       Object propertyValue = metaBean.metaProperty(tradePropertyName.get()).get((Bean) trade);
-
-      return propertyValue != null ?
-          EvaluationResult.success(propertyValue, remainingTokens) :
-          EvaluationResult.failure("Property '{}' not set", firstToken);
+      if (propertyValue == null) {
+        return EvaluationResult.failure("Property '{}' not set", firstToken);
+      }
+      return EvaluationResult.success(propertyValue, remainingTokens);
     }
 
     // trade info
@@ -59,9 +59,10 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
 
     if (tradeInfoPropertyName.isPresent()) {
       Object propertyValue = trade.getInfo().property(tradeInfoPropertyName.get()).get();
-
-      return propertyValue != null ? EvaluationResult.success(propertyValue, remainingTokens)
-          : EvaluationResult.failure("Property '{}' not set", firstToken);
+      if (propertyValue == null) {
+        return EvaluationResult.failure("Property '{}' not set", firstToken);
+      }
+      return EvaluationResult.success(propertyValue, remainingTokens);
     }
     return invalidTokenFailure(trade, firstToken);
   }
