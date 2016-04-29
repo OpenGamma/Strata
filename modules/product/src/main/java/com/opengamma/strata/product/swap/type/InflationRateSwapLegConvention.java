@@ -97,6 +97,7 @@ public final class InflationRateSwapLegConvention
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
+   * @param lag  the lag between the price index and the accrual date, typically a number of months
    * @return the convention
    */
   public static InflationRateSwapLegConvention of(PriceIndex index, Period lag) {

@@ -38,8 +38,13 @@
  * The {@code value} expression is consists of multiple sections separated by dots. The first section specifies
  * the object which is the source of the data in the column. The supported values are:
  * <ul>
- *   <li>Trade - the data is taken from the {@link com.opengamma.strata.basics.Trade trade} or
+ *   <li>Trade - the data is taken from the {@link com.opengamma.strata.product.Trade trade} or
  *   {@link com.opengamma.strata.product.TradeInfo trade info}</li>
+ *   <li>Security - the data is taken from the {@link com.opengamma.strata.product.Security security} or
+ *   {@link com.opengamma.strata.product.SecurityInfo security info}</li>
+ *   <li>Position - the data is taken from the {@link com.opengamma.strata.product.Position position} or
+ *   {@link com.opengamma.strata.product.PositionInfo position info}</li>
+ *   <li>Target - the data is taken from the {@link com.opengamma.strata.basics.CalculationTarget calculation target}</li>
  *   <li>Measure - the data is taken from the results of the calculations</li>
  *   <li>Product - the data is taken from the {@link com.opengamma.strata.product.Product product} associated with
  *   the trade. This is only applicable if the trade implements

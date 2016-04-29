@@ -147,6 +147,7 @@ public final class Column implements ImmutableBean {
    * The specified currency will be wrapped in {@link ReportingCurrency} and added to the calculation parameters.
    *
    * @param measure  the measure to be calculated
+   * @param columnName  the column name
    * @param currency  the currency to convert to
    * @return a column with the specified measure
    */

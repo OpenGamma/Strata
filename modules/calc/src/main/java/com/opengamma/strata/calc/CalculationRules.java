@@ -118,6 +118,7 @@ public final class CalculationRules implements ImmutableBean {
    * There are many possible parameter implementations, for example {@link ReportingCurrency}.
    * 
    * @param functions  the calculation functions
+   * @param marketDataRules  the market data rules
    * @param parameters  the parameters that control the calculation, may be empty
    * @return the rules
    */
@@ -136,6 +137,7 @@ public final class CalculationRules implements ImmutableBean {
    * There are many possible parameter implementations, for example {@link ReportingCurrency}.
    * 
    * @param functions  the calculation functions
+   * @param marketDataRules  the market data rules
    * @param parameters  the parameters that control the calculation, may be empty
    * @return the rules
    */

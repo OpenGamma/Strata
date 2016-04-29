@@ -25,7 +25,9 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
       ValueRootType.MEASURES.token(),
       ValueRootType.PRODUCT.token(),
       ValueRootType.SECURITY.token(),
-      ValueRootType.TRADE.token());
+      ValueRootType.TRADE.token(),
+      ValueRootType.POSITION.token(),
+      ValueRootType.TARGET.token());
 
   @Override
   public Class<?> getTargetType() {
