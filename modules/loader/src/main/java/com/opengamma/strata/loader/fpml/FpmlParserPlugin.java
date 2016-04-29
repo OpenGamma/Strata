@@ -8,11 +8,11 @@ package com.opengamma.strata.loader.fpml;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.product.Trade;
 
 /**
  * Pluggable FpML trade parser.

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.loader.impl.fpml;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;

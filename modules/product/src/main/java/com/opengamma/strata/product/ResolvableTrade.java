@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.market.Resolvable;
  * @param <T>  the type of the resolved trade
  */
 public interface ResolvableTrade<T extends ResolvedTrade>
-    extends FinanceTrade, Resolvable<T> {
+    extends Trade, Resolvable<T> {
 
   /**
    * Resolves this trade using the specified reference data.

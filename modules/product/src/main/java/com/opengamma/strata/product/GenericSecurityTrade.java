@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.currency.Currency;
  */
 @BeanDefinition(constructorScope = "package")
 public final class GenericSecurityTrade
-    implements FinanceTrade, SecurityQuantity, ImmutableBean, Serializable {
+    implements Trade, SecurityQuantity, ImmutableBean, Serializable {
 
   /**
    * The additional trade information, defaulted to an empty instance.

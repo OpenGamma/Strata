@@ -8,13 +8,13 @@ package com.opengamma.strata.market.curve;
 import java.time.LocalDate;
 import java.util.Set;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.Trade;
 
 /**
  * A node in the configuration specifying how to calibrate a curve.

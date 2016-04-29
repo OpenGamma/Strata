@@ -92,7 +92,7 @@ public interface Security {
    * @param refData  the reference data used to find underlying securities
    * @return the trade
    */
-  public abstract FinanceTrade createTrade(
+  public abstract Trade createTrade(
       TradeInfo tradeInfo,
       double quantity,
       double tradePrice,

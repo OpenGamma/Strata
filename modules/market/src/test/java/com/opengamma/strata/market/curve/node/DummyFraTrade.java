@@ -17,9 +17,9 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.Trade;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 
 /**

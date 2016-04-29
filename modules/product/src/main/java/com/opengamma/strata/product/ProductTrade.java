@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.Trade;
-
 /**
  * A trade that is directly based on a product.
  * <p>
@@ -15,7 +13,7 @@ import com.opengamma.strata.basics.Trade;
  * Implementations of this interface must be immutable beans.
  */
 public interface ProductTrade
-    extends FinanceTrade {
+    extends Trade {
 
   /**
    * Gets the underlying product that was agreed when the trade occurred.
