@@ -8,6 +8,7 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.basics.PayReceive.PAY;
 import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
@@ -136,6 +137,12 @@ public class SwapTest {
     assertEquals(Swap.of(MOCK_GBP1, MOCK_GBP2, MOCK_USD1).isCrossCurrency(), true);
     assertEquals(Swap.of(MOCK_GBP1, MOCK_GBP2).isCrossCurrency(), false);
     assertEquals(Swap.of(MOCK_GBP1).isCrossCurrency(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_allPaymentCurrencies() {
+    Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
+    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
   }
 
   //-------------------------------------------------------------------------
