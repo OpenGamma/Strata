@@ -85,7 +85,7 @@ final class SquareLinearCurveInterpolator implements CurveInterpolator, Serializ
 
     //-------------------------------------------------------------------------
     @Override
-    double doInterpolate(double xValue) {
+    protected double doInterpolate(double xValue) {
       // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       double x1 = xValues[lowerIndex];
@@ -103,7 +103,7 @@ final class SquareLinearCurveInterpolator implements CurveInterpolator, Serializ
     }
 
     @Override
-    double doFirstDerivative(double xValue) {
+    protected double doFirstDerivative(double xValue) {
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       int index;
       // check if x-value is at the last node
@@ -138,7 +138,7 @@ final class SquareLinearCurveInterpolator implements CurveInterpolator, Serializ
     }
 
     @Override
-    DoubleArray doParameterSensitivity(double xValue) {
+    protected DoubleArray doParameterSensitivity(double xValue) {
       double[] result = new double[dataSize];
 
       int lowerIndex = lowerBoundIndex(xValue, xValues);

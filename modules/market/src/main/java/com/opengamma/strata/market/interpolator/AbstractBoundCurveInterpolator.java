@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Abstract interpolator implementation.
  */
-abstract class AbstractBoundCurveInterpolator
+public abstract class AbstractBoundCurveInterpolator
     implements BoundCurveInterpolator {
 
   /**
@@ -43,7 +43,7 @@ abstract class AbstractBoundCurveInterpolator
    * @param xValues  the x-values of the curve, must be sorted from low to high
    * @param yValues  the y-values of the curve
    */
-  AbstractBoundCurveInterpolator(DoubleArray xValues, DoubleArray yValues) {
+  protected AbstractBoundCurveInterpolator(DoubleArray xValues, DoubleArray yValues) {
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
     int size = xValues.size();
@@ -63,7 +63,7 @@ abstract class AbstractBoundCurveInterpolator
    * @param extrapolatorLeft  the extrapolator for x-values on the left
    * @param extrapolatorRight  the extrapolator for x-values on the right
    */
-  AbstractBoundCurveInterpolator(
+  protected AbstractBoundCurveInterpolator(
       AbstractBoundCurveInterpolator base,
       BoundCurveExtrapolator extrapolatorLeft,
       BoundCurveExtrapolator extrapolatorRight) {
@@ -77,7 +77,7 @@ abstract class AbstractBoundCurveInterpolator
 
   //-------------------------------------------------------------------------
   @Override
-  public double interpolate(double xValue) {
+  public final double interpolate(double xValue) {
     if (xValue < firstXValue) {
       return extrapolatorLeft.leftExtrapolate(xValue);
     } else if (xValue > lastXValue) {
@@ -94,10 +94,10 @@ abstract class AbstractBoundCurveInterpolator
    * @param xValue  the x-value
    * @return the interpolated y-value
    */
-  abstract double doInterpolate(double xValue);
+  protected abstract double doInterpolate(double xValue);
 
   @Override
-  public double firstDerivative(double xValue) {
+  public final double firstDerivative(double xValue) {
     if (xValue < firstXValue) {
       return extrapolatorLeft.leftExtrapolateFirstDerivative(xValue);
     } else if (xValue > lastXValue) {
@@ -112,10 +112,10 @@ abstract class AbstractBoundCurveInterpolator
    * @param xValue  the x-value
    * @return the first derivative
    */
-  abstract double doFirstDerivative(double xValue);
+  protected abstract double doFirstDerivative(double xValue);
 
   @Override
-  public DoubleArray parameterSensitivity(double xValue) {
+  public final DoubleArray parameterSensitivity(double xValue) {
     if (xValue < firstXValue) {
       return extrapolatorLeft.leftExtrapolateParameterSensitivity(xValue);
     } else if (xValue > lastXValue) {
@@ -130,10 +130,28 @@ abstract class AbstractBoundCurveInterpolator
    * @param xValue  the x-value
    * @return the parameter sensitivity
    */
-  abstract DoubleArray doParameterSensitivity(double xValue);
+  protected abstract DoubleArray doParameterSensitivity(double xValue);
 
   //-------------------------------------------------------------------------
-  static int lowerBoundIndex(double xValue, double[] xValues) {
+
+  /**
+   * Returns the index of the last value in the input array which is lower than the specified value.
+   * <p>
+   * The following conditions must be true for this method to work correctly:
+   * <ul>
+   *   <li>{@code xValues} is sorted in ascending order</li>
+   *   <li>{@code xValue} is less than the last element of {@code xValues}</li>
+   * </ul>
+   * The returned value satisfies:
+   * <pre>
+   *   0 <= value < xValues.length
+   * </pre>
+   *
+   * @param xValue  a value which is less than the last element in {@code xValues}
+   * @param xValues  an array of values sorted in ascending order
+   * @return the index of the last value in {@code xValues} which is lower than {@code xValue}
+   */
+  protected static int lowerBoundIndex(double xValue, double[] xValues) {
     int index = Arrays.binarySearch(xValues, xValue);
     // break out if find an exact match
     if (index >= 0) {
