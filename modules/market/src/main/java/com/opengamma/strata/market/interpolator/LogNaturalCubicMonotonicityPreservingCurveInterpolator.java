@@ -206,13 +206,13 @@ final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
 
     //-------------------------------------------------------------------------
     @Override
-    double doInterpolate(double xValue) {
+    protected double doInterpolate(double xValue) {
       DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
       return Math.exp(resValue.get(0));
     }
 
     @Override
-    double doFirstDerivative(double xValue) {
+    protected double doFirstDerivative(double xValue) {
       DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
       int nCoefs = poly.getOrder();
       int numberOfIntervals = poly.getNumberOfIntervals();
@@ -223,7 +223,7 @@ final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
     }
 
     @Override
-    DoubleArray doParameterSensitivity(double xValue) {
+    protected DoubleArray doParameterSensitivity(double xValue) {
       int interval = FunctionUtils.getLowerBoundIndex(knots, xValue);
       if (interval == nKnots - 1) {
         interval--; // there is 1 less interval that knots

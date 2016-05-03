@@ -159,13 +159,13 @@ final class NaturalSplineCurveInterpolator
 
     //-------------------------------------------------------------------------
     @Override
-    double doInterpolate(double xValue) {
+    protected double doInterpolate(double xValue) {
       DoubleArray resValue = evaluate(xValue, knots, coefMatrix, dimensions, nKnots);
       return resValue.get(0);
     }
 
     @Override
-    double doFirstDerivative(double xValue) {
+    protected double doFirstDerivative(double xValue) {
       int nCoefs = poly.getOrder();
       int numberOfIntervals = poly.getNumberOfIntervals();
       DoubleArray resValue = differentiate(xValue, knots, coefMatrix, dimensions, nKnots, nCoefs, numberOfIntervals);
@@ -173,7 +173,7 @@ final class NaturalSplineCurveInterpolator
     }
 
     @Override
-    DoubleArray doParameterSensitivity(double xValue) {
+    protected DoubleArray doParameterSensitivity(double xValue) {
       int interval = FunctionUtils.getLowerBoundIndex(knots, xValue);
       if (interval == nKnots - 1) {
         interval--; // there is 1 less interval that knots

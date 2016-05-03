@@ -224,7 +224,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
 
     //-------------------------------------------------------------------------
     @Override
-    double doInterpolate(double xValue) {
+    protected double doInterpolate(double xValue) {
       // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int low = lowerBoundIndex(xValue, xValues);
       int high = low + 1;
@@ -243,7 +243,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
     }
 
     @Override
-    double doFirstDerivative(double xValue) {
+    protected double doFirstDerivative(double xValue) {
       // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int low = lowerBoundIndex(xValue, xValues);
       int high = low + 1;
@@ -263,7 +263,7 @@ final class NaturalCubicSplineCurveInterpolator implements CurveInterpolator, Se
     }
 
     @Override
-    DoubleArray doParameterSensitivity(double xValue) {
+    protected DoubleArray doParameterSensitivity(double xValue) {
       // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int low = lowerBoundIndex(xValue, xValues);
       double[] result = new double[dataSize];

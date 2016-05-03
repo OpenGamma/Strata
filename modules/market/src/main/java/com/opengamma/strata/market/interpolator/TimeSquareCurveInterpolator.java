@@ -88,7 +88,7 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
 
     //-------------------------------------------------------------------------
     @Override
-    double doInterpolate(double xValue) {
+    protected double doInterpolate(double xValue) {
       ArgChecker.isTrue(xValue > 0, "Value should be stricly positive");
       // x-value is less than the x-value of the last node (lowerIndex < intervalCount)
       int lowerIndex = lowerBoundIndex(xValue, xValues);
@@ -109,7 +109,7 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
     }
 
     @Override
-    double doFirstDerivative(double xValue) {
+    protected double doFirstDerivative(double xValue) {
       ArgChecker.isTrue(xValue > 0, "Value should be stricly positive");
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       int index;
@@ -137,7 +137,7 @@ final class TimeSquareCurveInterpolator implements CurveInterpolator, Serializab
     }
 
     @Override
-    DoubleArray doParameterSensitivity(double xValue) {
+    protected DoubleArray doParameterSensitivity(double xValue) {
       double[] resultSensitivity = new double[dataSize];
       int lowerIndex = lowerBoundIndex(xValue, xValues);
       double x1 = xValues[lowerIndex];
