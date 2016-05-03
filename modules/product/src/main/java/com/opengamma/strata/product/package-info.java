@@ -9,7 +9,7 @@
  * <p>
  * The trade model has three basic concepts, trades, securities and products.
  * <p>
- * A {@link com.opengamma.strata.basics.Trade Trade} is the basic element of finance,
+ * A {@link com.opengamma.strata.product.Trade Trade} is the basic element of finance,
  * a transaction between two organizations, known as counterparties.
  * Most trades represented in the system will be contracts that have been agreed on a date in the past.
  * The trade model also allows trades with a date in the future, or without any date.
@@ -19,6 +19,8 @@
  * such as an equity share or futures contract. Securities are typically created once and shared
  * using an identifier, represented by a {@link com.opengamma.strata.product.SecurityId SecurityId}.
  * They are often referred to as <i>reference data</i>.
+ * Securities may also be stored in a {@link com.opengamma.strata.product.Position Position} instead
+ * of in a {@code Trade}.
  * <p>
  * A {@link com.opengamma.strata.product.Product Product} is the financial details of the trade or security.
  * A product typically contains enough information to be priced, such as the dates, holidays, indices,
