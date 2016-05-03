@@ -21,6 +21,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
+import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
@@ -101,6 +102,16 @@ final class StandardFixedIborSwapConventions {
           "GBP-FIXED-6M-LIBOR-6M",
           FixedRateSwapLegConvention.of(GBP, ACT_365F, P6M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
           IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
+
+  /**
+   * GBP(>1Y) vanilla fixed vs LIBOR 3M swap.
+   * The fixed leg pays every 3 months with day count 'Act/365F'.
+   */
+  public static final FixedIborSwapConvention GBP_FIXED_3M_LIBOR_3M =
+      ImmutableFixedIborSwapConvention.of(
+          "GBP-FIXED-3M-LIBOR-3M",
+          FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)),
+          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M));
 
   //-------------------------------------------------------------------------
   /**
