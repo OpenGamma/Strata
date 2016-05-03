@@ -44,22 +44,22 @@ public class AbstractIborFutureTradePricerTest {
   public void test_reference_price_after_trade_date() {
     LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
     LocalDate valuationDate = tradeDate.plusDays(1);
-    double lastMarginPrice = 0.995;
-    double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, lastMarginPrice);
-    assertEquals(referencePrice, lastMarginPrice);
+    double settlementPrice = 0.995;
+    double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
+    assertEquals(referencePrice, settlementPrice);
   }
   
   public void test_reference_price_on_trade_date() {
     LocalDate tradeDate = FUTURE_TRADE.getInfo().getTradeDate().get();
     LocalDate valuationDate = tradeDate;
-    double lastMarginPrice = 0.995;
-    double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, lastMarginPrice);
+    double settlementPrice = 0.995;
+    double referencePrice = PRICER.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
     assertEquals(referencePrice, FUTURE_TRADE.getPrice());
   }
   
   public void test_reference_price_val_date_not_null() {
-    double lastMarginPrice = 0.995;
-    assertThrowsIllegalArg(() -> PRICER.referencePrice(FUTURE_TRADE, null, lastMarginPrice));
+    double settlementPrice = 0.995;
+    assertThrowsIllegalArg(() -> PRICER.referencePrice(FUTURE_TRADE, null, settlementPrice));
   }
 
 }

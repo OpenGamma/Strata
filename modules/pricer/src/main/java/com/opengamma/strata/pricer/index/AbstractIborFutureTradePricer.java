@@ -37,10 +37,13 @@ public abstract class AbstractIborFutureTradePricer {
    * Calculates the present value of the Ibor future trade from the current price.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done. 
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the present value
    */
   public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, double currentPrice, double referencePrice) {
@@ -59,12 +62,12 @@ public abstract class AbstractIborFutureTradePricer {
    * 
    * @param trade  the trade
    * @param valuationDate  the date for which the reference price should be calculated
-   * @param lastMarginPrice  the last price used in the margining 
+   * @param settlementPrice  the last settlement price used for margining
    * @return the reference price
    */
-  public double referencePrice(ResolvedIborFutureTrade trade, LocalDate valuationDate, double lastMarginPrice) {
+  public double referencePrice(ResolvedIborFutureTrade trade, LocalDate valuationDate, double settlementPrice) {
     ArgChecker.notNull(valuationDate, "valuation date");
-    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : lastMarginPrice);
+    return (trade.getTradeDate().equals(valuationDate) ? trade.getPrice() : settlementPrice);
   }
 
 }

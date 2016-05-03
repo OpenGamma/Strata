@@ -34,11 +34,13 @@ public abstract class AbstractDsfTradePricer {
    * Calculates the present value of the deliverable swap futures trade from the current price.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade price before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the present value
    */
   public CurrencyAmount presentValue(

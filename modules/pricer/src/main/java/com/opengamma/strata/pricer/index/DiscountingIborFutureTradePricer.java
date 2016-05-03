@@ -65,15 +65,17 @@ public class DiscountingIborFutureTradePricer
    * Calculates the present value of the Ibor future trade.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. On the trade date, the reference price
+   * is the trade price, otherwise it is the settlement price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
-   * price will be used as a reference price; if not, the last margin price will be used.
+   * @param settlementPrice  the last settlement price used for margining
    * @return the present value
    */
-  public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, RatesProvider provider, double lastMarginPrice) {
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastMarginPrice);
+  public CurrencyAmount presentValue(ResolvedIborFutureTrade trade, RatesProvider provider, double settlementPrice) {
+    double referencePrice = referencePrice(trade, provider.getValuationDate(), settlementPrice);
     double price = price(trade, provider);
     return presentValue(trade, price, referencePrice);
   }
@@ -101,15 +103,17 @@ public class DiscountingIborFutureTradePricer
    * <p>
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
+   * <p>
+   * The calculation is performed against a reference price. On the trade date, the reference price
+   * is the trade price, otherwise it is the settlement price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param lastMarginPrice  the last price used in margining. If the valuation is done on the trade date, the trade 
-   * price will be used as a reference price; if not, the last margin price will be used.
+   * @param settlementPrice  the last settlement price used for margining
    * @return the par spread.
    */
-  public double parSpread(ResolvedIborFutureTrade trade, RatesProvider provider, double lastMarginPrice) {
-    double referencePrice = referencePrice(trade, provider.getValuationDate(), lastMarginPrice);
+  public double parSpread(ResolvedIborFutureTrade trade, RatesProvider provider, double settlementPrice) {
+    double referencePrice = referencePrice(trade, provider.getValuationDate(), settlementPrice);
     return price(trade, provider) - referencePrice;
   }
 

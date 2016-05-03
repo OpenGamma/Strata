@@ -93,11 +93,13 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * Calculates the present value of the bond future trade.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the present value
    */
   public CurrencyAmount presentValue(
@@ -116,11 +118,13 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
    * of the issuer discounting curve. 
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
@@ -195,12 +199,14 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * <p>
    * The par spread is defined in the following way. When the reference price (or market quote)
    * is increased by the par spread, the present value of the trade is zero.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
-   * @return the par spread.
+   * @param referencePrice  the price with respect to which the margining should be done
+   * @return the par spread
    */
   public double parSpread(
       ResolvedBondFutureTrade trade,
@@ -218,15 +224,17 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
    * <p>
    * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates 
    * of the issuer discounting curve. 
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodPerYear  the number of periods per year
-   * @return the par spread.
+   * @return the par spread
    */
   public double parSpreadWithZSpread(
       ResolvedBondFutureTrade trade,
@@ -287,11 +295,13 @@ public final class DiscountingBondFutureTradePricer extends AbstractBondFutureTr
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the bond future trade.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param provider  the rates provider
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the currency exposure of the bond future trade
    */
   public MultiCurrencyAmount currencyExposure(
