@@ -7,7 +7,9 @@ package com.opengamma.strata.function.calculation.dsf;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
@@ -58,9 +60,8 @@ class DsfMeasureCalculations {
       MarketData marketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
-    double price = marketData.getValue(key) / 100;  // convert market quote to value needed
-    return PRICER.presentValue(trade, provider, price);
+    double settlementPrice = settlementPrice(trade, marketData);
+    return PRICER.presentValue(trade, provider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -103,6 +104,14 @@ class DsfMeasureCalculations {
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // gets the settlement price
+  private static double settlementPrice(ResolvedDsfTrade trade, MarketData marketData) {
+    StandardId id = trade.getProduct().getSecurityId().getStandardId();
+    QuoteKey key = QuoteKey.of(id, FieldName.SETTLEMENT_PRICE);
+    return marketData.getValue(key) / 100;  // convert market quote to value needed
   }
 
 }

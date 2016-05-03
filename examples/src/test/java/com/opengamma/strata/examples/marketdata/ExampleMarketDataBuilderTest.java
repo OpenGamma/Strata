@@ -30,8 +30,10 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.StandardId;
@@ -90,12 +92,19 @@ public class ExampleMarketDataBuilderTest {
       OvernightIndexCurveId.of(OvernightIndices.USD_FED_FUND, DEFAULT_CURVE_GROUP),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
+      QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
+      QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15")),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15")),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15")),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
       IsdaYieldCurveInputsId.of(Currency.USD),
       IsdaSingleNameCreditCurveInputsId.of(
           SingleNameReferenceInformation.of(

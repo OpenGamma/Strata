@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -99,7 +100,7 @@ public class DsfCalculationFunction
       ReferenceData refData) {
 
     Dsf product = trade.getProduct();
-    QuoteKey quoteKey = QuoteKey.of(trade.getSecurityId().getStandardId());
+    QuoteKey quoteKey = QuoteKey.of(trade.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
     Set<Index> indices = product.getUnderlyingSwap().allIndices();
     Set<ObservableKey> indexRateKeys =
         indices.stream()
