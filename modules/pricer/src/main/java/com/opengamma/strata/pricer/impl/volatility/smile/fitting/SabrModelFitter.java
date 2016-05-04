@@ -20,7 +20,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunc
 /**
  * SABR model fitter.
  * <p>
- * Attempts to calibrate SABR model to the implied volatilities of European vanilla options, by minimising the sum of 
+ * Attempts to calibrate SABR model to the implied volatilities of European vanilla options, by minimizing the sum of 
  * squares between the market and model implied volatilities. 
  * <p>
  * All the options must be for the same expiry and (implicitly) on the same underlying.
@@ -35,7 +35,8 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
     DEFAULT_TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     DEFAULT_TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 1.0); // 0 <= beta <= 1
     DEFAULT_TRANSFORMS[2] = new DoubleRangeLimitTransform(-RHO_LIMIT, RHO_LIMIT); // -RHO_LIMIT <= rho <= RHO_LIMIT
-    DEFAULT_TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
+    DEFAULT_TRANSFORMS[3] = new DoubleRangeLimitTransform(0.01d, 2.50d); 
+    // nu > 0  and limit on Nu to avoid numerical instability in formula for large nu.
   }
 
   /**

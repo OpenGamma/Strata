@@ -504,7 +504,7 @@ public class SabrExtrapolationRightFunction {
           break;
         default:
           param = sabrData.getNu();
-          paramShift = param * shift; // Relative shift to cope with difference in order of magnitude.
+          paramShift = shift; // rho can be zero, so relative shift is not possible.
           sabrDatapP = sabrData.withNu(param + paramShift);
           break;
       }

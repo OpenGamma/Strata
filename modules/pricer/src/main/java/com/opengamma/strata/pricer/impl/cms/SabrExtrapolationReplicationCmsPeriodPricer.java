@@ -83,6 +83,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final int MAX_COUNT = 10;
   /** Shift from zero bound for floor. To avoid numerical instability of the SABR function around 0. Shift by 0.01 bps. */
   private static final double ZERO_SHIFT =  1.0E-6;
+  private static final double MIN_TIME = 1.0E-4;
 
   /**
    * Pricer for the underlying swap. 
@@ -170,20 +171,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
       if (fixedRate.isPresent()) {
-        double payoff = 0d;
-        switch (cmsPeriod.getCmsPeriodType()) {
-          case CAPLET:
-            payoff = Math.max(fixedRate.getAsDouble() - strikeCpn, 0d);
-            break;
-          case FLOORLET:
-            payoff = Math.max(strikeCpn - fixedRate.getAsDouble(), 0d);
-            break;
-          case COUPON:
-            payoff = fixedRate.getAsDouble();
-            break;
-          default:
-            throw new IllegalArgumentException("unsupported CMS type");
-        }
+        double payoff = payOff(cmsPeriod.getCmsPeriodType(), strikeCpn, fixedRate.getAsDouble());
         return CurrencyAmount.of(ccy, dfPayment * payoff * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
       } else if (fixingDate.isBefore(valuationDate.toLocalDate())) {
         throw new IllegalArgumentException(Messages.format(
@@ -191,6 +179,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       }
     }
     double forward = swapPricer.parRate(swap, provider);
+    if (expiryTime < MIN_TIME) {
+      double payoff = payOff(cmsPeriod.getCmsPeriodType(), strikeCpn, forward);
+      return CurrencyAmount.of(ccy, dfPayment * payoff * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
+    }
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
@@ -250,20 +242,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
       if (fixedRate.isPresent()) {
-        double payoff = 0d;
-        switch (cmsPeriod.getCmsPeriodType()) {
-          case CAPLET:
-            payoff = Math.max(fixedRate.getAsDouble() - strikeCpn, 0d);
-            break;
-          case FLOORLET:
-            payoff = Math.max(strikeCpn - fixedRate.getAsDouble(), 0d);
-            break;
-          case COUPON:
-            payoff = fixedRate.getAsDouble();
-            break;
-          default:
-            throw new IllegalArgumentException("unsupported CMS type");
-        }
+        double payoff = payOff(cmsPeriod.getCmsPeriodType(), strikeCpn, fixedRate.getAsDouble());
         return provider.discountFactors(ccy).zeroRatePointSensitivity(
             cmsPeriod.getPaymentDate()).multipliedBy(payoff * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
       } else if (fixingDate.isBefore(valuationDate.toLocalDate())) {
@@ -454,6 +433,24 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double secondPart =
         intProv.k(strike) * intProv.getSabrExtrapolation().priceDerivativeStrike(strike + shift, intProv.getPutCall());
     return cmsPeriod.getNotional() * cmsPeriod.getYearFraction() * factor * (firstPart + secondPart + thirdPart);
+  }
+
+  private double payOff(CmsPeriodType cmsPeriodType, double strikeCpn, Double fixedRate) {
+    double payoff = 0d;
+    switch (cmsPeriodType) {
+      case CAPLET:
+        payoff = Math.max(fixedRate- strikeCpn, 0d);
+        break;
+      case FLOORLET:
+        payoff = Math.max(strikeCpn - fixedRate, 0d);
+        break;
+      case COUPON:
+        payoff = fixedRate;
+        break;
+      default:
+        throw new IllegalArgumentException("unsupported CMS type");
+    }
+    return payoff;
   }
 
   private double integrateCall(
