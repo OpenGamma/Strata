@@ -112,7 +112,7 @@ public final class SabrHaganVolatilityFunctionProvider
         vol = first * second * third;
       }
     }
-    //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative
+    //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 to be large negative, and hence the volatility negative
      return Math.max(MIN_VOL, vol);
   }
 

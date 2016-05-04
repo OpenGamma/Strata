@@ -166,9 +166,7 @@ public class SabrSwaptionCalibrationUtilsCubeBlackTest {
                 time, volBlack, true);
             double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
                 time, DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney], true);
-//            System.out.println(EXPIRIES.get(loopexpiry).toString() + " / " + TENORS.get(looptenor).toString() + " / " + MONEYNESS.get(loopmoney)
-//                + ": " + priceComputed + " / " + priceLogNormal);
-            if (strike > 0.0025) { // Test only for strikes above 30bps
+            if (strike > 0.0025) { // Test only for strikes above 25bps
               assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
             }
           }

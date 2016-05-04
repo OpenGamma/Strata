@@ -83,6 +83,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   private static final int MAX_COUNT = 10;
   /** Shift from zero bound for floor. To avoid numerical instability of the SABR function around 0. Shift by 0.01 bps. */
   private static final double ZERO_SHIFT =  1.0E-6;
+  /** The minimal time for which the convexity adjustment is computed. The time is less than a day. For expiry below 
+   * that value, the forward rate is used for present value. **/
   private static final double MIN_TIME = 1.0E-4;
 
   /**

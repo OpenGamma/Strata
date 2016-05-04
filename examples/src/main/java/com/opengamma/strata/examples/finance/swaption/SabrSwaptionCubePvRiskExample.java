@@ -64,7 +64,7 @@ import com.opengamma.strata.product.swaption.ResolvedSwaption;
 import com.opengamma.strata.product.swaption.Swaption;
 
 /**
- * Analysis of swaption cube calibration with shifted SABR smile function.
+ * Analysis of the pricing and risk of a swaption with calibrated SABR parameters.
  */
 public class SabrSwaptionCubePvRiskExample {
 
@@ -104,7 +104,8 @@ public class SabrSwaptionCubePvRiskExample {
   
   //-------------------------------------------------------------------------
   /** 
-   * Runs the calibration of swaptions and print the calibrated smile results on the console.
+   * Runs the calibration of SABR on swaptions and print on the console the present value, bucketed PV01 and 
+   * the bucketed Vega of a 18M x 4Y swaption.
    * 
    * @param args  -s to use the spares data
    */

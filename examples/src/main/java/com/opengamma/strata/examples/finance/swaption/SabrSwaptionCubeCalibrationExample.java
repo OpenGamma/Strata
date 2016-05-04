@@ -99,7 +99,7 @@ public class SabrSwaptionCubeCalibrationExample {
   /** 
    * Runs the calibration of swaptions and print the calibrated smile results on the console.
    * 
-   * @param args  -s to use the spares data
+   * @param args  -s to use the sparse data, i.e. a cube with missing data points
    */
   public static void main(String[] args) {
 
