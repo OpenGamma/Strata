@@ -31,14 +31,14 @@ public final class OvernightIborSwapConventions {
       OvernightIborSwapConvention.of(StandardOvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M.getName());
   
   /**
-   * The 'GBP-SONIA-GBP-LIBOR-3M' swap convention.
+   * The 'GBP-SONIA-OIS-1Y-LIBOR-3M' swap convention.
    * <p>
-   * GBP Sonia compounded v LIBOR 3M .
+   * GBP Sonia compounded 1Y v LIBOR 3M .
    * Both legs use day count 'Act/365F'.
-   * The spot date offset is 0 days and payment offset is ? days.
+   * The spot date offset is 0 days and payment offset is 0 days.
    */
-  public static final OvernightIborSwapConvention GBP_SONIA_OIS_LIBOR_3M =
-      OvernightIborSwapConvention.of(StandardOvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M.getName());
+  public static final OvernightIborSwapConvention GBP_SONIA_OIS_1Y_LIBOR_3M =
+      OvernightIborSwapConvention.of(StandardOvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M.getName());
 
   //-------------------------------------------------------------------------
   /**

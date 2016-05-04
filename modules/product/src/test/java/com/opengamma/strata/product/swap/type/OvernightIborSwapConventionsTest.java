@@ -10,6 +10,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -21,6 +22,8 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -40,7 +43,7 @@ public class OvernightIborSwapConventionsTest {
   static Object[][] data_spot_lag() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, 2},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M, 0},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, 0},
     };
   }
 
@@ -50,23 +53,40 @@ public class OvernightIborSwapConventionsTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "period")
-  static Object[][] data_period() {
+  @DataProvider(name = "periodOn")
+  static Object[][] data_period_on() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Frequency.P3M},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M, Frequency.P3M},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Frequency.P12M},
     };
   }
 
-  @Test(dataProvider = "period")
-  public void test_accrualPeriod(OvernightIborSwapConvention convention, Frequency frequency) {
+  @Test(dataProvider = "periodOn")
+  public void test_accrualPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
     assertEquals(convention.getOnLeg().getAccrualFrequency(), frequency);
+  }
+
+  @Test(dataProvider = "periodOn")
+  public void test_paymentPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
+    assertEquals(convention.getOnLeg().getPaymentFrequency(), frequency);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "periodIbor")
+  static Object[][] data_period_ibor() {
+    return new Object[][] {
+        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Frequency.P3M},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Frequency.P3M},
+    };
+  }
+
+  @Test(dataProvider = "periodIbor")
+  public void test_accrualPeriod_ibor(OvernightIborSwapConvention convention, Frequency frequency) {
     assertEquals(convention.getIborLeg().getAccrualFrequency(), frequency);
   }
 
-  @Test(dataProvider = "period")
-  public void test_paymentPeriod(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertEquals(convention.getOnLeg().getPaymentFrequency(), frequency);
+  @Test(dataProvider = "periodIbor")
+  public void test_paymentPeriod_ibor(OvernightIborSwapConvention convention, Frequency frequency) {
     assertEquals(convention.getIborLeg().getPaymentFrequency(), frequency);
   }
 
@@ -75,7 +95,7 @@ public class OvernightIborSwapConventionsTest {
   static Object[][] data_day_count() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, DayCounts.ACT_360},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M, DayCounts.ACT_365F},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, DayCounts.ACT_365F},
     };
   }
 
@@ -86,17 +106,31 @@ public class OvernightIborSwapConventionsTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "floatLeg")
+  @DataProvider(name = "onLeg")
   static Object[][] data_float_leg() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, OvernightIndices.USD_FED_FUND},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M, OvernightIndices.GBP_SONIA},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, OvernightIndices.GBP_SONIA},
     };
   }
 
-  @Test(dataProvider = "floatLeg")
+  @Test(dataProvider = "onLeg")
   public void test_float_leg(OvernightIborSwapConvention convention, OvernightIndex floatLeg) {
     assertEquals(convention.getOnLeg().getIndex(), floatLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "iborLeg")
+  static Object[][] data_ibor_leg() {
+    return new Object[][] {
+        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, IborIndices.USD_LIBOR_3M},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, IborIndices.GBP_LIBOR_3M},
+    };
+  }
+
+  @Test(dataProvider = "iborLeg")
+  public void test_ibor_leg(OvernightIborSwapConvention convention, IborIndex iborLeg) {
+    assertEquals(convention.getIborLeg().getIndex(), iborLeg);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +138,7 @@ public class OvernightIborSwapConventionsTest {
   static Object[][] data_day_convention() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
     };
   }
 
@@ -118,7 +152,7 @@ public class OvernightIborSwapConventionsTest {
   static Object[][] data_stub_on() {
     return new Object[][] {
         {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Tenor.TENOR_4M},
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Tenor.TENOR_4M},
+        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Tenor.of(Period.ofMonths(13))},
     };
   }
   
