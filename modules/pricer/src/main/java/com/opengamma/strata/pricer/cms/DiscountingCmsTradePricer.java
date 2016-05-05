@@ -13,7 +13,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.product.cms.ResolvedCms;
 import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 import com.opengamma.strata.product.swap.Swap;
@@ -104,8 +103,7 @@ public class DiscountingCmsTradePricer {
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedCmsTrade trade,
-      RatesProvider ratesProvider,
-      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+      RatesProvider ratesProvider) {
 
     MultiCurrencyAmount ceCms = productPricer.currencyExposure(trade.getProduct(), ratesProvider);
     if (!trade.getPremium().isPresent()) {
