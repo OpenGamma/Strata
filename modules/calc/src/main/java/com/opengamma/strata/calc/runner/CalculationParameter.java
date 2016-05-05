@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
@@ -24,6 +26,8 @@ import com.opengamma.strata.calc.runner.function.CalculationFunction;
  * Applications may implement this interface to add new parameters to the system.
  * In order to be used, new implementations of {@link CalculationFunction} must be written
  * that receive the parameters and perform appropriate behavior.
+ * <p>
+ * Implementations of this interface must be immutable.
  */
 public interface CalculationParameter {
 
@@ -43,16 +47,23 @@ public interface CalculationParameter {
   }
 
   /**
-   * Checks if this parameter applies to the specified target and measure.
+   * Filters this parameter to the specified target and measure.
    * <p>
    * Parameters may apply to all targets and measures or just a subset.
    * The {@link CalculationParameters#filter(CalculationTarget, Measure)} method
    * uses this method to filter a complete set of parameters.
+   * <p>
+   * By default, this returns {@code Optional.of(this)}.
+   * If the parameter does not apply to either the target or measure, then optional empty must be returned.
+   * If desired, the result can be a different parameter, allowing one parameter to delegate
+   * to another when filtered.
    * 
    * @param target  the calculation target, such as a trade
    * @param measure  the measure to be calculated
-   * @return true if the parameter applies
+   * @return the parameter appropriate to the target and measure, empty if this parameter does not apply
    */
-  public abstract boolean appliesTo(CalculationTarget target, Measure measure);
+  public default Optional<CalculationParameter> filter(CalculationTarget target, Measure measure) {
+    return Optional.of(this);
+  }
 
 }

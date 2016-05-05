@@ -8,6 +8,7 @@ package com.opengamma.strata.calc.config;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -131,8 +132,8 @@ public final class ReportingCurrency
   }
 
   @Override
-  public boolean appliesTo(CalculationTarget target, Measure measure) {
-    return measure.isCurrencyConvertible();
+  public Optional<CalculationParameter> filter(CalculationTarget target, Measure measure) {
+    return measure.isCurrencyConvertible() ? Optional.of(this) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------

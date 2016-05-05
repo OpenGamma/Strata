@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.io.Serializable;
@@ -23,13 +24,13 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
-import com.opengamma.strata.collect.MapStream;
 
 /**
  * The calculation parameters.
@@ -75,6 +76,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
+   * @throws IllegalArgumentException if two parameters have same query type
    */
   public static CalculationParameters of(CalculationParameter... parameters) {
     if (parameters.length == 0) {
@@ -91,6 +93,7 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
    * 
    * @param parameters  the parameters
    * @return the calculation parameters
+   * @throws IllegalArgumentException if two parameters have same query type
    */
   public static CalculationParameters of(List<? extends CalculationParameter> parameters) {
     if (parameters.isEmpty()) {
@@ -130,16 +133,24 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
 
   /**
    * Filters the parameters, matching only those that are applicable for the target and measure.
+   * <p>
+   * The resulting parameters are filtered to the target and measure.
+   * The implementation of each parameter may be changed by this process.
+   * If two parameters are filtered to the same {@linkplain CalculationParameter#queryType() query type}
+   * then an exception will be thrown
    * 
    * @param target  the calculation target, such as a trade
    * @param measure  the measure to be calculated
    * @return the filtered calculation parameters
+   * @throws IllegalArgumentException if two parameters are filtered to the same query type
    */
   public CalculationParameters filter(CalculationTarget target, Measure measure) {
-    ImmutableMap<Class<? extends CalculationParameter>, CalculationParameter> map = MapStream.of(parameters)
-        .filterValues(cp -> cp.appliesTo(target, measure))
-        .toMap();
-    return of(map);
+    ImmutableList<CalculationParameter> filtered = parameters.values().stream()
+        .map(cp -> cp.filter(target, measure))
+        .filter(opt -> opt.isPresent())
+        .map(opt -> opt.get())
+        .collect(toImmutableList());
+    return of(filtered);
   }
 
   /**
