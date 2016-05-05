@@ -7,7 +7,9 @@ package com.opengamma.strata.function.calculation.index;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
@@ -58,9 +60,8 @@ final class IborFutureMeasureCalculations {
       ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
-    double price = marketData.getValue(key) / 100;  // convert market quote to value needed
-    return PRICER.parSpread(trade, MarketDataRatesProvider.of(marketData), price);
+    double settlementPrice = settlementPrice(trade, marketData);
+    return PRICER.parSpread(trade, MarketDataRatesProvider.of(marketData), settlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -79,9 +80,9 @@ final class IborFutureMeasureCalculations {
       ResolvedIborFutureTrade trade,
       MarketData marketData) {
 
-    QuoteKey key = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
-    double price = marketData.getValue(key) / 100;  // convert market quote to value needed
-    return PRICER.presentValue(trade, MarketDataRatesProvider.of(marketData), price);
+    // mark to model
+    double settlementPrice = settlementPrice(trade, marketData);
+    return PRICER.presentValue(trade, MarketDataRatesProvider.of(marketData), settlementPrice);
   }
 
   //-------------------------------------------------------------------------
@@ -124,6 +125,14 @@ final class IborFutureMeasureCalculations {
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // gets the settlement price
+  private static double settlementPrice(ResolvedIborFutureTrade trade, MarketData marketData) {
+    StandardId id = trade.getProduct().getSecurityId().getStandardId();
+    QuoteKey key = QuoteKey.of(id, FieldName.SETTLEMENT_PRICE);
+    return marketData.getValue(key) / 100;  // convert market quote to value needed
   }
 
 }

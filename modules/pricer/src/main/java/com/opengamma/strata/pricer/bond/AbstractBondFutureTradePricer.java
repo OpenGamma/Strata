@@ -35,11 +35,13 @@ public abstract class AbstractBondFutureTradePricer {
    * Calculates the present value of the bond future trade from the current price.
    * <p>
    * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the present value
    */
   public CurrencyAmount presentValue(ResolvedBondFutureTrade trade, double currentPrice, double referencePrice) {
@@ -52,11 +54,13 @@ public abstract class AbstractBondFutureTradePricer {
 
   /**
    * Calculates the currency exposure of the bond future trade from the current price.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
    * 
    * @param trade  the trade
    * @param currentPrice  the price on the valuation date
-   * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-   *   the trade date before any margining has taken place and the price used for the last margining otherwise.
+   * @param referencePrice  the price with respect to which the margining should be done
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(ResolvedBondFutureTrade trade, double currentPrice, double referencePrice) {

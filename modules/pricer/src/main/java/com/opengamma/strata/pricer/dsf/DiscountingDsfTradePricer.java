@@ -23,21 +23,21 @@ public class DiscountingDsfTradePricer
     extends AbstractDsfTradePricer {
 
   /**
-  * Default implementation.
-  */
+   * Default implementation.
+   */
   public static final DiscountingDsfTradePricer DEFAULT =
       new DiscountingDsfTradePricer(DiscountingDsfProductPricer.DEFAULT);
 
   /**
-  * Underlying pricer.
-  */
+   * Underlying pricer.
+   */
   private final DiscountingDsfProductPricer productPricer;
 
   /**
-  * Creates an instance.
-  * 
-  * @param productPricer  the pricer for {@link Dsf}
-  */
+   * Creates an instance.
+   * 
+   * @param productPricer  the pricer for {@link Dsf}
+   */
   public DiscountingDsfTradePricer(
       DiscountingDsfProductPricer productPricer) {
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
@@ -51,29 +51,31 @@ public class DiscountingDsfTradePricer
 
   //-------------------------------------------------------------------------
   /**
-  * Calculates the price of the underlying deliverable swap futures product.
-  * <p>
-  * The price of the trade is the price on the valuation date.
-  * 
-  * @param trade  the trade
-  * @param provider  the rates provider
-  * @return the price of the trade, in decimal form
-  */
+   * Calculates the price of the underlying deliverable swap futures product.
+   * <p>
+   * The price of the trade is the price on the valuation date.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the price of the trade, in decimal form
+   */
   public double price(ResolvedDsfTrade trade, RatesProvider provider) {
     return productPricer.price(trade.getProduct(), provider);
   }
 
   /**
-  * Calculates the present value of the deliverable swap futures trade.
-  * <p>
-  * The present value of the product is the value on the valuation date.
-  * 
-  * @param trade  the trade
-  * @param provider  the rates provider
-  * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-  *   the trade price before any margining has taken place and the price used for the last margining otherwise.
-  * @return the present value
-  */
+   * Calculates the present value of the deliverable swap futures trade.
+   * <p>
+   * The present value of the product is the value on the valuation date.
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @param referencePrice  the price with respect to which the margining should be done
+   * @return the present value
+   */
   public CurrencyAmount presentValue(
       ResolvedDsfTrade trade,
       RatesProvider provider,
@@ -84,15 +86,15 @@ public class DiscountingDsfTradePricer
   }
 
   /**
-  * Calculates the present value sensitivity of the deliverable swap futures trade.
-  * <p>
-  * The present value sensitivity of the trade is the sensitivity of the present value to
-  * the underlying curves.
-  * 
-  * @param trade  the trade
-  * @param provider  the rates provider
-  * @return the present value curve sensitivity of the trade
-  */
+   * Calculates the present value sensitivity of the deliverable swap futures trade.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the present value curve sensitivity of the trade
+   */
   public PointSensitivities presentValueSensitivity(ResolvedDsfTrade trade, RatesProvider provider) {
     ResolvedDsf product = trade.getProduct();
     PointSensitivities priceSensi = productPricer.priceSensitivity(product, provider);
@@ -101,16 +103,18 @@ public class DiscountingDsfTradePricer
   }
 
   /**
-  * Calculates the currency exposure of the deliverable swap futures trade.
-  * <p>
-  * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.  
-  * 
-  * @param trade  the trade
-  * @param provider  the rates provider
-  * @param referencePrice  the price with respect to which the margining should be done. The reference price is
-  *   the trade price before any margining has taken place and the price used for the last margining otherwise.
-  * @return the currency exposure of the trade
-  */
+   * Calculates the currency exposure of the deliverable swap futures trade.
+   * <p>
+   * Since the deliverable swap futures is based on a single currency, the trade is exposed to only this currency.  
+   * <p>
+   * The calculation is performed against a reference price. The reference price should
+   * be the settlement price except on the trade date, when it is the trade price.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @param referencePrice  the price with respect to which the margining should be done
+   * @return the currency exposure of the trade
+   */
   public MultiCurrencyAmount currencyExposure(
       ResolvedDsfTrade trade,
       RatesProvider provider,

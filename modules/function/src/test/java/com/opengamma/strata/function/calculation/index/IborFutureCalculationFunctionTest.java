@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.config.Measure;
@@ -61,6 +62,7 @@ public class IborFutureCalculationFunctionTest {
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final LocalDate VAL_DATE = TRADE.getProduct().getLastTradeDate().minusDays(7);
+  private static final QuoteKey QUOTE_KEY = QuoteKey.of(SEC_ID, FieldName.SETTLEMENT_PRICE);
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
@@ -69,7 +71,7 @@ public class IborFutureCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX), QuoteKey.of(SEC_ID)));
+        ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX), QUOTE_KEY));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -103,7 +105,7 @@ public class IborFutureCalculationFunctionTest {
         ImmutableMap.of(
             DiscountCurveKey.of(CURRENCY), curve,
             IborIndexCurveKey.of(INDEX), curve,
-            QuoteKey.of(SEC_ID), MARKET_PRICE),
+            QUOTE_KEY, MARKET_PRICE),
         ImmutableMap.of());
     return md;
   }

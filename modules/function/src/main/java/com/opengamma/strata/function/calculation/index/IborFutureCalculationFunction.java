@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -95,7 +96,7 @@ public class IborFutureCalculationFunction
 
     IborFuture product = trade.getProduct();
 
-    QuoteKey quoteKey = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId());
+    QuoteKey quoteKey = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
     IborIndexCurveKey indexForwardCurveKey = IborIndexCurveKey.of(product.getIndex());
     DiscountCurveKey discountFactorsKey = DiscountCurveKey.of(product.getCurrency());
     IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());
