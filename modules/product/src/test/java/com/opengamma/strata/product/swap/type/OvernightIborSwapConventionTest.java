@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,8 +47,6 @@ public class OvernightIborSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_2M = 2_000_000d;
-  //  private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
-  //  private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, GBLO);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
 
@@ -74,7 +72,7 @@ public class OvernightIborSwapConventionTest {
     ImmutableOvernightIborSwapConvention test =
         ImmutableOvernightIborSwapConvention.of(NAME, FFUND_LEG, USD_LIBOR_3M_LEG, PLUS_TWO_DAYS);
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getOnLeg(), FFUND_LEG);
+    assertEquals(test.getOvernightLeg(), FFUND_LEG);
     assertEquals(test.getIborLeg(), USD_LIBOR_3M_LEG);
     assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
   }
@@ -82,12 +80,12 @@ public class OvernightIborSwapConventionTest {
   public void test_builder() {
     ImmutableOvernightIborSwapConvention test = ImmutableOvernightIborSwapConvention.builder()
         .name(NAME)
-        .onLeg(FFUND_LEG)
+        .overnightLeg(FFUND_LEG)
         .iborLeg(USD_LIBOR_3M_LEG)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
     assertEquals(test.getName(), NAME);
-    assertEquals(test.getOnLeg(), FFUND_LEG);
+    assertEquals(test.getOvernightLeg(), FFUND_LEG);
     assertEquals(test.getIborLeg(), USD_LIBOR_3M_LEG);
     assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }

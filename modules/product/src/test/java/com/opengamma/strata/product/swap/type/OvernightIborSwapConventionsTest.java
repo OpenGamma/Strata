@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -63,12 +63,12 @@ public class OvernightIborSwapConventionsTest {
 
   @Test(dataProvider = "periodOn")
   public void test_accrualPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertEquals(convention.getOnLeg().getAccrualFrequency(), frequency);
+    assertEquals(convention.getOvernightLeg().getAccrualFrequency(), frequency);
   }
 
   @Test(dataProvider = "periodOn")
   public void test_paymentPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertEquals(convention.getOnLeg().getPaymentFrequency(), frequency);
+    assertEquals(convention.getOvernightLeg().getPaymentFrequency(), frequency);
   }
 
   //-------------------------------------------------------------------------
@@ -101,7 +101,7 @@ public class OvernightIborSwapConventionsTest {
 
   @Test(dataProvider = "dayCount")
   public void test_day_count(OvernightIborSwapConvention convention, DayCount dayCount) {
-    assertEquals(convention.getOnLeg().getDayCount(), dayCount);
+    assertEquals(convention.getOvernightLeg().getDayCount(), dayCount);
     assertEquals(convention.getIborLeg().getDayCount(), dayCount);
   }
 
@@ -116,7 +116,7 @@ public class OvernightIborSwapConventionsTest {
 
   @Test(dataProvider = "onLeg")
   public void test_float_leg(OvernightIborSwapConvention convention, OvernightIndex floatLeg) {
-    assertEquals(convention.getOnLeg().getIndex(), floatLeg);
+    assertEquals(convention.getOvernightLeg().getIndex(), floatLeg);
   }
 
   //-------------------------------------------------------------------------
@@ -144,7 +144,7 @@ public class OvernightIborSwapConventionsTest {
 
   @Test(dataProvider = "dayConvention")
   public void test_day_convention(OvernightIborSwapConvention convention, BusinessDayConvention dayConvention) {
-    assertEquals(convention.getOnLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
+    assertEquals(convention.getOvernightLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
   }
 
   //-------------------------------------------------------------------------

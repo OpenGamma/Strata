@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -62,7 +62,7 @@ public final class ImmutableOvernightIborSwapConvention
    * The market convention of the floating leg.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final OvernightRateSwapLegConvention onLeg;
+  private final OvernightRateSwapLegConvention overnightLeg;
   /**
    * The market convention of the floating leg.
    */
@@ -84,24 +84,24 @@ public final class ImmutableOvernightIborSwapConvention
    * The two leg conventions must be in the same currency.
    * 
    * @param name  the unique name of the convention 
-   * @param onLeg  the market convention for the overnight leg
+   * @param overnightLeg  the market convention for the overnight leg
    * @param iborLeg  the market convention for the ibor leg
    * @param spotDateOffset  the offset of the spot value date from the trade date
    * @return the convention
    */
   public static ImmutableOvernightIborSwapConvention of(
       String name,
-      OvernightRateSwapLegConvention onLeg,
+      OvernightRateSwapLegConvention overnightLeg,
       IborRateSwapLegConvention iborLeg,
       DaysAdjustment spotDateOffset) {
 
-    return new ImmutableOvernightIborSwapConvention(name, onLeg, iborLeg, spotDateOffset);
+    return new ImmutableOvernightIborSwapConvention(name, overnightLeg, iborLeg, spotDateOffset);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.isTrue(onLeg.getCurrency().equals(iborLeg.getCurrency()), "Conventions must have same currency");
+    ArgChecker.isTrue(overnightLeg.getCurrency().equals(iborLeg.getCurrency()), "Conventions must have same currency");
   }
 
   //-------------------------------------------------------------------------
@@ -118,7 +118,7 @@ public final class ImmutableOvernightIborSwapConvention
     if (tradeDate.isPresent()) {
       ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
     }
-    SwapLeg leg1 = onLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional, spread);
+    SwapLeg leg1 = overnightLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isBuy()), notional, spread);
     SwapLeg leg2 = iborLeg.toLeg(startDate, endDate, PayReceive.ofPay(buySell.isSell()), notional);
     return SwapTrade.builder()
         .info(tradeInfo)
@@ -161,15 +161,15 @@ public final class ImmutableOvernightIborSwapConvention
 
   private ImmutableOvernightIborSwapConvention(
       String name,
-      OvernightRateSwapLegConvention onLeg,
+      OvernightRateSwapLegConvention overnightLeg,
       IborRateSwapLegConvention iborLeg,
       DaysAdjustment spotDateOffset) {
     JodaBeanUtils.notNull(name, "name");
-    JodaBeanUtils.notNull(onLeg, "onLeg");
+    JodaBeanUtils.notNull(overnightLeg, "overnightLeg");
     JodaBeanUtils.notNull(iborLeg, "iborLeg");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
     this.name = name;
-    this.onLeg = onLeg;
+    this.overnightLeg = overnightLeg;
     this.iborLeg = iborLeg;
     this.spotDateOffset = spotDateOffset;
     validate();
@@ -206,8 +206,8 @@ public final class ImmutableOvernightIborSwapConvention
    * @return the value of the property, not null
    */
   @Override
-  public OvernightRateSwapLegConvention getOnLeg() {
-    return onLeg;
+  public OvernightRateSwapLegConvention getOvernightLeg() {
+    return overnightLeg;
   }
 
   //-----------------------------------------------------------------------
@@ -250,7 +250,7 @@ public final class ImmutableOvernightIborSwapConvention
     if (obj != null && obj.getClass() == this.getClass()) {
       ImmutableOvernightIborSwapConvention other = (ImmutableOvernightIborSwapConvention) obj;
       return JodaBeanUtils.equal(name, other.name) &&
-          JodaBeanUtils.equal(onLeg, other.onLeg) &&
+          JodaBeanUtils.equal(overnightLeg, other.overnightLeg) &&
           JodaBeanUtils.equal(iborLeg, other.iborLeg) &&
           JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset);
     }
@@ -261,7 +261,7 @@ public final class ImmutableOvernightIborSwapConvention
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
-    hash = hash * 31 + JodaBeanUtils.hashCode(onLeg);
+    hash = hash * 31 + JodaBeanUtils.hashCode(overnightLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(iborLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
     return hash;
@@ -283,10 +283,10 @@ public final class ImmutableOvernightIborSwapConvention
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", ImmutableOvernightIborSwapConvention.class, String.class);
     /**
-     * The meta-property for the {@code onLeg} property.
+     * The meta-property for the {@code overnightLeg} property.
      */
-    private final MetaProperty<OvernightRateSwapLegConvention> onLeg = DirectMetaProperty.ofImmutable(
-        this, "onLeg", ImmutableOvernightIborSwapConvention.class, OvernightRateSwapLegConvention.class);
+    private final MetaProperty<OvernightRateSwapLegConvention> overnightLeg = DirectMetaProperty.ofImmutable(
+        this, "overnightLeg", ImmutableOvernightIborSwapConvention.class, OvernightRateSwapLegConvention.class);
     /**
      * The meta-property for the {@code iborLeg} property.
      */
@@ -303,7 +303,7 @@ public final class ImmutableOvernightIborSwapConvention
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
-        "onLeg",
+        "overnightLeg",
         "iborLeg",
         "spotDateOffset");
 
@@ -318,8 +318,8 @@ public final class ImmutableOvernightIborSwapConvention
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 105864111:  // onLeg
-          return onLeg;
+        case 1774606250:  // overnightLeg
+          return overnightLeg;
         case 1610246066:  // iborLeg
           return iborLeg;
         case 746995843:  // spotDateOffset
@@ -353,11 +353,11 @@ public final class ImmutableOvernightIborSwapConvention
     }
 
     /**
-     * The meta-property for the {@code onLeg} property.
+     * The meta-property for the {@code overnightLeg} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<OvernightRateSwapLegConvention> onLeg() {
-      return onLeg;
+    public MetaProperty<OvernightRateSwapLegConvention> overnightLeg() {
+      return overnightLeg;
     }
 
     /**
@@ -382,8 +382,8 @@ public final class ImmutableOvernightIborSwapConvention
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((ImmutableOvernightIborSwapConvention) bean).getName();
-        case 105864111:  // onLeg
-          return ((ImmutableOvernightIborSwapConvention) bean).getOnLeg();
+        case 1774606250:  // overnightLeg
+          return ((ImmutableOvernightIborSwapConvention) bean).getOvernightLeg();
         case 1610246066:  // iborLeg
           return ((ImmutableOvernightIborSwapConvention) bean).getIborLeg();
         case 746995843:  // spotDateOffset
@@ -410,7 +410,7 @@ public final class ImmutableOvernightIborSwapConvention
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableOvernightIborSwapConvention> {
 
     private String name;
-    private OvernightRateSwapLegConvention onLeg;
+    private OvernightRateSwapLegConvention overnightLeg;
     private IborRateSwapLegConvention iborLeg;
     private DaysAdjustment spotDateOffset;
 
@@ -426,7 +426,7 @@ public final class ImmutableOvernightIborSwapConvention
      */
     private Builder(ImmutableOvernightIborSwapConvention beanToCopy) {
       this.name = beanToCopy.getName();
-      this.onLeg = beanToCopy.getOnLeg();
+      this.overnightLeg = beanToCopy.getOvernightLeg();
       this.iborLeg = beanToCopy.getIborLeg();
       this.spotDateOffset = beanToCopy.getSpotDateOffset();
     }
@@ -437,8 +437,8 @@ public final class ImmutableOvernightIborSwapConvention
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
-        case 105864111:  // onLeg
-          return onLeg;
+        case 1774606250:  // overnightLeg
+          return overnightLeg;
         case 1610246066:  // iborLeg
           return iborLeg;
         case 746995843:  // spotDateOffset
@@ -454,8 +454,8 @@ public final class ImmutableOvernightIborSwapConvention
         case 3373707:  // name
           this.name = (String) newValue;
           break;
-        case 105864111:  // onLeg
-          this.onLeg = (OvernightRateSwapLegConvention) newValue;
+        case 1774606250:  // overnightLeg
+          this.overnightLeg = (OvernightRateSwapLegConvention) newValue;
           break;
         case 1610246066:  // iborLeg
           this.iborLeg = (IborRateSwapLegConvention) newValue;
@@ -497,7 +497,7 @@ public final class ImmutableOvernightIborSwapConvention
     public ImmutableOvernightIborSwapConvention build() {
       return new ImmutableOvernightIborSwapConvention(
           name,
-          onLeg,
+          overnightLeg,
           iborLeg,
           spotDateOffset);
     }
@@ -516,12 +516,12 @@ public final class ImmutableOvernightIborSwapConvention
 
     /**
      * Sets the market convention of the floating leg.
-     * @param onLeg  the new value, not null
+     * @param overnightLeg  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder onLeg(OvernightRateSwapLegConvention onLeg) {
-      JodaBeanUtils.notNull(onLeg, "onLeg");
-      this.onLeg = onLeg;
+    public Builder overnightLeg(OvernightRateSwapLegConvention overnightLeg) {
+      JodaBeanUtils.notNull(overnightLeg, "overnightLeg");
+      this.overnightLeg = overnightLeg;
       return this;
     }
 
@@ -556,7 +556,7 @@ public final class ImmutableOvernightIborSwapConvention
       StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutableOvernightIborSwapConvention.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
-      buf.append("onLeg").append('=').append(JodaBeanUtils.toString(onLeg)).append(',').append(' ');
+      buf.append("overnightLeg").append('=').append(JodaBeanUtils.toString(overnightLeg)).append(',').append(' ');
       buf.append("iborLeg").append('=').append(JodaBeanUtils.toString(iborLeg)).append(',').append(' ');
       buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset));
       buf.append('}');

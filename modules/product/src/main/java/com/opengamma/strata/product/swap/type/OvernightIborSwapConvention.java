@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -67,7 +67,7 @@ public interface OvernightIborSwapConvention
    * 
    * @return the overnight leg convention
    */
-  public abstract OvernightRateSwapLegConvention getOnLeg();
+  public abstract OvernightRateSwapLegConvention getOvernightLeg();
 
   /**
    * Gets the market convention of the Ibor leg.
