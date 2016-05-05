@@ -349,7 +349,7 @@ public final class RatesCalibrationCsvLoader {
       QuoteKey quoteKey,
       double spread) {
 
-    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (!matcher.matches()) {
       throw new IllegalArgumentException(Messages.format("Invalid time format for Fixed-Overnight swap: {}", timeStr));
     }
