@@ -6,9 +6,14 @@
 package com.opengamma.strata.pricer.fx;
 
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 
 /**
@@ -66,5 +71,26 @@ public interface BlackVolatilityFxProvider {
    * @return the sensitivity to the nodes
    */
   public abstract SurfaceCurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point);
+
+  /**
+   * Calculates the surface parameter sensitivities from the point sensitivities. 
+   * 
+   * @param sensitivities  the point sensitivities
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public default SurfaceCurrencyParameterSensitivities surfaceParameterSensitivity(
+      PointSensitivities sensitivities) {
+    List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal =
+        sensitivities.getSensitivities()
+            .stream()
+            .filter(pointSensitivity -> pointSensitivity instanceof FxOptionSensitivity)
+            .map(pointSensitivity -> surfaceParameterSensitivity((FxOptionSensitivity) pointSensitivity))
+            .collect(Collectors.toList());
+    SurfaceCurrencyParameterSensitivities sensi = SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
+    // sensi should be single SurfaceCurrencyParameterSensitivity or empty
+    ArgChecker.isTrue(sensi.getSensitivities().size() <= 1, "The underlying surface must be unique");
+    return sensi;
+  }
 
 }
