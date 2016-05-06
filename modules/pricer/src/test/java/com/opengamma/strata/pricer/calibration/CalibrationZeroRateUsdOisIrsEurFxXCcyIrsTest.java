@@ -41,6 +41,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
+import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -369,7 +370,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
           .addDiscountCurve(EUR_DSC_CURVE_DEFN, EUR)
           .addForwardCurve(EUR_FWD3_CURVE_DEFN, EUR_EURIBOR_3M).build();
   private static final ImmutableRatesProvider KNOWN_DATA = ImmutableRatesProvider.builder(VAL_DATE)
-      .fxRateProvider(new MarketDataFxRateProvider(ALL_QUOTES))
+      .fxRateProvider(MarketDataFxRateProvider.of(ALL_QUOTES))
       .build();
 
   //-------------------------------------------------------------------------

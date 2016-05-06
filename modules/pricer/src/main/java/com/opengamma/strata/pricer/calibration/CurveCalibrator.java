@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -167,7 +168,7 @@ public final class CurveCalibrator {
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
 
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(valuationDate)
-        .fxRateProvider(new MarketDataFxRateProvider(marketData))
+        .fxRateProvider(MarketDataFxRateProvider.of(marketData))
         .timeSeries(timeSeries)
         .build();
     return calibrate(ImmutableList.of(curveGroupDefn), knownData, marketData, refData);
