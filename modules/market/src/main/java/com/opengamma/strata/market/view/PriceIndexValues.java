@@ -5,12 +5,16 @@
  */
 package com.opengamma.strata.market.view;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -23,6 +27,30 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 public interface PriceIndexValues
     extends MarketDataView {
 
+  /**
+   * Obtains an instance from a curve and time-series of fixings.
+   * <p>
+   * The only supported implementation at present is {@link SimplePriceIndexValues}.
+   * The curve must have x-values of {@linkplain ValueType#MONTHS months}.
+   * The y-values must be {@linkplain ValueType#PRICE_INDEX price index values}.
+   * The fixings time-series must not be empty.
+   * 
+   * @param index  the index
+   * @param valuationDate  the valuation date for which the curve is valid
+   * @param forwardCurve  the forward curve
+   * @param fixings  the time-series of fixings
+   * @return the price index values
+   */
+  public static PriceIndexValues of(
+      PriceIndex index,
+      LocalDate valuationDate,
+      InterpolatedNodalCurve forwardCurve,
+      LocalDateDoubleTimeSeries fixings) {
+
+    return SimplePriceIndexValues.of(index, valuationDate, forwardCurve, fixings);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the Price index.
    * <p>

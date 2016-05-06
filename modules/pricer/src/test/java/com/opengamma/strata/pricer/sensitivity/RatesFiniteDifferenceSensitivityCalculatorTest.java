@@ -26,7 +26,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.SimpleDiscountFactors;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
@@ -105,7 +105,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
     // Price index
     ImmutableMap<PriceIndex, PriceIndexValues> mapPriceIndex = provider.getPriceIndexValues();
     for (Entry<PriceIndex, PriceIndexValues> entry : mapPriceIndex.entrySet()) {
-      InterpolatedNodalCurve curveInt = ((ForwardPriceIndexValues) entry.getValue()).getCurve();
+      InterpolatedNodalCurve curveInt = ((SimplePriceIndexValues) entry.getValue()).getCurve();
       result += sumProduct(curveInt);
     }
     return CurrencyAmount.of(USD, result);

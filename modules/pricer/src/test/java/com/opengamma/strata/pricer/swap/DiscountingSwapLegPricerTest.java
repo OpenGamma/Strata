@@ -80,7 +80,7 @@ import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
@@ -522,7 +522,7 @@ public class DiscountingSwapLegPricerTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double CONSTANT_INDEX = 242.0;
-  private static final PriceIndexValues GBPRI_CURVE_FLAT = ForwardPriceIndexValues.of(
+  private static final PriceIndexValues GBPRI_CURVE_FLAT = SimplePriceIndexValues.of(
       GB_RPI,
       VAL_DATE_INFLATION,
       InterpolatedNodalCurve.of(
@@ -533,7 +533,7 @@ public class DiscountingSwapLegPricerTest {
       LocalDateDoubleTimeSeries.of(VAL_DATE_INFLATION.minusMonths(3), START_INDEX));
 
   private static final CurveInterpolator INTERP_SPLINE = CurveInterpolators.NATURAL_CUBIC_SPLINE;
-  private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
+  private static final PriceIndexValues GBPRI_CURVE = SimplePriceIndexValues.of(
       GB_RPI,
       VAL_DATE_INFLATION,
       InterpolatedNodalCurve.of(

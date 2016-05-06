@@ -48,7 +48,7 @@ import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
@@ -203,7 +203,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     CurveInterpolator interp = CurveInterpolators.NATURAL_CUBIC_SPLINE;
     String curveName = "GB_RPI_CURVE";
     InterpolatedNodalCurve interpCurve = InterpolatedNodalCurve.of(Curves.prices(curveName), x, y, interp);
-    PriceIndexValues values = ForwardPriceIndexValues.of(
+    PriceIndexValues values = SimplePriceIndexValues.of(
         GB_RPI,
         valuationDate,
         interpCurve,

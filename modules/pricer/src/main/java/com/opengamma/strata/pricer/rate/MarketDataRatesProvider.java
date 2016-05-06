@@ -32,7 +32,6 @@ import com.opengamma.strata.market.key.PriceIndexCurveKey;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.FxForwardRates;
 import com.opengamma.strata.market.view.FxIndexRates;
 import com.opengamma.strata.market.view.IborIndexRates;
@@ -148,7 +147,7 @@ public final class MarketDataRatesProvider
     if (!(curve instanceof InterpolatedNodalCurve)) {
       throw new IllegalArgumentException("Curve must be an InterpolatedNodalCurve: " + index);
     }
-    return ForwardPriceIndexValues.of(index, getValuationDate(), (InterpolatedNodalCurve) curve, timeSeries(index));
+    return PriceIndexValues.of(index, getValuationDate(), (InterpolatedNodalCurve) curve, timeSeries(index));
   }
 
 }
