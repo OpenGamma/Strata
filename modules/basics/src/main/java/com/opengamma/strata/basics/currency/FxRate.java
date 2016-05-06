@@ -193,9 +193,15 @@ public final class FxRate
    * For example, given rates for EUR/GBP and EUR/CHF it is possible to derive rates for GBP/CHF.
    * The result will always have a currency pair in the conventional order.
    * <p>
-   * The cross is only returned if the two pairs contains three currencies in total,
-   * such as AAA/BBB and BBB/CCC. If the two inputs have two many currencies in common, or no
-   * currencies in common, an exception is thrown.
+   * The cross is only returned if the two pairs contains three currencies in total.
+   * If the inputs are invalid, an exception is thrown.
+   * <ul>
+   * <li>AAA/BBB and BBB/CCC - valid, producing AAA/CCC
+   * <li>AAA/BBB and CCC/BBB - valid, producing AAA/CCC
+   * <li>AAA/BBB and BBB/AAA - invalid, exception thrown
+   * <li>AAA/BBB and BBB/BBB - invalid, exception thrown
+   * <li>AAA/BBB and CCC/DDD - invalid, exception thrown
+   * </ul>
    *
    * @param other  the other rates
    * @return a set of FX rates derived from these rates and the other rates
