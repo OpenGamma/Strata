@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -115,14 +116,13 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
     return value.getValue(0).getClass();
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public <R> MarketDataBox<R> apply(Function<T, R> fn) {
+  public <R> MarketDataBox<R> map(Function<T, R> fn) {
     return applyToScenarios(i -> fn.apply(value.getValue(i)));
   }
 
   @Override
-  public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn) {
+  public <R> MarketDataBox<R> mapWithIndex(int scenarioCount, ObjIntFunction<T, R> fn) {
     if (scenarioCount != getScenarioCount()) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -142,6 +142,13 @@ public final class ScenarioMarketDataBox<T> implements ImmutableBean, MarketData
         combineWithSingle(other, fn) :
         combineWithMultiple(other, fn);
   }
+
+  @Override
+  public Stream<T> stream() {
+    return value.stream();
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
   private <R, U> MarketDataBox<R> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
     ScenarioMarketDataValue<U> otherValue = other.getScenarioValue();

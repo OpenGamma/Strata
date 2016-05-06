@@ -1382,7 +1382,7 @@ public class DefaultMarketDataFactoryTest {
 
     @Override
     public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData) {
-      return marketData.apply(getScenarioCount(), (value, scenarioIndex) -> value + shiftAmount[scenarioIndex]);
+      return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value + shiftAmount[scenarioIndex]);
     }
 
     @Override
@@ -1404,7 +1404,7 @@ public class DefaultMarketDataFactoryTest {
 
     @Override
     public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData) {
-      return marketData.apply(getScenarioCount(), (value, scenarioIndex) -> value * (1 + shiftAmounts[scenarioIndex]));
+      return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value * (1 + shiftAmounts[scenarioIndex]));
     }
 
     @Override
@@ -1482,7 +1482,7 @@ public class DefaultMarketDataFactoryTest {
         ReferenceData refData) {
 
       MarketDataBox<Double> value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));
-      return value.apply(v -> Double.toString(v));
+      return value.map(v -> Double.toString(v));
     }
 
     @Override
@@ -1504,7 +1504,7 @@ public class DefaultMarketDataFactoryTest {
 
     @Override
     public MarketDataBox<String> applyTo(MarketDataBox<String> marketData) {
-      return marketData.apply(getScenarioCount(), (value, scenarioIndex) -> value + str[scenarioIndex]);
+      return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value + str[scenarioIndex]);
     }
 
     @Override
@@ -1526,7 +1526,7 @@ public class DefaultMarketDataFactoryTest {
 
     @Override
     public MarketDataBox<TestMarketDataC> applyTo(MarketDataBox<TestMarketDataC> marketData) {
-      return marketData.apply(getScenarioCount(), this::perturb);
+      return marketData.mapWithIndex(getScenarioCount(), this::perturb);
     }
 
     private TestMarketDataC perturb(TestMarketDataC data, int scenarioIndex) {

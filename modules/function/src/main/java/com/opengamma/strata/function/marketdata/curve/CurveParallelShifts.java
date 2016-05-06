@@ -87,7 +87,7 @@ public final class CurveParallelShifts
   //-------------------------------------------------------------------------
   @Override
   public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> curve) {
-    return curve.apply(getScenarioCount(), this::applyShift);
+    return curve.mapWithIndex(getScenarioCount(), this::applyShift);
   }
 
   private Curve applyShift(Curve curve, int scenarioIndex) {

@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.market;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.opengamma.strata.collect.function.ObjIntFunction;
 
@@ -51,7 +52,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   }
 
   @Override
-  public <R> MarketDataBox<R> apply(Function<Void, R> fn) {
+  public <R> MarketDataBox<R> map(Function<Void, R> fn) {
     return empty();
   }
 
@@ -61,7 +62,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   }
 
   @Override
-  public <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<Void, R> fn) {
+  public <R> MarketDataBox<R> mapWithIndex(int scenarioCount, ObjIntFunction<Void, R> fn) {
     return empty();
   }
 
@@ -75,4 +76,8 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
     return Void.class;
   }
 
+  @Override
+  public Stream<Void> stream() {
+    return Stream.empty();
+  }
 }

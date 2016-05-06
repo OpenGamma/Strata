@@ -68,6 +68,11 @@ public class CalculationMarketDataTest {
     public int getScenarioCount() {
       return values.size();
     }
+
+    @Override
+    public Stream<Double> stream() {
+      return values.stream().boxed();
+    }
   }
 
   //--------------------------------------------------------------------------------------------------

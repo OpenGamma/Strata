@@ -54,7 +54,7 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
       CalculationEnvironment marketData) {
 
     MarketDataBox<Double> quote = marketData.getValue(key.toMarketDataId(feed));
-    return quote.apply(rate -> FxRate.of(id.getPair(), rate));
+    return quote.map(rate -> FxRate.of(id.getPair(), rate));
   }
 
   @Override
