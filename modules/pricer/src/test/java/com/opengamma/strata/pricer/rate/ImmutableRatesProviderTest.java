@@ -37,7 +37,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 
@@ -63,7 +63,7 @@ public class ImmutableRatesProviderTest {
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.96d);
   private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of(
       Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), 0.97d);
-  private static final PriceIndexValues GBPRI_CURVE = ForwardPriceIndexValues.of(
+  private static final PriceIndexValues GBPRI_CURVE = SimplePriceIndexValues.of(
       GB_RPI,
       VAL_DATE,
       InterpolatedNodalCurve.of(

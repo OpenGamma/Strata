@@ -33,9 +33,9 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.LegalEntityGroup;
 import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.view.PriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
@@ -107,7 +107,7 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProvider(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(US_CPI_U, valuationDate, CPI_CURVE, timeSeries);
+    PriceIndexValues indexCurve = SimplePriceIndexValues.of(US_CPI_U, valuationDate, CPI_CURVE, timeSeries);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(US_CPI_U, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
@@ -126,7 +126,7 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderGb(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(GB_RPI, valuationDate, RPI_CURVE, timeSeries);
+    PriceIndexValues indexCurve = SimplePriceIndexValues.of(GB_RPI, valuationDate, RPI_CURVE, timeSeries);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())
@@ -145,7 +145,7 @@ public class CapitalIndexedBondCurveDataSet {
    * @return the rates provider
    */
   public static ImmutableRatesProvider getRatesProviderJp(LocalDate valuationDate, LocalDateDoubleTimeSeries timeSeries) {
-    PriceIndexValues indexCurve = ForwardPriceIndexValues.of(JP_CPI_EXF, valuationDate, CPIJ_CURVE, timeSeries);
+    PriceIndexValues indexCurve = SimplePriceIndexValues.of(JP_CPI_EXF, valuationDate, CPIJ_CURVE, timeSeries);
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(JP_CPI_EXF, indexCurve);
     return ImmutableRatesProvider.builder(valuationDate)
         .fxRateProvider(FxMatrix.empty())

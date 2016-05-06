@@ -27,9 +27,9 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.SimpleDiscountFactors;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
@@ -136,7 +136,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<PriceIndex, PriceIndexValues> entry : indexValues.entrySet()) {
-      ForwardPriceIndexValues indexValue = ((ForwardPriceIndexValues) entry.getValue());
+      SimplePriceIndexValues indexValue = ((SimplePriceIndexValues) entry.getValue());
       NodalCurve curveInt = indexValue.getCurve().toNodalCurve();
       int nbNodePoint = curveInt.getXValues().size();
       DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {

@@ -32,7 +32,6 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.view.ForwardPriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
@@ -175,7 +174,7 @@ public class RatesProviderDataSets {
   private static final InterpolatedNodalCurve PRICE_INDEX_CURVE =
       InterpolatedNodalCurve.of(PRICE_INDEX_METADATA, TIMES_4, VALUES_4, INTERPOLATOR);
   private static final PriceIndexValues USD_CPI =
-      ForwardPriceIndexValues.of(PriceIndices.US_CPI_U, VAL_DATE_2014_01_22, PRICE_INDEX_CURVE, PRICE_INDEX_TS);
+      PriceIndexValues.of(PriceIndices.US_CPI_U, VAL_DATE_2014_01_22, PRICE_INDEX_CURVE, PRICE_INDEX_TS);
 
   public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
