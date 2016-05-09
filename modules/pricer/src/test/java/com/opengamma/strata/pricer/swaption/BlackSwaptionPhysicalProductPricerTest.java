@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.swaption;
 import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
@@ -442,11 +441,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
     NodalSurface surfaceDw = ConstantNodalSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(
-            surfaceUp, USD_FIXED_6M_LIBOR_3M, VAL_DATE.atStartOfDay(ZoneOffset.UTC), ACT_365F));
+        BlackSwaptionExpiryTenorVolatilities.of(surfaceUp, VAL_DATE.atStartOfDay(ZoneOffset.UTC)));
     CurrencyAmount pvM = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
-        BlackSwaptionExpiryTenorVolatilities.of(
-            surfaceDw, USD_FIXED_6M_LIBOR_3M, VAL_DATE.atStartOfDay(ZoneOffset.UTC), ACT_365F));
+        BlackSwaptionExpiryTenorVolatilities.of(surfaceDw, VAL_DATE.atStartOfDay(ZoneOffset.UTC)));
     double pvnvsFd = (pvP.getAmount() - pvM.getAmount()) / (2 * shiftVol);
     SwaptionSensitivity pvnvsAd = PRICER_SWAPTION_BLACK
         .presentValueSensitivityVolatility(SWAPTION_LONG_PAY, MULTI_USD, BLACK_VOL_CST_SWAPTION_PROVIDER_USD);

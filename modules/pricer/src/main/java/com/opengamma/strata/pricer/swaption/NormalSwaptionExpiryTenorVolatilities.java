@@ -18,6 +18,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -30,10 +31,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
+import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -47,62 +52,72 @@ public final class NormalSwaptionExpiryTenorVolatilities
     implements NormalSwaptionVolatilities, ImmutableBean, Serializable {
 
   /**
-   * The normal volatility surface. 
+   * The normal volatility surface.
    * <p>
-   * The x-value of the surface is the expiry.
-   * The y-value of the surface is the swap tenor.
+   * The x-value of the surface is the expiry, as a year fraction.
+   * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    */
   @PropertyDefinition(validate = "notNull")
   private final NodalSurface surface;
   /** 
-   * The swap convention. 
+   * The valuation date-time.
    * <p>
-   * The data must valid in terms of this swap convention. 
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final FixedIborSwapConvention convention;
-  /** 
-   * The valuation date-time. 
-   * <p>
-   * All data items in this environment are calibrated for this date-time. 
+   * All data items in this environment are calibrated for this date-time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
   /** 
-   * The day count convention of the surface expiry dimension.
+   * The swap convention that the surface is calibrated against.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final DayCount dayCount;
+  private final FixedIborSwapConvention convention;  // cached, not a property
+  /**
+   * The day count convention of the surface.
+   */
+  private final DayCount dayCount;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * <p>
-   * The swap convention and valuation date-time are also specified.
+   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface must contain the correct metadata:
+   * <ul>
+   * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
+   * <li>The y-value type must be {@link ValueType#YEAR_FRACTION}
+   * <li>The z-value type must be {@link ValueType#NORMAL_VOLATILITY}
+   * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
+   * <li>The swap convention must be set in the additional information using {@link SurfaceInfoType#SWAP_CONVENTION}
+   * </ul>
+   * Suitable surface metadata can be created using
+   * {@link Surfaces#swaptionNormalExpiryTenor(String, DayCount, FixedIborSwapConvention)}.
    * 
    * @param surface  the implied volatility surface
-   * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDateTime  the valuation date-time
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
-      FixedIborSwapConvention convention,
-      ZonedDateTime valuationDateTime,
-      DayCount dayCount) {
+      ZonedDateTime valuationDateTime) {
 
-    return new NormalSwaptionExpiryTenorVolatilities(surface, convention, valuationDateTime, dayCount);
+    return new NormalSwaptionExpiryTenorVolatilities(surface, valuationDateTime);
   }
 
   /**
    * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * <p>
-   * The swap convention and valuation date-time are also specified.
+   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface must contain the correct metadata:
+   * <ul>
+   * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
+   * <li>The y-value type must be {@link ValueType#YEAR_FRACTION}
+   * <li>The z-value type must be {@link ValueType#NORMAL_VOLATILITY}
+   * <li>The day count must be set in the additional information using {@link SurfaceInfoType#DAY_COUNT}
+   * <li>The swap convention must be set in the additional information using {@link SurfaceInfoType#SWAP_CONVENTION}
+   * </ul>
+   * Suitable surface metadata can be created using
+   * {@link Surfaces#swaptionNormalExpiryTenor(String, DayCount, FixedIborSwapConvention)}.
    * 
    * @param surface  the implied volatility surface
-   * @param convention  the swap convention for which the data is valid
-   * @param dayCount  the day count applicable to the model
    * @param valuationDate  the valuation date
    * @param valuationTime  the valuation time
    * @param valuationZone  the valuation time zone
@@ -110,13 +125,50 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
       NodalSurface surface,
-      FixedIborSwapConvention convention,
       LocalDate valuationDate,
       LocalTime valuationTime,
-      ZoneId valuationZone,
-      DayCount dayCount) {
+      ZoneId valuationZone) {
 
-    return of(surface, convention, valuationDate.atTime(valuationTime).atZone(valuationZone), dayCount);
+    return of(surface, valuationDate.atTime(valuationTime).atZone(valuationZone));
+  }
+
+  @ImmutableConstructor
+  private NormalSwaptionExpiryTenorVolatilities(
+      NodalSurface surface,
+      ZonedDateTime valuationDateTime) {
+
+    ArgChecker.notNull(surface, "surface");
+    ArgChecker.notNull(valuationDateTime, "valuationDateTime");
+    surface.getMetadata().getXValueType().checkEquals(
+        ValueType.YEAR_FRACTION, "Incorrect x-value type for Black volatilities");
+    surface.getMetadata().getYValueType().checkEquals(
+        ValueType.YEAR_FRACTION, "Incorrect y-value type for Black volatilities");
+    surface.getMetadata().getZValueType().checkEquals(
+        ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Black volatilities");
+    FixedIborSwapConvention swapConvention = surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
+        .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
+    DayCount dayCount = surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
+        .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing DayCount"));
+
+    this.valuationDateTime = valuationDateTime;
+    this.surface = surface;
+    this.convention = swapConvention;
+    this.dayCount = dayCount;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public FixedIborSwapConvention getConvention() {
+    return convention;
+  }
+
+  /**
+   * Gets the day count used to calculate the expiry year fraction.
+   * 
+   * @return the day count
+   */
+  public DayCount getDayCount() {
+    return dayCount;
   }
 
   //-------------------------------------------------------------------------
@@ -195,21 +247,6 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   private static final long serialVersionUID = 1L;
 
-  private NormalSwaptionExpiryTenorVolatilities(
-      NodalSurface surface,
-      FixedIborSwapConvention convention,
-      ZonedDateTime valuationDateTime,
-      DayCount dayCount) {
-    JodaBeanUtils.notNull(surface, "surface");
-    JodaBeanUtils.notNull(convention, "convention");
-    JodaBeanUtils.notNull(valuationDateTime, "valuationDateTime");
-    JodaBeanUtils.notNull(dayCount, "dayCount");
-    this.surface = surface;
-    this.convention = convention;
-    this.valuationDateTime = valuationDateTime;
-    this.dayCount = dayCount;
-  }
-
   @Override
   public NormalSwaptionExpiryTenorVolatilities.Meta metaBean() {
     return NormalSwaptionExpiryTenorVolatilities.Meta.INSTANCE;
@@ -229,24 +266,12 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /**
    * Gets the normal volatility surface.
    * <p>
-   * The x-value of the surface is the expiry.
-   * The y-value of the surface is the swap tenor.
+   * The x-value of the surface is the expiry, as a year fraction.
+   * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    * @return the value of the property, not null
    */
   public NodalSurface getSurface() {
     return surface;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the swap convention.
-   * <p>
-   * The data must valid in terms of this swap convention.
-   * @return the value of the property, not null
-   */
-  @Override
-  public FixedIborSwapConvention getConvention() {
-    return convention;
   }
 
   //-----------------------------------------------------------------------
@@ -262,15 +287,6 @@ public final class NormalSwaptionExpiryTenorVolatilities
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the day count convention of the surface expiry dimension.
-   * @return the value of the property, not null
-   */
-  public DayCount getDayCount() {
-    return dayCount;
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -279,9 +295,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
     if (obj != null && obj.getClass() == this.getClass()) {
       NormalSwaptionExpiryTenorVolatilities other = (NormalSwaptionExpiryTenorVolatilities) obj;
       return JodaBeanUtils.equal(surface, other.surface) &&
-          JodaBeanUtils.equal(convention, other.convention) &&
-          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime) &&
-          JodaBeanUtils.equal(dayCount, other.dayCount);
+          JodaBeanUtils.equal(valuationDateTime, other.valuationDateTime);
     }
     return false;
   }
@@ -290,20 +304,16 @@ public final class NormalSwaptionExpiryTenorVolatilities
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(surface);
-    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDateTime);
-    hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("NormalSwaptionExpiryTenorVolatilities{");
     buf.append("surface").append('=').append(surface).append(',').append(' ');
-    buf.append("convention").append('=').append(convention).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();
   }
@@ -324,29 +334,17 @@ public final class NormalSwaptionExpiryTenorVolatilities
     private final MetaProperty<NodalSurface> surface = DirectMetaProperty.ofImmutable(
         this, "surface", NormalSwaptionExpiryTenorVolatilities.class, NodalSurface.class);
     /**
-     * The meta-property for the {@code convention} property.
-     */
-    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", NormalSwaptionExpiryTenorVolatilities.class, FixedIborSwapConvention.class);
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      */
     private final MetaProperty<ZonedDateTime> valuationDateTime = DirectMetaProperty.ofImmutable(
         this, "valuationDateTime", NormalSwaptionExpiryTenorVolatilities.class, ZonedDateTime.class);
-    /**
-     * The meta-property for the {@code dayCount} property.
-     */
-    private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", NormalSwaptionExpiryTenorVolatilities.class, DayCount.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "surface",
-        "convention",
-        "valuationDateTime",
-        "dayCount");
+        "valuationDateTime");
 
     /**
      * Restricted constructor.
@@ -359,12 +357,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return surface;
-        case 2039569265:  // convention
-          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
-        case 1905311443:  // dayCount
-          return dayCount;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -394,27 +388,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
     }
 
     /**
-     * The meta-property for the {@code convention} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FixedIborSwapConvention> convention() {
-      return convention;
-    }
-
-    /**
      * The meta-property for the {@code valuationDateTime} property.
      * @return the meta-property, not null
      */
     public MetaProperty<ZonedDateTime> valuationDateTime() {
       return valuationDateTime;
-    }
-
-    /**
-     * The meta-property for the {@code dayCount} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DayCount> dayCount() {
-      return dayCount;
     }
 
     //-----------------------------------------------------------------------
@@ -423,12 +401,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return ((NormalSwaptionExpiryTenorVolatilities) bean).getSurface();
-        case 2039569265:  // convention
-          return ((NormalSwaptionExpiryTenorVolatilities) bean).getConvention();
         case -949589828:  // valuationDateTime
           return ((NormalSwaptionExpiryTenorVolatilities) bean).getValuationDateTime();
-        case 1905311443:  // dayCount
-          return ((NormalSwaptionExpiryTenorVolatilities) bean).getDayCount();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -451,9 +425,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   private static final class Builder extends DirectFieldsBeanBuilder<NormalSwaptionExpiryTenorVolatilities> {
 
     private NodalSurface surface;
-    private FixedIborSwapConvention convention;
     private ZonedDateTime valuationDateTime;
-    private DayCount dayCount;
 
     /**
      * Restricted constructor.
@@ -467,12 +439,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
           return surface;
-        case 2039569265:  // convention
-          return convention;
         case -949589828:  // valuationDateTime
           return valuationDateTime;
-        case 1905311443:  // dayCount
-          return dayCount;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -484,14 +452,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
         case -1853231955:  // surface
           this.surface = (NodalSurface) newValue;
           break;
-        case 2039569265:  // convention
-          this.convention = (FixedIborSwapConvention) newValue;
-          break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
-          break;
-        case 1905311443:  // dayCount
-          this.dayCount = (DayCount) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -527,20 +489,16 @@ public final class NormalSwaptionExpiryTenorVolatilities
     public NormalSwaptionExpiryTenorVolatilities build() {
       return new NormalSwaptionExpiryTenorVolatilities(
           surface,
-          convention,
-          valuationDateTime,
-          dayCount);
+          valuationDateTime);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("NormalSwaptionExpiryTenorVolatilities.Builder{");
       buf.append("surface").append('=').append(JodaBeanUtils.toString(surface)).append(',').append(' ');
-      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
-      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
+      buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
       buf.append('}');
       return buf.toString();
     }

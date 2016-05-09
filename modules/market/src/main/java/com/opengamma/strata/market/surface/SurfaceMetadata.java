@@ -116,7 +116,7 @@ public interface SurfaceMetadata {
    * The result will contain the specified parameter metadata.
    * A null value is accepted and causes the result to have no parameter metadata.
    * 
-   * @param parameterMetadata  the new parameter metadata
+   * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new surface metadata
    */
   public abstract SurfaceMetadata withParameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata);

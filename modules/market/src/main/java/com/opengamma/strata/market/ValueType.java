@@ -90,6 +90,22 @@ public final class ValueType
    * Type used when each value is log-moneyness, i.e. the value refers to log of strike divided by forward - 'LogMoneyness'.
    */
   public static final ValueType LOG_MONEYNESS = of("LogMoneyness");
+  /**
+   * Type used when each value is the SABR alpha parameter - 'SabrAlpha'.
+   */
+  public static final ValueType SABR_ALPHA = of("SabrAlpha");
+  /**
+   * Type used when each value is the SABR beta parameter - 'SabrBeta'.
+   */
+  public static final ValueType SABR_BETA = of("SabrBeta");
+  /**
+   * Type used when each value is the SABR rho parameter - 'SabrRho'.
+   */
+  public static final ValueType SABR_RHO = of("SabrRho");
+  /**
+   * Type used when each value is the SABR nu parameter - 'SabrNu'.
+   */
+  public static final ValueType SABR_NU = of("SabrNu");
 
   //-------------------------------------------------------------------------
   /**
