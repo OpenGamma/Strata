@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -284,8 +285,9 @@ public class VolatilitySwaptionCashParYieldProductPricer {
       return PointSensitivityBuilder.none();
     }
     double forward = getSwapPricer().parRate(underlying, ratesProvider);
-    double annuityCash = getSwapPricer().getLegPricer().annuityCash(fixedLeg, forward);
-    double annuityCashDr = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
+    ValueDerivatives annuityDerivative = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
+    double annuityCash = annuityDerivative.getValue();
+    double annuityCashDr = annuityDerivative.getDerivative(0);
     LocalDate settlementDate = ((CashSettlement) swaption.getSwaptionSettlement()).getSettlementDate();
     double discountSettle = ratesProvider.discountFactor(fixedLeg.getCurrency(), settlementDate);
     double strike = calculateStrike(fixedLeg);
