@@ -414,6 +414,33 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertEquals(sensiCap, sensiExpected);
     assertEquals(sensiFloor, sensiExpected);
   }
+  
+  public void test_adjusted_forward_rate() {
+    CmsPeriod coupon1 = COUPON.toBuilder().notional(1.0).yearFraction(1.0).build();
+    CurrencyAmount pvBuy = PRICER.presentValue(coupon1, RATES_PROVIDER, VOLATILITIES);
+    double df = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
+    double adjustedForwardRateExpected = pvBuy.getAmount() / df;
+    double adjustedForwardRateComputed = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(adjustedForwardRateComputed, adjustedForwardRateExpected, TOL);
+  }
+  
+  public void test_adjustment_forward_rate() {
+    double adjustedForwardRateComputed = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
+    double forward = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    double adjustmentComputed = PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(adjustmentComputed, adjustedForwardRateComputed - forward, TOL);
+  }
+  
+  public void test_adjusted_forward_rate_afterFix() {
+    double adjustedForward = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
+    assertEquals(adjustedForward, OBS_INDEX , TOL);    
+  }
+
+  public void test_adjusted_rate_error() {
+    assertThrowsIllegalArg(() -> PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER, VOLATILITIES));
+    assertThrowsIllegalArg(() -> PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
+    assertThrowsIllegalArg(() -> PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
+  }
 
   //-------------------------------------------------------------------------
   private static final CmsPeriod CAPLET_UP = createCmsCaplet(true, STRIKE + EPS);
