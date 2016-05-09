@@ -49,7 +49,7 @@ public class DiscountCurveMarketDataFunction
     // find curve
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
     MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
-    return curveGroupBox.apply(curveGroup -> buildCurve(id, curveGroup));
+    return curveGroupBox.map(curveGroup -> buildCurve(id, curveGroup));
   }
 
   private Curve buildCurve(DiscountCurveId id, CurveGroup curveGroup) {

@@ -5,9 +5,12 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import com.opengamma.strata.collect.function.ObjIntFunction;
 
@@ -179,11 +182,15 @@ public interface MarketDataBox<T> {
    * @param fn  a function to apply to the market data in the box
    * @return a result wrapping a box containing the return value of the function
    */
-  public abstract <R> MarketDataBox<R> apply(Function<T, R> fn);
+  public abstract <R> MarketDataBox<R> map(Function<T, R> fn);
 
   /**
    * Applies a function to the contents of the box once for each scenario and returns a box containing
-   * scenario data built from the return values of the function calls.
+   * the values returned from the function.
+   * <p>
+   * The {@link #getScenarioCount() scenario count} of the box must be one or it must be equal to the
+   * {@code scenarioCount} argument. The {@link #getScenarioCount() scenario count} of the return value
+   * will be equal to {@code scenarioCount}.
    * <p>
    * The box implementation takes care of checking whether it contains a single value or a scenario value,
    * applying the function to the value for each scenario and packing the return values into a box.
@@ -197,7 +204,7 @@ public interface MarketDataBox<T> {
    * @param <R>  the type of the returned market data
    * @return a box containing market data created by applying the function to the contents of this box
    */
-  public abstract <R> MarketDataBox<R> apply(int scenarioCount, ObjIntFunction<T, R> fn);
+  public abstract <R> MarketDataBox<R> mapWithIndex(int scenarioCount, ObjIntFunction<T, R> fn);
 
   /**
    * Applies a function to the market data in this box and another box and returns a box containing the result.
@@ -217,4 +224,26 @@ public interface MarketDataBox<T> {
    */
   public abstract <U, R> MarketDataBox<R> combineWith(MarketDataBox<U> other, BiFunction<T, U, R> fn);
 
+  /**
+   * Returns a stream over the contents of the box.
+   *
+   * @return a stream over the contents of the box
+   */
+  public Stream<T> stream();
+
+  //--------------------------------------------------------------------------------------------------
+
+  /**
+   * Returns a collector which can be used to collect values from a stream into a market data box.
+   *
+   * @param <T> the type of the items in the stream
+   * @return a collector which can be used to collect values from a stream into a market data box
+   */
+  public static <T> Collector<T, List<T>, MarketDataBox<T>> toMarketDataBox() {
+    return Collector.of(
+        ArrayList::new,
+        (list, value) -> list.add(value),
+        (list1, list2) -> { list1.addAll(list2); return list1; },
+        list -> list.size() == 1 ? MarketDataBox.ofSingleValue(list.get(0)) : MarketDataBox.ofScenarioValues(list));
+  }
 }

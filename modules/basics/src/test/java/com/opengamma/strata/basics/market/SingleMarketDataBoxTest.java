@@ -6,9 +6,14 @@
 package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 @Test
 public class SingleMarketDataBoxTest {
@@ -44,18 +49,18 @@ public class SingleMarketDataBoxTest {
     assertThat(box.getScenarioCount()).isEqualTo(1);
   }
 
-  public void apply() {
+  public void map() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
-    MarketDataBox<Integer> result = box.apply(v -> v * 2);
+    MarketDataBox<Integer> result = box.map(v -> v * 2);
     assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(54));
   }
 
   /**
    * Tests that applying a function multiple times to the value creates a box of scenario values.
    */
-  public void applyScenarios() {
+  public void mapWithIndex() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
-    MarketDataBox<Integer> scenarioBox = box.apply(3, (v, idx) -> v + idx);
+    MarketDataBox<Integer> scenarioBox = box.mapWithIndex(3, (v, idx) -> v + idx);
     assertThat(scenarioBox.isScenarioValue()).isTrue();
     assertThat(scenarioBox.getScenarioCount()).isEqualTo(3);
     assertThat(scenarioBox.getValue(0)).isEqualTo(27);
@@ -85,5 +90,11 @@ public class SingleMarketDataBoxTest {
   public void getMarketDataType() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
     assertThat(box.getMarketDataType()).isEqualTo(Integer.class);
+  }
+
+  public void stream() {
+    MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
+    List<Integer> list = box.stream().collect(toList());
+    assertThat(list).isEqualTo(ImmutableList.of(27));
   }
 }

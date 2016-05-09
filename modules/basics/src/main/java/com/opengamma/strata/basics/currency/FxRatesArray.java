@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.currency;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -102,6 +103,13 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   public int getScenarioCount() {
     return rates.size();
   }
+
+  @Override
+  public Stream<FxRate> stream() {
+    return rates.stream().mapToObj(rate -> FxRate.of(pair, rate));
+  }
+
+  //--------------------------------------------------------------------------------------------------
 
   /**
    * Returns the FX rate for the specified currency pair and scenario index.

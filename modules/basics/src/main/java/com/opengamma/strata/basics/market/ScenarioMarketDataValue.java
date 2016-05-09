@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.util.stream.Stream;
+
 /**
  * Provides multiple values of an item of market data, one for each scenario.
  * <p>
@@ -50,4 +52,10 @@ public interface ScenarioMarketDataValue<T> {
    */
   public abstract int getScenarioCount();
 
+  /**
+   * Returns a stream over the market data values.
+   *
+   * @return a stream over the market data values
+   */
+  public Stream<T> stream();
 }

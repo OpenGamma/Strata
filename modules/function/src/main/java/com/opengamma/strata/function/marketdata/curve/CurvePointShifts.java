@@ -121,7 +121,7 @@ public final class CurvePointShifts
   @Override
   public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> marketData) {
     log.debug("Applying {} point shift to curve '{}'", shiftType, marketData.getValue(0).getName());
-    return marketData.apply(shifts.rowCount(), (curve, scenarioIndex) -> applyShifts(scenarioIndex, curve));
+    return marketData.mapWithIndex(shifts.rowCount(), (curve, scenarioIndex) -> applyShifts(scenarioIndex, curve));
   }
 
   private Curve applyShifts(int scenarioIndex, Curve curve) {
