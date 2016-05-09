@@ -149,7 +149,7 @@ public final class DefaultCurveMetadata
   }
 
   @Override
-  public DefaultCurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata) {
+  public DefaultCurveMetadata withParameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata) {
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 

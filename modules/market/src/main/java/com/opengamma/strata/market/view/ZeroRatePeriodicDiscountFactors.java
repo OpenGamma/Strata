@@ -117,13 +117,13 @@ public final class ZeroRatePeriodicDiscountFactors
         ValueType.YEAR_FRACTION, "Incorrect x-value type for zero-rate discount curve");
     curve.getMetadata().getYValueType().checkEquals(
         ValueType.ZERO_RATE, "Incorrect y-value type for zero-rate discount curve");
-    if (!curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT).isPresent()) {
-      throw new IllegalArgumentException("Incorrect curve metadata, missing DayCount");
-    }
+    DayCount dayCount = curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT)
+        .orElseThrow(() -> new IllegalArgumentException("Incorrect curve metadata, missing DayCount"));
+
     this.currency = currency;
     this.valuationDate = valuationDate;
     this.curve = curve;
-    this.dayCount = curve.getMetadata().getInfo(CurveInfoType.DAY_COUNT);
+    this.dayCount = dayCount;
     this.frequency = frequencyOpt.get();
   }
 
