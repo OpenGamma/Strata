@@ -112,7 +112,7 @@ public final class SabrHaganVolatilityFunctionProvider
         vol = first * second * third;
       }
     }
-    //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative
+    //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 to be large negative, and hence the volatility negative
      return Math.max(MIN_VOL, vol);
   }
 
@@ -343,7 +343,7 @@ public final class SabrHaganVolatilityFunctionProvider
       xpp = (rho - f2) / Math.pow(sqrtf2, 3.0);
       f2x = f2 / x;
     }
-    double sigma = alpha / f1 * f2x * (1 + f3 * timeToExpiry);
+    double sigma = Math.max(MIN_VOL, alpha / f1 * f2x * (1 + f3 * timeToExpiry));
     // First level
     double h0Dbeta = -0.5;
     double sigmaDf1 = -sigma / f1;

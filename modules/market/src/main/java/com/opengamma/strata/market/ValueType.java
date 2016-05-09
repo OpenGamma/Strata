@@ -83,11 +83,11 @@ public final class ValueType
    */
   public static final ValueType STRIKE = of("Strike");
   /**
-   * Type used when each value is simple-moneyness - 'SimpleMoneyness'.
+   * Type used when each value is simple-moneyness, i.e. the value refers to strike minus forward - 'SimpleMoneyness'.
    */
   public static final ValueType SIMPLE_MONEYNESS = of("SimpleMoneyness");
   /**
-   * Type used when each value is log-moneyness - 'LogMoneyness'.
+   * Type used when each value is log-moneyness, i.e. the value refers to log of strike divided by forward - 'LogMoneyness'.
    */
   public static final ValueType LOG_MONEYNESS = of("LogMoneyness");
 
