@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -51,12 +51,12 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  */
 public class SabrSwaptionCalibrationUtils {
 
-  /** The reference data for calendars. This could be part of hte constructor.*/
+  /** The reference data for calendars. This could be part of the constructor.*/
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   /** The SABR implied volatility function. */
   private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
-  /** The swap pricer. Required for forward rarte computation. */
+  /** The swap pricer. Required for forward rate computation. */
   private final DiscountingSwapProductPricer swapPricer;
 
   /** The default instance of the class. */
@@ -233,7 +233,7 @@ public class SabrSwaptionCalibrationUtils {
   }
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high
-  // volatilities and high and low vol of vol. The best result (in therm of chi^2) is returned.
+  // volatilities and high and low vol of vol. The best result (in term of chi^2) is returned.
   private SabrFormulaData calibration(double forward, double shift, double beta, BitSet fixed,
       BusinessDayAdjustment bda, ZonedDateTime calibrationDateTime, DayCount dayCount,
       DoubleArray strike, DoubleArray data, Period expiry, RawOptionData rawData) {
@@ -539,7 +539,7 @@ public class SabrSwaptionCalibrationUtils {
     }
     if (strikeType.equals(ValueType.LOG_MONEYNESS)) {
       for (int i = 0; i < nbStrikes; i++) {
-        strikes[i] = forward * strikesLike.get(i) + shiftOutput;
+        strikes[i] = forward * Math.exp(strikesLike.get(i)) + shiftOutput;
       }
       return DoubleArray.ofUnsafe(strikes);
     }

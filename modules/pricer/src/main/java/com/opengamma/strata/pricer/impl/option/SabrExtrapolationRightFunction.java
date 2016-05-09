@@ -504,7 +504,7 @@ public class SabrExtrapolationRightFunction {
           break;
         default:
           param = sabrData.getNu();
-          paramShift = shift; // rho can be zero, so relative shift is not possible.
+          paramShift = shift; // nu can be zero, so relative shift is not possible.
           sabrDatapP = sabrData.withNu(param + paramShift);
           break;
       }
