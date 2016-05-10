@@ -242,6 +242,11 @@ public class CurvePointShiftsTest {
     }
 
     @Override
+    public Curve withMetadata(CurveMetadata metadata) {
+      throw new IllegalStateException();
+    }
+
+    @Override
     public int getParameterCount() {
       throw new IllegalStateException();
     }

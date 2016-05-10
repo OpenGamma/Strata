@@ -48,8 +48,8 @@ import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
 /**
@@ -240,6 +240,11 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     @Override
     public CurveMetadata getMetadata() {
       return metadata;
+    }
+
+    @Override
+    public Curve withMetadata(CurveMetadata metadata) {
+      return this;
     }
 
     @Override

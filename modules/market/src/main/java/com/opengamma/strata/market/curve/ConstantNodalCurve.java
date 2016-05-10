@@ -139,6 +139,11 @@ public final class ConstantNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
+  public ConstantNodalCurve withMetadata(CurveMetadata metadata) {
+    return new ConstantNodalCurve(metadata.withParameterMetadata(null), yValue);
+  }
+
+  @Override
   public ConstantNodalCurve withYValues(DoubleArray yValues) {
     ArgChecker.isTrue(yValues.size() == 1, "YValues array must be size one");
     return new ConstantNodalCurve(metadata, yValues.get(0));

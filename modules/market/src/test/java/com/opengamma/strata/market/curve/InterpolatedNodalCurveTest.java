@@ -45,6 +45,8 @@ public class InterpolatedNodalCurveTest {
   private static final CurveMetadata METADATA = Curves.zeroRates(CURVE_NAME, ACT_365F);
   private static final CurveMetadata METADATA_ENTRIES =
       Curves.zeroRates(CURVE_NAME, ACT_365F, CurveParameterMetadata.listOfEmpty(SIZE));
+  private static final CurveMetadata METADATA_ENTRIES2 =
+      Curves.zeroRates(CURVE_NAME, ACT_365F, CurveParameterMetadata.listOfEmpty(SIZE + 2));
   private static final DoubleArray XVALUES = DoubleArray.of(1d, 2d, 3d);
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d);
   private static final DoubleArray YVALUES = DoubleArray.of(5d, 7d, 8d);
@@ -97,6 +99,22 @@ public class InterpolatedNodalCurveTest {
         CurveUnitParameterSensitivity.of(METADATA, DoubleArray.copyOf(combined.getNodeSensitivitiesForValue(bundle, 10d))));
 
     assertThat(test.firstDerivative(10d)).isEqualTo(combined.firstDerivative(bundle, 10d));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withMetadata() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    InterpolatedNodalCurve test = base.withMetadata(METADATA_ENTRIES);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES);
+  }
+
+  public void test_withMetadata_badSize() {
+    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
+    assertThrowsIllegalArg(() -> base.withMetadata(METADATA_ENTRIES2));
   }
 
   //-------------------------------------------------------------------------

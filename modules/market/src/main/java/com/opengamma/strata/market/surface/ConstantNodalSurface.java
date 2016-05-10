@@ -140,6 +140,11 @@ public final class ConstantNodalSurface
 
   //-------------------------------------------------------------------------
   @Override
+  public ConstantNodalSurface withMetadata(SurfaceMetadata metadata) {
+    return new ConstantNodalSurface(metadata.withParameterMetadata(null), zValue);
+  }
+
+  @Override
   public ConstantNodalSurface withZValues(DoubleArray zValues) {
     ArgChecker.isTrue(zValues.size() == 1, "ZValues array must be size one");
     return new ConstantNodalSurface(metadata, zValues.get(0));

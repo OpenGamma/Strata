@@ -114,6 +114,11 @@ public final class ParallelShiftedCurve
   }
 
   @Override
+  public ParallelShiftedCurve withMetadata(CurveMetadata metadata) {
+    return new ParallelShiftedCurve(underlyingCurve.withMetadata(metadata), shiftType, shiftAmount);
+  }
+
+  @Override
   public CurveName getName() {
     return underlyingCurve.getName();
   }
