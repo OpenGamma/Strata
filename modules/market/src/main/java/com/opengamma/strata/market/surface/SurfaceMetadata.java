@@ -6,10 +6,11 @@
 package com.opengamma.strata.market.surface;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
 
 /**
@@ -60,24 +61,57 @@ public interface SurfaceMetadata {
    */
   public abstract ValueType getZValueType();
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the day count, optional.
+   * Gets curve information of a specific type.
    * <p>
-   * If the x-value of the surface represents time as a year fraction, the day count
-   * can be specified to define how the year fraction is calculated.
+   * If the information is not found, an exception is thrown.
    * 
-   * @return the day count
+   * @param <T>  the type of the info
+   * @param type  the type to find
+   * @return the curve information
+   * @throws IllegalArgumentException if the information is not found
    */
-  public abstract Optional<DayCount> getDayCount();
+  public default <T> T getInfo(SurfaceInfoType<T> type) {
+    return findInfo(type).orElseThrow(() -> new IllegalArgumentException(
+        Messages.format("Surface info not found for type '{}'", type)));
+  }
 
   /**
-   * Gets metadata about each parameter underlying the surface.
+   * Finds curve information of a specific type.
    * <p>
-   * If present, the parameter metadata should match the number of parameters on the surface.
+   * If the info is not found, optional empty is returned.
+   * 
+   * @param <T>  the type of the info
+   * @param type  the type to find
+   * @return the curve information
+   */
+  public abstract <T> Optional<T> findInfo(SurfaceInfoType<T> type);
+
+  /**
+   * Gets metadata about each parameter underlying the surface, optional.
+   * <p>
+   * If present, the parameter metadata will match the number of parameters on the surface.
    * 
    * @return the parameter metadata
    */
   public abstract Optional<List<SurfaceParameterMetadata>> getParameterMetadata();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance where the specified additional information has been added.
+   * <p>
+   * The result will contain the specified additional information.
+   * If this metadata instance already contains additional info, the two maps will
+   * be merged, with the specified map taking priority, as per {@link Map#putAll(Map)}.
+   * <p>
+   * The map must contain no nulls. The value of each entry must match the parameterized
+   * type of the associated {@code SurfaceInfoType} key.
+   * 
+   * @param additionalInfo  the additional information to add
+   * @return the new curve metadata
+   */
+  public abstract SurfaceMetadata withInfo(Map<SurfaceInfoType<?>, Object> additionalInfo);
 
   /**
    * Returns an instance where the parameter metadata has been changed.
@@ -88,6 +122,6 @@ public interface SurfaceMetadata {
    * @param parameterMetadata  the new parameter metadata
    * @return the new surface metadata
    */
-  public abstract SurfaceMetadata withParameterMetadata(List<SurfaceParameterMetadata> parameterMetadata);
+  public abstract SurfaceMetadata withParameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata);
 
 }
