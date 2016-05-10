@@ -100,6 +100,29 @@ public class DiscountingCmsPeriodPricer {
     double forward = swapPricer.parRate(swap, provider);
     return CurrencyAmount.of(ccy, forward * dfPayment * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
   }
+  
+  /**
+   * Computes the forward rate associated to the swap underlying the CMS period.
+   * <p>
+   * Returns a value only if the period has not fixed yet. If the fixing date is on or before the valuation date,
+   * an {@link IllegalArgumentException} is thrown.
+   * 
+   * @param cmsPeriod  the CMS 
+   * @param provider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(
+      CmsPeriod cmsPeriod,
+      RatesProvider provider) {
+
+    LocalDate fixingDate = cmsPeriod.getFixingDate();
+    LocalDate valuationDate = provider.getValuationDate();
+    if (!fixingDate.isAfter(valuationDate)) { // Using fixing
+      throw new IllegalArgumentException("Forward rate is availaible only for valuation date after the fixing date");      
+    }
+    ResolvedSwap swap = cmsPeriod.getUnderlyingSwap();
+    return swapPricer.parRate(swap, provider);
+  }
 
   //-------------------------------------------------------------------------
   /**

@@ -168,7 +168,16 @@ public class DiscountingCmsPeriodPricerTest {
     assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(CAPLET, RATES_PROVIDER_NO_TS));
     assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(FLOORLET, RATES_PROVIDER_NO_TS));
   }
-  
+
+  public void forward_rate() {
+    double fwdComputed = PRICER_CMS.forwardRate(COUPON, RATES_PROVIDER);
+    double fwdExpected = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    assertEquals(fwdComputed, fwdExpected, TOLERANCE_DELTA);
+  }  
+
+  public void forward_rate_after_fixing() {
+    assertThrowsIllegalArg(() -> PRICER_CMS.forwardRate(COUPON, RATES_PROVIDER_AFTER_FIX));
+  }  
 
   // Present Value Curve Sensitivity
   public void presentValueSensitivity_beforeFixing_coupon() {
