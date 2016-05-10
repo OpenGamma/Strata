@@ -60,7 +60,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   /**
    * Logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(SabrExtrapolationReplicationCmsPeriodPricer.class);
+  private static final Logger log = LoggerFactory.getLogger(SabrExtrapolationReplicationCmsPeriodPricer.class);
+
   /**
    * The minimal number of iterations for the numerical integration.
    */
@@ -68,24 +69,29 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   /**
    * The relative tolerance for the numerical integration in PV computation.
    */
-  private static final double REL_TOL = 1.0e-10;
+  private static final double REL_TOL = 1e-10;
   /**
    * The relative tolerance for the numerical integration in sensitivity computation.
    */
-  private static final double REL_TOL_STRIKE = 1.0e-5;
+  private static final double REL_TOL_STRIKE = 1e-5;
   /**
    * The relative tolerance for the numerical integration in sensitivity computation.
    */
-  private static final double REL_TOL_VEGA = 1.0e-3;
+  private static final double REL_TOL_VEGA = 1e-3;
   /**
    * The maximum iteration count.
    */
   private static final int MAX_COUNT = 10;
-  /** Shift from zero bound for floor. To avoid numerical instability of the SABR function around 0. Shift by 0.01 bps. */
-  private static final double ZERO_SHIFT =  1.0E-6;
-  /** The minimal time for which the convexity adjustment is computed. The time is less than a day. For expiry below 
-   * that value, the forward rate is used for present value. **/
-  private static final double MIN_TIME = 1.0E-4;
+  /**
+   * Shift from zero bound for floor.
+   * To avoid numerical instability of the SABR function around 0. Shift by 0.01 bps.
+   */
+  private static final double ZERO_SHIFT = 1e-6;
+  /**
+   * The minimal time for which the convexity adjustment is computed. The time is less than a day.
+   * For expiry below that value, the forward rate is used for present value.
+   */
+  private static final double MIN_TIME = 1e-4;
 
   /**
    * Pricer for the underlying swap. 
@@ -200,14 +206,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         integralPart = dfPayment *
             integrateCall(integrator, integrant, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
       } else {
-        integralPart = - dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
+        integralPart = -dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
       }
     } catch (Exception e) {
       throw new MathException(e);
     }
     double priceCMS = (strikePart + integralPart);
-    if(cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON)) {
-      priceCMS-= dfPayment * shift;
+    if (cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON)) {
+      priceCMS -= dfPayment * shift;
     }
     priceCMS *= cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     return CurrencyAmount.of(ccy, priceCMS);
@@ -274,8 +280,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         integralPart = dfPayment *
             integrateCall(integrator, integrantDelta, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
       } else {
-        integralPartPrice = - integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
-        integralPart = - dfPayment * integrator.integrate(integrantDelta, -shift, strikeCpn);
+        integralPartPrice = -integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
+        integralPart = -dfPayment * integrator.integrate(integrantDelta, -shift, strikeCpn);
       }
     } catch (Exception e) {
       throw new MathException(e);
@@ -352,7 +358,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
           integralPart = dfPayment *
               integrateCall(integrator, integrant, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor);
         } else {
-          integralPart = - dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
+          integralPart = -dfPayment * integrator.integrate(integrant, -shift + ZERO_SHIFT, strikeCpn);
         }
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -391,7 +397,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
     ZonedDateTime expiryDate = fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone());
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
-    double strike =  cmsPeriod.getStrike();
+    double strike = cmsPeriod.getStrike();
     double shift = swaptionVolatilities.getParameters().shift(expiryTime, tenor);
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
@@ -429,8 +435,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       firstPart = -kpkpp[0] * intProv.bs(strike);
       thirdPart = integrateCall(integrator, integrant, swaptionVolatilities, forward, strike, expiryTime, tenor);
     } else {
-      firstPart = - kpkpp[0] * intProv.bs(strike);
-      thirdPart = - integrator.integrate(integrant, -shift + ZERO_SHIFT, strike);
+      firstPart = -kpkpp[0] * intProv.bs(strike);
+      thirdPart = -integrator.integrate(integrant, -shift + ZERO_SHIFT, strike);
     }
     double secondPart =
         intProv.k(strike) * intProv.getSabrExtrapolation().priceDerivativeStrike(strike + shift, intProv.getPutCall());
@@ -441,7 +447,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double payoff = 0d;
     switch (cmsPeriodType) {
       case CAPLET:
-        payoff = Math.max(fixedRate- strikeCpn, 0d);
+        payoff = Math.max(fixedRate - strikeCpn, 0d);
         break;
       case FLOORLET:
         payoff = Math.max(strikeCpn - fixedRate, 0d);
@@ -466,11 +472,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
 
     double res;
     double vol = swaptionVolatilities.volatility(expiryTime, tenor, forward, forward);
-    double upper = 
-        Math.min(
-            Math.max(forward * Math.exp(6d * vol * Math.sqrt(expiryTime)),
-        Math.max(cutOffStrike, 2.0d * strike)),// To ensure that the integral covers a good part of the smile
-        1.00); // To ensure that we don't miss the meaningful part
+    double upper0 = Math.max(
+        forward * Math.exp(6d * vol * Math.sqrt(expiryTime)),
+        Math.max(cutOffStrike, 2d * strike));  // To ensure that the integral covers a good part of the smile
+    double upper = Math.min(upper0, 1d); // To ensure that we don't miss the meaningful part
     res = integrator.integrate(integrant, strike, upper);
     double reminder = integrant.apply(upper) * upper;
     double error = reminder / res;
@@ -482,8 +487,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       error = reminder / res;
       ++count;
       if (count == MAX_COUNT) {
-        LOGGER.info("Maximum iteration count, " + MAX_COUNT
-            + ", has been reached. Relative error is greater than " + integrator.getRelativeTolerance());
+        log.info("Maximum iteration count, " + MAX_COUNT + ", has been reached. Relative error is greater than " +
+            integrator.getRelativeTolerance());
       }
     }
     return res;
@@ -599,7 +604,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
      * 
      * @return the integrant
      */
-    Function<Double, Double> integrant(){
+    Function<Double, Double> integrant() {
       return new Function<Double, Double>() {
         @Override
         public Double apply(Double x) {
@@ -667,7 +672,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
         return (1d - nPeriodDiscount) / x;
       }
-   // Special case when x ~ 0: expansion of g around 0
+      // Special case when x ~ 0: expansion of g around 0
       return g0[0] + g0[1] * x + 0.5 * g0[2] * x * x + g0[3] * x * x * x / 6.0d;
     }
 
@@ -684,14 +689,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         double[] ggpgpp = new double[3];
         ggpgpp[0] = (1d - nPeriodDiscount) / x;
         ggpgpp[1] = -ggpgpp[0] / x + nbFixedPeriod * nPeriodDiscount / (x * nbFixedPaymentYear * periodFactor);
-        ggpgpp[2] = 2d / (x * x) * ggpgpp[0] - 2d * nbFixedPeriod * nPeriodDiscount / (x * x * nbFixedPaymentYear * periodFactor)
-            - (nbFixedPeriod + 1d) * nbFixedPeriod * nPeriodDiscount
-            / (x * nbFixedPaymentYear * nbFixedPaymentYear * periodFactor * periodFactor);
+        ggpgpp[2] = 2d / (x * x) * ggpgpp[0] -
+            2d * nbFixedPeriod * nPeriodDiscount / (x * x * nbFixedPaymentYear * periodFactor) - (nbFixedPeriod + 1d) *
+                nbFixedPeriod * nPeriodDiscount / (x * nbFixedPaymentYear * nbFixedPaymentYear * periodFactor * periodFactor);
         return ggpgpp;
       }
-   // Special case when x ~ 0: expansion of g around 0
+      // Special case when x ~ 0: expansion of g around 0
       return new double[] {g0[0] + g0[1] * x + 0.5 * g0[2] * x * x + g0[3] * x * x * x / 6.0d,
-          g0[1] + g0[2] * x + 0.5 * g0[3] * x * x , g0[2] + g0[3] * x};
+          g0[1] + g0[2] * x + 0.5 * g0[3] * x * x, g0[2] + g0[3] * x};
     }
 
     /**
@@ -724,10 +729,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       double hp = eta * tau * h / periodFactor;
       double hpp = (eta - 1d) * tau * hp / periodFactor;
       double kp = hp / ggpgpp[0] - h * ggpgpp[1] / (ggpgpp[0] * ggpgpp[0]);
-      double kpp = hpp / ggpgpp[0] - 2d * hp * ggpgpp[1] / (ggpgpp[0] * ggpgpp[0]) 
-          - h * (ggpgpp[2] / (ggpgpp[0] * ggpgpp[0]) 
-              - 2d * (ggpgpp[1] * ggpgpp[1]) / (ggpgpp[0] * ggpgpp[0] * ggpgpp[0]));
-      return new double[] {kp, kpp };
+      double kpp = hpp / ggpgpp[0] - 2d * hp * ggpgpp[1] / (ggpgpp[0] * ggpgpp[0]) -
+          h * (ggpgpp[2] / (ggpgpp[0] * ggpgpp[0]) - 2d * (ggpgpp[1] * ggpgpp[1]) / (ggpgpp[0] * ggpgpp[0] * ggpgpp[0]));
+      return new double[] {kp, kpp};
     }
 
     /**
@@ -741,7 +745,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       return sabrExtrapolation.price(strikeShifted, putCall);
     }
   }
-  
+
   /**
    * Inner class to implement the integration used for delta calculation.
    */

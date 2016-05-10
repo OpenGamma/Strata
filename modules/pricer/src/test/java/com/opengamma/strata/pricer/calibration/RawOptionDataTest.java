@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.option;
+package com.opengamma.strata.pricer.calibration;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
@@ -30,22 +31,24 @@ public class RawOptionDataTest {
   private static final DoubleArray MONEYNESS = DoubleArray.of(-0.010, 0.00, 0.0100, 0.0200);
   private static final DoubleArray STRIKES = DoubleArray.of(-0.0050, 0.0050, 0.0150, 0.0250);
   private static final List<Period> EXPIRIES = new ArrayList<>();
+
   static {
     EXPIRIES.add(Period.ofMonths(1));
     EXPIRIES.add(Period.ofMonths(3));
     EXPIRIES.add(Period.ofYears(1));
   }
+
   private static final DoubleMatrix DATA_FULL = DoubleMatrix.ofUnsafe(
-      new double[][] { {0.08, 0.09, 0.10, 0.11 },
-        {0.09, 0.10, 0.11, 0.12 },
-        {0.10, 0.11, 0.12, 0.13 } });
+      new double[][] {{0.08, 0.09, 0.10, 0.11},
+          {0.09, 0.10, 0.11, 0.12},
+          {0.10, 0.11, 0.12, 0.13}});
   private static final DoubleMatrix DATA_SPARSE = DoubleMatrix.ofUnsafe(
-      new double[][] { {Double.NaN, Double.NaN, Double.NaN, Double.NaN },
-        {Double.NaN, 0.10, 0.11, 0.12 },
-        {0.10, 0.11, 0.12, 0.13 } });
+      new double[][] {{Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, 0.10, 0.11, 0.12},
+          {0.10, 0.11, 0.12, 0.13}});
 
   public void of() {
-    RawOptionData test = 
+    RawOptionData test =
         RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, DATA_FULL, ValueType.NORMAL_VOLATILITY);
     assertEquals(test.getStrikes(), MONEYNESS);
     assertEquals(test.getStrikeType(), ValueType.SIMPLE_MONEYNESS);
@@ -55,18 +58,18 @@ public class RawOptionDataTest {
 
   public void of2() {
     double shift = 0.0075;
-    RawOptionData test = 
+    RawOptionData test =
         RawOptionData.of(STRIKES, ValueType.STRIKE, EXPIRIES, DATA_SPARSE, shift);
     assertEquals(test.getStrikes(), STRIKES);
     assertEquals(test.getStrikeType(), ValueType.STRIKE);
     assertEquals(test.getData(), DATA_SPARSE);
     assertEquals(test.getDataType(), ValueType.BLACK_VOLATILITY);
-    assertEquals(test.getShift(), shift);
+    assertEquals(test.getShift(), OptionalDouble.of(shift));
   }
-  
+
   public void available_smile_at_expiry() {
     double shift = 0.0075;
-    RawOptionData test = 
+    RawOptionData test =
         RawOptionData.of(STRIKES, ValueType.STRIKE, EXPIRIES, DATA_SPARSE, shift);
     DoubleArray[] strikesAvailable = new DoubleArray[3];
     strikesAvailable[0] = DoubleArray.EMPTY;
@@ -76,7 +79,7 @@ public class RawOptionDataTest {
     volAvailable[0] = DoubleArray.EMPTY;
     volAvailable[1] = DoubleArray.of(0.10, 0.11, 0.12);
     volAvailable[2] = DoubleArray.of(0.10, 0.11, 0.12, 0.13);
-    for(int i=0; i<DATA_SPARSE.rowCount(); i++) {
+    for (int i = 0; i < DATA_SPARSE.rowCount(); i++) {
       Pair<DoubleArray, DoubleArray> smile = test.availableSmileAtExpiry(EXPIRIES.get(i));
       assertEquals(smile.getFirst(), strikesAvailable[i]);
     }
@@ -101,5 +104,5 @@ public class RawOptionDataTest {
         RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, DATA_FULL, ValueType.BLACK_VOLATILITY);
     assertSerialization(test);
   }
-  
+
 }

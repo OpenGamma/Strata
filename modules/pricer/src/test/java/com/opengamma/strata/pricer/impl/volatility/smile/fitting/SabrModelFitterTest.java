@@ -33,7 +33,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
   private static double BETA = 0.5;
   private static double RHO = -0.3;
   private static double NU = 0.2;
-  private static Logger LOGGER = LoggerFactory.getLogger(SabrModelFitterTest.class);
+  private static Logger log = LoggerFactory.getLogger(SabrModelFitterTest.class);
   private static RandomEngine RANDOM = new MersenneTwister();
 
   SabrModelFitterTest() {
@@ -64,7 +64,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
 
   @Override
   Logger getlogger() {
-    return LOGGER;
+    return log;
   }
 
   @Override

@@ -3,16 +3,22 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.option;
+package com.opengamma.strata.pricer.calibration;
 
 import java.io.Serializable;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
@@ -20,13 +26,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
-
-import java.util.Set;
-
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.Property;
-import org.joda.beans.impl.light.LightMetaBean;
 
 /**
  * Raw data from volatility market.
@@ -40,19 +39,16 @@ public final class RawOptionData
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleArray strikes;
-
   /**
    * The value type of the strike-like dimension.
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueType strikeType;
-
   /**
    * The expiry values.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<Period> expiries;
-
   /**
    * The data. The values can be model parameters (like Black or normal volatilities) or direct 
    * option prices. The first (outer) dimension is the expiry, the second dimension is the strike.
@@ -60,19 +56,18 @@ public final class RawOptionData
    */
   @PropertyDefinition(validate = "notNull")
   private final DoubleMatrix data;
-
   /**
-   * The data type of the strike-like dimension.
+   * The type of the raw data.
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueType dataType;
-
   /**
    * The shift for which the raw data is valid. Used only if the dataType is 'BlackVolatility'.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final Double shift;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains and instance of the raw volatility.
    * <p>
@@ -91,6 +86,7 @@ public final class RawOptionData
       List<Period> expiries,
       DoubleMatrix data,
       ValueType dataType) {
+
     ArgChecker.isTrue(expiries.size() == data.rowCount(),
         "expiries list should be of the same size as the external data dimension");
     for (int i = 0; i < expiries.size(); i++) {
@@ -116,6 +112,7 @@ public final class RawOptionData
       List<Period> expiries,
       DoubleMatrix data,
       Double shift) {
+
     ArgChecker.isTrue(expiries.size() == data.rowCount(),
         "expiries list should be of the same size as the external data dimension");
     for (int i = 0; i < expiries.size(); i++) {
@@ -125,8 +122,10 @@ public final class RawOptionData
     return new RawOptionData(strikes, strikeType, expiries, data, ValueType.BLACK_VOLATILITY, shift);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * For a given expiration returns all the data available.
+   * 
    * @param expiry  the expiration
    * @return the strikes and related volatilities for all available data at the given expiration
    */
@@ -243,7 +242,7 @@ public final class RawOptionData
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data type of the strike-like dimension.
+   * Gets the type of the raw data.
    * @return the value of the property, not null
    */
   public ValueType getDataType() {
@@ -253,10 +252,10 @@ public final class RawOptionData
   //-----------------------------------------------------------------------
   /**
    * Gets the shift for which the raw data is valid. Used only if the dataType is 'BlackVolatility'.
-   * @return the value of the property
+   * @return the optional value of the property, not null
    */
-  public Double getShift() {
-    return shift;
+  public OptionalDouble getShift() {
+    return shift != null ? OptionalDouble.of(shift) : OptionalDouble.empty();
   }
 
   //-----------------------------------------------------------------------

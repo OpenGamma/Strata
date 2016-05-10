@@ -6,12 +6,12 @@
 package com.opengamma.strata.examples.finance.swaption;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.MONEYNESS;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.EXPIRIES;
-import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.TENORS;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DATA_ARRAY_FULL;
 import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.DATA_ARRAY_SPARSE;
+import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.EXPIRIES;
+import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.MONEYNESS;
+import static com.opengamma.strata.examples.finance.swaption.SwaptionCubeData.TENORS;
+import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -44,12 +44,12 @@ import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
+import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.RawOptionData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
-import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrationUtils;
+import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -60,9 +60,9 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate CALIBRATION_DATE = LocalDate.of(2016, 2, 29);
-  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(10, 0).atZone(ZoneId.of( "Europe/Berlin" ));
-  
-  private static final SabrSwaptionCalibrationUtils SABR_CALIBRATION = SabrSwaptionCalibrationUtils.DEFAULT;  
+  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(10, 0).atZone(ZoneId.of("Europe/Berlin"));
+
+  private static final SabrSwaptionCalibrator SABR_CALIBRATION = SabrSwaptionCalibrator.DEFAULT;
 
   private static final String BASE_DIR = "src/main/resources/";
   private static final String GROUPS_FILE = "example-calibration/curves/EUR-DSCONOIS-E3BS-E6IRS-group.csv";
@@ -75,16 +75,16 @@ public class SabrSwaptionCubeCalibrationExample {
           ResourceLocator.of(BASE_DIR + GROUPS_FILE),
           ResourceLocator.of(BASE_DIR + SETTINGS_FILE),
           ResourceLocator.of(BASE_DIR + NODES_FILE)).get(0);
-  private static final Map<QuoteId, Double> MAP_MQ = 
+  private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.builder(CALIBRATION_DATE)
       .addValuesById(MAP_MQ).build();
-  
+
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
   private static final ImmutableRatesProvider MULTICURVE =
-      CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);  
-  
+      CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
   private static final int NB_EXPIRIES = EXPIRIES.size();
@@ -94,7 +94,7 @@ public class SabrSwaptionCubeCalibrationExample {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  
+
   //-------------------------------------------------------------------------
   /** 
    * Runs the calibration of swaptions and print the calibrated smile results on the console.
@@ -116,19 +116,19 @@ public class SabrSwaptionCubeCalibrationExample {
     double shift = 0.0300;
     NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift);
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, data, 
+        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, data,
         MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
     /* Graph calibration */
     int nbStrikesGraph = 50;
     double moneyMin = -0.0250;
     double moneyMax = +0.0300;
-    double[] moneyGraph = new double[nbStrikesGraph+1];
+    double[] moneyGraph = new double[nbStrikesGraph + 1];
     for (int i = 0; i < nbStrikesGraph + 1; i++) {
       moneyGraph[i] = moneyMin + i * (moneyMax - moneyMin) / nbStrikesGraph;
-    }      
-    double[][][] strikesGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph+1];
-    double[][][] volLNGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph+1];
-    double[][][] volNGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph+1];
+    }
+    double[][][] strikesGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph + 1];
+    double[][][] volLNGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph + 1];
+    double[][][] volNGraph = new double[NB_TENORS][NB_EXPIRIES][nbStrikesGraph + 1];
     double[][] parRate = new double[NB_TENORS][NB_EXPIRIES];
     for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
       double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
@@ -140,14 +140,20 @@ public class SabrSwaptionCubeCalibrationExample {
         SwapTrade swap = EUR_FIXED_1Y_EURIBOR_6M
             .toTrade(CALIBRATION_DATE, effectiveDate, endDate, BuySell.BUY, 1.0, 0.0);
         parRate[looptenor][loopexpiry] = SWAP_PRICER.parRate(swap.resolve(REF_DATA).getProduct(), MULTICURVE);
-        ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of( "Europe/Berlin" ));
+        ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
         double time = calibrated.relativeTime(expiryDateTime);
         for (int i = 0; i < nbStrikesGraph + 1; i++) {
           strikesGraph[looptenor][loopexpiry][i] = parRate[looptenor][loopexpiry] + moneyGraph[i];
-          volLNGraph[looptenor][loopexpiry][i] = 
-              calibrated.volatility(expiryDateTime, tenor, strikesGraph[looptenor][loopexpiry][i], parRate[looptenor][loopexpiry]);
+          volLNGraph[looptenor][loopexpiry][i] = calibrated.volatility(
+              expiryDateTime,
+              tenor,
+              strikesGraph[looptenor][loopexpiry][i],
+              parRate[looptenor][loopexpiry]);
           volNGraph[looptenor][loopexpiry][i] = NormalFormulaRepository.impliedVolatilityFromBlackApproximated(
-              parRate[looptenor][loopexpiry] + shift, strikesGraph[looptenor][loopexpiry][i] + shift, time, volLNGraph[looptenor][loopexpiry][i]);
+              parRate[looptenor][loopexpiry] + shift,
+              strikesGraph[looptenor][loopexpiry][i] + shift,
+              time,
+              volLNGraph[looptenor][loopexpiry][i]);
         }
       }
     }
@@ -156,8 +162,8 @@ public class SabrSwaptionCubeCalibrationExample {
     String svn = "Moneyness";
     for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
       for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
-        svn = svn + ", Strike_" + EXPIRIES.get(loopexpiry).toString() + "x" + TENORS.get(looptenor).toString()
-            + ", NormalVol_" + EXPIRIES.get(loopexpiry).toString() + "x" + TENORS.get(looptenor).toString();
+        svn = svn + ", Strike_" + EXPIRIES.get(loopexpiry).toString() + "x" + TENORS.get(looptenor).toString() + ", NormalVol_" +
+            EXPIRIES.get(loopexpiry).toString() + "x" + TENORS.get(looptenor).toString();
       }
     }
     svn = svn + "\n";
@@ -177,10 +183,10 @@ public class SabrSwaptionCubeCalibrationExample {
   private static List<RawOptionData> rawData(double[][][] dataArray) {
     List<RawOptionData> raw = new ArrayList<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, 
+      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
           DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.NORMAL_VOLATILITY));
     }
     return raw;
   }
-  
+
 }

@@ -29,47 +29,47 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaDat
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 
 /**
- * Tests {@link SabrSwaptionCalibrationUtils} with single smile.
+ * Tests {@link SabrSwaptionCalibrator} with single smile.
  */
 @Test
-public class SabrSwaptionCalibrationUtilsSmileTest {
+public class SabrSwaptionCalibratorSmileTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate CALIBRATION_DATE = LocalDate.of(2015, 8, 7);
-  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(11, 0).atZone(ZoneId.of( "America/New_York" ));
-  
+  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(11, 0).atZone(ZoneId.of("America/New_York"));
+
   private static final SabrHaganVolatilityFunctionProvider SABR_FORMULA = SabrHaganVolatilityFunctionProvider.DEFAULT;
-  private static final SabrSwaptionCalibrationUtils SABR_CALIBRATION = SabrSwaptionCalibrationUtils.DEFAULT;
-  
+  private static final SabrSwaptionCalibrator SABR_CALIBRATION = SabrSwaptionCalibrator.DEFAULT;
+
   private static final Period EXPIRY_PERIOD = Period.ofYears(5);
   private static final BusinessDayAdjustment BDA = USD_FIXED_6M_LIBOR_3M.getFloatingLeg().getStartDateBusinessDayAdjustment();
-  
-  private static final LocalDate SWAPTION_EXERCISE_DATE = 
+
+  private static final LocalDate SWAPTION_EXERCISE_DATE =
       USD_FIXED_6M_LIBOR_3M.getFixedLeg().getStartDateBusinessDayAdjustment()
-      .adjust(CALIBRATION_DATE.plus(EXPIRY_PERIOD), REF_DATA);
+          .adjust(CALIBRATION_DATE.plus(EXPIRY_PERIOD), REF_DATA);
   private static final double TIME_EXPIRY = ACT_365F.relativeYearFraction(CALIBRATION_DATE, SWAPTION_EXERCISE_DATE);
   private static final double FORWARD = 0.02075;
-  private static final DoubleArray MONEYNESS_5 = 
-      DoubleArray.ofUnsafe(new double[]{-0.0100, -0.0050, 0.0000, 0.0050, 0.0100});
+  private static final DoubleArray MONEYNESS_5 =
+      DoubleArray.of(-0.0100, -0.0050, 0.0000, 0.0050, 0.0100);
   private static final DoubleArray MONEYNESS_3 = // Used for (almost) exact calibration
-      DoubleArray.ofUnsafe(new double[]{-0.0100, 0.0000, 0.0100});
-  private static final DoubleArray VOLATILITY_BLACK_5 = 
-      DoubleArray.ofUnsafe(new double[]{0.34, 0.32, 0.30, 0.29, 0.29});
+      DoubleArray.of(-0.0100, 0.0000, 0.0100);
+  private static final DoubleArray VOLATILITY_BLACK_5 =
+      DoubleArray.of(0.34, 0.32, 0.30, 0.29, 0.29);
   private static final DoubleArray VOLATILITY_BLACK_3 =  // Used for (almost) exact calibration
-      DoubleArray.ofUnsafe(new double[]{0.335, 0.30, 0.29});
-  private static final DoubleArray VOLATILITY_NORMAL_5 = 
-      DoubleArray.ofUnsafe(new double[]{0.0110, 0.0098, 0.0092, 0.0103, 0.0120});
+      DoubleArray.of(0.335, 0.30, 0.29);
+  private static final DoubleArray VOLATILITY_NORMAL_5 =
+      DoubleArray.of(0.0110, 0.0098, 0.0092, 0.0103, 0.0120);
   private static final DoubleArray VOLATILITY_NORMAL_3 =  // Used for (almost) exact calibration
-      DoubleArray.ofUnsafe(new double[]{0.0110, 0.0092, 0.0120});
-  
+      DoubleArray.of(0.0110, 0.0092, 0.0120);
+
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 1.0E-4; // Calibration Least Square; result not exact
   private static final double TOLERANCE_PRICE_CALIBRATION_EX = 1.0E-6; // With 3 points, calibration should be almost exact
 
   public void calibrate_smile_normal_beta_fixed_5() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1});
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationNormal(MONEYNESS_5, VOLATILITY_NORMAL_5, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_LS);
@@ -78,7 +78,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
   public void calibrate_smile_normal_beta_fixed_3() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1});
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationNormal(MONEYNESS_3, VOLATILITY_NORMAL_3, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_EX);
@@ -87,7 +87,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
   public void calibrate_smile_normal_rho_fixed_5() {
     double rho = 0.25;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, 0.50, rho, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, 0.50, rho, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(2); // Rho fixed
     checkCalibrationNormal(MONEYNESS_5, VOLATILITY_NORMAL_5, startParameters, fixed, shift, 20 * TOLERANCE_PRICE_CALIBRATION_LS);
@@ -95,7 +95,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
 
   public void calibrate_smile_black_no_shift_beta_fixed_5() {
     double beta = 0.50;
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationBlack(MONEYNESS_5, VOLATILITY_BLACK_5, startParameters, fixed, 0.0, TOLERANCE_PRICE_CALIBRATION_LS);
@@ -103,7 +103,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
 
   public void calibrate_smile_black_no_shift_beta_fixed_3() {
     double beta = 0.50;
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationBlack(MONEYNESS_3, VOLATILITY_BLACK_3, startParameters, fixed, 0.0, TOLERANCE_PRICE_CALIBRATION_EX);
@@ -112,7 +112,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
   public void calibrate_smile_price_beta_fixed_5() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationPrice(MONEYNESS_5, VOLATILITY_BLACK_5, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_LS);
@@ -121,7 +121,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
   public void calibrate_smile_price_beta_fixed_3() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, beta, 0.0, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     checkCalibrationPrice(MONEYNESS_3, VOLATILITY_BLACK_3, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_EX);
@@ -130,21 +130,21 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
   public void calibrate_smile_price_rho_fixed_5() {
     double rho = 0.25;
     double shift = 0.0100; // 100 bps
-    DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {0.05, 0.50, rho, 0.1 });
+    DoubleArray startParameters = DoubleArray.of(0.05, 0.50, rho, 0.1);
     BitSet fixed = new BitSet();
     fixed.set(2); // Rho fixed
     checkCalibrationPrice(MONEYNESS_5, VOLATILITY_BLACK_5, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_LS);
   }
-  
+
   private void checkCalibrationNormal(
-      DoubleArray moneyness, 
+      DoubleArray moneyness,
       DoubleArray normalVol,
-      DoubleArray startParameters, 
-      BitSet fixed, 
-      double shift, 
+      DoubleArray startParameters,
+      BitSet fixed,
+      double shift,
       double tolerance) {
     LeastSquareResultsWithTransform rComputed = SABR_CALIBRATION
-        .calibrateShiftedFromNormalVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD, 
+        .calibrateShiftedFromNormalVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD,
             moneyness, ValueType.SIMPLE_MONEYNESS, normalVol, startParameters, fixed, shift);
     SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
@@ -152,21 +152,21 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
           .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
-      double priceNormal = NormalFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i), 
+      double priceNormal = NormalFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
           TIME_EXPIRY, normalVol.get(i), PutCall.CALL);
       assertEquals(priceComputed, priceNormal, tolerance);
     }
   }
-  
+
   private void checkCalibrationBlack(
-      DoubleArray moneyness, 
+      DoubleArray moneyness,
       DoubleArray blackVol,
-      DoubleArray startParameters, 
-      BitSet fixed, 
-      double shift, 
+      DoubleArray startParameters,
+      BitSet fixed,
+      double shift,
       double tolerance) {
     LeastSquareResultsWithTransform rComputed = SABR_CALIBRATION
-        .calibrateShiftedFromBlackVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD, 
+        .calibrateShiftedFromBlackVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD,
             moneyness, ValueType.SIMPLE_MONEYNESS, blackVol, 0.0, startParameters, fixed, shift);
     SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
@@ -174,19 +174,19 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
           .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
-      double priceBlack = BlackFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i), 
+      double priceBlack = BlackFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
           TIME_EXPIRY, blackVol.get(i), true);
       assertEquals(priceComputed, priceBlack, tolerance);
 //      System.out.println("Black: " + priceComputed + " / " + priceBlack);
     }
   }
-  
+
   private void checkCalibrationPrice(
-      DoubleArray moneyness, 
+      DoubleArray moneyness,
       DoubleArray blackVol,
-      DoubleArray startParameters, 
-      BitSet fixed, 
-      double shift, 
+      DoubleArray startParameters,
+      BitSet fixed,
+      double shift,
       double tolerance) {
     double[] prices = new double[moneyness.size()];
     for (int i = 0; i < moneyness.size(); i++) {
@@ -204,7 +204,7 @@ public class SabrSwaptionCalibrationUtilsSmileTest {
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
       assertEquals(priceComputed, prices[i], tolerance);
-    }    
+    }
   }
 
 }

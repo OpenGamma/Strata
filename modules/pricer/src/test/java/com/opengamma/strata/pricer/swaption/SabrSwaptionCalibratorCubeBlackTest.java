@@ -7,13 +7,10 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS;
-import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES;
-import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.MONEYNESS;
-import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DATA_ARRAY_SPARSE;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -26,10 +23,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -47,25 +45,24 @@ import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
+import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.RawOptionData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Tests {@link SabrSwaptionCalibrationUtils} for a cube. Realistic dimension and data.
+ * Tests {@link SabrSwaptionCalibrator} for a cube. Realistic dimension and data.
  */
 @Test
-public class SabrSwaptionCalibrationUtilsCubeNormalTest {
+public class SabrSwaptionCalibratorCubeBlackTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate CALIBRATION_DATE = LocalDate.of(2016, 2, 29);
-  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(10, 0).atZone(ZoneId.of( "Europe/Berlin" ));
-  
-  private static final SabrSwaptionCalibrationUtils SABR_CALIBRATION = SabrSwaptionCalibrationUtils.DEFAULT;
+  private static final ZonedDateTime CALIBRATION_TIME = CALIBRATION_DATE.atTime(10, 0).atZone(ZoneId.of("Europe/Berlin"));
+
+  private static final SabrSwaptionCalibrator SABR_CALIBRATION = SabrSwaptionCalibrator.DEFAULT;
 
   private static final String BASE_DIR = "src/test/resources/";
   private static final String GROUPS_FILE = "curve-config/EUR-DSCONOIS-E3BS-E6IRS-group.csv";
@@ -78,26 +75,71 @@ public class SabrSwaptionCalibrationUtilsCubeNormalTest {
           ResourceLocator.of(BASE_DIR + GROUPS_FILE),
           ResourceLocator.of(BASE_DIR + SETTINGS_FILE),
           ResourceLocator.of(BASE_DIR + NODES_FILE)).get(0);
-  private static final Map<QuoteId, Double> MAP_MQ = 
+  private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.builder(CALIBRATION_DATE)
       .addValuesById(MAP_MQ).build();
-  
+
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
   private static final ImmutableRatesProvider MULTICURVE =
-      CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);  
-  
+      CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
-  private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_ARRAY_SPARSE);
+
+  private static final DoubleArray MONEYNESS =
+      DoubleArray.of(-0.0100, -0.0050, -0.0025, 0.0000, 0.0025, 0.0050, 0.0100, 0.0200);
+  private static final List<Period> EXPIRIES = new ArrayList<>();
+  private static final List<Tenor> TENORS = new ArrayList<>();
+
+  static {
+    EXPIRIES.add(Period.ofMonths(1));
+    EXPIRIES.add(Period.ofMonths(3));
+    EXPIRIES.add(Period.ofMonths(6));
+    EXPIRIES.add(Period.ofYears(1));
+    EXPIRIES.add(Period.ofYears(2));
+    EXPIRIES.add(Period.ofYears(5));
+    TENORS.add(Tenor.TENOR_1Y);
+    TENORS.add(Tenor.TENOR_2Y);
+    TENORS.add(Tenor.TENOR_5Y);
+    TENORS.add(Tenor.TENOR_10Y);
+  }
+
+  private static final double[][][] DATA_LOGNORMAL_SPARSE = {
+      {{Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, 1.4019, 1.0985, 0.8441, 0.6468}},
+      {{Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, 1.969, Double.NaN, 1.2894, 1.0152, 0.8718, 0.7142, 0.5712}},
+      {{Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, 6.2852, 4.2545, 2.5079, 1.8524},
+          {Double.NaN, Double.NaN, Double.NaN, Double.NaN, 4.0593, 2.2422, 1.5647, 1.2192},
+          {Double.NaN, Double.NaN, 3.1613, 2.8434, 1.5934, 1.2644, 0.9856, 0.7885},
+          {2.0291, 1.2216, 0.9355, 0.7936, 0.7047, 0.643, 0.5625, 0.4793}},
+      {{Double.NaN, 6.6443, 1.8125, 1.3324, 1.1296, 1.0273, 0.9392, 0.8961},
+          {Double.NaN, 4.3337, 1.6752, 1.2496, 1.0687, 0.9785, 0.9032, 0.8712},
+          {Double.NaN, 3.2343, 1.5785, 1.2105, 1.0415, 0.9499, 0.8629, 0.8123},
+          {Double.NaN, 2.3148, 1.3951, 1.1006, 0.9474, 0.8544, 0.751, 0.6684},
+          {Double.NaN, 1.5092, 1.1069, 0.9209, 0.8095, 0.7348, 0.6416, 0.5518},
+          {2.1248, 0.8566, 0.734, 0.6542, 0.5972, 0.5541, 0.4929, 0.4218}}
+  };
+  private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_LOGNORMAL_SPARSE);
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
-  private static final double TOLERANCE_PRICE_CALIBRATION_LS = 5.0E-4; // Calibration Least Square; result not exact
+  private static final double TOLERANCE_PRICE_CALIBRATION_LS = 1.0E-3; // Calibration Least Square; result not exact
 
   @Test
-  public void normal_cube() {
+  public void log_normal_cube() {
     double beta = 0.50;
     NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta);
     double shift = 0.0300;
@@ -119,14 +161,16 @@ public class SabrSwaptionCalibrationUtilsCubeNormalTest {
         ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
         double time = calibrated.relativeTime(expiryDateTime);
         for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
-          if (!Double.isNaN(DATA_ARRAY_SPARSE[looptenor][loopexpiry][loopmoney])) {
+          if (!Double.isNaN(DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney])) {
             double strike = parRate + MONEYNESS.get(loopmoney);
             double volBlack = calibrated.volatility(expiryDateTime, tenor, strike, parRate);
             double priceComputed = BlackFormulaRepository.price(parRate + shift, parRate + MONEYNESS.get(loopmoney) + shift,
                 time, volBlack, true);
-            double priceNormal = NormalFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
-                time, DATA_ARRAY_SPARSE[looptenor][loopexpiry][loopmoney], PutCall.CALL);
-            assertEquals(priceComputed, priceNormal, TOLERANCE_PRICE_CALIBRATION_LS);
+            double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
+                time, DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney], true);
+            if (strike > 0.0025) { // Test only for strikes above 25bps
+              assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
+            }
           }
         }
       }
@@ -136,10 +180,10 @@ public class SabrSwaptionCalibrationUtilsCubeNormalTest {
   private static List<RawOptionData> rawData(double[][][] dataArray) {
     List<RawOptionData> raw = new ArrayList<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES, 
-          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.NORMAL_VOLATILITY));
+      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
+          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.BLACK_VOLATILITY));
     }
     return raw;
   }
-  
+
 }

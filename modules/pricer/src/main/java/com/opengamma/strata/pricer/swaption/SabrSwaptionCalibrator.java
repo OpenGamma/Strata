@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
@@ -33,8 +32,8 @@ import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMe
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.impl.volatility.smile.fitting.SabrModelFitter;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
@@ -42,44 +41,79 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolat
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Utilities to calibrate SABR parameters to swaptions.
  */
-public class SabrSwaptionCalibrationUtils {
-
-  /** The reference data for calendars. This could be part of the constructor.*/
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
-
-  /** The SABR implied volatility function. */
-  private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
-  /** The swap pricer. Required for forward rate computation. */
-  private final DiscountingSwapProductPricer swapPricer;
-
-  /** The default instance of the class. */
-  public static final SabrSwaptionCalibrationUtils DEFAULT =
-      new SabrSwaptionCalibrationUtils(
-          SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT);
+public class SabrSwaptionCalibrator {
 
   /**
-   * Constructor from a SABR volatility function provider and a swap pricer.
+   * The SABR implied volatility function.
+   */
+  private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
+  /**
+   * The swap pricer.
+   * Required for forward rate computation.
+   */
+  private final DiscountingSwapProductPricer swapPricer;
+  /**
+   * The reference data.
+   */
+  private final ReferenceData refData;
+
+  /**
+   * The default instance of the class.
+   */
+  public static final SabrSwaptionCalibrator DEFAULT =
+      new SabrSwaptionCalibrator(
+          SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a SABR volatility function provider and a swap pricer.
    * <p>
    * The swap pricer is used to compute the forward rate required for calibration.
    * 
    * @param sabrFunctionProvider  the SABR implied volatility formula provider
    * @param swapPricer  the swap pricer
    */
-  public SabrSwaptionCalibrationUtils(
+  public static SabrSwaptionCalibrator of(
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
       DiscountingSwapProductPricer swapPricer) {
 
-    this.sabrFunctionProvider = sabrFunctionProvider;
-    this.swapPricer = swapPricer;
+    return new SabrSwaptionCalibrator(sabrFunctionProvider, swapPricer, ReferenceData.standard());
   }
 
+  /**
+   * Obtains an instance from a SABR volatility function provider and a swap pricer.
+   * <p>
+   * The swap pricer is used to compute the forward rate required for calibration.
+   * 
+   * @param sabrFunctionProvider  the SABR implied volatility formula provider
+   * @param swapPricer  the swap pricer
+   * @param refData  the reference data
+   */
+  public static SabrSwaptionCalibrator of(
+      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
+      DiscountingSwapProductPricer swapPricer,
+      ReferenceData refData) {
+
+    return new SabrSwaptionCalibrator(sabrFunctionProvider, swapPricer, refData);
+  }
+
+  private SabrSwaptionCalibrator(
+      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
+      DiscountingSwapProductPricer swapPricer,
+      ReferenceData refData) {
+
+    this.sabrFunctionProvider = sabrFunctionProvider;
+    this.swapPricer = swapPricer;
+    this.refData = refData;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calibrate SABR parameters to a set of raw swaption data. 
    * <p>
@@ -109,10 +143,18 @@ public class SabrSwaptionCalibrationUtils {
       NodalSurface shiftSurface,
       GridInterpolator2D interpolator) {
 
-    boolean stopOnMathException = true;
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
-    return calibrateWithFixedBetaAndShift(convention, calibrationDateTime, dayCount, tenors, data, ratesProvider, 
-        betaSurface, shiftSurface, interpolator, stopOnMathException);
+    return calibrateWithFixedBetaAndShift(
+        convention,
+        calibrationDateTime,
+        dayCount,
+        tenors,
+        data,
+        ratesProvider,
+        betaSurface,
+        shiftSurface,
+        interpolator,
+        true);
   }
 
   /**
@@ -134,7 +176,7 @@ public class SabrSwaptionCalibrationUtils {
    * @param shiftSurface  the shift surface
    * @param interpolator  the interpolator for the alpha, rho and nu surfaces
    * @param stopOnMathException  flag indicating if the calibration should stop on math exceptions or skip the 
-   * expiries/tenors which throw MathException
+   *   expiries/tenors which throw MathException
    * @return the SABR volatility object
    */
   @SuppressWarnings("null")
@@ -149,7 +191,7 @@ public class SabrSwaptionCalibrationUtils {
       NodalSurface shiftSurface,
       GridInterpolator2D interpolator,
       boolean stopOnMathException) {
-    
+
     BitSet fixed = new BitSet();
     fixed.set(1); // Beta fixed
     int nbTenors = tenors.size();
@@ -162,8 +204,7 @@ public class SabrSwaptionCalibrationUtils {
     DoubleArray nuArray = DoubleArray.EMPTY;
     List<SurfaceParameterMetadata> parameterMetadata = new ArrayList<>();
     for (int looptenor = 0; looptenor < nbTenors; looptenor++) {
-      double timeTenor = tenors.get(looptenor).getPeriod().getYears()
-          + tenors.get(looptenor).getPeriod().getMonths() / 12;
+      double timeTenor = tenors.get(looptenor).getPeriod().getYears() + tenors.get(looptenor).getPeriod().getMonths() / 12;
       List<Period> expiries = data.get(looptenor).getExpiries();
       int nbExpiries = expiries.size();
       for (int loopexpiry = 0; loopexpiry < nbExpiries; loopexpiry++) {
@@ -172,13 +213,13 @@ public class SabrSwaptionCalibrationUtils {
           continue;
         }
         LocalDate exerciseDate = expirationDate(bda, calibrationDate, expiries.get(loopexpiry));
-        LocalDate effectiveDate = convention.calculateSpotDateFromTradeDate(exerciseDate, REF_DATA);
+        LocalDate effectiveDate = convention.calculateSpotDateFromTradeDate(exerciseDate, refData);
         double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
         double beta = betaSurface.zValue(timeToExpiry, timeTenor);
         double shift = shiftSurface.zValue(timeToExpiry, timeTenor);
         LocalDate endDate = effectiveDate.plus(tenors.get(looptenor));
         SwapTrade swap0 = convention.toTrade(calibrationDate, effectiveDate, endDate, BuySell.BUY, 1.0, 0.0);
-        double forward = swapPricer.parRate(swap0.getProduct().resolve(REF_DATA), ratesProvider);
+        double forward = swapPricer.parRate(swap0.getProduct().resolve(refData), ratesProvider);
         SabrFormulaData sabrPoint = null;
         boolean error = false;
         try {
@@ -193,11 +234,11 @@ public class SabrSwaptionCalibrationUtils {
           }
         }
         if (!error) {
-          timeToExpiryArray = timeToExpiryArray.concat(new double[] {timeToExpiry });
-          timeTenorArray = timeTenorArray.concat(new double[] {timeTenor });
-          alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha() });
-          rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho() });
-          nuArray = nuArray.concat(new double[] {sabrPoint.getNu() });
+          timeToExpiryArray = timeToExpiryArray.concat(new double[] {timeToExpiry});
+          timeTenorArray = timeTenorArray.concat(new double[] {timeTenor});
+          alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha()});
+          rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
+          nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
           parameterMetadata.add(SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor,
               expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
         }
@@ -227,16 +268,26 @@ public class SabrSwaptionCalibrationUtils {
         .of(metadataRho, timeToExpiryArray, timeTenorArray, rhoArray, interpolator);
     InterpolatedNodalSurface nuSurface = InterpolatedNodalSurface
         .of(metadataNu, timeToExpiryArray, timeTenorArray, nuArray, interpolator);
-    return SabrParametersSwaptionVolatilities.of(
-        SabrInterestRateParameters.of(alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface),
-        convention, calibrationDateTime, dayCount);
+    SabrInterestRateParameters params = SabrInterestRateParameters.of(
+        alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
+    return SabrParametersSwaptionVolatilities.of(params, convention, calibrationDateTime, dayCount);
   }
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high
   // volatilities and high and low vol of vol. The best result (in term of chi^2) is returned.
-  private SabrFormulaData calibration(double forward, double shift, double beta, BitSet fixed,
-      BusinessDayAdjustment bda, ZonedDateTime calibrationDateTime, DayCount dayCount,
-      DoubleArray strike, DoubleArray data, Period expiry, RawOptionData rawData) {
+  private SabrFormulaData calibration(
+      double forward,
+      double shift,
+      double beta,
+      BitSet fixed,
+      BusinessDayAdjustment bda,
+      ZonedDateTime calibrationDateTime,
+      DayCount dayCount,
+      DoubleArray strike,
+      DoubleArray data,
+      Period expiry,
+      RawOptionData rawData) {
+
     double rhoStart = -0.50 * beta + 0.50 * (1 - beta);
     // Correlation is usually positive for normal and negative for log-normal;.
     double[] alphaStart = new double[4];
@@ -252,7 +303,7 @@ public class SabrSwaptionCalibrationUtils {
     double chi2 = 1.0E+12; // Large number 
     SabrFormulaData sabrPoint = null;
     for (int i = 0; i < 4; i++) { // Try different starting points and take the best
-      DoubleArray startParameters = DoubleArray.ofUnsafe(new double[] {alphaStart[i], beta, rhoStart, nuStart[i] });
+      DoubleArray startParameters = DoubleArray.of(alphaStart[i], beta, rhoStart, nuStart[i]);
       LeastSquareResultsWithTransform r = null;
       if (rawData.getDataType().equals(ValueType.NORMAL_VOLATILITY)) {
         r = calibrateShiftedFromNormalVolatilities(bda, calibrationDateTime, dayCount,
@@ -267,7 +318,7 @@ public class SabrSwaptionCalibrationUtils {
           if (rawData.getDataType().equals(ValueType.BLACK_VOLATILITY)) {
             r = calibrateShiftedFromBlackVolatilities(bda, calibrationDateTime, dayCount,
                 expiry, forward, strike, rawData.getStrikeType(),
-                data, rawData.getShift(), startParameters, fixed, shift);
+                data, rawData.getShift().orElse(0d), startParameters, fixed, shift);
           } else {
             throw new IllegalArgumentException("Data type not supported");
           }
@@ -281,9 +332,12 @@ public class SabrSwaptionCalibrationUtils {
     return sabrPoint;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calibrate the SABR parameters to a set of Black volatilities at given moneyness. All the associated swaptions
-   * have the same expiration date, given by a period from calibration time, and the same tenor.
+   * Calibrate the SABR parameters to a set of Black volatilities at given moneyness.
+   * <p>
+   * All the associated swaptions have the same expiration date, given by a period
+   * from calibration time, and the same tenor.
    * 
    * @param bda  the business day adjustment for the exercise date adjustment
    * @param calibrationDateTime  the calibration date and time
@@ -319,17 +373,17 @@ public class SabrSwaptionCalibrationUtils {
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate exerciseDate = expirationDate(bda, calibrationDate, periodToExpiry);
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
-    double[] errors = new double[nbStrikes];
-    Arrays.fill(errors, 1e-4);
+    DoubleArray errors = DoubleArray.filled(nbStrikes, 1e-4);
     DoubleArray strikes = strikesShifted(forward, 0.0, strikesLike, strikeType);
     DoubleArray blackVolatilitiesTransformed = blackVolatilitiesShiftedFromBlackVolatilitiesShifted(
         forward, shiftOutput, timeToExpiry, strikes, blackVolatilitiesInput, shiftInput);
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
     SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
-        blackVolatilitiesTransformed, DoubleArray.ofUnsafe(errors), sabrFunctionProvider);
+        blackVolatilitiesTransformed, errors, sabrFunctionProvider);
     return fitter.solve(startParameters, fixedParameters);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an array of shifted Black volatilities from shifted Black volatilities with a different shift.
    * 
@@ -352,20 +406,20 @@ public class SabrSwaptionCalibrationUtils {
     if (shiftInput == shiftOutput) {
       return blackVolatilities; // No change required if shifts are the same
     }
-    int nbStrikes = strikes.size();
-    double[] bv = new double[nbStrikes];
-    for (int i = 0; i < nbStrikes; i++) {
+    return DoubleArray.of(strikes.size(), i -> {
       double price = BlackFormulaRepository.price(
           forward + shiftInput, strikes.get(i) + shiftInput, timeToExpiry, blackVolatilities.get(i), true);
-      bv[i] = BlackFormulaRepository.impliedVolatility(
+      return BlackFormulaRepository.impliedVolatility(
           price, forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, true);
-    }
-    return DoubleArray.ofUnsafe(bv);
+    });
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calibrate the SABR parameters to a set of option prices at given moneyness. All the associated swaptions
-   * have the same expiration date, given by a period from calibration time, and the same tenor.
+   * Calibrate the SABR parameters to a set of option prices at given moneyness.
+   * <p>
+   * All the associated swaptions have the same expiration date, given by a period
+   * from calibration time, and the same tenor.
    * 
    * @param bda  the business day adjustment for the exercise date adjustment
    * @param calibrationDateTime  the calibration date and time
@@ -399,17 +453,17 @@ public class SabrSwaptionCalibrationUtils {
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate exerciseDate = expirationDate(bda, calibrationDate, periodToExpiry);
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
-    double[] errors = new double[nbStrikes];
-    Arrays.fill(errors, 1e-4);
+    DoubleArray errors = DoubleArray.filled(nbStrikes, 1e-4);
     DoubleArray strikes = strikesShifted(forward, 0.0, strikesLike, strikeType);
     DoubleArray blackVolatilitiesTransformed = blackVolatilitiesShiftedFromPrices(
         forward, shiftOutput, timeToExpiry, strikes, prices);
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
     SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
-        blackVolatilitiesTransformed, DoubleArray.ofUnsafe(errors), sabrFunctionProvider);
+        blackVolatilitiesTransformed, errors, sabrFunctionProvider);
     return fitter.solve(startParameters, fixedParameters);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an array of shifted Black volatilities from option prices.
    * 
@@ -427,18 +481,18 @@ public class SabrSwaptionCalibrationUtils {
       DoubleArray strikes,
       DoubleArray prices) {
 
-    int nbStrikes = strikes.size();
-    double[] bv = new double[nbStrikes];
-    for (int i = 0; i < nbStrikes; i++) {
-      bv[i] = BlackFormulaRepository.impliedVolatility(
+    return DoubleArray.of(strikes.size(), i -> {
+      return BlackFormulaRepository.impliedVolatility(
           prices.get(i), forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, true);
-    }
-    return DoubleArray.ofUnsafe(bv);
+    });
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Calibrate the SABR parameters to a set of normal volatilities at given moneyness. All the associated swaptions
-   * have the same expiration date, given by a period from calibration time, and the same tenor.
+   * Calibrate the SABR parameters to a set of normal volatilities at given moneyness.
+   * <p>
+   * All the associated swaptions have the same expiration date, given by a period
+   * from calibration time, and the same tenor.
    * 
    * @param bda  the business day adjustment for the exercise date adjustment
    * @param calibrationDateTime  the calibration date and time
@@ -472,18 +526,18 @@ public class SabrSwaptionCalibrationUtils {
     LocalDate calibrationDate = calibrationDateTime.toLocalDate();
     LocalDate exerciseDate = expirationDate(bda, calibrationDate, periodToExpiry);
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
-    double[] errors = new double[nbStrikes];
-    Arrays.fill(errors, 1e-4);
+    DoubleArray errors = DoubleArray.filled(nbStrikes, 1e-4);
     DoubleArray strikes = strikesShifted(forward, 0.0, strikesLike, strikeType);
     DoubleArray blackVolatilitiesTransformed = blackVolatilitiesShiftedFromNormalVolatilities(
         forward, shiftOutput, timeToExpiry, strikes, normalVolatilities);
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
-    SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
-        blackVolatilitiesTransformed, DoubleArray.ofUnsafe(errors), sabrFunctionProvider);
+    SabrModelFitter fitter = new SabrModelFitter(
+        forward + shiftOutput, strikesShifted, timeToExpiry, blackVolatilitiesTransformed, errors, sabrFunctionProvider);
     LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return result;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an array of shifted Black volatilities from Normal volatilities.
    * <p>
@@ -504,15 +558,13 @@ public class SabrSwaptionCalibrationUtils {
       DoubleArray strikes,
       DoubleArray normalVolatilities) {
 
-    int nbStrikes = strikes.size();
-    double[] bv = new double[nbStrikes];
-    for (int i = 0; i < nbStrikes; i++) {
-      bv[i] = BlackFormulaRepository.impliedVolatilityFromNormalApproximated(
+    return DoubleArray.of(strikes.size(), i -> {
+      return BlackFormulaRepository.impliedVolatilityFromNormalApproximated(
           forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, normalVolatilities.get(i));
-    }
-    return DoubleArray.ofUnsafe(bv);
+    });
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Compute shifted strikes from forward and strike-like value type.
    * 
@@ -524,41 +576,28 @@ public class SabrSwaptionCalibrationUtils {
    */
   private DoubleArray strikesShifted(double forward, double shiftOutput, DoubleArray strikesLike, ValueType strikeType) {
     int nbStrikes = strikesLike.size();
-    double[] strikes = new double[nbStrikes];
     if (strikeType.equals(ValueType.STRIKE)) {
-      for (int i = 0; i < nbStrikes; i++) {
-        strikes[i] = strikesLike.get(i) + shiftOutput;
-      }
-      return DoubleArray.ofUnsafe(strikes);
+      return DoubleArray.of(nbStrikes, i -> strikesLike.get(i) + shiftOutput);
     }
     if (strikeType.equals(ValueType.SIMPLE_MONEYNESS)) {
-      for (int i = 0; i < nbStrikes; i++) {
-        strikes[i] = forward + strikesLike.get(i) + shiftOutput;
-      }
-      return DoubleArray.ofUnsafe(strikes);
+      return DoubleArray.of(nbStrikes, i -> forward + strikesLike.get(i) + shiftOutput);
     }
     if (strikeType.equals(ValueType.LOG_MONEYNESS)) {
-      for (int i = 0; i < nbStrikes; i++) {
-        strikes[i] = forward * Math.exp(strikesLike.get(i)) + shiftOutput;
-      }
-      return DoubleArray.ofUnsafe(strikes);
+      return DoubleArray.of(nbStrikes, i -> forward * Math.exp(strikesLike.get(i)) + shiftOutput);
     }
     throw new IllegalArgumentException("Strike type not supported");
   }
 
   /**
    * Calculates the expiration date of a swaption from the calibration date and the underlying swap convention.
+   * 
    * @param convention  the underlying swap convention
    * @param calibrationDate  the calibration date
    * @param expiry  the period to expiry
    * @return the date
    */
-  private LocalDate expirationDate(
-      BusinessDayAdjustment bda,
-      LocalDate calibrationDate,
-      Period expiry) {
-
-    return bda.adjust(calibrationDate.plus(expiry), REF_DATA);
+  private LocalDate expirationDate(BusinessDayAdjustment bda, LocalDate calibrationDate, Period expiry) {
+    return bda.adjust(calibrationDate.plus(expiry), refData);
   }
 
 }
