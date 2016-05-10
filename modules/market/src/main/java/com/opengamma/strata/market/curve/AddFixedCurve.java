@@ -66,6 +66,11 @@ public final class AddFixedCurve
   }
 
   @Override
+  public AddFixedCurve withMetadata(CurveMetadata metadata) {
+    return new AddFixedCurve(fixedCurve, spreadCurve.withMetadata(metadata));
+  }
+
+  @Override
   public int getParameterCount() {
     return spreadCurve.getParameterCount();
   }

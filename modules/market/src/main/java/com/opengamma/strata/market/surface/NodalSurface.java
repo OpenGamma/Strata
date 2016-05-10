@@ -28,6 +28,18 @@ public interface NodalSurface
     extends Surface {
 
   /**
+   * Returns a new surface with the specified metadata.
+   * <p>
+   * This allows the metadata of the surface to be changed while retaining all other information.
+   * If parameter metadata is present, the size of the list must match the number of parameters of this surface.
+   * 
+   * @param metadata  the new metadata for the surface
+   * @return the new surface
+   */
+  @Override
+  public abstract NodalSurface withMetadata(SurfaceMetadata metadata);
+
+  /**
    * Gets the known x-values of the surface.
    * <p>
    * This method returns the fixed x-values used to define the surface.

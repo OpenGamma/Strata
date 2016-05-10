@@ -26,6 +26,18 @@ public interface NodalCurve
     extends Curve {
 
   /**
+   * Returns a new curve with the specified metadata.
+   * <p>
+   * This allows the metadata of the curve to be changed while retaining all other information.
+   * If parameter metadata is present, the size of the list must match the number of parameters of this curve.
+   * 
+   * @param metadata  the new metadata for the curve
+   * @return the new curve
+   */
+  @Override
+  public abstract NodalCurve withMetadata(CurveMetadata metadata);
+
+  /**
    * Gets the known x-values of the curve.
    * <p>
    * This method returns the fixed x-values used to define the curve.

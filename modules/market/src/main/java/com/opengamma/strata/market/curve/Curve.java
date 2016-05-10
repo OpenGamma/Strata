@@ -40,6 +40,17 @@ public interface Curve {
   public abstract CurveMetadata getMetadata();
 
   /**
+   * Returns a new curve with the specified metadata.
+   * <p>
+   * This allows the metadata of the curve to be changed while retaining all other information.
+   * If parameter metadata is present, the size of the list must match the number of parameters of this curve.
+   * 
+   * @param metadata  the new metadata for the curve
+   * @return the new curve
+   */
+  public abstract Curve withMetadata(CurveMetadata metadata);
+
+  /**
    * Gets the curve name.
    * 
    * @return the curve name

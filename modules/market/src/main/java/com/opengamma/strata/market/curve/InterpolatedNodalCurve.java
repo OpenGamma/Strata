@@ -198,6 +198,11 @@ public final class InterpolatedNodalCurve
 
   //-------------------------------------------------------------------------
   @Override
+  public InterpolatedNodalCurve withMetadata(CurveMetadata metadata) {
+    return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
+  }
+
+  @Override
   public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
   }

@@ -157,6 +157,11 @@ public class IsdaCdsPricer {
     }
 
     @Override
+    public ISDANodalCurve withMetadata(CurveMetadata metadata) {
+      return new ISDANodalCurve(underlyingCurve, metadata);
+    }
+
+    @Override
     public int getParameterCount() {
       return underlyingCurve.getNumberOfKnots();
     }

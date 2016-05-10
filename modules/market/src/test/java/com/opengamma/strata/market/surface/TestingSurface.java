@@ -29,6 +29,11 @@ public class TestingSurface implements Surface {
   }
 
   @Override
+  public Surface withMetadata(SurfaceMetadata metadata) {
+    throw new IllegalStateException();
+  }
+
+  @Override
   public int getParameterCount() {
     throw new IllegalStateException();
   }
