@@ -315,7 +315,6 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsDeltaIntegrantProvider intProv = new CmsDeltaIntegrantProvider(
         cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
-//    double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL, NUM_ITER);
     double[] bs = intProv.bsbsp(strikeCpn);
     double[] n = intProv.getNnp();
