@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.rate;
 
+import java.util.Optional;
+
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -13,7 +15,9 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.view.FxForwardRates;
@@ -135,6 +139,16 @@ public interface RatesProvider
   MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
+  /**
+   * Finds the curve with the specified name.
+   * <p>
+   * If the curve cannot be found, empty is returned.
+   * 
+   * @param name  the curve name
+   * @return the curve, empty if not found
+   */
+  public abstract Optional<Curve> findCurve(CurveName name);
+
   /**
    * Gets the time series.
    * <p>

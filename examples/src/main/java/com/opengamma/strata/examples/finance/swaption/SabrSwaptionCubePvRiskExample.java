@@ -54,7 +54,7 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.calibration.RawOptionData;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionPhysicalProductPricer;
@@ -137,8 +137,7 @@ public class SabrSwaptionCubePvRiskExample {
 
     start = System.currentTimeMillis();
     // Curve calibration 
-    ImmutableRatesProvider multicurve =
-        CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+    RatesProvider multicurve = CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
     end = System.currentTimeMillis();
     System.out.println("Curve calibration time: " + (end - start) + " ms.");
 

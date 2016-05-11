@@ -51,6 +51,7 @@ import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
@@ -89,7 +90,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_1_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_1_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_1_FILE)).get(0);
-  private static final ImmutableRatesProvider MULTICURVE_EUR_SINGLE_CALIBRATED =
+  private static final RatesProvider MULTICURVE_EUR_SINGLE_CALIBRATED =
       CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
   public static final CalibrationMeasures MARKET_QUOTE = CalibrationMeasures.MARKET_QUOTE;
@@ -209,7 +210,7 @@ public class CurveSensitivityUtilsJacobianTest {
     }
     ImmutableMarketData marketQuotesObject =
         ImmutableMarketData.builder(VALUATION_DATE).addValuesById(mqCmp).build();
-    ImmutableRatesProvider multicurveCmp =
+    RatesProvider multicurveCmp =
         CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, marketQuotesObject, REF_DATA, TS_EMPTY);
 
     /* Comparison */
@@ -239,7 +240,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_2_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_2_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_2_FILE)).get(0);
-  private static final ImmutableRatesProvider MULTICURVE_EUR_2_CALIBRATED =
+  private static final RatesProvider MULTICURVE_EUR_2_CALIBRATED =
       CALIBRATOR.calibrate(GROUPS_IN_2, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
 
