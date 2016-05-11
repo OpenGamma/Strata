@@ -248,11 +248,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   }
 
   /**
-   * Computes the adjusted forward rate for a CMS coupon.
+   * Computes the adjustment to the forward rate for a CMS coupon.
    * <p>
-   * The adjusted forward rate, is the number such that, multiplied by the notional, the year fraction and the payment
-   * date discount factor, it produces the present value. In other terms, it is the number which used in the same
-   * formula used for Ibor coupon pricing will provide the correct present value.
+   * The adjustment to the forward rate, is the quantity that need to be added to the forward rate to obtain the 
+   * adjusted forward rate. The adjusted forward rate is the number which used in the same formula used for 
+   * Ibor coupon pricing (forward * notional * accrual factor * discount factor) will provide the correct present value.
    * 
    * @param cmsPeriod  the CMS period, which should be of the type {@link CmsPeriodType#COUPON}
    * @param provider  the rates provider
