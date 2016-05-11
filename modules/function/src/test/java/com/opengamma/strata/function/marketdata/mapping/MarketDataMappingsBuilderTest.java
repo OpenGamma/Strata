@@ -14,7 +14,6 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.MissingMappingId;
 import com.opengamma.strata.market.curve.Curve;
@@ -22,11 +21,9 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.DiscountCurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.PriceIndexCurveId;
-import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.PriceIndexCurveKey;
-import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
 
 /**
  * Test {@link MarketDataMappingsBuilder}.
@@ -62,13 +59,10 @@ public class MarketDataMappingsBuilderTest {
    */
   public void mappingAvailableForSomeTypesButNotAll() {
     MarketDataMappings mappings = MarketDataMappingsBuilder.create().build();
-    MarketDataKey<?> volKey = SwaptionVolatilitiesKey.of(IborIndices.CHF_LIBOR_1M);
     DiscountCurveKey curveKey = DiscountCurveKey.of(Currency.GBP);
     MarketDataId<Curve> curveId = mappings.getIdForKey(curveKey);
-    MarketDataId<?> volId = mappings.getIdForKey(volKey);
 
     assertThat(curveId).isEqualTo(MissingMappingId.of(curveKey));
-    assertThat(volId).isEqualTo(SwaptionVolatilitiesId.of(IborIndices.CHF_LIBOR_1M));
   }
 
   public void curveGroupMappings() {
