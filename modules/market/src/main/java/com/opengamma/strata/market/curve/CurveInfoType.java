@@ -11,9 +11,20 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.TypedString;
 
 /**
- * The type of additional curve information.
+ * The type that provides meaning to additional curve information.
+ * <p>
+ * Additional curve information is stored in {@link CurveMetadata}.
+ * It provides the ability to associate arbitrary information with a curve in a key-value map.
+ * For example, it might be used to provide information about one of the axes.
+ * <p>
+ * Applications that wish to use curve information should declare a static
+ * constant declaring the {@code CurveInfoType} instance, the type parameter
+ * and an UpperCamelCase name. For example:
+ * <pre>
+ *  public static final CurveInfoType&lt;String&gt; OWNER = CurveInfoType.of("Owner");
+ * </pre>
  * 
- * @param <T>  the type associated with the info
+ * @param <T>  the type of the associated value
  */
 public final class CurveInfoType<T>
     extends TypedString<CurveInfoType<T>> {

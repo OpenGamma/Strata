@@ -58,10 +58,11 @@ public interface CurveMetadata {
    */
   public abstract ValueType getYValueType();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets curve information of a specific type.
    * <p>
-   * This method supplies whatever additional information is available for the curve.
+   * If the information is not found, an exception is thrown.
    * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
    * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
@@ -79,10 +80,10 @@ public interface CurveMetadata {
   /**
    * Finds curve information of a specific type.
    * <p>
+   * If the info is not found, optional empty is returned.
+   * <p>
    * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
    * and {@linkplain CurveInfoType#JACOBIAN curve calibration information}.
-   * <p>
-   * If the info is not found, optional empty is returned.
    * 
    * @param <T>  the type of the info
    * @param type  the type to find
@@ -124,6 +125,6 @@ public interface CurveMetadata {
    * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new curve metadata
    */
-  public abstract CurveMetadata withParameterMetadata(List<CurveParameterMetadata> parameterMetadata);
+  public abstract CurveMetadata withParameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata);
 
 }

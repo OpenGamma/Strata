@@ -133,22 +133,19 @@ public final class SimpleIborIndexRates
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(valuationDate, "valuationDate");
     ArgChecker.notNull(curve, "curve");
+    ArgChecker.notNull(fixings, "fixings");
     curve.getMetadata().getXValueType().checkEquals(
         ValueType.YEAR_FRACTION, "Incorrect x-value type for ibor curve");
     curve.getMetadata().getYValueType().checkEquals(
         ValueType.FORWARD_RATE, "Incorrect y-value type for ibor curve");
-    if (!curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT).isPresent()) {
-      throw new IllegalArgumentException("Incorrect curve metadata, missing DayCount");
-    }
-    JodaBeanUtils.notNull(valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(curve, "curve");
-    JodaBeanUtils.notNull(fixings, "fixings");
+    DayCount dayCount = curve.getMetadata().findInfo(CurveInfoType.DAY_COUNT)
+        .orElseThrow(() -> new IllegalArgumentException("Incorrect curve metadata, missing DayCount"));
+
     this.valuationDate = valuationDate;
     this.index = index;
     this.curve = curve;
     this.fixings = fixings;
-    this.dayCount = curve.getMetadata().getInfo(CurveInfoType.DAY_COUNT);
+    this.dayCount = dayCount;
   }
 
   @Override
