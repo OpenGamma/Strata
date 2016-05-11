@@ -66,10 +66,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * The minimal number of iterations for the numerical integration.
    */
   private static final int NUM_ITER = 10;
-  /**
-   * The relative tolerance for the numerical integration in PV computation.
-   */
-  private static final double REL_TOL = 1e-10;
+  /** The relative tolerance for the numerical integration in PV computation. */
+  private static final double REL_TOL = 1.0e-10;
+  /** The absolute tolerance for the numerical integration in PV computation. 
+   * The numerical integration stops when the difference between two steps is below the absolute tolerance
+   * plus the relative tolerance multiplied by the value.*/
+  private static final double ABS_TOL = 1.0e-8;
   /**
    * The relative tolerance for the numerical integration in sensitivity computation.
    */
@@ -197,8 +199,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
     double strikePart = factor * intProv.k(strikeCpn) * intProv.bs(strikeCpn);
-    double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL, NUM_ITER);
+    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL, NUM_ITER);
     double integralPart = 0d;
     Function<Double, Double> integrant = intProv.integrant();
     try {
@@ -217,6 +218,57 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     }
     priceCMS *= cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     return CurrencyAmount.of(ccy, priceCMS);
+  }
+
+  /**
+   * Computes the adjusted forward rate for a CMS coupon.
+   * <p>
+   * The adjusted forward rate, is the number such that, multiplied by the notional, the year fraction and the payment
+   * date discount factor, it produces the present value. In other terms, it is the number which used in the same
+   * formula used for Ibor coupon pricing will provide the correct present value.
+   * <p>
+   * For period already fixed, this number will be equal to the swap index fixing.
+   * 
+   * @param cmsPeriod  the CMS period, which should be of the type {@link CmsPeriodType#COUPON}
+   * @param provider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the adjusted forward rate
+   */
+  public double adjustedForwardRate(
+      CmsPeriod cmsPeriod,
+      RatesProvider provider,
+      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+    
+    ArgChecker.isTrue(cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
+        "Adjusted forward rate available only for CMS coupons");
+    Currency ccy = cmsPeriod.getCurrency();
+    double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
+    double pv = presentValue(cmsPeriod, provider, swaptionVolatilities).getAmount();
+    return pv / (cmsPeriod.getNotional() * cmsPeriod.getYearFraction() * dfPayment);
+  }
+
+  /**
+   * Computes the adjustment to the forward rate for a CMS coupon.
+   * <p>
+   * The adjustment to the forward rate, is the quantity that need to be added to the forward rate to obtain the 
+   * adjusted forward rate. The adjusted forward rate is the number which used in the same formula used for 
+   * Ibor coupon pricing (forward * notional * accrual factor * discount factor) will provide the correct present value.
+   * 
+   * @param cmsPeriod  the CMS period, which should be of the type {@link CmsPeriodType#COUPON}
+   * @param provider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   * @return the adjusted forward rate
+   */
+  public double adjustmentToForwardRate(
+      CmsPeriod cmsPeriod,
+      RatesProvider provider,
+      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+    
+    ArgChecker.isTrue(cmsPeriod.getFixingDate().isAfter(provider.getValuationDate()), 
+        "Adjustment computed only for coupon with fixing (strictly) after the valuation date");
+    double adjustedForwardRate = adjustedForwardRate(cmsPeriod, provider, swaptionVolatilities);
+    double forward = swapPricer.parRate(cmsPeriod.getUnderlyingSwap(), provider);
+    return adjustedForwardRate - forward;
   }
 
   //-------------------------------------------------------------------------
@@ -263,9 +315,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsDeltaIntegrantProvider intProv = new CmsDeltaIntegrantProvider(
         cmsPeriod, swap, swaptionVolatilities, forward, strikeCpn, expiryTime, tenor, cutOffStrike, eta);
-    double factor = dfPayment / intProv.h(forward) * intProv.g(forward);
-    double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL, NUM_ITER);
+    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL, NUM_ITER);
     double[] bs = intProv.bsbsp(strikeCpn);
     double[] n = intProv.getNnp();
     double strikePartPrice = intProv.k(strikeCpn) * n[0] * bs[0];
@@ -347,8 +397,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     double[] strikePartPrice = intProv.getSabrExtrapolation()
         .priceAdjointSabr(Math.max(0d, strikeCpn + shift), intProv.getPutCall()) // handle tiny but negative number
         .getDerivatives().multipliedBy(factor2).toArray();
-    double absoluteTolerance = 1d / (factor * Math.abs(cmsPeriod.getNotional()) * cmsPeriod.getYearFraction());
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL_VEGA, NUM_ITER);
+    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL_VEGA, NUM_ITER);
     double[] totalSensi = new double[4];
     for (int loopparameter = 0; loopparameter < 4; loopparameter++) {
       double integralPart = 0d;
@@ -425,8 +474,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(
         cmsPeriod, swap, swaptionVolatilities, forward, strike, expiryTime, tenor, cutOffStrike, eta);
     double factor = dfPayment * intProv.g(forward) / intProv.h(forward);
-    double absoluteTolerance = 1.0E-9;
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, REL_TOL_STRIKE, NUM_ITER);
+    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL_STRIKE, NUM_ITER);
     double[] kpkpp = intProv.kpkpp(strike);
     double firstPart;
     double thirdPart;
