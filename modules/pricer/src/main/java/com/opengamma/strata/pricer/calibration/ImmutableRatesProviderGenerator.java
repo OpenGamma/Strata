@@ -13,7 +13,6 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -144,8 +143,8 @@ public class ImmutableRatesProviderGenerator
       DoubleArray curveParams = parameters.subArray(startIndex, startIndex + paramCount);
       startIndex += paramCount;
       // create the child curve
-      Map<CurveInfoType<?>, Object> infoMap = additionalInfoMap(curveDefn, jacobians);
-      Curve curve = curveDefn.curve(knownProvider.getValuationDate(), metadata, curveParams, infoMap);
+      CurveMetadata childMetadata = childMetadata(metadata, curveDefn, jacobians);
+      Curve curve = curveDefn.curve(knownProvider.getValuationDate(), childMetadata, curveParams);
       // put child curve into maps
       Set<Currency> currencies = discountCurveNames.get(name);
       for (Currency currency : currencies) {
@@ -165,15 +164,16 @@ public class ImmutableRatesProviderGenerator
   }
 
   // build the map of additional info
-  private Map<CurveInfoType<?>, Object> additionalInfoMap(
+  private CurveMetadata childMetadata(
+      CurveMetadata metadata,
       NodalCurveDefinition curveDefn,
       Map<CurveName, JacobianCalibrationMatrix> jacobians) {
 
     JacobianCalibrationMatrix jacobian = jacobians.get(curveDefn.getName());
     if (jacobian == null) {
-      return ImmutableMap.of();
+      return metadata;
     }
-    return ImmutableMap.of(CurveInfoType.JACOBIAN, jacobian);
+    return metadata.withInfo(CurveInfoType.JACOBIAN, jacobian);
   }
 
 }

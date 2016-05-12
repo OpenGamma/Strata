@@ -7,10 +7,8 @@ package com.opengamma.strata.market.curve;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -91,28 +89,7 @@ public interface NodalCurveDefinition {
    * @param parameters  the array of parameters
    * @return the curve
    */
-  public default NodalCurve curve(LocalDate valuationDate, CurveMetadata metadata, DoubleArray parameters) {
-    return curve(valuationDate, metadata, parameters, ImmutableMap.of());
-  }
-
-  /**
-   * Creates the curve from an array of parameter values.
-   * <p>
-   * The meaning of the parameters is determined by the implementation.
-   * The size of the array must match the {@linkplain #getParameterCount() count of parameters}.
-   * Any additional information may be added to the curve metadata.
-   * 
-   * @param valuationDate  the valuation date
-   * @param metadata  the curve metadata
-   * @param parameters  the array of parameters
-   * @param additionalInfo  the additional curve information, such as information about calibration
-   * @return the curve
-   */
-  public abstract NodalCurve curve(
-      LocalDate valuationDate,
-      CurveMetadata metadata,
-      DoubleArray parameters,
-      Map<CurveInfoType<?>, Object> additionalInfo);
+  public abstract NodalCurve curve(LocalDate valuationDate, CurveMetadata metadata, DoubleArray parameters);
 
   /**
    * Converts this definition to the summary form.

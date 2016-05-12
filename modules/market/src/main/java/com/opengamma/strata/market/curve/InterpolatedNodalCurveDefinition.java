@@ -29,20 +29,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.NodalCurveDefinition;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 
@@ -123,15 +113,6 @@ public final class InterpolatedNodalCurveDefinition
   //-------------------------------------------------------------------------
   @Override
   public CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
-    return metadata(valuationDate, refData, ImmutableMap.of());
-  }
-
-  // creates the metadata with optional calibration info
-  private CurveMetadata metadata(
-      LocalDate valuationDate,
-      ReferenceData refData,
-      Map<CurveInfoType<?>, Object> additionalInfo) {
-
     List<CurveParameterMetadata> nodeMetadata = nodes.stream()
         .map(node -> node.metadata(valuationDate, refData))
         .collect(toImmutableList());
@@ -140,7 +121,6 @@ public final class InterpolatedNodalCurveDefinition
         .xValueType(xValueType)
         .yValueType(yValueType)
         .dayCount(dayCount)
-        .addInfo(additionalInfo)
         .parameterMetadata(nodeMetadata)
         .build();
   }
@@ -151,16 +131,14 @@ public final class InterpolatedNodalCurveDefinition
   public NodalCurve curve(
       LocalDate valuationDate,
       CurveMetadata metadata,
-      DoubleArray parameters,
-      Map<CurveInfoType<?>, Object> additionalInfo) {
+      DoubleArray parameters) {
 
-    CurveMetadata combinedMetadata = metadata.withInfo(additionalInfo);
     DoubleArray nodeTimes = DoubleArray.of(getParameterCount(), i -> {
-      LocalDate nodeDate = ((DatedCurveParameterMetadata) combinedMetadata.getParameterMetadata().get().get(i)).getDate();
+      LocalDate nodeDate = ((DatedCurveParameterMetadata) metadata.getParameterMetadata().get().get(i)).getDate();
       return getDayCount().get().yearFraction(valuationDate, nodeDate);
     });
     return InterpolatedNodalCurve.builder()
-        .metadata(combinedMetadata)
+        .metadata(metadata)
         .xValues(nodeTimes)
         .yValues(parameters)
         .extrapolatorLeft(extrapolatorLeft)

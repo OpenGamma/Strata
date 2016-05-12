@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve;
+package com.opengamma.strata.market.surface;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,52 +15,54 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 
 /**
- * Builder for curve metadata.
+ * Builder for surface metadata.
  * <p>
- * This is created using {@link DefaultCurveMetadata#builder()}.
+ * This is created using {@link DefaultSurfaceMetadata#builder()}.
  */
-public final class DefaultCurveMetadataBuilder {
+public final class DefaultSurfaceMetadataBuilder {
 
   /**
-   * The curve name.
+   * The surface name.
    */
-  private CurveName curveName;
+  private SurfaceName surfaceName;
   /**
-   * The x-value type, providing meaning to the x-values of the curve.
+   * The x-value type, providing meaning to the x-values of the surface.
    * <p>
-   * This type provides meaning to the x-values. For example, the x-value might
-   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * This type provides meaning to the x-values.
    * It defaults to {@link ValueType#UNKNOWN}.
    */
   private ValueType xValueType = ValueType.UNKNOWN;
   /**
-   * The y-value type, providing meaning to the y-values of the curve.
+   * The y-value type, providing meaning to the y-values of the surface.
    * <p>
-   * This type provides meaning to the y-values. For example, the y-value might
-   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * This type provides meaning to the y-values.
    * It defaults to {@link ValueType#UNKNOWN}.
    */
   private ValueType yValueType = ValueType.UNKNOWN;
   /**
-   * The additional curve information.
+   * The y-value type, providing meaning to the z-values of the surface.
    * <p>
-   * This stores additional information for the curve.
-   * <p>
-   * The most common information is the {@linkplain CurveInfoType#DAY_COUNT day count}
-   * and {@linkplain CurveInfoType#JACOBIAN curve calibration Jacobian}.
+   * This type provides meaning to the z-values.
+   * It defaults to {@link ValueType#UNKNOWN}.
    */
-  private final Map<CurveInfoType<?>, Object> info = new HashMap<>();
+  private ValueType zValueType = ValueType.UNKNOWN;
+  /**
+   * The additional surface information.
+   * <p>
+   * This stores additional information for the surface.
+   */
+  private final Map<SurfaceInfoType<?>, Object> info = new HashMap<>();
   /**
    * The metadata about the parameters.
    * <p>
-   * If present, the parameter metadata will match the number of parameters on the curve.
+   * If present, the parameter metadata will match the number of parameters on the surface.
    */
-  private List<CurveParameterMetadata> parameterMetadata;
+  private List<SurfaceParameterMetadata> parameterMetadata;
 
   /**
    * Restricted constructor.
    */
-  DefaultCurveMetadataBuilder() {
+  DefaultSurfaceMetadataBuilder() {
   }
 
   /**
@@ -68,68 +70,83 @@ public final class DefaultCurveMetadataBuilder {
    * 
    * @param beanToCopy  the bean to copy from
    */
-  DefaultCurveMetadataBuilder(DefaultCurveMetadata beanToCopy) {
-    this.curveName = beanToCopy.getCurveName();
+  DefaultSurfaceMetadataBuilder(DefaultSurfaceMetadata beanToCopy) {
+    this.surfaceName = beanToCopy.getSurfaceName();
     this.xValueType = beanToCopy.getXValueType();
     this.yValueType = beanToCopy.getYValueType();
+    this.zValueType = beanToCopy.getZValueType();
     this.info.putAll(beanToCopy.getInfo());
     this.parameterMetadata = beanToCopy.getParameterMetadata().orElse(null);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the curve name.
+   * Sets the surface name.
    * 
-   * @param curveName  the curve name
+   * @param surfaceName  the surface name
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder curveName(String curveName) {
-    this.curveName = CurveName.of(curveName);
+  public DefaultSurfaceMetadataBuilder surfaceName(String surfaceName) {
+    this.surfaceName = SurfaceName.of(surfaceName);
     return this;
   }
 
   /**
-   * Sets the curve name.
+   * Sets the surface name.
    * 
-   * @param curveName  the curve name
+   * @param surfaceName  the surface name
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder curveName(CurveName curveName) {
-    this.curveName = ArgChecker.notNull(curveName, "curveName");
+  public DefaultSurfaceMetadataBuilder surfaceName(SurfaceName surfaceName) {
+    this.surfaceName = ArgChecker.notNull(surfaceName, "surfaceName");
     return this;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the x-value type, providing meaning to the x-values of the curve.
+   * Sets the x-value type, providing meaning to the x-values of the surface.
    * <p>
-   * This type provides meaning to the x-values. For example, the x-value might
-   * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
+   * This type provides meaning to the x-values.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    * 
    * @param xValueType  the x-value type
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder xValueType(ValueType xValueType) {
+  public DefaultSurfaceMetadataBuilder xValueType(ValueType xValueType) {
     this.xValueType = ArgChecker.notNull(xValueType, "xValueType");
     return this;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the y-value type, providing meaning to the y-values of the curve.
+   * Sets the y-value type, providing meaning to the y-values of the surface.
    * <p>
-   * This type provides meaning to the y-values. For example, the y-value might
-   * represent a zero rate, as represented using {@link ValueType#ZERO_RATE}.
+   * This type provides meaning to the y-values.
    * <p>
    * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
    * 
    * @param yValueType  the y-value type
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder yValueType(ValueType yValueType) {
+  public DefaultSurfaceMetadataBuilder yValueType(ValueType yValueType) {
     this.yValueType = ArgChecker.notNull(yValueType, "yValueType");
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the z-value type, providing meaning to the z-values of the surface.
+   * <p>
+   * This type provides meaning to the z-values.
+   * <p>
+   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * 
+   * @param zValueType  the z-value type
+   * @return this, for chaining
+   */
+  public DefaultSurfaceMetadataBuilder zValueType(ValueType zValueType) {
+    this.zValueType = ArgChecker.notNull(zValueType, "zValueType");
     return this;
   }
 
@@ -138,7 +155,7 @@ public final class DefaultCurveMetadataBuilder {
    * Sets the day count.
    * <p>
    * This stores the day count in the additional information map using the
-   * key {@link CurveInfoType#DAY_COUNT}.
+   * key {@link SurfaceInfoType#DAY_COUNT}.
    * <p>
    * This is stored in the additional information map using {@code Map.put} semantics,
    * removing the key if the day count is null.
@@ -146,25 +163,8 @@ public final class DefaultCurveMetadataBuilder {
    * @param dayCount  the day count, may be null
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder dayCount(DayCount dayCount) {
-    return addInfo(CurveInfoType.DAY_COUNT, dayCount);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Sets the calibration information.
-   * <p>
-   * This stores the calibration information in the additional information map
-   * using the key {@link CurveInfoType#JACOBIAN}.
-   * <p>
-   * This is stored in the additional information map using {@code Map.put} semantics,
-   * removing the key if the jacobian is null.
-   * 
-   * @param jacobian  the calibration information, may be null
-   * @return this, for chaining
-   */
-  public DefaultCurveMetadataBuilder jacobian(JacobianCalibrationMatrix jacobian) {
-    return addInfo(CurveInfoType.JACOBIAN, jacobian);
+  public DefaultSurfaceMetadataBuilder dayCount(DayCount dayCount) {
+    return addInfo(SurfaceInfoType.DAY_COUNT, dayCount);
   }
 
   //-------------------------------------------------------------------------
@@ -179,7 +179,7 @@ public final class DefaultCurveMetadataBuilder {
    * @param value  the value to store, may be null
    * @return this, for chaining
    */
-  public <T> DefaultCurveMetadataBuilder addInfo(CurveInfoType<T> type, T value) {
+  public <T> DefaultSurfaceMetadataBuilder addInfo(SurfaceInfoType<T> type, T value) {
     ArgChecker.notNull(type, "type");
     if (value != null) {
       this.info.put(type, value);
@@ -193,13 +193,13 @@ public final class DefaultCurveMetadataBuilder {
   /**
    * Sets the parameter-level metadata.
    * <p>
-   * The parameter metadata must match the number of parameters on the curve.
+   * The parameter metadata must match the number of parameters on the surface.
    * This will replace the existing parameter-level metadata.
    * 
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder parameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata) {
+  public DefaultSurfaceMetadataBuilder parameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }
@@ -207,13 +207,13 @@ public final class DefaultCurveMetadataBuilder {
   /**
    * Sets the parameter-level metadata.
    * <p>
-   * The parameter metadata must match the number of parameters on the curve.
+   * The parameter metadata must match the number of parameters on the surface.
    * This will replace the existing parameter-level metadata.
    * 
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder parameterMetadata(CurveParameterMetadata... parameterMetadata) {
+  public DefaultSurfaceMetadataBuilder parameterMetadata(SurfaceParameterMetadata... parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }
@@ -225,7 +225,7 @@ public final class DefaultCurveMetadataBuilder {
    * 
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder clearParameterMetadata() {
+  public DefaultSurfaceMetadataBuilder clearParameterMetadata() {
     this.parameterMetadata = null;
     return this;
   }
@@ -236,8 +236,8 @@ public final class DefaultCurveMetadataBuilder {
    * 
    * @return the instance
    */
-  public DefaultCurveMetadata build() {
-    return new DefaultCurveMetadata(curveName, xValueType, yValueType, info, parameterMetadata);
+  public DefaultSurfaceMetadata build() {
+    return new DefaultSurfaceMetadata(surfaceName, xValueType, yValueType, zValueType, info, parameterMetadata);
   }
 
 }
