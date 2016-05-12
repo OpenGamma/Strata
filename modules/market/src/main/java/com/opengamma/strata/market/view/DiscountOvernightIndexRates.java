@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
@@ -129,7 +128,7 @@ public final class DiscountOvernightIndexRates
     if (!observation.getPublicationDate().isAfter(getValuationDate())) {
       return historicRate(observation);
     }
-    return forwardRate(observation);
+    return rateIgnoringFixings(observation);
   }
 
   // historic rate
@@ -145,16 +144,15 @@ public final class DiscountOvernightIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return forwardRate(observation);
+      return rateIgnoringFixings(observation);
     }
   }
 
-  // forward rate
-  private double forwardRate(OvernightIndexObservation observation) {
+  @Override
+  public double rateIgnoringFixings(OvernightIndexObservation observation) {
     LocalDate effectiveDate = observation.getEffectiveDate();
     LocalDate maturityDate = observation.getMaturityDate();
-    DayCount dayCount = observation.getIndex().getDayCount();
-    double accrualFactor = dayCount.yearFraction(effectiveDate, maturityDate);
+    double accrualFactor = observation.getYearFraction();
     return simplyCompoundForwardRate(effectiveDate, maturityDate, accrualFactor);
   }
 
@@ -173,6 +171,11 @@ public final class DiscountOvernightIndexRates
         (publicationDate.equals(valuationDate) && fixings.get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
+    return OvernightRateSensitivity.of(observation, 1d);
+  }
+
+  @Override
+  public PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(OvernightIndexObservation observation) {
     return OvernightRateSensitivity.of(observation, 1d);
   }
 

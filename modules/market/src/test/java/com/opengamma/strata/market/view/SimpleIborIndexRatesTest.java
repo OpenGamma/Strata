@@ -143,11 +143,11 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.rate(GBP_LIBOR_3M_VAL), RATE_VAL);
   }
 
-  public void test_rateIgnoringTimeSeries_onValuation_fixing() {
+  public void test_rateIgnoringFixings_onValuation_fixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
     double time = CURVE_DAY_COUNT.yearFraction(DATE_VAL, GBP_LIBOR_3M_VAL.getMaturityDate());
     double expected = CURVE.yValue(time);
-    assertEquals(test.rateIgnoringTimeSeries(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringFixings(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_onValuation_noFixing() {
@@ -155,7 +155,7 @@ public class SimpleIborIndexRatesTest {
     double time = CURVE_DAY_COUNT.yearFraction(DATE_VAL, GBP_LIBOR_3M_VAL.getMaturityDate());
     double expected = CURVE.yValue(time);
     assertEquals(test.rate(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
-    assertEquals(test.rateIgnoringTimeSeries(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
+    assertEquals(test.rateIgnoringFixings(GBP_LIBOR_3M_VAL), expected, TOLERANCE_RATE);
   }
 
   public void test_rate_afterValuation() {
@@ -172,17 +172,17 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_VAL), PointSensitivityBuilder.none());
   }
   
-  public void test_rateIgnoringTimeSeriesPointSensitivity_onValuation() {
+  public void test_rateIgnoringFixingsPointSensitivity_onValuation() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M_VAL, 1d);
-    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(GBP_LIBOR_3M_VAL), expected);
+    assertEquals(test.rateIgnoringFixingsPointSensitivity(GBP_LIBOR_3M_VAL), expected);
   }
 
   public void test_ratePointSensitivity_onValuation_noFixing() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
     IborRateSensitivity expected = IborRateSensitivity.of(GBP_LIBOR_3M_VAL, 1d);
     assertEquals(test.ratePointSensitivity(GBP_LIBOR_3M_VAL), expected);
-    assertEquals(test.rateIgnoringTimeSeriesPointSensitivity(GBP_LIBOR_3M_VAL), expected);
+    assertEquals(test.rateIgnoringFixingsPointSensitivity(GBP_LIBOR_3M_VAL), expected);
   }
 
   public void test_ratePointSensitivity_afterValuation() {

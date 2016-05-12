@@ -128,6 +128,21 @@ public interface OvernightIndexRates
   public abstract double rate(OvernightIndexObservation observation);
 
   /**
+   * Ignores the time-series of fixings to get the forward rate at the specified
+   * fixing date, used in rare and special cases. In most cases callers should use
+   * {@link #rate(OvernightIndexObservation) rate(OvernightIndexObservation)}.
+   * <p>
+   * An instance of {@code OvernightIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code rate(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
+   * 
+   * @param observation  the rate observation, including the fixing date
+   * @return the rate of the index as given by the forward curve
+   */
+  public abstract double rateIgnoringFixings(OvernightIndexObservation observation);
+
+  /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
    * This returns a sensitivity instance referring to the curve used to determine the forward rate.
@@ -140,6 +155,21 @@ public interface OvernightIndexRates
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract PointSensitivityBuilder ratePointSensitivity(OvernightIndexObservation observation);
+
+  /**
+   * Ignores the time-series of fixings to get the forward rate point sensitivity at the
+   * specified fixing date, used in rare and special cases. In most cases callers should use
+   * {@link #ratePointSensitivity(OvernightIndexObservation) ratePointSensitivity(OvernightIndexObservation)}.
+   * <p>
+   * An instance of {@code OvernightIndexRates} is typically based on a forward curve and a historic time-series.
+   * The {@code ratePointSensitivity(LocalDate)} method uses either the curve or time-series, depending on whether the
+   * fixing date is before or after the valuation date. This method only queries the forward curve,
+   * totally ignoring the time-series, which is needed for rare and special cases only.
+   * 
+   * @param observation  the rate observation, including the fixing date
+   * @return the point sensitivity of the rate to the forward curve
+   */
+  public abstract PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(OvernightIndexObservation observation);
 
   //-------------------------------------------------------------------------
   /**

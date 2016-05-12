@@ -164,7 +164,7 @@ public final class SimpleIborIndexRates
     if (!observation.getFixingDate().isAfter(getValuationDate())) {
       return historicRate(observation);
     }
-    return rateIgnoringTimeSeries(observation);
+    return rateIgnoringFixings(observation);
   }
 
   // historic rate
@@ -180,12 +180,12 @@ public final class SimpleIborIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return rateIgnoringTimeSeries(observation);
+      return rateIgnoringFixings(observation);
     }
   }
 
   @Override
-  public double rateIgnoringTimeSeries(IborIndexObservation observation) {
+  public double rateIgnoringFixings(IborIndexObservation observation) {
     double relativeYearFraction = relativeYearFraction(observation.getMaturityDate());
     return curve.yValue(relativeYearFraction);
   }
@@ -203,7 +203,7 @@ public final class SimpleIborIndexRates
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborIndexObservation observation) {
+  public PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(IborIndexObservation observation) {
     return IborRateSensitivity.of(observation, 1d);
   }
 

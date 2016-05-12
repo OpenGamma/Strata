@@ -129,8 +129,9 @@ public interface IborIndexRates
   public abstract double rate(IborIndexObservation observation);
 
   /**
-   * Ignores the time-series to get the forward rate at the specified fixing date, used in rare and special cases.
-   * In most cases callers should use {@link #rate(IborIndexObservation) rate(IborIndexObservation)}.
+   * Ignores the time-series of fixings to get the forward rate at the specified
+   * fixing date, used in rare and special cases. In most cases callers should use
+   * {@link #rate(IborIndexObservation) rate(IborIndexObservation)}.
    * <p>
    * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
    * The {@code rate(LocalDate)} method uses either the curve or time-series, depending on whether the
@@ -140,7 +141,7 @@ public interface IborIndexRates
    * @param observation  the rate observation, including the fixing date
    * @return the rate of the index as given by the forward curve
    */
-  public abstract double rateIgnoringTimeSeries(IborIndexObservation observation);
+  public abstract double rateIgnoringFixings(IborIndexObservation observation);
 
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
@@ -156,8 +157,8 @@ public interface IborIndexRates
   public abstract PointSensitivityBuilder ratePointSensitivity(IborIndexObservation observation);
 
   /**
-   * Ignores the time-series to get the forward rate point sensitivity at the specified fixing date,
-   * used in rare and special cases. In most cases callers should use
+   * Ignores the time-series of fixings to get the forward rate point sensitivity at the
+   * specified fixing date, used in rare and special cases. In most cases callers should use
    * {@link #ratePointSensitivity(IborIndexObservation) ratePointSensitivity(IborIndexObservation)}.
    * <p>
    * An instance of {@code IborIndexRates} is typically based on a forward curve and a historic time-series.
@@ -168,7 +169,7 @@ public interface IborIndexRates
    * @param observation  the rate observation, including the fixing date
    * @return the point sensitivity of the rate to the forward curve
    */
-  public abstract PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborIndexObservation observation);
+  public abstract PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(IborIndexObservation observation);
 
   //-------------------------------------------------------------------------
   /**
