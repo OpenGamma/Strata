@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
@@ -82,7 +82,7 @@ public class SabrSwaptionCubeCalibrationExample {
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
-  private static final ImmutableRatesProvider MULTICURVE =
+  private static final RatesProvider MULTICURVE =
       CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
 
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;

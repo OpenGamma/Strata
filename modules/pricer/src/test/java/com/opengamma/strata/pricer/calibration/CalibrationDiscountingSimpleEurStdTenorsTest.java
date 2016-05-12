@@ -49,7 +49,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
@@ -218,7 +218,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
-    ImmutableRatesProvider result =
+    RatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
 
     ImmutableList<NodalCurveDefinition> definitions = CURVE_GROUP_CONFIG.getCurveDefinitions();

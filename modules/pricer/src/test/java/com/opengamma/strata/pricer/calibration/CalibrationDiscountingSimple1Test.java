@@ -52,7 +52,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
@@ -187,7 +187,7 @@ public class CalibrationDiscountingSimple1Test {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
-    ImmutableRatesProvider result2 =
+    RatesProvider result2 =
         CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
@@ -224,9 +224,9 @@ public class CalibrationDiscountingSimple1Test {
     for (int i = 0; i < nbRep; i++) {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
-        ImmutableRatesProvider result =
+        RatesProvider result =
             CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
-        count += result.getDiscountCurves().size() + result.getIndexCurves().size();
+        count += result.getValuationDate().getDayOfMonth();
       }
       endTime = System.currentTimeMillis();
       System.out.println("Performance: " + nbTests + " calibrations for 1 curve with 9 nodes in "

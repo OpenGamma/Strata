@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -94,7 +94,7 @@ public class CalibrationDiscountingSimpleEur3Test {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
-    ImmutableRatesProvider result =
+    RatesProvider result =
         CalibrationEurStandard.calibrateEurStandard(VAL_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,
@@ -167,7 +167,7 @@ public class CalibrationDiscountingSimpleEur3Test {
 
   //-------------------------------------------------------------------------
   public void calibration_transition_coherence_par_rate() {
-    ImmutableRatesProvider provider =
+    RatesProvider provider =
         CalibrationEurStandard.calibrateEurStandard(VAL_DATE,
             DSC_MARKET_QUOTES, DSC_OIS_TENORS,
             FWD3_FIXING_QUOTE, FWD3_FRA_QUOTES, FWD3_IRS_QUOTES, FWD3_FRA_TENORS, FWD3_IRS_TENORS,

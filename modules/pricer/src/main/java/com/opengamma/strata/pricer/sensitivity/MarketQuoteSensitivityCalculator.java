@@ -21,7 +21,7 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
  * Calculator to obtain the Market Quote sensitivities.
@@ -51,7 +51,7 @@ public class MarketQuoteSensitivityCalculator {
    */
   public CurveCurrencyParameterSensitivities sensitivity(
       CurveCurrencyParameterSensitivities paramSensitivities,
-      ImmutableRatesProvider provider) {
+      RatesProvider provider) {
 
     ArgChecker.notNull(paramSensitivities, "paramSensitivities");
     ArgChecker.notNull(provider, "provider");

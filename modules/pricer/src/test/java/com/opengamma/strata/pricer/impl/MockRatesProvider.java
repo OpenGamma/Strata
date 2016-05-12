@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -17,7 +18,9 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.FxForwardRates;
@@ -128,6 +131,11 @@ public class MockRatesProvider
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public Optional<Curve> findCurve(CurveName name) {
+    return Optional.empty();
+  }
+
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
     throw new UnsupportedOperationException();

@@ -53,7 +53,6 @@ import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.market.view.OvernightIndexRates;
 import com.opengamma.strata.market.view.PriceIndexValues;
 
-
 /**
  * The default immutable rates provider, used to calculate analytic measures.
  * <p>
@@ -176,6 +175,7 @@ public final class ImmutableRatesProvider
    * @param name  the curve name
    * @return the curve
    */
+  @Override
   public Optional<Curve> findCurve(CurveName name) {
     return Stream.concat(discountCurves.values().stream(), indexCurves.values().stream())
         .filter(c -> c.getName().equals(name))

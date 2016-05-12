@@ -30,6 +30,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -84,7 +85,7 @@ public class SyntheticCurveCalibratorTest {
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_TSEMPTY =
       CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
-  private static final ImmutableRatesProvider MULTICURVE_INPUT_TSLARGE =
+  private static final RatesProvider MULTICURVE_INPUT_TSLARGE =
       CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
   
   private static final double TOLERANCE_MQ = 1.0E-8;
@@ -101,7 +102,7 @@ public class SyntheticCurveCalibratorTest {
   // Check market data computation
   public void market_data() {
     CurveGroupDefinition group = GROUPS_SYN;
-    ImmutableRatesProvider multicurveTsLarge = MULTICURVE_INPUT_TSEMPTY.toBuilder().timeSeries(TS_LARGE).build();
+    RatesProvider multicurveTsLarge = MULTICURVE_INPUT_TSEMPTY.toBuilder().timeSeries(TS_LARGE).build();
     MarketData madTsEmpty = CALIBRATOR_SYNTHETIC.marketData(group, MULTICURVE_INPUT_TSEMPTY, REF_DATA);
     MarketData madTsLarge = CALIBRATOR_SYNTHETIC.marketData(group, multicurveTsLarge, REF_DATA);
     assertEquals(madTsEmpty.getValuationDate(), VALUATION_DATE);
@@ -126,7 +127,7 @@ public class SyntheticCurveCalibratorTest {
   // Check synthetic calibration in case no time-series is present
   public void calibrate_ts_empty() {
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_SYN, MULTICURVE_INPUT_TSEMPTY, REF_DATA);
-    ImmutableRatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSEMPTY, REF_DATA);
+    RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSEMPTY, REF_DATA);
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
@@ -142,8 +143,8 @@ public class SyntheticCurveCalibratorTest {
   public void calibrate_ts_vd() {
     SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
-    ImmutableRatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
-    multicurveSyn = multicurveSyn.toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
+    RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, MULTICURVE_INPUT_TSLARGE, REF_DATA);
+    multicurveSyn = ((ImmutableRatesProvider) multicurveSyn).toBuilder().timeSeries(TS_LARGE).build(); // To ensure TS are present
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
@@ -165,9 +166,9 @@ public class SyntheticCurveCalibratorTest {
       start = System.currentTimeMillis();
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
-        ImmutableRatesProvider multicurve =
+        RatesProvider multicurve =
             CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
-        hs += multicurve.getIndexCurves().size();
+        hs += multicurve.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
       System.out.println("Initial curve calibration time: " + (end-start) + 
@@ -177,10 +178,10 @@ public class SyntheticCurveCalibratorTest {
       start = System.currentTimeMillis();
       int hs = 0;
       for (int looptest = 0; looptest < nbTests; looptest++) {
-        ImmutableRatesProvider multicurve1 =
+        RatesProvider multicurve1 =
             CALIBRATOR.calibrate(GROUPS_IN, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_LARGE);
-        ImmutableRatesProvider multicurve2 = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, multicurve1, REF_DATA);
-        hs += multicurve2.getIndexCurves().size();
+        RatesProvider multicurve2 = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN, multicurve1, REF_DATA);
+        hs += multicurve2.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
       System.out.println("Initial + synthetic curve calibration time: " + (end-start) + 

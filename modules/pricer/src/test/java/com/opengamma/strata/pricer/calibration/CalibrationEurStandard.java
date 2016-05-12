@@ -46,7 +46,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.key.QuoteKey;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
@@ -96,7 +96,7 @@ public class CalibrationEurStandard {
 
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100);
 
-  public static ImmutableRatesProvider calibrateEurStandard(
+  public static RatesProvider calibrateEurStandard(
       LocalDate valuationDate,
       double[] dscOisQuotes,
       Period[] dscOisTenors,

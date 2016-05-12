@@ -24,7 +24,6 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -116,7 +115,7 @@ public final class SyntheticCurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider
    */
-  public ImmutableRatesProvider calibrate(
+  public RatesProvider calibrate(
       CurveGroupDefinition group,
       MarketData marketData,
       ReferenceData refData) {
@@ -132,7 +131,7 @@ public final class SyntheticCurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider
    */
-  public ImmutableRatesProvider calibrate(
+  public RatesProvider calibrate(
       CurveGroupDefinition group,
       RatesProvider inputProvider,
       ReferenceData refData) {
