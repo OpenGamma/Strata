@@ -144,18 +144,21 @@ public final class DefaultCurveMetadata
 
   //-------------------------------------------------------------------------
   @Override
-  public DefaultCurveMetadata withInfo(Map<CurveInfoType<?>, Object> additionalInfo) {
-    return toBuilder().addInfo(additionalInfo).build();
+  public <T> DefaultCurveMetadata withInfo(CurveInfoType<T> type, T value) {
+    return toBuilder().addInfo(type, value).build();
   }
 
   @Override
   public DefaultCurveMetadata withParameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata) {
+    if (parameterMetadata == null) {
+      return this.parameterMetadata != null ? toBuilder().clearParameterMetadata().build() : this;
+    }
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a builder that allows this bean to be mutated.
+   * Returns a mutable builder initialized with the state of this bean.
    * 
    * @return the mutable builder, not null
    */

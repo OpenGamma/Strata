@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.surface;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,24 +29,21 @@ public final class DefaultSurfaceMetadataBuilder {
    * The x-value type, providing meaning to the x-values of the surface.
    * <p>
    * This type provides meaning to the x-values.
-   * <p>
-   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * It defaults to {@link ValueType#UNKNOWN}.
    */
   private ValueType xValueType = ValueType.UNKNOWN;
   /**
    * The y-value type, providing meaning to the y-values of the surface.
    * <p>
    * This type provides meaning to the y-values.
-   * <p>
-   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * It defaults to {@link ValueType#UNKNOWN}.
    */
   private ValueType yValueType = ValueType.UNKNOWN;
   /**
    * The y-value type, providing meaning to the z-values of the surface.
    * <p>
    * This type provides meaning to the z-values.
-   * <p>
-   * If using the builder, this defaults to {@link ValueType#UNKNOWN}.
+   * It defaults to {@link ValueType#UNKNOWN}.
    */
   private ValueType zValueType = ValueType.UNKNOWN;
   /**
@@ -80,7 +76,7 @@ public final class DefaultSurfaceMetadataBuilder {
     this.yValueType = beanToCopy.getYValueType();
     this.zValueType = beanToCopy.getZValueType();
     this.info.putAll(beanToCopy.getInfo());
-    this.parameterMetadata = beanToCopy.getParameterMetadata().map(m -> new ArrayList<>(m)).orElse(null);
+    this.parameterMetadata = beanToCopy.getParameterMetadata().orElse(null);
   }
 
   //-----------------------------------------------------------------------
@@ -91,7 +87,6 @@ public final class DefaultSurfaceMetadataBuilder {
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder surfaceName(String surfaceName) {
-    ArgChecker.notNull(surfaceName, "surfaceName");
     this.surfaceName = SurfaceName.of(surfaceName);
     return this;
   }
@@ -103,8 +98,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder surfaceName(SurfaceName surfaceName) {
-    ArgChecker.notNull(surfaceName, "surfaceName");
-    this.surfaceName = surfaceName;
+    this.surfaceName = ArgChecker.notNull(surfaceName, "surfaceName");
     return this;
   }
 
@@ -120,8 +114,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder xValueType(ValueType xValueType) {
-    ArgChecker.notNull(xValueType, "xValueType");
-    this.xValueType = xValueType;
+    this.xValueType = ArgChecker.notNull(xValueType, "xValueType");
     return this;
   }
 
@@ -137,8 +130,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder yValueType(ValueType yValueType) {
-    ArgChecker.notNull(yValueType, "yValueType");
-    this.yValueType = yValueType;
+    this.yValueType = ArgChecker.notNull(yValueType, "yValueType");
     return this;
   }
 
@@ -154,8 +146,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder zValueType(ValueType zValueType) {
-    ArgChecker.notNull(zValueType, "zValueType");
-    this.zValueType = zValueType;
+    this.zValueType = ArgChecker.notNull(zValueType, "zValueType");
     return this;
   }
 
@@ -185,83 +176,58 @@ public final class DefaultSurfaceMetadataBuilder {
    * 
    * @param <T>  the type of the info
    * @param type  the type to store under
-   * @param instance  the instance to store, may be null
+   * @param value  the value to store, may be null
    * @return this, for chaining
    */
-  public <T> DefaultSurfaceMetadataBuilder addInfo(SurfaceInfoType<T> type, T instance) {
+  public <T> DefaultSurfaceMetadataBuilder addInfo(SurfaceInfoType<T> type, T value) {
     ArgChecker.notNull(type, "type");
-    if (instance != null) {
-      this.info.put(type, instance);
+    if (value != null) {
+      this.info.put(type, value);
     } else {
       this.info.remove(type);
     }
     return this;
   }
 
-  /**
-   * Adds additional information.
-   * <p>
-   * This is stored in the additional information map using {@code Map.putAll} semantics
-   * 
-   * @param info  the information to add
-   * @return this, for chaining
-   */
-  public DefaultSurfaceMetadataBuilder addInfo(Map<SurfaceInfoType<?>, Object> info) {
-    ArgChecker.notNull(info, "infoMap");
-    this.info.putAll(info);
-    return this;
-  }
-
   //-------------------------------------------------------------------------
   /**
-   * Adds a single piece of parameter metadata.
+   * Sets the parameter-level metadata.
    * <p>
-   * This is stored in the parameter metadata list.
+   * The parameter metadata must match the number of parameters on the surface.
+   * This will replace the existing parameter-level metadata.
    * 
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultSurfaceMetadataBuilder addParameterMetadata(SurfaceParameterMetadata parameterMetadata) {
-    if (this.parameterMetadata == null) {
-      this.parameterMetadata = new ArrayList<>();
-    }
-    this.parameterMetadata.add(parameterMetadata);
-    return this;
-  }
-
-  /**
-   * Sets the metadata about the parameters.
-   * <p>
-   * If present, the parameter metadata will match the number of parameters on the surface.
-   * <p>
-   * This will replace all existing data in the metadata list.
-   * 
-   * @param parameterMetadata  the parameter metadata, may be null
-   * @return this, for chaining
-   */
   public DefaultSurfaceMetadataBuilder parameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata) {
-    if (parameterMetadata == null) {
-      this.parameterMetadata = null;
-    } else {
-      if (this.parameterMetadata == null) {
-        this.parameterMetadata = new ArrayList<>();
-      }
-      this.parameterMetadata.clear();
-      this.parameterMetadata.addAll(parameterMetadata);
-    }
+    this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }
 
   /**
-   * Sets the {@code parameterMetadata} property in the builder from an array of objects.
+   * Sets the parameter-level metadata.
    * <p>
-   * This will replace all existing data in the metadata list.
+   * The parameter metadata must match the number of parameters on the surface.
+   * This will replace the existing parameter-level metadata.
    * 
-   * @param parameterMetadata  the new value
+   * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
   public DefaultSurfaceMetadataBuilder parameterMetadata(SurfaceParameterMetadata... parameterMetadata) {
-    return parameterMetadata(ImmutableList.copyOf(parameterMetadata));
+    this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
+    return this;
+  }
+
+  /**
+   * Clears the parameter-level metadata.
+   * <p>
+   * The existing parameter-level metadata will be removed.
+   * 
+   * @return this, for chaining
+   */
+  public DefaultSurfaceMetadataBuilder clearParameterMetadata() {
+    this.parameterMetadata = null;
+    return this;
   }
 
   //-------------------------------------------------------------------------

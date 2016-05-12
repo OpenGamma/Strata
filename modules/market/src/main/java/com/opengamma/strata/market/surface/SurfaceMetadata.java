@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.surface;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.Tenor;
@@ -34,7 +33,7 @@ public interface SurfaceMetadata {
   public abstract SurfaceName getSurfaceName();
 
   /**
-   * Gets the x-value type, providing meaning to the x-values of the curve.
+   * Gets the x-value type, providing meaning to the x-values of the surface.
    * <p>
    * This type provides meaning to the x-values. For example, the x-value might
    * represent a year fraction, as represented using {@link ValueType#YEAR_FRACTION}.
@@ -44,7 +43,7 @@ public interface SurfaceMetadata {
   public abstract ValueType getXValueType();
 
   /**
-   * Gets the y-value type, providing meaning to the y-values of the curve.
+   * Gets the y-value type, providing meaning to the y-values of the surface.
    * <p>
    * This type provides meaning to the y-values.
    * 
@@ -53,7 +52,7 @@ public interface SurfaceMetadata {
   public abstract ValueType getYValueType();
 
   /**
-   * Gets the z-value type, providing meaning to the z-values of the curve.
+   * Gets the z-value type, providing meaning to the z-values of the surface.
    * <p>
    * This type provides meaning to the z-values.
    * 
@@ -63,13 +62,13 @@ public interface SurfaceMetadata {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets curve information of a specific type.
+   * Gets surface information of a specific type.
    * <p>
    * If the information is not found, an exception is thrown.
    * 
    * @param <T>  the type of the info
    * @param type  the type to find
-   * @return the curve information
+   * @return the surface information
    * @throws IllegalArgumentException if the information is not found
    */
   public default <T> T getInfo(SurfaceInfoType<T> type) {
@@ -78,13 +77,13 @@ public interface SurfaceMetadata {
   }
 
   /**
-   * Finds curve information of a specific type.
+   * Finds surface information of a specific type.
    * <p>
    * If the info is not found, optional empty is returned.
    * 
    * @param <T>  the type of the info
    * @param type  the type to find
-   * @return the curve information
+   * @return the surface information
    */
   public abstract <T> Optional<T> findInfo(SurfaceInfoType<T> type);
 
@@ -101,17 +100,15 @@ public interface SurfaceMetadata {
   /**
    * Returns an instance where the specified additional information has been added.
    * <p>
-   * The result will contain the specified additional information.
-   * If this metadata instance already contains additional info, the two maps will
-   * be merged, with the specified map taking priority, as per {@link Map#putAll(Map)}.
-   * <p>
-   * The map must contain no nulls. The value of each entry must match the parameterized
-   * type of the associated {@code SurfaceInfoType} key.
+   * The additional information is stored in the result using {@code Map.put} semantics,
+   * removing the key if the instance is null.
    * 
-   * @param additionalInfo  the additional information to add
-   * @return the new curve metadata
+   * @param <T>  the type of the info
+   * @param type  the type to store under
+   * @param value  the value to store, may be null
+   * @return the new surface metadata
    */
-  public abstract SurfaceMetadata withInfo(Map<SurfaceInfoType<?>, Object> additionalInfo);
+  public abstract <T> DefaultSurfaceMetadata withInfo(SurfaceInfoType<T> type, T value);
 
   /**
    * Returns an instance where the parameter metadata has been changed.

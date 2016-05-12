@@ -151,18 +151,21 @@ public final class DefaultSurfaceMetadata
 
   //-------------------------------------------------------------------------
   @Override
-  public DefaultSurfaceMetadata withInfo(Map<SurfaceInfoType<?>, Object> additionalInfo) {
-    return toBuilder().addInfo(additionalInfo).build();
+  public <T> DefaultSurfaceMetadata withInfo(SurfaceInfoType<T> type, T value) {
+    return toBuilder().addInfo(type, value).build();
   }
 
   @Override
   public DefaultSurfaceMetadata withParameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata) {
+    if (parameterMetadata == null) {
+      return this.parameterMetadata != null ? toBuilder().clearParameterMetadata().build() : this;
+    }
     return toBuilder().parameterMetadata(parameterMetadata).build();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a builder that allows this bean to be mutated.
+   * Returns a mutable builder initialized with the state of this bean.
    * 
    * @return the mutable builder, not null
    */

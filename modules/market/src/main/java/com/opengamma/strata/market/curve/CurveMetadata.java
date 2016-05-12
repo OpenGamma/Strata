@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.Tenor;
@@ -104,17 +103,15 @@ public interface CurveMetadata {
   /**
    * Returns an instance where the specified additional information has been added.
    * <p>
-   * The result will contain the specified additional information.
-   * If this metadata instance already contains additional info, the two maps will
-   * be merged, with the specified map taking priority, as per {@link Map#putAll(Map)}.
-   * <p>
-   * The map must contain no nulls. The value of each entry must match the parameterized
-   * type of the associated {@code CurveInfoType} key.
+   * The additional information is stored in the result using {@code Map.put} semantics,
+   * removing the key if the instance is null.
    * 
-   * @param additionalInfo  the additional information to add
+   * @param <T>  the type of the info
+   * @param type  the type to store under
+   * @param value  the value to store, may be null
    * @return the new curve metadata
    */
-  public abstract CurveMetadata withInfo(Map<CurveInfoType<?>, Object> additionalInfo);
+  public abstract <T> DefaultCurveMetadata withInfo(CurveInfoType<T> type, T value);
 
   /**
    * Returns an instance where the parameter metadata has been changed.
