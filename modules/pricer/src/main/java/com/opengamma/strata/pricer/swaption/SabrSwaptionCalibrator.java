@@ -77,6 +77,7 @@ public class SabrSwaptionCalibrator {
    * 
    * @param sabrFunctionProvider  the SABR implied volatility formula provider
    * @param swapPricer  the swap pricer
+   * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
@@ -93,6 +94,7 @@ public class SabrSwaptionCalibrator {
    * @param sabrFunctionProvider  the SABR implied volatility formula provider
    * @param swapPricer  the swap pricer
    * @param refData  the reference data
+   * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,

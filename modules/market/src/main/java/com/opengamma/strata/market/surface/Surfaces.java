@@ -30,6 +30,7 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionBlackExpiryTenor(
@@ -49,6 +50,7 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionBlackExpiryTenor(
@@ -76,6 +78,7 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionNormalExpiryTenor(
@@ -95,6 +98,7 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionNormalExpiryTenor(
@@ -121,6 +125,8 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
+   * @param zType  the z-value type
    * @return the surface metadata
    */
   public static SurfaceMetadata swaptionSabrExpiryTenor(
@@ -140,6 +146,7 @@ public final class Surfaces {
    * 
    * @param name  the surface name
    * @param dayCount  the day count
+   * @param convention  the swap convention
    * @param zType  the z-value type
    * @return the surface metadata
    */
