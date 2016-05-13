@@ -68,14 +68,15 @@ public class FraPricingExample {
         Column.of(Measures.BUCKETED_PV01));
 
     // use the built-in example market data
+    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules(), Currency.USD);
+    CalculationRules rules = CalculationRules.of(
+        functions, marketDataBuilder.rules(), Currency.USD, marketDataBuilder.ratesLookup(valuationDate));
 
     // build a market data snapshot for the valuation date
-    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities

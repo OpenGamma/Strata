@@ -40,18 +40,18 @@ import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.dsf.Dsf;
 import com.opengamma.strata.product.dsf.DsfTrade;
@@ -68,7 +68,6 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 public class DsfCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
   private static final SwapLeg FIXED_LEG =
       FixedRateSwapLegConvention.of(Currency.GBP, DayCounts.ACT_360, Frequency.P6M, BDA_MF)
@@ -100,6 +99,12 @@ public class DsfCalculationFunctionTest {
   private static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
   private static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = LAST_TRADE.minusDays(7);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(DSF_ID, FieldName.SETTLEMENT_PRICE);
 
@@ -110,7 +115,7 @@ public class DsfCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(QUOTE_KEY, DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
+        ImmutableSet.of(QUOTE_KEY, DISCOUNT_CURVE_ID, FORWARD_CURVE_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -118,7 +123,7 @@ public class DsfCalculationFunctionTest {
   public void test_simpleMeasures() {
     DsfCalculationFunction function = new DsfCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
 
@@ -133,7 +138,7 @@ public class DsfCalculationFunctionTest {
   public void test_pv01() {
     DsfCalculationFunction function = new DsfCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurveCurrencyParameterSensitivities pvParamSens = provider.curveParameterSensitivity(pvPointSens);
@@ -154,8 +159,8 @@ public class DsfCalculationFunctionTest {
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(
-            DiscountCurveKey.of(CURRENCY), curve,
-            IborIndexCurveKey.of(INDEX), curve,
+            DISCOUNT_CURVE_ID, curve,
+            FORWARD_CURVE_ID, curve,
             QUOTE_KEY, MARKET_PRICE),
         ImmutableMap.of());
     return md;

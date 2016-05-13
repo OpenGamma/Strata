@@ -12,7 +12,9 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.FieldName;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -24,9 +26,8 @@ import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
-import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -94,17 +95,23 @@ public class IborFutureCalculationFunction
       CalculationParameters parameters,
       ReferenceData refData) {
 
+    // extract data from product
     IborFuture product = trade.getProduct();
-
     QuoteKey quoteKey = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
-    IborIndexCurveKey indexForwardCurveKey = IborIndexCurveKey.of(product.getIndex());
-    DiscountCurveKey discountFactorsKey = DiscountCurveKey.of(product.getCurrency());
-    IndexRateKey indexTimeSeriesKey = IndexRateKey.of(product.getIndex());
+    Currency currency = product.getCurrency();
+    IborIndex index = product.getIndex();
 
+    // use lookup to build requirements
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    FunctionRequirements ratesReqs = ratesLookup.requirements(currency, index);
+    ImmutableSet<MarketDataKey<?>> valueReqs = ImmutableSet.<MarketDataKey<?>>builder()
+        .add(quoteKey)
+        .addAll(ratesReqs.getSingleValueRequirements())
+        .build();
     return FunctionRequirements.builder()
-        .singleValueRequirements(quoteKey, indexForwardCurveKey, discountFactorsKey)
-        .timeSeriesRequirements(indexTimeSeriesKey)
-        .outputCurrencies(product.getCurrency())
+        .singleValueRequirements(valueReqs)
+        .timeSeriesRequirements(ratesReqs.getTimeSeriesRequirements())
+        .outputCurrencies(ratesReqs.getOutputCurrencies())
         .build();
   }
 
@@ -120,10 +127,14 @@ public class IborFutureCalculationFunction
     // resolve the trade once for all measures and all scenarios
     ResolvedIborFutureTrade resolved = trade.resolve(refData);
 
+    // use lookup to query market data
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    RatesScenarioMarketData marketData = ratesLookup.marketDataView(scenarioMarketData);
+
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, resolved, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, marketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -134,13 +145,13 @@ public class IborFutureCalculationFunction
   private Result<?> calculate(
       Measure measure,
       ResolvedIborFutureTrade trade,
-      CalculationMarketData scenarioMarketData) {
+      RatesScenarioMarketData marketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, marketData));
   }
 
   //-------------------------------------------------------------------------
@@ -148,7 +159,7 @@ public class IborFutureCalculationFunction
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
         ResolvedIborFutureTrade trade,
-        CalculationMarketData marketData);
+        RatesScenarioMarketData marketData);
   }
 
 }

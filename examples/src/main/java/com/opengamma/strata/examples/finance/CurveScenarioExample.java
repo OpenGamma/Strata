@@ -102,8 +102,13 @@ public class CurveScenarioExample {
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
+    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules(), Currency.USD);
+    CalculationRules rules = CalculationRules.of(
+        functions,
+        marketDataBuilder.rules(),
+        Currency.USD,
+        marketDataBuilder.ratesLookup(valuationDate));
 
     // mappings that select which market data to apply perturbations to
     // this applies the perturbations above to all curves
@@ -118,7 +123,6 @@ public class CurveScenarioExample {
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
 
     // build a market data snapshot for the valuation date
-    LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities

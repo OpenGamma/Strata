@@ -31,6 +31,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;
@@ -170,7 +171,8 @@ public class ReportRunnerTool implements AutoCloseable {
         ExampleMarketData.builder() : ExampleMarketDataBuilder.ofPath(marketDataRoot.toPath());
 
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
+    RatesMarketDataLookup ratesLookup = marketDataBuilder.ratesLookup(valuationDate);
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules(), ratesLookup);
 
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 

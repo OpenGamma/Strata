@@ -8,17 +8,16 @@ package com.opengamma.strata.function.calculation.dsf;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
@@ -47,7 +46,7 @@ class DsfMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedDsfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -57,9 +56,9 @@ class DsfMeasureCalculations {
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
       ResolvedDsfTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     double settlementPrice = settlementPrice(trade, marketData);
     return PRICER.presentValue(trade, provider, settlementPrice);
   }
@@ -68,7 +67,7 @@ class DsfMeasureCalculations {
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
       ResolvedDsfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -78,9 +77,9 @@ class DsfMeasureCalculations {
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
       ResolvedDsfTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -89,7 +88,7 @@ class DsfMeasureCalculations {
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedDsfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -99,19 +98,19 @@ class DsfMeasureCalculations {
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedDsfTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // gets the settlement price
-  private static double settlementPrice(ResolvedDsfTrade trade, MarketData marketData) {
+  private static double settlementPrice(ResolvedDsfTrade trade, RatesMarketData marketData) {
     StandardId id = trade.getProduct().getSecurityId().getStandardId();
     QuoteKey key = QuoteKey.of(id, FieldName.SETTLEMENT_PRICE);
-    return marketData.getValue(key) / 100;  // convert market quote to value needed
+    return marketData.getMarketData().getValue(key) / 100;  // convert market quote to value needed
   }
 
 }

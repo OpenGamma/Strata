@@ -40,15 +40,15 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.NormalSwaptionExpiryTenorVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionNormalVolatilityDataSets;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPricer;
@@ -65,9 +65,6 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  */
 @Test
 public class SwaptionCalculationFunctionTest {
-
-  private static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
-      SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double FIXED_RATE = 0.015;
@@ -91,11 +88,19 @@ public class SwaptionCalculationFunctionTest {
       .build();
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), LocalDate.of(2014, 3, 17));
   public static final SwaptionTrade TRADE = SwaptionTrade.builder().premium(PREMIUM).product(SWAPTION).build();
-  private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final Currency CURRENCY = Currency.USD;
+  private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
+
+  private static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
+      SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
   private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
-  private static final DefaultSwaptionMarketDataLookup SWAPTION_LOOKUP = DefaultSwaptionMarketDataLookup.of(INDEX, VOL_ID);
-  private static final CalculationParameters PARAMS = CalculationParameters.of(SWAPTION_LOOKUP);
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+  private static final SwaptionMarketDataLookup SWAPTION_LOOKUP = SwaptionMarketDataLookup.of(INDEX, VOL_ID);
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP, SWAPTION_LOOKUP);
   private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
 
   //-------------------------------------------------------------------------
@@ -105,10 +110,7 @@ public class SwaptionCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(
-            DiscountCurveKey.of(CURRENCY),
-            IborIndexCurveKey.of(INDEX),
-            VOL_ID));
+        ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID, VOL_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -116,7 +118,7 @@ public class SwaptionCalculationFunctionTest {
   public void test_simpleMeasures() {
     SwaptionCalculationFunction function = new SwaptionCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     VolatilitySwaptionPhysicalProductPricer pricer = VolatilitySwaptionPhysicalProductPricer.DEFAULT;
     ResolvedSwaption resolved = TRADE.getProduct().resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
@@ -135,8 +137,8 @@ public class SwaptionCalculationFunctionTest {
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(
-            DiscountCurveKey.of(CURRENCY), curve,
-            IborIndexCurveKey.of(INDEX), curve,
+            DISCOUNT_CURVE_ID, curve,
+            FORWARD_CURVE_ID, curve,
             VOL_ID, NORMAL_VOL_SWAPTION_PROVIDER_USD),
         ImmutableMap.of());
     return md;

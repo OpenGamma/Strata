@@ -35,6 +35,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
@@ -212,10 +213,11 @@ public class CalibrationSimpleForwardCheckExample {
         MarketDataMappingsBuilder.create()
             .curveGroup(CURVE_GROUP_NAME)
             .build());
+    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataRules);
+    CalculationRules rules = CalculationRules.of(functions, marketDataRules, ratesLookup);
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
