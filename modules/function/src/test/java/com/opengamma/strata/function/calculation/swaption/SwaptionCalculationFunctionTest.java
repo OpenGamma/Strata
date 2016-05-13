@@ -44,10 +44,10 @@ import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.market.key.DiscountCurveKey;
 import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.SwaptionVolatilitiesKey;
 import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.swaption.NormalSwaptionExpiryTenorVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionNormalVolatilityDataSets;
@@ -70,7 +70,6 @@ public class SwaptionCalculationFunctionTest {
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
   private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
@@ -94,6 +93,9 @@ public class SwaptionCalculationFunctionTest {
   public static final SwaptionTrade TRADE = SwaptionTrade.builder().premium(PREMIUM).product(SWAPTION).build();
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final Currency CURRENCY = Currency.USD;
+  private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
+  private static final DefaultSwaptionMarketDataLookup SWAPTION_LOOKUP = DefaultSwaptionMarketDataLookup.of(INDEX, VOL_ID);
+  private static final CalculationParameters PARAMS = CalculationParameters.of(SWAPTION_LOOKUP);
   private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
 
   //-------------------------------------------------------------------------
@@ -106,7 +108,7 @@ public class SwaptionCalculationFunctionTest {
         ImmutableSet.of(
             DiscountCurveKey.of(CURRENCY),
             IborIndexCurveKey.of(INDEX),
-            SwaptionVolatilitiesKey.of(INDEX)));
+            VOL_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -135,7 +137,7 @@ public class SwaptionCalculationFunctionTest {
         ImmutableMap.of(
             DiscountCurveKey.of(CURRENCY), curve,
             IborIndexCurveKey.of(INDEX), curve,
-            SwaptionVolatilitiesKey.of(INDEX), NORMAL_VOL_SWAPTION_PROVIDER_USD),
+            VOL_ID, NORMAL_VOL_SWAPTION_PROVIDER_USD),
         ImmutableMap.of());
     return md;
   }
