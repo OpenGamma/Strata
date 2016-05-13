@@ -55,4 +55,11 @@ public class MarketDataTest {
     assertThat(test.getTimeSeries(KEY2)).isEqualTo(TIME_SERIES);
   }
 
+  //-------------------------------------------------------------------------
+  public void test_withValue() {
+    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(KEY1, 123d);
+    MarketData test = MarketData.of(VAL_DATE, dataMap);
+    assertThat(test.withValue(KEY1, 234d).getValue(KEY1)).isEqualTo(234d);
+  }
+
 }

@@ -50,7 +50,6 @@ public interface MarketData {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the valuation date of the market data.
    * <p>
@@ -61,7 +60,6 @@ public interface MarketData {
   public abstract LocalDate getValuationDate();
 
   //-------------------------------------------------------------------------
-
   /**
    * Checks if this set of data contains a value for the specified key.
    *
@@ -92,7 +90,6 @@ public interface MarketData {
   public abstract <T> T getValue(MarketDataKey<T> key);
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the time-series identified by the specified key, empty if not found.
    *
@@ -100,5 +97,21 @@ public interface MarketData {
    * @return the time-series, empty if no time-series found
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this market data with the specified value.
+   * <p>
+   * When the result is queried for the specified key, the specified value will be returned.
+   * <p>
+   * For example, this method could be used to replace a curve with a bumped curve.
+   *
+   * @param key  the key identifying the item of market data
+   * @param value  the value to associate with the key
+   * @return the derived market data with the specified key and value
+   */
+  public default <T> MarketData withValue(MarketDataKey<T> key, T value) {
+    return ExtendedMarketData.of(key, value, this);
+  }
 
 }
