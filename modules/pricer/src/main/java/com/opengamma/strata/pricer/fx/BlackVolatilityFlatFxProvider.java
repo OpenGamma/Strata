@@ -95,8 +95,7 @@ public final class BlackVolatilityFlatFxProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(CurrencyPair currencyPair, ZonedDateTime expiryDateTime, double strike, double forward) {
-    double expiryTime = relativeTime(expiryDateTime);
+  public double getVolatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
     return curve.yValue(expiryTime);
   }
 

@@ -161,8 +161,16 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
   }
 
   //-------------------------------------------------------------------------
-  public Function<DoubleArray, DoubleMatrix> differentiateNoCross(
-      Function<DoubleArray, DoubleArray> function) {
+  /**
+   * Computes the second derivative of a vector field, without cross derivatives. 
+   * 
+   * This creates a function returning a matrix whose {i,j} element is 
+   * $H^i_{j} = \partial^2y_i/\partial x_j \partial x_j$.
+   * 
+   * @param function  the function representing the vector field
+   * @return a function representing the second derivative of the vector field (i.e. a rank 3 tensor field)
+   */
+  public Function<DoubleArray, DoubleMatrix> differentiateNoCross(Function<DoubleArray, DoubleArray> function) {
 
     return new Function<DoubleArray, DoubleMatrix>() {
       @SuppressWarnings("synthetic-access")
@@ -178,7 +186,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
           DoubleArray up = function.apply(x.with(j, xj + eps));
           DoubleArray down = function.apply(x.with(j, xj - eps));
           for (int i = 0; i < m; i++) {
-            res[i][j] = (up.get(i) + down.get(i) - 2 * y.get(i)) / epsSqr;
+            res[i][j] = (up.get(i) + down.get(i) - 2d * y.get(i)) / epsSqr;
           }
         }
         return DoubleMatrix.copyOf(res);

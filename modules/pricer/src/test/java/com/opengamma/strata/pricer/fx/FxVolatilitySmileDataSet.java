@@ -23,6 +23,7 @@ public class FxVolatilitySmileDataSet {
   private static final DoubleArray TIME_5 =
       DoubleArray.of(0.25205479452054796, 0.5013698630136987, 1.0015120892282356, 2.0, 5.001512089228235);
   private static final DoubleArray ATM_5 = DoubleArray.of(0.185, 0.18, 0.17, 0.16, 0.16);
+  private static final DoubleArray ATM_5_FLAT = DoubleArray.of(0.18, 0.18, 0.18, 0.18, 0.18);
   private static final DoubleMatrix RISK_REVERSAL_5 = DoubleMatrix.ofUnsafe(
       new double[][] { {-0.011, -0.006 }, {-0.012, -0.007 }, {-0.013, -0.008 }, {-0.014, -0.009 }, {-0.014, -0.009 } });
   private static final DoubleMatrix STRANGLE_5 = DoubleMatrix.ofUnsafe(
@@ -37,6 +38,9 @@ public class FxVolatilitySmileDataSet {
   private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM_5_FLAT =
       InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
           NAME, TIME_5, DELTA, ATM_5, RISK_REVERSAL_5_FLAT, STRANGLE_5_FLAT);
+  private static final InterpolatedSmileDeltaTermStructureStrikeInterpolation SMILE_TERM_5_FLAT_FLAT =
+      InterpolatedSmileDeltaTermStructureStrikeInterpolation.of(
+          NAME, TIME_5, DELTA, ATM_5_FLAT, RISK_REVERSAL_5_FLAT, STRANGLE_5_FLAT);
 
   private static final DoubleArray TIME_6 = DoubleArray.of(0.01, 0.252, 0.501, 1.0, 2.0, 5.0);
   private static final DoubleArray ATM_6 = DoubleArray.of(0.175, 0.185, 0.18, 0.17, 0.16, 0.16);
@@ -72,6 +76,19 @@ public class FxVolatilitySmileDataSet {
    */
   public static BlackVolatilitySmileFxProvider createVolatilitySmileProvider5Flat(ZonedDateTime dateTime) {
     return BlackVolatilitySmileFxProvider.of(SMILE_TERM_5_FLAT, CURRENCY_PAIR, ACT_ACT_ISDA, dateTime);
+  }
+
+  /**
+   * Creates volatility provider with term structure of smile parameters. 
+   * <p>
+   * The resulting volatility surface is totally flat.
+   * The number of time slices are 5, and the day count convention is ACT/ACT ISDA. 
+   * 
+   * @param dateTime  the valuation date time
+   * @return  the volatility provider
+   */
+  public static BlackVolatilitySmileFxProvider createVolatilitySmileProvider5FlatFlat(ZonedDateTime dateTime) {
+    return BlackVolatilitySmileFxProvider.of(SMILE_TERM_5_FLAT_FLAT, CURRENCY_PAIR, ACT_ACT_ISDA, dateTime);
   }
 
   /**

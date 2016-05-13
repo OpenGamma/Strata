@@ -168,20 +168,19 @@ public final class ZeroRatePeriodicDiscountFactors
   }
 
   @Override
-  public double zeroRate(LocalDate date) {
-    double yearFraction = relativeYearFraction(date);
+  public double zeroRate(double yearFraction) {
     double ratePeriod = curve.yValue(yearFraction);
     return frequency * Math.log(1d + ratePeriod / frequency);
   }
 
-  // calculates the discount factor at a given time
-  private double discountFactor(double relativeYearFraction) {
+  @Override
+  public double discountFactor(double relativeYearFraction) {
     // convert zero rate periodically compounded to discount factor
     return Math.pow(1d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
   }
 
-  // calculate the relative time between the valuation date and the specified date
-  private double relativeYearFraction(LocalDate date) {
+  @Override
+  public double relativeYearFraction(LocalDate date) {
     return dayCount.relativeYearFraction(valuationDate, date);
   }
 

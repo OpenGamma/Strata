@@ -126,7 +126,7 @@ public interface DiscountFactors
       int periodsPerYear);
 
   /**
-   * Gets the continuously compounded zero rate.
+   * Gets the continuously compounded zero rate for specified date.
    * <p>
    * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
    * year fraction which is computed internally in each implementation. 
@@ -135,7 +135,40 @@ public interface DiscountFactors
    * @return the zero rate
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double zeroRate(LocalDate date);
+  public default double zeroRate(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    return zeroRate(yearFraction);
+  }
+
+  /**
+   * Gets the continuously compounded zero rate for specified year fraction.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the zero rate
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double zeroRate(double yearFraction);
+
+  /**
+   * Gets the discount factor for specified year fraction.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the discount factor
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double discountFactor(double yearFraction);
+
+  /**
+   * Calculates the relative time between the valuation date and the specified date.
+   * 
+   * @param date  the date
+   * @return  the year fraction
+   */
+  public double relativeYearFraction(LocalDate date);
 
   //-------------------------------------------------------------------------
   /**

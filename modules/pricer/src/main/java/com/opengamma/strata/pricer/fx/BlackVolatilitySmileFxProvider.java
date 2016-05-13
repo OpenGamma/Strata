@@ -96,8 +96,7 @@ final class BlackVolatilitySmileFxProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(CurrencyPair currencyPair, ZonedDateTime expiryDateTime, double strike, double forward) {
-    double expiryTime = relativeTime(expiryDateTime);
+  public double getVolatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
     if (currencyPair.isInverse(this.currencyPair)) {
       return smile.volatility(expiryTime, 1d / strike, 1d / forward);
     }

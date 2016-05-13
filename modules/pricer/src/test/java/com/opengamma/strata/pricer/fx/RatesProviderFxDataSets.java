@@ -53,18 +53,24 @@ public class RatesProviderFxDataSets {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final DoubleArray USD_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0);
   private static final DoubleArray USD_DSC_RATE = DoubleArray.of(0.0100, 0.0120, 0.0120, 0.0140, 0.0140);
+  private static final DoubleArray USD_DSC_RATE_FLAT = DoubleArray.of(0.0110, 0.0110, 0.0110, 0.0110, 0.0110);
   private static final CurveMetadata USD_DSC_METADATA = Curves.zeroRates("USD Dsc", ACT_360);
   private static final InterpolatedNodalCurve USD_DSC =
       InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
+  private static final InterpolatedNodalCurve USD_DSC_FLAT =
+      InterpolatedNodalCurve.of(USD_DSC_METADATA, USD_DSC_TIME, USD_DSC_RATE_FLAT, INTERPOLATOR);
   private static final CurveMetadata USD_DSC_METADATA_ISDA = Curves.zeroRates("USD Dsc", ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve USD_DSC_ISDA =
       InterpolatedNodalCurve.of(USD_DSC_METADATA_ISDA, USD_DSC_TIME, USD_DSC_RATE, INTERPOLATOR);
 
   private static final DoubleArray EUR_DSC_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0);
   private static final DoubleArray EUR_DSC_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0150);
+  private static final DoubleArray EUR_DSC_RATE_FLAT = DoubleArray.of(0.0150, 0.0150, 0.0150, 0.0150, 0.0150);
   private static final CurveMetadata EUR_DSC_METADATA = Curves.zeroRates("EUR Dsc", ACT_360);
   private static final InterpolatedNodalCurve EUR_DSC =
       InterpolatedNodalCurve.of(EUR_DSC_METADATA, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
+  private static final InterpolatedNodalCurve EUR_DSC_FLAT =
+      InterpolatedNodalCurve.of(EUR_DSC_METADATA, EUR_DSC_TIME, EUR_DSC_RATE_FLAT, INTERPOLATOR);
   private static final CurveMetadata EUR_DSC_METADATA_ISDA = Curves.zeroRates("EUR Dsc", ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve EUR_DSC_ISDA =
       InterpolatedNodalCurve.of(EUR_DSC_METADATA_ISDA, EUR_DSC_TIME, EUR_DSC_RATE, INTERPOLATOR);
@@ -129,7 +135,7 @@ public class RatesProviderFxDataSets {
    * @param valuationDate  the valuation date
    * @return the rates provider
    */
-  public static RatesProvider createProviderEURUSD(LocalDate valuationDate) {
+  public static ImmutableRatesProvider createProviderEURUSD(LocalDate valuationDate) {
     FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(EUR, EUR_DSC)
@@ -151,6 +157,23 @@ public class RatesProviderFxDataSets {
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(EUR, EUR_DSC_ISDA)
         .discountCurve(USD, USD_DSC_ISDA)
+        .fxRateProvider(fxMatrix)
+        .build();
+  }
+
+  /**
+   * Creates rates provider for EUR, USD with FX matrix. 
+   * <p>
+   * The discount curves are flat.
+   * 
+   * @param valuationDate  the valuation date
+   * @return the rates provider
+   */
+  public static ImmutableRatesProvider createProviderEurUsdFlat(LocalDate valuationDate) {
+    FxMatrix fxMatrix = FxMatrix.builder().addRate(USD, EUR, 1.0d / EUR_USD).build();
+    return ImmutableRatesProvider.builder(valuationDate)
+        .discountCurve(EUR, EUR_DSC_FLAT)
+        .discountCurve(USD, USD_DSC_FLAT)
         .fxRateProvider(fxMatrix)
         .build();
   }
