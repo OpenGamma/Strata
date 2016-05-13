@@ -141,6 +141,15 @@ public class DiscountOvernightIndexRatesTest {
     assertEquals(test.rate(GBP_SONIA_VAL), RATE_VAL);
   }
 
+  public void test_rateIgnoringFixings_onValuation_fixing() {
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
+    LocalDate startDate = GBP_SONIA_VAL.getEffectiveDate();
+    LocalDate endDate = GBP_SONIA_VAL.getMaturityDate();
+    double accrualFactor = GBP_SONIA_VAL.getYearFraction();
+    double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
+    assertEquals(test.rateIgnoringFixings(GBP_SONIA_VAL), expected, 1e-8);
+  }
+
   public void test_rate_onPublication_noFixing() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
     LocalDate startDate = GBP_SONIA_VAL.getEffectiveDate();
@@ -164,6 +173,12 @@ public class DiscountOvernightIndexRatesTest {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
     assertEquals(test.ratePointSensitivity(GBP_SONIA_BEFORE), PointSensitivityBuilder.none());
     assertEquals(test.ratePointSensitivity(GBP_SONIA_VAL), PointSensitivityBuilder.none());
+  }
+
+  public void test_rateIgnoringFixingsPointSensitivity_onValuation() {
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA_VAL, 1d);
+    assertEquals(test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_VAL), expected);
   }
 
   public void test_ratePointSensitivity_onPublication_noFixing() {

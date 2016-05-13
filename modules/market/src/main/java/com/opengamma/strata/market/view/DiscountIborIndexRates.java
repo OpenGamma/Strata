@@ -127,7 +127,7 @@ public final class DiscountIborIndexRates
     if (!observation.getFixingDate().isAfter(getValuationDate())) {
       return historicRate(observation);
     }
-    return rateIgnoringTimeSeries(observation);
+    return rateIgnoringFixings(observation);
   }
 
   // historic rate
@@ -143,12 +143,12 @@ public final class DiscountIborIndexRates
       }
       throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
     } else {
-      return rateIgnoringTimeSeries(observation);
+      return rateIgnoringFixings(observation);
     }
   }
 
   @Override
-  public double rateIgnoringTimeSeries(IborIndexObservation observation) {
+  public double rateIgnoringFixings(IborIndexObservation observation) {
     LocalDate fixingStartDate = observation.getEffectiveDate();
     LocalDate fixingEndDate = observation.getMaturityDate();
     double accrualFactor = observation.getYearFraction();
@@ -171,7 +171,7 @@ public final class DiscountIborIndexRates
   }
 
   @Override
-  public PointSensitivityBuilder rateIgnoringTimeSeriesPointSensitivity(IborIndexObservation observation) {
+  public PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(IborIndexObservation observation) {
     return IborRateSensitivity.of(observation, 1d);
   }
 
