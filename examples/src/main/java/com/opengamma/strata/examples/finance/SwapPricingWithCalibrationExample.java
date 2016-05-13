@@ -32,6 +32,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
@@ -150,10 +151,11 @@ public class SwapPricingWithCalibrationExample {
         MarketDataMappingsBuilder.create()
             .curveGroup(CURVE_GROUP_NAME)
             .build());
+    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataRules);
+    CalculationRules rules = CalculationRules.of(functions, marketDataRules, ratesLookup);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();

@@ -76,10 +76,13 @@ public class SwapReportRegressionTest {
 
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
-    CalculationRules rules = CalculationRules.of(
-        StandardComponents.calculationFunctions(), marketDataBuilder.rules(), Currency.USD);
-
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
+    CalculationRules rules = CalculationRules.of(
+        StandardComponents.calculationFunctions(),
+        marketDataBuilder.rules(),
+        Currency.USD,
+        marketDataBuilder.ratesLookup(valuationDate));
+
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // using the direct executor means there is no need to close/shutdown the runner

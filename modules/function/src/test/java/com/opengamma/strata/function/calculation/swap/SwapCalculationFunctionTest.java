@@ -33,6 +33,7 @@ import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -40,11 +41,10 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -60,9 +60,14 @@ public class SwapCalculationFunctionTest {
   public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
       .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
 
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
-  private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
+  private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
@@ -72,7 +77,7 @@ public class SwapCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
+        ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -80,7 +85,7 @@ public class SwapCalculationFunctionTest {
   public void test_simpleMeasures() {
     SwapCalculationFunction function = new SwapCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
     ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
@@ -119,7 +124,7 @@ public class SwapCalculationFunctionTest {
   public void test_pv01() {
     SwapCalculationFunction function = new SwapCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
     ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
@@ -140,7 +145,7 @@ public class SwapCalculationFunctionTest {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
-        ImmutableMap.of(DiscountCurveKey.of(CURRENCY), curve, IborIndexCurveKey.of(INDEX), curve),
+        ImmutableMap.of(DISCOUNT_CURVE_ID, curve, FORWARD_CURVE_ID, curve),
         ImmutableMap.of());
     return md;
   }

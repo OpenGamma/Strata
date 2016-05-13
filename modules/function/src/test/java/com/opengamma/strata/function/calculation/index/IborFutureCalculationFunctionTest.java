@@ -32,16 +32,16 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -57,10 +57,15 @@ public class IborFutureCalculationFunctionTest {
   public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
       LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, REF_DATA);
 
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getLastTradeDate().minusDays(7);
   private static final QuoteKey QUOTE_KEY = QuoteKey.of(SEC_ID, FieldName.SETTLEMENT_PRICE);
 
@@ -71,7 +76,7 @@ public class IborFutureCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX), QUOTE_KEY));
+        ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID, QUOTE_KEY));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -79,7 +84,7 @@ public class IborFutureCalculationFunctionTest {
   public void test_simpleMeasures() {
     IborFutureCalculationFunction function = new IborFutureCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     ResolvedIborFutureTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(resolved, provider, MARKET_PRICE / 100);
     double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(resolved, provider, MARKET_PRICE / 100);
@@ -103,8 +108,8 @@ public class IborFutureCalculationFunctionTest {
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(
-            DiscountCurveKey.of(CURRENCY), curve,
-            IborIndexCurveKey.of(INDEX), curve,
+            DISCOUNT_CURVE_ID, curve,
+            FORWARD_CURVE_ID, curve,
             QUOTE_KEY, MARKET_PRICE),
         ImmutableMap.of());
     return md;

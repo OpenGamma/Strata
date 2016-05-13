@@ -35,15 +35,16 @@ import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
@@ -68,8 +69,12 @@ public class BulletPaymentCalculationFunctionTest {
       .build();
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of());
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
@@ -78,7 +83,7 @@ public class BulletPaymentCalculationFunctionTest {
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DiscountCurveKey.of(CURRENCY)));
+    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(DISCOUNT_CURVE_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -86,7 +91,7 @@ public class BulletPaymentCalculationFunctionTest {
   public void test_simpleMeasures() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
@@ -102,7 +107,7 @@ public class BulletPaymentCalculationFunctionTest {
   public void test_pv01() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
@@ -123,7 +128,7 @@ public class BulletPaymentCalculationFunctionTest {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
-        ImmutableMap.of(DiscountCurveKey.of(CURRENCY), curve),
+        ImmutableMap.of(DISCOUNT_CURVE_ID, curve),
         ImmutableMap.of());
     return md;
   }

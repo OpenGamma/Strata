@@ -109,7 +109,10 @@ public class HistoricalScenarioExample {
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
+    CalculationRules rules = CalculationRules.of(
+        functions,
+        marketDataBuilder.rules(),
+        marketDataBuilder.ratesLookup(LocalDate.of(2015, 4, 23)));
 
     // load the historical calibrated curves from which we will build our scenarios
     // these curves are provided in the example data environment

@@ -5,19 +5,13 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -29,12 +23,10 @@ import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -119,36 +111,13 @@ public class SwapCalculationFunction
       CalculationParameters parameters,
       ReferenceData refData) {
 
+    // extract data from product
     Swap product = trade.getProduct();
+    ImmutableSet<Currency> currencies = product.allPaymentCurrencies();
 
-    // no market data for leg initial notional
-    if (measures.equals(ImmutableSet.of(Measures.LEG_INITIAL_NOTIONAL))) {
-      return FunctionRequirements.builder()
-          .outputCurrencies(product.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))
-          .build();
-    }
-
-    // market data needed
-    Set<Index> indices = product.allIndices();
-    Set<ObservableKey> indexRateKeys =
-        indices.stream()
-            .map(IndexRateKey::of)
-            .collect(toImmutableSet());
-    Set<MarketDataKey<?>> indexCurveKeys =
-        indices.stream()
-            .map(MarketDataKeys::indexCurve)
-            .collect(toImmutableSet());
-    Set<DiscountCurveKey> discountCurveKeys =
-        product.getLegs().stream()
-            .map(SwapLeg::getCurrency)
-            .map(DiscountCurveKey::of)
-            .collect(toImmutableSet());
-
-    return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
-        .timeSeriesRequirements(indexRateKeys)
-        .outputCurrencies(product.getLegs().stream().map(SwapLeg::getCurrency).collect(toImmutableSet()))
-        .build();
+    // use lookup to build requirements
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    return ratesLookup.requirements(currencies, product.allIndices());
   }
 
   //-------------------------------------------------------------------------
@@ -163,10 +132,14 @@ public class SwapCalculationFunction
     // resolve the trade once for all measures and all scenarios
     ResolvedSwapTrade resolved = trade.resolve(refData);
 
+    // use lookup to query market data
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    RatesScenarioMarketData marketData = ratesLookup.marketDataView(scenarioMarketData);
+
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, resolved, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, marketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -177,13 +150,13 @@ public class SwapCalculationFunction
   private Result<?> calculate(
       Measure measure,
       ResolvedSwapTrade trade,
-      CalculationMarketData scenarioMarketData) {
+      RatesScenarioMarketData marketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, marketData));
   }
 
   //-------------------------------------------------------------------------
@@ -191,7 +164,7 @@ public class SwapCalculationFunction
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
         ResolvedSwapTrade trade,
-        CalculationMarketData marketData);
+        RatesScenarioMarketData marketData);
   }
 
 }
