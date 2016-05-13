@@ -104,7 +104,7 @@ final class StandardFixedOvernightSwapConventions {
    * The spot date offset is 2 days and there is no payment date offset.
    */
   public static final FixedOvernightSwapConvention JPY_FIXED_1Y_TONAR_OIS =
-      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 0, 0);
+      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 0, 2);
 
   //-------------------------------------------------------------------------
   // build conventions
