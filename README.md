@@ -44,9 +44,9 @@ see the [documentation](http://opengamma.github.io/StrataDocs).
 Status
 ------
 
-Strata is currently released as a next-generation technology preview.
-The repository is well-maintained, tested and functional but not yet ready for production use.
-Classes and methods may change at any time.
+Strata is well-maintained, tested, functional, and is being used in production.
+We are currently making the final enhancements to Strata's APIs and functionality in preparation for version 1.0, expected in June 2016.
+Until then, please be aware that breaking changes to classes and methods are possible at any time.
 
 
 Strata modules
