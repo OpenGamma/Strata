@@ -40,6 +40,7 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
@@ -357,9 +358,10 @@ public class SabrSwaptionPhysicalProductPricerTest {
   public void test_presentValueSensitivity_stickyStrike() {
     SwaptionVolatilities volSabr = SwaptionSabrRateVolatilityDataSet.getVolatilitiesUsd(VAL_DATE, false);
     double impliedVol = SWAPTION_PRICER.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);
+    SurfaceMetadata blackMeta =
+        Surfaces.swaptionBlackExpiryTenor("CST", VOL_PROVIDER.getDayCount(), VOL_PROVIDER.getConvention());
     SwaptionVolatilities volCst = BlackSwaptionExpiryTenorVolatilities.of(
-        ConstantNodalSurface.of("CST", impliedVol), VOL_PROVIDER.getConvention(),
-        VOL_PROVIDER.getValuationDateTime(), VOL_PROVIDER.getDayCount());
+        ConstantNodalSurface.of(blackMeta, impliedVol), VOL_PROVIDER.getValuationDateTime());
     // To obtain a constant volatility surface which create a sticky strike sensitivity
     PointSensitivityBuilder pointRec =
         SWAPTION_PRICER.presentValueSensitivityStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, volSabr);

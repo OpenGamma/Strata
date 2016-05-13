@@ -1,0 +1,114 @@
+/**
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.market.surface;
+
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.testng.Assert.assertEquals;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
+
+/**
+ * Test {@link Surfaces}.
+ */
+@Test
+public class SurfacesTest {
+
+  private static final String NAME = "Foo";
+  private static final SurfaceName SURFACE_NAME = SurfaceName.of(NAME);
+  private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
+
+  //-------------------------------------------------------------------------
+  public void swaptionBlackExpiryTenor_string() {
+    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(NAME, ACT_360, CONVENTION);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void swaptionBlackExpiryTenor_surfaceName() {
+    SurfaceMetadata test = Surfaces.swaptionBlackExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.BLACK_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void swaptionNormalExpiryTenor_string() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(NAME, ACT_360, CONVENTION);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void swaptionNormalExpiryTenor_surfaceName() {
+    SurfaceMetadata test = Surfaces.swaptionNormalExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void swaptionSabrExpiryTenor_string() {
+    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(NAME, ACT_360, CONVENTION, ValueType.SABR_BETA);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.SABR_BETA)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void swaptionSabrExpiryTenor_surfaceName() {
+    SurfaceMetadata test = Surfaces.swaptionSabrExpiryTenor(SURFACE_NAME, ACT_360, CONVENTION, ValueType.SABR_BETA);
+    SurfaceMetadata expected = DefaultSurfaceMetadata.builder()
+        .surfaceName(SURFACE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.YEAR_FRACTION)
+        .zValueType(ValueType.SABR_BETA)
+        .dayCount(ACT_360)
+        .addInfo(SurfaceInfoType.SWAP_CONVENTION, CONVENTION)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverPrivateConstructor(Surfaces.class);
+  }
+
+}

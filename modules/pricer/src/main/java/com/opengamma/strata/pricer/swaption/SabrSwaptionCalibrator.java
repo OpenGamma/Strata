@@ -22,12 +22,11 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
+import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -78,6 +77,7 @@ public class SabrSwaptionCalibrator {
    * 
    * @param sabrFunctionProvider  the SABR implied volatility formula provider
    * @param swapPricer  the swap pricer
+   * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
@@ -94,6 +94,7 @@ public class SabrSwaptionCalibrator {
    * @param sabrFunctionProvider  the SABR implied volatility formula provider
    * @param swapPricer  the swap pricer
    * @param refData  the reference data
+   * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
@@ -244,24 +245,14 @@ public class SabrSwaptionCalibrator {
         }
       }
     }
-    SurfaceMetadata metadataAlpha = DefaultSurfaceMetadata.builder().dayCount(dayCount)
-        .surfaceName(SurfaceName.of("SABR-Alpha"))
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.YEAR_FRACTION)
-        .zValueType(ValueType.UNKNOWN)
-        .parameterMetadata(parameterMetadata).build();
-    SurfaceMetadata metadataRho = DefaultSurfaceMetadata.builder().dayCount(dayCount)
-        .surfaceName(SurfaceName.of("SABR-Rho"))
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.YEAR_FRACTION)
-        .zValueType(ValueType.UNKNOWN)
-        .parameterMetadata(parameterMetadata).build();
-    SurfaceMetadata metadataNu = DefaultSurfaceMetadata.builder().dayCount(dayCount)
-        .surfaceName(SurfaceName.of("SABR-Nu"))
-        .xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.YEAR_FRACTION)
-        .zValueType(ValueType.UNKNOWN)
-        .parameterMetadata(parameterMetadata).build();
+    SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
+        "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA).withParameterMetadata(parameterMetadata);
+    SurfaceMetadata metadataBeta = Surfaces.swaptionSabrExpiryTenor(
+        "Swaption-SABR-Beta", dayCount, convention, ValueType.SABR_BETA).withParameterMetadata(parameterMetadata);
+    SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
+        "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO).withParameterMetadata(parameterMetadata);
+    SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
+        "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU).withParameterMetadata(parameterMetadata);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
     InterpolatedNodalSurface rhoSurface = InterpolatedNodalSurface
@@ -269,8 +260,8 @@ public class SabrSwaptionCalibrator {
     InterpolatedNodalSurface nuSurface = InterpolatedNodalSurface
         .of(metadataNu, timeToExpiryArray, timeTenorArray, nuArray, interpolator);
     SabrInterestRateParameters params = SabrInterestRateParameters.of(
-        alphaSurface, betaSurface, rhoSurface, nuSurface, sabrFunctionProvider, shiftSurface);
-    return SabrParametersSwaptionVolatilities.of(params, convention, calibrationDateTime, dayCount);
+        alphaSurface, betaSurface.withMetadata(metadataBeta), rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
+    return SabrParametersSwaptionVolatilities.of(params, calibrationDateTime);
   }
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high
