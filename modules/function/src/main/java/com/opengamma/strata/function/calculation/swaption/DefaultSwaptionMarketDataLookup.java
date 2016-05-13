@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
@@ -38,7 +38,7 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationEnvironment}.
+ * data that the function needs and the data that is available in {@link CalculationMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultSwaptionMarketDataLookup
