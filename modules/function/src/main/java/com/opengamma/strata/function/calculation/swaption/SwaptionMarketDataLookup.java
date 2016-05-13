@@ -32,7 +32,7 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  * <p>
  * Implementations of this interface must be immutable.
  */
-public interface SwaptionMarketLookup extends CalculationParameter {
+public interface SwaptionMarketDataLookup extends CalculationParameter {
 
   /**
    * Obtains an instance based on a single mapping from index to volatility identifier.
@@ -43,8 +43,8 @@ public interface SwaptionMarketLookup extends CalculationParameter {
    * @param volatilityId  the volatility identifier
    * @return the swaption lookup containing the specified mapping
    */
-  public static SwaptionMarketLookup of(IborIndex index, SwaptionVolatilitiesId volatilityId) {
-    return DefaultSwaptionMarketLookup.of(ImmutableMap.of(index, volatilityId));
+  public static SwaptionMarketDataLookup of(IborIndex index, SwaptionVolatilitiesId volatilityId) {
+    return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
   }
 
   /**
@@ -55,8 +55,8 @@ public interface SwaptionMarketLookup extends CalculationParameter {
    * @param volatilityIds  the volatility identifiers, keyed by index
    * @return the swaption lookup containing the specified volatilities
    */
-  public static SwaptionMarketLookup of(Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
-    return DefaultSwaptionMarketLookup.of(volatilityIds);
+  public static SwaptionMarketDataLookup of(Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
+    return DefaultSwaptionMarketDataLookup.of(volatilityIds);
   }
 
   //-------------------------------------------------------------------------
@@ -71,7 +71,7 @@ public interface SwaptionMarketLookup extends CalculationParameter {
    */
   @Override
   default Class<? extends CalculationParameter> queryType() {
-    return SwaptionMarketLookup.class;
+    return SwaptionMarketDataLookup.class;
   }
 
   //-------------------------------------------------------------------------
@@ -88,7 +88,7 @@ public interface SwaptionMarketLookup extends CalculationParameter {
    * The result will typically refer to a surface or cube.
    * If the index is not found, an exception is thrown.
    *
-   * @param index  the index for which a discount curve is required
+   * @param index  the index for which identifiers are required
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the index is not found
    */
@@ -98,7 +98,17 @@ public interface SwaptionMarketLookup extends CalculationParameter {
   /**
    * Creates market data requirements for the specified indices.
    * 
-   * @param indices  the indices, for which forward curves and time-series will be needed
+   * @param indices  the indices, for which volatilities are required
+   * @return the requirements
+   */
+  public default FunctionRequirements requirements(IborIndex... indices) {
+    return requirements(ImmutableSet.copyOf(indices));
+  }
+
+  /**
+   * Creates market data requirements for the specified indices.
+   * 
+   * @param indices  the indices, for which volatilities are required
    * @return the requirements
    */
   public abstract FunctionRequirements requirements(Set<IborIndex> indices);
@@ -113,28 +123,37 @@ public interface SwaptionMarketLookup extends CalculationParameter {
    * @param marketData  the complete set of market data for all scenarios
    * @return the filtered market data
    */
-  public default SwaptionCalculationMarketView marketView(CalculationMarketData marketData) {
-    return DefaultSwaptionCalculationMarketView.of(this, marketData);
+  public default SwaptionScenarioMarketData marketView(CalculationMarketData marketData) {
+    return DefaultSwaptionScenarioMarketData.of(this, marketData);
   }
 
   /**
    * Obtains a filtered view of the complete set of market data.
    * <p>
    * This method returns an instance that binds the lookup to the market data.
-   * The input is {@link CalculationMarketData}, which contains market data for one scenario.
+   * The input is {@link MarketData}, which contains market data for one scenario.
    * 
    * @param marketData  the complete set of market data for one scenario
    * @return the filtered market data
    */
-  public default SwaptionMarketView marketView(MarketData marketData) {
-    return DefaultSwaptionMarketView.of(this, marketData);
+  public default SwaptionMarketData marketView(MarketData marketData) {
+    return DefaultSwaptionMarketData.of(this, marketData);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Obtains swaption volatilities based on the specified market data.
    * <p>
-   * The rates provider binds the lookup to the market data.
+   * This provides {@link SwaptionVolatilities} suitable for pricing a swaption.
+   * Although this method can be used directly, it is typically invoked indirectly
+   * via {@link SwaptionMarketData}:
+   * <pre>
+   *  // bind the baseData to this lookup
+   *  SwaptionMarketData view = lookup.marketView(baseData);
+   *  
+   *  // pass around SwaptionMarketData within the function to use in pricing
+   *  SwaptionVolatilities vols = view.volatilities(index);
+   * </pre>
    * 
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities

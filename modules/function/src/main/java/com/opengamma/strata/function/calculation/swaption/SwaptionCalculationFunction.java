@@ -95,8 +95,8 @@ public class SwaptionCalculationFunction
     IborIndex index = product.getIndex();
 
     // use lookup to build requirements
-    SwaptionMarketLookup swaptionLookup = parameters.getParameter(SwaptionMarketLookup.class);
-    FunctionRequirements swaptionReqs = swaptionLookup.requirements(ImmutableSet.of(index));
+    SwaptionMarketDataLookup swaptionLookup = parameters.getParameter(SwaptionMarketDataLookup.class);
+    FunctionRequirements swaptionReqs = swaptionLookup.requirements(index);
 
     ImmutableSet<MarketDataKey<?>> valueReqs = ImmutableSet.<MarketDataKey<?>>builder()
         .add(DiscountCurveKey.of(product.getCurrency()))
@@ -121,13 +121,13 @@ public class SwaptionCalculationFunction
 
     // expand the trade once for all measures and all scenarios
     ResolvedSwaptionTrade resolved = trade.resolve(refData);
-    SwaptionMarketLookup swaptionLookup = parameters.getParameter(SwaptionMarketLookup.class);
-    SwaptionCalculationMarketView marketView = swaptionLookup.marketView(scenarioMarketData);
+    SwaptionMarketDataLookup swaptionLookup = parameters.getParameter(SwaptionMarketDataLookup.class);
+    SwaptionScenarioMarketData swaptionMarketData = swaptionLookup.marketView(scenarioMarketData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, resolved, scenarioMarketData, marketView));
+      results.put(measure, calculate(measure, resolved, scenarioMarketData, swaptionMarketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -139,13 +139,13 @@ public class SwaptionCalculationFunction
       Measure measure,
       ResolvedSwaptionTrade trade,
       CalculationMarketData scenarioMarketData,
-      SwaptionCalculationMarketView marketView) {
+      SwaptionScenarioMarketData swaptionMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, scenarioMarketData, marketView));
+    return Result.of(() -> calculator.calculate(trade, scenarioMarketData, swaptionMarketData));
   }
 
   //-------------------------------------------------------------------------
@@ -154,7 +154,7 @@ public class SwaptionCalculationFunction
     public abstract ScenarioResult<?> calculate(
         ResolvedSwaptionTrade trade,
         CalculationMarketData marketData,
-        SwaptionCalculationMarketView marketView);
+        SwaptionScenarioMarketData swaptionMarketData);
   }
 
 }

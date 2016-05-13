@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
-import com.opengamma.strata.calc.runner.SingleCalculationMarketData;
+import com.opengamma.strata.calc.runner.SingleScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -77,12 +77,12 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   @Override
   public Stream<MarketData> scenarios() {
     return IntStream.range(0, getScenarioCount())
-        .mapToObj(scenarioIndex -> SingleCalculationMarketData.of(this, scenarioIndex));
+        .mapToObj(scenarioIndex -> SingleScenarioMarketData.of(this, scenarioIndex));
   }
 
   @Override
   public MarketData scenario(int scenarioIndex) {
-    return SingleCalculationMarketData.of(this, scenarioIndex);
+    return SingleScenarioMarketData.of(this, scenarioIndex);
   }
 
   //-------------------------------------------------------------------------

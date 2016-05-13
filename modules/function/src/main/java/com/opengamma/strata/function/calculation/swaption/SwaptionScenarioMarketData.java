@@ -11,18 +11,17 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
  * Market data for swaptions, used for calculation across multiple scenarios.
  * <p>
  * This interface exposes the market data necessary for pricing a swaption.
- * This includes volatilities and rates.
  * <p>
  * Implementations of this interface must be immutable.
  */
-public interface SwaptionCalculationMarketView {
+public interface SwaptionScenarioMarketData {
 
   /**
    * Gets the lookup that provides access to swaption volatilities.
    * 
    * @return the swaption lookup
    */
-  public abstract SwaptionMarketLookup getLookup();
+  public abstract SwaptionMarketDataLookup getLookup();
 
   /**
    * Gets the market data.
@@ -37,7 +36,7 @@ public interface SwaptionCalculationMarketView {
    * @param marketData  the market data to use
    * @return a market view based on the specified data
    */
-  public abstract SwaptionCalculationMarketView withMarketData(CalculationMarketData marketData);
+  public abstract SwaptionScenarioMarketData withMarketData(CalculationMarketData marketData);
 
   //-------------------------------------------------------------------------
   /**
@@ -56,6 +55,6 @@ public interface SwaptionCalculationMarketView {
    * @return the market data for the specified scenario
    * @throws IndexOutOfBoundsException if the scenario index is invalid
    */
-  public abstract SwaptionMarketView scenario(int scenarioIndex);
+  public abstract SwaptionMarketData scenario(int scenarioIndex);
 
 }

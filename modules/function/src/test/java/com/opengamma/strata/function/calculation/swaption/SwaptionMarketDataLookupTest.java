@@ -12,9 +12,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+
+import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 import org.testng.annotations.Test;
@@ -25,14 +28,15 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
- * Test {@link SwaptionMarketLookup}.
+ * Test {@link SwaptionMarketDataLookup}.
  */
 @Test
-public class SwaptionMarketLookupTest {
+public class SwaptionMarketDataLookupTest {
 
   private static final SwaptionVolatilitiesId VOL_ID1 = SwaptionVolatilitiesId.of("USD1");
   private static final SwaptionVolatilities MOCK_VOLS = mock(SwaptionVolatilities.class);
@@ -45,12 +49,15 @@ public class SwaptionMarketLookupTest {
 
   //-------------------------------------------------------------------------
   public void test_of_single() {
-    ImmutableMap<IborIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1);
-    SwaptionMarketLookup test = SwaptionMarketLookup.of(ids);
-    assertEquals(test.queryType(), SwaptionMarketLookup.class);
+    SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
+    assertEquals(test.queryType(), SwaptionMarketDataLookup.class);
     assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
     assertThrowsIllegalArg(() -> test.getVolatilityIds(GBP_LIBOR_3M));
+
+    assertEquals(
+        test.requirements(USD_LIBOR_3M),
+        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
@@ -59,12 +66,15 @@ public class SwaptionMarketLookupTest {
 
   public void test_of_map() {
     ImmutableMap<IborIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
-    SwaptionMarketLookup test = SwaptionMarketLookup.of(ids);
-    assertEquals(test.queryType(), SwaptionMarketLookup.class);
+    SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(ids);
+    assertEquals(test.queryType(), SwaptionMarketDataLookup.class);
     assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M, USD_LIBOR_6M));
     assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
     assertThrowsIllegalArg(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
+    assertEquals(
+        test.requirements(USD_LIBOR_3M),
+        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
@@ -75,10 +85,25 @@ public class SwaptionMarketLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_of_marketView() {
+    SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
+    LocalDate valDate = date(2015, 6, 30);
+    CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    SwaptionScenarioMarketData multiScenario = test.marketView(md);
+    assertEquals(multiScenario.getLookup(), test);
+    assertEquals(multiScenario.getMarketData(), md);
+    assertEquals(multiScenario.getScenarioCount(), 1);
+    SwaptionMarketData scenario = multiScenario.scenario(0);
+    assertEquals(scenario.getLookup(), test);
+    assertEquals(scenario.getMarketData(), md.scenario(0));
+    assertEquals(scenario.getValuationDate(), valDate);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
-    DefaultSwaptionMarketLookup test = DefaultSwaptionMarketLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultSwaptionMarketDataLookup test = DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     coverImmutableBean(test);
-    DefaultSwaptionMarketLookup test2 = DefaultSwaptionMarketLookup.of(USD_LIBOR_3M, VOL_ID1);
+    DefaultSwaptionMarketDataLookup test2 = DefaultSwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     coverBeanEquals(test, test2);
 
     coverImmutableBean((ImmutableBean) test.marketView(MOCK_CALC_MARKET_DATA));
@@ -86,7 +111,7 @@ public class SwaptionMarketLookupTest {
   }
 
   public void test_serialization() {
-    DefaultSwaptionMarketLookup test = DefaultSwaptionMarketLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
+    DefaultSwaptionMarketDataLookup test = DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
     assertSerialization(test);
   }
 

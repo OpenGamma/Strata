@@ -44,22 +44,22 @@ final class SwaptionMeasureCalculations {
   static CurrencyValuesArray presentValue(
       ResolvedSwaptionTrade trade,
       CalculationMarketData marketData,
-      SwaptionCalculationMarketView marketView) {
+      SwaptionScenarioMarketData swaptionMarketData) {
 
     ResolvedSwaption product = trade.getProduct();
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePresentValue(product, marketData.scenario(i), marketView.scenario(i)));
+        i -> calculatePresentValue(product, marketData.scenario(i), swaptionMarketData.scenario(i)));
   }
 
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
       ResolvedSwaption product,
       MarketData marketData,
-      SwaptionMarketView marketView) {
+      SwaptionMarketData swaptionMarketData) {
 
     RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    SwaptionVolatilities volatilities = marketView.volatilities(product.getIndex());
+    SwaptionVolatilities volatilities = swaptionMarketData.volatilities(product.getIndex());
     if (product.getSwaptionSettlement().getSettlementType() == SettlementType.PHYSICAL) {
       return PHYSICAL.presentValue(product, provider, volatilities);
     } else {

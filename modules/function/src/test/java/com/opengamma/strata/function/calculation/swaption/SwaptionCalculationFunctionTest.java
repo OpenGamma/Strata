@@ -94,7 +94,7 @@ public class SwaptionCalculationFunctionTest {
   private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
   private static final Currency CURRENCY = Currency.USD;
   private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
-  private static final DefaultSwaptionMarketLookup SWAPTION_LOOKUP = DefaultSwaptionMarketLookup.of(INDEX, VOL_ID);
+  private static final DefaultSwaptionMarketDataLookup SWAPTION_LOOKUP = DefaultSwaptionMarketDataLookup.of(INDEX, VOL_ID);
   private static final CalculationParameters PARAMS = CalculationParameters.of(SWAPTION_LOOKUP);
   private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
 

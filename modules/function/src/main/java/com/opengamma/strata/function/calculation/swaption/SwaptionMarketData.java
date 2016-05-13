@@ -17,11 +17,10 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  * Market data for swaptions.
  * <p>
  * This interface exposes the market data necessary for pricing a swaption.
- * This includes volatilities and rates.
  * <p>
  * Implementations of this interface must be immutable.
  */
-public interface SwaptionMarketView {
+public interface SwaptionMarketData {
 
   /**
    * Gets the valuation date.
@@ -29,7 +28,7 @@ public interface SwaptionMarketView {
    * @return the valuation date
    */
   public default LocalDate getValuationDate() {
-    return getValuationDateTime().toLocalDate();
+    return getMarketData().getValuationDate();
   }
 
   /**
@@ -48,7 +47,7 @@ public interface SwaptionMarketView {
    * 
    * @return the swaption lookup
    */
-  public abstract SwaptionMarketLookup getLookup();
+  public abstract SwaptionMarketDataLookup getLookup();
 
   /**
    * Gets the market data.
@@ -63,7 +62,7 @@ public interface SwaptionMarketView {
    * @param marketData  the market data to use
    * @return a market view based on the specified data
    */
-  public abstract SwaptionMarketView withMarketData(MarketData marketData);
+  public abstract SwaptionMarketData withMarketData(MarketData marketData);
 
   //-------------------------------------------------------------------------
   /**
