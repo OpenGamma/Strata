@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * <p>
  * This decorates an underlying instance to add or replace a single identifier.
  */
-@BeanDefinition(builderScope = "private", constructorScope = "package")
+@BeanDefinition(builderScope = "private")
 final class ExtendedMarketData<T>
     implements MarketData, ImmutableBean, Serializable {
 
@@ -136,13 +136,7 @@ final class ExtendedMarketData<T>
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Creates an instance.
-   * @param key  the value of the property, not null
-   * @param value  the value of the property, not null
-   * @param underlying  the value of the property, not null
-   */
-  ExtendedMarketData(
+  private ExtendedMarketData(
       MarketDataKey<T> key,
       T value,
       MarketData underlying) {
