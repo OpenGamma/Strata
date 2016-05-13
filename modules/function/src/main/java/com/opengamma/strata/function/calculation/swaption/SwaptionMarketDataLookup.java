@@ -123,7 +123,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param marketData  the complete set of market data for all scenarios
    * @return the filtered market data
    */
-  public default SwaptionScenarioMarketData marketView(CalculationMarketData marketData) {
+  public default SwaptionScenarioMarketData marketDataView(CalculationMarketData marketData) {
     return DefaultSwaptionScenarioMarketData.of(this, marketData);
   }
 
@@ -136,7 +136,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param marketData  the complete set of market data for one scenario
    * @return the filtered market data
    */
-  public default SwaptionMarketData marketView(MarketData marketData) {
+  public default SwaptionMarketData marketDataView(MarketData marketData) {
     return DefaultSwaptionMarketData.of(this, marketData);
   }
 
@@ -149,12 +149,13 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * via {@link SwaptionMarketData}:
    * <pre>
    *  // bind the baseData to this lookup
-   *  SwaptionMarketData view = lookup.marketView(baseData);
+   *  SwaptionMarketData view = lookup.marketDataView(baseData);
    *  
    *  // pass around SwaptionMarketData within the function to use in pricing
    *  SwaptionVolatilities vols = view.volatilities(index);
    * </pre>
    * 
+   * @param index  the Ibor index
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities
    */

@@ -85,11 +85,11 @@ public class SwaptionMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_of_marketView() {
+  public void test_marketDataView() {
     SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     LocalDate valDate = date(2015, 6, 30);
     CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
-    SwaptionScenarioMarketData multiScenario = test.marketView(md);
+    SwaptionScenarioMarketData multiScenario = test.marketDataView(md);
     assertEquals(multiScenario.getLookup(), test);
     assertEquals(multiScenario.getMarketData(), md);
     assertEquals(multiScenario.getScenarioCount(), 1);
@@ -106,8 +106,8 @@ public class SwaptionMarketDataLookupTest {
     DefaultSwaptionMarketDataLookup test2 = DefaultSwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     coverBeanEquals(test, test2);
 
-    coverImmutableBean((ImmutableBean) test.marketView(MOCK_CALC_MARKET_DATA));
-    coverImmutableBean((ImmutableBean) test.marketView(MOCK_MARKET_DATA));
+    coverImmutableBean((ImmutableBean) test.marketDataView(MOCK_CALC_MARKET_DATA));
+    coverImmutableBean((ImmutableBean) test.marketDataView(MOCK_MARKET_DATA));
   }
 
   public void test_serialization() {

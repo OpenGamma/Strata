@@ -122,7 +122,7 @@ public class SwaptionCalculationFunction
     // expand the trade once for all measures and all scenarios
     ResolvedSwaptionTrade resolved = trade.resolve(refData);
     SwaptionMarketDataLookup swaptionLookup = parameters.getParameter(SwaptionMarketDataLookup.class);
-    SwaptionScenarioMarketData swaptionMarketData = swaptionLookup.marketView(scenarioMarketData);
+    SwaptionScenarioMarketData swaptionMarketData = swaptionLookup.marketDataView(scenarioMarketData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
