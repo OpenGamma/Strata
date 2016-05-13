@@ -49,7 +49,7 @@ public class FixedOvernightSwapConventionsTest {
         {FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS, 0},
         {FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS, 0},
         {FixedOvernightSwapConventions.JPY_FIXED_TERM_TONAR_OIS, 0},
-        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, 0},
+        {FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS, 2},
     };
   }
 
