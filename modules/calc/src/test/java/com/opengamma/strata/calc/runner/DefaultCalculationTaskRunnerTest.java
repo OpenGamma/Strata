@@ -29,7 +29,6 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -65,14 +64,13 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
     Results results1 = test.calculateSingleScenario(tasks, marketData, REF_DATA);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = MarketEnvironment.empty(VAL_DATE);
-    Results results2 = test.calculateMultipleScenarios(tasks, scenarioMarketData, REF_DATA);
+    Results results2 = test.calculateMultipleScenarios(tasks, marketData, REF_DATA);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -92,7 +90,7 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
     assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData, REF_DATA));
   }
 
@@ -111,15 +109,14 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 
-    CalculationEnvironment marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
     test.calculateSingleScenarioAsync(tasks, marketData, REF_DATA, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    CalculationEnvironment scenarioMarketData = MarketEnvironment.empty(VAL_DATE);
-    test.calculateMultipleScenariosAsync(tasks, scenarioMarketData, REF_DATA, listener);
+    test.calculateMultipleScenariosAsync(tasks, marketData, REF_DATA, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

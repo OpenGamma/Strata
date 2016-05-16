@@ -36,6 +36,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -132,8 +133,8 @@ public class HistoricalScenarioExample {
 
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
+    CalculationMarketData enhancedMarketData = 
+        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario

@@ -32,9 +32,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
@@ -197,17 +195,14 @@ public final class CalculationTask implements ImmutableBean {
    * @return results of the calculation, one for every scenario in the market data
    */
   @SuppressWarnings("unchecked")
-  public CalculationResults execute(CalculationEnvironment marketData, ReferenceData refData) {
-    // use the mappings to filter the complete market data to the subset needed here
-    CalculationMarketData selectedMarketData = DefaultCalculationMarketData.of(marketData);
-
+  public CalculationResults execute(CalculationMarketData marketData, ReferenceData refData) {
     // calculate the results
-    Map<Measure, Result<?>> results = calculate(selectedMarketData, refData);
+    Map<Measure, Result<?>> results = calculate(marketData, refData);
 
     // convert the results, using a normal loop for better stack traces
     ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
     for (CalculationTaskCell cell : cells) {
-      resultBuilder.add(cell.createResult(this, target, results, selectedMarketData, refData));
+      resultBuilder.add(cell.createResult(this, target, results, marketData, refData));
     }
 
     // return the result

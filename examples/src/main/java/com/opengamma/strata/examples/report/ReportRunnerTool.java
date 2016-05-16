@@ -22,6 +22,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -87,7 +88,7 @@ public class ReportRunnerTool implements AutoCloseable {
       description = "Report output format, ascii or csv",
       converter = ReportOutputFormatParameterConverter.class)
   private ReportOutputFormat format = ReportOutputFormat.ASCII_TABLE;
-  
+
   @Parameter(
       names = {"-i", "--id"},
       description = "An ID by which to select a single trade")
@@ -98,7 +99,7 @@ public class ReportRunnerTool implements AutoCloseable {
       description = "Displays this message",
       help = true)
   private boolean help;
-  
+
   @Parameter(
       names = {"-v", "--version"},
       description = "Prints the version of this tool",
@@ -168,8 +169,8 @@ public class ReportRunnerTool implements AutoCloseable {
   private ReportCalculationResults runCalculationRequirements(ReportRequirements requirements) {
     List<Column> columns = requirements.getTradeMeasureRequirements();
 
-    ExampleMarketDataBuilder marketDataBuilder = marketDataRoot == null ?
-        ExampleMarketData.builder() : ExampleMarketDataBuilder.ofPath(marketDataRoot.toPath());
+    ExampleMarketDataBuilder marketDataBuilder =
+        marketDataRoot == null ? ExampleMarketData.builder() : ExampleMarketDataBuilder.ofPath(marketDataRoot.toPath());
 
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     RatesMarketDataLookup ratesLookup = marketDataBuilder.ratesLookup(valuationDate);
@@ -201,8 +202,8 @@ public class ReportRunnerTool implements AutoCloseable {
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.requirements(refData, MarketDataFeed.NONE);
-    MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
+    CalculationMarketData enhancedMarketData =
+        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);
 
     return ReportCalculationResults.of(valuationDate, trades, requirements.getTradeMeasureRequirements(), results, refData);

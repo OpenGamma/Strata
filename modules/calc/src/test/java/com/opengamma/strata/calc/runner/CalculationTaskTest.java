@@ -37,7 +37,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.ReportingCurrency;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -96,9 +95,10 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
-        .addValue(FxRateId.of(GBP, USD), rates)
-        .build();
+    CalculationMarketData marketData =
+        MarketEnvironment.builder(date(2011, 3, 8))
+            .addValue(FxRateId.of(GBP, USD), rates)
+            .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -120,9 +120,10 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
-        .addValue(FxRateId.of(GBP, USD), rates)
-        .build();
+    CalculationMarketData marketData =
+        MarketEnvironment.builder(date(2011, 3, 8))
+            .addValue(FxRateId.of(GBP, USD), rates)
+            .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -144,9 +145,10 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
-        .addValue(FxRateId.of(GBP, USD), rates)
-        .build();
+    CalculationMarketData marketData =
+        MarketEnvironment.builder(date(2011, 3, 8))
+            .addValue(FxRateId.of(GBP, USD), rates)
+            .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -165,10 +167,10 @@ public class CalculationTaskTest {
   public void convertResultCurrencyFailure() {
     ConvertibleFunction fn = ConvertibleFunction.of(() -> {
       throw new RuntimeException("This is a failure");
-    }, GBP);
+    } , GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -182,7 +184,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -196,7 +198,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -210,7 +212,7 @@ public class CalculationTaskTest {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -227,7 +229,7 @@ public class CalculationTaskTest {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -243,7 +245,7 @@ public class CalculationTaskTest {
     });
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -259,7 +261,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -274,7 +276,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();

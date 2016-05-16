@@ -17,7 +17,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -70,13 +70,11 @@ public class StirFuturePricingExample {
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.ratesLookup(valuationDate));
-
-    // build a market data snapshot for the valuation date
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // calculate the results
     Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);

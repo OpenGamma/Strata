@@ -19,25 +19,25 @@ import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A source of market data provided to an engine function and used for a calculation across multiple scenarios.
+ * Provides access to market data across one or more scenarios.
  * <p>
- * The set of data provided by this interface is a subset of the set provided by {@link CalculationEnvironment}.
- * For example a function might request a USD discounting curve, but the scenario market data can contain
- * multiple curve groups, each with a USD discounting curve.
+ * Market data is looked up using subclasses of {@link MarketDataId}.
+ * All data is valid for a single date, defined by {@link #getValuationDate()}.
  * <p>
  * There are two ways to access the available market data.
  * <p>
- * The first way is to use the value access methods on this interface which return the data
+ * The first way is to use the access methods on this interface that return the data
  * associated with a single identifier for all scenarios. The two key methods are
  * {@link #getValue(MarketDataId)} and {@link #getScenarioValue(ScenarioMarketDataId)}.
  * <p>
- * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}
- * which returns all the data associated with a single scenario.
- * This approach is convenient for single scenario pricers, but may have a small overhead.
+ * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}.
+ * These return all the data associated with a single scenario.
+ * This approach is convenient for single scenario pricers.
  * <p>
- * The standard implementation is {@link DefaultCalculationMarketData}.
+ * The standard implementation is {@link MarketEnvironment}.
  */
 public interface CalculationMarketData {
+  // TODO: ImmutableCalculationMarketData (simple map based impl)
 
   /**
    * Obtains a market data instance that contains no data.
@@ -45,7 +45,7 @@ public interface CalculationMarketData {
    * @return an empty instance
    */
   public static CalculationMarketData empty() {
-    return DefaultCalculationMarketData.of(CalculationEnvironment.empty());
+    return MarketEnvironment.empty();
   }
 
   //-------------------------------------------------------------------------

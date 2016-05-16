@@ -23,8 +23,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
-import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 
 /**
@@ -59,10 +58,9 @@ public class DefaultScenarioResultTest {
         FxRate.of(Currency.GBP, Currency.USD, 1.61),
         FxRate.of(Currency.GBP, Currency.USD, 1.62),
         FxRate.of(Currency.GBP, Currency.USD, 1.63));
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
@@ -80,9 +78,9 @@ public class DefaultScenarioResultTest {
   }
 
   public void noConversionNecessary() {
-    CalculationEnvironment marketData = MarketEnvironment.builder(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
+    CalculationMarketData calculationMarketData =
+        MarketEnvironment.builder(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
@@ -96,9 +94,9 @@ public class DefaultScenarioResultTest {
   }
 
   public void missingFxRates() {
-    CalculationEnvironment marketData = MarketEnvironment.builder(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
+    CalculationMarketData calculationMarketData =
+        MarketEnvironment.builder(MarketDataBox.ofScenarioValues(date(2011, 3, 8), date(2011, 3, 9), date(2011, 3, 10)))
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
@@ -114,10 +112,9 @@ public class DefaultScenarioResultTest {
         FxRate.of(Currency.GBP, Currency.USD, 1.61),
         FxRate.of(Currency.GBP, Currency.USD, 1.62),
         FxRate.of(Currency.GBP, Currency.USD, 1.63));
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),

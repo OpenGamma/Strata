@@ -39,6 +39,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.Result;
@@ -113,7 +114,7 @@ public class SwapPricingTest {
     SimpleCurveId idUsdL1M = SimpleCurveId.of(groupName, StandardDataSets.GROUP1_USD_L1M.getName());
     SimpleCurveId idUsdL3M = SimpleCurveId.of(groupName, StandardDataSets.GROUP1_USD_L3M.getName());
     SimpleCurveId idUsdL6M = SimpleCurveId.of(groupName, StandardDataSets.GROUP1_USD_L6M.getName());
-    MarketEnvironment suppliedData = MarketEnvironment.builder(VAL_DATE)
+    CalculationMarketData suppliedData = MarketEnvironment.builder(VAL_DATE)
         .addValue(idUsdDsc, StandardDataSets.GROUP1_USD_DSC)
         .addValue(idUsdOn, StandardDataSets.GROUP1_USD_ON)
         .addValue(idUsdL1M, StandardDataSets.GROUP1_USD_L1M)

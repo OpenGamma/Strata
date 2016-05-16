@@ -60,7 +60,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
   /** 
    * The valuation date. 
    * <p>
-   * All data items in this environment are calibrated for this date-time. 
+   * The volatilities are calibrated for this date-time. 
    */
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime valuationDateTime;
@@ -270,7 +270,7 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
   /**
    * Gets the valuation date.
    * <p>
-   * All data items in this environment are calibrated for this date-time.
+   * The volatilities are calibrated for this date-time.
    * @return the value of the property, not null
    */
   public ZonedDateTime getValuationDateTime() {

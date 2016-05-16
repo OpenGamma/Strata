@@ -33,6 +33,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -129,8 +130,8 @@ public class CurveScenarioExample {
 
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, scenarioDefinition);
+    CalculationMarketData enhancedMarketData =
+        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, scenarioDefinition);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios

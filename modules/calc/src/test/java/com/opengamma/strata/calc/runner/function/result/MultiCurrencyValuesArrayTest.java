@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -149,13 +149,12 @@ public class MultiCurrencyValuesArrayTest {
         FxRate.of(Currency.USD, Currency.CAD, 1.31),
         FxRate.of(Currency.USD, Currency.CAD, 1.32));
     MarketDataBox<FxRate> eurCadRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.CAD, 1.4));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.CAD), gbpCadRate)
         .addValue(FxRateId.of(Currency.EUR, Currency.CAD), eurCadRate)
         .addValue(FxRateId.of(Currency.USD, Currency.CAD), usdCadRate)
         .build();
-    DefaultCalculationMarketData marketData = DefaultCalculationMarketData.of(marketEnvironment);
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, marketData);
+    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, calculationMarketData);
     DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
         21 * 2.01 + 32 * 1.31 + 43 * 1.4,
@@ -169,12 +168,11 @@ public class MultiCurrencyValuesArrayTest {
         FxRate.of(Currency.GBP, Currency.USD, 1.51),
         FxRate.of(Currency.GBP, Currency.USD, 1.52));
     MarketDataBox<FxRate> eurGbpRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.GBP, 0.7));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), gbpUsdRate)
         .addValue(FxRateId.of(Currency.EUR, Currency.GBP), eurGbpRate)
         .build();
-    DefaultCalculationMarketData marketData = DefaultCalculationMarketData.of(marketEnvironment);
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, marketData);
+    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, calculationMarketData);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{
         20 + 30 / 1.50 + 40 * 0.7,

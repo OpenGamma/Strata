@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.ColumnHeader;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -97,7 +97,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   @Override
   public Results calculateSingleScenario(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData) {
 
     // perform the calculations
@@ -144,7 +144,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   @Override
   public Results calculateMultipleScenarios(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData) {
 
     AggregatingListener listener = new AggregatingListener(tasks.getColumns());
@@ -155,7 +155,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   @Override
   public void calculateSingleScenarioAsync(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 
@@ -167,7 +167,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   @Override
   public void calculateMultipleScenariosAsync(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 
@@ -183,7 +183,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   // submits a task to the executor to be run
   private void runTask(
       CalculationTask task,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData,
       Consumer<CalculationResults> consumer) {
 

@@ -25,8 +25,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
-import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -99,10 +98,9 @@ public class CurrencyValuesArrayTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     CurrencyValuesArray convertedList = list.convertedTo(USD, calculationMarketData);
     DoubleArray expectedValues = DoubleArray.of(1 * 1.61, 2 * 1.62, 3 * 1.63);
@@ -116,8 +114,7 @@ public class CurrencyValuesArrayTest {
   public void noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     CurrencyValuesArray convertedList = list.convertedTo(GBP, calculationMarketData);
     assertThat(convertedList).isEqualTo(list);
@@ -129,8 +126,7 @@ public class CurrencyValuesArrayTest {
   public void missingFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
 
     assertThrows(() -> list.convertedTo(USD, calculationMarketData), MarketDataNotFoundException.class);
   }
@@ -144,10 +140,9 @@ public class CurrencyValuesArrayTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
+    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(GBP, USD), rates)
         .build();
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     assertThrows(
         () -> list.convertedTo(USD, calculationMarketData),

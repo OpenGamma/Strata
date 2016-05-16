@@ -12,7 +12,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 
 /**
  * Component that provides the ability to run calculation tasks.
@@ -92,7 +92,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    */
   public abstract Results calculateSingleScenario(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData);
 
   /**
@@ -109,7 +109,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    */
   public abstract Results calculateMultipleScenarios(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData);
 
   //-------------------------------------------------------------------------
@@ -128,7 +128,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    */
   public abstract void calculateSingleScenarioAsync(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 
@@ -147,7 +147,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    */
   public abstract void calculateMultipleScenariosAsync(
       CalculationTasks tasks,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 
