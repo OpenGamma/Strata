@@ -31,7 +31,7 @@ public interface MarketDataFactory {
   public abstract MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       ReferenceData refData);
 
   /**
@@ -58,7 +58,7 @@ public interface MarketDataFactory {
   public abstract MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition);
 

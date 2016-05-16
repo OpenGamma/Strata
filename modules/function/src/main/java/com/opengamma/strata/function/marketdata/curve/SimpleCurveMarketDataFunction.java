@@ -7,7 +7,7 @@ package com.opengamma.strata.function.marketdata.curve;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
@@ -40,7 +40,7 @@ public class SimpleCurveMarketDataFunction
   public MarketDataBox<Curve> build(
       SimpleCurveId id,
       MarketDataConfig config,
-      CalculationEnvironment marketData,
+      CalculationMarketData marketData,
       ReferenceData refData) {
 
     // find curve

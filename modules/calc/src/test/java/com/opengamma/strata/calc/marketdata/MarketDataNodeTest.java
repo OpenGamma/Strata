@@ -414,7 +414,7 @@ public class MarketDataNodeTest {
     public MarketDataBox<Double> build(
         TestIdA id,
         MarketDataConfig marketDataConfig,
-        CalculationEnvironment marketData,
+        CalculationMarketData marketData,
         ReferenceData refData) {
 
       throw new UnsupportedOperationException("build not implemented");
@@ -445,7 +445,7 @@ public class MarketDataNodeTest {
     public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
         MarketDataConfig marketDataConfig,
-        CalculationEnvironment marketData,
+        CalculationMarketData marketData,
         ReferenceData refData) {
 
       throw new UnsupportedOperationException("build not implemented");

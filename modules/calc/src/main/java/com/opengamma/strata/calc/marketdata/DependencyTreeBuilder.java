@@ -34,7 +34,7 @@ import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
-  private final CalculationEnvironment suppliedData;
+  private final CalculationMarketData suppliedData;
 
   /** The functions that create items of market data. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
@@ -55,7 +55,7 @@ class DependencyTreeBuilder {
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
@@ -64,7 +64,7 @@ class DependencyTreeBuilder {
   }
 
   private DependencyTreeBuilder(
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
@@ -163,7 +163,7 @@ class DependencyTreeBuilder {
   private static boolean isSupplied(
       MarketDataId<?> id,
       MarketDataNode.DataType dataType,
-      CalculationEnvironment suppliedData) {
+      CalculationMarketData suppliedData) {
 
     switch (dataType) {
       case TIME_SERIES:

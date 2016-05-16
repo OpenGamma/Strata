@@ -52,7 +52,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketEnvironment
-    implements ImmutableBean, CalculationMarketData, CalculationEnvironment {
+    implements ImmutableBean, CalculationMarketData {
 
   /** An instance containing no market data. */
   static final MarketEnvironment EMPTY = new MarketEnvironment(

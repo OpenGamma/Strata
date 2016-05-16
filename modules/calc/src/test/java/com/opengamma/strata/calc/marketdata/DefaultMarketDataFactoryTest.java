@@ -1115,7 +1115,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
         MarketDataConfig marketDataConfig,
-        CalculationEnvironment marketData,
+        CalculationMarketData marketData,
         ReferenceData refData) {
 
       TestIdA idA = new TestIdA(id.str);
@@ -1177,7 +1177,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<TestMarketDataC> build(
         TestIdC id,
         MarketDataConfig marketDataConfig,
-        CalculationEnvironment marketData,
+        CalculationMarketData marketData,
         ReferenceData refData) {
 
       LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(new TestIdA(id.str));
@@ -1316,7 +1316,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<String> build(
         NonObservableId id,
         MarketDataConfig marketDataConfig,
-        CalculationEnvironment marketData,
+        CalculationMarketData marketData,
         ReferenceData refData) {
 
       MarketDataBox<Double> value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));

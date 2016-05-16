@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -66,7 +65,7 @@ final class DefaultRatesMarketDataLookup
    * Obtains an instance based on a map of discount and forward curve identifiers.
    * <p>
    * The discount and forward curves refer to the curve identifier.
-   * The curves themselves are provided in {@link CalculationEnvironment}
+   * The curves themselves are provided in {@link CalculationMarketData}
    * using {@link SimpleCurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency

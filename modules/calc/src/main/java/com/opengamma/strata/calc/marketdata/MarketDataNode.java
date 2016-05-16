@@ -69,7 +69,7 @@ class MarketDataNode {
    */
   static MarketDataNode buildDependencyTree(
       MarketDataRequirements requirements,
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
 

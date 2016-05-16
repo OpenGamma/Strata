@@ -100,7 +100,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       ReferenceData refData) {
 
     return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
@@ -110,7 +110,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      CalculationMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 
