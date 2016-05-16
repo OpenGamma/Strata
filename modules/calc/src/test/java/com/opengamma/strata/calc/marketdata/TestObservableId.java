@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.opengamma.strata.basics.market.FieldName;
@@ -15,7 +16,9 @@ import com.opengamma.strata.basics.market.StandardId;
 /**
  * An observable ID implementation used in tests.
  */
-public class TestObservableId implements ObservableId {
+public class TestObservableId implements ObservableId, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final String id;
   private final MarketDataFeed feed;

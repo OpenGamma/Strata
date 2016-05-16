@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner;
+package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -22,7 +22,6 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -34,7 +33,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * data is controlled by the {@code scenarioIndex} argument.
  */
 @BeanDefinition(style = "light")
-public final class SingleScenarioMarketData
+final class SingleScenarioMarketData
     implements ImmutableBean, MarketData {
 
   /**

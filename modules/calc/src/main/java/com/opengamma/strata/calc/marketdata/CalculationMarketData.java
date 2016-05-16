@@ -6,7 +6,9 @@
 package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.market.MarketData;
@@ -16,6 +18,7 @@ import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -34,18 +37,58 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * These return all the data associated with a single scenario.
  * This approach is convenient for single scenario pricers.
  * <p>
- * The standard implementation is {@link MarketEnvironment}.
+ * The standard implementation is {@link ImmutableCalculationMarketData}.
  */
 public interface CalculationMarketData {
-  // TODO: ImmutableCalculationMarketData (simple map based impl)
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from a valuation date, map of values and time-series.
+   * <p>
+   * The valuation date and map of values must have the same number of scenarios.
+   * 
+   * @param scenarioCount  the number of scenarios
+   * @param valuationDate  the valuation dates associated with all scenarios
+   * @param values  the market data values, one for each scenario
+   * @param timeSeries  the time-series
+   * @return a set of market data containing the values in the map
+   */
+  public static CalculationMarketData of(
+      int scenarioCount,
+      LocalDate valuationDate,
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+
+    return of(scenarioCount, MarketDataBox.ofSingleValue(valuationDate), values, timeSeries);
+  }
 
   /**
-   * Obtains a market data instance that contains no data.
+   * Obtains an instance from a valuation date, map of values and time-series.
+   * <p>
+   * The valuation date and map of values must have the same number of scenarios.
+   * 
+   * @param scenarioCount  the number of scenarios
+   * @param valuationDate  the valuation dates associated with the market data, one for each scenario
+   * @param values  the market data values, one for each scenario
+   * @param timeSeries  the time-series
+   * @return a set of market data containing the values in the map
+   */
+  public static CalculationMarketData of(
+      int scenarioCount,
+      MarketDataBox<LocalDate> valuationDate,
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+
+    return ImmutableCalculationMarketData.of(scenarioCount, valuationDate, values, timeSeries);
+  }
+
+  /**
+   * Obtains a market data instance that contains no data and has no scenarios.
    *
    * @return an empty instance
    */
   public static CalculationMarketData empty() {
-    return MarketEnvironment.empty();
+    return ImmutableCalculationMarketData.EMPTY;
   }
 
   //-------------------------------------------------------------------------
@@ -73,7 +116,10 @@ public interface CalculationMarketData {
    * @return the stream of market data, one for the each scenario
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public abstract Stream<MarketData> scenarios();
+  public default Stream<MarketData> scenarios() {
+    return IntStream.range(0, getScenarioCount())
+        .mapToObj(scenarioIndex -> SingleScenarioMarketData.of(this, scenarioIndex));
+  }
 
   /**
    * Returns market data for a single scenario.
@@ -84,36 +130,53 @@ public interface CalculationMarketData {
    * @return the market data for the specified scenario
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public abstract MarketData scenario(int scenarioIndex);
+  public default MarketData scenario(int scenarioIndex) {
+    return SingleScenarioMarketData.of(this, scenarioIndex);
+  }
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this set of data contains a value for the specified key.
+   * Checks if this market data contains a value for the specified identifier.
    *
    * @param id  the identifier to find
-   * @return true if this set of data contains a value for the specified identifier
+   * @return true if the market data contains a value for the identifier
    */
-  public abstract boolean containsValue(MarketDataId<?> id);
+  public default boolean containsValue(MarketDataId<?> id) {
+    return findValue(id).isPresent();
+  }
 
   /**
-   * Returns a box containing values for the specified identifier if available.
+   * Gets the market data value associated with the specified identifier.
+   * <p>
+   * The result is a box that provides data for all scenarios.
+   * If this market data instance contains the identifier, the value will be returned.
+   * Otherwise, an exception will be thrown.
    *
-   * @param <T>  the market data type
+   * @param <T>  the type of the market data value
    * @param id  the identifier to find
-   * @return a box containing values for the specified identifier if available
+   * @return the market data value box providing data for all scenarios
+   * @throws MarketDataNotFoundException if the identifier is not found
+   */
+  public default <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
+    return findValue(id)
+        .orElseThrow(() -> new MarketDataNotFoundException(Messages.format(
+            "Market data not found for '{}' of type '{}'", id, id.getClass().getSimpleName())));
+  }
+
+  /**
+   * Finds the market data value associated with the specified identifier.
+   * <p>
+   * The result is a box that provides data for all scenarios.
+   * If this market data instance contains the identifier, the value will be returned.
+   * Otherwise, an empty optional will be returned.
+   *
+   * @param <T>  the type of the market data value
+   * @param id  the identifier to find
+   * @return the market data value box providing data for all scenarios, empty if not found
    */
   public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id);
 
-  /**
-   * Gets a box that can provide an item of market data for a scenario.
-   *
-   * @param <T>  the type of the market data
-   * @param id  the identifier to find
-   * @return the box providing access to the market data values for each scenario
-   * @throws MarketDataNotFoundException if no value is found
-   */
-  public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
-
+  //-------------------------------------------------------------------------
   /**
    * Gets an object containing market data for multiple scenarios.
    * <p>
@@ -144,7 +207,6 @@ public interface CalculationMarketData {
       return id.createScenarioValue(box, getScenarioCount());
     }
     ScenarioMarketDataValue<T> scenarioValue = box.getScenarioValue();
-
     if (id.getScenarioMarketDataType().isInstance(scenarioValue)) {
       return (U) scenarioValue;
     }
@@ -153,7 +215,7 @@ public interface CalculationMarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time-series identified by the specified key, empty if not found.
+   * Gets the time-series associated with the specified identifier, empty if not found.
    * <p>
    * Time series are not affected by scenarios, therefore there is a single time-series
    * for each identifier which is shared between all scenarios.

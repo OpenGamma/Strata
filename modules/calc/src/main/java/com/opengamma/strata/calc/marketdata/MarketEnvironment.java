@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -30,12 +28,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.runner.SingleScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
@@ -185,18 +181,6 @@ public final class MarketEnvironment
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
     LocalDateDoubleTimeSeries timeSeries = this.timeSeries.get(id);
     return timeSeries == null ? LocalDateDoubleTimeSeries.empty() : timeSeries;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public Stream<MarketData> scenarios() {
-    return IntStream.range(0, getScenarioCount())
-        .mapToObj(scenarioIndex -> SingleScenarioMarketData.of(this, scenarioIndex));
-  }
-
-  @Override
-  public MarketData scenario(int scenarioIndex) {
-    return SingleScenarioMarketData.of(this, scenarioIndex);
   }
 
   //-------------------------------------------------------------------------

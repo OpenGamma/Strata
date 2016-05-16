@@ -5,26 +5,176 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
+/**
+ * Test {@link CalculationMarketData} and {@link ImmutableCalculationMarketData}.
+ */
 @Test
 public class CalculationMarketDataTest {
 
+  private static final LocalDate VAL_DATE = date(2015, 6, 30);
+  private static final TestObservableId ID1 = TestObservableId.of("1");
+  private static final TestObservableId ID2 = TestObservableId.of("2");
+  private static final double VAL1 = 1d;
+  private static final double VAL2 = 2d;
+  private static final double VAL3 = 3d;
+  private static final MarketDataBox<Double> BOX1 = MarketDataBox.ofScenarioValues(VAL1, VAL2);
+  private static final MarketDataBox<Double> BOX2 = MarketDataBox.ofScenarioValues(VAL3);
+  private static final LocalDateDoubleTimeSeries TIME_SERIES = LocalDateDoubleTimeSeries.builder()
+      .put(date(2011, 3, 8), 1.1)
+      .put(date(2011, 3, 10), 1.2)
+      .build();
+
+  //-------------------------------------------------------------------------
+  public void test_of() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    CalculationMarketData test = CalculationMarketData.of(2, VAL_DATE, dataMap, tsMap);
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isTrue();
+    assertThat(test.containsValue(ID2)).isFalse();
+    assertThat(test.getValue(ID1)).isEqualTo(BOX1);
+    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThat(test.findValue(ID1)).hasValue(BOX1);
+    assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getTimeSeries(ID1)).isEqualTo(TIME_SERIES);
+    assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
+  }
+
+  public void test_of_noScenarios() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.empty());
+    CalculationMarketData test = CalculationMarketData.of(0, VAL_DATE, dataMap, ImmutableMap.of());
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isTrue();
+    assertThat(test.containsValue(ID2)).isFalse();
+    assertThat(test.getValue(ID1)).isEqualTo(MarketDataBox.empty());
+    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThat(test.findValue(ID1)).hasValue(MarketDataBox.empty());
+    assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getTimeSeries(ID1)).isEqualTo(LocalDateDoubleTimeSeries.empty());
+    assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
+  }
+
+  public void test_empty() {
+    CalculationMarketData test = CalculationMarketData.empty();
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.empty());
+    assertThat(test.containsValue(ID1)).isFalse();
+    assertThat(test.containsValue(ID2)).isFalse();
+    assertThrows(() -> test.getValue(ID1), MarketDataNotFoundException.class);
+    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThat(test.findValue(ID1)).isEmpty();
+    assertThat(test.findValue(ID2)).isEmpty();
+    assertThat(test.getTimeSeries(ID1)).isEqualTo(LocalDateDoubleTimeSeries.empty());
+    assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
+  }
+
+  public void of_null() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = new HashMap<>();
+    dataMap.put(ID1, null);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    assertThrows(() -> CalculationMarketData.of(2, VAL_DATE, dataMap, tsMap), IllegalArgumentException.class);
+  }
+
+  public void of_badType() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues("", ""));
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    assertThrows(() -> CalculationMarketData.of(2, VAL_DATE, dataMap, tsMap), ClassCastException.class);
+  }
+
+  public void of_badScenarios() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues(VAL1));
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    assertThrows(() -> CalculationMarketData.of(2, VAL_DATE, dataMap, tsMap), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_defaultMethods() {
+    CalculationMarketData test = new CalculationMarketData() {
+
+      @Override
+      public MarketDataBox<LocalDate> getValuationDate() {
+        return MarketDataBox.ofSingleValue(VAL_DATE);
+      }
+
+      @Override
+      public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
+        return LocalDateDoubleTimeSeries.empty();
+      }
+
+      @Override
+      public int getScenarioCount() {
+        return 2;
+      }
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
+        return id.equals(ID1) ? Optional.of((MarketDataBox<T>) BOX1) : Optional.empty();
+      }
+    };
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isTrue();
+    assertThat(test.containsValue(ID2)).isFalse();
+    assertThat(test.getValue(ID1)).isEqualTo(BOX1);
+    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThat(test.findValue(ID1)).hasValue(BOX1);
+    assertThat(test.findValue(ID2)).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_scenarios() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    CalculationMarketData test = CalculationMarketData.of(2, VAL_DATE, dataMap, tsMap);
+
+    MarketData scenario0 = test.scenario(0);
+    MarketData scenario1 = test.scenario(1);
+    assertThat(scenario0.getValue(ID1)).isEqualTo(BOX1.getValue(0));
+    assertThat(scenario1.getValue(ID1)).isEqualTo(BOX1.getValue(1));
+    List<Double> list = test.scenarios().map(s -> s.getValue(ID1)).collect(toImmutableList());
+    assertThat(list.get(0)).isEqualTo(BOX1.getValue(0));
+    assertThat(list.get(1)).isEqualTo(BOX1.getValue(1));
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
+    ImmutableCalculationMarketData test = ImmutableCalculationMarketData.of(2, VAL_DATE, dataMap, tsMap);
+    coverImmutableBean(test);
+    Map<MarketDataId<?>, MarketDataBox<?>> dataMap2 = ImmutableMap.of(ID2, BOX2);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap2 = ImmutableMap.of(ID2, TIME_SERIES);
+    ImmutableCalculationMarketData test2 = ImmutableCalculationMarketData.of(1, VAL_DATE.plusDays(1), dataMap2, tsMap2);
+    coverBeanEquals(test, test2);
+  }
+
+  //-------------------------------------------------------------------------
   public void getScenarioValueFromSingleValue() {
     MarketDataBox<Double> box = MarketDataBox.ofSingleValue(9d);
     TestMarketData marketData = new TestMarketData(box);
