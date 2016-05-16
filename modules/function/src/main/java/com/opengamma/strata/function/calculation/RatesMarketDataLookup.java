@@ -163,7 +163,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
   public abstract ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency);
 
   /**
-   * Gets the set of currencies that forward rates are provided for.
+   * Gets the set of indices that forward rates are provided for.
    *
    * @return the set of forward curve indices
    */
