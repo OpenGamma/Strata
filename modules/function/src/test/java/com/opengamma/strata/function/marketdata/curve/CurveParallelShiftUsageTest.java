@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
@@ -29,7 +28,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
-import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.SimpleCurveId;
 
 /**
  * Test usage of {@link CurveParallelShift}.
@@ -47,7 +46,7 @@ public class CurveParallelShiftUsageTest {
         Curve.class,
         CurveNameFilter.of(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
-    DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
+    SimpleCurveId curveId = SimpleCurveId.of(curveGroupName, curveName);
     MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();

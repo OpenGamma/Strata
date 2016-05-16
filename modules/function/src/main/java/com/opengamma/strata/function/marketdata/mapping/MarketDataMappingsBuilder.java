@@ -67,10 +67,6 @@ public class MarketDataMappingsBuilder {
    */
   public MarketDataMappingsBuilder curveGroup(CurveGroupName curveGroupName) {
     ArgChecker.notNull(curveGroupName, "curveGroupName");
-    mappings.add(DiscountCurveMapping.of(curveGroupName, marketDataFeed));
-    mappings.add(IborIndexCurveMapping.of(curveGroupName, marketDataFeed));
-    mappings.add(OvernightIndexCurveMapping.of(curveGroupName, marketDataFeed));
-    mappings.add(PriceIndexCurveMapping.of(curveGroupName, marketDataFeed));
     return this;
   }
 

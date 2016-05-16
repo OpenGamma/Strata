@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.key.CurveKey;
 
 /**
  * An identifier used to access a curve by name.
@@ -38,7 +39,7 @@ import com.opengamma.strata.market.curve.CurveName;
  */
 @BeanDefinition(builderScope = "private")
 public final class SimpleCurveId
-    implements SimpleMarketDataKey<Curve>, CurveId, ImmutableBean, Serializable {
+    implements SimpleMarketDataKey<Curve>, CurveKey, CurveId, ImmutableBean, Serializable {
 
   /**
    * The curve group name.

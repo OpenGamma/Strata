@@ -24,7 +24,6 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -107,22 +106,6 @@ public final class SyntheticCurveCalibrator {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Calibrates synthetic curves from the configuration of the new curves and an existing set of market data.
-   * 
-   * @param group  the curve group definition for the synthetic curves and instruments
-   * @param marketData  the market data
-   * @param refData  the reference data, used to resolve the trades
-   * @return the rates provider
-   */
-  public RatesProvider calibrate(
-      CurveGroupDefinition group,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return calibrate(group, MarketDataRatesProvider.of(marketData), refData);
-  }
-
   /**
    * Calibrates synthetic curves from the configuration of the new curves and an existing rates provider.
    * 

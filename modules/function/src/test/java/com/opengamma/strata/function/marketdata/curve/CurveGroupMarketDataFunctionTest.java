@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -54,14 +55,12 @@ import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveInputsId;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
 import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -124,13 +123,13 @@ public class CurveGroupMarketDataFunctionTest {
 
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(inputData)
-        .put(DiscountCurveKey.of(Currency.USD), curve)
-        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
+        .put(SimpleCurveId.of(groupName, curveName), curve)
         .build();
 
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
+    RatesMarketDataLookup lookup = RatesMarketDataLookup.of(groupDefn);
+    RatesProvider ratesProvider = lookup.ratesProvider(calculationMarketData.scenario(0));
 
     // The PV should be zero for an instrument used to build the curve
     nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, marketData));
@@ -169,12 +168,12 @@ public class CurveGroupMarketDataFunctionTest {
 
     Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
         .putAll(inputData)
-        .put(DiscountCurveKey.of(Currency.USD), curve)
-        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
+        .put(SimpleCurveId.of(groupName, curveName), curve)
         .build();
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
+    RatesMarketDataLookup lookup = RatesMarketDataLookup.of(groupDefn);
+    RatesProvider ratesProvider = lookup.ratesProvider(calculationMarketData.scenario(0));
 
     checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, marketData);
     checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, marketData);

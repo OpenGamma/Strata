@@ -28,10 +28,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.config.MarketDataRules;
@@ -52,12 +48,7 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.CurveId;
-import com.opengamma.strata.market.id.DiscountCurveId;
-import com.opengamma.strata.market.id.IborIndexCurveId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
-import com.opengamma.strata.market.id.OvernightIndexCurveId;
-import com.opengamma.strata.market.id.PriceIndexCurveId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.SimpleCurveId;
 
@@ -291,12 +282,6 @@ public abstract class ExampleMarketDataBuilder {
       for (CurveGroup group : ratesCurves) {
         // add entry for each group
         builder.addValue(CurveGroupId.of(group.getName()), group);
-        // add entry for higher level discount curve ID, needed for the examples to work without market data building
-        group.getDiscountCurves().forEach(
-            (ccy, curve) -> builder.addValue(DiscountCurveId.of(ccy, group.getName()), curve));
-        // add entry for higher level forward curve ID, needed for the examples to work without market data building
-        group.getForwardCurves().forEach(
-            (idx, curve) -> builder.addValue(createCurveId(idx, group.getName()), curve));
         // add entry for higher level discount curve name
         group.getDiscountCurves().forEach(
             (ccy, curve) -> builder.addValue(SimpleCurveId.of(group.getName(), curve.getName()), curve));
@@ -308,18 +293,6 @@ public abstract class ExampleMarketDataBuilder {
     } catch (Exception e) {
       log.error("Error loading rates curves", e);
     }
-  }
-
-  // creates a forward curve id
-  private static CurveId createCurveId(Index index, CurveGroupName curveGroup) {
-    if (index instanceof IborIndex) {
-      return IborIndexCurveId.of((IborIndex) index, curveGroup);
-    } else if (index instanceof OvernightIndex) {
-      return OvernightIndexCurveId.of((OvernightIndex) index, curveGroup);
-    } else if (index instanceof PriceIndex) {
-      return PriceIndexCurveId.of((PriceIndex) index, curveGroup);
-    }
-    throw new IllegalArgumentException("Unexpected index type " + index.getClass().getName());
   }
 
   // load quotes
