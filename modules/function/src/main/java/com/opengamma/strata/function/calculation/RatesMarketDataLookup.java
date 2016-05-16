@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -160,7 +160,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the currency is not found
    */
-  public abstract ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency);
+  public abstract ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency);
 
   /**
    * Gets the set of indices that forward rates are provided for.
@@ -179,7 +179,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the index is not found
    */
-  public abstract ImmutableSet<MarketDataKey<?>> getForwardMarketDataIds(Index index);
+  public abstract ImmutableSet<MarketDataId<?>> getForwardMarketDataIds(Index index);
 
   //-------------------------------------------------------------------------
   /**

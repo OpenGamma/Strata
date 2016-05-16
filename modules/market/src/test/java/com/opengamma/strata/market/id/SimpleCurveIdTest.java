@@ -28,8 +28,6 @@ public class SimpleCurveIdTest {
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
     assertEquals(test.getMarketDataType(), Curve.class);
-    assertEquals(test.toMarketDataId(null), test);
-    assertEquals(test.toMarketDataKey(), test);
   }
 
   public void test_of_TYpes() {
@@ -37,8 +35,6 @@ public class SimpleCurveIdTest {
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
     assertEquals(test.getMarketDataType(), Curve.class);
-    assertEquals(test.toMarketDataId(null), test);
-    assertEquals(test.toMarketDataKey(), test);
   }
 
   //-------------------------------------------------------------------------

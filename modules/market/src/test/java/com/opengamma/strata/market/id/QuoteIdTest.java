@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.market.key.QuoteKey;
 
 /**
  * Test {@link QuoteId}.
@@ -35,7 +34,6 @@ public class QuoteIdTest {
     assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toMarketDataKey(), QuoteKey.of(ID1, FieldName.MARKET_VALUE));
   }
 
   public void test_of_2args() {
@@ -44,7 +42,6 @@ public class QuoteIdTest {
     assertEquals(test.getMarketDataFeed(), FEED2);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toMarketDataKey(), QuoteKey.of(ID1, FieldName.MARKET_VALUE));
   }
 
   public void test_of_3args() {
@@ -53,7 +50,6 @@ public class QuoteIdTest {
     assertEquals(test.getMarketDataFeed(), FEED2);
     assertEquals(test.getFieldName(), FIELD2);
     assertEquals(test.getMarketDataType(), Double.class);
-    assertEquals(test.toMarketDataKey(), QuoteKey.of(ID1, FIELD2));
   }
 
   //-------------------------------------------------------------------------

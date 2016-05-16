@@ -110,7 +110,7 @@ public class CurveEndToEndTest {
     LocalDate valuationDate = date(2011, 3, 8);
 
     // Build the trades from the node instruments
-    MarketData quotes = ImmutableMarketData.builder(valuationDate).addValuesById(parRateData).build();
+    MarketData quotes = ImmutableMarketData.builder(valuationDate).addValues(parRateData).build();
     Trade fra3x6Trade = fra3x6Node.trade(valuationDate, quotes, REF_DATA);
     Trade fra6x9Trade = fra6x9Node.trade(valuationDate, quotes, REF_DATA);
     Trade swap1yTrade = swap1yNode.trade(valuationDate, quotes, REF_DATA);

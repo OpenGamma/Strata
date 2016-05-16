@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -92,7 +92,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the index is not found
    */
-  public abstract ImmutableSet<MarketDataKey<?>> getVolatilityIds(IborIndex index);
+  public abstract ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index);
 
   //-------------------------------------------------------------------------
   /**

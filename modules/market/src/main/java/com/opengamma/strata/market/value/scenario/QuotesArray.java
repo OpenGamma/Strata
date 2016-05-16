@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.key.scenario.QuotesArrayKey;
+import com.opengamma.strata.market.id.scenario.QuotesArrayId;
 
 /**
  * Container for values for an item of quoted market data in multiple scenarios.
@@ -37,7 +37,7 @@ import com.opengamma.strata.market.key.scenario.QuotesArrayKey;
  * footprint and avoids the overhead of boxing.
  * <p>
  * For maximum performance functions can access the array of quotes without boxing or copying via
- * the {@code quotes} property. Functions should use a {@link QuotesArrayKey} to request
+ * the {@code quotes} property. Functions should use a {@link QuotesArrayId} to request
  * a {@code QuotesArray} from the market data container if they need direct access to the array of quotes.
  */
 @BeanDefinition(builderScope = "private")

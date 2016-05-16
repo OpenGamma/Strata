@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
@@ -27,14 +26,12 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.key.QuoteKey;
 
 @Test
 public class FxRateMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("test", "EUR/USD"));
-  private static final QuoteId QUOTE_ID = QUOTE_KEY.toMarketDataId(MarketDataFeed.NONE);
+  private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("test", "EUR/USD"));
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(Currency.EUR, Currency.USD);
   private static final FxRateId RATE_ID = FxRateId.of(CURRENCY_PAIR);
 
@@ -112,7 +109,7 @@ public class FxRateMarketDataFunctionTest {
   }
 
   private static MarketDataConfig config() {
-    Map<CurrencyPair, QuoteKey> ratesMap = ImmutableMap.of(CURRENCY_PAIR, QUOTE_KEY);
+    Map<CurrencyPair, QuoteId> ratesMap = ImmutableMap.of(CURRENCY_PAIR, QUOTE_ID);
     FxRateConfig fxRateConfig = FxRateConfig.builder().observableRates(ratesMap).build();
     return MarketDataConfig.builder().addDefault(fxRateConfig).build();
   }

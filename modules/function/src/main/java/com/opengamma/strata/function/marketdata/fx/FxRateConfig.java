@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 
 /**
  * Configuration defining how to create {@link FxRate} instances from observable market data.
@@ -44,7 +44,7 @@ public final class FxRateConfig implements ImmutableBean {
 
   /** The keys identifying FX rates which are observable in the market, keyed by their conventional currency pair. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableMap<CurrencyPair, QuoteKey> observableRates;
+  private final ImmutableMap<CurrencyPair, QuoteId> observableRates;
 
   /**
    * Returns a key identifying the market quote for an observable FX rate.
@@ -58,9 +58,9 @@ public final class FxRateConfig implements ImmutableBean {
    * @param currencyPair  the currency pair
    * @return a key identifying the market quote for the rate if it is observable in the market
    */
-  public Optional<QuoteKey> getObservableRateKey(CurrencyPair currencyPair) {
-    QuoteKey quoteKey = observableRates.get(currencyPair.toConventional());
-    return Optional.ofNullable(quoteKey);
+  public Optional<QuoteId> getObservableRateKey(CurrencyPair currencyPair) {
+    QuoteId quoteId = observableRates.get(currencyPair.toConventional());
+    return Optional.ofNullable(quoteId);
   }
 
   /**
@@ -69,7 +69,7 @@ public final class FxRateConfig implements ImmutableBean {
    * @param quotesMap  map of currency pairs to the market quotes defining their rates
    * @return FX rate configuration built using the data in the map
    */
-  public static FxRateConfig of(Map<CurrencyPair, QuoteKey> quotesMap) {
+  public static FxRateConfig of(Map<CurrencyPair, QuoteId> quotesMap) {
     return new FxRateConfig(quotesMap);
   }
 
@@ -108,7 +108,7 @@ public final class FxRateConfig implements ImmutableBean {
   }
 
   private FxRateConfig(
-      Map<CurrencyPair, QuoteKey> observableRates) {
+      Map<CurrencyPair, QuoteId> observableRates) {
     JodaBeanUtils.notNull(observableRates, "observableRates");
     this.observableRates = ImmutableMap.copyOf(observableRates);
     validate();
@@ -134,7 +134,7 @@ public final class FxRateConfig implements ImmutableBean {
    * Gets the keys identifying FX rates which are observable in the market, keyed by their conventional currency pair.
    * @return the value of the property, not null
    */
-  private ImmutableMap<CurrencyPair, QuoteKey> getObservableRates() {
+  private ImmutableMap<CurrencyPair, QuoteId> getObservableRates() {
     return observableRates;
   }
 
@@ -189,7 +189,7 @@ public final class FxRateConfig implements ImmutableBean {
      * The meta-property for the {@code observableRates} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<CurrencyPair, QuoteKey>> observableRates = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<CurrencyPair, QuoteId>> observableRates = DirectMetaProperty.ofImmutable(
         this, "observableRates", FxRateConfig.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
@@ -233,7 +233,7 @@ public final class FxRateConfig implements ImmutableBean {
      * The meta-property for the {@code observableRates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<CurrencyPair, QuoteKey>> observableRates() {
+    public MetaProperty<ImmutableMap<CurrencyPair, QuoteId>> observableRates() {
       return observableRates;
     }
 
@@ -264,7 +264,7 @@ public final class FxRateConfig implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FxRateConfig> {
 
-    private Map<CurrencyPair, QuoteKey> observableRates = ImmutableMap.of();
+    private Map<CurrencyPair, QuoteId> observableRates = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -296,7 +296,7 @@ public final class FxRateConfig implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1996176400:  // observableRates
-          this.observableRates = (Map<CurrencyPair, QuoteKey>) newValue;
+          this.observableRates = (Map<CurrencyPair, QuoteId>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -340,7 +340,7 @@ public final class FxRateConfig implements ImmutableBean {
      * @param observableRates  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder observableRates(Map<CurrencyPair, QuoteKey> observableRates) {
+    public Builder observableRates(Map<CurrencyPair, QuoteId> observableRates) {
       JodaBeanUtils.notNull(observableRates, "observableRates");
       this.observableRates = observableRates;
       return this;

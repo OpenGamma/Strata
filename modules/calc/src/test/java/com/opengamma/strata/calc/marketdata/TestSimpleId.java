@@ -9,7 +9,6 @@ import java.util.Objects;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * A test market data ID.
@@ -27,11 +26,6 @@ public class TestSimpleId implements MarketDataId<String> {
   @Override
   public Class<String> getMarketDataType() {
     return String.class;
-  }
-
-  @Override
-  public MarketDataKey<String> toMarketDataKey() {
-    throw new UnsupportedOperationException("toMarketDataKey not implemented");
   }
 
   public MarketDataFeed getMarketDataFeed() {

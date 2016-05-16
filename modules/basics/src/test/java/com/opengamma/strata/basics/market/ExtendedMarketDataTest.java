@@ -28,10 +28,10 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class ExtendedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestObservableKey ID1 = TestObservableKey.of("1");
-  private static final TestObservableKey ID2 = TestObservableKey.of("2");
-  private static final TestObservableKey ID3 = TestObservableKey.of("3");
-  private static final TestObservableKey ID4 = TestObservableKey.of("4");
+  private static final TestObservableId ID1 = TestObservableId.of("1");
+  private static final TestObservableId ID2 = TestObservableId.of("2");
+  private static final TestObservableId ID3 = TestObservableId.of("3");
+  private static final TestObservableId ID4 = TestObservableId.of("4");
   private static final Double VAL1 = 123d;
   private static final Double VAL2 = 234d;
   private static final Double VAL3 = 999d;
@@ -44,7 +44,7 @@ public class ExtendedMarketDataTest {
   //-------------------------------------------------------------------------
   public void of_addition() {
     ExtendedMarketData<Double> test = ExtendedMarketData.of(ID3, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), ID3);
+    assertEquals(test.getId(), ID3);
     assertEquals(test.getValue(), VAL3);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID1), true);
@@ -64,7 +64,7 @@ public class ExtendedMarketDataTest {
 
   public void of_override() {
     ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), ID1);
+    assertEquals(test.getId(), ID1);
     assertEquals(test.getValue(), VAL3);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID1), true);
@@ -93,8 +93,8 @@ public class ExtendedMarketDataTest {
   }
 
   private static ImmutableMarketData baseData() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
     return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
   }
 

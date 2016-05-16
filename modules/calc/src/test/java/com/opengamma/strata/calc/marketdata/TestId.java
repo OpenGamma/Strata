@@ -9,7 +9,6 @@ import java.util.Objects;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
  * MarketDataId implementation used in tests.
@@ -18,6 +17,10 @@ public class TestId implements MarketDataId<String> {
 
   private final String id;
   private final MarketDataFeed feed;
+
+  public static TestId of(String id) {
+    return new TestId(id);
+  }
 
   public TestId(String id, MarketDataFeed feed) {
     this.id = id;
@@ -31,11 +34,6 @@ public class TestId implements MarketDataId<String> {
   @Override
   public Class<String> getMarketDataType() {
     return String.class;
-  }
-
-  @Override
-  public MarketDataKey<String> toMarketDataKey() {
-    return new TestKey(id);
   }
 
   @Override

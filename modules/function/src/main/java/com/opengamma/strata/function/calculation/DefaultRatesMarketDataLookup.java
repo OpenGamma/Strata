@@ -25,16 +25,16 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -87,7 +87,7 @@ final class DefaultRatesMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency) {
+  public ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency) {
     SimpleCurveId id = discountCurves.get(currency);
     if (id == null) {
       throw new IllegalArgumentException(msgCurrencyNotFound(currency));
@@ -101,7 +101,7 @@ final class DefaultRatesMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getForwardMarketDataIds(Index index) {
+  public ImmutableSet<MarketDataId<?>> getForwardMarketDataIds(Index index) {
     SimpleCurveId id = forwardCurves.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));
@@ -124,23 +124,23 @@ final class DefaultRatesMarketDataLookup
     }
 
     // keys for time-series
-    Set<ObservableKey> indexRateKeys = indices.stream()
-        .map(IndexRateKey::of)
+    Set<ObservableId> indexRateIds = indices.stream()
+        .map(IndexRateId::of)
         .collect(toImmutableSet());
 
     // keys for forward curves
-    Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
+    Set<MarketDataId<?>> indexCurveIds = indices.stream()
         .map(idx -> forwardCurves.get(idx))
         .collect(toImmutableSet());
 
     // keys for discount factors
-    Set<MarketDataKey<?>> discountFactorsKeys = currencies.stream()
+    Set<MarketDataId<?>> discountFactorsIds = currencies.stream()
         .map(ccy -> discountCurves.get(ccy))
         .collect(toImmutableSet());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountFactorsKeys))
-        .timeSeriesRequirements(indexRateKeys)
+        .singleValueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
+        .timeSeriesRequirements(indexRateIds)
         .outputCurrencies(currencies)
         .build();
   }

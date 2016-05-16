@@ -28,10 +28,10 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class CombinedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestObservableKey ID1 = TestObservableKey.of("1");
-  private static final TestObservableKey ID2 = TestObservableKey.of("2");
-  private static final TestObservableKey ID3 = TestObservableKey.of("3");
-  private static final TestObservableKey ID4 = TestObservableKey.of("4");
+  private static final TestObservableId ID1 = TestObservableId.of("1");
+  private static final TestObservableId ID2 = TestObservableId.of("2");
+  private static final TestObservableId ID3 = TestObservableId.of("3");
+  private static final TestObservableId ID4 = TestObservableId.of("4");
   private static final Double VAL1 = 123d;
   private static final Double VAL2 = 234d;
   private static final Double VAL3 = 999d;
@@ -77,14 +77,14 @@ public class CombinedMarketDataTest {
 
   //-------------------------------------------------------------------------
   private static ImmutableMarketData baseData1() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
     return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
   }
 
   private static ImmutableMarketData baseData2() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL3, ID3, VAL3);
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID3, TIME_SERIES);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL3, ID3, VAL3);
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID3, TIME_SERIES);
     return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
   }
 

@@ -26,11 +26,10 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
@@ -149,11 +148,15 @@ public final class CalculationTask implements ImmutableBean {
 
     // convert function requirements to market data requirements
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
-    for (ObservableKey key : functionRequirements.getTimeSeriesRequirements()) {
-      requirementsBuilder.addTimeSeries(key.toMarketDataId(feed));
+    for (ObservableId id : functionRequirements.getTimeSeriesRequirements()) {
+      requirementsBuilder.addTimeSeries(id.withMarketDataFeed(feed));
     }
-    for (MarketDataKey<?> key : functionRequirements.getSingleValueRequirements()) {
-      requirementsBuilder.addValues(key.toMarketDataId(feed));
+    for (MarketDataId<?> id : functionRequirements.getSingleValueRequirements()) {
+      if (id instanceof ObservableId) {
+        requirementsBuilder.addValues(((ObservableId) id).withMarketDataFeed(feed));
+      } else {
+        requirementsBuilder.addValues(id);
+      }
     }
 
     // add requirements for the FX rates needed to convert the output values into the reporting currency
@@ -163,8 +166,7 @@ public final class CalculationTask implements ImmutableBean {
         List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
             .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
             .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
-            .map(FxRateKey::of)
-            .map(key -> key.toMarketDataId(feed))
+            .map(pair -> FxRateId.of(pair, feed))
             .collect(toImmutableList());
         requirementsBuilder.addValues(fxRateIds);
       }

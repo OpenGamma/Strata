@@ -30,14 +30,14 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
@@ -104,7 +104,7 @@ final class DefaultLookupRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T data(MarketDataKey<T> key) {
+  public <T> T data(MarketDataId<T> key) {
     return marketData.getValue(key);
   }
 
@@ -119,7 +119,7 @@ final class DefaultLookupRatesProvider
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    return marketData.getTimeSeries(IndexRateKey.of(index));
+    return marketData.getTimeSeries(IndexRateId.of(index));
   }
 
   //-------------------------------------------------------------------------

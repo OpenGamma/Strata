@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.market.ValueType;
@@ -30,7 +30,7 @@ public interface CurveNode {
    *
    * @return requirements for the market data needed to build a trade representing the instrument at the node
    */
-  public abstract Set<? extends MarketDataKey<?>> requirements();
+  public abstract Set<? extends MarketDataId<?>> requirements();
 
   /**
    * Returns metadata for the node.

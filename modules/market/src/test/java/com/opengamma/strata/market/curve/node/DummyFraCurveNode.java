@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -42,25 +42,25 @@ public final class DummyFraCurveNode
   @PropertyDefinition(validate = "notNull")
   private final Period periodToEnd;
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey rateKey;
+  private final ObservableId rateId;
   @PropertyDefinition
   private final double spread;
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
 
   //-------------------------------------------------------------------------
-  public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableKey rateKey) {
-    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, 0, "Dummy");
+  public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableId rateId) {
+    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateId, 0, "Dummy");
   }
 
-  public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableKey rateKey, double spread) {
-    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateKey, spread, "Dummy");
+  public static DummyFraCurveNode of(Period periodToStart, IborIndex index, ObservableId rateId, double spread) {
+    return new DummyFraCurveNode(periodToStart, periodToStart.plus(index.getTenor().getPeriod()), rateId, spread, "Dummy");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableKey> requirements() {
-    return ImmutableSet.of(rateKey);
+  public Set<ObservableId> requirements() {
+    return ImmutableSet.of(rateId);
   }
 
   @Override
@@ -71,7 +71,7 @@ public final class DummyFraCurveNode
 
   @Override
   public DummyFraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double fixedRate = marketData.getValue(rateKey) + spread;
+    double fixedRate = marketData.getValue(rateId) + spread;
     return DummyFraTrade.of(valuationDate, fixedRate);
   }
 
@@ -83,7 +83,7 @@ public final class DummyFraCurveNode
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType)) {
-      return marketData.getValue(rateKey);
+      return marketData.getValue(rateId);
     }
     return 0d;
   }
@@ -115,16 +115,16 @@ public final class DummyFraCurveNode
   private DummyFraCurveNode(
       Period periodToStart,
       Period periodToEnd,
-      ObservableKey rateKey,
+      ObservableId rateId,
       double spread,
       String label) {
     JodaBeanUtils.notNull(periodToStart, "periodToStart");
     JodaBeanUtils.notNull(periodToEnd, "periodToEnd");
-    JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notEmpty(label, "label");
     this.periodToStart = periodToStart;
     this.periodToEnd = periodToEnd;
-    this.rateKey = rateKey;
+    this.rateId = rateId;
     this.spread = spread;
     this.label = label;
   }
@@ -164,11 +164,11 @@ public final class DummyFraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rateKey.
+   * Gets the rateId.
    * @return the value of the property, not null
    */
-  public ObservableKey getRateKey() {
-    return rateKey;
+  public ObservableId getRateId() {
+    return rateId;
   }
 
   //-----------------------------------------------------------------------
@@ -200,7 +200,7 @@ public final class DummyFraCurveNode
       DummyFraCurveNode other = (DummyFraCurveNode) obj;
       return JodaBeanUtils.equal(periodToStart, other.periodToStart) &&
           JodaBeanUtils.equal(periodToEnd, other.periodToEnd) &&
-          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(spread, other.spread) &&
           JodaBeanUtils.equal(label, other.label);
     }
@@ -212,7 +212,7 @@ public final class DummyFraCurveNode
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(periodToStart);
     hash = hash * 31 + JodaBeanUtils.hashCode(periodToEnd);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
     hash = hash * 31 + JodaBeanUtils.hashCode(spread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
@@ -224,7 +224,7 @@ public final class DummyFraCurveNode
     buf.append("DummyFraCurveNode{");
     buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
     buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
-    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("spread").append('=').append(spread).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');

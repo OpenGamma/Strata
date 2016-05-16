@@ -22,13 +22,13 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.TestKey;
+import com.opengamma.strata.calc.marketdata.TestId;
+import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestFunction;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 
@@ -94,13 +94,13 @@ public class CalculationTasksTest {
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
     assertThat(nonObservables).hasSize(1);
-    assertThat(nonObservables.iterator().next()).isEqualTo(TestKey.of("1").toMarketDataId(MarketDataFeed.NONE));
+    assertThat(nonObservables.iterator().next()).isEqualTo(TestId.of("1"));
 
-    MarketDataId<?> observableId = TestObservableKey.of("2").toMarketDataId(MarketDataFeed.NONE);
+    MarketDataId<?> observableId = TestObservableId.of("2");
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toMarketDataId(MarketDataFeed.NONE);
+    MarketDataId<?> timeSeriesId = TestObservableId.of("3");
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }

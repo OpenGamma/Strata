@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -101,7 +101,7 @@ public class SimpleRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T data(MarketDataKey<T> key) {
+  public <T> T data(MarketDataId<T> key) {
     throw new UnsupportedOperationException();
   }
 

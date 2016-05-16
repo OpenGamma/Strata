@@ -41,8 +41,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
@@ -78,7 +78,7 @@ public class SwapCalculationFunctionTest {
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID));
-    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
+    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateId.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 

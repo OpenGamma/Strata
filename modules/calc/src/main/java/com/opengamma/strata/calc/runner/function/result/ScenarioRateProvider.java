@@ -8,7 +8,7 @@ package com.opengamma.strata.calc.runner.function.result;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.collect.Messages;
@@ -52,7 +52,7 @@ public class ScenarioRateProvider implements FxRateProvider {
     if (baseCurrency.equals(counterCurrency)) {
       return 1;
     }
-    MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(baseCurrency, counterCurrency));
+    MarketDataBox<FxRate> rates = marketData.getValue(FxRateId.of(baseCurrency, counterCurrency));
     return rates.getValue(scenarioIndex).fxRate(baseCurrency, counterCurrency);
   }
 }

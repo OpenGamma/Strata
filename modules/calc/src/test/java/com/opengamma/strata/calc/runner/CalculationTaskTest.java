@@ -34,7 +34,6 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.config.ReportingCurrency;
@@ -44,7 +43,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestId;
-import com.opengamma.strata.calc.marketdata.TestKey;
+import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -74,15 +73,15 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> timeSeriesId = TestObservableKey.of("3").toMarketDataId(feed);
+    MarketDataId<?> timeSeriesId = new TestObservableId("3", feed);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
-    MarketDataId<?> nonObservableId = new TestId("1", feed);
+    MarketDataId<?> nonObservableId = new TestId("1");
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = TestObservableKey.of("2").toMarketDataId(feed);
+    MarketDataId<?> observableId = new TestObservableId("2", feed);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
   }
@@ -354,9 +353,9 @@ public class CalculationTaskTest {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
-                  TestKey.of("1"),
-                  TestObservableKey.of("2")))
-          .timeSeriesRequirements(TestObservableKey.of("3"))
+                  TestId.of("1"),
+                  TestObservableId.of("2")))
+          .timeSeriesRequirements(TestObservableId.of("3"))
           .build();
     }
 

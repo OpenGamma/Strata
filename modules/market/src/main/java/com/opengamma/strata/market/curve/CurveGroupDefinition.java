@@ -46,18 +46,9 @@ import com.opengamma.strata.product.ResolvedTrade;
  * Provides the definition of how to calibrate a group of curves.
  * <p>
  * A curve group contains one or more entries, each of which contains the definition of a curve
- * and a set of market data keys specifying how the curve is to be used.
- * <p>
- * A curve can be used for multiple purposes and therefore the curve itself contains
- * no information about how it is used.
- * <p>
- * In the simple case a curve is only used for a single purpose. For example, if a curve is
- * used for discounting it will be associated with one key of type {@code DiscountCurveKey}.
- * <p>
- * A single curve can also be used as both a discounting curve and a forward curve.
- * In that case its key set might contain a {@code DiscountCurveKey} and a {@code IborIndexCurveKey}.
- * <p>
- * Every curve must be associated with at least once key.
+ * and a set of currencies and indices specifying how the curve is to be used.
+ * The currencies are used to specify that the curve is to be used as a discount curve.
+ * The indices are used to specify that the curve is to be used as a forward curve.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveGroupDefinition

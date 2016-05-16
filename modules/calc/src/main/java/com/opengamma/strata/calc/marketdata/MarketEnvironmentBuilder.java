@@ -407,7 +407,7 @@ public final class MarketEnvironmentBuilder {
     if (!id.getMarketDataType().isInstance(value)) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Market data value {} does not match the type of the key {}",
+              "Market data value {} does not match the type of the identifier {}",
               value,
               id));
     }
@@ -417,7 +417,7 @@ public final class MarketEnvironmentBuilder {
     if (!id.getMarketDataType().isAssignableFrom(box.getMarketDataType())) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Market data type {} of value {} is not compatible with the market data type of the ID {}",
+              "Market data type {} of value {} is not compatible with the market data type of the identifier {}",
               box.getMarketDataType().getName(),
               box,
               id.getMarketDataType().getName()));

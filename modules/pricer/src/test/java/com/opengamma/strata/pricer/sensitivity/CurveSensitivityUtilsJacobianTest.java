@@ -78,7 +78,7 @@ public class CurveSensitivityUtilsJacobianTest {
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES_INPUT = 
-      ImmutableMarketData.builder(VALUATION_DATE).addValuesById(MQ_INPUT).build();
+      ImmutableMarketData.builder(VALUATION_DATE).addValues(MQ_INPUT).build();
   
   // Group input based on IRS for EURIBOR6M  
   public static final CurveName EUR_SINGLE_NAME = CurveName.of("EUR-ALLIRS");
@@ -209,7 +209,7 @@ public class CurveSensitivityUtilsJacobianTest {
       mqCmp.put(QuoteId.of(StandardId.of(OG_TICKER, TICKERS_STD_1[looptenor])), marketQuotes[looptenor]);
     }
     ImmutableMarketData marketQuotesObject =
-        ImmutableMarketData.builder(VALUATION_DATE).addValuesById(mqCmp).build();
+        ImmutableMarketData.builder(VALUATION_DATE).addValues(mqCmp).build();
     RatesProvider multicurveCmp =
         CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, marketQuotesObject, REF_DATA, TS_EMPTY);
 

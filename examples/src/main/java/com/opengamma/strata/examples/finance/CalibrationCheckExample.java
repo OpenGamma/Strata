@@ -178,7 +178,7 @@ public class CalibrationCheckExample {
 
     // create the market data used for building trades
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
-        .addValuesById(quotes)
+        .addValues(quotes)
         .build();
 
     // load the curve definition

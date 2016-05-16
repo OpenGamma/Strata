@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -149,7 +149,7 @@ public class FxNdfCalculationFunctionTest {
         ImmutableMap.of(
             DISCOUNT_CURVE_GBP_ID, curve1,
             DISCOUNT_CURVE_USD_ID, curve2,
-            FxRateKey.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
+            FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
         ImmutableMap.of());
     return md;
   }

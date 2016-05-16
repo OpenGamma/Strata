@@ -30,10 +30,10 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -41,7 +41,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
@@ -62,52 +62,52 @@ public class FxSwapCurveNodeTest {
   private static final Period FAR_PERIOD = Period.ofMonths(6);
   private static final FxSwapTemplate TEMPLATE = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
 
-  private static final FxRateKey RATE_KEY_NEAR = FxRateKey.of(EUR_USD);
-  private static final QuoteKey QUOTE_KEY_PTS = QuoteKey.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M"));
+  private static final FxRateId RATE_ID_NEAR = FxRateId.of(EUR_USD);
+  private static final QuoteId QUOTE_ID_PTS = QuoteId.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M"));
   private static final FxRate FX_RATE_NEAR = FxRate.of(EUR_USD, 1.30d);
   private static final double FX_RATE_PTS = 0.0050d;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "6M";
   private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
-      .addValue(RATE_KEY_NEAR, FX_RATE_NEAR)
-      .addValue(QUOTE_KEY_PTS, FX_RATE_PTS)
+      .addValue(RATE_ID_NEAR, FX_RATE_NEAR)
+      .addValue(QUOTE_ID_PTS, FX_RATE_PTS)
       .build();
 
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
-        .farForwardPointsKey(QUOTE_KEY_PTS)
+        .farForwardPointsId(QUOTE_ID_PTS)
         .build();
     assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
     assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of() {
-    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withLabel() {
-    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS, LABEL);
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS, LABEL);
     assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFarForwardPointsKey(), QUOTE_KEY_PTS);
+    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_requirements() {
-    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
-    Set<? extends MarketDataKey<?>> setExpected = ImmutableSet.of(RATE_KEY_NEAR, QUOTE_KEY_PTS);
-    Set<? extends MarketDataKey<?>> set = test.requirements();
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
+    Set<? extends MarketDataId<?>> setExpected = ImmutableSet.of(RATE_ID_NEAR, QUOTE_ID_PTS);
+    Set<? extends MarketDataId<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 
   public void test_trade() {
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     FxSwapTrade trade = node.trade(valuationDate, OV, REF_DATA);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
@@ -116,21 +116,21 @@ public class FxSwapCurveNodeTest {
   }
 
   public void test_trade_noMarketData() {
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
     assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.ZERO_RATE), 0.0d);
     assertEquals(node.initialGuess(valuationDate, OV, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata_end() {
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
         .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate, REF_DATA).plus(FAR_PERIOD), REF_DATA);
@@ -141,7 +141,7 @@ public class FxSwapCurveNodeTest {
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.of(nodeDate));
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
@@ -149,21 +149,21 @@ public class FxSwapCurveNodeTest {
   }
 
   public void test_metadata_last_fixing() {
-    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS).withDate(CurveNodeDate.LAST_FIXING);
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.LAST_FIXING);
     assertThrowsWithCause(() -> node.metadata(VAL_DATE, REF_DATA), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     coverImmutableBean(test);
     FxSwapCurveNode test2 =
-        FxSwapCurveNode.of(FxSwapTemplate.of(Period.ZERO, FAR_PERIOD, CONVENTION), QUOTE_KEY_PTS);
+        FxSwapCurveNode.of(FxSwapTemplate.of(Period.ZERO, FAR_PERIOD, CONVENTION), QUOTE_ID_PTS);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
+    FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     assertSerialization(test);
   }
 

@@ -30,7 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
@@ -132,7 +132,7 @@ public final class CurrencyValuesArray
     if (currency.equals(reportingCurrency)) {
       return this;
     }
-    MarketDataBox<FxRate> rates = marketData.getValue(FxRateKey.of(currency, reportingCurrency));
+    MarketDataBox<FxRate> rates = marketData.getValue(FxRateId.of(currency, reportingCurrency));
     checkNumberOfRates(rates.getScenarioCount());
     DoubleArray convertedValues = values.mapWithIndex((i, v) -> rates.getValue(i).convert(v, currency, reportingCurrency));
     return new CurrencyValuesArray(reportingCurrency, convertedValues);

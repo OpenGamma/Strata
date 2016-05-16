@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.market;
 
 /**
- * Market data key used by functions that need access to objects containing market data for multiple scenarios.
+ * Market data identifier used by functions that need access to objects containing market data for multiple scenarios.
  * <p>
  * Many functions are written to calculate a single value at a time, for example a single present value for a trade.
  * These functions need to consume single values of market data, for example a curve or a quoted price.
@@ -15,17 +15,17 @@ package com.opengamma.strata.basics.market;
  * To do this efficiently it may be helpful to package the market data into a structure that is suitable for
  * bulk calculations. Implementations of this interface allow these values to be requested.
  * 
- * @param <T>  the type of data referred to by the key
+ * @param <T>  the type of data referred to by the identifier
  * @param <U>  the type of the multi-scenario data
  */
-public interface ScenarioMarketDataKey<T, U extends ScenarioMarketDataValue<T>> {
+public interface ScenarioMarketDataId<T, U extends ScenarioMarketDataValue<T>> {
 
   /**
-   * Gets the market data key identifying the market data value.
+   * Gets the market data identifier of the market data value.
    *
-   * @return the market data key identifying the market data value
+   * @return the market data identifier of the market data value
    */
-  public abstract MarketDataKey<T> getMarketDataKey();
+  public abstract MarketDataId<T> getMarketDataId();
 
   /**
    * Gets the type of the object containing the market data for all scenarios.

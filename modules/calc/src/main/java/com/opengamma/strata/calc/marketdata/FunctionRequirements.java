@@ -24,8 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 
 /**
  * Specifies the market data required for a function to perform a calculation.
@@ -38,11 +38,11 @@ public final class FunctionRequirements implements ImmutableBean {
 
   /** Keys identifying the market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<? extends MarketDataKey<?>> singleValueRequirements;
+  private final ImmutableSet<? extends MarketDataId<?>> singleValueRequirements;
 
   /** Keys identifying the time series of market data values required for the calculations. */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<ObservableKey> timeSeriesRequirements;
+  private final ImmutableSet<ObservableId> timeSeriesRequirements;
 
   /**
    * The currencies used in the calculation results. The market data must include FX rates in the
@@ -101,8 +101,8 @@ public final class FunctionRequirements implements ImmutableBean {
   }
 
   private FunctionRequirements(
-      Set<? extends MarketDataKey<?>> singleValueRequirements,
-      Set<ObservableKey> timeSeriesRequirements,
+      Set<? extends MarketDataId<?>> singleValueRequirements,
+      Set<ObservableId> timeSeriesRequirements,
       Set<Currency> outputCurrencies) {
     JodaBeanUtils.notNull(singleValueRequirements, "singleValueRequirements");
     JodaBeanUtils.notNull(timeSeriesRequirements, "timeSeriesRequirements");
@@ -132,7 +132,7 @@ public final class FunctionRequirements implements ImmutableBean {
    * Gets keys identifying the market data values required for the calculations.
    * @return the value of the property, not null
    */
-  public ImmutableSet<? extends MarketDataKey<?>> getSingleValueRequirements() {
+  public ImmutableSet<? extends MarketDataId<?>> getSingleValueRequirements() {
     return singleValueRequirements;
   }
 
@@ -141,7 +141,7 @@ public final class FunctionRequirements implements ImmutableBean {
    * Gets keys identifying the time series of market data values required for the calculations.
    * @return the value of the property, not null
    */
-  public ImmutableSet<ObservableKey> getTimeSeriesRequirements() {
+  public ImmutableSet<ObservableId> getTimeSeriesRequirements() {
     return timeSeriesRequirements;
   }
 
@@ -213,13 +213,13 @@ public final class FunctionRequirements implements ImmutableBean {
      * The meta-property for the {@code singleValueRequirements} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<? extends MarketDataKey<?>>> singleValueRequirements = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableSet<? extends MarketDataId<?>>> singleValueRequirements = DirectMetaProperty.ofImmutable(
         this, "singleValueRequirements", FunctionRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code timeSeriesRequirements} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<ObservableKey>> timeSeriesRequirements = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableSet<ObservableId>> timeSeriesRequirements = DirectMetaProperty.ofImmutable(
         this, "timeSeriesRequirements", FunctionRequirements.class, (Class) ImmutableSet.class);
     /**
      * The meta-property for the {@code outputCurrencies} property.
@@ -275,7 +275,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * The meta-property for the {@code singleValueRequirements} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<? extends MarketDataKey<?>>> singleValueRequirements() {
+    public MetaProperty<ImmutableSet<? extends MarketDataId<?>>> singleValueRequirements() {
       return singleValueRequirements;
     }
 
@@ -283,7 +283,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * The meta-property for the {@code timeSeriesRequirements} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<ObservableKey>> timeSeriesRequirements() {
+    public MetaProperty<ImmutableSet<ObservableId>> timeSeriesRequirements() {
       return timeSeriesRequirements;
     }
 
@@ -326,8 +326,8 @@ public final class FunctionRequirements implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FunctionRequirements> {
 
-    private Set<? extends MarketDataKey<?>> singleValueRequirements = ImmutableSet.of();
-    private Set<ObservableKey> timeSeriesRequirements = ImmutableSet.of();
+    private Set<? extends MarketDataId<?>> singleValueRequirements = ImmutableSet.of();
+    private Set<ObservableId> timeSeriesRequirements = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
 
     /**
@@ -366,10 +366,10 @@ public final class FunctionRequirements implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -442841799:  // singleValueRequirements
-          this.singleValueRequirements = (Set<? extends MarketDataKey<?>>) newValue;
+          this.singleValueRequirements = (Set<? extends MarketDataId<?>>) newValue;
           break;
         case -1437279660:  // timeSeriesRequirements
-          this.timeSeriesRequirements = (Set<ObservableKey>) newValue;
+          this.timeSeriesRequirements = (Set<ObservableId>) newValue;
           break;
         case -1022597040:  // outputCurrencies
           this.outputCurrencies = (Set<Currency>) newValue;
@@ -418,7 +418,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * @param singleValueRequirements  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder singleValueRequirements(Set<? extends MarketDataKey<?>> singleValueRequirements) {
+    public Builder singleValueRequirements(Set<? extends MarketDataId<?>> singleValueRequirements) {
       JodaBeanUtils.notNull(singleValueRequirements, "singleValueRequirements");
       this.singleValueRequirements = singleValueRequirements;
       return this;
@@ -430,7 +430,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * @param singleValueRequirements  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder singleValueRequirements(MarketDataKey<?>... singleValueRequirements) {
+    public Builder singleValueRequirements(MarketDataId<?>... singleValueRequirements) {
       return singleValueRequirements(ImmutableSet.copyOf(singleValueRequirements));
     }
 
@@ -439,7 +439,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * @param timeSeriesRequirements  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder timeSeriesRequirements(Set<ObservableKey> timeSeriesRequirements) {
+    public Builder timeSeriesRequirements(Set<ObservableId> timeSeriesRequirements) {
       JodaBeanUtils.notNull(timeSeriesRequirements, "timeSeriesRequirements");
       this.timeSeriesRequirements = timeSeriesRequirements;
       return this;
@@ -451,7 +451,7 @@ public final class FunctionRequirements implements ImmutableBean {
      * @param timeSeriesRequirements  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder timeSeriesRequirements(ObservableKey... timeSeriesRequirements) {
+    public Builder timeSeriesRequirements(ObservableId... timeSeriesRequirements) {
       return timeSeriesRequirements(ImmutableSet.copyOf(timeSeriesRequirements));
     }
 

@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.key.scenario;
+package com.opengamma.strata.market.id.scenario;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,20 +11,21 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.value.scenario.QuotesArray;
 
 @Test
 public class QuotesArrayKeyTest {
 
-  private static final QuotesArrayKey KEY = QuotesArrayKey.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
+  private static final QuotesArrayId KEY = QuotesArrayId.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
 
   public void getMarketDataKey() {
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
-    assertThat(KEY.getMarketDataKey()).isEqualTo(quoteKey);
-    assertThat(QuotesArrayKey.of(quoteKey)).isEqualTo(KEY);
+    QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), MarketDataFeed.NONE, FieldName.of("fieldName"));
+    assertThat(KEY.getMarketDataId()).isEqualTo(quoteId);
+    assertThat(QuotesArrayId.of(quoteId)).isEqualTo(KEY);
   }
 
   public void getMarketDataType() {

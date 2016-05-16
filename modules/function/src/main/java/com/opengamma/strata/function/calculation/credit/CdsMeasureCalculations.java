@@ -14,11 +14,11 @@ import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
-import com.opengamma.strata.market.key.IsdaIndexCreditCurveInputsKey;
-import com.opengamma.strata.market.key.IsdaIndexRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveInputsKey;
-import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaYieldCurveInputsKey;
+import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
+import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -60,7 +60,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.parRate(
@@ -88,7 +88,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.presentValue(
@@ -117,7 +117,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.ir01ParallelZero(
@@ -146,7 +146,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.ir01BucketedZero(
@@ -175,7 +175,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.ir01ParallelPar(
@@ -204,7 +204,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.ir01BucketedPar(
@@ -233,7 +233,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.cs01ParallelPar(
@@ -262,7 +262,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.cs01BucketedPar(
@@ -291,7 +291,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.cs01ParallelHazard(
@@ -320,7 +320,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.cs01BucketedHazard(
@@ -349,7 +349,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.recovery01(
@@ -378,7 +378,7 @@ class CdsMeasureCalculations {
       MarketData marketData) {
 
     ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsKey.of(product.getCurrency()));
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
     IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
     double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
     return PRICER.jumpToDefault(
@@ -395,10 +395,10 @@ class CdsMeasureCalculations {
   private static IsdaCreditCurveInputs creditCurveInputs(ResolvedCdsTrade trade, MarketData marketData) {
     ReferenceInformation refInfo = trade.getProduct().getReferenceInformation();
     if (refInfo instanceof SingleNameReferenceInformation) {
-      return marketData.getValue(IsdaSingleNameCreditCurveInputsKey.of((SingleNameReferenceInformation) refInfo));
+      return marketData.getValue(IsdaSingleNameCreditCurveInputsId.of((SingleNameReferenceInformation) refInfo));
 
     } else if (refInfo instanceof IndexReferenceInformation) {
-      return marketData.getValue(IsdaIndexCreditCurveInputsKey.of((IndexReferenceInformation) refInfo));
+      return marketData.getValue(IsdaIndexCreditCurveInputsId.of((IndexReferenceInformation) refInfo));
 
     } else {
       throw new IllegalStateException("Unknown reference information type: " + refInfo.getType());
@@ -409,10 +409,10 @@ class CdsMeasureCalculations {
   private static CdsRecoveryRate cdsRecoveryRate(ResolvedCdsTrade trade, MarketData marketData) {
     ReferenceInformation refInfo = trade.getProduct().getReferenceInformation();
     if (refInfo instanceof SingleNameReferenceInformation) {
-      return marketData.getValue(IsdaSingleNameRecoveryRateKey.of((SingleNameReferenceInformation) refInfo));
+      return marketData.getValue(IsdaSingleNameRecoveryRateId.of((SingleNameReferenceInformation) refInfo));
 
     } else if (refInfo instanceof IndexReferenceInformation) {
-      return marketData.getValue(IsdaIndexRecoveryRateKey.of((IndexReferenceInformation) refInfo));
+      return marketData.getValue(IsdaIndexRecoveryRateId.of((IndexReferenceInformation) refInfo));
 
     } else {
       throw new IllegalStateException("Unknown reference information type: " + refInfo.getType());

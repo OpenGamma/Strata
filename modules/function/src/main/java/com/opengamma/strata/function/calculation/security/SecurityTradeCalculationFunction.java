@@ -23,7 +23,7 @@ import com.opengamma.strata.calc.runner.function.FunctionUtils;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityTrade;
 
@@ -84,10 +84,10 @@ public class SecurityTradeCalculationFunction
       ReferenceData refData) {
 
     Security security = refData.getValue(trade.getSecurityId());
-    QuoteKey key = QuoteKey.of(trade.getSecurityId().getStandardId());
+    QuoteId id = QuoteId.of(trade.getSecurityId().getStandardId());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(ImmutableSet.of(key))
+        .singleValueRequirements(ImmutableSet.of(id))
         .outputCurrencies(security.getCurrency())
         .build();
   }

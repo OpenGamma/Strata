@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.SingleScenarioMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -26,14 +26,14 @@ public final class TestMarketDataMap implements CalculationMarketData {
 
   private final MarketDataBox<LocalDate> valuationDate;
 
-  private final Map<MarketDataKey<?>, Object> valueMap;
+  private final Map<MarketDataId<?>, Object> valueMap;
 
-  private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap;
+  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap;
 
   public TestMarketDataMap(
       LocalDate valuationDate,
-      Map<MarketDataKey<?>, Object> valueMap,
-      Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
+      Map<MarketDataId<?>, Object> valueMap,
+      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap) {
 
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
     this.valueMap = valueMap;
@@ -62,31 +62,31 @@ public final class TestMarketDataMap implements CalculationMarketData {
   }
 
   @Override
-  public boolean containsValue(MarketDataKey<?> key) {
-    return valueMap.containsKey(key);
+  public boolean containsValue(MarketDataId<?> id) {
+    return valueMap.containsKey(id);
   }
 
   @Override
-  public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
     @SuppressWarnings("unchecked")
-    T value = (T) valueMap.get(key);
+    T value = (T) valueMap.get(id);
     return value == null ? Optional.empty() : Optional.of(MarketDataBox.ofSingleValue(value));
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
-    T value = (T) valueMap.get(key);
+  public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
+    T value = (T) valueMap.get(id);
     if (value != null) {
       return MarketDataBox.ofSingleValue(value);
     } else {
-      throw new IllegalArgumentException("No market data for " + key);
+      throw new IllegalArgumentException("No market data for " + id);
     }
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    LocalDateDoubleTimeSeries timeSeries = timeSeriesMap.get(key);
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
+    LocalDateDoubleTimeSeries timeSeries = timeSeriesMap.get(id);
     return timeSeries == null ? LocalDateDoubleTimeSeries.empty() : timeSeries;
   }
 

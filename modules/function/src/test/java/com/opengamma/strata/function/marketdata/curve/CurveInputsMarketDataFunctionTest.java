@@ -43,7 +43,6 @@ import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 
 /**
@@ -174,9 +173,9 @@ public class CurveInputsMarketDataFunctionTest {
     MarketDataBox<CurveInputs> result = marketDataFunction.build(curveInputsId, marketDataConfig, marketData, REF_DATA);
 
     CurveInputs curveInputs = result.getSingleValue();
-    assertThat(curveInputs.getMarketData().get(idA.toMarketDataKey())).isEqualTo(1d);
-    assertThat(curveInputs.getMarketData().get(idB.toMarketDataKey())).isEqualTo(2d);
-    assertThat(curveInputs.getMarketData().get(idC.toMarketDataKey())).isEqualTo(3d);
+    assertThat(curveInputs.getMarketData().get(idA)).isEqualTo(1d);
+    assertThat(curveInputs.getMarketData().get(idB)).isEqualTo(2d);
+    assertThat(curveInputs.getMarketData().get(idC)).isEqualTo(3d);
 
     List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
         node1x4.metadata(VAL_DATE, REF_DATA),
@@ -254,7 +253,7 @@ public class CurveInputsMarketDataFunctionTest {
   private static FraCurveNode fraNode(int startTenor, String marketDataId) {
     Period periodToStart = Period.ofMonths(startTenor);
     FraTemplate template = FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M);
-    return FraCurveNode.of(template, QuoteKey.of(StandardId.of("test", marketDataId)));
+    return FraCurveNode.of(template, QuoteId.of(StandardId.of("test", marketDataId)));
   }
 
 }

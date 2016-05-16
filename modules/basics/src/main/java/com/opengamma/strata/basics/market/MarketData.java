@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * Provides access to market data, such as curves, surfaces and time-series.
  * <p>
- * Market data is looked up using subclasses of {@link MarketDataKey}.
+ * Market data is looked up using subclasses of {@link MarketDataId}.
  * All data is valid for a single date, defined by {@link #getValuationDate()}.
  * When performing calculations with scenarios, only the data of a single scenario is accessible.
  * <p>
@@ -37,7 +37,7 @@ public interface MarketData {
    * @return the market data instance containing the values in the map
    * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
-  public static MarketData of(LocalDate valuationDate, Map<? extends MarketDataKey<?>, ?> values) {
+  public static MarketData of(LocalDate valuationDate, Map<? extends MarketDataId<?>, ?> values) {
     return ImmutableMarketData.of(valuationDate, values);
   }
 
@@ -52,8 +52,8 @@ public interface MarketData {
    */
   public static MarketData of(
       LocalDate valuationDate,
-      Map<? extends MarketDataKey<?>, ?> values,
-      Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends MarketDataId<?>, ?> values,
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
     return ImmutableMarketData.builder(valuationDate).values(values).timeSeries(timeSeries).build();
   }
@@ -82,11 +82,11 @@ public interface MarketData {
   /**
    * Checks if this market data contains a value for the specified identifier.
    *
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return true if the market data contains a value for the identifier
    */
-  public default boolean containsValue(MarketDataKey<?> key) {
-    return findValue(key).isPresent();
+  public default boolean containsValue(MarketDataId<?> id) {
+    return findValue(id).isPresent();
   }
 
   /**
@@ -96,14 +96,14 @@ public interface MarketData {
    * Otherwise, an exception will be thrown.
    *
    * @param <T>  the type of the market data value
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return the market data value
    * @throws MarketDataNotFoundException if the identifier is not found
    */
-  public default <T> T getValue(MarketDataKey<T> key) {
-    return findValue(key)
+  public default <T> T getValue(MarketDataId<T> id) {
+    return findValue(id)
         .orElseThrow(() -> new MarketDataNotFoundException(Messages.format(
-            "Market data not found for '{}' of type '{}'", key, key.getClass().getSimpleName())));
+            "Market data not found for '{}' of type '{}'", id, id.getClass().getSimpleName())));
   }
 
   /**
@@ -113,19 +113,19 @@ public interface MarketData {
    * Otherwise, an empty optional will be returned.
    *
    * @param <T>  the type of the market data value
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return the market data value, empty if not found
    */
-  public abstract <T> Optional<T> findValue(MarketDataKey<T> key);
+  public abstract <T> Optional<T> findValue(MarketDataId<T> id);
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time-series identified by the specified key, empty if not found.
+   * Gets the time-series identified by the specified identifier, empty if not found.
    *
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return the time-series, empty if no time-series found
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
   //-------------------------------------------------------------------------
   /**
@@ -146,16 +146,16 @@ public interface MarketData {
   /**
    * Returns a copy of this market data with the specified value.
    * <p>
-   * When the result is queried for the specified key, the specified value will be returned.
+   * When the result is queried for the specified identifier, the specified value will be returned.
    * <p>
    * For example, this method could be used to replace a curve with a bumped curve.
    *
-   * @param key  the key identifying the item of market data
-   * @param value  the value to associate with the key
-   * @return the derived market data with the specified key and value
+   * @param id  the identifier to find
+   * @param value  the value to associate with the identifier
+   * @return the derived market data with the specified identifier and value
    */
-  public default <T> MarketData withValue(MarketDataKey<T> key, T value) {
-    return ExtendedMarketData.of(key, value, this);
+  public default <T> MarketData withValue(MarketDataId<T> id, T value) {
+    return ExtendedMarketData.of(id, value, this);
   }
 
 }

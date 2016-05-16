@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -83,7 +83,7 @@ final class DefaultSwaptionMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getVolatilityIds(IborIndex index) {
+  public ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index) {
     SwaptionVolatilitiesId id = volatilityIds.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));

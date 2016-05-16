@@ -16,7 +16,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 
 /**
  * Function which builds {@link FxRate} instances from observable market data.
@@ -28,9 +28,8 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
   @Override
   public MarketDataRequirements requirements(FxRateId id, MarketDataConfig marketDataConfig) {
     FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class);
-    Optional<QuoteKey> optional = fxRateConfig.getObservableRateKey(id.getPair());
-    MarketDataFeed feed = id.getMarketDataFeed();
-    return optional.map(key -> MarketDataRequirements.of(key.toMarketDataId(feed))).orElse(MarketDataRequirements.empty());
+    Optional<QuoteId> optional = fxRateConfig.getObservableRateKey(id.getPair());
+    return optional.map(key -> MarketDataRequirements.of(key)).orElse(MarketDataRequirements.empty());
   }
 
   @Override
@@ -41,7 +40,7 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
       ReferenceData refData) {
 
     FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class);
-    Optional<QuoteKey> optional = fxRateConfig.getObservableRateKey(id.getPair());
+    Optional<QuoteId> optional = fxRateConfig.getObservableRateKey(id.getPair());
     MarketDataFeed feed = id.getMarketDataFeed();
     return optional.map(key -> buildFxRate(id, key, feed, marketData))
         .orElseThrow(() -> new IllegalArgumentException("No FX rate configuration available for " + id.getPair()));
@@ -49,11 +48,11 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
 
   private MarketDataBox<FxRate> buildFxRate(
       FxRateId id,
-      QuoteKey key,
+      QuoteId key,
       MarketDataFeed feed,
       CalculationEnvironment marketData) {
 
-    MarketDataBox<Double> quote = marketData.getValue(key.toMarketDataId(feed));
+    MarketDataBox<Double> quote = marketData.getValue(key);
     return quote.map(rate -> FxRate.of(id.getPair(), rate));
   }
 

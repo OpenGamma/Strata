@@ -38,7 +38,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
@@ -184,8 +184,8 @@ public final class ImmutableRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T data(MarketDataKey<T> key) {
-    throw new IllegalArgumentException("Unknown key: " + key.toString());
+  public <T> T data(MarketDataId<T> id) {
+    throw new IllegalArgumentException("Unknown identifier: " + id.toString());
   }
 
   //-------------------------------------------------------------------------

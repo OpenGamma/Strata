@@ -26,6 +26,16 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public interface CalculationEnvironment {
 
   /**
+   * Obtains a market data instance that contains no data.
+   *
+   * @return an empty instance
+   */
+  public static CalculationEnvironment empty() {
+    return MarketEnvironment.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets a box that can provide the valuation date of each scenario.
    *
    * @return the valuation dates of the scenarios
@@ -43,7 +53,7 @@ public interface CalculationEnvironment {
   /**
    * Checks if this set of data contains a value for the specified ID.
    *
-   * @param id  the ID identifying the item of market data
+   * @param id  the identifier to find
    * @return true if this set of data contains a value for the specified ID and it is of the expected type
    */
   public abstract boolean containsValue(MarketDataId<?> id);
@@ -52,7 +62,7 @@ public interface CalculationEnvironment {
    * Returns a box containing values for the specified ID if available.
    *
    * @param <T>  the market data type
-   * @param id  the ID identifying the item of market data
+   * @param id  the identifier to find
    * @return a box containing values for the specified ID if available
    */
   public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id);
@@ -61,7 +71,7 @@ public interface CalculationEnvironment {
    * Gets a box that can provide an item of market data for a scenario.
    *
    * @param <T>  the type of the market data
-   * @param id  the ID identifying the item of market data
+   * @param id  the identifier to find
    * @return the box providing access to the market data values for each scenario
    * @throws IllegalArgumentException if no value is found
    */
@@ -88,19 +98,13 @@ public interface CalculationEnvironment {
 
   /**
    * Gets the time-series identified by the specified key, empty if not found.
+   * <p>
+   * Time series are not affected by scenarios, therefore there is a single time-series for each key
+   * which is shared between all scenarios.
    *
-   * @param id  the ID identifying the item of market data
+   * @param id  the identifier to find
    * @return the time-series, empty if no time-series found
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a {@code CalculationEnvironment} containing no data.
-   *
-   * @return a {@code CalculationEnvironment} containing no data
-   */
-  public static CalculationEnvironment empty() {
-    return MarketEnvironment.empty();
-  }
 }

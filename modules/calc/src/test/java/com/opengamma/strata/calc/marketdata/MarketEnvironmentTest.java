@@ -22,7 +22,6 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.collect.result.FailureException;
@@ -223,8 +222,8 @@ public class MarketEnvironmentTest {
     }
 
     @Override
-    public ObservableKey toMarketDataKey() {
-      throw new UnsupportedOperationException("toMarketDataKey not implemented");
+    public ObservableId withMarketDataFeed(MarketDataFeed feed) {
+      return this;
     }
 
     @Override

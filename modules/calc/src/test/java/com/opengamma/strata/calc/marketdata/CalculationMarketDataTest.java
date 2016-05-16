@@ -15,11 +15,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ScenarioMarketDataKey;
+import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ScenarioMarketDataId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -79,26 +77,21 @@ public class CalculationMarketDataTest {
 
   //--------------------------------------------------------------------------------------------------
 
-  private static final class TestKey implements MarketDataKey<Double> {
+  private static final class TestId implements MarketDataId<Double> {
 
     @Override
     public Class<Double> getMarketDataType() {
       return Double.class;
     }
-
-    @Override
-    public MarketDataId<Double> toMarketDataId(MarketDataFeed feed) {
-      throw new UnsupportedOperationException();
-    }
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  private static final class TestArrayKey implements ScenarioMarketDataKey<Double, TestDoubleArray> {
+  private static final class TestArrayKey implements ScenarioMarketDataId<Double, TestDoubleArray> {
 
     @Override
-    public MarketDataKey<Double> getMarketDataKey() {
-      return new TestKey();
+    public MarketDataId<Double> getMarketDataId() {
+      return new TestId();
     }
 
     @Override
@@ -143,23 +136,23 @@ public class CalculationMarketDataTest {
     }
 
     @Override
-    public boolean containsValue(MarketDataKey<?> key) {
+    public boolean containsValue(MarketDataId<?> id) {
       throw new UnsupportedOperationException("containsValue(MarketDataKey) not implemented");
     }
 
     @Override
-    public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
+    public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
       throw new UnsupportedOperationException("findValue not implemented");
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
+    public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
       return (MarketDataBox<T>) value;
     }
 
     @Override
-    public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
+    public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
       throw new UnsupportedOperationException("getTimeSeries(ObservableKey) not implemented");
     }
   }

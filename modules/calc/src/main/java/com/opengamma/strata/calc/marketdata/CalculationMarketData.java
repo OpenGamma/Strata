@@ -11,10 +11,10 @@ import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.basics.market.ScenarioMarketDataKey;
+import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ScenarioMarketDataId;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
@@ -28,17 +28,27 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * There are two ways to access the available market data.
  * <p>
  * The first way is to use the value access methods on this interface which return the data
- * associated with a single key for all scenarios. The two key methods are
- * {@link #getValue(MarketDataKey)} and {@link #getScenarioValue(ScenarioMarketDataKey)}.
+ * associated with a single identifier for all scenarios. The two key methods are
+ * {@link #getValue(MarketDataId)} and {@link #getScenarioValue(ScenarioMarketDataId)}.
  * <p>
  * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}
- * which return all the data associated with a single scenario.
+ * which returns all the data associated with a single scenario.
  * This approach is convenient for single scenario pricers, but may have a small overhead.
  * <p>
  * The standard implementation is {@link DefaultCalculationMarketData}.
  */
 public interface CalculationMarketData {
 
+  /**
+   * Obtains a market data instance that contains no data.
+   *
+   * @return an empty instance
+   */
+  public static CalculationMarketData empty() {
+    return DefaultCalculationMarketData.of(CalculationEnvironment.empty());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets a box that can provide the valuation date of each scenario.
    *
@@ -80,29 +90,29 @@ public interface CalculationMarketData {
   /**
    * Checks if this set of data contains a value for the specified key.
    *
-   * @param key  the key identifying the item of market data
-   * @return true if this set of data contains a value for the specified key
+   * @param id  the identifier to find
+   * @return true if this set of data contains a value for the specified identifier
    */
-  public abstract boolean containsValue(MarketDataKey<?> key);
+  public abstract boolean containsValue(MarketDataId<?> id);
 
   /**
-   * Returns a box containing values for the specified ID if available.
+   * Returns a box containing values for the specified identifier if available.
    *
    * @param <T>  the market data type
-   * @param key  the key identifying the item of market data
-   * @return a box containing values for the specified ID if available
+   * @param id  the identifier to find
+   * @return a box containing values for the specified identifier if available
    */
-  public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key);
+  public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id);
 
   /**
    * Gets a box that can provide an item of market data for a scenario.
    *
    * @param <T>  the type of the market data
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return the box providing access to the market data values for each scenario
    * @throws MarketDataNotFoundException if no value is found
    */
-  public abstract <T> MarketDataBox<T> getValue(MarketDataKey<T> key);
+  public abstract <T> MarketDataBox<T> getValue(MarketDataId<T> id);
 
   /**
    * Gets an object containing market data for multiple scenarios.
@@ -111,8 +121,8 @@ public interface CalculationMarketData {
    * values are doubles, the scenario value might simply be a {@code List<Double>} or it might be a wrapper
    * class that stores the values more efficiently in a {@code double[]}.
    * <p>
-   * If the market data contains a single value for the key or a scenario value of the wrong type,
-   * a value of the required type is created by invoking {@link ScenarioMarketDataKey#createScenarioValue}.
+   * If the market data contains a single value for the identifier or a scenario value of the wrong type,
+   * a value of the required type is created by invoking {@link ScenarioMarketDataId#createScenarioValue}.
    * <p>
    * Normally this should not be necessary. It is assumed the required scenario values will be created by the
    * perturbations that create scenario data. However there is no mechanism in the market data system to guarantee
@@ -120,37 +130,37 @@ public interface CalculationMarketData {
    * <p>
    * Values returned from this method might be cached for efficiency.
    *
-   * @param key  identifies the market data required
+   * @param id  the identifier to find
    * @param <T>  the type of the individual market data values used when performing calculations for one scenario
    * @param <U>  the type of the object containing the market data for all scenarios
    * @return an object containing market data for multiple scenarios
    * @throws IllegalArgumentException if no value is found
    */
   @SuppressWarnings("unchecked")
-  public default <T, U extends ScenarioMarketDataValue<T>> U getScenarioValue(ScenarioMarketDataKey<T, U> key) {
-    MarketDataBox<T> box = getValue(key.getMarketDataKey());
+  public default <T, U extends ScenarioMarketDataValue<T>> U getScenarioValue(ScenarioMarketDataId<T, U> id) {
+    MarketDataBox<T> box = getValue(id.getMarketDataId());
 
     if (box.isSingleValue()) {
-      return key.createScenarioValue(box, getScenarioCount());
+      return id.createScenarioValue(box, getScenarioCount());
     }
     ScenarioMarketDataValue<T> scenarioValue = box.getScenarioValue();
 
-    if (key.getScenarioMarketDataType().isInstance(scenarioValue)) {
+    if (id.getScenarioMarketDataType().isInstance(scenarioValue)) {
       return (U) scenarioValue;
     }
-    return key.createScenarioValue(box, getScenarioCount());
+    return id.createScenarioValue(box, getScenarioCount());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the time-series identified by the specified key, empty if not found.
    * <p>
-   * Time series are not affected by scenarios, therefore there is a single time-series for each key
-   * which is shared between all scenarios.
+   * Time series are not affected by scenarios, therefore there is a single time-series
+   * for each identifier which is shared between all scenarios.
    *
-   * @param key  the key identifying the item of market data
+   * @param id  the identifier to find
    * @return the time-series, empty if no time-series found
    */
-  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key);
+  public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
 }

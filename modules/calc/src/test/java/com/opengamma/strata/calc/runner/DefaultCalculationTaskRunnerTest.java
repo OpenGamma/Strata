@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.TestObservableKey;
+import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.Measure;
@@ -33,7 +33,7 @@ import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.TestKey;
+import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -154,9 +154,9 @@ public class DefaultCalculationTaskRunnerTest {
       return FunctionRequirements.builder()
           .singleValueRequirements(
               ImmutableSet.of(
-                  TestKey.of("1"),
-                  TestObservableKey.of("2")))
-          .timeSeriesRequirements(TestObservableKey.of("3"))
+                  TestId.of("1"),
+                  TestObservableId.of("2")))
+          .timeSeriesRequirements(TestObservableId.of("3"))
           .build();
     }
 

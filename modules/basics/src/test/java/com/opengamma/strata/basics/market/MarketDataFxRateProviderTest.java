@@ -45,9 +45,9 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void cross_base() {
-    Map<FxRateKey, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
-            FxRateKey.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, GBP_USD));
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
+            FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, GBP_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
     FxRateProvider fx = MarketDataFxRateProvider.of(marketData);
     assertEquals(fx.fxRate(Currency.GBP, Currency.EUR), GBP_USD / EUR_USD, 1.0E-10);
@@ -55,9 +55,9 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void cross_counter() {
-    Map<FxRateKey, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
-            FxRateKey.of(Currency.EUR, BEF), FxRate.of(Currency.EUR, BEF, EUR_BEF));
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
+            FxRateId.of(Currency.EUR, BEF), FxRate.of(Currency.EUR, BEF, EUR_BEF));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
     FxRateProvider fx = MarketDataFxRateProvider.of(marketData);
     assertEquals(fx.fxRate(Currency.USD, BEF), EUR_BEF / EUR_USD, 1.0E-10);
@@ -65,10 +65,10 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void cross_double_triangle() {
-    Map<FxRateKey, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
-            FxRateKey.of(Currency.EUR, BEF), FxRate.of(Currency.EUR, BEF, EUR_BEF),
-            FxRateKey.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, GBP_USD));
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD),
+            FxRateId.of(Currency.EUR, BEF), FxRate.of(Currency.EUR, BEF, EUR_BEF),
+            FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, GBP_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
     FxRateProvider fx = MarketDataFxRateProvider.of(marketData);
     assertEquals(fx.fxRate(Currency.GBP, BEF), GBP_USD * EUR_BEF / EUR_USD, 1.0E-10);
@@ -83,8 +83,8 @@ public class MarketDataFxRateProviderTest {
 
   //-------------------------------------------------------------------------
   private static MarketDataFxRateProvider provider() {
-    Map<FxRateKey, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD));
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, EUR_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
     return MarketDataFxRateProvider.of(marketData);
   }

@@ -37,9 +37,9 @@ import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -67,7 +67,7 @@ public class IborFutureCalculationFunctionTest {
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getLastTradeDate().minusDays(7);
-  private static final QuoteKey QUOTE_KEY = QuoteKey.of(SEC_ID, FieldName.SETTLEMENT_PRICE);
+  private static final QuoteId QUOTE_KEY = QuoteId.of(SEC_ID, FieldName.SETTLEMENT_PRICE);
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
@@ -77,7 +77,7 @@ public class IborFutureCalculationFunctionTest {
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
         ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID, QUOTE_KEY));
-    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
+    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateId.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 

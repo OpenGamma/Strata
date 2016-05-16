@@ -18,7 +18,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.market.ValueType;
@@ -30,7 +29,6 @@ import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
@@ -124,25 +122,25 @@ final class CurveTestUtils {
 
   static FraCurveNode fraNode(int startMonths, String id) {
     Period periodToStart = Period.ofMonths(startMonths);
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
-    return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteKey);
+    QuoteId quoteId = QuoteId.of(StandardId.of(TEST_SCHEME, id));
+    return FraCurveNode.of(FraTemplate.of(periodToStart, IborIndices.USD_LIBOR_3M), quoteId);
   }
 
    static FixedIborSwapCurveNode fixedIborSwapNode(Tenor tenor, String id) {
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of(TEST_SCHEME, id));
+    QuoteId quoteId = QuoteId.of(StandardId.of(TEST_SCHEME, id));
     FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Period.ZERO, tenor, SWAP_CONVENTION);
-    return FixedIborSwapCurveNode.of(template, quoteKey);
+    return FixedIborSwapCurveNode.of(template, quoteId);
   }
 
   static ObservableId id(String nodeName) {
     return QuoteId.of(StandardId.of(TEST_SCHEME, nodeName));
   }
 
-  static ObservableKey key(CurveNode node) {
+  static ObservableId key(CurveNode node) {
     if (node instanceof FraCurveNode) {
-      return ((FraCurveNode) node).getRateKey();
+      return ((FraCurveNode) node).getRateId();
     } else if (node instanceof FixedIborSwapCurveNode) {
-      return ((FixedIborSwapCurveNode) node).getRateKey();
+      return ((FixedIborSwapCurveNode) node).getRateId();
     } else {
       throw new IllegalArgumentException("Unsupported node type " + node.getClass().getName());
     }

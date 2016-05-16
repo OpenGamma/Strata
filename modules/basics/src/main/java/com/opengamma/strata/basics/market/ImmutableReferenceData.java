@@ -60,10 +60,10 @@ public final class ImmutableReferenceData
    *
    * @param values  the reference data values
    * @return the reference data instance
-   * @throws ClassCastException if a value does not match the parameterized type associated with the key
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static ImmutableReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
-    // validation handles case where value does not match key
+    // validation handles case where value does not match identifier
     values.forEach((id, value) -> validateEntry(id, value));
     return new ImmutableReferenceData(values);
   }
@@ -78,7 +78,7 @@ public final class ImmutableReferenceData
    * @param id  the identifier
    * @param value  the reference data values
    * @return the reference data instance
-   * @throws ClassCastException if the value does not match the parameterized type associated with the key
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static <T> ImmutableReferenceData of(ReferenceDataId<T> id, T value) {
     // validation handles edge case where input by raw or polluted types

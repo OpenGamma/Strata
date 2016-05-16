@@ -42,8 +42,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -77,14 +77,14 @@ public class RatesMarketDataLookupTest {
         test.requirements(USD, USD_LIBOR_3M),
         FunctionRequirements.builder()
             .singleValueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
-            .timeSeriesRequirements(IndexRateKey.of(USD_LIBOR_3M))
+            .timeSeriesRequirements(IndexRateId.of(USD_LIBOR_3M))
             .outputCurrencies(USD)
             .build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD), ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder()
             .singleValueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
-            .timeSeriesRequirements(IndexRateKey.of(USD_LIBOR_3M))
+            .timeSeriesRequirements(IndexRateId.of(USD_LIBOR_3M))
             .outputCurrencies(USD)
             .build());
     assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(USD), ImmutableSet.of(GBP_LIBOR_3M)));

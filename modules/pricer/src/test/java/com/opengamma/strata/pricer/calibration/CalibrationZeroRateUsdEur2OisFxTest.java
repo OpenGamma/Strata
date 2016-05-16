@@ -35,11 +35,11 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -53,11 +53,11 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
@@ -130,13 +130,13 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   private static final int USD_DSC_NB_OIS_NODES = USD_DSC_OIS_TENORS.length;
   static {
     USD_DSC_NODES[0] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), USD_DEPOSIT_T0),
-        QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[0])));
+        QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[0])));
     USD_DSC_NODES[1] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), USD_DEPOSIT_T1),
-        QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[1])));
+        QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[1])));
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
       USD_DSC_NODES[USD_DSC_NB_DEPO_NODES + i] = FixedOvernightSwapCurveNode.of(
           FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(USD_DSC_OIS_TENORS[i]), USD_FIXED_1Y_FED_FUND_OIS),
-          QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[USD_DSC_NB_DEPO_NODES + i])));
+          QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[USD_DSC_NB_DEPO_NODES + i])));
     }
   }
   /** Data for EUR-DSC curve */
@@ -159,7 +159,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
       EUR_DSC_NODES[i] = FxSwapCurveNode.of(
           FxSwapTemplate.of(EUR_DSC_FX_TENORS[i], EUR_USD),
-          QuoteKey.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])));
+          QuoteId.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])));
     }
   }
 
@@ -168,12 +168,12 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   static {
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
     for (int i = 0; i < USD_DSC_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i]);
     }
     for (int i = 0; i < EUR_DSC_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])), EUR_DSC_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])), EUR_DSC_MARKET_QUOTES[i]);
     }
-    builder.addValue(FxRateKey.of(EUR, USD), FX_RATE_EUR_USD);
+    builder.addValue(FxRateId.of(EUR, USD), FX_RATE_EUR_USD);
     ALL_QUOTES = builder.build();
   }
 
@@ -282,8 +282,8 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     double pvEur = FX_PRICER.presentValue(trade.getProduct(), result).getAmount(EUR).getAmount();
     double[] mqsUsd1Computed = mqs.getSensitivity(USD_DSCON_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < USD_DSC_NB_NODES; i++) {
-      Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
-      map.put(QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i] + shift);
+      Map<MarketDataId<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
+      map.put(QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i] + shift);
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
@@ -291,8 +291,8 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     }
     double[] mqsUsd2Computed = mqs.getSensitivity(USD_DSCON_CURVE_NAME, EUR).getSensitivity().toArray();
     for (int i = 0; i < USD_DSC_NB_NODES; i++) {
-      Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
-      map.put(QuoteKey.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i] + shift);
+      Map<MarketDataId<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
+      map.put(QuoteId.of(StandardId.of(SCHEME, USD_DSC_ID_VALUE[i])), USD_DSC_MARKET_QUOTES[i] + shift);
       ImmutableMarketData ov = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(ov);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(EUR).getAmount();
@@ -304,8 +304,8 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     }
     double[] mqsEur2Computed = mqs.getSensitivity(EUR_DSC_CURVE_NAME, EUR).getSensitivity().toArray();
     for (int i = 0; i < EUR_DSC_NB_NODES; i++) {
-      Map<MarketDataKey<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
-      map.put(QuoteKey.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])), EUR_DSC_MARKET_QUOTES[i] + shift);
+      Map<MarketDataId<?>, Object> map = new HashMap<>(ALL_QUOTES.getValues());
+      map.put(QuoteId.of(StandardId.of(SCHEME, EUR_DSC_ID_VALUE[i])), EUR_DSC_MARKET_QUOTES[i] + shift);
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(EUR).getAmount();

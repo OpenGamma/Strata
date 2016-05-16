@@ -16,7 +16,7 @@ import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -131,9 +131,9 @@ final class IborFutureMeasureCalculations {
   //-------------------------------------------------------------------------
   // gets the settlement price
   private static double settlementPrice(ResolvedIborFutureTrade trade, RatesMarketData marketData) {
-    StandardId id = trade.getProduct().getSecurityId().getStandardId();
-    QuoteKey key = QuoteKey.of(id, FieldName.SETTLEMENT_PRICE);
-    return marketData.getMarketData().getValue(key) / 100;  // convert market quote to value needed
+    StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
+    QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
+    return marketData.getMarketData().getValue(id) / 100;  // convert market quote to value needed
   }
 
 }

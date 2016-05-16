@@ -29,7 +29,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
@@ -60,7 +60,7 @@ public class SecurityPositionCalculationFunctionTest {
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(POSITION, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteKey.of(SEC_ID.getStandardId())));
+    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteId.of(SEC_ID.getStandardId())));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
     assertThat(function.naturalCurrency(POSITION, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -84,7 +84,7 @@ public class SecurityPositionCalculationFunctionTest {
   private CalculationMarketData marketData() {
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
-        ImmutableMap.of(QuoteKey.of(SEC_ID.getStandardId()), MARKET_PRICE),
+        ImmutableMap.of(QuoteId.of(SEC_ID.getStandardId()), MARKET_PRICE),
         ImmutableMap.of());
     return md;
   }

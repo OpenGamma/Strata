@@ -61,8 +61,8 @@ public class TestObservableId
   }
 
   @Override
-  public ObservableKey toMarketDataKey() {
-    return TestObservableKey.of(id);
+  public ObservableId withMarketDataFeed(MarketDataFeed feed) {
+    return new TestObservableId(id, feed);
   }
 
   @Override

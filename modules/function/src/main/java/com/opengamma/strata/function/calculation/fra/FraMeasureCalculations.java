@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -195,16 +195,16 @@ final class FraMeasureCalculations {
     // find the curve identifiers and resolve to a single curve
     Currency currency = product.getCurrency();
     Set<IborIndex> indices = product.allIndices();
-    ImmutableSet<MarketDataKey<?>> discountIds = marketData.getLookup().getDiscountMarketDataIds(currency);
-    ImmutableSet<MarketDataKey<?>> forwardIds = indices.stream()
+    ImmutableSet<MarketDataId<?>> discountIds = marketData.getLookup().getDiscountMarketDataIds(currency);
+    ImmutableSet<MarketDataId<?>> forwardIds = indices.stream()
         .flatMap(idx -> marketData.getLookup().getForwardMarketDataIds(idx).stream())
         .collect(toImmutableSet());
-    Set<MarketDataKey<?>> allIds = Sets.union(discountIds, forwardIds);
+    Set<MarketDataId<?>> allIds = Sets.union(discountIds, forwardIds);
     if (allIds.size() != 1) {
       throw new IllegalArgumentException(Messages.format(
           "Implementation only supports a single curve, but lookup refers to more than one: {}", allIds));
     }
-    MarketDataKey<?> singleId = allIds.iterator().next();
+    MarketDataId<?> singleId = allIds.iterator().next();
     if (!(singleId instanceof SimpleCurveId)) {
       throw new IllegalArgumentException(Messages.format(
           "Implementation only supports a single curve, but lookup does not refer to a curve: {} {}",

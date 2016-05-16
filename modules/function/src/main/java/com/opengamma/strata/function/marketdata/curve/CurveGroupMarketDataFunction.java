@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -195,21 +195,21 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @return the underlying quotes from the input data
    */
   private static MarketData inputsByKey(LocalDate valuationDate, List<CurveInputs> inputs) {
-    Map<MarketDataKey<?>, Object> marketDataMap = new HashMap<>();
+    Map<MarketDataId<?>, Object> marketDataMap = new HashMap<>();
 
     for (CurveInputs input : inputs) {
-      Map<? extends MarketDataKey<?>, ?> inputMarketData = input.getMarketData();
+      Map<? extends MarketDataId<?>, ?> inputMarketData = input.getMarketData();
 
-      for (Map.Entry<? extends MarketDataKey<?>, ?> entry : inputMarketData.entrySet()) {
+      for (Map.Entry<? extends MarketDataId<?>, ?> entry : inputMarketData.entrySet()) {
         Object existingValue = marketDataMap.get(entry.getKey());
 
-        // If the same key is used by multiple different curves the corresponding market data value must be equal
+        // If the same identifier is used by multiple different curves the corresponding market data value must be equal
         if (existingValue == null) {
           marketDataMap.put(entry.getKey(), entry.getValue());
         } else if (!existingValue.equals(entry.getValue())) {
           throw new IllegalArgumentException(
               Messages.format(
-                  "Multiple unequal values found for key {}. Values: {} and {}",
+                  "Multiple unequal values found for identifier {}. Values: {} and {}",
                   entry.getKey(),
                   existingValue,
                   entry.getValue()));

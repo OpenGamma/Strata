@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
@@ -97,15 +97,15 @@ public class IborFutureCalculationFunction
 
     // extract data from product
     IborFuture product = trade.getProduct();
-    QuoteKey quoteKey = QuoteKey.of(trade.getProduct().getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
+    QuoteId quoteId = QuoteId.of(trade.getProduct().getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
     Currency currency = product.getCurrency();
     IborIndex index = product.getIndex();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
     FunctionRequirements ratesReqs = ratesLookup.requirements(currency, index);
-    ImmutableSet<MarketDataKey<?>> valueReqs = ImmutableSet.<MarketDataKey<?>>builder()
-        .add(quoteKey)
+    ImmutableSet<MarketDataId<?>> valueReqs = ImmutableSet.<MarketDataId<?>>builder()
+        .add(quoteId)
         .addAll(ratesReqs.getSingleValueRequirements())
         .build();
     return FunctionRequirements.builder()

@@ -40,7 +40,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
@@ -244,7 +244,7 @@ public final class MultiCurrencyValuesArray
       MarketDataBox<FxRate> rates;
       rates = reportingCurrency.equals(currency) ?
           MarketDataBox.ofSingleValue(FxRate.of(currency, currency, 1)) : // TODO Remove if #613 is fixed
-          marketData.getValue(FxRateKey.of(currency, reportingCurrency));
+          marketData.getValue(FxRateId.of(currency, reportingCurrency));
       checkNumberOfRates(rates.getScenarioCount());
 
       for (int i = 0; i < size; i++) {

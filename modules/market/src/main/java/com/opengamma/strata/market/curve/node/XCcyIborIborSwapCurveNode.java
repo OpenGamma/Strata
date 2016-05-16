@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -30,22 +29,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -66,10 +65,10 @@ public final class XCcyIborIborSwapCurveNode
   @PropertyDefinition(validate = "notNull")
   private final XCcyIborIborSwapTemplate template;
   /**
-   * The key identifying the market data value which provides the spread.
+   * The identifier of the market data value which provides the spread.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey spreadKey;
+  private final ObservableId spreadId;
   /**
    * The additional spread added to the market quote.
    */
@@ -96,11 +95,11 @@ public final class XCcyIborIborSwapCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param spreadKey  the key identifying the market spread used when building the instrument for the node
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static XCcyIborIborSwapCurveNode of(XCcyIborIborSwapTemplate template, ObservableKey spreadKey) {
-    return of(template, spreadKey, 0d);
+  public static XCcyIborIborSwapCurveNode of(XCcyIborIborSwapTemplate template, ObservableId spreadId) {
+    return of(template, spreadId, 0d);
   }
 
   /**
@@ -110,18 +109,18 @@ public final class XCcyIborIborSwapCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
-   * @param spreadKey  the key identifying the market spread used when building the instrument for the node
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
    * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
-      ObservableKey spreadKey,
+      ObservableId spreadId,
       double additionalSpread) {
 
     return builder()
         .template(template)
-        .spreadKey(spreadKey)
+        .spreadId(spreadId)
         .additionalSpread(additionalSpread)
         .build();
   }
@@ -131,18 +130,18 @@ public final class XCcyIborIborSwapCurveNode
    * specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
-   * @param spreadKey  the key identifying the market spread used when building the instrument for the node
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
    * @param additionalSpread  the additional spread amount added to the market quote
    * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
   public static XCcyIborIborSwapCurveNode of(
       XCcyIborIborSwapTemplate template,
-      ObservableKey spreadKey,
+      ObservableId spreadId,
       double additionalSpread,
       String label) {
 
-    return new XCcyIborIborSwapCurveNode(template, spreadKey, additionalSpread, label, CurveNodeDate.END);
+    return new XCcyIborIborSwapCurveNode(template, spreadId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -159,8 +158,8 @@ public final class XCcyIborIborSwapCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<? extends MarketDataKey<?>> requirements() {
-    return ImmutableSet.of(spreadKey, fxKey());
+  public Set<? extends MarketDataId<?>> requirements() {
+    return ImmutableSet.of(spreadId, fxId());
   }
 
   @Override
@@ -197,8 +196,8 @@ public final class XCcyIborIborSwapCurveNode
 
   @Override
   public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double marketQuote = marketData.getValue(spreadKey) + additionalSpread;
-    FxRate fxRate = marketData.getValue(fxKey());
+    double marketQuote = marketData.getValue(spreadId) + additionalSpread;
+    FxRate fxRate = marketData.getValue(fxId());
     double rate = fxRate.fxRate(template.getCurrencyPair());
     return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote, refData);
   }
@@ -216,8 +215,8 @@ public final class XCcyIborIborSwapCurveNode
     return 0.0d;
   }
 
-  private FxRateKey fxKey() {
-    return FxRateKey.of(template.getCurrencyPair());
+  private FxRateId fxId() {
+    return FxRateId.of(template.getCurrencyPair());
   }
 
   //-------------------------------------------------------------------------
@@ -228,7 +227,7 @@ public final class XCcyIborIborSwapCurveNode
    * @return the node based on this node with the specified date
    */
   public XCcyIborIborSwapCurveNode withDate(CurveNodeDate date) {
-    return new XCcyIborIborSwapCurveNode(template, spreadKey, additionalSpread, label, date);
+    return new XCcyIborIborSwapCurveNode(template, spreadId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -260,15 +259,15 @@ public final class XCcyIborIborSwapCurveNode
 
   private XCcyIborIborSwapCurveNode(
       XCcyIborIborSwapTemplate template,
-      ObservableKey spreadKey,
+      ObservableId spreadId,
       double additionalSpread,
       String label,
       CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(spreadKey, "spreadKey");
+    JodaBeanUtils.notNull(spreadId, "spreadId");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
-    this.spreadKey = spreadKey;
+    this.spreadId = spreadId;
     this.additionalSpread = additionalSpread;
     this.label = label;
     this.date = date;
@@ -300,11 +299,11 @@ public final class XCcyIborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the key identifying the market data value which provides the spread.
+   * Gets the identifier of the market data value which provides the spread.
    * @return the value of the property, not null
    */
-  public ObservableKey getSpreadKey() {
-    return spreadKey;
+  public ObservableId getSpreadId() {
+    return spreadId;
   }
 
   //-----------------------------------------------------------------------
@@ -354,7 +353,7 @@ public final class XCcyIborIborSwapCurveNode
     if (obj != null && obj.getClass() == this.getClass()) {
       XCcyIborIborSwapCurveNode other = (XCcyIborIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(spreadKey, other.spreadKey) &&
+          JodaBeanUtils.equal(spreadId, other.spreadId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(date, other.date);
@@ -366,7 +365,7 @@ public final class XCcyIborIborSwapCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(spreadKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spreadId);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
@@ -378,7 +377,7 @@ public final class XCcyIborIborSwapCurveNode
     StringBuilder buf = new StringBuilder(192);
     buf.append("XCcyIborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("spreadKey").append('=').append(spreadKey).append(',').append(' ');
+    buf.append("spreadId").append('=').append(spreadId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
@@ -402,10 +401,10 @@ public final class XCcyIborIborSwapCurveNode
     private final MetaProperty<XCcyIborIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
         this, "template", XCcyIborIborSwapCurveNode.class, XCcyIborIborSwapTemplate.class);
     /**
-     * The meta-property for the {@code spreadKey} property.
+     * The meta-property for the {@code spreadId} property.
      */
-    private final MetaProperty<ObservableKey> spreadKey = DirectMetaProperty.ofImmutable(
-        this, "spreadKey", XCcyIborIborSwapCurveNode.class, ObservableKey.class);
+    private final MetaProperty<ObservableId> spreadId = DirectMetaProperty.ofImmutable(
+        this, "spreadId", XCcyIborIborSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
@@ -427,7 +426,7 @@ public final class XCcyIborIborSwapCurveNode
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "spreadKey",
+        "spreadId",
         "additionalSpread",
         "label",
         "date");
@@ -443,8 +442,8 @@ public final class XCcyIborIborSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 1302780908:  // spreadKey
-          return spreadKey;
+        case -1759090194:  // spreadId
+          return spreadId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -480,11 +479,11 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * The meta-property for the {@code spreadKey} property.
+     * The meta-property for the {@code spreadId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> spreadKey() {
-      return spreadKey;
+    public MetaProperty<ObservableId> spreadId() {
+      return spreadId;
     }
 
     /**
@@ -517,8 +516,8 @@ public final class XCcyIborIborSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return ((XCcyIborIborSwapCurveNode) bean).getTemplate();
-        case 1302780908:  // spreadKey
-          return ((XCcyIborIborSwapCurveNode) bean).getSpreadKey();
+        case -1759090194:  // spreadId
+          return ((XCcyIborIborSwapCurveNode) bean).getSpreadId();
         case 291232890:  // additionalSpread
           return ((XCcyIborIborSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
@@ -547,7 +546,7 @@ public final class XCcyIborIborSwapCurveNode
   public static final class Builder extends DirectFieldsBeanBuilder<XCcyIborIborSwapCurveNode> {
 
     private XCcyIborIborSwapTemplate template;
-    private ObservableKey spreadKey;
+    private ObservableId spreadId;
     private double additionalSpread;
     private String label;
     private CurveNodeDate date;
@@ -565,7 +564,7 @@ public final class XCcyIborIborSwapCurveNode
      */
     private Builder(XCcyIborIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.spreadKey = beanToCopy.getSpreadKey();
+      this.spreadId = beanToCopy.getSpreadId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
       this.date = beanToCopy.getDate();
@@ -577,8 +576,8 @@ public final class XCcyIborIborSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 1302780908:  // spreadKey
-          return spreadKey;
+        case -1759090194:  // spreadId
+          return spreadId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -596,8 +595,8 @@ public final class XCcyIborIborSwapCurveNode
         case -1321546630:  // template
           this.template = (XCcyIborIborSwapTemplate) newValue;
           break;
-        case 1302780908:  // spreadKey
-          this.spreadKey = (ObservableKey) newValue;
+        case -1759090194:  // spreadId
+          this.spreadId = (ObservableId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -643,7 +642,7 @@ public final class XCcyIborIborSwapCurveNode
       preBuild(this);
       return new XCcyIborIborSwapCurveNode(
           template,
-          spreadKey,
+          spreadId,
           additionalSpread,
           label,
           date);
@@ -662,13 +661,13 @@ public final class XCcyIborIborSwapCurveNode
     }
 
     /**
-     * Sets the key identifying the market data value which provides the spread.
-     * @param spreadKey  the new value, not null
+     * Sets the identifier of the market data value which provides the spread.
+     * @param spreadId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder spreadKey(ObservableKey spreadKey) {
-      JodaBeanUtils.notNull(spreadKey, "spreadKey");
-      this.spreadKey = spreadKey;
+    public Builder spreadId(ObservableId spreadId) {
+      JodaBeanUtils.notNull(spreadId, "spreadId");
+      this.spreadId = spreadId;
       return this;
     }
 
@@ -711,7 +710,7 @@ public final class XCcyIborIborSwapCurveNode
       StringBuilder buf = new StringBuilder(192);
       buf.append("XCcyIborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("spreadKey").append('=').append(JodaBeanUtils.toString(spreadKey)).append(',').append(' ');
+      buf.append("spreadId").append('=').append(JodaBeanUtils.toString(spreadId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("date").append('=').append(JodaBeanUtils.toString(date));

@@ -58,26 +58,26 @@ final class CombinedMarketData
   }
 
   @Override
-  public boolean containsValue(MarketDataKey<?> key) {
-    return marketData1.containsValue(key) || marketData2.containsValue(key);
+  public boolean containsValue(MarketDataId<?> id) {
+    return marketData1.containsValue(id) || marketData2.containsValue(id);
   }
 
   @Override
-  public <T> T getValue(MarketDataKey<T> key) {
-    Optional<T> value1 = marketData1.findValue(key);
-    return value1.isPresent() ? value1.get() : marketData2.getValue(key);
+  public <T> T getValue(MarketDataId<T> id) {
+    Optional<T> value1 = marketData1.findValue(id);
+    return value1.isPresent() ? value1.get() : marketData2.getValue(id);
   }
 
   @Override
-  public <T> Optional<T> findValue(MarketDataKey<T> key) {
-    Optional<T> value1 = marketData1.findValue(key);
-    return value1.isPresent() ? value1 : marketData2.findValue(key);
+  public <T> Optional<T> findValue(MarketDataId<T> id) {
+    Optional<T> value1 = marketData1.findValue(id);
+    return value1.isPresent() ? value1 : marketData2.findValue(id);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    LocalDateDoubleTimeSeries value1 = marketData1.getTimeSeries(key);
-    LocalDateDoubleTimeSeries value2 = marketData2.getTimeSeries(key);
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
+    LocalDateDoubleTimeSeries value1 = marketData1.getTimeSeries(id);
+    LocalDateDoubleTimeSeries value2 = marketData2.getTimeSeries(id);
     return !value1.isEmpty() ? value1 : value2;
   }
 

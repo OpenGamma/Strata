@@ -30,9 +30,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class MarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestObservableKey ID1 = TestObservableKey.of("1");
-  private static final TestObservableKey ID2 = TestObservableKey.of("2");
-  private static final TestObservableKey ID3 = TestObservableKey.of("3");
+  private static final TestObservableId ID1 = TestObservableId.of("1");
+  private static final TestObservableId ID2 = TestObservableId.of("2");
+  private static final TestObservableId ID3 = TestObservableId.of("3");
   private static final Double VAL1 = 1d;
   private static final Double VAL2 = 2d;
   private static final Double VAL3 = 3d;
@@ -43,7 +43,7 @@ public class MarketDataTest {
 
   //-------------------------------------------------------------------------
   public void test_of_2arg() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     MarketData test = MarketData.of(VAL_DATE, dataMap);
 
     assertEquals(test.containsValue(ID1), true);
@@ -63,8 +63,8 @@ public class MarketDataTest {
   }
 
   public void test_of_3arg() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
-    Map<ObservableKey, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID2, TIME_SERIES);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID2, TIME_SERIES);
     MarketData test = MarketData.of(VAL_DATE, dataMap, tsMap);
 
     assertEquals(test.containsValue(ID1), true);
@@ -100,12 +100,12 @@ public class MarketDataTest {
   }
 
   public void test_of_badType() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, "123");
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, "123");
     assertThrows(() -> MarketData.of(VAL_DATE, dataMap), ClassCastException.class);
   }
 
   public void test_of_null() {
-    Map<MarketDataKey<?>, Object> dataMap = new HashMap<>();
+    Map<MarketDataId<?>, Object> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
     assertThrowsIllegalArg(() -> MarketData.of(VAL_DATE, dataMap));
   }
@@ -120,13 +120,13 @@ public class MarketDataTest {
       }
 
       @Override
-      public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey id) {
+      public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
         return TIME_SERIES;
       }
 
       @Override
       @SuppressWarnings("unchecked")
-      public <T> Optional<T> findValue(MarketDataKey<T> id) {
+      public <T> Optional<T> findValue(MarketDataId<T> id) {
         return id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty();
       }
     };
@@ -141,9 +141,9 @@ public class MarketDataTest {
 
   //-------------------------------------------------------------------------
   public void test_combinedWith_noClash() {
-    Map<MarketDataKey<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
-    Map<MarketDataKey<?>, Object> dataMap2 = ImmutableMap.of(ID2, VAL2);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID2, VAL2);
     MarketData test2 = MarketData.of(VAL_DATE, dataMap2);
 
     MarketData test = test1.combinedWith(test2);
@@ -152,9 +152,9 @@ public class MarketDataTest {
   }
 
   public void test_combinedWith_noClashSame() {
-    Map<MarketDataKey<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
-    Map<MarketDataKey<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     MarketData test2 = MarketData.of(VAL_DATE, dataMap2);
 
     MarketData test = test1.combinedWith(test2);
@@ -163,41 +163,41 @@ public class MarketDataTest {
   }
 
   public void test_combinedWith_clash() {
-    Map<MarketDataKey<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
-    Map<MarketDataKey<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
     MarketData test2 = MarketData.of(VAL_DATE, dataMap2);
     MarketData combined = test1.combinedWith(test2);
     assertEquals(combined.getValue(ID1), VAL1);
   }
 
   public void test_combinedWith_dateMismatch() {
-    Map<MarketDataKey<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
-    Map<MarketDataKey<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
     MarketData test2 = MarketData.of(VAL_DATE.plusDays(1), dataMap2);
     assertThrowsIllegalArg(() -> test1.combinedWith(test2));
   }
 
   //-------------------------------------------------------------------------
   public void test_withValue() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
     MarketData test = MarketData.of(VAL_DATE, dataMap).withValue(ID1, VAL3);
     assertEquals(test.getValue(ID1), VAL3);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
     ImmutableMarketData test = ImmutableMarketData.of(VAL_DATE, dataMap);
     coverImmutableBean(test);
-    Map<MarketDataKey<?>, Object> dataMap2 = ImmutableMap.of(ID2, VAL2);
+    Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID2, VAL2);
     ImmutableMarketData test2 = ImmutableMarketData.of(VAL_DATE.minusDays(1), dataMap2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
     MarketData test = MarketData.of(VAL_DATE, dataMap);
     assertSerialization(test);
   }
