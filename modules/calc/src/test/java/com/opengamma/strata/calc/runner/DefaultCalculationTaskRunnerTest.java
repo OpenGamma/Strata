@@ -34,7 +34,6 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestKey;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
@@ -59,7 +58,7 @@ public class DefaultCalculationTaskRunnerTest {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
-    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
     Column column = Column.of(Measures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -86,7 +85,7 @@ public class DefaultCalculationTaskRunnerTest {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PAR_RATE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PAR_RATE, NATURAL);
-    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
     Column column = Column.of(Measures.PAR_RATE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
@@ -104,7 +103,7 @@ public class DefaultCalculationTaskRunnerTest {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
-    CalculationTask task = CalculationTask.of(TARGET, fn, MarketDataMappings.empty(), cell);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
     Column column = Column.of(Measures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 

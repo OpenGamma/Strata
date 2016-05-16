@@ -34,7 +34,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
@@ -159,7 +159,7 @@ public final class XCcyIborIborSwapCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<? extends SimpleMarketDataKey<?>> requirements() {
+  public Set<? extends MarketDataKey<?>> requirements() {
     return ImmutableSet.of(spreadKey, fxKey());
   }
 

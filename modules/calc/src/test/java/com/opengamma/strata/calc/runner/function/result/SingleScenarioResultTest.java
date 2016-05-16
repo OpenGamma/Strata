@@ -21,11 +21,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 
 /**
  * Test {@link SingleScenarioResult}.
@@ -51,8 +49,7 @@ public class SingleScenarioResultTest {
     CalculationEnvironment marketData = MarketEnvironment.builder(date(2011, 3, 8))
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
         .build();
-    MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
-    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
+    DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData);
 
     SingleScenarioResult<CurrencyAmount> test = SingleScenarioResult.of(3, CurrencyAmount.of(Currency.GBP, 2));
 

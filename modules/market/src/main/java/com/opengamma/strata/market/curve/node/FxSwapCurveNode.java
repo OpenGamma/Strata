@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
-
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,9 +31,9 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
@@ -121,7 +120,7 @@ public final class FxSwapCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<? extends SimpleMarketDataKey<?>> requirements() {
+  public Set<? extends MarketDataKey<?>> requirements() {
     // TODO: extra key for near forward points
     return ImmutableSet.of(farForwardPointsKey, fxKey());
   }

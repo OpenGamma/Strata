@@ -16,6 +16,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
@@ -172,7 +173,7 @@ public class ReportRunnerTool implements AutoCloseable {
 
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     RatesMarketDataLookup ratesLookup = marketDataBuilder.ratesLookup(valuationDate);
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules(), ratesLookup);
+    CalculationRules rules = CalculationRules.of(functions, ratesLookup);
 
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
@@ -199,7 +200,7 @@ public class ReportRunnerTool implements AutoCloseable {
 
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
-    MarketDataRequirements reqs = tasks.requirements(refData);
+    MarketDataRequirements reqs = tasks.requirements(refData, MarketDataFeed.NONE);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);

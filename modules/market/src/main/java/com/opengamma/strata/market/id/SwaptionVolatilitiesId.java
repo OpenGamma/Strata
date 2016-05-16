@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
@@ -36,7 +35,7 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  */
 @BeanDefinition(builderScope = "private")
 public final class SwaptionVolatilitiesId
-    implements SimpleMarketDataKey<SwaptionVolatilities>, MarketDataId<SwaptionVolatilities>, ImmutableBean, Serializable {
+    implements MarketDataKey<SwaptionVolatilities>, MarketDataId<SwaptionVolatilities>, ImmutableBean, Serializable {
 
   /**
    * The name of the volatilities.

@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -36,7 +36,7 @@ import com.opengamma.strata.product.credit.IndexReferenceInformation;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaIndexRecoveryRateKey
-    implements SimpleMarketDataKey<CdsRecoveryRate>, ImmutableBean, Serializable {
+    implements MarketDataKey<CdsRecoveryRate>, ImmutableBean, Serializable {
 
   /**
    * The information that identifies the single-name.

@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
@@ -155,8 +154,7 @@ public class MultiCurrencyValuesArrayTest {
         .addValue(FxRateId.of(Currency.EUR, Currency.CAD), eurCadRate)
         .addValue(FxRateId.of(Currency.USD, Currency.CAD), usdCadRate)
         .build();
-    DefaultCalculationMarketData marketData =
-        DefaultCalculationMarketData.of(marketEnvironment, MarketDataMappings.empty());
+    DefaultCalculationMarketData marketData = DefaultCalculationMarketData.of(marketEnvironment);
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, marketData);
     DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
@@ -175,8 +173,7 @@ public class MultiCurrencyValuesArrayTest {
         .addValue(FxRateId.of(Currency.GBP, Currency.USD), gbpUsdRate)
         .addValue(FxRateId.of(Currency.EUR, Currency.GBP), eurGbpRate)
         .build();
-    DefaultCalculationMarketData marketData =
-        DefaultCalculationMarketData.of(marketEnvironment, MarketDataMappings.empty());
+    DefaultCalculationMarketData marketData = DefaultCalculationMarketData.of(marketEnvironment);
     CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, marketData);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{

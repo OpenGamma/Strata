@@ -9,13 +9,13 @@ import java.util.Objects;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
- * A market data key that implements SimpleMarketDataKey and can be converted to a market data ID without
+ * A market data key that implements MarketDataKey and can be converted to a market data ID without
  * needing any data apart from the MarketDataFeed.
  */
-public class TestSimpleKey implements SimpleMarketDataKey<String> {
+public class TestSimpleKey implements MarketDataKey<String> {
 
   private final String id;
 
@@ -24,8 +24,8 @@ public class TestSimpleKey implements SimpleMarketDataKey<String> {
   }
 
   @Override
-  public MarketDataId<String> toMarketDataId(MarketDataFeed marketDataFeed) {
-    return new TestSimpleId(id, marketDataFeed);
+  public MarketDataId<String> toMarketDataId(MarketDataFeed feed) {
+    return new TestSimpleId(id, feed);
   }
 
   @Override

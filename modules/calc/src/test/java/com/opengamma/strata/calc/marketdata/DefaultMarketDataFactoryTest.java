@@ -19,7 +19,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
@@ -30,20 +29,15 @@ import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.market.TestObservableId;
-import com.opengamma.strata.basics.market.TestObservableKey;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.function.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
-import com.opengamma.strata.calc.runner.MissingMappingId;
-import com.opengamma.strata.calc.runner.NoMatchingRuleId;
-import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -52,9 +46,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class DefaultMarketDataFactoryTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final MarketDataFeed VENDOR = MarketDataFeed.of("RealFeed");
-  private static final TestObservableId ID1 = TestObservableId.of("1", VENDOR);
-  private static final TestObservableId ID2 = TestObservableId.of("2", VENDOR);
   private static final MarketDataConfig MARKET_DATA_CONFIG = MarketDataConfig.empty();
 
   /**
@@ -181,127 +172,6 @@ public class DefaultMarketDataFactoryTest {
     MarketEnvironment marketData = factory.buildMarketData(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
     assertThat(marketData.getValue(id1).getSingleValue()).isEqualTo(1d);
     assertThat(marketData.getValue(id2).getSingleValue()).isEqualTo(2d);
-  }
-
-  /**
-   * Tests that failures are included in the results for keys with no mapping.
-   */
-  public void missingMapping() {
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataFunction(),
-            new TestFeedIdMapping());
-
-    TestObservableKey key = TestObservableKey.of("1");
-    MissingMappingId missingId = MissingMappingId.of(key);
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(missingId).build();
-    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    MarketEnvironment marketData = factory.buildMarketData(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
-    Failure failure = failures.get(missingId);
-
-    String message = Messages.format("No market data mapping found for market data key {}", key);
-    assertThat(failure.getMessage()).isEqualTo(message);
-  }
-
-  /**
-   * Tests that failures are included in the results for observable market data when there is no
-   * matching market data rule for a calculation.
-   */
-  public void noMatchingMarketDataRuleObservables() {
-    TestObservableId id3 = TestObservableId.of("3", MarketDataFeed.NO_RULE);
-    TestObservableId id4 = TestObservableId.of("4", MarketDataFeed.NO_RULE);
-
-    Set<ObservableId> ids = ImmutableSet.of(id3, id4, ID1, ID2);
-
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableFunction(),
-            Optional::of);
-
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(ids).build();
-    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    MarketEnvironment marketData = factory.buildMarketData(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
-    Map<MarketDataId<?>, Failure> failures = marketData.getValueFailures();
-
-    assertThat(failures.get(id3)).isNotNull();
-    assertThat(failures.get(id4)).isNotNull();
-    assertThat(failures.get(id3).getMessage()).matches("No market data rule.*");
-    assertThat(failures.get(id4).getMessage()).matches("No market data rule.*");
-    assertThat(marketData.getValue(ID1).getSingleValue()).isEqualTo(1d);
-    assertThat(marketData.getValue(ID2).getSingleValue()).isEqualTo(3d);
-  }
-
-  /**
-   * Tests that failures are included in the results for non-observable market data when there is no matching
-   * market data rule for a calculation.
-   */
-  public void noMatchingMarketDataRuleNonObservables() {
-    TestKey key1 = TestKey.of("1");
-    NoMatchingRuleId id1 = NoMatchingRuleId.of(key1);
-
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(ImmutableMap.of()),
-            new TestObservableMarketDataFunction(),
-            Optional::of);
-
-    MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id1).build();
-    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    MarketEnvironment marketData = factory.buildMarketData(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
-    Map<MarketDataId<?>, Failure> singleValueFailures = marketData.getValueFailures();
-    assertThat(singleValueFailures.get(id1)).isNotNull();
-    assertThat(singleValueFailures.get(id1).getMessage()).matches("No market data rule.*");
-  }
-
-  /**
-   * Tests that failures are included in the results for time series when there is no matching
-   * market data rule for a calculation.
-   */
-  public void noMatchingMarketDataRuleTimeSeries() {
-    TestObservableId id3 = TestObservableId.of("3", MarketDataFeed.NO_RULE);
-    TestObservableId id4 = TestObservableId.of("4", MarketDataFeed.NO_RULE);
-    Set<ObservableId> ids = ImmutableSet.of(id3, id4, ID1, ID2);
-
-    LocalDateDoubleTimeSeries libor1mTimeSeries =
-        LocalDateDoubleTimeSeries.builder()
-            .put(date(2011, 3, 8), 1d)
-            .put(date(2011, 3, 9), 2d)
-            .put(date(2011, 3, 10), 3d)
-            .build();
-
-    LocalDateDoubleTimeSeries libor3mTimeSeries =
-        LocalDateDoubleTimeSeries.builder()
-            .put(date(2012, 3, 8), 10d)
-            .put(date(2012, 3, 9), 20d)
-            .put(date(2012, 3, 10), 30d)
-            .build();
-
-    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap =
-        ImmutableMap.of(
-            ID1, libor1mTimeSeries,
-            ID2, libor3mTimeSeries);
-
-    DefaultMarketDataFactory factory =
-        new DefaultMarketDataFactory(
-            new TestTimeSeriesProvider(timeSeriesMap),
-            new TestObservableFunction(),
-            Optional::of);
-
-    MarketDataRequirements requirements =
-        MarketDataRequirements.builder().addTimeSeries(ids).build();
-    MarketEnvironment suppliedData = MarketEnvironment.builder(date(2011, 3, 8)).build();
-    MarketEnvironment marketData = factory.buildMarketData(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA);
-    Map<MarketDataId<?>, Failure> failures = marketData.getTimeSeriesFailures();
-
-    assertThat(marketData.getTimeSeries(ID1)).isEqualTo(libor1mTimeSeries);
-    assertThat(marketData.getTimeSeries(ID2)).isEqualTo(libor3mTimeSeries);
-    assertThat(failures.get(id3)).isNotNull();
-    assertThat(failures.get(id4)).isNotNull();
-    assertThat(failures.get(id3).getMessage()).matches("No market data rule.*");
-    assertThat(failures.get(id4).getMessage()).matches("No market data rule.*");
   }
 
   /**
@@ -1017,21 +887,6 @@ public class DefaultMarketDataFactoryTest {
   }
 
   //-------------------------------------------------------------------------
-  private static final class TestObservableFunction implements ObservableMarketDataFunction {
-
-    private final Map<ObservableId, Result<Double>> marketData =
-        ImmutableMap.of(
-            ID1, Result.success(1d),
-            ID2, Result.success(3d));
-
-    @Override
-    public Map<ObservableId, Result<Double>> build(Set<? extends ObservableId> requirements) {
-      return requirements.stream()
-          .filter(marketData::containsKey)
-          .collect(toImmutableMap(id -> id, marketData::get));
-    }
-  }
-
   /**
    * Simple time series provider backed by a map.
    */

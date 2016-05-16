@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.mapping;
+package com.opengamma.strata.calc.marketdata.function;
 
 import java.util.Optional;
 

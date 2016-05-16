@@ -106,7 +106,6 @@ public class CurveScenarioExample {
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     CalculationRules rules = CalculationRules.of(
         functions,
-        marketDataBuilder.rules(),
         Currency.USD,
         marketDataBuilder.ratesLookup(valuationDate));
 

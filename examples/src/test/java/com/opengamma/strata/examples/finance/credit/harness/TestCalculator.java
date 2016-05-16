@@ -70,8 +70,7 @@ public class TestCalculator implements Calculator {
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
-    CalculationRules rules = CalculationRules.of(
-        StandardComponents.calculationFunctions(), marketDataBuilder.rules(), Currency.USD);
+    CalculationRules rules = CalculationRules.of(StandardComponents.calculationFunctions(), Currency.USD);
 
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 

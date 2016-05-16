@@ -15,6 +15,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ScenarioMarketDataKey;
@@ -82,6 +84,11 @@ public class CalculationMarketDataTest {
     @Override
     public Class<Double> getMarketDataType() {
       return Double.class;
+    }
+
+    @Override
+    public MarketDataId<Double> toMarketDataId(MarketDataFeed feed) {
+      throw new UnsupportedOperationException();
     }
   }
 

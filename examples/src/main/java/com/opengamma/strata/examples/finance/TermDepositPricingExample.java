@@ -77,8 +77,7 @@ public class TermDepositPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(
-        functions, marketDataBuilder.rules(), marketDataBuilder.ratesLookup(valuationDate));
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.ratesLookup(valuationDate));
 
     // build a market data snapshot for the valuation date
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);

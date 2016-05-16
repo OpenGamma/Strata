@@ -17,7 +17,6 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -158,7 +157,7 @@ public final class SyntheticCurveCalibrator {
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (int i = 0; i < nodes.size(); i++) {
-        for (SimpleMarketDataKey<?> key : nodes.get(i).requirements()) {
+        for (MarketDataKey<?> key : nodes.get(i).requirements()) {
           mapKey0.put(key, 0.0d);
         }
       }

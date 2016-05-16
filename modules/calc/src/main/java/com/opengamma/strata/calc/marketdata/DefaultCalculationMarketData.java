@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableKey;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.SingleScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A source of market data used for a calculation across multiple scenarios.
  * <p>
- * This implementation is backed by a {@link CalculationEnvironment} and {@link MarketDataMappings}.
+ * This implementation is backed by a {@link CalculationEnvironment} and {@link MarketDataFeed}.
  * Methods on this interface take a {@linkplain MarketDataKey key}.
  * The mappings are used to resolve the key into the {@linkplain MarketDataId ID}
  * necessary to query {@code CalculationEnvironment}.
@@ -35,11 +35,9 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
    */
   private final CalculationEnvironment marketData;
   /**
-   * The mappings used to convert from market data keys to IDs
-   * The methods on this interface take keys, which the mappings convert to IDs
-   * to look up the market data in the environment.
+   * The source of market data.
    */
-  private final MarketDataMappings marketDataMappings;
+  private final MarketDataFeed feed;
 
   //-------------------------------------------------------------------------
   /**
@@ -50,17 +48,31 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
    * necessary to query {@code CalculationEnvironment}.
    *
    * @param marketData  the market data
-   * @param marketDataMappings  the mappings
    * @return the calculation market data
    */
-  public static DefaultCalculationMarketData of(CalculationEnvironment marketData, MarketDataMappings marketDataMappings) {
-    return new DefaultCalculationMarketData(marketData, marketDataMappings);
+  public static DefaultCalculationMarketData of(CalculationEnvironment marketData) {
+    return new DefaultCalculationMarketData(marketData, MarketDataFeed.NONE);
+  }
+
+  /**
+   * Obtains an instance from an underlying market data environment and mappings.
+   * <p>
+   * Methods on this interface take a {@linkplain MarketDataKey key}.
+   * The mappings are used to resolve the key into the {@linkplain MarketDataId ID}
+   * necessary to query {@code CalculationEnvironment}.
+   *
+   * @param marketData  the market data
+   * @param feed  the source of market data
+   * @return the calculation market data
+   */
+  public static DefaultCalculationMarketData of(CalculationEnvironment marketData, MarketDataFeed feed) {
+    return new DefaultCalculationMarketData(marketData, feed);
   }
 
   // restricted constructor
-  private DefaultCalculationMarketData(CalculationEnvironment marketData, MarketDataMappings marketDataMappings) {
+  private DefaultCalculationMarketData(CalculationEnvironment marketData, MarketDataFeed feed) {
     this.marketData = ArgChecker.notNull(marketData, "marketData");
-    this.marketDataMappings = ArgChecker.notNull(marketDataMappings, "marketDataMappings");
+    this.feed = ArgChecker.notNull(feed, "feed");
   }
 
   //-------------------------------------------------------------------------
@@ -88,21 +100,21 @@ public final class DefaultCalculationMarketData implements CalculationMarketData
   //-------------------------------------------------------------------------
   @Override
   public boolean containsValue(MarketDataKey<?> key) {
-    return marketDataMappings.containsValue(key, marketData);
+    return marketData.containsValue(key.toMarketDataId(feed));
   }
 
   @Override
   public <T> Optional<MarketDataBox<T>> findValue(MarketDataKey<T> key) {
-    return marketDataMappings.findValue(key, marketData);
+    return marketData.findValue(key.toMarketDataId(feed));
   }
 
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataKey<T> key) {
-    return marketDataMappings.getValue(key, marketData);
+    return marketData.getValue(key.toMarketDataId(feed));
   }
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    return marketDataMappings.getTimeSeries(key, marketData);
+    return marketData.getTimeSeries(key.toMarketDataId(feed));
   }
 }

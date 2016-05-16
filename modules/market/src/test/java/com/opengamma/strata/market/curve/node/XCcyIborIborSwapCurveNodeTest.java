@@ -30,7 +30,7 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -106,8 +106,8 @@ public class XCcyIborIborSwapCurveNodeTest {
 
   public void test_requirements() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_KEY, SPREAD_ADJ);
-    Set<? extends SimpleMarketDataKey<?>> setExpected = ImmutableSet.of(SPREAD_KEY, FX_KEY);
-    Set<? extends SimpleMarketDataKey<?>> set = test.requirements();
+    Set<? extends MarketDataKey<?>> setExpected = ImmutableSet.of(SPREAD_KEY, FX_KEY);
+    Set<? extends MarketDataKey<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 

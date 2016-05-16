@@ -30,11 +30,8 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.runner.MissingMappingId;
-import com.opengamma.strata.calc.runner.NoMatchingRuleId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
@@ -150,15 +147,6 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
   @SuppressWarnings("unchecked")
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
-    // Special handling of these special ID types to provide more helpful error messages
-    if (id instanceof NoMatchingRuleId) {
-      MarketDataKey<?> key = ((NoMatchingRuleId) id).getKey();
-      throw new IllegalArgumentException("No market data rules were available to build the market data for " + key);
-    }
-    if (id instanceof MissingMappingId) {
-      MarketDataKey<?> key = ((MissingMappingId) id).getKey();
-      throw new IllegalArgumentException("No market data mapping found for " + key);
-    }
     // Special case for FX rates containing the same currency twice, e.g. GBP/GBP. Always return a rate of 1.
     if (id instanceof FxRateId && ((FxRateId) id).getPair().isIdentity()) {
       FxRateId fxRateId = (FxRateId) id;

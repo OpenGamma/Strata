@@ -12,7 +12,7 @@ package com.opengamma.strata.basics.market;
  * It is always of type {@code Double}.
  */
 public interface ObservableKey
-    extends SimpleMarketDataKey<Double>, StandardIdentifiable {
+    extends MarketDataKey<Double>, StandardIdentifiable {
 
   /**
    * Gets the standard identifier identifying the data.

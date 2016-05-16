@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -39,7 +38,7 @@ import com.opengamma.strata.market.key.CurveKey;
  */
 @BeanDefinition(builderScope = "private")
 public final class SimpleCurveId
-    implements SimpleMarketDataKey<Curve>, CurveKey, CurveId, ImmutableBean, Serializable {
+    implements MarketDataKey<Curve>, CurveKey, CurveId, ImmutableBean, Serializable {
 
   /**
    * The curve group name.

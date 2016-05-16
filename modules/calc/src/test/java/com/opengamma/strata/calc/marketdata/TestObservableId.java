@@ -19,11 +19,11 @@ import com.opengamma.strata.basics.market.StandardId;
 public class TestObservableId implements ObservableId {
 
   private final String id;
-  private final MarketDataFeed marketDataFeed;
+  private final MarketDataFeed feed;
 
-  public TestObservableId(String id, MarketDataFeed marketDataFeed) {
+  public TestObservableId(String id, MarketDataFeed feed) {
     this.id = id;
-    this.marketDataFeed = marketDataFeed;
+    this.feed = feed;
   }
 
   @Override
@@ -38,7 +38,7 @@ public class TestObservableId implements ObservableId {
 
   @Override
   public MarketDataFeed getMarketDataFeed() {
-    return marketDataFeed;
+    return feed;
   }
 
   @Override
@@ -56,11 +56,11 @@ public class TestObservableId implements ObservableId {
     }
     TestObservableId that = (TestObservableId) o;
     return Objects.equals(id, that.id) &&
-        Objects.equals(marketDataFeed, that.marketDataFeed);
+        Objects.equals(feed, that.feed);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, marketDataFeed);
+    return Objects.hash(id, feed);
   }
 }

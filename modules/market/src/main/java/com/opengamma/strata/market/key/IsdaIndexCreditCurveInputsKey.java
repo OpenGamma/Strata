@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -36,7 +36,7 @@ import com.opengamma.strata.product.credit.IndexReferenceInformation;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaIndexCreditCurveInputsKey
-    implements SimpleMarketDataKey<IsdaCreditCurveInputs>, ImmutableBean, Serializable {
+    implements MarketDataKey<IsdaCreditCurveInputs>, ImmutableBean, Serializable {
 
   /**
    * The information that identifies the index.

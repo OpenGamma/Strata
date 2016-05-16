@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 
@@ -36,7 +36,7 @@ import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
  */
 @BeanDefinition(builderScope = "private")
 public final class IsdaYieldCurveInputsKey
-    implements SimpleMarketDataKey<IsdaYieldCurveInputs>, ImmutableBean, Serializable {
+    implements MarketDataKey<IsdaYieldCurveInputs>, ImmutableBean, Serializable {
 
   /**
    * The currency.

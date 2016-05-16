@@ -22,19 +22,17 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * The tasks that will be used to perform the calculations.
@@ -90,7 +88,7 @@ public final class CalculationTasks implements ImmutableBean {
     // this is done once as it is the same for all targets
     List<Column> effectiveColumns =
         columns.stream()
-            .map(column -> column.combineWithDefaults(rules.getMarketDataRules(), rules.getParameters()))
+            .map(column -> column.combineWithDefaults(rules.getParameters()))
             .collect(toImmutableList());
 
     // loop around the targets, then the columns, to build the tasks
@@ -118,23 +116,21 @@ public final class CalculationTasks implements ImmutableBean {
       List<Column> columns) {
 
     // create the cells and group them
-    ListMultimap<Pair<MarketDataMappings, CalculationParameters>, CalculationTaskCell> grouped = ArrayListMultimap.create();
+    ListMultimap<CalculationParameters, CalculationTaskCell> grouped = ArrayListMultimap.create();
     for (int colIndex = 0; colIndex < columns.size(); colIndex++) {
       Column column = columns.get(colIndex);
       Measure measure = column.getMeasure();
-      MarketDataRules mdRules = column.getMarketDataRules();
 
-      MarketDataMappings mappings = mdRules.mappings(target).orElse(NoMatchingRuleMappings.INSTANCE);
       CalculationTaskCell cell = CalculationTaskCell.of(rowIndex, colIndex, measure, column.getReportingCurrency());
       // group to find cells that can be shared, with same mappings and params (minus reporting currency)
       CalculationParameters params = column.getParameters().filter(target, measure).without(ReportingCurrency.class);
-      grouped.put(Pair.of(mappings, params), cell);
+      grouped.put(params, cell);
     }
 
     // build tasks
     ImmutableList.Builder<CalculationTask> taskBuilder = ImmutableList.builder();
-    for (Pair<MarketDataMappings, CalculationParameters> key : grouped.keySet()) {
-      taskBuilder.add(CalculationTask.of(target, function, key.getFirst(), key.getSecond(), grouped.get(key)));
+    for (CalculationParameters params : grouped.keySet()) {
+      taskBuilder.add(CalculationTask.of(target, function, params, grouped.get(params)));
     }
     return taskBuilder.build();
   }
@@ -202,14 +198,15 @@ public final class CalculationTasks implements ImmutableBean {
    * This can be used to feed into the market data system to obtain and calibrate data.
    *
    * @param refData  the reference data
+   * @param feed  the source of market data
    * @return the market data required for all calculations
    * @throws RuntimeException if unable to obtain the requirements
    */
-  public MarketDataRequirements requirements(ReferenceData refData) {
+  public MarketDataRequirements requirements(ReferenceData refData, MarketDataFeed feed) {
     // use for loop not streams for shorter stack traces
     MarketDataRequirementsBuilder builder = MarketDataRequirements.builder();
     for (CalculationTask task : tasks) {
-      builder.addRequirements(task.requirements(refData));
+      builder.addRequirements(task.requirements(refData, feed));
     }
     return builder.build();
   }

@@ -7,6 +7,8 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.util.Objects;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 
 /**
@@ -27,6 +29,11 @@ public class TestKey implements MarketDataKey<String> {
   @Override
   public Class<String> getMarketDataType() {
     return String.class;
+  }
+
+  @Override
+  public MarketDataId<String> toMarketDataId(MarketDataFeed feed) {
+    return new TestId(id, feed);
   }
 
   public String getId() {

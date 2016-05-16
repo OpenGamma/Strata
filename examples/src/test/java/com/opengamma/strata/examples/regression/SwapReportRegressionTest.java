@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -79,7 +80,6 @@ public class SwapReportRegressionTest {
     LocalDate valuationDate = LocalDate.of(2009, 7, 31);
     CalculationRules rules = CalculationRules.of(
         StandardComponents.calculationFunctions(),
-        marketDataBuilder.rules(),
         Currency.USD,
         marketDataBuilder.ratesLookup(valuationDate));
 
@@ -87,7 +87,7 @@ public class SwapReportRegressionTest {
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
-    MarketDataRequirements reqs = tasks.requirements(REF_DATA);
+    MarketDataRequirements reqs = tasks.requirements(REF_DATA, MarketDataFeed.NONE);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());

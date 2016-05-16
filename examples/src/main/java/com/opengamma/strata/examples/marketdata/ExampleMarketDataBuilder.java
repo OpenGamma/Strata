@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
 import com.opengamma.strata.collect.Messages;
@@ -40,12 +39,10 @@ import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditC
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
@@ -189,19 +186,6 @@ public abstract class ExampleMarketDataBuilder {
     loadFxRates(builder);
     loadCreditMarketData(builder, marketDataDate);
     return builder.build();
-  }
-
-  /**
-   * Gets the market data rules to use with this environment.
-   * 
-   * @return the market data rules
-   */
-  public MarketDataRules rules() {
-    // TODO - should be loaded from a CSV file - format to be defined
-    return MarketDataRules.anyTarget(
-        MarketDataMappingsBuilder.create()
-            .curveGroup(CurveGroupName.of("Default"))
-            .build());
   }
 
   /**

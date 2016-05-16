@@ -36,7 +36,6 @@ import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
@@ -103,7 +102,7 @@ public class FxSwapCurveNodeTest {
   public void test_requirements() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     Set<? extends MarketDataKey<?>> setExpected = ImmutableSet.of(RATE_KEY_NEAR, QUOTE_KEY_PTS);
-    Set<? extends SimpleMarketDataKey<?>> set = test.requirements();
+    Set<? extends MarketDataKey<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
 

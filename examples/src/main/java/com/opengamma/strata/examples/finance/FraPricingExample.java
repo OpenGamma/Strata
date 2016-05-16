@@ -73,8 +73,7 @@ public class FraPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(
-        functions, marketDataBuilder.rules(), Currency.USD, marketDataBuilder.ratesLookup(valuationDate));
+    CalculationRules rules = CalculationRules.of(functions, Currency.USD, marketDataBuilder.ratesLookup(valuationDate));
 
     // build a market data snapshot for the valuation date
     MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);

@@ -37,11 +37,9 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -272,12 +270,6 @@ public class ExampleMarketDataBuilderTest {
     assertEquals(snapshot.getValues().size(), VALUES.size(),
         Messages.format("Snapshot contained unexpected market data: {}",
             Sets.difference(snapshot.getValues().keySet(), VALUES)));
-
-    MarketDataRules expectedRules = MarketDataRules.anyTarget(
-        MarketDataMappingsBuilder.create()
-            .curveGroup(CurveGroupName.of("Default"))
-            .build());
-    assertEquals(builder.rules(), expectedRules);
   }
 
   //-------------------------------------------------------------------------

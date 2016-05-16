@@ -22,7 +22,6 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -58,7 +57,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     }
     InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) definition;
     MarketDataFeed marketDataFeed = id.getMarketDataFeed();
-    Set<? extends SimpleMarketDataKey<?>> requirementKeys = nodeRequirements(curveDefn);
+    Set<? extends MarketDataKey<?>> requirementKeys = nodeRequirements(curveDefn);
     Set<MarketDataId<?>> requirements = requirementKeys.stream()
         .map(key -> key.toMarketDataId(marketDataFeed))
         .collect(toImmutableSet());
@@ -82,7 +81,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
     }
     NodalCurveDefinition curveDefn = optionalDefinition.get();
     MarketDataFeed marketDataFeed = id.getMarketDataFeed();
-    Set<? extends SimpleMarketDataKey<?>> requirements = nodeRequirements(curveDefn);
+    Set<? extends MarketDataKey<?>> requirements = nodeRequirements(curveDefn);
     Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketDataValues =
         getMarketDataValues(marketData, requirements, marketDataFeed);
     MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
@@ -200,7 +199,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
    * @param curveDefn  the curve definition containing the nodes
    * @return requirements for the market data needed by the nodes to build trades
    */
-  private static Set<? extends SimpleMarketDataKey<?>> nodeRequirements(NodalCurveDefinition curveDefn) {
+  private static Set<? extends MarketDataKey<?>> nodeRequirements(NodalCurveDefinition curveDefn) {
     return curveDefn.getNodes().stream()
         .flatMap(node -> node.requirements().stream())
         .collect(toImmutableSet());
@@ -208,7 +207,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
   private static Map<? extends MarketDataKey<?>, MarketDataBox<?>> getMarketDataValues(
       CalculationEnvironment marketData,
-      Set<? extends SimpleMarketDataKey<?>> keys,
+      Set<? extends MarketDataKey<?>> keys,
       MarketDataFeed marketDataFeed) {
 
     return keys.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k.toMarketDataId(marketDataFeed))));

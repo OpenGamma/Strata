@@ -99,7 +99,7 @@ public class GenericSecurityPricingExample {
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
+    CalculationRules rules = CalculationRules.of(functions);
 
     // build a market data snapshot for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);

@@ -17,11 +17,11 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 public class TestId implements MarketDataId<String> {
 
   private final String id;
-  private final MarketDataFeed marketDataFeed;
+  private final MarketDataFeed feed;
 
-  public TestId(String id, MarketDataFeed marketDataFeed) {
+  public TestId(String id, MarketDataFeed feed) {
     this.id = id;
-    this.marketDataFeed = marketDataFeed;
+    this.feed = feed;
   }
 
   public TestId(String id) {
@@ -48,16 +48,16 @@ public class TestId implements MarketDataId<String> {
     }
     TestId testId = (TestId) o;
     return Objects.equals(id, testId.id) &&
-        Objects.equals(marketDataFeed, testId.marketDataFeed);
+        Objects.equals(feed, testId.feed);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, marketDataFeed);
+    return Objects.hash(id, feed);
   }
 
   @Override
   public String toString() {
-    return "TestId [id='" + id + "', marketDataFeed=" + marketDataFeed + "]";
+    return "TestId [id='" + id + "', marketDataFeed=" + feed + "]";
   }
 }

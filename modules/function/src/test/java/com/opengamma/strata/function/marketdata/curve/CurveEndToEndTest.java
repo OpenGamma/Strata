@@ -30,12 +30,12 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -48,7 +48,6 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.calculation.fra.FraCalculationFunction;
 import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -144,13 +143,8 @@ public class CurveEndToEndTest {
 
     // Rules for market data and calculations ---------------------------------
 
-    MarketDataRules marketDataRules = MarketDataRules.anyTarget(
-        MarketDataMappingsBuilder.create()
-            .curveGroup(groupName)
-            .build());
     RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(groupDefn);
-
-    CalculationRules calculationRules = CalculationRules.of(functions(), marketDataRules, Currency.USD, ratesLookup);
+    CalculationRules calculationRules = CalculationRules.of(functions(), Currency.USD, ratesLookup);
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
@@ -161,7 +155,7 @@ public class CurveEndToEndTest {
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
-    MarketDataRequirements reqs = tasks.requirements(REF_DATA);
+    MarketDataRequirements reqs = tasks.requirements(REF_DATA, MarketDataFeed.NONE);
     MarketEnvironment enhancedMarketData = marketDataFactory()
         .buildMarketData(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());

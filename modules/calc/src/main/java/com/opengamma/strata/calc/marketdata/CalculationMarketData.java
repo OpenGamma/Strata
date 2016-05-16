@@ -16,7 +16,6 @@ import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ScenarioMarketDataKey;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -35,8 +34,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * The second way is to use the method {@link #scenarios()} or {@link #scenario(int)}
  * which return all the data associated with a single scenario.
  * This approach is convenient for single scenario pricers, but may have a small overhead.
- * <p>
- * Typically a set of {@link MarketDataRules} are used to choose the item of market data from the global set.
  * <p>
  * The standard implementation is {@link DefaultCalculationMarketData}.
  */

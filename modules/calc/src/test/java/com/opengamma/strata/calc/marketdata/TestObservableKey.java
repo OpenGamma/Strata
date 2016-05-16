@@ -35,8 +35,8 @@ public class TestObservableKey implements ObservableKey {
   }
 
   @Override
-  public ObservableId toMarketDataId(MarketDataFeed marketDataFeed) {
-    return new TestObservableId(id, marketDataFeed);
+  public ObservableId toMarketDataId(MarketDataFeed feed) {
+    return new TestObservableId(id, feed);
   }
 
   @Override

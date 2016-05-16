@@ -21,7 +21,6 @@
 <listEntry value="com.opengamma.strata.calc.marketdata"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.config"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.function"/>
-<listEntry value="com.opengamma.strata.calc.marketdata.mapping"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.scenario"/>
 <listEntry value="com.opengamma.strata.calc.runner"/>
 <listEntry value="com.opengamma.strata.calc.runner.function"/>

@@ -23,14 +23,10 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.function.FeedIdMapping;
 import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.MissingDataAwareObservableFunction;
-import com.opengamma.strata.calc.marketdata.function.MissingDataAwareTimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.function.MissingMappingMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.calc.marketdata.mapping.MissingDataAwareFeedIdMapping;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
@@ -88,24 +84,13 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       FeedIdMapping feedIdMapping,
       List<MarketDataFunction<?, ?>> functions) {
 
-    // Wrap these 3 to handle market data where there is missing data for the calculation
-    this.feedIdMapping = new MissingDataAwareFeedIdMapping(feedIdMapping);
-    this.observablesBuilder = new MissingDataAwareObservableFunction(observablesBuilder);
-    this.timeSeriesProvider = new MissingDataAwareTimeSeriesProvider(timeSeriesProvider);
+    this.feedIdMapping = feedIdMapping;
+    this.observablesBuilder = observablesBuilder;
+    this.timeSeriesProvider = timeSeriesProvider;
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
     // If the functions argument includes a missing mapping builder it can overwrite the one inserted below
     Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> builderMap = new HashMap<>();
-
-    // Add a builder that adds failures with helpful error messages when there is no mapping configured for a key type
-    builderMap.put(
-        MissingMappingMarketDataFunction.INSTANCE.getMarketDataIdType(),
-        MissingMappingMarketDataFunction.INSTANCE);
-
-    // Add a builder that adds failures with helpful error messages when there is no market data rule for a calculation
-    builderMap.put(
-        NoMatchingRulesMarketDataFunction.INSTANCE.getMarketDataIdType(),
-        NoMatchingRulesMarketDataFunction.INSTANCE);
 
     functions.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
     this.functions = ImmutableMap.copyOf(builderMap);

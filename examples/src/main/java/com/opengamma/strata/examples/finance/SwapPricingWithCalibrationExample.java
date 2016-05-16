@@ -22,7 +22,6 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -33,7 +32,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
@@ -146,16 +144,10 @@ public class SwapPricingWithCalibrationExample {
         .add(CURVE_GROUP_NAME, curveGroupDefinition)
         .build();
 
-    // the configuration defining the curve group to use when finding a curve
-    MarketDataRules marketDataRules = MarketDataRules.anyTarget(
-        MarketDataMappingsBuilder.create()
-            .curveGroup(CURVE_GROUP_NAME)
-            .build());
-    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
-
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataRules, ratesLookup);
+    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
+    CalculationRules rules = CalculationRules.of(functions, ratesLookup);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();

@@ -36,11 +36,6 @@ public final class MarketDataFeed
    */
   public static final MarketDataFeed NONE = of("None");
 
-  /**
-   * A market data feed used to indicate there are no market data rules for a calculation.
-   */
-  public static final MarketDataFeed NO_RULE = of("NoMatchingMarketDataRule");
-
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the specified name.

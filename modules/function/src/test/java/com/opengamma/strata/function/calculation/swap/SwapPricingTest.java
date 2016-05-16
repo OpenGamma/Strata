@@ -38,15 +38,12 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.MarketDataRules;
 import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
@@ -126,9 +123,6 @@ public class SwapPricingTest {
 
     CalculationFunctions functions = StandardComponents.calculationFunctions();
 
-    MarketDataMappings marketDataMappings = MarketDataMappingsBuilder.create().curveGroup(groupName).build();
-
-    MarketDataRules marketDataRules = MarketDataRules.ofTargetTypes(marketDataMappings, SwapTrade.class);
     RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(
         ImmutableMap.of(
             USD, idUsdDsc),
@@ -141,7 +135,7 @@ public class SwapPricingTest {
     // create the calculation runner
     List<SwapTrade> trades = ImmutableList.of(trade);
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
-    CalculationRules rules = CalculationRules.of(functions, marketDataRules, USD, ratesLookup);
+    CalculationRules rules = CalculationRules.of(functions, USD, ratesLookup);
 
     // calculate results using the runner
     // using the direct executor means there is no need to close/shutdown the runner
