@@ -23,11 +23,15 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 
+/**
+ * Test {@link DefaultScenarioResult}.
+ */
 @Test
 public class DefaultScenarioResultTest {
 
@@ -107,10 +111,7 @@ public class DefaultScenarioResultTest {
         CurrencyAmount.of(Currency.GBP, 3));
     DefaultScenarioResult<CurrencyAmount> test = DefaultScenarioResult.of(values);
 
-    assertThrows(
-        () -> test.convertedTo(Currency.USD, calculationMarketData),
-        IllegalArgumentException.class,
-        "No market data available.*");
+    assertThrows(() -> test.convertedTo(Currency.USD, calculationMarketData), MarketDataNotFoundException.class);
   }
 
   public void wrongNumberOfFxRates() {
@@ -134,6 +135,7 @@ public class DefaultScenarioResultTest {
         IllegalArgumentException.class,
         "Market data must contain same number of scenarios.*");
   }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     DefaultScenarioResult<Integer> test = DefaultScenarioResult.of(1, 2, 3);

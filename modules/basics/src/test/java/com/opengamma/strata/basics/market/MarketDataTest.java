@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -53,6 +54,13 @@ public class MarketDataTest {
     assertThat(test.findValue(KEY2)).isEmpty();
     assertThat(test.getValue(KEY1)).isEqualTo(123d);
     assertThat(test.getTimeSeries(KEY2)).isEqualTo(TIME_SERIES);
+  }
+
+  public void empty() {
+    MarketData test = MarketData.empty(VAL_DATE);
+
+    assertEquals(test.containsValue(KEY1), false);
+    assertEquals(test.getTimeSeries(KEY1), LocalDateDoubleTimeSeries.empty());
   }
 
   //-------------------------------------------------------------------------

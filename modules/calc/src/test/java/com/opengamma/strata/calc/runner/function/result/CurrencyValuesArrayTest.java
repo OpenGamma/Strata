@@ -25,12 +25,16 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.DefaultCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.mapping.MarketDataMappings;
 import com.opengamma.strata.collect.array.DoubleArray;
 
+/**
+ * Test {@link CurrencyValuesArray}.
+ */
 @Test
 public class CurrencyValuesArrayTest {
 
@@ -133,10 +137,7 @@ public class CurrencyValuesArrayTest {
     MarketDataMappings mappings = MarketDataMappings.of(MarketDataFeed.NONE);
     DefaultCalculationMarketData calculationMarketData = DefaultCalculationMarketData.of(marketData, mappings);
 
-    assertThrows(
-        () -> list.convertedTo(USD, calculationMarketData),
-        IllegalArgumentException.class,
-        "No market data available for .*");
+    assertThrows(() -> list.convertedTo(USD, calculationMarketData), MarketDataNotFoundException.class);
   }
 
   /**

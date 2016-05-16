@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -246,8 +247,7 @@ public class CurveInputsMarketDataFunctionTest {
 
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
-        IllegalArgumentException.class,
-        "No market data available for .*");
+        MarketDataNotFoundException.class);
   }
 
   //-------------------------------------------------------------------------

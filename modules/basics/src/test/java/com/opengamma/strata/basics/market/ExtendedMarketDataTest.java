@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -54,7 +54,7 @@ public class ExtendedMarketDataTest {
     assertEquals(test.getValue(KEY1), VAL1);
     assertEquals(test.getValue(KEY2), VAL2);
     assertEquals(test.getValue(KEY3), VAL3);
-    assertThrowsIllegalArg(() -> test.getValue(KEY4));
+    assertThrows(() -> test.getValue(KEY4), MarketDataNotFoundException.class);
     assertEquals(test.findValue(KEY1), Optional.of(VAL1));
     assertEquals(test.findValue(KEY2), Optional.of(VAL2));
     assertEquals(test.findValue(KEY3), Optional.of(VAL3));
@@ -72,7 +72,7 @@ public class ExtendedMarketDataTest {
     assertEquals(test.containsValue(KEY3), false);
     assertEquals(test.getValue(KEY1), VAL3);
     assertEquals(test.getValue(KEY2), VAL2);
-    assertThrowsIllegalArg(() -> test.getValue(KEY3));
+    assertThrows(() -> test.getValue(KEY3), MarketDataNotFoundException.class);
     assertEquals(test.findValue(KEY1), Optional.of(VAL3));
     assertEquals(test.findValue(KEY2), Optional.of(VAL2));
     assertEquals(test.findValue(KEY3), Optional.empty());

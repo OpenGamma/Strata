@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata.mapping;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestId;
@@ -101,9 +102,9 @@ public class DefaultMarketDataMappingsTest {
   }
 
   public void getValueNoData() {
-    assertThrowsIllegalArg(() -> mappings.getValue(testKey, CalculationEnvironment.empty()));
-    assertThrowsIllegalArg(() -> mappings.getValue(testSimpleKey, CalculationEnvironment.empty()));
-    assertThrowsIllegalArg(() -> mappings.getValue(testObservableKey, CalculationEnvironment.empty()));
+    assertThrows(() -> mappings.getValue(testKey, CalculationEnvironment.empty()), MarketDataNotFoundException.class);
+    assertThrows(() -> mappings.getValue(testSimpleKey, CalculationEnvironment.empty()), MarketDataNotFoundException.class);
+    assertThrows(() -> mappings.getValue(testObservableKey, CalculationEnvironment.empty()), MarketDataNotFoundException.class);
   }
 
   public void getTimeSeries() {

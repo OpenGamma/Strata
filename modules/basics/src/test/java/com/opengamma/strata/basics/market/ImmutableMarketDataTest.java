@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -48,7 +48,7 @@ public class ImmutableMarketDataTest {
 
   public void of_badType() {
     Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(KEY1, "123");
-    assertThrowsIllegalArg(() -> ImmutableMarketData.of(VAL_DATE, dataMap));
+    assertThrows(() -> ImmutableMarketData.of(VAL_DATE, dataMap), ClassCastException.class);
   }
 
   public void builder() {
@@ -73,7 +73,7 @@ public class ImmutableMarketDataTest {
 
   public void getValue() {
     assertThat(DATA.getValue(KEY1)).isEqualTo(123d);
-    assertThrowsIllegalArg(() -> DATA.getValue(KEY2));
+    assertThrows(() -> DATA.getValue(KEY2), MarketDataNotFoundException.class);
   }
 
   public void getTimeSeries() {

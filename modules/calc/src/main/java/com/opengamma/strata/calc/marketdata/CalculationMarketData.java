@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ScenarioMarketDataKey;
 import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
@@ -102,7 +103,7 @@ public interface CalculationMarketData {
    * @param <T>  the type of the market data
    * @param key  the key identifying the item of market data
    * @return the box providing access to the market data values for each scenario
-   * @throws IllegalArgumentException if no value is found
+   * @throws MarketDataNotFoundException if no value is found
    */
   public abstract <T> MarketDataBox<T> getValue(MarketDataKey<T> key);
 
@@ -144,7 +145,6 @@ public interface CalculationMarketData {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the time-series identified by the specified key, empty if not found.
    * <p>
