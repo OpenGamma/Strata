@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -68,8 +68,8 @@ public class FxSwapCalculationFunctionTest {
           .build())
       .product(PRODUCT)
       .build();
-  private static final SimpleCurveId DISCOUNT_CURVE_GBP_ID = SimpleCurveId.of("Default", "Discount-GBP");
-  private static final SimpleCurveId DISCOUNT_CURVE_USD_ID = SimpleCurveId.of("Default", "Discount-USD");
+  private static final CurveId DISCOUNT_CURVE_GBP_ID = CurveId.of("Default", "Discount-GBP");
+  private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_ID, USD, DISCOUNT_CURVE_USD_ID),
       ImmutableMap.of());

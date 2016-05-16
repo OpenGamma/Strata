@@ -30,7 +30,7 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -205,12 +205,12 @@ final class FraMeasureCalculations {
           "Implementation only supports a single curve, but lookup refers to more than one: {}", allIds));
     }
     MarketDataId<?> singleId = allIds.iterator().next();
-    if (!(singleId instanceof SimpleCurveId)) {
+    if (!(singleId instanceof CurveId)) {
       throw new IllegalArgumentException(Messages.format(
           "Implementation only supports a single curve, but lookup does not refer to a curve: {} {}",
           singleId.getClass().getName(), singleId));
     }
-    SimpleCurveId curveId = (SimpleCurveId) singleId;
+    CurveId curveId = (CurveId) singleId;
     NodalCurve nodalCurve = marketData.getMarketData().getValue(curveId).toNodalCurve();
 
     // calculate gamma
@@ -223,7 +223,7 @@ final class FraMeasureCalculations {
   private static CurveCurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedFra product,
       RatesMarketData marketData,
-      SimpleCurveId curveId,
+      CurveId curveId,
       NodalCurve bumpedCurve) {
 
     MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);

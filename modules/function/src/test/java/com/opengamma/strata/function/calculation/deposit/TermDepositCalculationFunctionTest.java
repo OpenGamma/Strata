@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -72,7 +72,7 @@ public class TermDepositCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
-  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of());

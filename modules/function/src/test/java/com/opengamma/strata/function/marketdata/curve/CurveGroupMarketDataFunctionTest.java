@@ -56,7 +56,7 @@ import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
@@ -123,7 +123,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     Map<MarketDataId<?>, Object> marketDataMap = ImmutableMap.<MarketDataId<?>, Object>builder()
         .putAll(inputData)
-        .put(SimpleCurveId.of(groupName, curveName), curve)
+        .put(CurveId.of(groupName, curveName), curve)
         .build();
 
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
@@ -168,7 +168,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     Map<MarketDataId<?>, Object> marketDataMap = ImmutableMap.<MarketDataId<?>, Object>builder()
         .putAll(inputData)
-        .put(SimpleCurveId.of(groupName, curveName), curve)
+        .put(CurveId.of(groupName, curveName), curve)
         .build();
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
     TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());

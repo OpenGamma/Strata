@@ -37,7 +37,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.IndexRateId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
@@ -131,7 +131,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    SimpleCurveId curveId = lookup.getDiscountCurves().get(currency);
+    CurveId curveId = lookup.getDiscountCurves().get(currency);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgCurrencyNotFound(currency));
     }
@@ -158,7 +158,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }
@@ -169,7 +169,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }
@@ -180,7 +180,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }

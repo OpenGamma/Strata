@@ -15,21 +15,21 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Market data function that locates a curve by name.
  * <p>
- * This function finds an instance of {@link Curve} using the name held in {@link SimpleCurveId}.
+ * This function finds an instance of {@link Curve} using the name held in {@link CurveId}.
  * <p>
  * The curve is not actually built in this class, it is extracted from an existing {@link CurveGroup}.
  * The curve group must be available in the {@code MarketDataLookup} passed to the {@link #build} method.
  */
-public class SimpleCurveMarketDataFunction
-    implements MarketDataFunction<Curve, SimpleCurveId> {
+public class CurveMarketDataFunction
+    implements MarketDataFunction<Curve, CurveId> {
 
   @Override
-  public MarketDataRequirements requirements(SimpleCurveId id, MarketDataConfig config) {
+  public MarketDataRequirements requirements(CurveId id, MarketDataConfig config) {
     CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
@@ -38,7 +38,7 @@ public class SimpleCurveMarketDataFunction
 
   @Override
   public MarketDataBox<Curve> build(
-      SimpleCurveId id,
+      CurveId id,
       MarketDataConfig config,
       CalculationMarketData marketData,
       ReferenceData refData) {
@@ -50,14 +50,14 @@ public class SimpleCurveMarketDataFunction
   }
 
   // finds the curve
-  private Curve findCurve(SimpleCurveId id, CurveGroup curveGroup) {
+  private Curve findCurve(CurveId id, CurveGroup curveGroup) {
     return curveGroup.findCurve(id.getCurveName())
         .orElseThrow(() -> new IllegalArgumentException(Messages.format("No curve found: {}", id.getCurveName())));
   }
 
   @Override
-  public Class<SimpleCurveId> getMarketDataIdType() {
-    return SimpleCurveId.class;
+  public Class<CurveId> getMarketDataIdType() {
+    return CurveId.class;
   }
 
 }

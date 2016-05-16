@@ -46,7 +46,7 @@ import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.id.IndexRateId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.NormalSwaptionExpiryTenorVolatilities;
@@ -93,8 +93,8 @@ public class SwaptionCalculationFunctionTest {
 
   private static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
       SwaptionNormalVolatilityDataSets.NORMAL_VOL_SWAPTION_PROVIDER_USD_STD;
-  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
-  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
+  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),

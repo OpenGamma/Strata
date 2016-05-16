@@ -39,7 +39,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFutureTrade;
@@ -60,8 +60,8 @@ public class IborFutureCalculationFunctionTest {
   private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
-  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
-  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
+  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));

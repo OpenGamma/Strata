@@ -17,21 +17,21 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
- * Test {@link SimpleCurveId}.
+ * Test {@link CurveId}.
  */
 @Test
-public class SimpleCurveIdTest {
+public class CurveIdTest {
 
   //-------------------------------------------------------------------------
   public void test_of_String() {
-    SimpleCurveId test = SimpleCurveId.of("Group", "Name");
+    CurveId test = CurveId.of("Group", "Name");
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
-  public void test_of_TYpes() {
-    SimpleCurveId test = SimpleCurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"));
+  public void test_of_Types() {
+    CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"));
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
     assertEquals(test.getMarketDataType(), Curve.class);
@@ -39,14 +39,14 @@ public class SimpleCurveIdTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    SimpleCurveId test = SimpleCurveId.of("Group", "Name");
+    CurveId test = CurveId.of("Group", "Name");
     coverImmutableBean(test);
-    SimpleCurveId test2 = SimpleCurveId.of("Group2", "Name2");
+    CurveId test2 = CurveId.of("Group2", "Name2");
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    SimpleCurveId test = SimpleCurveId.of("Group", "Name");
+    CurveId test = CurveId.of("Group", "Name");
     assertSerialization(test);
   }
 

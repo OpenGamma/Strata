@@ -27,13 +27,13 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 
 /**
- * Test {@link SimpleCurveMarketDataFunction}.
+ * Test {@link CurveMarketDataFunction}.
  */
 @Test
-public class SimpleCurveMarketDataFunctionTest {
+public class CurveMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
@@ -44,8 +44,8 @@ public class SimpleCurveMarketDataFunctionTest {
   //-------------------------------------------------------------------------
   public void test_singleCurve() {
     Curve curve = ConstantNodalCurve.of(CURVE_NAME1, (double) 1);
-    SimpleCurveId curveId1 = SimpleCurveId.of(GROUP_NAME, CURVE_NAME1);
-    SimpleCurveId curveId2 = SimpleCurveId.of(GROUP_NAME, CURVE_NAME2);
+    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1);
+    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);
     CurveGroup curveGroup = CurveGroup.of(
         GROUP_NAME,
@@ -53,7 +53,7 @@ public class SimpleCurveMarketDataFunctionTest {
         ImmutableMap.of());
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    SimpleCurveMarketDataFunction test = new SimpleCurveMarketDataFunction();
+    CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataRequirements reqs = test.requirements(curveId1, MarketDataConfig.empty());
     assertEquals(reqs.getNonObservables(), ImmutableSet.of(groupId));
     MarketDataBox<Curve> result = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
@@ -64,8 +64,8 @@ public class SimpleCurveMarketDataFunctionTest {
   public void test_multipleCurves() {
     Curve curve1 = ConstantNodalCurve.of(CURVE_NAME1, (double) 1);
     Curve curve2 = ConstantNodalCurve.of(CURVE_NAME2, (double) 2);
-    SimpleCurveId curveId1 = SimpleCurveId.of(GROUP_NAME, CURVE_NAME1);
-    SimpleCurveId curveId2 = SimpleCurveId.of(GROUP_NAME, CURVE_NAME2);
+    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1);
+    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);
     CurveGroup curveGroup = CurveGroup.of(
         GROUP_NAME,
@@ -73,7 +73,7 @@ public class SimpleCurveMarketDataFunctionTest {
         ImmutableMap.of());
     MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
-    SimpleCurveMarketDataFunction test = new SimpleCurveMarketDataFunction();
+    CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataBox<Curve> result1 = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);
     assertEquals(result1, MarketDataBox.ofSingleValue(curve1));
     MarketDataBox<Curve> result2 = test.build(curveId2, MarketDataConfig.empty(), marketData, REF_DATA);

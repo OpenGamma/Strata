@@ -32,7 +32,7 @@ import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.calculation.swaption.SwaptionCalculationFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveInputsMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.SimpleCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.CurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
@@ -137,7 +137,7 @@ public class StandardComponents {
    */
   public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
-        new SimpleCurveMarketDataFunction(),
+        new CurveMarketDataFunction(),
         new CurveGroupMarketDataFunction(),
         new CurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction());

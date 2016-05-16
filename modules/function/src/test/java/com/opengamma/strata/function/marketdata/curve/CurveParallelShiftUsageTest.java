@@ -28,7 +28,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Test usage of {@link CurveParallelShift}.
@@ -46,7 +46,7 @@ public class CurveParallelShiftUsageTest {
         Curve.class,
         CurveNameFilter.of(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
-    SimpleCurveId curveId = SimpleCurveId.of(curveGroupName, curveName);
+    CurveId curveId = CurveId.of(curveGroupName, curveName);
     MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();

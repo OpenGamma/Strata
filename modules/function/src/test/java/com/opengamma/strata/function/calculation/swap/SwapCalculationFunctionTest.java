@@ -42,7 +42,7 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.id.IndexRateId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
@@ -62,8 +62,8 @@ public class SwapCalculationFunctionTest {
 
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
-  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
-  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
+  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));

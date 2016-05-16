@@ -47,7 +47,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -268,10 +268,10 @@ public abstract class ExampleMarketDataBuilder {
         builder.addValue(CurveGroupId.of(group.getName()), group);
         // add entry for higher level discount curve name
         group.getDiscountCurves().forEach(
-            (ccy, curve) -> builder.addValue(SimpleCurveId.of(group.getName(), curve.getName()), curve));
+            (ccy, curve) -> builder.addValue(CurveId.of(group.getName(), curve.getName()), curve));
         // add entry for higher level forward curve name
         group.getForwardCurves().forEach(
-            (idx, curve) -> builder.addValue(SimpleCurveId.of(group.getName(), curve.getName()), curve));
+            (idx, curve) -> builder.addValue(CurveId.of(group.getName(), curve.getName()), curve));
       }
 
     } catch (Exception e) {

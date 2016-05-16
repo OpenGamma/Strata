@@ -32,8 +32,8 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IndexRateId;
-import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -53,12 +53,12 @@ final class DefaultRatesMarketDataLookup
    * The discount curves in the group, keyed by currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, SimpleCurveId> discountCurves;
+  private final ImmutableMap<Currency, CurveId> discountCurves;
   /**
    * The forward curves in the group, keyed by index.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, SimpleCurveId>")
-  private final ImmutableMap<Index, SimpleCurveId> forwardCurves;
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, CurveId>")
+  private final ImmutableMap<Index, CurveId> forwardCurves;
 
   //-------------------------------------------------------------------------
   /**
@@ -66,15 +66,15 @@ final class DefaultRatesMarketDataLookup
    * <p>
    * The discount and forward curves refer to the curve identifier.
    * The curves themselves are provided in {@link CalculationMarketData}
-   * using {@link SimpleCurveId} as the identifier.
+   * using {@link CurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
    * @return the rates lookup containing the specified curves
    */
   public static DefaultRatesMarketDataLookup of(
-      Map<Currency, SimpleCurveId> discountCurveIds,
-      Map<? extends Index, SimpleCurveId> forwardCurveIds) {
+      Map<Currency, CurveId> discountCurveIds,
+      Map<? extends Index, CurveId> forwardCurveIds) {
 
     return new DefaultRatesMarketDataLookup(discountCurveIds, forwardCurveIds);
   }
@@ -87,7 +87,7 @@ final class DefaultRatesMarketDataLookup
 
   @Override
   public ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency) {
-    SimpleCurveId id = discountCurves.get(currency);
+    CurveId id = discountCurves.get(currency);
     if (id == null) {
       throw new IllegalArgumentException(msgCurrencyNotFound(currency));
     }
@@ -101,7 +101,7 @@ final class DefaultRatesMarketDataLookup
 
   @Override
   public ImmutableSet<MarketDataId<?>> getForwardMarketDataIds(Index index) {
-    SimpleCurveId id = forwardCurves.get(index);
+    CurveId id = forwardCurves.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));
     }
@@ -184,8 +184,8 @@ final class DefaultRatesMarketDataLookup
   private static final long serialVersionUID = 1L;
 
   private DefaultRatesMarketDataLookup(
-      Map<Currency, SimpleCurveId> discountCurves,
-      Map<? extends Index, SimpleCurveId> forwardCurves) {
+      Map<Currency, CurveId> discountCurves,
+      Map<? extends Index, CurveId> forwardCurves) {
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
@@ -212,7 +212,7 @@ final class DefaultRatesMarketDataLookup
    * Gets the discount curves in the group, keyed by currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, SimpleCurveId> getDiscountCurves() {
+  public ImmutableMap<Currency, CurveId> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -221,7 +221,7 @@ final class DefaultRatesMarketDataLookup
    * Gets the forward curves in the group, keyed by index.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Index, SimpleCurveId> getForwardCurves() {
+  public ImmutableMap<Index, CurveId> getForwardCurves() {
     return forwardCurves;
   }
 

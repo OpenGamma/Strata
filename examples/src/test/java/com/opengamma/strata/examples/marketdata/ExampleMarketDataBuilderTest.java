@@ -51,7 +51,7 @@ import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.SimpleCurveId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.RestructuringClause;
 import com.opengamma.strata.product.credit.SeniorityLevel;
@@ -81,11 +81,11 @@ public class ExampleMarketDataBuilderTest {
 
   private static final Set<MarketDataId<?>> VALUES = ImmutableSet.of(
       CurveGroupId.of(DEFAULT_CURVE_GROUP),
-      SimpleCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-Disc")),
-      SimpleCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-Disc")),
-      SimpleCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-3ML")),
-      SimpleCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-6ML")),
-      SimpleCurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-3ML")),
+      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-Disc")),
+      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-Disc")),
+      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-3ML")),
+      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("USD-6ML")),
+      CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-3ML")),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
