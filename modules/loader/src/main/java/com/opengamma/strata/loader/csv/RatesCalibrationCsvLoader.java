@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -205,7 +204,7 @@ public final class RatesCalibrationCsvLoader {
       CurveName curveName = CurveName.of(curveNameStr);
       StandardId quoteStandardId = StandardId.of(symbologyQuoteStr, tickerQuoteStr);
       FieldName quoteField = fieldQuoteStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldQuoteStr);
-      QuoteId quoteId = QuoteId.of(quoteStandardId, MarketDataFeed.NONE, quoteField);
+      QuoteId quoteId = QuoteId.of(quoteStandardId, quoteField);
       double spread = spreadStr.isEmpty() ? 0d : Double.parseDouble(spreadStr);
 
       List<CurveNode> curveNodes = allNodes.computeIfAbsent(curveName, k -> new ArrayList<>());

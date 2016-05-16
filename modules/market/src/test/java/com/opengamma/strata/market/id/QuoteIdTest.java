@@ -31,24 +31,24 @@ public class QuoteIdTest {
   public void test_of_1arg() {
     QuoteId test = QuoteId.of(ID1);
     assertEquals(test.getStandardId(), ID1);
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
+    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   public void test_of_2args() {
-    QuoteId test = QuoteId.of(ID1, FEED2);
+    QuoteId test = QuoteId.of(ID1, FIELD2);
     assertEquals(test.getStandardId(), ID1);
-    assertEquals(test.getMarketDataFeed(), FEED2);
-    assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
+    assertEquals(test.getFieldName(), FIELD2);
+    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   public void test_of_3args() {
-    QuoteId test = QuoteId.of(ID1, FEED2, FIELD2);
+    QuoteId test = QuoteId.of(ID1, FIELD2, FEED2);
     assertEquals(test.getStandardId(), ID1);
-    assertEquals(test.getMarketDataFeed(), FEED2);
     assertEquals(test.getFieldName(), FIELD2);
+    assertEquals(test.getMarketDataFeed(), FEED2);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
@@ -56,7 +56,7 @@ public class QuoteIdTest {
   public void coverage() {
     QuoteId test = QuoteId.of(ID1);
     coverImmutableBean(test);
-    QuoteId test2 = QuoteId.of(ID2, FEED2, FIELD2);
+    QuoteId test2 = QuoteId.of(ID2, FIELD2, FEED2);
     coverBeanEquals(test, test2);
   }
 

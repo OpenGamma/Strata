@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ScenarioMarketDataId;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -51,7 +50,7 @@ public final class QuotesArrayId
    * @return a key identifying the market data with the specified ID and field name
    */
   public static QuotesArrayId of(StandardId id, FieldName fieldName) {
-    return new QuotesArrayId(QuoteId.of(id, MarketDataFeed.NONE, fieldName));
+    return new QuotesArrayId(QuoteId.of(id, fieldName));
   }
 
   /**

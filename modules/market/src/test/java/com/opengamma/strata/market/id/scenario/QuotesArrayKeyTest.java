@@ -23,7 +23,7 @@ public class QuotesArrayKeyTest {
   private static final QuotesArrayId KEY = QuotesArrayId.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
 
   public void getMarketDataKey() {
-    QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), MarketDataFeed.NONE, FieldName.of("fieldName"));
+    QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), FieldName.of("fieldName"), MarketDataFeed.NONE);
     assertThat(KEY.getMarketDataId()).isEqualTo(quoteId);
     assertThat(QuotesArrayId.of(quoteId)).isEqualTo(KEY);
   }

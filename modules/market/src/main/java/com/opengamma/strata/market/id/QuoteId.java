@@ -83,17 +83,6 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   }
 
   /**
-   * Returns an ID representing a market quote with a field name of {@link FieldName#MARKET_VALUE}.
-   *
-   * @param id  the ID of the data in the underlying data provider
-   * @param feed  the market data feed from which the market data should be retrieved
-   * @return an ID representing a market quote
-   */
-  public static QuoteId of(StandardId id, MarketDataFeed feed) {
-    return new QuoteId(id, FieldName.MARKET_VALUE, feed);
-  }
-
-  /**
    * Returns an ID representing a market quote with a field name
    * and a market data feed of {@link MarketDataFeed#NONE}.
    *
@@ -109,11 +98,11 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
    * Returns an ID representing a market quote.
    *
    * @param id  the ID of the data in the underlying data provider
-   * @param feed  the market data feed from which the market data should be retrieved
    * @param fieldName  the name of the field in the market data record holding the data
+   * @param feed  the market data feed from which the market data should be retrieved
    * @return an ID representing a market quote
    */
-  public static QuoteId of(StandardId id, MarketDataFeed feed, FieldName fieldName) {
+  public static QuoteId of(StandardId id, FieldName fieldName, MarketDataFeed feed) {
     return new QuoteId(id, fieldName, feed);
   }
 

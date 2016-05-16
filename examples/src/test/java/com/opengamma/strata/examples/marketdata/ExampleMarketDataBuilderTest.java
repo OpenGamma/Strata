@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.StandardId;
@@ -44,6 +43,7 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
@@ -51,7 +51,6 @@ import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.RestructuringClause;
 import com.opengamma.strata.product.credit.SeniorityLevel;
@@ -88,19 +87,19 @@ public class ExampleMarketDataBuilderTest {
       CurveId.of(DEFAULT_CURVE_GROUP, CurveName.of("GBP-3ML")),
       FxRateId.of(Currency.USD, Currency.GBP),
       QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14")),
-      QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "Eurex-FGBL-Mar14"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150")),
-      QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-FutOpt", "Eurex-OGBL-Mar14-C150"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14")),
-      QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "CME-ED-Mar14"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15")),
-      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15")),
-      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15")),
-      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Mar15"), FieldName.SETTLEMENT_PRICE),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15")),
-      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), MarketDataFeed.NONE, FieldName.SETTLEMENT_PRICE),
+      QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), FieldName.SETTLEMENT_PRICE),
       IsdaYieldCurveInputsId.of(Currency.USD),
       IsdaSingleNameCreditCurveInputsId.of(
           SingleNameReferenceInformation.of(
