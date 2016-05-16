@@ -63,12 +63,12 @@ public class RatesMarketDataLookupTest {
     ImmutableMap<Index, SimpleCurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
-    assertEquals(test.getDiscountCurveCurrencies(), ImmutableSet.of(USD));
-    assertEquals(test.getDiscountCurveIds(USD), ImmutableSet.of(CURVE_ID_DSC));
-    assertEquals(test.getForwardCurveIndices(), ImmutableSet.of(USD_LIBOR_3M));
-    assertEquals(test.getForwardCurveIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountCurveIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardCurveIds(GBP_LIBOR_3M));
+    assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
+    assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
+    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
+    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
 
     assertEquals(
         test.requirements(USD),
@@ -99,12 +99,12 @@ public class RatesMarketDataLookupTest {
     ImmutableMap<Index, CurveName> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD.getCurveName());
     RatesMarketDataLookup test = RatesMarketDataLookup.of(CURVE_ID_DSC.getCurveGroupName(), discounts, forwards);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
-    assertEquals(test.getDiscountCurveCurrencies(), ImmutableSet.of(USD));
-    assertEquals(test.getDiscountCurveIds(USD), ImmutableSet.of(CURVE_ID_DSC));
-    assertEquals(test.getForwardCurveIndices(), ImmutableSet.of(USD_LIBOR_3M));
-    assertEquals(test.getForwardCurveIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountCurveIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardCurveIds(GBP_LIBOR_3M));
+    assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
+    assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
+    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
+    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
 
   public void test_of_curveGroup() {
@@ -113,12 +113,12 @@ public class RatesMarketDataLookupTest {
     CurveGroup group = CurveGroup.of(CURVE_ID_DSC.getCurveGroupName(), discounts, forwards);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(group);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
-    assertEquals(test.getDiscountCurveCurrencies(), ImmutableSet.of(USD));
-    assertEquals(test.getDiscountCurveIds(USD), ImmutableSet.of(CURVE_ID_DSC));
-    assertEquals(test.getForwardCurveIndices(), ImmutableSet.of(USD_LIBOR_3M));
-    assertEquals(test.getForwardCurveIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountCurveIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardCurveIds(GBP_LIBOR_3M));
+    assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
+    assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
+    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
+    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

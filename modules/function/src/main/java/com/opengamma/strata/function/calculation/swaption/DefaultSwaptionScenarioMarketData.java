@@ -21,7 +21,7 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The default market view for swaptions, used for calculation across multiple scenarios.
+ * The default market data for swaptions, used for calculation across multiple scenarios.
  * <p>
  * This uses a {@link SwaptionMarketDataLookup} to provide a view on {@link CalculationMarketData}.
  */

@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * The default market view for rates products.
+ * The default market data for rates products.
  * <p>
  * This uses a {@link RatesMarketDataLookup} to provide a view on {@link MarketData}.
  */

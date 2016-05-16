@@ -82,12 +82,12 @@ final class DefaultRatesMarketDataLookup
 
   //-------------------------------------------------------------------------
   @Override
-  public ImmutableSet<Currency> getDiscountCurveCurrencies() {
+  public ImmutableSet<Currency> getDiscountCurrencies() {
     return discountCurves.keySet();
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getDiscountCurveIds(Currency currency) {
+  public ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency) {
     SimpleCurveId id = discountCurves.get(currency);
     if (id == null) {
       throw new IllegalArgumentException(msgCurrencyNotFound(currency));
@@ -96,12 +96,12 @@ final class DefaultRatesMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<Index> getForwardCurveIndices() {
+  public ImmutableSet<Index> getForwardIndices() {
     return forwardCurves.keySet();
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getForwardCurveIds(Index index) {
+  public ImmutableSet<MarketDataKey<?>> getForwardMarketDataIds(Index index) {
     SimpleCurveId id = forwardCurves.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));

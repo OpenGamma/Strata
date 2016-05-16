@@ -144,40 +144,42 @@ public interface RatesMarketDataLookup extends CalculationParameter {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the set of currencies that discount curves are provided for.
+   * Gets the set of currencies that discount factors are provided for.
    *
    * @return the set of discount curve currencies
    */
-  public abstract ImmutableSet<Currency> getDiscountCurveCurrencies();
+  public abstract ImmutableSet<Currency> getDiscountCurrencies();
 
   /**
-   * Gets the identifiers used to obtain the discount curve for the specified currency.
+   * Gets the identifiers used to obtain the discount factors for the specified currency.
    * <p>
+   * In most cases, the identifier will refer to a curve.
    * If the currency is not found, an exception is thrown.
    *
    * @param currency  the currency for which identifiers are required
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the currency is not found
    */
-  public abstract ImmutableSet<MarketDataKey<?>> getDiscountCurveIds(Currency currency);
+  public abstract ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency);
 
   /**
-   * Gets the set of currencies that forward curves are provided for.
+   * Gets the set of currencies that forward rates are provided for.
    *
    * @return the set of forward curve indices
    */
-  public abstract ImmutableSet<Index> getForwardCurveIndices();
+  public abstract ImmutableSet<Index> getForwardIndices();
 
   /**
-   * Gets the identifiers used to obtain the forward curve for the specified index.
+   * Gets the identifiers used to obtain the forward rates for the specified index.
    * <p>
+   * In most cases, the identifier will refer to a curve.
    * If the index is not found, an exception is thrown.
    *
    * @param index  the index for which identifiers are required
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the index is not found
    */
-  public abstract ImmutableSet<MarketDataKey<?>> getForwardCurveIds(Index index);
+  public abstract ImmutableSet<MarketDataKey<?>> getForwardMarketDataIds(Index index);
 
   //-------------------------------------------------------------------------
   /**
