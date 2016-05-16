@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,10 +22,10 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * Test {@link ExtendedMarketData}.
+ * Test {@link CombinedMarketData}.
  */
 @Test
-public class ExtendedMarketDataTest {
+public class CombinedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final TestObservableKey ID1 = TestObservableKey.of("1");
@@ -39,13 +39,12 @@ public class ExtendedMarketDataTest {
       .put(date(2011, 3, 8), 1.1)
       .put(date(2011, 3, 10), 1.2)
       .build();
-  private static final ImmutableMarketData BASE_DATA = baseData();
+  private static final ImmutableMarketData BASE_DATA1 = baseData1();
+  private static final ImmutableMarketData BASE_DATA2 = baseData2();
 
   //-------------------------------------------------------------------------
-  public void of_addition() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID3, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), ID3);
-    assertEquals(test.getValue(), VAL3);
+  public void test_combination() {
+    CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.containsValue(ID2), true);
@@ -60,41 +59,32 @@ public class ExtendedMarketDataTest {
     assertEquals(test.findValue(ID3), Optional.of(VAL3));
     assertEquals(test.findValue(ID4), Optional.empty());
     assertEquals(test.getTimeSeries(ID2), TIME_SERIES);
-  }
-
-  public void of_override() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), ID1);
-    assertEquals(test.getValue(), VAL3);
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.containsValue(ID3), false);
-    assertEquals(test.getValue(ID1), VAL3);
-    assertEquals(test.getValue(ID2), VAL2);
-    assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
-    assertEquals(test.findValue(ID1), Optional.of(VAL3));
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
-    assertEquals(test.findValue(ID3), Optional.empty());
-    assertEquals(test.getTimeSeries(ID2), TIME_SERIES);
+    assertEquals(test.getTimeSeries(ID3), TIME_SERIES);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL1, BASE_DATA);
+    CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
     coverImmutableBean(test);
-    ExtendedMarketData<Double> test2 = ExtendedMarketData.of(ID2, VAL2, ImmutableMarketData.of(VAL_DATE, ImmutableMap.of()));
+    CombinedMarketData test2 = new CombinedMarketData(BASE_DATA2, BASE_DATA1);
     coverBeanEquals(test, test2);
   }
 
   public void serialization() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL3, BASE_DATA);
+    CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
     assertSerialization(test);
   }
 
-  private static ImmutableMarketData baseData() {
+  //-------------------------------------------------------------------------
+  private static ImmutableMarketData baseData1() {
     Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
+    return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
+  }
+
+  private static ImmutableMarketData baseData2() {
+    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(ID1, VAL3, ID3, VAL3);
+    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID3, TIME_SERIES);
     return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
   }
 

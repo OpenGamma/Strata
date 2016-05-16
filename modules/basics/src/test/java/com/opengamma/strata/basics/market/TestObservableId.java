@@ -5,12 +5,16 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * ObservableId implementation used in tests.
  */
-public class TestObservableId implements ObservableId, ReferenceDataId<Number> {
+public class TestObservableId
+    implements ObservableId, ReferenceDataId<Number>, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final StandardId id;
 

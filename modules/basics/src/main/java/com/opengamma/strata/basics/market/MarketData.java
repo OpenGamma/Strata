@@ -129,6 +129,21 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
+   * Combines this market data with another.
+   * <p>
+   * The result combines both sets of market data.
+   * Values are taken from this set of market data if available, otherwise they are taken
+   * from the other set.
+   *
+   * @param other  the other market data
+   * @return the combined market data
+   */
+  public default MarketData combinedWith(MarketData other) {
+    return new CombinedMarketData(this, other);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a copy of this market data with the specified value.
    * <p>
    * When the result is queried for the specified key, the specified value will be returned.
