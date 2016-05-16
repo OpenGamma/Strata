@@ -35,6 +35,7 @@ import com.opengamma.strata.function.marketdata.curve.CurveInputsMarketDataFunct
 import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.IborIndexCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.OvernightIndexCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.SimpleCurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
@@ -139,6 +140,7 @@ public class StandardComponents {
    */
   public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
+        new SimpleCurveMarketDataFunction(),
         new DiscountCurveMarketDataFunction(),
         new IborIndexCurveMarketDataFunction(),
         new OvernightIndexCurveMarketDataFunction(),

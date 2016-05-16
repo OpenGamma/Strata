@@ -52,6 +52,9 @@ public class CurveGroupTest {
     assertThat(test.getName()).isEqualTo(NAME);
     assertThat(test.getDiscountCurves()).isEqualTo(DISCOUNT_CURVES);
     assertThat(test.getForwardCurves()).isEqualTo(IBOR_CURVES);
+    assertThat(test.findCurve(DISCOUNT_NAME)).hasValue(DISCOUNT_CURVE);
+    assertThat(test.findCurve(IBOR_NAME)).hasValue(IBOR_CURVE);
+    assertThat(test.findCurve(OVERNIGHT_NAME)).isEmpty();
     assertThat(test.findDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
     assertThat(test.findDiscountCurve(USD)).isEmpty();
     assertThat(test.findForwardCurve(GBP_LIBOR_3M)).hasValue(IBOR_CURVE);

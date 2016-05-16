@@ -112,6 +112,27 @@ public final class CalculationRules implements ImmutableBean {
   }
 
   /**
+   * Obtains an instance specifying the functions, market data rules, reporting currency and additional parameters.
+   * 
+   * @param functions  the calculation functions
+   * @param marketDataRules  the market data rules
+   * @param reportingCurrency  the reporting currency
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return the rules
+   */
+  public static CalculationRules of(
+      CalculationFunctions functions,
+      MarketDataRules marketDataRules,
+      Currency reportingCurrency,
+      CalculationParameter... parameters) {
+
+    ReportingCurrency ccy = ReportingCurrency.of(reportingCurrency);
+    CalculationParameters input = CalculationParameters.of(parameters);
+    CalculationParameters params = CalculationParameters.of(ccy).combinedWith(input);
+    return new CalculationRules(functions, marketDataRules, params);
+  }
+
+  /**
    * Obtains an instance specifying the functions to use and some additional parameters.
    * <p>
    * The additional parameters are used to control how the calculation is performed.
