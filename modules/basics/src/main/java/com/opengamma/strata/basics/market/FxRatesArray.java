@@ -92,6 +92,11 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public int getScenarioCount() {
+    return rates.size();
+  }
+
   /**
    * Returns the FX rate for a scenario.
    *
@@ -101,11 +106,6 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   @Override
   public FxRate getValue(int scenarioIndex) {
     return FxRate.of(pair, rates.get(scenarioIndex));
-  }
-
-  @Override
-  public int getScenarioCount() {
-    return rates.size();
   }
 
   @Override

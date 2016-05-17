@@ -69,14 +69,14 @@ public final class ScenarioValuesList<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public T getValue(int scenarioIndex) {
-    ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");
-    return values.get(scenarioIndex);
+  public int getScenarioCount() {
+    return values.size();
   }
 
   @Override
-  public int getScenarioCount() {
-    return values.size();
+  public T getValue(int scenarioIndex) {
+    ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");
+    return values.get(scenarioIndex);
   }
 
   @Override

@@ -62,13 +62,13 @@ public final class QuotesArray implements ScenarioMarketDataValue<Double>, Immut
 
   //-------------------------------------------------------------------------
   @Override
-  public Double getValue(int scenarioIndex) {
-    return quotes.get(scenarioIndex);
+  public int getScenarioCount() {
+    return quotes.size();
   }
 
   @Override
-  public int getScenarioCount() {
-    return quotes.size();
+  public Double getValue(int scenarioIndex) {
+    return quotes.get(scenarioIndex);
   }
 
   @Override
