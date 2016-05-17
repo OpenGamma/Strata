@@ -6,6 +6,7 @@
 package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 
 /**

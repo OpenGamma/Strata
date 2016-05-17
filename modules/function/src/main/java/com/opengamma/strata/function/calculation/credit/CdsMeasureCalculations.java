@@ -7,7 +7,7 @@ package com.opengamma.strata.function.calculation.credit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.calc.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.result.ValuesArray;

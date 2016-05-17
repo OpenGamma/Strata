@@ -17,7 +17,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

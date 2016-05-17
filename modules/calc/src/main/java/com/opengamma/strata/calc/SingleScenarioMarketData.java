@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata;
+package com.opengamma.strata.calc;
 
 import java.time.LocalDate;
 import java.util.Optional;

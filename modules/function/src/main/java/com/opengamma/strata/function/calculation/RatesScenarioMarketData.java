@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation;
 
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.CalculationMarketData;
 
 /**
  * Market data for rates products, used for calculation across multiple scenarios.
