@@ -59,6 +59,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
   @PropertyDefinition(validate = "notNull", get = "private")
   private final DoubleArray rates;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an array of FX rates for a currency pair.
    * <p>
@@ -88,6 +89,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     return new FxRatesArray(CurrencyPair.of(base, counter), rates);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the FX rate for a scenario.
    *
@@ -109,8 +111,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     return rates.stream().mapToObj(rate -> FxRate.of(pair, rate));
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Returns the FX rate for the specified currency pair and scenario index.
    * <p>
@@ -136,6 +137,27 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
       return 1d / rates.get(scenarioIndex);
     }
     throw new IllegalArgumentException("Unknown rate: " + baseCurrency + "/" + counterCurrency);
+  }
+
+  /**
+   * Converts an amount in a currency to an amount in a different currency using this rate.
+   * <p>
+   * The from and to currencies must be the same as this rate.
+   *
+   * @param amounts  the amounts in {@code fromCurrency} to convert
+   * @param fromCurrency  the currency of the amounts
+   * @param toCurrency  the currency into which the amount should be converted
+   * @return the amount converted into {@code toCurrency}
+   * @throws IllegalArgumentException if one or both input currencies are not in part of this rate
+   */
+  public DoubleArray convert(DoubleArray amounts, Currency fromCurrency, Currency toCurrency) {
+    if (fromCurrency.equals(pair.getBase()) && toCurrency.equals(pair.getCounter())) {
+      return amounts.multipliedBy(rates);
+    }
+    if (toCurrency.equals(pair.getBase()) && fromCurrency.equals(pair.getCounter())) {
+      return rates.mapWithIndex((i, v) -> amounts.get(i) / v);
+    }
+    throw new IllegalArgumentException("Unknown rate: " + fromCurrency + "/" + toCurrency);
   }
 
   /**
@@ -173,8 +195,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
     return FxRatesArray.of(crossPairAC, ratesAB.multipliedBy(ratesBC));
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     if (pair.getBase().equals(pair.getCounter()) && !rates.stream().allMatch(v -> v == 1d)) {

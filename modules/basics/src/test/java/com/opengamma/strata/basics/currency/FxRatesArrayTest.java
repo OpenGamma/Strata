@@ -53,11 +53,29 @@ public class FxRatesArrayTest {
     assertThrowsIllegalArg(() -> rates.fxRate(Currency.AED, Currency.ARS, 0));
   }
 
-  public void coverage() {
-    FxRatesArray rates1 = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
-    FxRatesArray rates2 = FxRatesArray.of(Currency.GBP, Currency.USD, DoubleArray.of(1.46, 1.47, 1.48));
-    coverImmutableBean(rates1);
-    coverBeanEquals(rates1, rates2);
+  public void convert() {
+    FxRatesArray eurGbp = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.76, 0.75));
+    DoubleArray input = DoubleArray.of(1.11, 1.12);
+    DoubleArray expected = DoubleArray.of(1.11 * 0.76, 1.12 * 0.75);
+    DoubleArray converted = eurGbp.convert(input, Currency.EUR, Currency.GBP);
+    for (int i = 0; i < converted.size(); i++) {
+      assertThat(converted.get(i)).isEqualTo(expected.get(i), offset(TOLERANCE));
+    }
+  }
+
+  public void convert_inverse() {
+    FxRatesArray eurGbp = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.76, 0.75));
+    DoubleArray input = DoubleArray.of(1.11, 1.12);
+    DoubleArray expected = DoubleArray.of(1.11 * 1 / 0.76, 1.12 * 1 / 0.75);
+    DoubleArray converted = eurGbp.convert(input, Currency.GBP, Currency.EUR);
+    for (int i = 0; i < converted.size(); i++) {
+      assertThat(converted.get(i)).isEqualTo(expected.get(i), offset(TOLERANCE));
+    }
+  }
+
+  public void convert_unknown() {
+    FxRatesArray eurGbp = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.76, 0.75));
+    assertThrowsIllegalArg(() -> eurGbp.convert(DoubleArray.of(1.07, 1.08), Currency.EUR, Currency.USD));
   }
 
   public void crossRates() {
@@ -106,8 +124,15 @@ public class FxRatesArrayTest {
             .crossRates(FxRatesArray.of(Currency.EUR, Currency.CHF, DoubleArray.of(1, 2))));
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    FxRatesArray rates1 = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
+    FxRatesArray rates2 = FxRatesArray.of(Currency.GBP, Currency.USD, DoubleArray.of(1.46, 1.47, 1.48));
+    coverImmutableBean(rates1);
+    coverBeanEquals(rates1, rates2);
+  }
 
+  //-------------------------------------------------------------------------
   private static void assertArraysEqual(FxRatesArray a1, FxRatesArray a2) {
     assertThat(a1.getScenarioCount()).isEqualTo(a2.getScenarioCount());
     assertThat(a1.getPair()).isEqualTo(a2.getPair());
