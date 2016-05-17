@@ -17,8 +17,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.currency.FxRatesArray;
 import com.opengamma.strata.basics.market.FxRateId;
+import com.opengamma.strata.basics.market.FxRatesArray;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.collect.array.DoubleArray;
 
