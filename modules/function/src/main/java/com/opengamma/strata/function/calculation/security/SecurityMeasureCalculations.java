@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation.security;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.result.CurrencyValuesArray;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.Security;
 

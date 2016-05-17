@@ -19,8 +19,8 @@
 <listEntry value="com.opengamma.strata.calc.marketdata"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.function"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.scenario"/>
+<listEntry value="com.opengamma.strata.calc.result"/>
 <listEntry value="com.opengamma.strata.calc.runner"/>
-<listEntry value="com.opengamma.strata.calc.runner.function.result"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>

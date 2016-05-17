@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function.result;
+package com.opengamma.strata.calc.result;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;

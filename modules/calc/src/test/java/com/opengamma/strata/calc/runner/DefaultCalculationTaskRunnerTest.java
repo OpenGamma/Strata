@@ -33,8 +33,8 @@ import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestId;
+import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 
 /**

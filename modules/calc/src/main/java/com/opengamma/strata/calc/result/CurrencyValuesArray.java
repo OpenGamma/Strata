@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function.result;
+package com.opengamma.strata.calc.result;
 
 import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
 

@@ -23,7 +23,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.ColumnHeader;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;

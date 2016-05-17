@@ -1,15 +1,19 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function.result;
+package com.opengamma.strata.calc.result;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zipWithIndex;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.IntToDoubleFunction;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -25,44 +29,54 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.calc.runner.CurrencyConvertible;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.Messages;
 
 /**
- * A scenario result holding one {@code double} value for each scenario.
+ * A scenario result holding one value for each scenario.
  * <p>
  * This contains a list of values, one value for each scenario.
  * The calculation runner will not attempt to convert the currency of the values.
+ * 
+ * @param <T>  the type of the result
  */
 @BeanDefinition(builderScope = "private")
-public final class ValuesArray
-    implements ScenarioResult<Double>, ImmutableBean {
+public final class DefaultScenarioResult<T>
+    implements ScenarioResult<T>, CurrencyConvertible<ScenarioResult<?>>, ImmutableBean, Serializable {
 
   /**
    * The calculated values, one per scenario.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DoubleArray values;
+  private final ImmutableList<T> values;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the specified array of values.
    *
+   * @param <T>  the type of the result
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
-  public static ValuesArray of(DoubleArray values) {
-    return new ValuesArray(values);
+  @SafeVarargs
+  public static <T> DefaultScenarioResult<T> of(T... values) {
+    return new DefaultScenarioResult<>(ImmutableList.copyOf(values));
   }
 
   /**
    * Obtains an instance from the specified list of values.
    *
+   * @param <T>  the type of the result
    * @param values  the values, one value for each scenario
    * @return an instance with the specified values
    */
-  public static ValuesArray of(List<Double> values) {
-    return new ValuesArray(DoubleArray.copyOf(values));
+  public static <T> DefaultScenarioResult<T> of(List<T> values) {
+    return new DefaultScenarioResult<>(values);
   }
 
   /**
@@ -70,14 +84,19 @@ public final class ValuesArray
    * <p>
    * The function is passed the scenario index and returns the value for that index.
    * 
+   * @param <T>  the result type
    * @param size  the number of elements
    * @param valueFunction  the function used to obtain each value
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less
    */
-  public static ValuesArray of(int size, IntToDoubleFunction valueFunction) {
+  public static <T> DefaultScenarioResult<T> of(int size, IntFunction<T> valueFunction) {
     ArgChecker.notNegativeOrZero(size, "size");
-    return new ValuesArray(DoubleArray.of(size, valueFunction));
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
+    for (int i = 0; i < size; i++) {
+      builder.add(valueFunction.apply(i));
+    }
+    return new DefaultScenarioResult<>(builder.build());
   }
 
   //-------------------------------------------------------------------------
@@ -87,38 +106,79 @@ public final class ValuesArray
   }
 
   @Override
-  public Double get(int index) {
+  public T get(int index) {
     return values.get(index);
   }
 
   @Override
-  public Stream<Double> stream() {
-    return values.stream().boxed();
+  public Stream<T> stream() {
+    return values.stream();
+  }
+
+  @Override
+  public ScenarioResult<?> convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
+    int scenarioCount = size();
+    if (fxRateProvider.getScenarioCount() != scenarioCount) {
+      throw new IllegalArgumentException(Messages.format(
+          "Expected {} FX rates but received {}", scenarioCount, fxRateProvider.getScenarioCount()));
+    }
+
+    ImmutableList<Object> converted = zipWithIndex(values.stream())
+        .map(tp -> convert(reportingCurrency, fxRateProvider, tp.getFirst(), tp.getSecond()))
+        .collect(toImmutableList());
+    return DefaultScenarioResult.of(converted);
+  }
+
+  // convert value if possible
+  private Object convert(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider, Object base, int index) {
+    if (base instanceof FxConvertible<?>) {
+      FxConvertible<?> convertible = (FxConvertible<?>) base;
+      return convertible.convertedTo(reportingCurrency, fxRateProvider.fxRateProvider(index));
+    }
+    return base;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ValuesArray}.
+   * The meta-bean for {@code DefaultScenarioResult}.
    * @return the meta-bean, not null
    */
-  public static ValuesArray.Meta meta() {
-    return ValuesArray.Meta.INSTANCE;
+  @SuppressWarnings("rawtypes")
+  public static DefaultScenarioResult.Meta meta() {
+    return DefaultScenarioResult.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code DefaultScenarioResult}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R> DefaultScenarioResult.Meta<R> metaDefaultScenarioResult(Class<R> cls) {
+    return DefaultScenarioResult.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ValuesArray.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DefaultScenarioResult.Meta.INSTANCE);
   }
 
-  private ValuesArray(
-      DoubleArray values) {
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private DefaultScenarioResult(
+      List<T> values) {
     JodaBeanUtils.notNull(values, "values");
-    this.values = values;
+    this.values = ImmutableList.copyOf(values);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ValuesArray.Meta metaBean() {
-    return ValuesArray.Meta.INSTANCE;
+  public DefaultScenarioResult.Meta<T> metaBean() {
+    return DefaultScenarioResult.Meta.INSTANCE;
   }
 
   @Override
@@ -136,7 +196,7 @@ public final class ValuesArray
    * Gets the calculated values, one per scenario.
    * @return the value of the property, not null
    */
-  public DoubleArray getValues() {
+  public ImmutableList<T> getValues() {
     return values;
   }
 
@@ -147,7 +207,7 @@ public final class ValuesArray
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ValuesArray other = (ValuesArray) obj;
+      DefaultScenarioResult<?> other = (DefaultScenarioResult<?>) obj;
       return JodaBeanUtils.equal(values, other.values);
     }
     return false;
@@ -163,7 +223,7 @@ public final class ValuesArray
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("ValuesArray{");
+    buf.append("DefaultScenarioResult{");
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
@@ -171,19 +231,22 @@ public final class ValuesArray
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ValuesArray}.
+   * The meta-bean for {@code DefaultScenarioResult}.
+   * @param <T>  the type
    */
-  public static final class Meta extends DirectMetaBean {
+  public static final class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code values} property.
      */
-    private final MetaProperty<DoubleArray> values = DirectMetaProperty.ofImmutable(
-        this, "values", ValuesArray.class, DoubleArray.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<T>> values = DirectMetaProperty.ofImmutable(
+        this, "values", DefaultScenarioResult.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -207,13 +270,14 @@ public final class ValuesArray
     }
 
     @Override
-    public BeanBuilder<? extends ValuesArray> builder() {
-      return new ValuesArray.Builder();
+    public BeanBuilder<? extends DefaultScenarioResult<T>> builder() {
+      return new DefaultScenarioResult.Builder<T>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ValuesArray> beanType() {
-      return ValuesArray.class;
+    public Class<? extends DefaultScenarioResult<T>> beanType() {
+      return (Class) DefaultScenarioResult.class;
     }
 
     @Override
@@ -226,7 +290,7 @@ public final class ValuesArray
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DoubleArray> values() {
+    public MetaProperty<ImmutableList<T>> values() {
       return values;
     }
 
@@ -235,7 +299,7 @@ public final class ValuesArray
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          return ((ValuesArray) bean).getValues();
+          return ((DefaultScenarioResult<?>) bean).getValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -253,11 +317,12 @@ public final class ValuesArray
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ValuesArray}.
+   * The bean-builder for {@code DefaultScenarioResult}.
+   * @param <T>  the type
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ValuesArray> {
+  private static final class Builder<T> extends DirectFieldsBeanBuilder<DefaultScenarioResult<T>> {
 
-    private DoubleArray values;
+    private List<T> values = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -276,11 +341,12 @@ public final class ValuesArray
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Builder set(String propertyName, Object newValue) {
+    public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          this.values = (DoubleArray) newValue;
+          this.values = (List<T>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -289,32 +355,32 @@ public final class ValuesArray
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
+    public Builder<T> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder setString(String propertyName, String value) {
+    public Builder<T> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder setString(MetaProperty<?> property, String value) {
+    public Builder<T> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public ValuesArray build() {
-      return new ValuesArray(
+    public DefaultScenarioResult<T> build() {
+      return new DefaultScenarioResult<T>(
           values);
     }
 
@@ -322,7 +388,7 @@ public final class ValuesArray
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("ValuesArray.Builder{");
+      buf.append("DefaultScenarioResult.Builder{");
       buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();

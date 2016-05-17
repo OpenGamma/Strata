@@ -9,5 +9,5 @@
  * Returning a known type allows the engine to perform automatic post-processing,
  * for example conversion of the results to the reporting currency.
  */
-package com.opengamma.strata.calc.runner.function.result;
+package com.opengamma.strata.calc.result;
 
