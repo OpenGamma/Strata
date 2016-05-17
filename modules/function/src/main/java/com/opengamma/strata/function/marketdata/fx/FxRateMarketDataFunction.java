@@ -10,7 +10,6 @@ import java.util.Optional;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -39,17 +38,15 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
       CalculationMarketData marketData,
       ReferenceData refData) {
 
-    FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class);
+    FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class, id.getMarketDataFeed());
     Optional<QuoteId> optional = fxRateConfig.getObservableRateKey(id.getPair());
-    MarketDataFeed feed = id.getMarketDataFeed();
-    return optional.map(key -> buildFxRate(id, key, feed, marketData))
+    return optional.map(key -> buildFxRate(id, key, marketData))
         .orElseThrow(() -> new IllegalArgumentException("No FX rate configuration available for " + id.getPair()));
   }
 
   private MarketDataBox<FxRate> buildFxRate(
       FxRateId id,
       QuoteId key,
-      MarketDataFeed feed,
       CalculationMarketData marketData) {
 
     MarketDataBox<Double> quote = marketData.getValue(key);

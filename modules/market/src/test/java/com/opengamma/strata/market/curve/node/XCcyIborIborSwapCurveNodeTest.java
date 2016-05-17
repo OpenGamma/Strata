@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -28,6 +29,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -55,7 +57,9 @@ public class XCcyIborIborSwapCurveNodeTest {
       XCcyIborIborSwapTemplate.of(Period.ofMonths(1), TENOR_10Y, XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M);
   private static final QuoteId SPREAD_ID = QuoteId.of(StandardId.of("OG-Ticker", "USD-EUR-XCS-10Y"));
   private static final QuoteId SPREAD_ID2 = QuoteId.of(StandardId.of("OG-Ticker", "Test"));
-  private static final FxRateId FX_ID = FxRateId.of(Currency.EUR, Currency.USD);
+  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+  private static final FxRateId FX_RATE_ID = FxRateId.of(TEMPLATE.getCurrencyPair());
+  private static final FxRateId FX_RATE_ID2 = FxRateId.of(TEMPLATE.getCurrencyPair(), FEED);
   private static final double SPREAD_XCS = 0.00125;
   private static final FxRate FX_EUR_USD = FxRate.of(Currency.EUR, Currency.USD, 1.25);
   private static final double SPREAD_ADJ = 0.0015;
@@ -63,21 +67,40 @@ public class XCcyIborIborSwapCurveNodeTest {
   private static final String LABEL_AUTO = "10Y";
   private static final MarketData OV = ImmutableMarketData.builder(VAL_DATE)
       .addValue(SPREAD_ID, SPREAD_XCS)
-      .addValue(FX_ID, FX_EUR_USD)
+      .addValue(FX_RATE_ID, FX_EUR_USD)
       .build();
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
+        .fxRateId(FX_RATE_ID2)
         .spreadId(SPREAD_ID)
         .additionalSpread(SPREAD_ADJ)
         .build();
     assertEquals(test.getLabel(), LABEL);
+    assertEquals(test.getFxRateId(), FX_RATE_ID2);
     assertEquals(test.getSpreadId(), SPREAD_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
     assertEquals(test.getTemplate(), TEMPLATE);
     assertEquals(test.getDate(), CurveNodeDate.END);
+  }
+
+  public void test_builder_defaults() {
+    XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
+        .template(TEMPLATE)
+        .spreadId(SPREAD_ID)
+        .build();
+    assertEquals(test.getLabel(), LABEL_AUTO);
+    assertEquals(test.getFxRateId(), FX_RATE_ID);
+    assertEquals(test.getSpreadId(), SPREAD_ID);
+    assertEquals(test.getTemplate(), TEMPLATE);
+    assertEquals(test.getDate(), CurveNodeDate.END);
+  }
+
+  public void test_builder_noTemplate() {
+    assertThrowsIllegalArg(() -> XCcyIborIborSwapCurveNode.builder().label(LABEL).spreadId(SPREAD_ID).build());
   }
 
   public void test_of_noSpread() {
@@ -106,7 +129,7 @@ public class XCcyIborIborSwapCurveNodeTest {
 
   public void test_requirements() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    Set<? extends MarketDataId<?>> setExpected = ImmutableSet.of(SPREAD_ID, FX_ID);
+    Set<? extends MarketDataId<?>> setExpected = ImmutableSet.of(SPREAD_ID, FX_RATE_ID);
     Set<? extends MarketDataId<?>> set = test.requirements();
     assertTrue(set.equals(setExpected));
   }
@@ -118,6 +141,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
     SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
     assertEquals(trade, expected);
+    assertEquals(node.resolvedTrade(tradeDate, OV, REF_DATA), trade.resolve(REF_DATA));
   }
 
   public void test_trade_noMarketData() {
@@ -166,8 +190,14 @@ public class XCcyIborIborSwapCurveNodeTest {
   public void coverage() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     coverImmutableBean(test);
-    XCcyIborIborSwapCurveNode test2 =
-        XCcyIborIborSwapCurveNode.of(TEMPLATE2, SPREAD_ID2, 0.1);
+    XCcyIborIborSwapCurveNode test2 = XCcyIborIborSwapCurveNode.builder()
+        .label(LABEL)
+        .template(TEMPLATE2)
+        .fxRateId(FX_RATE_ID2)
+        .spreadId(SPREAD_ID2)
+        .additionalSpread(0.1)
+        .date(CurveNodeDate.LAST_FIXING)
+        .build();
     coverBeanEquals(test, test2);
   }
 
