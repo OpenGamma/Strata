@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameter;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
 
 /**

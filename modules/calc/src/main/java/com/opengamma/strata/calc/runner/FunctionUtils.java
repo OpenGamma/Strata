@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function;
+package com.opengamma.strata.calc.runner;
 
 import java.util.ArrayList;
 import java.util.List;

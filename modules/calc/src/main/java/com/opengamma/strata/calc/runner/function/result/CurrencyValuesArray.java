@@ -29,8 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.runner.CurrencyConvertible;
 import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
-import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;

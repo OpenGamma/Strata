@@ -24,10 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * A set of rules that define how the calculation engine should perform calculations.

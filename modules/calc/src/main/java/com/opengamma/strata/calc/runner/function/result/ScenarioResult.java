@@ -10,7 +10,7 @@ import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

@@ -12,7 +12,6 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * The base interface for calculation parameters.

@@ -32,8 +32,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.calc.runner.CurrencyConvertible;
 import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
-import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 

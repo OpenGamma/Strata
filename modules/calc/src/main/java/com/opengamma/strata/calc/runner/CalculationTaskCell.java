@@ -21,7 +21,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
-import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;

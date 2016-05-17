@@ -15,7 +15,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 

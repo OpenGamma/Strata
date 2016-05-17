@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function;
+package com.opengamma.strata.calc.runner;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +16,6 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
 

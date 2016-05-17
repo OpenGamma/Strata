@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner.function;
+package com.opengamma.strata.calc.runner;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 
 /**
  * Provides the ability for objects to be automatically currency converted.
