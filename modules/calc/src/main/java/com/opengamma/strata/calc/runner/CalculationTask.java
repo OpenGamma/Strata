@@ -136,13 +136,13 @@ public final class CalculationTask implements ImmutableBean {
    * Returns requirements specifying the market data the function needs to perform its calculations.
    * 
    * @param refData  the reference data
-   * @param feed  the source of market data
    * @return requirements specifying the market data the function needs to perform its calculations
    */
   @SuppressWarnings("unchecked")
-  public MarketDataRequirements requirements(ReferenceData refData, MarketDataFeed feed) {
+  public MarketDataRequirements requirements(ReferenceData refData) {
     // determine market data requirements of the function
     FunctionRequirements functionRequirements = function.requirements(target, getMeasures(), parameters, refData);
+    MarketDataFeed feed = functionRequirements.getFeed();
 
     // convert function requirements to market data requirements
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();

@@ -29,15 +29,14 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
@@ -93,7 +92,7 @@ final class DefaultLookupRatesProvider
   private DefaultLookupRatesProvider(DefaultRatesMarketDataLookup lookup, MarketData marketData) {
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
-    this.fxRateProvider = MarketDataFxRateProvider.of(marketData);
+    this.fxRateProvider = lookup.fxRateProvider(marketData);
   }
 
   //-------------------------------------------------------------------------

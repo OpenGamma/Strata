@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.function.calculation;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -15,6 +16,7 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -31,9 +33,14 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -42,8 +49,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.id.IndexRateId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -54,6 +61,7 @@ public class RatesMarketDataLookupTest {
 
   private static final CurveId CURVE_ID_DSC = CurveId.of("Group", "USD-DSC");
   private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
+  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final CalculationMarketData MOCK_CALC_MARKET_DATA = mock(CalculationMarketData.class);
 
@@ -164,16 +172,28 @@ public class RatesMarketDataLookupTest {
     assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(GB_HICP));
   }
 
+  public void test_fxProvider() {
+    RatesMarketDataLookup test = RatesMarketDataLookup.of(ImmutableMap.of(), ImmutableMap.of());
+    LocalDate valDate = date(2015, 6, 30);
+    FxRateId gbpUsdId = FxRateId.of(GBP, USD);
+    FxRate gbpUsdRate = FxRate.of(GBP, USD, 1.6);
+    MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.of(gbpUsdId, gbpUsdRate));
+    FxRateProvider fxProvider = test.fxRateProvider(md);
+    assertEquals(fxProvider.fxRate(GBP, USD), 1.6);
+    assertEquals(test.marketDataView(md).fxRateProvider().fxRate(GBP, USD), 1.6);
+    assertThrows(() -> fxProvider.fxRate(EUR, USD), MarketDataNotFoundException.class);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards);
+    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, MarketDataFeed.NONE);
     coverImmutableBean(test);
 
     ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test2 = DefaultRatesMarketDataLookup.of(discounts2, forwards2);
+    DefaultRatesMarketDataLookup test2 = DefaultRatesMarketDataLookup.of(discounts2, forwards2, FEED);
     coverBeanEquals(test, test2);
 
     // related coverage
@@ -190,7 +210,7 @@ public class RatesMarketDataLookupTest {
   public void test_serialization() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards);
+    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, MarketDataFeed.NONE);
     assertSerialization(test);
   }
 

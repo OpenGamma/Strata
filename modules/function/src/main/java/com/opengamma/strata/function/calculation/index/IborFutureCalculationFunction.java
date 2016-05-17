@@ -108,11 +108,7 @@ public class IborFutureCalculationFunction
         .add(quoteId)
         .addAll(ratesReqs.getSingleValueRequirements())
         .build();
-    return FunctionRequirements.builder()
-        .singleValueRequirements(valueReqs)
-        .timeSeriesRequirements(ratesReqs.getTimeSeriesRequirements())
-        .outputCurrencies(ratesReqs.getOutputCurrencies())
-        .build();
+    return ratesReqs.toBuilder().singleValueRequirements(valueReqs).build();
   }
 
   //-------------------------------------------------------------------------

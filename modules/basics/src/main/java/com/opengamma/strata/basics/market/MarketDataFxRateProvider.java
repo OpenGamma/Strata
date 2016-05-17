@@ -43,6 +43,11 @@ public final class MarketDataFxRateProvider
    */
   @PropertyDefinition(validate = "notNull")
   private final MarketData marketData;
+  /**
+   * The source of market data for FX rates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final MarketDataFeed fxRatesFeed;
 
   //-------------------------------------------------------------------------
   /**
@@ -52,7 +57,21 @@ public final class MarketDataFxRateProvider
    * @return the provider
    */
   public static MarketDataFxRateProvider of(MarketData marketData) {
-    return new MarketDataFxRateProvider(marketData);
+    return new MarketDataFxRateProvider(marketData, MarketDataFeed.NONE);
+  }
+
+  /**
+   * Obtains an instance which takes FX rates from the market data,
+   * specifying the source of FX rates.
+   * <p>
+   * The source of FX rates is rarely needed, as most applications only need one set of FX rates.
+   *
+   * @param marketData  market data used for looking up FX rates
+   * @param fxRatesFeed  the source of market data for FX rates
+   * @return the provider
+   */
+  public static MarketDataFxRateProvider of(MarketData marketData, MarketDataFeed fxRatesFeed) {
+    return new MarketDataFxRateProvider(marketData, fxRatesFeed);
   }
 
   //-------------------------------------------------------------------------
@@ -62,27 +81,27 @@ public final class MarketDataFxRateProvider
       return 1;
     }
     // Try direct pair
-    Optional<FxRate> rate = marketData.findValue(FxRateId.of(baseCurrency, counterCurrency));
+    Optional<FxRate> rate = marketData.findValue(FxRateId.of(baseCurrency, counterCurrency, fxRatesFeed));
     if (rate.isPresent()) {
       return rate.get().fxRate(baseCurrency, counterCurrency);
     }
     // Try triangulation on base currency
     Currency triangularBaseCcy = baseCurrency.getTriangulationCurrency();
-    Optional<FxRate> rateBase1 = marketData.findValue(FxRateId.of(baseCurrency, triangularBaseCcy));
-    Optional<FxRate> rateBase2 = marketData.findValue(FxRateId.of(triangularBaseCcy, counterCurrency));
+    Optional<FxRate> rateBase1 = marketData.findValue(FxRateId.of(baseCurrency, triangularBaseCcy, fxRatesFeed));
+    Optional<FxRate> rateBase2 = marketData.findValue(FxRateId.of(triangularBaseCcy, counterCurrency, fxRatesFeed));
     if (rateBase1.isPresent() && rateBase2.isPresent()) {
       return rateBase1.get().crossRate(rateBase2.get()).fxRate(baseCurrency, counterCurrency);
     }
     // Try triangulation on counter currency
     Currency triangularCounterCcy = counterCurrency.getTriangulationCurrency();
-    Optional<FxRate> rateCounter1 = marketData.findValue(FxRateId.of(baseCurrency, triangularCounterCcy));
-    Optional<FxRate> rateCounter2 = marketData.findValue(FxRateId.of(triangularCounterCcy, counterCurrency));
+    Optional<FxRate> rateCounter1 = marketData.findValue(FxRateId.of(baseCurrency, triangularCounterCcy, fxRatesFeed));
+    Optional<FxRate> rateCounter2 = marketData.findValue(FxRateId.of(triangularCounterCcy, counterCurrency, fxRatesFeed));
     if (rateCounter1.isPresent() && rateCounter2.isPresent()) {
       return rateCounter1.get().crossRate(rateCounter2.get()).fxRate(baseCurrency, counterCurrency);
     }
     // Double triangulation
     if (rateBase1.isPresent() && rateCounter2.isPresent()) {
-      Optional<FxRate> rateTriangular2 = marketData.findValue(FxRateId.of(triangularBaseCcy, triangularCounterCcy));
+      Optional<FxRate> rateTriangular2 = marketData.findValue(FxRateId.of(triangularBaseCcy, triangularCounterCcy, fxRatesFeed));
       if (rateTriangular2.isPresent()) {
         return rateBase1.get().crossRate(rateTriangular2.get()).crossRate(rateCounter2.get())
             .fxRate(baseCurrency, counterCurrency);
@@ -111,9 +130,12 @@ public final class MarketDataFxRateProvider
   }
 
   private MarketDataFxRateProvider(
-      MarketData marketData) {
+      MarketData marketData,
+      MarketDataFeed fxRatesFeed) {
     JodaBeanUtils.notNull(marketData, "marketData");
+    JodaBeanUtils.notNull(fxRatesFeed, "fxRatesFeed");
     this.marketData = marketData;
+    this.fxRatesFeed = fxRatesFeed;
   }
 
   @Override
@@ -141,6 +163,15 @@ public final class MarketDataFxRateProvider
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the source of market data for FX rates.
+   * @return the value of the property, not null
+   */
+  public MarketDataFeed getFxRatesFeed() {
+    return fxRatesFeed;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -148,7 +179,8 @@ public final class MarketDataFxRateProvider
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataFxRateProvider other = (MarketDataFxRateProvider) obj;
-      return JodaBeanUtils.equal(marketData, other.marketData);
+      return JodaBeanUtils.equal(marketData, other.marketData) &&
+          JodaBeanUtils.equal(fxRatesFeed, other.fxRatesFeed);
     }
     return false;
   }
@@ -157,14 +189,16 @@ public final class MarketDataFxRateProvider
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(marketData);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRatesFeed);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("MarketDataFxRateProvider{");
-    buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData));
+    buf.append("marketData").append('=').append(marketData).append(',').append(' ');
+    buf.append("fxRatesFeed").append('=').append(JodaBeanUtils.toString(fxRatesFeed));
     buf.append('}');
     return buf.toString();
   }

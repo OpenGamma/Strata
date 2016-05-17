@@ -23,8 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.CalculationRules;
@@ -59,6 +62,11 @@ final class DefaultRatesMarketDataLookup
    */
   @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, CurveId>")
   private final ImmutableMap<Index, CurveId> forwardCurves;
+  /**
+   * The source of market data for FX, quotes and other observable market data.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final MarketDataFeed feed;
 
   //-------------------------------------------------------------------------
   /**
@@ -70,13 +78,15 @@ final class DefaultRatesMarketDataLookup
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
+   * @param feed  the source of market data for FX, quotes and other observable market data
    * @return the rates lookup containing the specified curves
    */
   public static DefaultRatesMarketDataLookup of(
       Map<Currency, CurveId> discountCurveIds,
-      Map<? extends Index, CurveId> forwardCurveIds) {
+      Map<? extends Index, CurveId> forwardCurveIds,
+      MarketDataFeed feed) {
 
-    return new DefaultRatesMarketDataLookup(discountCurveIds, forwardCurveIds);
+    return new DefaultRatesMarketDataLookup(discountCurveIds, forwardCurveIds, feed);
   }
 
   //-------------------------------------------------------------------------
@@ -141,6 +151,7 @@ final class DefaultRatesMarketDataLookup
         .singleValueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
         .timeSeriesRequirements(indexRateIds)
         .outputCurrencies(currencies)
+        .feed(feed)
         .build();
   }
 
@@ -148,6 +159,11 @@ final class DefaultRatesMarketDataLookup
   @Override
   public RatesProvider ratesProvider(MarketData marketData) {
     return DefaultLookupRatesProvider.of(this, marketData);
+  }
+
+  @Override
+  public FxRateProvider fxRateProvider(MarketData marketData) {
+    return MarketDataFxRateProvider.of(marketData, feed);
   }
 
   //-------------------------------------------------------------------------
@@ -185,11 +201,14 @@ final class DefaultRatesMarketDataLookup
 
   private DefaultRatesMarketDataLookup(
       Map<Currency, CurveId> discountCurves,
-      Map<? extends Index, CurveId> forwardCurves) {
+      Map<? extends Index, CurveId> forwardCurves,
+      MarketDataFeed feed) {
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
+    JodaBeanUtils.notNull(feed, "feed");
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
     this.forwardCurves = ImmutableMap.copyOf(forwardCurves);
+    this.feed = feed;
   }
 
   @Override
@@ -226,6 +245,15 @@ final class DefaultRatesMarketDataLookup
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the source of market data for FX, quotes and other observable market data.
+   * @return the value of the property, not null
+   */
+  public MarketDataFeed getFeed() {
+    return feed;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -234,7 +262,8 @@ final class DefaultRatesMarketDataLookup
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultRatesMarketDataLookup other = (DefaultRatesMarketDataLookup) obj;
       return JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
-          JodaBeanUtils.equal(forwardCurves, other.forwardCurves);
+          JodaBeanUtils.equal(forwardCurves, other.forwardCurves) &&
+          JodaBeanUtils.equal(feed, other.feed);
     }
     return false;
   }
@@ -244,15 +273,17 @@ final class DefaultRatesMarketDataLookup
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(forwardCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(feed);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("DefaultRatesMarketDataLookup{");
     buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
-    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(forwardCurves));
+    buf.append("forwardCurves").append('=').append(forwardCurves).append(',').append(' ');
+    buf.append("feed").append('=').append(JodaBeanUtils.toString(feed));
     buf.append('}');
     return buf.toString();
   }

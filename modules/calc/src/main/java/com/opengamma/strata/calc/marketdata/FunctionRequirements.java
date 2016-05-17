@@ -12,6 +12,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 
@@ -33,25 +35,40 @@ import com.opengamma.strata.basics.market.ObservableId;
 @BeanDefinition
 public final class FunctionRequirements implements ImmutableBean {
 
-  /** An empty set of requirements. */
+  /**
+   * An empty set of requirements.
+   */
   private static final FunctionRequirements EMPTY = FunctionRequirements.builder().build();
 
-  /** Keys identifying the market data values required for the calculations. */
+  /**
+   * The market data identifiers of the values required for the calculation.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<? extends MarketDataId<?>> singleValueRequirements;
-
-  /** Keys identifying the time series of market data values required for the calculations. */
+  /** 
+   * The market data identifiers of the time-series of required for the calculation.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<ObservableId> timeSeriesRequirements;
-
   /**
-   * The currencies used in the calculation results. The market data must include FX rates in the
-   * to allow conversion into the reporting currency. The FX rates must have the output currency as the base
-   * currency and the reporting currency as the counter currency.
+   * The currencies used in the calculation results.
+   * <p>
+   * This cause FX rates to be requested that allow conversion between the currencies
+   * specified and the reporting currency.
+   * It will be possible to obtain any FX rate pair for these currencies.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<Currency> outputCurrencies;
+  /**
+   * The source of market data for FX, quotes and other observable market data.
+   * <p>
+   * This is used to control the source of observable market data.
+   * By default, this will be {@link MarketDataFeed#NONE}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final MarketDataFeed feed;
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an empty set of requirements.
    *
@@ -59,6 +76,11 @@ public final class FunctionRequirements implements ImmutableBean {
    */
   public static FunctionRequirements empty() {
     return EMPTY;
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.feed = MarketDataFeed.NONE;
   }
 
   //-------------------------------------------------------------------------
@@ -75,6 +97,7 @@ public final class FunctionRequirements implements ImmutableBean {
         .singleValueRequirements(Sets.union(singleValueRequirements, other.singleValueRequirements))
         .timeSeriesRequirements(Sets.union(timeSeriesRequirements, other.timeSeriesRequirements))
         .outputCurrencies(Sets.union(outputCurrencies, other.outputCurrencies))
+        .feed(!this.feed.equals(MarketDataFeed.NONE) ? this.feed : other.feed)
         .build();
   }
 
@@ -103,13 +126,16 @@ public final class FunctionRequirements implements ImmutableBean {
   private FunctionRequirements(
       Set<? extends MarketDataId<?>> singleValueRequirements,
       Set<ObservableId> timeSeriesRequirements,
-      Set<Currency> outputCurrencies) {
+      Set<Currency> outputCurrencies,
+      MarketDataFeed feed) {
     JodaBeanUtils.notNull(singleValueRequirements, "singleValueRequirements");
     JodaBeanUtils.notNull(timeSeriesRequirements, "timeSeriesRequirements");
     JodaBeanUtils.notNull(outputCurrencies, "outputCurrencies");
+    JodaBeanUtils.notNull(feed, "feed");
     this.singleValueRequirements = ImmutableSet.copyOf(singleValueRequirements);
     this.timeSeriesRequirements = ImmutableSet.copyOf(timeSeriesRequirements);
     this.outputCurrencies = ImmutableSet.copyOf(outputCurrencies);
+    this.feed = feed;
   }
 
   @Override
@@ -129,7 +155,7 @@ public final class FunctionRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets keys identifying the market data values required for the calculations.
+   * Gets the market data identifiers of the values required for the calculation.
    * @return the value of the property, not null
    */
   public ImmutableSet<? extends MarketDataId<?>> getSingleValueRequirements() {
@@ -138,7 +164,7 @@ public final class FunctionRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets keys identifying the time series of market data values required for the calculations.
+   * Gets the market data identifiers of the time-series of required for the calculation.
    * @return the value of the property, not null
    */
   public ImmutableSet<ObservableId> getTimeSeriesRequirements() {
@@ -147,13 +173,27 @@ public final class FunctionRequirements implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currencies used in the calculation results. The market data must include FX rates in the
-   * to allow conversion into the reporting currency. The FX rates must have the output currency as the base
-   * currency and the reporting currency as the counter currency.
+   * Gets the currencies used in the calculation results.
+   * <p>
+   * This cause FX rates to be requested that allow conversion between the currencies
+   * specified and the reporting currency.
+   * It will be possible to obtain any FX rate pair for these currencies.
    * @return the value of the property, not null
    */
   public ImmutableSet<Currency> getOutputCurrencies() {
     return outputCurrencies;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the source of market data for FX, quotes and other observable market data.
+   * <p>
+   * This is used to control the source of observable market data.
+   * By default, this will be {@link MarketDataFeed#NONE}.
+   * @return the value of the property, not null
+   */
+  public MarketDataFeed getFeed() {
+    return feed;
   }
 
   //-----------------------------------------------------------------------
@@ -174,7 +214,8 @@ public final class FunctionRequirements implements ImmutableBean {
       FunctionRequirements other = (FunctionRequirements) obj;
       return JodaBeanUtils.equal(singleValueRequirements, other.singleValueRequirements) &&
           JodaBeanUtils.equal(timeSeriesRequirements, other.timeSeriesRequirements) &&
-          JodaBeanUtils.equal(outputCurrencies, other.outputCurrencies);
+          JodaBeanUtils.equal(outputCurrencies, other.outputCurrencies) &&
+          JodaBeanUtils.equal(feed, other.feed);
     }
     return false;
   }
@@ -185,16 +226,18 @@ public final class FunctionRequirements implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(singleValueRequirements);
     hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesRequirements);
     hash = hash * 31 + JodaBeanUtils.hashCode(outputCurrencies);
+    hash = hash * 31 + JodaBeanUtils.hashCode(feed);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("FunctionRequirements{");
     buf.append("singleValueRequirements").append('=').append(singleValueRequirements).append(',').append(' ');
     buf.append("timeSeriesRequirements").append('=').append(timeSeriesRequirements).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
+    buf.append("outputCurrencies").append('=').append(outputCurrencies).append(',').append(' ');
+    buf.append("feed").append('=').append(JodaBeanUtils.toString(feed));
     buf.append('}');
     return buf.toString();
   }
@@ -228,13 +271,19 @@ public final class FunctionRequirements implements ImmutableBean {
     private final MetaProperty<ImmutableSet<Currency>> outputCurrencies = DirectMetaProperty.ofImmutable(
         this, "outputCurrencies", FunctionRequirements.class, (Class) ImmutableSet.class);
     /**
+     * The meta-property for the {@code feed} property.
+     */
+    private final MetaProperty<MarketDataFeed> feed = DirectMetaProperty.ofImmutable(
+        this, "feed", FunctionRequirements.class, MarketDataFeed.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "singleValueRequirements",
         "timeSeriesRequirements",
-        "outputCurrencies");
+        "outputCurrencies",
+        "feed");
 
     /**
      * Restricted constructor.
@@ -251,6 +300,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 3138974:  // feed
+          return feed;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -295,6 +346,14 @@ public final class FunctionRequirements implements ImmutableBean {
       return outputCurrencies;
     }
 
+    /**
+     * The meta-property for the {@code feed} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<MarketDataFeed> feed() {
+      return feed;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -305,6 +364,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return ((FunctionRequirements) bean).getTimeSeriesRequirements();
         case -1022597040:  // outputCurrencies
           return ((FunctionRequirements) bean).getOutputCurrencies();
+        case 3138974:  // feed
+          return ((FunctionRequirements) bean).getFeed();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -329,11 +390,13 @@ public final class FunctionRequirements implements ImmutableBean {
     private Set<? extends MarketDataId<?>> singleValueRequirements = ImmutableSet.of();
     private Set<ObservableId> timeSeriesRequirements = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
+    private MarketDataFeed feed;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -344,6 +407,7 @@ public final class FunctionRequirements implements ImmutableBean {
       this.singleValueRequirements = beanToCopy.getSingleValueRequirements();
       this.timeSeriesRequirements = beanToCopy.getTimeSeriesRequirements();
       this.outputCurrencies = beanToCopy.getOutputCurrencies();
+      this.feed = beanToCopy.getFeed();
     }
 
     //-----------------------------------------------------------------------
@@ -356,6 +420,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
+        case 3138974:  // feed
+          return feed;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -373,6 +439,9 @@ public final class FunctionRequirements implements ImmutableBean {
           break;
         case -1022597040:  // outputCurrencies
           this.outputCurrencies = (Set<Currency>) newValue;
+          break;
+        case 3138974:  // feed
+          this.feed = (MarketDataFeed) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -409,12 +478,13 @@ public final class FunctionRequirements implements ImmutableBean {
       return new FunctionRequirements(
           singleValueRequirements,
           timeSeriesRequirements,
-          outputCurrencies);
+          outputCurrencies,
+          feed);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets keys identifying the market data values required for the calculations.
+     * Sets the market data identifiers of the values required for the calculation.
      * @param singleValueRequirements  the new value, not null
      * @return this, for chaining, not null
      */
@@ -435,7 +505,7 @@ public final class FunctionRequirements implements ImmutableBean {
     }
 
     /**
-     * Sets keys identifying the time series of market data values required for the calculations.
+     * Sets the market data identifiers of the time-series of required for the calculation.
      * @param timeSeriesRequirements  the new value, not null
      * @return this, for chaining, not null
      */
@@ -456,9 +526,11 @@ public final class FunctionRequirements implements ImmutableBean {
     }
 
     /**
-     * Sets the currencies used in the calculation results. The market data must include FX rates in the
-     * to allow conversion into the reporting currency. The FX rates must have the output currency as the base
-     * currency and the reporting currency as the counter currency.
+     * Sets the currencies used in the calculation results.
+     * <p>
+     * This cause FX rates to be requested that allow conversion between the currencies
+     * specified and the reporting currency.
+     * It will be possible to obtain any FX rate pair for these currencies.
      * @param outputCurrencies  the new value, not null
      * @return this, for chaining, not null
      */
@@ -478,14 +550,29 @@ public final class FunctionRequirements implements ImmutableBean {
       return outputCurrencies(ImmutableSet.copyOf(outputCurrencies));
     }
 
+    /**
+     * Sets the source of market data for FX, quotes and other observable market data.
+     * <p>
+     * This is used to control the source of observable market data.
+     * By default, this will be {@link MarketDataFeed#NONE}.
+     * @param feed  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder feed(MarketDataFeed feed) {
+      JodaBeanUtils.notNull(feed, "feed");
+      this.feed = feed;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("FunctionRequirements.Builder{");
       buf.append("singleValueRequirements").append('=').append(JodaBeanUtils.toString(singleValueRequirements)).append(',').append(' ');
       buf.append("timeSeriesRequirements").append('=').append(JodaBeanUtils.toString(timeSeriesRequirements)).append(',').append(' ');
-      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
+      buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies)).append(',').append(' ');
+      buf.append("feed").append('=').append(JodaBeanUtils.toString(feed));
       buf.append('}');
       return buf.toString();
     }

@@ -11,8 +11,10 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -58,7 +60,30 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       Map<Currency, CurveId> discountCurveIds,
       Map<Index, CurveId> forwardCurveIds) {
 
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, MarketDataFeed.NONE);
+  }
+
+  /**
+   * Obtains an instance based on a map of discount and forward curve identifiers,
+   * specifying the source of FX rates.
+   * <p>
+   * The discount and forward curves refer to the curve identifier.
+   * The curves themselves are provided in {@link CalculationMarketData}
+   * using {@link CurveId} as the identifier.
+   * The source of market data is rarely needed, as most applications use only one
+   * underlying data source.
+   * 
+   * @param discountCurveIds  the discount curve identifiers, keyed by currency
+   * @param forwardCurveIds  the forward curves identifiers, keyed by index
+   * @param feed  the source of market data for FX, quotes and other observable market data
+   * @return the rates lookup containing the specified curves
+   */
+  public static RatesMarketDataLookup of(
+      Map<Currency, CurveId> discountCurveIds,
+      Map<Index, CurveId> forwardCurveIds,
+      MarketDataFeed feed) {
+
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, feed);
   }
 
   /**
@@ -84,7 +109,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<? extends Index, CurveId> forwardCurveIds = MapStream.of(forwardCurves)
         .mapValues(c -> CurveId.of(groupName, c))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, MarketDataFeed.NONE);
   }
 
   /**
@@ -103,7 +128,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<Index, CurveId> forwardCurves = MapStream.of(curveGroup.getForwardCurves())
         .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, MarketDataFeed.NONE);
   }
 
   /**
@@ -123,7 +148,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, MarketDataFeed.NONE);
   }
 
   //-------------------------------------------------------------------------
@@ -259,5 +284,24 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * @return the rates provider
    */
   public abstract RatesProvider ratesProvider(MarketData marketData);
+
+  /**
+   * Obtains an FX rate provider based on the specified market data.
+   * <p>
+   * This provides an {@link FxRateProvider} suitable for obtaining FX rates.
+   * Although this method can be used directly, it is typically invoked indirectly
+   * via {@link RatesMarketData}:
+   * <pre>
+   *  // bind the baseData to this lookup
+   *  RatesMarketData view = lookup.marketView(baseData);
+   *  
+   *  // pass around RatesMarketData within the function to use in pricing
+   *  RatesProvider provider = view.fxRateProvider();
+   * </pre>
+   * 
+   * @param marketData  the complete set of market data for one scenario
+   * @return the FX rate provider
+   */
+  public abstract FxRateProvider fxRateProvider(MarketData marketData);
 
 }

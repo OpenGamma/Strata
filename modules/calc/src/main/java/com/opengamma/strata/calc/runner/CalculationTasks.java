@@ -22,7 +22,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
@@ -198,15 +197,14 @@ public final class CalculationTasks implements ImmutableBean {
    * This can be used to feed into the market data system to obtain and calibrate data.
    *
    * @param refData  the reference data
-   * @param feed  the source of market data
    * @return the market data required for all calculations
    * @throws RuntimeException if unable to obtain the requirements
    */
-  public MarketDataRequirements requirements(ReferenceData refData, MarketDataFeed feed) {
+  public MarketDataRequirements requirements(ReferenceData refData) {
     // use for loop not streams for shorter stack traces
     MarketDataRequirementsBuilder builder = MarketDataRequirements.builder();
     for (CalculationTask task : tasks) {
-      builder.addRequirements(task.requirements(refData, feed));
+      builder.addRequirements(task.requirements(refData));
     }
     return builder.build();
   }

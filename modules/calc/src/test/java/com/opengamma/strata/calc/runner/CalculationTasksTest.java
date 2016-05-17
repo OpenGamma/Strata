@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -88,7 +87,7 @@ public class CalculationTasksTest {
 
     CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
 
-    MarketDataRequirements requirements = test.requirements(REF_DATA, MarketDataFeed.NONE);
+    MarketDataRequirements requirements = test.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
@@ -96,11 +95,11 @@ public class CalculationTasksTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(TestId.of("1"));
 
-    MarketDataId<?> observableId = TestObservableId.of("2");
+    MarketDataId<?> observableId = new TestObservableId("2", CalculationTaskTest.FEED);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> timeSeriesId = TestObservableId.of("3");
+    MarketDataId<?> timeSeriesId = new TestObservableId("3", CalculationTaskTest.FEED);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }

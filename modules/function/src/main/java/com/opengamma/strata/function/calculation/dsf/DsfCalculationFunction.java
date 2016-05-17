@@ -108,11 +108,7 @@ public class DsfCalculationFunction
         .add(quoteId)
         .addAll(ratesReqs.getSingleValueRequirements())
         .build();
-    return FunctionRequirements.builder()
-        .singleValueRequirements(valueReqs)
-        .timeSeriesRequirements(ratesReqs.getTimeSeriesRequirements())
-        .outputCurrencies(currencies)
-        .build();
+    return ratesReqs.toBuilder().singleValueRequirements(valueReqs).build();
   }
 
   //-------------------------------------------------------------------------

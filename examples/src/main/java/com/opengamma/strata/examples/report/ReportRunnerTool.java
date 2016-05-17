@@ -16,7 +16,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
@@ -201,7 +200,7 @@ public class ReportRunnerTool implements AutoCloseable {
 
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
-    MarketDataRequirements reqs = tasks.requirements(refData, MarketDataFeed.NONE);
+    MarketDataRequirements reqs = tasks.requirements(refData);
     CalculationMarketData enhancedMarketData =
         marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
     Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);

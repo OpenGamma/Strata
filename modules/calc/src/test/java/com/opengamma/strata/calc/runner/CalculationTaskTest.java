@@ -56,6 +56,8 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class CalculationTaskTest {
 
+  static final MarketDataFeed FEED = MarketDataFeed.of("MarketDataVendor");
+
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ReportingCurrency NATURAL = ReportingCurrency.NATURAL;
   private static final ReportingCurrency REPORTING_CURRENCY_USD = ReportingCurrency.of(Currency.USD);
@@ -64,15 +66,14 @@ public class CalculationTaskTest {
       ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
 
   public void requirements() {
-    MarketDataFeed feed = MarketDataFeed.of("MarketDataVendor");
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, new TestFunction(), cell);
-    MarketDataRequirements requirements = task.requirements(REF_DATA, feed);
+    MarketDataRequirements requirements = task.requirements(REF_DATA);
     Set<? extends MarketDataId<?>> nonObservables = requirements.getNonObservables();
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> timeSeriesId = new TestObservableId("3", feed);
+    MarketDataId<?> timeSeriesId = new TestObservableId("3", FEED);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
@@ -80,7 +81,7 @@ public class CalculationTaskTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = new TestObservableId("2", feed);
+    MarketDataId<?> observableId = new TestObservableId("2", FEED);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
   }
@@ -287,15 +288,14 @@ public class CalculationTaskTest {
    * Tests that requirements are added for the FX rates needed to convert the results into the reporting currency.
    */
   public void fxConversionRequirements() {
-    MarketDataFeed feed = MarketDataFeed.of("MarketDataVendor");
     OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    MarketDataRequirements requirements = task.requirements(REF_DATA, feed);
+    MarketDataRequirements requirements = task.requirements(REF_DATA);
 
     assertThat(requirements.getNonObservables()).containsOnly(
-        FxRateId.of(GBP, USD, feed),
-        FxRateId.of(EUR, USD, feed));
+        FxRateId.of(GBP, USD, FEED),
+        FxRateId.of(EUR, USD, FEED));
   }
 
   public void testToString() {
@@ -358,6 +358,7 @@ public class CalculationTaskTest {
                   TestId.of("1"),
                   TestObservableId.of("2")))
           .timeSeriesRequirements(TestObservableId.of("3"))
+          .feed(FEED)
           .build();
     }
 
@@ -520,6 +521,7 @@ public class CalculationTaskTest {
 
       return FunctionRequirements.builder()
           .outputCurrencies(GBP, EUR, USD)
+          .feed(FEED)
           .build();
     }
 

@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
@@ -156,7 +155,7 @@ public class CurveEndToEndTest {
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
-    MarketDataRequirements reqs = tasks.requirements(REF_DATA, MarketDataFeed.NONE);
+    MarketDataRequirements reqs = tasks.requirements(REF_DATA);
     CalculationMarketData enhancedMarketData =
         marketDataFactory().buildMarketData(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());

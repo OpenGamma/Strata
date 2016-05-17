@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -84,7 +83,7 @@ public final class MarketDataRequirements implements ImmutableBean {
       List<Column> columns,
       ReferenceData refData) {
 
-    return CalculationTasks.of(calculationRules, targets, columns).requirements(refData, MarketDataFeed.NONE);
+    return CalculationTasks.of(calculationRules, targets, columns).requirements(refData);
   }
 
   /**
