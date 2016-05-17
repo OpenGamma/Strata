@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -24,10 +26,16 @@ public interface MarketData {
 
   /**
    * Obtains an instance from a valuation date and map of values.
+   * <p>
+   * Each entry in the map is a single piece of market data, keyed by the matching identifier.
+   * For example, an {@link FxRate} can be looked up using an {@link FxRateId}.
+   * The caller must ensure that the each entry in the map corresponds with the parameterized
+   * type on the identifier.
    *
-   * @param valuationDate  the valuation date associated with the market data
+   * @param valuationDate  the valuation date of the market data
    * @param values  the market data values
-   * @return a set of market data containing the values in the map
+   * @return the market data instance containing the values in the map
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static MarketData of(LocalDate valuationDate, Map<? extends MarketDataKey<?>, ?> values) {
     return ImmutableMarketData.of(valuationDate, values);
@@ -36,10 +44,11 @@ public interface MarketData {
   /**
    * Obtains an instance from a valuation date, map of values and time-series.
    *
-   * @param valuationDate  the valuation date associated with the market data
+   * @param valuationDate  the valuation date of the market data
    * @param values  the market data values
    * @param timeSeries  the time-series
-   * @return a set of market data containing the values and time-series
+   * @return the market data instance containing the values in the map and the time-series
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static MarketData of(
       LocalDate valuationDate,
@@ -47,6 +56,16 @@ public interface MarketData {
       Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
 
     return ImmutableMarketData.builder(valuationDate).values(values).timeSeries(timeSeries).build();
+  }
+
+  /**
+   * Obtains an instance containing no market data.
+   *
+   * @param valuationDate  the valuation date of the market data
+   * @return empty market data
+   */
+  public static MarketData empty(LocalDate valuationDate) {
+    return ImmutableMarketData.builder(valuationDate).build();
   }
 
   //-------------------------------------------------------------------------
@@ -61,33 +80,43 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this set of data contains a value for the specified key.
+   * Checks if this market data contains a value for the specified identifier.
    *
    * @param key  the key identifying the item of market data
-   * @return true if this set of data contains a value for the specified key
+   * @return true if the market data contains a value for the identifier
    */
-  public abstract boolean containsValue(MarketDataKey<?> key);
+  public default boolean containsValue(MarketDataKey<?> key) {
+    return findValue(key).isPresent();
+  }
 
   /**
-   * Returns a value for the specified ID if available.
-   *
-   * @param <T>  the market data type
-   * @param key  the key identifying the item of market data
-   * @return a value for the specified ID if available
-   */
-  public abstract <T> Optional<T> findValue(MarketDataKey<T> key);
-
-  /**
-   * Gets the market data value identified by the specified key.
+   * Gets the market data value associated with the specified identifier.
    * <p>
-   * The result will be a single piece of market data valid for the valuation date.
+   * If this market data instance contains the identifier, the value will be returned.
+   * Otherwise, an exception will be thrown.
    *
-   * @param <T>  the type of the market data
+   * @param <T>  the type of the market data value
    * @param key  the key identifying the item of market data
    * @return the market data value
-   * @throws IllegalArgumentException if no value is found
+   * @throws MarketDataNotFoundException if the identifier is not found
    */
-  public abstract <T> T getValue(MarketDataKey<T> key);
+  public default <T> T getValue(MarketDataKey<T> key) {
+    return findValue(key)
+        .orElseThrow(() -> new MarketDataNotFoundException(Messages.format(
+            "Market data not found for '{}' of type '{}'", key, key.getClass().getSimpleName())));
+  }
+
+  /**
+   * Finds the market data value associated with the specified identifier.
+   * <p>
+   * If this market data instance contains the identifier, the value will be returned.
+   * Otherwise, an empty optional will be returned.
+   *
+   * @param <T>  the type of the market data value
+   * @param key  the key identifying the item of market data
+   * @return the market data value, empty if not found
+   */
+  public abstract <T> Optional<T> findValue(MarketDataKey<T> key);
 
   //-------------------------------------------------------------------------
   /**

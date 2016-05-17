@@ -6,12 +6,11 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
-
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -32,6 +31,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -151,13 +151,11 @@ public class TermDepositCurveNodeTest {
     assertEquals(trade.getInfo(), tradeInfoExpected);
   }
 
-  public void test_trade_differentKey() {
+  public void test_trade_noMarketData() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    double rate = 0.035;
-    QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, marketData, REF_DATA));
+    MarketData marketData = MarketData.empty(valuationDate);
+    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

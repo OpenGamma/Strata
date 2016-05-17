@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -107,13 +108,11 @@ public class IborFutureCurveNodeTest {
     assertEquals(trade, expected);
   }
 
-  public void test_trade_differentKey() {
+  public void test_trade_noMarketData() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    LocalDate date = LocalDate.of(2015, 10, 20);
-    double price = 0.99;
-    QuoteKey key = QuoteKey.of(StandardId.of("OG-Ticker", "Unknown"));
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(key, price).build();
-    assertThrowsIllegalArg(() -> node.trade(date, marketData, REF_DATA));
+    LocalDate valuationDate = LocalDate.of(2015, 10, 20);
+    MarketData marketData = MarketData.empty(valuationDate);
+    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

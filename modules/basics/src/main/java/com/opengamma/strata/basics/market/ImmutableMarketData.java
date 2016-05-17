@@ -73,16 +73,16 @@ public final class ImmutableMarketData
     return new ImmutableMarketData(valuationDate, values, ImmutableMap.of());
   }
 
-  // checks the value is an instance of the market data type of the key
+  // checks the value is an instance of the market data type of the id
   static void checkType(MarketDataKey<?> key, Object value) {
     if (!key.getMarketDataType().isInstance(value)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Value type doesn't match expected type. expected type: {}, value type: {}, key: {}, value: {}",
-              key.getMarketDataType(),
-              value.getClass().getName(),
-              key,
-              value));
+      if (value == null) {
+        throw new IllegalArgumentException(Messages.format(
+            "Value for identifier '{}' must not be null", key));
+      }
+      throw new ClassCastException(Messages.format(
+          "Value for identifier '{}' does not implement expected type '{}': '{}'",
+          key, key.getMarketDataType().getSimpleName(), value));
     }
   }
 
@@ -107,27 +107,38 @@ public final class ImmutableMarketData
   }
 
   //-------------------------------------------------------------------------
-
   @Override
   public boolean containsValue(MarketDataKey<?> key) {
+    // overridden for performance
     return values.containsKey(key);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> findValue(MarketDataKey<T> key) {
-    Object value = values.get(key);
-    return Optional.ofNullable((T) value);
+  public <T> T getValue(MarketDataKey<T> key) {
+    // overridden for performance
+    // no type check against id.getMarketDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(key);
+    if (value == null) {
+      throw new MarketDataNotFoundException(msgValueNotFound(key));
+    }
+    return value;
+  }
+
+  // extracted to aid inlining performance
+  private String msgValueNotFound(MarketDataKey<?> key) {
+    return Messages.format(
+        "Market data not found for identifier '{}' of type '{}'", key, key.getClass().getSimpleName());
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getValue(MarketDataKey<T> key) {
-    Object value = values.get(key);
-    if (value == null) {
-      throw new IllegalArgumentException("No market data available for key " + key);
-    }
-    return (T) value;
+  public <T> Optional<T> findValue(MarketDataKey<T> key) {
+    // no type check against id.getMarketDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(key);
+    return Optional.ofNullable(value);
   }
 
   @Override

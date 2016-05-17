@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.runner.MissingMappingId;
 import com.opengamma.strata.calc.runner.NoMatchingRuleId;
@@ -173,7 +174,8 @@ public final class MarketEnvironment implements ImmutableBean, CalculationEnviro
       if (failure != null) {
         throw new FailureException(failure);
       }
-      throw new IllegalArgumentException("No market data available for " + id);
+      throw new MarketDataNotFoundException(Messages.format(
+          "Market data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName()));
     }
     if (!id.getMarketDataType().isAssignableFrom(value.getMarketDataType())) {
       throw new IllegalArgumentException(

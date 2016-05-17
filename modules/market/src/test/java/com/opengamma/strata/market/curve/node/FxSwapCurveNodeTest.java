@@ -6,10 +6,9 @@
 package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
-
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -35,6 +34,7 @@ import com.opengamma.strata.basics.market.FxRateKey;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.basics.market.StandardId;
@@ -116,13 +116,11 @@ public class FxSwapCurveNodeTest {
     assertEquals(trade, expected);
   }
 
-  public void test_trade_differentKey() {
+  public void test_trade_noMarketData() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_KEY_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    double rate = 0.035;
-    QuoteKey quoteKey = QuoteKey.of(StandardId.of("OG-Ticker", "Deposit2"));
-    ImmutableMarketData md = ImmutableMarketData.builder(valuationDate).addValue(quoteKey, rate).build();
-    assertThrowsIllegalArg(() -> node.trade(valuationDate, md, REF_DATA));
+    MarketData marketData = MarketData.empty(valuationDate);
+    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

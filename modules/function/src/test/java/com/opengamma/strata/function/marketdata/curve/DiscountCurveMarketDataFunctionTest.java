@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
@@ -126,7 +127,7 @@ public class DiscountCurveMarketDataFunctionTest {
     DiscountCurveMarketDataFunction test = new DiscountCurveMarketDataFunction();
 
     DiscountCurveId id = DiscountCurveId.of(AUD, CURVE_GROUP_NAME, FEED);
-    assertThrows(() -> test.build(id, MarketDataConfig.empty(), marketData, REF_DATA), IllegalArgumentException.class);
+    assertThrows(() -> test.build(id, MarketDataConfig.empty(), marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_noCurveOfDesiredCurrencyInGroup() {
