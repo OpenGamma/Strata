@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.config;
+package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 

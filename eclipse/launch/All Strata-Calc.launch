@@ -17,9 +17,7 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.calc"/>
 <listEntry value="com.opengamma.strata.calc.config"/>
-<listEntry value="com.opengamma.strata.calc.config.pricing"/>
 <listEntry value="com.opengamma.strata.calc.marketdata"/>
-<listEntry value="com.opengamma.strata.calc.marketdata.config"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.function"/>
 <listEntry value="com.opengamma.strata.calc.marketdata.scenario"/>
 <listEntry value="com.opengamma.strata.calc.runner"/>

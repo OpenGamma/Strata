@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.config;
+package com.opengamma.strata.calc.marketdata;
 
 import java.io.Serializable;
 import java.util.HashMap;
