@@ -25,6 +25,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -784,6 +787,23 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertEquals(pvComputed.getAmount(),  pvExpected, TOLERANCE_PV);    
   }
 
+  //---------------------------------------------------------------------
+  public void test_explainPresentValue() {
+    ExplainMapBuilder builder = ExplainMap.builder();
+    PRICER.explainPresentValue(FLOORLET, RATES_PROVIDER, builder);
+    ExplainMap explain = builder.build();
+    //Test a CMS Floorlet Period.
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "CmsFloorletPeriod");
+    assertEquals(explain.get(ExplainKey.STRIKE_VALUE).get(), 0.04d);
+    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), 10000000d);
+    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), LocalDate.of(2021, 04, 28));
+    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), 0.8518053333230845d);
+    assertEquals(explain.get(ExplainKey.START_DATE).get(), LocalDate.of(2020, 04, 28));
+    assertEquals(explain.get(ExplainKey.END_DATE).get(), LocalDate.of(2021, 04, 28));
+    assertEquals(explain.get(ExplainKey.FIXING_DATE).get(), LocalDate.of(2020, 04, 24));
+    assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), 1.0138888888888888d);
+  }
+  
   //-------------------------------------------------------------------------
   /** Simplified integrant for testing; only cap; underlying with annual payments */
   private class CmsIntegrantProvider {

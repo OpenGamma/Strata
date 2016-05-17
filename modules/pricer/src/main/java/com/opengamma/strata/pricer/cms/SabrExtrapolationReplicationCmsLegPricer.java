@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
@@ -162,6 +165,35 @@ public class SabrExtrapolationReplicationCmsLegPricer {
         .orElse(CurrencyAmount.zero(cmsLeg.getCurrency()));
   }
 
+  /**
+   * Explains the present value of a cms leg.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param cmsLeg  the cms leg
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(
+		  ResolvedCmsLeg cmsLeg,
+		  RatesProvider provider,
+		  SabrParametersSwaptionVolatilities volatilities) {
+	  
+    ExplainMapBuilder builder = ExplainMap.builder();
+    builder.put(ExplainKey.ENTRY_TYPE, "CmsLeg");
+    builder.put(ExplainKey.PAY_RECEIVE, cmsLeg.getPayReceive());
+    builder.put(ExplainKey.PAYMENT_CURRENCY, cmsLeg.getCurrency());
+    builder.put(ExplainKey.START_DATE, cmsLeg.getStartDate());
+    builder.put(ExplainKey.END_DATE, cmsLeg.getEndDate());
+    builder.put(ExplainKey.INDEX, cmsLeg.getIndex());
+    for (CmsPeriod period : cmsLeg.getCmsPeriods()) {
+      builder.addListEntry(
+          ExplainKey.PAYMENT_PERIODS, child -> cmsPeriodPricer.explainPresentValue(period, provider, child));
+    } 
+    builder.put(ExplainKey.PRESENT_VALUE, presentValue(cmsLeg, provider, volatilities));
+    return builder.build();
+  }
+  
   //-------------------------------------------------------------------------
   private void validate(RatesProvider ratesProvider, SabrParametersSwaptionVolatilities swaptionVolatilities) {
     ArgChecker.isTrue(swaptionVolatilities.getValuationDate().equals(ratesProvider.getValuationDate()),

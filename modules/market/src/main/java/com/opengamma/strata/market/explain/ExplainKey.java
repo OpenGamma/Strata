@@ -197,6 +197,10 @@ public final class ExplainKey<T>
    * The method of compounding.
    */
   public static final ExplainKey<CompoundingMethod> COMPOUNDING = of("CompoundingMethod");
+  /**
+   * The strike value.
+   */
+  public static final ExplainKey<Double> STRIKE_VALUE = of("StrikeValue");
 
   //-------------------------------------------------------------------------
   /**
