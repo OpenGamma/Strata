@@ -32,9 +32,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A scenario result holding one value for each scenario.
@@ -115,21 +116,24 @@ public final class DefaultScenarioResult<T>
   }
 
   @Override
-  public ScenarioResult<?> convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
-    if (marketData.getScenarioCount() != size()) {
-      throw new IllegalArgumentException("Market data must contain same number of scenarios as scenario result");
+  public ScenarioResult<?> convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
+    int scenarioCount = size();
+    if (fxRateProvider.getScenarioCount() != scenarioCount) {
+      throw new IllegalArgumentException(Messages.format(
+          "Expected {} FX rates but received {}", scenarioCount, fxRateProvider.getScenarioCount()));
     }
+
     ImmutableList<Object> converted = zipWithIndex(values.stream())
-        .map(tp -> convert(reportingCurrency, marketData, tp.getFirst(), tp.getSecond()))
+        .map(tp -> convert(reportingCurrency, fxRateProvider, tp.getFirst(), tp.getSecond()))
         .collect(toImmutableList());
     return DefaultScenarioResult.of(converted);
   }
 
   // convert value if possible
-  private Object convert(Currency reportingCurrency, CalculationMarketData marketData, Object base, int index) {
+  private Object convert(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider, Object base, int index) {
     if (base instanceof FxConvertible<?>) {
       FxConvertible<?> convertible = (FxConvertible<?>) base;
-      return convertible.convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, index));
+      return convertible.convertedTo(reportingCurrency, fxRateProvider.fxRateProvider(index));
     }
     return base;
   }

@@ -31,9 +31,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A scenario result holding one value that is valid for all scenarios.
@@ -92,14 +93,15 @@ public final class SingleScenarioResult<T>
 
   //-------------------------------------------------------------------------
   @Override
-  public ScenarioResult<?> convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
+  public ScenarioResult<?> convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
     if (value instanceof FxConvertible<?>) {
       FxConvertible<?> convertible = (FxConvertible<?>) value;
-      if (marketData.getScenarioCount() != scenarioCount) {
-        throw new IllegalArgumentException("Market data must contain same number of scenarios as scenario result");
+      if (fxRateProvider.getScenarioCount() != scenarioCount) {
+        throw new IllegalArgumentException(Messages.format(
+            "Expected {} FX rates but received {}", scenarioCount, fxRateProvider.getScenarioCount()));
       }
       ImmutableList<Object> converted = IntStream.range(0, scenarioCount)
-          .mapToObj(i -> convertible.convertedTo(reportingCurrency, ScenarioRateProvider.of(marketData, i)))
+          .mapToObj(i -> convertible.convertedTo(reportingCurrency, fxRateProvider.fxRateProvider(i)))
           .collect(toImmutableList());
       return DefaultScenarioResult.of(converted);
     }

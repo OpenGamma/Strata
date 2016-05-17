@@ -26,7 +26,7 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
 
   @Override
   public MarketDataRequirements requirements(FxRateId id, MarketDataConfig marketDataConfig) {
-    FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class);
+    FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class, id.getMarketDataFeed());
     Optional<QuoteId> optional = fxRateConfig.getObservableRateKey(id.getPair());
     return optional.map(key -> MarketDataRequirements.of(key)).orElse(MarketDataRequirements.empty());
   }

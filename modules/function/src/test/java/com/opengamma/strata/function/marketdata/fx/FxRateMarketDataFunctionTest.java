@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
@@ -49,7 +50,7 @@ public class FxRateMarketDataFunctionTest {
 
   public void requirementsMissingConfig() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
-    String regex = "No default configuration found with type .*FxRateConfig";
+    String regex = "No configuration found .*FxRateConfig";
     assertThrowsIllegalArg(() -> function.requirements(RATE_ID, MarketDataConfig.empty()), regex);
   }
 
@@ -97,7 +98,7 @@ public class FxRateMarketDataFunctionTest {
 
   public void buildMissingConfig() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
-    String regex = "No default configuration found with type .*FxRateConfig";
+    String regex = "No configuration found .*FxRateConfig";
     assertThrowsIllegalArg(
         () -> function.build(RATE_ID, MarketDataConfig.empty(), CalculationMarketData.empty(), REF_DATA), regex);
   }
@@ -113,6 +114,7 @@ public class FxRateMarketDataFunctionTest {
   private static MarketDataConfig config() {
     Map<CurrencyPair, QuoteId> ratesMap = ImmutableMap.of(CURRENCY_PAIR, QUOTE_ID);
     FxRateConfig fxRateConfig = FxRateConfig.builder().observableRates(ratesMap).build();
-    return MarketDataConfig.builder().addDefault(fxRateConfig).build();
+    return MarketDataConfig.builder().add(MarketDataFeed.NONE, fxRateConfig).build();
   }
+
 }

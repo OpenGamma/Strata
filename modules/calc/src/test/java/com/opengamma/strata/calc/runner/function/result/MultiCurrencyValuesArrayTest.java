@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.calc.runner.function.result;
 
+import static com.opengamma.strata.basics.currency.Currency.CAD;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -13,7 +17,6 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +27,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.FxRatesArray;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 @Test
@@ -140,21 +140,11 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void convert() {
-    MarketDataBox<FxRate> gbpCadRate = MarketDataBox.ofScenarioValues(
-        FxRate.of(Currency.GBP, Currency.CAD, 2.00),
-        FxRate.of(Currency.GBP, Currency.CAD, 2.01),
-        FxRate.of(Currency.GBP, Currency.CAD, 2.02));
-    MarketDataBox<FxRate> usdCadRate = MarketDataBox.ofScenarioValues(
-        FxRate.of(Currency.USD, Currency.CAD, 1.30),
-        FxRate.of(Currency.USD, Currency.CAD, 1.31),
-        FxRate.of(Currency.USD, Currency.CAD, 1.32));
-    MarketDataBox<FxRate> eurCadRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.CAD, 1.4));
-    CalculationMarketData calculationMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.CAD), gbpCadRate)
-        .addValue(FxRateId.of(Currency.EUR, Currency.CAD), eurCadRate)
-        .addValue(FxRateId.of(Currency.USD, Currency.CAD), usdCadRate)
-        .build();
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, calculationMarketData);
+    FxRatesArray rates1 = FxRatesArray.of(GBP, CAD, DoubleArray.of(2.00, 2.01, 2.02));
+    FxRatesArray rates2 = FxRatesArray.of(USD, CAD, DoubleArray.of(1.30, 1.31, 1.32));
+    FxRatesArray rates3 = FxRatesArray.of(EUR, CAD, DoubleArray.of(1.4, 1.4, 1.4));
+    ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates1, rates2, rates3);
+    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.CAD, fxProvider);
     DoubleArray expected = DoubleArray.of(
         20 * 2.00 + 30 * 1.30 + 40 * 1.4,
         21 * 2.01 + 32 * 1.31 + 43 * 1.4,
@@ -163,16 +153,10 @@ public class MultiCurrencyValuesArrayTest {
   }
 
   public void convertIntoAnExistingCurrency() {
-    MarketDataBox<FxRate> gbpUsdRate = MarketDataBox.ofScenarioValues(
-        FxRate.of(Currency.GBP, Currency.USD, 1.50),
-        FxRate.of(Currency.GBP, Currency.USD, 1.51),
-        FxRate.of(Currency.GBP, Currency.USD, 1.52));
-    MarketDataBox<FxRate> eurGbpRate = MarketDataBox.ofSingleValue(FxRate.of(Currency.EUR, Currency.GBP, 0.7));
-    CalculationMarketData calculationMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), gbpUsdRate)
-        .addValue(FxRateId.of(Currency.EUR, Currency.GBP), eurGbpRate)
-        .build();
-    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, calculationMarketData);
+    FxRatesArray rates1 = FxRatesArray.of(USD, GBP, DoubleArray.of(1 / 1.50, 1 / 1.51, 1 / 1.52));
+    FxRatesArray rates2 = FxRatesArray.of(EUR, GBP, DoubleArray.of(0.7, 0.7, 0.7));
+    ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates1, rates2);
+    CurrencyValuesArray convertedArray = VALUES_ARRAY.convertedTo(Currency.GBP, fxProvider);
     assertThat(convertedArray.getCurrency()).isEqualTo(Currency.GBP);
     double[] expected = new double[]{
         20 + 30 / 1.50 + 40 * 0.7,

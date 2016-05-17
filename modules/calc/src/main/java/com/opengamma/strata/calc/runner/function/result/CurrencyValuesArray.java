@@ -29,10 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -128,24 +125,17 @@ public final class CurrencyValuesArray
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyValuesArray convertedTo(Currency reportingCurrency, CalculationMarketData marketData) {
+  public CurrencyValuesArray convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider) {
     if (currency.equals(reportingCurrency)) {
       return this;
     }
-    MarketDataBox<FxRate> rates = marketData.getValue(FxRateId.of(currency, reportingCurrency));
-    checkNumberOfRates(rates.getScenarioCount());
-    DoubleArray convertedValues = values.mapWithIndex((i, v) -> rates.getValue(i).convert(v, currency, reportingCurrency));
-    return new CurrencyValuesArray(reportingCurrency, convertedValues);
-  }
-
-  private void checkNumberOfRates(int rateCount) {
-    if (rateCount != 1 && values.size() != rateCount) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Number of rates ({}) must be 1 or the same as the number of values ({})",
-              rateCount,
-              values.size()));
+    if (fxRateProvider.getScenarioCount() != values.size()) {
+      throw new IllegalArgumentException(Messages.format(
+          "Expected {} FX rates but received {}", values.size(), fxRateProvider.getScenarioCount()));
     }
+    DoubleArray convertedValues =
+        values.mapWithIndex((i, v) -> v * fxRateProvider.fxRate(currency, reportingCurrency, i));
+    return new CurrencyValuesArray(reportingCurrency, convertedValues);
   }
 
   @Override

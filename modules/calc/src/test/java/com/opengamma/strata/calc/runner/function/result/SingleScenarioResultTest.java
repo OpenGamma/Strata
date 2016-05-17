@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.calc.runner.function.result;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
@@ -17,12 +18,10 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
+import com.opengamma.strata.basics.currency.FxRatesArray;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link SingleScenarioResult}.
@@ -41,21 +40,15 @@ public class SingleScenarioResultTest {
   }
 
   public void convertCurrencyAmount() {
-    List<FxRate> rates = ImmutableList.of(
-        FxRate.of(Currency.GBP, Currency.USD, 1.61),
-        FxRate.of(Currency.GBP, Currency.USD, 1.62),
-        FxRate.of(Currency.GBP, Currency.USD, 1.63));
-    CalculationMarketData calculationMarketData = MarketEnvironment.builder(date(2011, 3, 8))
-        .addValue(FxRateId.of(Currency.GBP, Currency.USD), rates)
-        .build();
+    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
+    SingleScenarioResult<CurrencyAmount> test = SingleScenarioResult.of(3, CurrencyAmount.of(GBP, 2));
 
-    SingleScenarioResult<CurrencyAmount> test = SingleScenarioResult.of(3, CurrencyAmount.of(Currency.GBP, 2));
-
-    ScenarioResult<?> convertedList = test.convertedTo(Currency.USD, calculationMarketData);
+    ScenarioResult<?> convertedList = test.convertedTo(USD, fxProvider);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
-        CurrencyAmount.of(Currency.USD, 2 * 1.61),
-        CurrencyAmount.of(Currency.USD, 2 * 1.62),
-        CurrencyAmount.of(Currency.USD, 2 * 1.63));
+        CurrencyAmount.of(USD, 2 * 1.61),
+        CurrencyAmount.of(USD, 2 * 1.62),
+        CurrencyAmount.of(USD, 2 * 1.63));
     DefaultScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }

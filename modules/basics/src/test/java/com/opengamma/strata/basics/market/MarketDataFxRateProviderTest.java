@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.basics.market;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +21,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 
+/**
+ * Test {@link MarketDataFxRateProvider}.
+ */
 @Test
 public class MarketDataFxRateProviderTest {
 
@@ -41,7 +44,7 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void missingCurrencies() {
-    assertThrowsIllegalArg(() -> provider().fxRate(Currency.EUR, Currency.GBP));
+    assertThrows(() -> provider().fxRate(Currency.EUR, Currency.GBP), MarketDataNotFoundException.class);
   }
 
   public void cross_base() {

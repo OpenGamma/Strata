@@ -6,7 +6,7 @@
 package com.opengamma.strata.calc.runner.function;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 
 /**
  * Provides the ability for objects to be automatically currency converted.
@@ -25,15 +25,13 @@ public interface CurrencyConvertible<R> {
    * Each currency amount in the object will be converted to the specified currency.
    * Any object that is not a currency amount will be left unchanged.
    * <p>
-   * The supplied market data is scenario aware. If this object is also scenario aware, then the
-   * FX rate used to convert each value may be different.
-   * In that case, the market data must have the same number of scenarios as this instance.
+   * The number of scenarios of this instance must match the number of scenarios of the specified provider.
    *
    * @param reportingCurrency  the currency into which all currency amounts should be converted
-   * @param marketData  the multi-scenario market data containing any FX rates needed to perform the conversion
+   * @param fxRatesProvider  the multi-scenario FX rates needed to perform the conversion
    * @return a copy of this result with any currency amounts converted into the reporting currency
    * @throws RuntimeException if no FX rate could be found
    */
-  public abstract R convertedTo(Currency reportingCurrency, CalculationMarketData marketData);
+  public abstract R convertedTo(Currency reportingCurrency, ScenarioFxRateProvider fxRatesProvider);
 
 }
