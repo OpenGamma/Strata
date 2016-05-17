@@ -193,6 +193,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(cmsLeg, provider, volatilities));
     return builder.build();
   }
+  
   //-------------------------------------------------------------------------
   private void validate(RatesProvider ratesProvider, SabrParametersSwaptionVolatilities swaptionVolatilities) {
     ArgChecker.isTrue(swaptionVolatilities.getValuationDate().equals(ratesProvider.getValuationDate()),
