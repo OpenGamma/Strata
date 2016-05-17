@@ -6,7 +6,7 @@
 package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.calc.config.ReportingCurrency.NATURAL;
+import static com.opengamma.strata.calc.ReportingCurrency.NATURAL;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -26,9 +26,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;

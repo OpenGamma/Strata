@@ -13,7 +13,7 @@ import java.util.stream.DoubleStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.DefaultScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;

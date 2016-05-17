@@ -29,8 +29,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.ReportingCurrency;
 
 /**
  * The calculation parameters.

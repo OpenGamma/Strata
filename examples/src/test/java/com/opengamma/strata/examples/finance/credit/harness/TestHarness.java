@@ -13,8 +13,8 @@ import org.testng.Assert;
 
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.product.Trade;

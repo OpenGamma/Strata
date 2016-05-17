@@ -6,8 +6,8 @@
 package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.calc.config.Measures.PAR_RATE;
-import static com.opengamma.strata.calc.config.Measures.PRESENT_VALUE;
+import static com.opengamma.strata.calc.Measures.PAR_RATE;
+import static com.opengamma.strata.calc.Measures.PRESENT_VALUE;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -15,7 +15,7 @@ import static org.testng.Assert.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.ReportingCurrency;
 
 /**
  * Test {@link CalculationTaskCell}.

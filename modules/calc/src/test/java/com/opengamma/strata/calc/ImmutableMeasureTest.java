@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.config;
+package com.opengamma.strata.calc;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 

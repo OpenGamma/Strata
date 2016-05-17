@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.config;
+package com.opengamma.strata.calc;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;

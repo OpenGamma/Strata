@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.config;
+package com.opengamma.strata.calc;
 
 /**
  * The standard set of measures which can be calculated by Strata.
