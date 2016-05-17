@@ -3,14 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.function;
+package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 
 /**
  * A market data function creates items of market data for a set of market data IDs.

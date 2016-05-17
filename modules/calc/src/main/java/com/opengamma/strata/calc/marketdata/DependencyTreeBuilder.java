@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 
 /**
  * Builds a dependency tree for the items of market used in a set of calculations.

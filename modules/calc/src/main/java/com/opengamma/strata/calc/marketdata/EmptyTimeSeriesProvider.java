@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.function;
+package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.Result;
