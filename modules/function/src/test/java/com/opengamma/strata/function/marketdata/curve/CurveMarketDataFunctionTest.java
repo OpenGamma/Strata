@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -40,13 +41,14 @@ public class CurveMarketDataFunctionTest {
   private static final CurveGroupName GROUP_NAME = CurveGroupName.of("Group");
   private static final CurveName CURVE_NAME1 = CurveName.of("Name1");
   private static final CurveName CURVE_NAME2 = CurveName.of("Name2");
+  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
 
   //-------------------------------------------------------------------------
   public void test_singleCurve() {
     Curve curve = ConstantNodalCurve.of(CURVE_NAME1, (double) 1);
-    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1);
-    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2);
-    CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);
+    CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1, FEED);
+    CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2, FEED);
+    CurveGroupId groupId = CurveGroupId.of(GROUP_NAME, FEED);
     CurveGroup curveGroup = CurveGroup.of(
         GROUP_NAME,
         ImmutableMap.of(Currency.AUD, curve),

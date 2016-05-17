@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -22,11 +23,14 @@ import com.opengamma.strata.market.curve.CurveName;
 @Test
 public class CurveIdTest {
 
+  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+
   //-------------------------------------------------------------------------
   public void test_of_String() {
     CurveId test = CurveId.of("Group", "Name");
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
+    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
@@ -34,6 +38,15 @@ public class CurveIdTest {
     CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"));
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
+    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getMarketDataType(), Curve.class);
+  }
+
+  public void test_of_TypesFeed() {
+    CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"), FEED);
+    assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
+    assertEquals(test.getCurveName(), CurveName.of("Name"));
+    assertEquals(test.getMarketDataFeed(), FEED);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 

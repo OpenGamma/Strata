@@ -29,40 +29,58 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 
 /**
- * Market data ID identifying a group of curves that are built together.
+ * An identifier used to access a curve group by name.
+ * <p>
+ * This is used when there is a need to obtain an instance of {@link CurveGroup}.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBean, Serializable {
+public final class CurveGroupId
+    implements MarketDataId<CurveGroup>, ImmutableBean, Serializable {
 
-  /** The name of the curve group. */
+  /**
+   * The curve group name.
+   */
   @PropertyDefinition(validate = "notNull")
-  private final CurveGroupName name;
-
-  /** The market data feed which provides quotes used to build curves in the group. */
+  private final CurveGroupName curveGroupName;
+  /**
+   * The source of observable market data.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataFeed marketDataFeed;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an ID identifying a curve group with a market data feed of {@link MarketDataFeed#NONE}.
+   * Obtains an instance used to obtain a curve group by name.
    *
-   * @param curveGroupName  the name of the curve group
-   * @return an ID identifying a curve group by name
+   * @param groupName  the curve group name
+   * @return the identifier
    */
-  public static CurveGroupId of(CurveGroupName curveGroupName) {
-    return new CurveGroupId(curveGroupName, MarketDataFeed.NONE);
+  public static CurveGroupId of(String groupName) {
+    return new CurveGroupId(CurveGroupName.of(groupName), MarketDataFeed.NONE);
   }
 
   /**
-   * Returns an ID identifying a curve group.
+   * Obtains an instance used to obtain a curve group by name.
    *
-   * @param curveGroupName  the name of the curve group
-   * @param marketDataFeed  the market data feed which provides quotes used to build curves in the group
-   * @return an ID identifying a curve group by name
+   * @param groupName  the curve group name
+   * @return the identifier
    */
-  public static CurveGroupId of(CurveGroupName curveGroupName, MarketDataFeed marketDataFeed) {
-    return new CurveGroupId(curveGroupName, marketDataFeed);
+  public static CurveGroupId of(CurveGroupName groupName) {
+    return new CurveGroupId(groupName, MarketDataFeed.NONE);
   }
 
+  /**
+   * Obtains an instance used to obtain a curve group by name, specifying the source of observable market data.
+   *
+   * @param groupName  the curve group name
+   * @param feed  source of observable market data
+   * @return the identifier
+   */
+  public static CurveGroupId of(CurveGroupName groupName, MarketDataFeed feed) {
+    return new CurveGroupId(groupName, feed);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Class<CurveGroup> getMarketDataType() {
     return CurveGroup.class;
@@ -88,11 +106,11 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   private static final long serialVersionUID = 1L;
 
   private CurveGroupId(
-      CurveGroupName name,
+      CurveGroupName curveGroupName,
       MarketDataFeed marketDataFeed) {
-    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(curveGroupName, "curveGroupName");
     JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
-    this.name = name;
+    this.curveGroupName = curveGroupName;
     this.marketDataFeed = marketDataFeed;
   }
 
@@ -113,16 +131,16 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the curve group.
+   * Gets the curve group name.
    * @return the value of the property, not null
    */
-  public CurveGroupName getName() {
-    return name;
+  public CurveGroupName getCurveGroupName() {
+    return curveGroupName;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data feed which provides quotes used to build curves in the group.
+   * Gets the source of observable market data.
    * @return the value of the property, not null
    */
   public MarketDataFeed getMarketDataFeed() {
@@ -137,7 +155,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveGroupId other = (CurveGroupId) obj;
-      return JodaBeanUtils.equal(name, other.name) &&
+      return JodaBeanUtils.equal(curveGroupName, other.curveGroupName) &&
           JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
     }
     return false;
@@ -146,7 +164,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(name);
+    hash = hash * 31 + JodaBeanUtils.hashCode(curveGroupName);
     hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
     return hash;
   }
@@ -155,7 +173,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveGroupId{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("curveGroupName").append('=').append(curveGroupName).append(',').append(' ');
     buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
     buf.append('}');
     return buf.toString();
@@ -172,10 +190,10 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code curveGroupName} property.
      */
-    private final MetaProperty<CurveGroupName> name = DirectMetaProperty.ofImmutable(
-        this, "name", CurveGroupId.class, CurveGroupName.class);
+    private final MetaProperty<CurveGroupName> curveGroupName = DirectMetaProperty.ofImmutable(
+        this, "curveGroupName", CurveGroupId.class, CurveGroupName.class);
     /**
      * The meta-property for the {@code marketDataFeed} property.
      */
@@ -186,7 +204,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "name",
+        "curveGroupName",
         "marketDataFeed");
 
     /**
@@ -198,8 +216,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case -382645893:  // curveGroupName
+          return curveGroupName;
         case 842621124:  // marketDataFeed
           return marketDataFeed;
       }
@@ -223,11 +241,11 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code name} property.
+     * The meta-property for the {@code curveGroupName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveGroupName> name() {
-      return name;
+    public MetaProperty<CurveGroupName> curveGroupName() {
+      return curveGroupName;
     }
 
     /**
@@ -242,8 +260,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((CurveGroupId) bean).getName();
+        case -382645893:  // curveGroupName
+          return ((CurveGroupId) bean).getCurveGroupName();
         case 842621124:  // marketDataFeed
           return ((CurveGroupId) bean).getMarketDataFeed();
       }
@@ -267,7 +285,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
    */
   private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupId> {
 
-    private CurveGroupName name;
+    private CurveGroupName curveGroupName;
     private MarketDataFeed marketDataFeed;
 
     /**
@@ -280,8 +298,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
+        case -382645893:  // curveGroupName
+          return curveGroupName;
         case 842621124:  // marketDataFeed
           return marketDataFeed;
         default:
@@ -292,8 +310,8 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          this.name = (CurveGroupName) newValue;
+        case -382645893:  // curveGroupName
+          this.curveGroupName = (CurveGroupName) newValue;
           break;
         case 842621124:  // marketDataFeed
           this.marketDataFeed = (MarketDataFeed) newValue;
@@ -331,7 +349,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     @Override
     public CurveGroupId build() {
       return new CurveGroupId(
-          name,
+          curveGroupName,
           marketDataFeed);
     }
 
@@ -340,7 +358,7 @@ public final class CurveGroupId implements MarketDataId<CurveGroup>, ImmutableBe
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("CurveGroupId.Builder{");
-      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("curveGroupName").append('=').append(JodaBeanUtils.toString(curveGroupName)).append(',').append(' ');
       buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
       buf.append('}');
       return buf.toString();

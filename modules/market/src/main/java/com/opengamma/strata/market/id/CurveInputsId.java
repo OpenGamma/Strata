@@ -30,36 +30,44 @@ import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
- * Market data ID for a set of market data used when calibrating a curve.
+ * An identifier used to access the inputs to curve calibration.
+ * <p>
+ * This is used when there is a need to obtain an instance of {@link CurveInputs}.
  */
 @BeanDefinition(builderScope = "private")
 public final class CurveInputsId
     implements MarketDataId<CurveInputs>, ImmutableBean, Serializable {
 
-  /** The name of the curve group containing the curve. */
+  /**
+   * The curve group name.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveGroupName curveGroupName;
-
-  /** The name of the curve. */
+  /**
+   * The curve name.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveName curveName;
-
-  /** The market data feed providing the market quotes. */
+  /**
+   * The source of observable market data.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataFeed marketDataFeed;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an ID for the input data used when calibrating the specified curve.
+   * Obtains an instance from the curve group, curve name and source of observable market data.
    *
-   * @param curveGroupName  the name of the curve group containing the curve
-   * @param curveName  the name of the curve
-   * @param marketDataFeed  the market data feed providing the market quotes
-   * @return an ID for the input data used when calibrating the specified curve
+   * @param groupName  the curve group name
+   * @param curveName  the curve name
+   * @param feed  source of observable market data
+   * @return the identifier
    */
-  public static CurveInputsId of(CurveGroupName curveGroupName, CurveName curveName, MarketDataFeed marketDataFeed) {
-    return new CurveInputsId(curveGroupName, curveName, marketDataFeed);
+  public static CurveInputsId of(CurveGroupName groupName, CurveName curveName, MarketDataFeed feed) {
+    return new CurveInputsId(groupName, curveName, feed);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<CurveInputs> getMarketDataType() {
     return CurveInputs.class;
@@ -113,7 +121,7 @@ public final class CurveInputsId
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the curve group containing the curve.
+   * Gets the curve group name.
    * @return the value of the property, not null
    */
   public CurveGroupName getCurveGroupName() {
@@ -122,7 +130,7 @@ public final class CurveInputsId
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name of the curve.
+   * Gets the curve name.
    * @return the value of the property, not null
    */
   public CurveName getCurveName() {
@@ -131,7 +139,7 @@ public final class CurveInputsId
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data feed providing the market quotes.
+   * Gets the source of observable market data.
    * @return the value of the property, not null
    */
   public MarketDataFeed getMarketDataFeed() {

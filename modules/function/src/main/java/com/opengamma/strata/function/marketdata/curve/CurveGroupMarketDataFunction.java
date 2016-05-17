@@ -76,7 +76,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   //-------------------------------------------------------------------------
   @Override
   public MarketDataRequirements requirements(CurveGroupId id, MarketDataConfig marketDataConfig) {
-    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, id.getName());
+    CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, id.getCurveGroupName());
 
     // request input data for any curves that need market data
     // no input data is requested if the curve definition contains all the market data needed to build the curve
@@ -102,7 +102,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         rfc.getAbsoluteTolerance(), rfc.getRelativeTolerance(), rfc.getMaximumSteps(), calibrationMeasures);
 
     // calibrate
-    CurveGroupName groupName = id.getName();
+    CurveGroupName groupName = id.getCurveGroupName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
     return buildCurveGroup(groupDefn, calibrator, marketData, refData, id.getMarketDataFeed());
   }

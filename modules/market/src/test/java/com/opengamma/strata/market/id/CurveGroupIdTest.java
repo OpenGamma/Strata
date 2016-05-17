@@ -27,16 +27,23 @@ public class CurveGroupIdTest {
   private static final MarketDataFeed FEED2 = MarketDataFeed.of("Feed2");
 
   //-------------------------------------------------------------------------
-  public void test_of_1arg() {
-    CurveGroupId test = CurveGroupId.of(GROUP1);
-    assertEquals(test.getName(), GROUP1);
+  public void test_of_String() {
+    CurveGroupId test = CurveGroupId.of(GROUP1.toString());
+    assertEquals(test.getCurveGroupName(), GROUP1);
     assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), CurveGroup.class);
   }
 
-  public void test_of_2args() {
+  public void test_of_Type() {
+    CurveGroupId test = CurveGroupId.of(GROUP1);
+    assertEquals(test.getCurveGroupName(), GROUP1);
+    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getMarketDataType(), CurveGroup.class);
+  }
+
+  public void test_of_TypeFeed() {
     CurveGroupId test = CurveGroupId.of(GROUP1, MarketDataFeed.NONE);
-    assertEquals(test.getName(), GROUP1);
+    assertEquals(test.getCurveGroupName(), GROUP1);
     assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
     assertEquals(test.getMarketDataType(), CurveGroup.class);
   }
