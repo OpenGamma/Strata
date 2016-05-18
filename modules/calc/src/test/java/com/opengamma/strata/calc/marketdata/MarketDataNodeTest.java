@@ -150,7 +150,7 @@ public class MarketDataNodeTest {
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
             requirements,
-            MarketEnvironment.empty(),
+            BuiltScenarioMarketData.empty(),
             MarketDataConfig.empty(),
             functions);
 
@@ -199,14 +199,14 @@ public class MarketDataNodeTest {
     MarketDataNode root1 =
         MarketDataNode.buildDependencyTree(
             requirements,
-            MarketEnvironment.empty(),
+            BuiltScenarioMarketData.empty(),
             MarketDataConfig.empty(),
             functions);
 
     assertThat(root1).isEqualTo(expected1);
 
-    MarketEnvironment suppliedData =
-        MarketEnvironment.builder(date(2011, 3, 8))
+    BuiltScenarioMarketData suppliedData =
+        BuiltScenarioMarketData.builder(date(2011, 3, 8))
             .addValue(new TestIdB("1"), new TestMarketDataB())
             .addValue(new TestIdB("3"), new TestMarketDataB())
             .build();
@@ -254,7 +254,7 @@ public class MarketDataNodeTest {
     MarketDataNode root =
         MarketDataNode.buildDependencyTree(
             requirements,
-            MarketEnvironment.empty(),
+            BuiltScenarioMarketData.empty(),
             MarketDataConfig.empty(),
             functions);
 

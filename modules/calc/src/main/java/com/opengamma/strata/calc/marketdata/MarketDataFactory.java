@@ -28,7 +28,7 @@ public interface MarketDataFactory {
    * @param refData  the reference data
    * @return the market data required by the calculations plus details of any data that could not be built
    */
-  public abstract MarketEnvironment buildMarketData(
+  public abstract BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData suppliedData,
@@ -55,7 +55,7 @@ public interface MarketDataFactory {
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @return the market data required by the calculations
    */
-  public abstract MarketEnvironment buildMarketData(
+  public abstract BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData suppliedData,

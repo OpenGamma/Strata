@@ -21,9 +21,9 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A mutable builder for building up {@link MarketEnvironment} instances.
+ * A mutable builder for building up {@link BuiltScenarioMarketData} instances.
  */
-final class MarketEnvironmentBuilder {
+final class BuiltScenarioMarketDataBuilder {
 
   /** The valuation date associated with the market data. */
   private MarketDataBox<LocalDate> valuationDate = MarketDataBox.empty();
@@ -48,7 +48,7 @@ final class MarketEnvironmentBuilder {
    *
    * @param valuationDate  the valuation date associated with the market data
    */
-  MarketEnvironmentBuilder(LocalDate valuationDate) {
+  BuiltScenarioMarketDataBuilder(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
     updateScenarioCount(this.valuationDate);
@@ -59,7 +59,7 @@ final class MarketEnvironmentBuilder {
    *
    * @param valuationDate  the valuation date associated with the market data
    */
-  MarketEnvironmentBuilder(MarketDataBox<LocalDate> valuationDate) {
+  BuiltScenarioMarketDataBuilder(MarketDataBox<LocalDate> valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
 
     if (valuationDate.getScenarioCount() == 0) {
@@ -79,7 +79,7 @@ final class MarketEnvironmentBuilder {
    * @param valueFailures  details of failures encountered when building market data values
    * @param timeSeriesFailures  details of failures encountered when building time series
    */
-  MarketEnvironmentBuilder(
+  BuiltScenarioMarketDataBuilder(
       MarketDataBox<LocalDate> valuationDate,
       int scenarioCount,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
@@ -103,7 +103,7 @@ final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, T value) {
+  <T> BuiltScenarioMarketDataBuilder addValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, MarketDataBox.ofSingleValue(value));
@@ -119,7 +119,7 @@ final class MarketEnvironmentBuilder {
    * @param box  the market data box
    * @return this builder
    */
-  MarketEnvironmentBuilder addBox(MarketDataId<?> id, MarketDataBox<?> box) {
+  BuiltScenarioMarketDataBuilder addBox(MarketDataId<?> id, MarketDataBox<?> box) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(box, "box");
     updateScenarioCount(box);
@@ -137,7 +137,7 @@ final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  <T> MarketEnvironmentBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
+  <T> BuiltScenarioMarketDataBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
@@ -162,7 +162,7 @@ final class MarketEnvironmentBuilder {
    * @param timeSeries  a time series of observable market data values
    * @return this builder
    */
-  MarketEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+  BuiltScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
@@ -176,7 +176,7 @@ final class MarketEnvironmentBuilder {
    * @param result  a time series of observable market data values
    * @return this builder
    */
-  MarketEnvironmentBuilder addTimeSeriesResult(ObservableId id, Result<LocalDateDoubleTimeSeries> result) {
+  BuiltScenarioMarketDataBuilder addTimeSeriesResult(ObservableId id, Result<LocalDateDoubleTimeSeries> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
@@ -198,15 +198,15 @@ final class MarketEnvironmentBuilder {
    *
    * @return a set of market data from the data in this builder
    */
-  MarketEnvironment build() {
+  BuiltScenarioMarketData build() {
     if (valuationDate.getScenarioCount() == 0) {
-      // This isn't checked in MarketEnvironment otherwise it would be impossible to have an empty environment
+      // This isn't checked in the main class otherwise it would be impossible to have an empty instance
       throw new IllegalArgumentException("Valuation date must be specified");
     }
     ImmutableScenarioMarketDataBuilder builder = ImmutableScenarioMarketData.builder(valuationDate)
         .addBoxMap(values)
         .addTimeSeriesMap(timeSeries);
-    return new MarketEnvironment(builder.build(), valueFailures, timeSeriesFailures);
+    return new BuiltScenarioMarketData(builder.build(), valueFailures, timeSeriesFailures);
   }
 
   //-------------------------------------------------------------------------
@@ -237,12 +237,10 @@ final class MarketEnvironmentBuilder {
       return;
     }
     if (scenarioCount != this.scenarioCount) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Cannot add a value with {} scenarios to an environment with {} scenarios, value = {}",
-              scenarioCount,
-              this.scenarioCount,
-              box));
+      throw new IllegalArgumentException(Messages.format(
+          "All values must have the same number of scenarios, expecting {} but received {}",
+          this.scenarioCount,
+          scenarioCount));
     }
   }
 }

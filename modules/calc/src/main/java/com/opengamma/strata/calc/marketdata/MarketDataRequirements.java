@@ -34,9 +34,10 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 
 /**
- * A collection of market data IDs defining a set of market data.
+ * Requirements for market data.
  * <p>
- * This class is used when building instances of {@link MarketEnvironment}.
+ * This class is used as the input to {@link MarketDataFactory}.
+ * It includes the market data identifiers that the application needs.
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketDataRequirements implements ImmutableBean {

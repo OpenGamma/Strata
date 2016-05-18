@@ -93,7 +93,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketEnvironment buildMarketData(
+  public BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData suppliedData,
@@ -103,15 +103,15 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketEnvironment buildMarketData(
+  public BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 
-    MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder(suppliedData.getValuationDate());
-    MarketEnvironment builtData = dataBuilder.build();
+    BuiltScenarioMarketDataBuilder dataBuilder = BuiltScenarioMarketData.builder(suppliedData.getValuationDate());
+    BuiltScenarioMarketData builtData = dataBuilder.build();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -138,7 +138,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      MarketEnvironment marketData = builtData;
+      BuiltScenarioMarketData marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -218,7 +218,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
       MarketDataConfig marketDataConfig,
-      MarketEnvironment suppliedData,
+      BuiltScenarioMarketData suppliedData,
       ReferenceData refData) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
@@ -241,7 +241,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      MarketEnvironment marketData,
+      BuiltScenarioMarketData marketData,
       ReferenceData refData) {
 
     return ids.stream()
@@ -265,7 +265,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       Result<MarketDataBox<?>> valueResult,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResult(id, valueResult);
@@ -291,7 +291,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ObservableId id,
       Result<Double> valueResult,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResult(id, Result.failure(valueResult));
@@ -316,7 +316,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       MarketDataBox<?> value,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
         .filter(m -> m.matches(id, value))

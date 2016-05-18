@@ -114,11 +114,11 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
-    ScenarioMarketData marketEnvironment = ImmutableScenarioMarketData.builder(valuationDate)
+    ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, inputMarketData, REF_DATA, MarketDataFeed.NONE);
 
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
@@ -159,12 +159,12 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
-    ScenarioMarketData marketEnvironment = ImmutableScenarioMarketData.builder(valuationDate)
+    ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
 
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, inputMarketData, REF_DATA, MarketDataFeed.NONE);
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
     Map<MarketDataId<?>, Object> marketDataMap = ImmutableMap.<MarketDataId<?>, Object>builder()

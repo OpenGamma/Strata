@@ -143,7 +143,7 @@ public final class ImmutableScenarioMarketData
   /**
    * Creates a mutable builder that can be used to create an instance of the market data.
    * 
-   * @param valuationDate  the valuation dates associated with the market data
+   * @param valuationDate  the valuation date associated with the market data
    * @return the mutable builder
    */
   public static ImmutableScenarioMarketDataBuilder builder(LocalDate valuationDate) {
