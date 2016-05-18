@@ -32,6 +32,7 @@ import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -39,13 +40,12 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.key.IndexRateKey;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.fra.FraDummyData;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 
@@ -58,9 +58,14 @@ public class FraCalculationFunctionTest {
   public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
+  private static final SimpleCurveId DISCOUNT_CURVE_ID = SimpleCurveId.of("Default", "Discount");
+  private static final SimpleCurveId FORWARD_CURVE_ID = SimpleCurveId.of("Default", "Forward");
+  private static final RatesMarketDataLookup RATES_MODEL = RatesMarketDataLookup.of(
+      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
+      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_MODEL);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
 
   //-------------------------------------------------------------------------
@@ -70,7 +75,7 @@ public class FraCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountCurveKey.of(CURRENCY), IborIndexCurveKey.of(INDEX)));
+        ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexRateKey.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -78,7 +83,7 @@ public class FraCalculationFunctionTest {
   public void test_simpleMeasures() {
     FraCalculationFunction function = new FraCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
@@ -107,7 +112,7 @@ public class FraCalculationFunctionTest {
   public void test_pv01() {
     FraCalculationFunction function = new FraCalculationFunction();
     CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
@@ -126,11 +131,10 @@ public class FraCalculationFunctionTest {
   //-------------------------------------------------------------------------
   private CalculationMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
-    TestMarketDataMap md = new TestMarketDataMap(
+    return new TestMarketDataMap(
         VAL_DATE,
-        ImmutableMap.of(DiscountCurveKey.of(CURRENCY), curve, IborIndexCurveKey.of(INDEX), curve),
+        ImmutableMap.of(DISCOUNT_CURVE_ID, curve, FORWARD_CURVE_ID, curve),
         ImmutableMap.of());
-    return md;
   }
 
   //-------------------------------------------------------------------------

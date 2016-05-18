@@ -43,6 +43,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
@@ -58,6 +59,7 @@ import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.OvernightIndexCurveId;
 import com.opengamma.strata.market.id.PriceIndexCurveId;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.id.SimpleCurveId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -212,6 +214,17 @@ public abstract class ExampleMarketDataBuilder {
   }
 
   /**
+   * Gets the rates market lookup to use with this environment.
+   * 
+   * @param marketDataDate  the date of the market data
+   * @return the rates lookup
+   */
+  public RatesMarketDataLookup ratesLookup(LocalDate marketDataDate) {
+    SortedMap<LocalDate, CurveGroup> curves = loadAllRatesCurves();
+    return RatesMarketDataLookup.of(curves.get(marketDataDate));
+  }
+
+  /**
    * Gets all rates curves.
    * 
    * @return the map of all rates curves
@@ -284,6 +297,12 @@ public abstract class ExampleMarketDataBuilder {
         // add entry for higher level forward curve ID, needed for the examples to work without market data building
         group.getForwardCurves().forEach(
             (idx, curve) -> builder.addValue(createCurveId(idx, group.getName()), curve));
+        // add entry for higher level discount curve name
+        group.getDiscountCurves().forEach(
+            (ccy, curve) -> builder.addValue(SimpleCurveId.of(group.getName(), curve.getName()), curve));
+        // add entry for higher level forward curve name
+        group.getForwardCurves().forEach(
+            (idx, curve) -> builder.addValue(SimpleCurveId.of(group.getName(), curve.getName()), curve));
       }
 
     } catch (Exception e) {

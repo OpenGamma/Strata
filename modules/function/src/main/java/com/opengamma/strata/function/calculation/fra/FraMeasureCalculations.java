@@ -5,33 +5,34 @@
  */
 package com.opengamma.strata.function.calculation.fra;
 
-import static java.util.stream.Collectors.toSet;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.function.calculation.rate.MarketDataUtils;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
+import com.opengamma.strata.market.id.SimpleCurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.CurveGammaCalculator;
 import com.opengamma.strata.product.fra.ResolvedFra;
@@ -62,7 +63,7 @@ final class FraMeasureCalculations {
   // calculates par rate for all scenarios
   static ValuesArray parRate(
       ResolvedFraTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ValuesArray.of(
@@ -71,14 +72,13 @@ final class FraMeasureCalculations {
   }
 
   // par rate for one scenario
-  private static double calculateParRate(ResolvedFra fra, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    return PRICER.parRate(fra, provider);
+  private static double calculateParRate(ResolvedFra fra, RatesMarketData marketData) {
+    return PRICER.parRate(fra, marketData.ratesProvider());
   }
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  static ValuesArray parSpread(ResolvedFraTrade trade, CalculationMarketData marketData) {
+  static ValuesArray parSpread(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ValuesArray.of(
@@ -87,14 +87,13 @@ final class FraMeasureCalculations {
   }
 
   // par spread for one scenario
-  private static double calculateParSpread(ResolvedFra product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    return PRICER.parSpread(product, provider);
+  private static double calculateParSpread(ResolvedFra product, RatesMarketData marketData) {
+    return PRICER.parSpread(product, marketData.ratesProvider());
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(ResolvedFraTrade trade, CalculationMarketData marketData) {
+  static CurrencyValuesArray presentValue(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return CurrencyValuesArray.of(
@@ -103,14 +102,13 @@ final class FraMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(ResolvedFra product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    return PRICER.presentValue(product, provider);
+  private static CurrencyAmount calculatePresentValue(ResolvedFra product, RatesMarketData marketData) {
+    return PRICER.presentValue(product, marketData.ratesProvider());
   }
 
   //-------------------------------------------------------------------------
   // calculates explain present value for all scenarios
-  static ScenarioResult<ExplainMap> explainPresentValue(ResolvedFraTrade trade, CalculationMarketData marketData) {
+  static ScenarioResult<ExplainMap> explainPresentValue(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ScenarioResult.of(
@@ -119,14 +117,13 @@ final class FraMeasureCalculations {
   }
 
   // explain present value for one scenario
-  private static ExplainMap calculateExplainPresentValue(ResolvedFra product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    return PRICER.explainPresentValue(product, provider);
+  private static ExplainMap calculateExplainPresentValue(ResolvedFra product, RatesMarketData marketData) {
+    return PRICER.explainPresentValue(product, marketData.ratesProvider());
   }
 
   //-------------------------------------------------------------------------
   // calculates cash flows for all scenarios
-  static ScenarioResult<CashFlows> cashFlows(ResolvedFraTrade trade, CalculationMarketData marketData) {
+  static ScenarioResult<CashFlows> cashFlows(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ScenarioResult.of(
@@ -135,14 +132,13 @@ final class FraMeasureCalculations {
   }
 
   // cash flows for one scenario
-  private static CashFlows calculateCashFlows(ResolvedFra product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    return PRICER.cashFlows(product, provider);
+  private static CashFlows calculateCashFlows(ResolvedFra product, RatesMarketData marketData) {
+    return PRICER.cashFlows(product, marketData.ratesProvider());
   }
 
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01(ResolvedFraTrade trade, CalculationMarketData marketData) {
+  static MultiCurrencyValuesArray pv01(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return MultiCurrencyValuesArray.of(
@@ -151,17 +147,17 @@ final class FraMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedFra product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+  private static MultiCurrencyAmount calculatePv01(ResolvedFra product, RatesMarketData marketData) {
+    RatesProvider ratesProvider = marketData.ratesProvider();
+    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, ratesProvider);
+    return ratesProvider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedFraTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ScenarioResult.of(
@@ -172,18 +168,18 @@ final class FraMeasureCalculations {
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedFra product,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
-    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    RatesProvider ratesProvider = marketData.ratesProvider();
+    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, ratesProvider);
+    return ratesProvider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed gamma PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedGammaPv01(
       ResolvedFraTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
     return ScenarioResult.of(
@@ -194,46 +190,46 @@ final class FraMeasureCalculations {
   // bucketed gamma PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedGammaPv01(
       ResolvedFra product,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    // find the curve and check it is valid
+    // find the curve identifiers and resolve to a single curve
     Currency currency = product.getCurrency();
-    NodalCurve nodalCurve = marketData.getValue(DiscountCurveKey.of(currency)).toNodalCurve();
-
-    // find indices and validate there is only one curve
     Set<IborIndex> indices = product.allIndices();
-    validateSingleCurve(indices, marketData, nodalCurve);
+    ImmutableSet<MarketDataKey<?>> discountIds = marketData.getLookup().getDiscountMarketDataIds(currency);
+    ImmutableSet<MarketDataKey<?>> forwardIds = indices.stream()
+        .flatMap(idx -> marketData.getLookup().getForwardMarketDataIds(idx).stream())
+        .collect(toImmutableSet());
+    Set<MarketDataKey<?>> allIds = Sets.union(discountIds, forwardIds);
+    if (allIds.size() != 1) {
+      throw new IllegalArgumentException(Messages.format(
+          "Implementation only supports a single curve, but lookup refers to more than one: {}", allIds));
+    }
+    MarketDataKey<?> singleId = allIds.iterator().next();
+    if (!(singleId instanceof SimpleCurveId)) {
+      throw new IllegalArgumentException(Messages.format(
+          "Implementation only supports a single curve, but lookup does not refer to a curve: {} {}",
+          singleId.getClass().getName(), singleId));
+    }
+    SimpleCurveId curveId = (SimpleCurveId) singleId;
+    NodalCurve nodalCurve = marketData.getMarketData().getValue(curveId).toNodalCurve();
 
     // calculate gamma
     CurveCurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
-        nodalCurve, currency, c -> calculateCurveSensitivity(product, currency, indices, marketData, c));
+        nodalCurve, currency, c -> calculateCurveSensitivity(product, marketData, curveId, c));
     return CurveCurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
-  }
-
-  // validates that the indices all resolve to the single specified curve
-  private static void validateSingleCurve(Set<IborIndex> indices, MarketData marketData, NodalCurve nodalCurve) {
-    Set<IborIndexCurveKey> differentForwardCurves = indices.stream()
-        .map(idx -> IborIndexCurveKey.of(idx))
-        .filter(k -> !nodalCurve.equals(marketData.getValue(k)))
-        .collect(toSet());
-    if (!differentForwardCurves.isEmpty()) {
-      throw new IllegalArgumentException(
-          Messages.format("Implementation only supports a single curve, but discounting curve is different from " +
-              "index curves for indices: {}", differentForwardCurves));
-    }
   }
 
   // calculates the sensitivity
   private static CurveCurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedFra product,
-      Currency currency,
-      Set<IborIndex> indices,
-      MarketData marketData,
+      RatesMarketData marketData,
+      SimpleCurveId curveId,
       NodalCurve bumpedCurve) {
 
-    RatesProvider ratesProvider = MarketDataUtils.toSingleCurveRatesProvider(marketData, currency, indices, bumpedCurve);
-    PointSensitivities pointSensitivities = PRICER.presentValueSensitivity(product, ratesProvider);
-    CurveCurrencyParameterSensitivities paramSensitivities = ratesProvider.curveParameterSensitivity(pointSensitivities);
+    MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);
+    RatesProvider bumpedRatesProvider = marketData.withMarketData(bumpedMarketData).ratesProvider();
+    PointSensitivities pointSensitivities = PRICER.presentValueSensitivity(product, bumpedRatesProvider);
+    CurveCurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.curveParameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
   }
 

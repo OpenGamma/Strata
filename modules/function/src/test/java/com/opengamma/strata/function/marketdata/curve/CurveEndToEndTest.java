@@ -6,7 +6,6 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
 import static com.opengamma.strata.function.marketdata.curve.CurveTestUtils.fixedIborSwapNode;
@@ -16,50 +15,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.FunctionUtils;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
+import com.opengamma.strata.function.calculation.fra.FraCalculationFunction;
 import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
 import com.opengamma.strata.market.ValueType;
@@ -72,15 +59,8 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IndexRateKey;
-import com.opengamma.strata.market.key.MarketDataKeys;
-import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -168,8 +148,9 @@ public class CurveEndToEndTest {
         MarketDataMappingsBuilder.create()
             .curveGroup(groupName)
             .build());
+    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(groupDefn);
 
-    CalculationRules calculationRules = CalculationRules.of(functions(), marketDataRules, Currency.USD);
+    CalculationRules calculationRules = CalculationRules.of(functions(), marketDataRules, Currency.USD, ratesLookup);
 
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
@@ -198,79 +179,7 @@ public class CurveEndToEndTest {
   private static CalculationFunctions functions() {
     return CalculationFunctions.of(ImmutableMap.of(
         SwapTrade.class, new SwapCalculationFunction(),
-        FraTrade.class, new TestFraPresentValueFunction()));
-  }
-
-  /**
-   * PV function for a FRA. There is an equivalent in the function-beta module. This should be replaced with that
-   * function once it is promoted to the function module.
-   */
-  public static final class TestFraPresentValueFunction
-      implements CalculationFunction<FraTrade> {
-
-    @Override
-    public Class<FraTrade> targetType() {
-      return FraTrade.class;
-    }
-
-    @Override
-    public Set<Measure> supportedMeasures() {
-      return ImmutableSet.of(Measures.PRESENT_VALUE);
-    }
-
-    @Override
-    public Currency naturalCurrency(FraTrade trade, ReferenceData refData) {
-      return trade.getProduct().getCurrency();
-    }
-
-    @Override
-    public FunctionRequirements requirements(
-        FraTrade trade,
-        Set<Measure> measures,
-        CalculationParameters parameters,
-        ReferenceData refData) {
-
-      Fra fra = trade.getProduct();
-
-      Set<Index> indices = new HashSet<>();
-      indices.add(fra.getIndex());
-      fra.getIndexInterpolated().ifPresent(indices::add);
-
-      Set<ObservableKey> indexRateKeys =
-          indices.stream()
-              .map(IndexRateKey::of)
-              .collect(toImmutableSet());
-
-      Set<MarketDataKey<?>> indexCurveKeys =
-          indices.stream()
-              .map(MarketDataKeys::indexCurve)
-              .collect(toImmutableSet());
-
-      Set<DiscountCurveKey> discountCurveKeys =
-          ImmutableSet.of(DiscountCurveKey.of(fra.getCurrency()));
-
-      return FunctionRequirements.builder()
-          .singleValueRequirements(Sets.union(indexCurveKeys, discountCurveKeys))
-          .timeSeriesRequirements(indexRateKeys)
-          .outputCurrencies(fra.getCurrency())
-          .build();
-    }
-
-    @Override
-    public Map<Measure, Result<?>> calculate(
-        FraTrade trade,
-        Set<Measure> measures,
-        CalculationParameters parameters,
-        CalculationMarketData marketData,
-        ReferenceData refData) {
-
-      ResolvedFra product = trade.getProduct().resolve(refData);
-      CurrencyValuesArray pv = marketData.scenarios()
-          .map(MarketDataRatesProvider::of)
-          .map(provider -> DiscountingFraProductPricer.DEFAULT.presentValue(product, provider))
-          .collect(FunctionUtils.toCurrencyValuesArray());
-      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(pv));
-    }
+        FraTrade.class, new FraCalculationFunction()));
   }
 
 }
