@@ -11,7 +11,7 @@ import java.util.Set;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
@@ -34,7 +34,7 @@ import com.opengamma.strata.collect.result.Result;
  *  - the "natural" currency of the target
  * <li>{@link #requirements(CalculationTarget, Set, CalculationParameters, ReferenceData)}
  *  - the market data requirements for performing the calculation
- * <li>{@link #calculate(CalculationTarget, Set, CalculationParameters, CalculationMarketData, ReferenceData)}
+ * <li>{@link #calculate(CalculationTarget, Set, CalculationParameters, ScenarioMarketData, ReferenceData)}
  *  - perform the calculation
  * </ul>
  * <p>
@@ -123,7 +123,7 @@ public interface CalculationFunction<T extends CalculationTarget> {
       T target,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
 }

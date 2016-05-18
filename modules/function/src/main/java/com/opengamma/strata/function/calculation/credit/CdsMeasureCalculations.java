@@ -7,7 +7,7 @@ package com.opengamma.strata.function.calculation.credit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.result.ValuesArray;
@@ -47,7 +47,7 @@ class CdsMeasureCalculations {
   // calculates par rate for all scenarios
   static ValuesArray parRate(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return ValuesArray.of(
         marketData.getScenarioCount(),
@@ -75,7 +75,7 @@ class CdsMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -104,7 +104,7 @@ class CdsMeasureCalculations {
   // calculates IR01 for all scenarios
   static CurrencyValuesArray ir01ParallelZero(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -133,7 +133,7 @@ class CdsMeasureCalculations {
   // calculates bucketed IR01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> ir01BucketedZero(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -162,7 +162,7 @@ class CdsMeasureCalculations {
   // calculates IR01 for all scenarios
   static CurrencyValuesArray ir01ParallelPar(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -191,7 +191,7 @@ class CdsMeasureCalculations {
   // calculates bucketed IR01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> ir01BucketedPar(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -220,7 +220,7 @@ class CdsMeasureCalculations {
   // calculates CS01 for all scenarios
   static CurrencyValuesArray cs01ParallelPar(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -249,7 +249,7 @@ class CdsMeasureCalculations {
   // calculates bucketed CS01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> cs01BucketedPar(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -278,7 +278,7 @@ class CdsMeasureCalculations {
   // calculates CS01 for all scenarios
   static CurrencyValuesArray cs01ParallelHazard(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -307,7 +307,7 @@ class CdsMeasureCalculations {
   // calculates bucketed CS01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> cs01BucketedHazard(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -336,7 +336,7 @@ class CdsMeasureCalculations {
   // calculates recovery01 for all scenarios
   static CurrencyValuesArray recovery01(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -365,7 +365,7 @@ class CdsMeasureCalculations {
   // calculates jump to default for all scenarios
   static CurrencyValuesArray jumpToDefault(
       ResolvedCdsTrade trade,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),

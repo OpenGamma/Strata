@@ -28,7 +28,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A single scenario view of multi-scenario market data.
  * <p>
- * This wraps an instance of {@link CalculationMarketData} which contains market data for multiple scenarios.
+ * This wraps an instance of {@link ScenarioMarketData} which contains market data for multiple scenarios.
  * This object returns market data from one of those scenarios. The scenario used as the source of the
  * data is controlled by the {@code scenarioIndex} argument.
  */
@@ -40,7 +40,7 @@ final class SingleScenarioMarketData
    * The set of market data for all scenarios.
    */
   @PropertyDefinition(validate = "notNull")
-  private final CalculationMarketData marketData;
+  private final ScenarioMarketData marketData;
   /**
    * The index of the scenario.
    * This index is used to query the multi-scenario market data.
@@ -59,7 +59,7 @@ final class SingleScenarioMarketData
    * @return the market data
    * @throws IllegalArgumentException if the scenario index is invalid
    */
-  public static SingleScenarioMarketData of(CalculationMarketData marketData, int scenarioIndex) {
+  public static SingleScenarioMarketData of(ScenarioMarketData marketData, int scenarioIndex) {
     return new SingleScenarioMarketData(marketData, scenarioIndex);
   }
 
@@ -115,7 +115,7 @@ final class SingleScenarioMarketData
   }
 
   private SingleScenarioMarketData(
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       int scenarioIndex) {
     JodaBeanUtils.notNull(marketData, "marketData");
     this.marketData = marketData;
@@ -143,7 +143,7 @@ final class SingleScenarioMarketData
    * Gets the set of market data for all scenarios.
    * @return the value of the property, not null
    */
-  public CalculationMarketData getMarketData() {
+  public ScenarioMarketData getMarketData() {
     return marketData;
   }
 

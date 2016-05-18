@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
@@ -41,7 +41,7 @@ public class SwaptionMarketDataLookupTest {
   private static final SwaptionVolatilitiesId VOL_ID1 = SwaptionVolatilitiesId.of("USD1");
   private static final SwaptionVolatilities MOCK_VOLS = mock(SwaptionVolatilities.class);
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
-  private static final CalculationMarketData MOCK_CALC_MARKET_DATA = mock(CalculationMarketData.class);
+  private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
   static {
     when(MOCK_MARKET_DATA.getValue(VOL_ID1)).thenReturn(MOCK_VOLS);
@@ -88,7 +88,7 @@ public class SwaptionMarketDataLookupTest {
   public void test_marketDataView() {
     SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     LocalDate valDate = date(2015, 6, 30);
-    CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     SwaptionScenarioMarketData multiScenario = test.marketDataView(md);
     assertEquals(multiScenario.getLookup(), test);
     assertEquals(multiScenario.getMarketData(), md);

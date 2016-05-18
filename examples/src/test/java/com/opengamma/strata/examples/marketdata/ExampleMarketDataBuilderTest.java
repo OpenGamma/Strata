@@ -36,7 +36,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -215,7 +215,7 @@ public class ExampleMarketDataBuilderTest {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
 
-    ImmutableCalculationMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
+    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
@@ -236,13 +236,13 @@ public class ExampleMarketDataBuilderTest {
   public void test_ofResource_directory_with_spaces() {
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
 
-    ImmutableCalculationMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
+    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
   //-------------------------------------------------------------------------
   private void assertBuilder(ExampleMarketDataBuilder builder) {
-    ImmutableCalculationMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
+    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
 
     assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate().getSingleValue());
 

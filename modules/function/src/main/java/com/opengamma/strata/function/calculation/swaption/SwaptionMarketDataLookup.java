@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -28,7 +28,7 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationMarketData}.
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  * <p>
  * Implementations of this interface must be immutable.
  */
@@ -118,12 +118,12 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * Obtains a filtered view of the complete set of market data.
    * <p>
    * This method returns an instance that binds the lookup to the market data.
-   * The input is {@link CalculationMarketData}, which contains market data for all scenarios.
+   * The input is {@link ScenarioMarketData}, which contains market data for all scenarios.
    * 
    * @param marketData  the complete set of market data for all scenarios
    * @return the filtered market data
    */
-  public default SwaptionScenarioMarketData marketDataView(CalculationMarketData marketData) {
+  public default SwaptionScenarioMarketData marketDataView(ScenarioMarketData marketData) {
     return DefaultSwaptionScenarioMarketData.of(this, marketData);
   }
 

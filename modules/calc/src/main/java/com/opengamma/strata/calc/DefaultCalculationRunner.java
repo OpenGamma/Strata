@@ -73,7 +73,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
@@ -85,7 +85,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
@@ -97,7 +97,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 
@@ -110,7 +110,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 

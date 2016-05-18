@@ -30,7 +30,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -46,7 +46,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationMarketData}.
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultRatesMarketDataLookup
@@ -73,7 +73,7 @@ final class DefaultRatesMarketDataLookup
    * Obtains an instance based on a map of discount and forward curve identifiers.
    * <p>
    * The discount and forward curves refer to the curve identifier.
-   * The curves themselves are provided in {@link CalculationMarketData}
+   * The curves themselves are provided in {@link ScenarioMarketData}
    * using {@link CurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency

@@ -12,8 +12,8 @@ import java.util.Map;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
-import com.opengamma.strata.calc.ImmutableCalculationMarketDataBuilder;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketDataBuilder;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
@@ -203,7 +203,7 @@ final class MarketEnvironmentBuilder {
       // This isn't checked in MarketEnvironment otherwise it would be impossible to have an empty environment
       throw new IllegalArgumentException("Valuation date must be specified");
     }
-    ImmutableCalculationMarketDataBuilder builder = ImmutableCalculationMarketData.builder(valuationDate)
+    ImmutableScenarioMarketDataBuilder builder = ImmutableScenarioMarketData.builder(valuationDate)
         .addBoxMap(values)
         .addTimeSeriesMap(timeSeries);
     return new MarketEnvironment(builder.build(), valueFailures, timeSeriesFailures);

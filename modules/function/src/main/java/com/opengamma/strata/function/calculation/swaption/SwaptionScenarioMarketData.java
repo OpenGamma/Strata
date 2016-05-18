@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.swaption;
 
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 
 /**
  * Market data for swaptions, used for calculation across multiple scenarios.
@@ -28,7 +28,7 @@ public interface SwaptionScenarioMarketData {
    * 
    * @return the market data
    */
-  public abstract CalculationMarketData getMarketData();
+  public abstract ScenarioMarketData getMarketData();
 
   /**
    * Returns a copy of this instance with the specified market data.
@@ -36,7 +36,7 @@ public interface SwaptionScenarioMarketData {
    * @param marketData  the market data to use
    * @return a market view based on the specified data
    */
-  public abstract SwaptionScenarioMarketData withMarketData(CalculationMarketData marketData);
+  public abstract SwaptionScenarioMarketData withMarketData(ScenarioMarketData marketData);
 
   //-------------------------------------------------------------------------
   /**

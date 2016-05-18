@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -96,7 +96,7 @@ public class GenericSecurityTradeCalculationFunction
       GenericSecurityTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData scenarioMarketData,
+      ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // loop around measures, calculating all scenarios for one measure
@@ -113,7 +113,7 @@ public class GenericSecurityTradeCalculationFunction
   private Result<?> calculate(
       Measure measure,
       GenericSecurityTrade trade,
-      CalculationMarketData scenarioMarketData) {
+      ScenarioMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
@@ -128,7 +128,7 @@ public class GenericSecurityTradeCalculationFunction
     public abstract ScenarioResult<?> calculate(
         Security security,
         double quantity,
-        CalculationMarketData marketData);
+        ScenarioMarketData marketData);
   }
 
 }

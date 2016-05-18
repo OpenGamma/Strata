@@ -38,7 +38,7 @@ public class DefaultCalculationRunnerTest {
     Column column2 = Column.of(Measures.BUCKETED_PV01);
     ImmutableList<Column> columns = ImmutableList.of(column1, column2);
     CalculationRules rules = CalculationRules.of(CalculationFunctions.empty());
-    CalculationMarketData marketData = CalculationMarketData.empty();
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
 
     // use of try-with-resources checks class is AutoCloseable
     try (CalculationRunner test = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {

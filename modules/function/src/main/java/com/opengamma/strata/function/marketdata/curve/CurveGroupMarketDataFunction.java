@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -93,7 +93,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   public MarketDataBox<CurveGroup> build(
       CurveGroupId id,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     // create the calibrator, using the configured RootFinderConfig if found
@@ -126,7 +126,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
   MarketDataBox<CurveGroup> buildCurveGroup(
       CurveGroupDefinition groupDefn,
       CurveCalibrator calibrator,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       MarketDataFeed feed) {
 
@@ -290,7 +290,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    */
   private MarketDataBox<CurveInputs> curveInputs(
       NodalCurveDefinition curveDefn,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       CurveGroupName groupName,
       MarketDataFeed feed) {
 

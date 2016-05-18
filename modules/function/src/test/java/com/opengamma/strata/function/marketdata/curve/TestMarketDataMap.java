@@ -12,13 +12,13 @@ import java.util.Optional;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * Test implementation of {@link CalculationMarketData} backed by a map.
+ * Test implementation of {@link ScenarioMarketData} backed by a map.
  */
-public final class TestMarketDataMap implements CalculationMarketData {
+public final class TestMarketDataMap implements ScenarioMarketData {
 
   private final MarketDataBox<LocalDate> valuationDate;
 

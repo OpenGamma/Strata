@@ -83,7 +83,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
   /**
@@ -104,7 +104,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
   //-------------------------------------------------------------------------
@@ -128,7 +128,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 
@@ -152,7 +152,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 

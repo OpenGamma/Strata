@@ -14,7 +14,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 
 /**
  * Builds a dependency tree for the items of market used in a set of calculations.
@@ -33,7 +33,7 @@ import com.opengamma.strata.calc.CalculationMarketData;
 class DependencyTreeBuilder {
 
   /** The market data supplied by the user. */
-  private final CalculationMarketData suppliedData;
+  private final ScenarioMarketData suppliedData;
 
   /** The functions that create items of market data. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
@@ -54,7 +54,7 @@ class DependencyTreeBuilder {
    * @return a tree builder that builds the dependency tree for the market data required by a set of calculations
    */
   static DependencyTreeBuilder of(
-      CalculationMarketData suppliedData,
+      ScenarioMarketData suppliedData,
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
@@ -63,7 +63,7 @@ class DependencyTreeBuilder {
   }
 
   private DependencyTreeBuilder(
-      CalculationMarketData suppliedData,
+      ScenarioMarketData suppliedData,
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions) {
@@ -162,7 +162,7 @@ class DependencyTreeBuilder {
   private static boolean isSupplied(
       MarketDataId<?> id,
       MarketDataNode.DataType dataType,
-      CalculationMarketData suppliedData) {
+      ScenarioMarketData suppliedData) {
 
     switch (dataType) {
       case TIME_SERIES:

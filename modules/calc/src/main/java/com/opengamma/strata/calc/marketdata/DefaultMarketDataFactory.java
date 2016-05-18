@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
@@ -96,7 +96,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData) {
 
     return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
@@ -106,7 +106,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   public MarketEnvironment buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 

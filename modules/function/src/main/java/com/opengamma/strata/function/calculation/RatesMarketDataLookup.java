@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -39,7 +39,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationMarketData}.
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  * <p>
  * Implementations of this interface must be immutable.
  */
@@ -49,7 +49,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * Obtains an instance based on a map of discount and forward curve identifiers.
    * <p>
    * The discount and forward curves refer to the curve identifier.
-   * The curves themselves are provided in {@link CalculationMarketData}
+   * The curves themselves are provided in {@link ScenarioMarketData}
    * using {@link CurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
@@ -68,7 +68,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * specifying the source of FX rates.
    * <p>
    * The discount and forward curves refer to the curve identifier.
-   * The curves themselves are provided in {@link CalculationMarketData}
+   * The curves themselves are provided in {@link ScenarioMarketData}
    * using {@link CurveId} as the identifier.
    * The source of market data is rarely needed, as most applications use only one
    * underlying data source.
@@ -90,7 +90,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * Obtains an instance based on a group of discount and forward curves.
    * <p>
    * The discount and forward curves refer to the curve name.
-   * The curves themselves are provided in {@link CalculationMarketData}
+   * The curves themselves are provided in {@link ScenarioMarketData}
    * using {@link CurveId} as the identifier.
    * 
    * @param groupName  the curve group name
@@ -243,12 +243,12 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * Obtains a filtered view of the complete set of market data.
    * <p>
    * This method returns an instance that binds the lookup to the market data.
-   * The input is {@link CalculationMarketData}, which contains market data for all scenarios.
+   * The input is {@link ScenarioMarketData}, which contains market data for all scenarios.
    * 
    * @param marketData  the complete set of market data for all scenarios
    * @return the filtered market data
    */
-  public default RatesScenarioMarketData marketDataView(CalculationMarketData marketData) {
+  public default RatesScenarioMarketData marketDataView(ScenarioMarketData marketData) {
     return DefaultRatesScenarioMarketData.of(this, marketData);
   }
 

@@ -22,8 +22,8 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.market.id.QuoteId;
@@ -63,7 +63,7 @@ public class FxRateMarketDataFunctionTest {
   public void build() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
         .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
@@ -74,7 +74,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildInverse() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
         .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), config(), marketData, REF_DATA);
@@ -85,7 +85,7 @@ public class FxRateMarketDataFunctionTest {
   public void buildScenario() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofScenarioValues(1.1d, 1.2d, 1.3d);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
         .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
@@ -100,7 +100,7 @@ public class FxRateMarketDataFunctionTest {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     String regex = "No configuration found .*FxRateConfig";
     assertThrowsIllegalArg(
-        () -> function.build(RATE_ID, MarketDataConfig.empty(), CalculationMarketData.empty(), REF_DATA), regex);
+        () -> function.build(RATE_ID, MarketDataConfig.empty(), ScenarioMarketData.empty(), REF_DATA), regex);
   }
 
   public void buildNoConfigForPair() {
@@ -108,7 +108,7 @@ public class FxRateMarketDataFunctionTest {
     String regex = "No FX rate configuration available for GBP/USD";
     CurrencyPair gbpUsd = CurrencyPair.of(Currency.GBP, Currency.USD);
     assertThrowsIllegalArg(
-        () -> function.build(FxRateId.of(gbpUsd), config(), CalculationMarketData.empty(), REF_DATA), regex);
+        () -> function.build(FxRateId.of(gbpUsd), config(), ScenarioMarketData.empty(), REF_DATA), regex);
   }
 
   private static MarketDataConfig config() {

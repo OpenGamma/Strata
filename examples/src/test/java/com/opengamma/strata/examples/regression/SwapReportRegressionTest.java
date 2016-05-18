@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measures;
@@ -82,12 +82,12 @@ public class SwapReportRegressionTest {
         Currency.USD,
         marketDataBuilder.ratesLookup(valuationDate));
 
-    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.requirements(REF_DATA);
-    CalculationMarketData enhancedMarketData =
+    ScenarioMarketData enhancedMarketData =
         marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);

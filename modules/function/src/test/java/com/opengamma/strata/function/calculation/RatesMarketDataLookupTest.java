@@ -41,7 +41,7 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
@@ -63,7 +63,7 @@ public class RatesMarketDataLookupTest {
   private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
   private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
-  private static final CalculationMarketData MOCK_CALC_MARKET_DATA = mock(CalculationMarketData.class);
+  private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
   //-------------------------------------------------------------------------
   public void test_of_map() {
@@ -135,7 +135,7 @@ public class RatesMarketDataLookupTest {
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     LocalDate valDate = date(2015, 6, 30);
-    CalculationMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
+    ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     RatesScenarioMarketData multiScenario = test.marketDataView(md);
     assertEquals(multiScenario.getLookup(), test);
     assertEquals(multiScenario.getMarketData(), md);

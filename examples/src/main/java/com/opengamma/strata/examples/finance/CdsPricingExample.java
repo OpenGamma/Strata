@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -77,7 +77,7 @@ public class CdsPricingExample {
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
-    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();

@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -82,7 +82,7 @@ public class FraCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     FraCalculationFunction function = new FraCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -111,7 +111,7 @@ public class FraCalculationFunctionTest {
 
   public void test_pv01() {
     FraCalculationFunction function = new FraCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -129,7 +129,7 @@ public class FraCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     return new TestMarketDataMap(
         VAL_DATE,

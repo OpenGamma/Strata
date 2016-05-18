@@ -31,8 +31,8 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureException;
@@ -51,17 +51,17 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class MarketEnvironment
-    implements CalculationMarketData, ImmutableBean {
+    implements ScenarioMarketData, ImmutableBean {
 
   /** An instance containing no market data. */
   private static final MarketEnvironment EMPTY = new MarketEnvironment(
-      ImmutableCalculationMarketData.empty(), ImmutableMap.of(), ImmutableMap.of());
+      ImmutableScenarioMarketData.empty(), ImmutableMap.of(), ImmutableMap.of());
 
   /**
    * The underlying market data.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableCalculationMarketData marketData;
+  private final ImmutableScenarioMarketData marketData;
   /**
    * The failures when building single market data values.
    */
@@ -187,7 +187,7 @@ public final class MarketEnvironment
    * @param timeSeriesFailures  the value of the property, not null
    */
   MarketEnvironment(
-      ImmutableCalculationMarketData marketData,
+      ImmutableScenarioMarketData marketData,
       Map<? extends MarketDataId<?>, Failure> valueFailures,
       Map<? extends MarketDataId<?>, Failure> timeSeriesFailures) {
     JodaBeanUtils.notNull(marketData, "marketData");
@@ -218,7 +218,7 @@ public final class MarketEnvironment
    * Gets the underlying market data.
    * @return the value of the property, not null
    */
-  public ImmutableCalculationMarketData getMarketData() {
+  public ImmutableScenarioMarketData getMarketData() {
     return marketData;
   }
 
@@ -288,8 +288,8 @@ public final class MarketEnvironment
     /**
      * The meta-property for the {@code marketData} property.
      */
-    private final MetaProperty<ImmutableCalculationMarketData> marketData = DirectMetaProperty.ofImmutable(
-        this, "marketData", MarketEnvironment.class, ImmutableCalculationMarketData.class);
+    private final MetaProperty<ImmutableScenarioMarketData> marketData = DirectMetaProperty.ofImmutable(
+        this, "marketData", MarketEnvironment.class, ImmutableScenarioMarketData.class);
     /**
      * The meta-property for the {@code valueFailures} property.
      */
@@ -350,7 +350,7 @@ public final class MarketEnvironment
      * The meta-property for the {@code marketData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableCalculationMarketData> marketData() {
+    public MetaProperty<ImmutableScenarioMarketData> marketData() {
       return marketData;
     }
 
@@ -401,7 +401,7 @@ public final class MarketEnvironment
    */
   private static final class Builder extends DirectFieldsBeanBuilder<MarketEnvironment> {
 
-    private ImmutableCalculationMarketData marketData;
+    private ImmutableScenarioMarketData marketData;
     private Map<? extends MarketDataId<?>, Failure> valueFailures = ImmutableMap.of();
     private Map<? extends MarketDataId<?>, Failure> timeSeriesFailures = ImmutableMap.of();
 
@@ -431,7 +431,7 @@ public final class MarketEnvironment
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1116764678:  // marketData
-          this.marketData = (ImmutableCalculationMarketData) newValue;
+          this.marketData = (ImmutableScenarioMarketData) newValue;
           break;
         case -68881222:  // valueFailures
           this.valueFailures = (Map<? extends MarketDataId<?>, Failure>) newValue;

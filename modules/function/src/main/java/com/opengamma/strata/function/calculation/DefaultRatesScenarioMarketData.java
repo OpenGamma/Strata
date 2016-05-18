@@ -17,13 +17,13 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * The default market data for rates products, used for calculation across multiple scenarios.
  * <p>
- * This uses a {@link RatesMarketDataLookup} to provide a view on {@link CalculationMarketData}.
+ * This uses a {@link RatesMarketDataLookup} to provide a view on {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultRatesScenarioMarketData
@@ -38,7 +38,7 @@ final class DefaultRatesScenarioMarketData
    * The market data.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final CalculationMarketData marketData;
+  private final ScenarioMarketData marketData;
   /**
    * The cache of single scenario instances.
    */
@@ -55,12 +55,12 @@ final class DefaultRatesScenarioMarketData
    * @param marketData  the market data
    * @return the rates market view
    */
-  public static DefaultRatesScenarioMarketData of(RatesMarketDataLookup lookup, CalculationMarketData marketData) {
+  public static DefaultRatesScenarioMarketData of(RatesMarketDataLookup lookup, ScenarioMarketData marketData) {
     return new DefaultRatesScenarioMarketData(lookup, marketData);
   }
 
   @ImmutableConstructor
-  private DefaultRatesScenarioMarketData(RatesMarketDataLookup lookup, CalculationMarketData marketData) {
+  private DefaultRatesScenarioMarketData(RatesMarketDataLookup lookup, ScenarioMarketData marketData) {
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
     this.cache = new AtomicReferenceArray<>(marketData.getScenarioCount());
@@ -68,7 +68,7 @@ final class DefaultRatesScenarioMarketData
 
   //-------------------------------------------------------------------------
   @Override
-  public RatesScenarioMarketData withMarketData(CalculationMarketData marketData) {
+  public RatesScenarioMarketData withMarketData(ScenarioMarketData marketData) {
     return DefaultRatesScenarioMarketData.of(lookup, marketData);
   }
 
@@ -139,7 +139,7 @@ final class DefaultRatesScenarioMarketData
    * @return the value of the property, not null
    */
   @Override
-  public CalculationMarketData getMarketData() {
+  public ScenarioMarketData getMarketData() {
     return marketData;
   }
 

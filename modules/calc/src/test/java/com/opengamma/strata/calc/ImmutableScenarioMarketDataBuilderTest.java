@@ -23,16 +23,16 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link ImmutableCalculationMarketDataBuilder}.
+ * Test {@link ImmutableScenarioMarketDataBuilder}.
  */
 @Test
-public class ImmutableCalculationMarketDataBuilderTest {
+public class ImmutableScenarioMarketDataBuilderTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2011, 3, 8);
 
   //-------------------------------------------------------------------------
   public void addNothing() {
-    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).build();
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).build();
     assertEquals(marketData.getScenarioCount(), 1);
   }
 
@@ -44,7 +44,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
     FxRate eurUsdRate1 = FxRate.of(Currency.EUR, Currency.USD, 1.1);
     FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.2);
 
-    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValue(eurGbpId, eurGbpRate)
         .addScenarioValue(eurUsdId, ImmutableList.of(eurUsdRate1, eurUsdRate2))
         .build();
@@ -60,7 +60,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
     FxRate eurUsdRate1 = FxRate.of(Currency.EUR, Currency.USD, 1.1);
     FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.2);
 
-    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValue(eurGbpId, eurGbpRate)
         .addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2))
         .build();
@@ -78,7 +78,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
     FxRate eurUsdRate1 = FxRate.of(Currency.EUR, Currency.USD, 1.1);
     FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.2);
 
-    ImmutableCalculationMarketDataBuilder builder = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ImmutableScenarioMarketDataBuilder builder = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addBox(eurGbpId, MarketDataBox.ofScenarioValues(eurGbpRate1, eurGbpRate2, eurGbpRate3));
     assertThrowsIllegalArg(() -> builder.addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2)));
   }
@@ -93,7 +93,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
         eurGbpId, eurGbpRate,
         eurUsdId, eurUsdRate);
 
-    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValueMap(values)
         .build();
     assertEquals(marketData.getScenarioCount(), 1);
@@ -111,7 +111,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
         eurGbpId, eurGbpRates,
         eurUsdId, eurUsdRates);
 
-    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addScenarioValueMap(values)
         .build();
     assertEquals(marketData.getScenarioCount(), 3);

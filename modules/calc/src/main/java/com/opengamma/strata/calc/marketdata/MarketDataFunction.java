@@ -8,7 +8,7 @@ package com.opengamma.strata.calc.marketdata;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 
 /**
  * A market data function creates items of market data for a set of market data IDs.
@@ -43,7 +43,7 @@ public interface MarketDataFunction<T, I extends MarketDataId<? extends T>> {
   public abstract MarketDataBox<T> build(
       I id,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
   /**

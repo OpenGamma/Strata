@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -122,14 +122,14 @@ public class CurveScenarioExample {
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
 
     // build a market data snapshot for the valuation date
-    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    CalculationMarketData enhancedMarketData =
+    ScenarioMarketData enhancedMarketData =
         marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, scenarioDefinition);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 

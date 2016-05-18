@@ -27,7 +27,7 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.market.TestObservableId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
@@ -1111,7 +1111,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<TestMarketDataB> build(
         TestIdB id,
         MarketDataConfig marketDataConfig,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       TestIdA idA = new TestIdA(id.str);
@@ -1173,7 +1173,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<TestMarketDataC> build(
         TestIdC id,
         MarketDataConfig marketDataConfig,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       LocalDateDoubleTimeSeries timeSeries = marketData.getTimeSeries(new TestIdA(id.str));
@@ -1312,7 +1312,7 @@ public class DefaultMarketDataFactoryTest {
     public MarketDataBox<String> build(
         NonObservableId id,
         MarketDataConfig marketDataConfig,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       MarketDataBox<Double> value = marketData.getValue(TestObservableId.of(StandardId.of("reqs", id.str)));

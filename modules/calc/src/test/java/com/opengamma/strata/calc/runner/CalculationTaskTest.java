@@ -34,8 +34,8 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.ReportingCurrency;
@@ -95,7 +95,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
@@ -119,7 +119,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
@@ -143,7 +143,7 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
         .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
@@ -167,7 +167,7 @@ public class CalculationTaskTest {
     } , GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = CalculationMarketData.empty();
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -181,7 +181,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -195,7 +195,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -209,7 +209,7 @@ public class CalculationTaskTest {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
-    CalculationMarketData marketData = CalculationMarketData.empty();
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -226,7 +226,7 @@ public class CalculationTaskTest {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -242,7 +242,7 @@ public class CalculationTaskTest {
     });
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = CalculationMarketData.empty();
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -258,7 +258,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -273,7 +273,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = CalculationMarketData.empty();
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -363,7 +363,7 @@ public class CalculationTaskTest {
         TestTarget target,
         Set<Measure> measures,
         CalculationParameters parameters,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       ScenarioResult<String> array = ScenarioResult.of("bar");
@@ -420,7 +420,7 @@ public class CalculationTaskTest {
         TestTarget target,
         Set<Measure> measures,
         CalculationParameters parameters,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       Result<CurrencyValuesArray> result = Result.success(supplier.get());
@@ -475,7 +475,7 @@ public class CalculationTaskTest {
         TestTarget target,
         Set<Measure> measures,
         CalculationParameters parameters,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       T obj = supplier.get();
@@ -526,7 +526,7 @@ public class CalculationTaskTest {
         TestTarget target,
         Set<Measure> measures,
         CalculationParameters parameters,
-        CalculationMarketData marketData,
+        ScenarioMarketData marketData,
         ReferenceData refData) {
 
       throw new UnsupportedOperationException("calculate not implemented");

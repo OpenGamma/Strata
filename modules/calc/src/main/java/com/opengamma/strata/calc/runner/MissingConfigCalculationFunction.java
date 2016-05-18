@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
@@ -64,7 +64,7 @@ class MissingConfigCalculationFunction
       CalculationTarget target,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     throw new IllegalStateException(Messages.format(

@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -90,7 +90,7 @@ public class BulletPaymentCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
@@ -106,7 +106,7 @@ public class BulletPaymentCalculationFunctionTest {
 
   public void test_pv01() {
     BulletPaymentCalculationFunction function = new BulletPaymentCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
     Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
@@ -124,7 +124,7 @@ public class BulletPaymentCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,

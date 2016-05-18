@@ -21,7 +21,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -62,7 +62,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   public MarketDataBox<CurveInputs> build(
       CurveInputsId id,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CurveGroupName groupName = id.getCurveGroupName();
@@ -200,7 +200,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   private static Map<? extends MarketDataId<?>, MarketDataBox<?>> getMarketDataValues(
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       Set<? extends MarketDataId<?>> ids,
       MarketDataFeed marketDataFeed) {
 

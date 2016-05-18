@@ -34,11 +34,11 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
@@ -114,7 +114,7 @@ public class SwapPricingTest {
     CurveId idUsdL1M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L1M.getName());
     CurveId idUsdL3M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L3M.getName());
     CurveId idUsdL6M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L6M.getName());
-    CalculationMarketData suppliedData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ScenarioMarketData suppliedData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValue(idUsdDsc, StandardDataSets.GROUP1_USD_DSC)
         .addValue(idUsdOn, StandardDataSets.GROUP1_USD_ON)
         .addValue(idUsdL1M, StandardDataSets.GROUP1_USD_L1M)

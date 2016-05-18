@@ -27,8 +27,8 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.CalculationMarketData;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.market.ValueType;
@@ -163,7 +163,7 @@ public class CurveInputsMarketDataFunctionTest {
     QuoteId idB = QuoteId.of(StandardId.of("test", "b"));
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
-    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)
@@ -192,7 +192,7 @@ public class CurveInputsMarketDataFunctionTest {
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId =
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
-    CalculationMarketData emptyData = CalculationMarketData.empty();
+    ScenarioMarketData emptyData = ScenarioMarketData.empty();
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA),
         IllegalArgumentException.class,
@@ -208,7 +208,7 @@ public class CurveInputsMarketDataFunctionTest {
         CurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), MarketDataFeed.NONE);
     CurveGroupDefinition groupDefn = CurveGroupDefinition.builder().name(CurveGroupName.of("curve group")).build();
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
-    CalculationMarketData emptyData = CalculationMarketData.empty();
+    ScenarioMarketData emptyData = ScenarioMarketData.empty();
 
     assertThrows(
         () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
@@ -240,7 +240,7 @@ public class CurveInputsMarketDataFunctionTest {
         .add(groupDefn.getName(), groupDefn)
         .build();
 
-    CalculationMarketData emptyData = CalculationMarketData.empty();
+    ScenarioMarketData emptyData = ScenarioMarketData.empty();
 
     CurveInputsMarketDataFunction marketDataFunction = new CurveInputsMarketDataFunction();
     CurveInputsId curveInputsId = CurveInputsId.of(groupDefn.getName(), curve.getName(), MarketDataFeed.NONE);

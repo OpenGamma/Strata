@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -122,7 +122,7 @@ public class DsfCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     DsfCalculationFunction function = new DsfCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
@@ -137,7 +137,7 @@ public class DsfCalculationFunctionTest {
 
   public void test_pv01() {
     DsfCalculationFunction function = new DsfCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
@@ -154,7 +154,7 @@ public class DsfCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,

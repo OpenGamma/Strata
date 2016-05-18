@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -74,7 +74,7 @@ public class GenericSecurityTradeCalculationFunctionTest {
 
   public void test_presentValue() {
     GenericSecurityTradeCalculationFunction function = new GenericSecurityTradeCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     
     double unitPv = (MARKET_PRICE / TICK_SIZE) * TICK_VALUE;
     CurrencyAmount expectedPv = CurrencyAmount.of(CURRENCY, unitPv * QUANTITY);
@@ -88,7 +88,7 @@ public class GenericSecurityTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(QuoteId.of(SEC_ID.getStandardId()), MARKET_PRICE),

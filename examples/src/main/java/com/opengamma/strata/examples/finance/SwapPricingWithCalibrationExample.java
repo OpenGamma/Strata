@@ -18,11 +18,11 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -129,7 +129,7 @@ public class SwapPricingWithCalibrationExample {
     ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> fixings = FixingSeriesCsvLoader.load(FIXINGS_RESOURCE);
 
     // create the market data used for calculations
-    CalculationMarketData marketSnapshot = ImmutableCalculationMarketData.builder(VAL_DATE)
+    ScenarioMarketData marketSnapshot = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addValueMap(quotes)
         .addTimeSeriesMap(fixings)
         .build();
@@ -155,7 +155,7 @@ public class SwapPricingWithCalibrationExample {
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    CalculationMarketData enhancedMarketData =
+    ScenarioMarketData enhancedMarketData =
         marketDataFactory().buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
 

@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.function.calculation;
 
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 
 /**
  * Market data for rates products, used for calculation across multiple scenarios.
  * <p>
  * This interface exposes the market data necessary for pricing rates products,
  * such as Swaps, FRAs and FX.
- * It uses a {@link RatesMarketDataLookup} to provide a view on {@link CalculationMarketData}.
+ * It uses a {@link RatesMarketDataLookup} to provide a view on {@link ScenarioMarketData}.
  * <p>
  * Implementations of this interface must be immutable.
  */
@@ -30,7 +30,7 @@ public interface RatesScenarioMarketData {
    * 
    * @return the market data
    */
-  public abstract CalculationMarketData getMarketData();
+  public abstract ScenarioMarketData getMarketData();
 
   /**
    * Returns a copy of this instance with the specified market data.
@@ -38,7 +38,7 @@ public interface RatesScenarioMarketData {
    * @param marketData  the market data to use
    * @return a market view based on the specified data
    */
-  public abstract RatesScenarioMarketData withMarketData(CalculationMarketData marketData);
+  public abstract RatesScenarioMarketData withMarketData(ScenarioMarketData marketData);
 
   //-------------------------------------------------------------------------
   /**

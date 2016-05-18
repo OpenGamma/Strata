@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -117,7 +117,7 @@ public class SwaptionCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     SwaptionCalculationFunction function = new SwaptionCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     VolatilitySwaptionPhysicalProductPricer pricer = VolatilitySwaptionPhysicalProductPricer.DEFAULT;
     ResolvedSwaption resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -132,7 +132,7 @@ public class SwaptionCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,

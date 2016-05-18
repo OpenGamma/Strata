@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -92,7 +92,7 @@ public class TermDepositCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     TermDepositCalculationFunction function = new TermDepositCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;
     ResolvedTermDeposit resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -118,7 +118,7 @@ public class TermDepositCalculationFunctionTest {
 
   public void test_pv01() {
     TermDepositCalculationFunction function = new TermDepositCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;
     ResolvedTermDeposit resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -136,7 +136,7 @@ public class TermDepositCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,

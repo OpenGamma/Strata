@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
@@ -90,7 +90,7 @@ public class FxSwapCalculationFunctionTest {
 
   public void test_simpleMeasures() {
     FxSwapCalculationFunction function = new FxSwapCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
     ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -121,7 +121,7 @@ public class FxSwapCalculationFunctionTest {
 
   public void test_pv01() {
     FxSwapCalculationFunction function = new FxSwapCalculationFunction();
-    CalculationMarketData md = marketData();
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
     ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
@@ -139,7 +139,7 @@ public class FxSwapCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve1 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
     Curve curve2 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
     TestMarketDataMap md = new TestMarketDataMap(

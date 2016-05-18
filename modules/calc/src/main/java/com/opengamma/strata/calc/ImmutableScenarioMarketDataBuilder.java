@@ -22,9 +22,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A mutable builder for market data.
  * <p>
- * This is used to create implementations of {@link ImmutableCalculationMarketData}.
+ * This is used to create implementations of {@link ImmutableScenarioMarketData}.
  */
-public final class ImmutableCalculationMarketDataBuilder {
+public final class ImmutableScenarioMarketDataBuilder {
 
   /**
    * The number of scenarios.
@@ -44,19 +44,19 @@ public final class ImmutableCalculationMarketDataBuilder {
   private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
   //-------------------------------------------------------------------------
-  ImmutableCalculationMarketDataBuilder(LocalDate valuationDate) {
+  ImmutableScenarioMarketDataBuilder(LocalDate valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.scenarioCount = -1;
     this.valuationDate = MarketDataBox.ofSingleValue(valuationDate);
   }
 
-  ImmutableCalculationMarketDataBuilder(MarketDataBox<LocalDate> valuationDate) {
+  ImmutableScenarioMarketDataBuilder(MarketDataBox<LocalDate> valuationDate) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     this.scenarioCount = -1;
     this.valuationDate = valuationDate;
   }
 
-  ImmutableCalculationMarketDataBuilder(
+  ImmutableScenarioMarketDataBuilder(
       int scenarioCount,
       MarketDataBox<LocalDate> valuationDate,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
@@ -83,7 +83,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addValue(MarketDataId<T> id, T value) {
+  public <T> ImmutableScenarioMarketDataBuilder addValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, MarketDataBox.ofSingleValue(value));
@@ -99,7 +99,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addValueMap(Map<? extends MarketDataId<?>, ?> values) {
+  public ImmutableScenarioMarketDataBuilder addValueMap(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     for (Entry<? extends MarketDataId<?>, ?> entry : values.entrySet()) {
       MarketDataId<?> id = entry.getKey();
@@ -123,7 +123,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addScenarioValue(MarketDataId<T> id, List<T> values) {
+  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, List<T> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
@@ -142,7 +142,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
+  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
@@ -160,7 +160,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addScenarioValueMap(
+  public ImmutableScenarioMarketDataBuilder addScenarioValueMap(
       Map<? extends MarketDataId<?>, ? extends ScenarioMarketDataValue<?>> values) {
 
     ArgChecker.notNull(values, "values");
@@ -186,7 +186,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addBox(MarketDataId<T> id, MarketDataBox<T> value) {
+  public <T> ImmutableScenarioMarketDataBuilder addBox(MarketDataId<T> id, MarketDataBox<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     checkAndUpdateScenarioCount(value);
@@ -203,7 +203,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addBoxMap(
+  public <T> ImmutableScenarioMarketDataBuilder addBoxMap(
       Map<? extends MarketDataId<?>, ? extends MarketDataBox<?>> values) {
 
     ArgChecker.notNull(values, "values");
@@ -227,7 +227,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param timeSeries  a time-series of observable market data values
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+  public ImmutableScenarioMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
@@ -242,7 +242,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param timeSeries  a time-series of observable market data values
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addTimeSeriesMap(
+  public ImmutableScenarioMarketDataBuilder addTimeSeriesMap(
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
     ArgChecker.notNull(timeSeries, "timeSeries");
@@ -280,11 +280,11 @@ public final class ImmutableCalculationMarketDataBuilder {
    * 
    * @return the market data
    */
-  public ImmutableCalculationMarketData build() {
+  public ImmutableScenarioMarketData build() {
     if (scenarioCount == -1) {
       scenarioCount = 1;
     }
-    return new ImmutableCalculationMarketData(scenarioCount, valuationDate, values, timeSeries);
+    return new ImmutableScenarioMarketData(scenarioCount, valuationDate, values, timeSeries);
   }
 
 }

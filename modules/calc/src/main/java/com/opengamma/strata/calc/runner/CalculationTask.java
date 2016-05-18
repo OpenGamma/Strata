@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -194,7 +194,7 @@ public final class CalculationTask implements ImmutableBean {
    * @return results of the calculation, one for every scenario in the market data
    */
   @SuppressWarnings("unchecked")
-  public CalculationResults execute(CalculationMarketData marketData, ReferenceData refData) {
+  public CalculationResults execute(ScenarioMarketData marketData, ReferenceData refData) {
     // calculate the results
     Map<Measure, Result<?>> results = calculate(marketData, refData);
 
@@ -210,7 +210,7 @@ public final class CalculationTask implements ImmutableBean {
   }
 
   // calculates the result
-  private Map<Measure, Result<?>> calculate(CalculationMarketData marketData, ReferenceData refData) {
+  private Map<Measure, Result<?>> calculate(ScenarioMarketData marketData, ReferenceData refData) {
     try {
       return function.calculate(target, getMeasures(), parameters, marketData, refData);
 

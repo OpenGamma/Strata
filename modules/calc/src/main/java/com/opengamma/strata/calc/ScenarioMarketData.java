@@ -37,9 +37,9 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * These return all the data associated with a single scenario.
  * This approach is convenient for single scenario pricers.
  * <p>
- * The standard implementation is {@link ImmutableCalculationMarketData}.
+ * The standard implementation is {@link ImmutableScenarioMarketData}.
  */
-public interface CalculationMarketData {
+public interface ScenarioMarketData {
 
   //-------------------------------------------------------------------------
   /**
@@ -53,7 +53,7 @@ public interface CalculationMarketData {
    * @param timeSeries  the time-series
    * @return a set of market data containing the values in the map
    */
-  public static CalculationMarketData of(
+  public static ScenarioMarketData of(
       int scenarioCount,
       LocalDate valuationDate,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
@@ -73,13 +73,13 @@ public interface CalculationMarketData {
    * @param timeSeries  the time-series
    * @return a set of market data containing the values in the map
    */
-  public static CalculationMarketData of(
+  public static ScenarioMarketData of(
       int scenarioCount,
       MarketDataBox<LocalDate> valuationDate,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
       Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
-    return ImmutableCalculationMarketData.of(scenarioCount, valuationDate, values, timeSeries);
+    return ImmutableScenarioMarketData.of(scenarioCount, valuationDate, values, timeSeries);
   }
 
   /**
@@ -87,8 +87,8 @@ public interface CalculationMarketData {
    *
    * @return an empty instance
    */
-  public static CalculationMarketData empty() {
-    return ImmutableCalculationMarketData.empty();
+  public static ScenarioMarketData empty() {
+    return ImmutableScenarioMarketData.empty();
   }
 
   //-------------------------------------------------------------------------

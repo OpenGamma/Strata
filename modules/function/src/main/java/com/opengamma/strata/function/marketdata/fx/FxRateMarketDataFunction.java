@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -35,7 +35,7 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
   public MarketDataBox<FxRate> build(
       FxRateId id,
       MarketDataConfig marketDataConfig,
-      CalculationMarketData marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     FxRateConfig fxRateConfig = marketDataConfig.get(FxRateConfig.class, id.getMarketDataFeed());
@@ -47,7 +47,7 @@ public class FxRateMarketDataFunction implements MarketDataFunction<FxRate, FxRa
   private MarketDataBox<FxRate> buildFxRate(
       FxRateId id,
       QuoteId key,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     MarketDataBox<Double> quote = marketData.getValue(key);
     return quote.map(rate -> FxRate.of(id.getPair(), rate));
