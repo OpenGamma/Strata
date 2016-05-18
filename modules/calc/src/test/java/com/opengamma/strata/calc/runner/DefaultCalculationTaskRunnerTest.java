@@ -50,7 +50,7 @@ public class DefaultCalculationTaskRunnerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test that ScenarioResults containing a single value are unwrapped when calling calculate() with BaseMarketData.
+   * Test that ScenarioResults containing a single value are unwrapped.
    */
   public void unwrapScenarioResults() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
@@ -94,7 +94,7 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   /**
-   * Test that ScenarioResults containing a single value are unwrapped when calling calculateAsync() with BaseMarketData.
+   * Test that ScenarioResults containing a single value are unwrapped when calling calculateAsync().
    */
   public void unwrapScenarioResultsAsync() {
     ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
