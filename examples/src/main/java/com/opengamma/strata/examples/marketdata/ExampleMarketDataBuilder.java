@@ -235,7 +235,7 @@ public abstract class ExampleMarketDataBuilder {
     try {
       Collection<ResourceLocator> fixingSeriesResources = getAllResources(HISTORICAL_FIXINGS_DIR);
       Map<ObservableId, LocalDateDoubleTimeSeries> fixingSeries = FixingSeriesCsvLoader.load(fixingSeriesResources);
-      builder.addTimeSeries(fixingSeries);
+      builder.addTimeSeriesMap(fixingSeries);
     } catch (Exception e) {
       log.error("Error loading fixing series", e);
     }
@@ -294,7 +294,7 @@ public abstract class ExampleMarketDataBuilder {
 
     try {
       Map<QuoteId, Double> quotes = QuotesCsvLoader.load(marketDataDate, quotesResource);
-      builder.addSingleValues(quotes);
+      builder.addValueMap(quotes);
 
     } catch (Exception ex) {
       log.error("Error loading quotes", ex);

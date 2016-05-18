@@ -91,23 +91,28 @@ public final class ImmutableCalculationMarketDataBuilder {
   }
 
   /**
-   * Adds market data for each scenario.
+   * Adds market data values that are valid for all scenarios.
    * <p>
+   * Each value in the map is a single item of market data used in all scenarios.
    * Any existing value with the same identifier will be replaced.
    *
-   * @param id  the identifier
-   * @param value  the market data value
-   * @param <T>  the type of the market data value
+   * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addValues(MarketDataId<T> id, MarketDataBox<T> value) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(value, "value");
-    checkAndUpdateScenarioCount(value);
-    values.put(id, value);
+  public ImmutableCalculationMarketDataBuilder addValueMap(Map<? extends MarketDataId<?>, ?> values) {
+    ArgChecker.notNull(values, "values");
+    for (Entry<? extends MarketDataId<?>, ?> entry : values.entrySet()) {
+      MarketDataId<?> id = entry.getKey();
+      Object value = entry.getValue();
+      MarketDataBox<?> box = MarketDataBox.ofSingleValue(value);
+      checkBoxType(id, box);
+      checkAndUpdateScenarioCount(box);
+      this.values.put(id, box);
+    }
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds market data for each scenario.
    * <p>
@@ -118,7 +123,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addValues(MarketDataId<T> id, List<T> values) {
+  public <T> ImmutableCalculationMarketDataBuilder addScenarioValue(MarketDataId<T> id, List<T> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
@@ -137,35 +142,12 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableCalculationMarketDataBuilder addValues(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
+  public <T> ImmutableCalculationMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
     checkAndUpdateScenarioCount(box);
     this.values.put(id, box);
-    return this;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Adds market data values that are valid for all scenarios.
-   * <p>
-   * Each value in the map is a single item of market data used in all scenarios.
-   * Any existing value with the same identifier will be replaced.
-   *
-   * @param values  the items of market data, keyed by identifier
-   * @return this builder
-   */
-  public ImmutableCalculationMarketDataBuilder addSingleValues(Map<? extends MarketDataId<?>, ?> values) {
-    ArgChecker.notNull(values, "values");
-    for (Entry<? extends MarketDataId<?>, ?> entry : values.entrySet()) {
-      MarketDataId<?> id = entry.getKey();
-      Object value = entry.getValue();
-      MarketDataBox<?> box = MarketDataBox.ofSingleValue(value);
-      checkBoxType(id, box);
-      checkAndUpdateScenarioCount(box);
-      this.values.put(id, box);
-    }
     return this;
   }
 
@@ -178,7 +160,7 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addScenarioValues(
+  public ImmutableCalculationMarketDataBuilder addScenarioValueMap(
       Map<? extends MarketDataId<?>, ? extends ScenarioMarketDataValue<?>> values) {
 
     ArgChecker.notNull(values, "values");
@@ -186,6 +168,48 @@ public final class ImmutableCalculationMarketDataBuilder {
       MarketDataId<?> id = entry.getKey();
       ScenarioMarketDataValue<?> value = entry.getValue();
       MarketDataBox<?> box = MarketDataBox.ofScenarioValue(value);
+      checkBoxType(id, box);
+      checkAndUpdateScenarioCount(box);
+      this.values.put(id, box);
+    }
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds market data wrapped in a box.
+   * <p>
+   * Any existing value with the same identifier will be replaced.
+   *
+   * @param id  the identifier
+   * @param value  the market data value
+   * @param <T>  the type of the market data value
+   * @return this builder
+   */
+  public <T> ImmutableCalculationMarketDataBuilder addBox(MarketDataId<T> id, MarketDataBox<T> value) {
+    ArgChecker.notNull(id, "id");
+    ArgChecker.notNull(value, "value");
+    checkAndUpdateScenarioCount(value);
+    values.put(id, value);
+    return this;
+  }
+
+  /**
+   * Adds market data values for each scenario.
+   * <p>
+   * Each value in the map is a market data box.
+   * Any existing value with the same identifier will be replaced.
+   *
+   * @param values  the items of market data, keyed by identifier
+   * @return this builder
+   */
+  public <T> ImmutableCalculationMarketDataBuilder addBoxMap(
+      Map<? extends MarketDataId<?>, ? extends MarketDataBox<?>> values) {
+
+    ArgChecker.notNull(values, "values");
+    for (Entry<? extends MarketDataId<?>, ? extends MarketDataBox<?>> entry : values.entrySet()) {
+      MarketDataId<?> id = entry.getKey();
+      MarketDataBox<?> box = entry.getValue();
       checkBoxType(id, box);
       checkAndUpdateScenarioCount(box);
       this.values.put(id, box);
@@ -218,7 +242,9 @@ public final class ImmutableCalculationMarketDataBuilder {
    * @param timeSeries  a time-series of observable market data values
    * @return this builder
    */
-  public ImmutableCalculationMarketDataBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+  public ImmutableCalculationMarketDataBuilder addTimeSeriesMap(
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.putAll(timeSeries);
     return this;

@@ -96,7 +96,7 @@ public class CalculationTaskTest {
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
-        .addValues(FxRateId.of(GBP, USD), rates)
+        .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
@@ -120,7 +120,7 @@ public class CalculationTaskTest {
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
-        .addValues(FxRateId.of(GBP, USD), rates)
+        .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
@@ -144,7 +144,7 @@ public class CalculationTaskTest {
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
-        .addValues(FxRateId.of(GBP, USD), rates)
+        .addScenarioValue(FxRateId.of(GBP, USD), rates)
         .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);

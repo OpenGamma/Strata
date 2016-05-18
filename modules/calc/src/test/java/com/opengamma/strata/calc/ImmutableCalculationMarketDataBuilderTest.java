@@ -37,7 +37,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
   }
 
   //-------------------------------------------------------------------------
-  public void addSingleAndList() {
+  public void test_addSingleAndList() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
     FxRate eurGbpRate = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
@@ -46,14 +46,14 @@ public class ImmutableCalculationMarketDataBuilderTest {
 
     ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
         .addValue(eurGbpId, eurGbpRate)
-        .addValues(eurUsdId, ImmutableList.of(eurUsdRate1, eurUsdRate2))
+        .addScenarioValue(eurUsdId, ImmutableList.of(eurUsdRate1, eurUsdRate2))
         .build();
     assertEquals(marketData.getScenarioCount(), 2);
     assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofSingleValue(eurGbpRate));
     assertEquals(marketData.getValue(eurUsdId), MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2));
   }
 
-  public void addSingleAndBox() {
+  public void test_addSingleAndBox() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
     FxRate eurGbpRate = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
@@ -62,14 +62,14 @@ public class ImmutableCalculationMarketDataBuilderTest {
 
     ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
         .addValue(eurGbpId, eurGbpRate)
-        .addValues(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2))
+        .addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2))
         .build();
     assertEquals(marketData.getScenarioCount(), 2);
     assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofSingleValue(eurGbpRate));
     assertEquals(marketData.getValue(eurUsdId), MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2));
   }
 
-  public void addBadScenarioCount() {
+  public void test_addBadScenarioCount() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
     FxRate eurGbpRate1 = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
@@ -79,12 +79,12 @@ public class ImmutableCalculationMarketDataBuilderTest {
     FxRate eurUsdRate2 = FxRate.of(Currency.EUR, Currency.USD, 1.2);
 
     ImmutableCalculationMarketDataBuilder builder = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addValues(eurGbpId, MarketDataBox.ofScenarioValues(eurGbpRate1, eurGbpRate2, eurGbpRate3));
-    assertThrowsIllegalArg(() -> builder.addValues(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2)));
+        .addBox(eurGbpId, MarketDataBox.ofScenarioValues(eurGbpRate1, eurGbpRate2, eurGbpRate3));
+    assertThrowsIllegalArg(() -> builder.addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2)));
   }
 
   //-------------------------------------------------------------------------
-  public void addSingleValues() {
+  public void test_addValueMap() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
     FxRate eurGbpRate = FxRate.of(Currency.EUR, Currency.GBP, 0.8);
@@ -94,7 +94,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
         eurUsdId, eurUsdRate);
 
     ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addSingleValues(values)
+        .addValueMap(values)
         .build();
     assertEquals(marketData.getScenarioCount(), 1);
     assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofSingleValue(eurGbpRate));
@@ -102,7 +102,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
   }
 
   //-------------------------------------------------------------------------
-  public void addScenarioValues() {
+  public void test_addScenarioValueMap() {
     FxRateId eurGbpId = FxRateId.of(Currency.EUR, Currency.GBP);
     FxRateId eurUsdId = FxRateId.of(Currency.EUR, Currency.USD);
     FxRatesArray eurGbpRates = FxRatesArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.79, 0.8, 0.81));
@@ -112,7 +112,7 @@ public class ImmutableCalculationMarketDataBuilderTest {
         eurUsdId, eurUsdRates);
 
     ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addScenarioValues(values)
+        .addScenarioValueMap(values)
         .build();
     assertEquals(marketData.getScenarioCount(), 3);
     assertEquals(marketData.getValue(eurGbpId), MarketDataBox.ofScenarioValue(eurGbpRates));

@@ -268,7 +268,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addResultUnsafe(id, valueResult);
+      builder.addResult(id, valueResult);
     } else {
       addValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
@@ -294,7 +294,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketEnvironmentBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addResultUnsafe(id, Result.failure(valueResult));
+      builder.addResult(id, Result.failure(valueResult));
     } else {
       addValue(id, MarketDataBox.ofSingleValue(valueResult.getValue()), scenarioDefinition, builder);
     }
@@ -329,9 +329,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataBox<Object> objectValue = ((MarketDataBox<Object>) value);
       // Result.of() catches any exceptions thrown by the mapping and wraps them in a failure
       Result<MarketDataBox<?>> result = Result.of(() -> mapping.applyPerturbation(objectValue));
-      builder.addResultUnsafe(id, result);
+      builder.addResult(id, result);
     } else {
-      builder.addValuesUnsafe(id, value);
+      builder.addBox(id, value);
     }
   }
 

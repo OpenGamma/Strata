@@ -186,8 +186,8 @@ public class CalibrationXCcyCheckExample {
 
     // create the market data used for calculations
     CalculationMarketData marketSnapshot = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addSingleValues(quotes)
-        .addSingleValues(fxRates)
+        .addValueMap(quotes)
+        .addValueMap(fxRates)
         .build();
 
     // create the market data used for building trades

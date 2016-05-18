@@ -130,8 +130,8 @@ public class SwapPricingWithCalibrationExample {
 
     // create the market data used for calculations
     CalculationMarketData marketSnapshot = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addSingleValues(quotes)
-        .addTimeSeries(fixings)
+        .addValueMap(quotes)
+        .addTimeSeriesMap(fixings)
         .build();
 
     // load the curve definition

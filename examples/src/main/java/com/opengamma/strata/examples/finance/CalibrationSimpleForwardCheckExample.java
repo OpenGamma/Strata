@@ -175,7 +175,7 @@ public class CalibrationSimpleForwardCheckExample {
 
     // create the market data used for calculations
     CalculationMarketData marketSnapshot = ImmutableCalculationMarketData.builder(VAL_DATE)
-        .addSingleValues(quotes)
+        .addValueMap(quotes)
         .build();
 
     // create the market data used for building trades

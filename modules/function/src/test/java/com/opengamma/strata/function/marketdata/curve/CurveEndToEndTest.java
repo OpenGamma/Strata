@@ -150,7 +150,7 @@ public class CurveEndToEndTest {
 
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
     CalculationMarketData knownMarketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
-        .addSingleValues(parRateData)
+        .addValueMap(parRateData)
         .build();
 
     // using the direct executor means there is no need to close/shutdown the runner

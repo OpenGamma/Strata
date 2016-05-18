@@ -7,15 +7,14 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketDataBuilder;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
@@ -24,7 +23,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * A mutable builder for building up {@link MarketEnvironment} instances.
  */
-public final class MarketEnvironmentBuilder {
+final class MarketEnvironmentBuilder {
 
   /** The valuation date associated with the market data. */
   private MarketDataBox<LocalDate> valuationDate = MarketDataBox.empty();
@@ -104,63 +103,10 @@ public final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, T value) {
+  <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, T value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     values.put(id, MarketDataBox.ofSingleValue(value));
-    return this;
-  }
-
-  /**
-   * Adds a single item of market data, replacing any existing value with the same ID.
-   *
-   * @param id  the ID of the market data
-   * @param value  the market data value
-   * @param <T>  the type of the market data value
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, MarketDataBox<T> value) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(value, "value");
-    updateScenarioCount(value);
-    values.put(id, value);
-    valueFailures.remove(id);
-    return this;
-  }
-
-  /**
-   * Adds multiple values for an item of market data, one for each scenario.
-   *
-   * @param id  the ID of the market data
-   * @param values  the market data values, one for each scenario
-   * @param <T>  the type of the market data values
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, List<T> values) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(values, "values");
-    MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
-    updateScenarioCount(box);
-    this.values.put(id, box);
-    valueFailures.remove(id);
-    return this;
-  }
-
-  /**
-   * Adds multiple values for an item of market data, one for each scenario.
-   *
-   * @param id  the ID of the market data
-   * @param value  the market data values, one for each scenario
-   * @param <T>  the type of the market data values
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(value, "values");
-    MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
-    updateScenarioCount(box);
-    this.values.put(id, box);
-    valueFailures.remove(id);
     return this;
   }
 
@@ -173,7 +119,7 @@ public final class MarketEnvironmentBuilder {
    * @param box  the market data box
    * @return this builder
    */
-  MarketEnvironmentBuilder addValuesUnsafe(MarketDataId<?> id, MarketDataBox<?> box) {
+  MarketEnvironmentBuilder addBox(MarketDataId<?> id, MarketDataBox<?> box) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(box, "box");
     updateScenarioCount(box);
@@ -184,72 +130,6 @@ public final class MarketEnvironmentBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds multiple items of market data, replacing any existing values with the same IDs.
-   * <p>
-   * Each value in the map is a single item of market data used in all scenarios.
-   *
-   * @param values  the items of market data, keyed by ID
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addSingleValues(Map<? extends MarketDataId<T>, T> values) {
-    ArgChecker.notNull(values, "values");
-    values.forEach((id, value) -> checkValueType(id, value));
-    // extra <Object> for Eclipse
-    Map<? extends MarketDataId<?>, MarketDataBox<Object>> boxedValues =
-        MapStream.of(values).mapValues(value -> MarketDataBox.<Object>ofSingleValue(value)).toMap();
-
-    this.values.putAll(boxedValues);
-    return this;
-  }
-
-  /**
-   * Adds multiple items of market data, replacing any existing values with the same IDs.
-   * <p>
-   * Each value in the map contains multiple market data items, one for each scenario.
-   *
-   * @param values  the items of market data, keyed by ID
-   * @param <T>  the type of the market data value used in each scenario
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addScenarioValues(
-      Map<? extends MarketDataId<T>, ? extends ScenarioMarketDataValue<T>> values) {
-
-    ArgChecker.notNull(values, "values");
-    Map<? extends MarketDataId<T>, MarketDataBox<T>> boxedValues =
-        MapStream.of(values).mapValues(value -> MarketDataBox.ofScenarioValue(value)).toMap();
-
-    boxedValues.forEach((id, value) -> {
-      checkBoxType(id, value);
-      updateScenarioCount(value);
-    });
-    this.values.putAll(boxedValues);
-    return this;
-  }
-
-  /**
-   * Adds multiple items of market data, replacing any existing values with the same IDs.
-   * <p>
-   * Each value in the map is a list of market data items, one for each scenario.
-   *
-   * @param values  the items of market data, keyed by ID
-   * @param <T>  the type of the market data value used in each scenario
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addScenarioValueLists(Map<? extends MarketDataId<T>, ? extends List<T>> values) {
-    ArgChecker.notNull(values, "values");
-    Map<? extends MarketDataId<T>, MarketDataBox<T>> boxedValues =
-        MapStream.of(values).mapValues(value -> MarketDataBox.ofScenarioValues(value)).toMap();
-
-    boxedValues.forEach((id, value) -> {
-      checkBoxType(id, value);
-      updateScenarioCount(value);
-    });
-    this.values.putAll(boxedValues);
-    return this;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Adds a result for a single item of market data, replacing any existing value with the same ID.
    *
    * @param id  the ID of the market data
@@ -257,31 +137,7 @@ public final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> MarketEnvironmentBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<T>> result) {
-    ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(result, "result");
-
-    if (result.isSuccess()) {
-      MarketDataBox<T> box = result.getValue();
-      updateScenarioCount(box);
-      values.put(id, box);
-      valueFailures.remove(id);
-    } else {
-      valueFailures.put(id, result.getFailure());
-      values.remove(id);
-    }
-    return this;
-  }
-
-  /**
-   * Adds a result for a single item of market data, replacing any existing value with the same ID.
-   *
-   * @param id  the ID of the market data
-   * @param result  a result containing the market data value or details of why it could not be provided
-   * @param <T>  the type of the market data value
-   * @return this builder
-   */
-  public <T> MarketEnvironmentBuilder addResultUnsafe(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
+  <T> MarketEnvironmentBuilder addResult(MarketDataId<T> id, Result<MarketDataBox<?>> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
@@ -306,22 +162,10 @@ public final class MarketEnvironmentBuilder {
    * @param timeSeries  a time series of observable market data values
    * @return this builder
    */
-  public MarketEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+  MarketEnvironmentBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
     this.timeSeries.put(id, timeSeries);
-    return this;
-  }
-
-  /**
-   * Adds multiple time series of observable market data, replacing any existing time series with the same IDs.
-   *
-   * @param series  the time series of market data, keyed by ID
-   * @return this builder
-   */
-  public MarketEnvironmentBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> series) {
-    ArgChecker.notNull(series, "series");
-    timeSeries.putAll(series);
     return this;
   }
 
@@ -332,7 +176,7 @@ public final class MarketEnvironmentBuilder {
    * @param result  a time series of observable market data values
    * @return this builder
    */
-  public MarketEnvironmentBuilder addTimeSeriesResult(ObservableId id, Result<LocalDateDoubleTimeSeries> result) {
+  MarketEnvironmentBuilder addTimeSeriesResult(ObservableId id, Result<LocalDateDoubleTimeSeries> result) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(result, "result");
 
@@ -348,70 +192,24 @@ public final class MarketEnvironmentBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the market data values in this builder, replacing the existing set.
-   *
-   * @param values  the market data values
-   * @return this builder
-   */
-  public MarketEnvironmentBuilder values(Map<? extends MarketDataId<?>, MarketDataBox<?>> values) {
-    ArgChecker.notNull(values, "values");
-    this.values.clear();
-    this.values.putAll(values);
-    return this;
-  }
-
-  /**
-   * Sets the time series in this builder, replacing the existing set.
-   *
-   * @param timeSeries  the time series
-   * @return this builder
-   */
-  public MarketEnvironmentBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.clear();
-    this.timeSeries.putAll(timeSeries);
-    return this;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns true if this builder contains a value for the ID.
-   *
-   * @param id  an ID
-   * @return true if this builder contains a value for the ID
-   */
-  @SuppressWarnings("unchecked")
-  public boolean containsValue(MarketDataId<?> id) {
-    return values.containsKey(id);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Builds a set of market data from the data in this builder.
    * <p>
    * It is possible to continue to add more data to a builder after calling {@code build()}.
    *
    * @return a set of market data from the data in this builder
    */
-  public MarketEnvironment build() {
+  MarketEnvironment build() {
     if (valuationDate.getScenarioCount() == 0) {
       // This isn't checked in MarketEnvironment otherwise it would be impossible to have an empty environment
       throw new IllegalArgumentException("Valuation date must be specified");
     }
-    return new MarketEnvironment(valuationDate, scenarioCount, values, timeSeries, valueFailures, timeSeriesFailures);
+    ImmutableCalculationMarketDataBuilder builder = ImmutableCalculationMarketData.builder(valuationDate)
+        .addBoxMap(values)
+        .addTimeSeriesMap(timeSeries);
+    return new MarketEnvironment(builder.build(), valueFailures, timeSeriesFailures);
   }
 
   //-------------------------------------------------------------------------
-  private static void checkValueType(MarketDataId<?> id, Object value) {
-    if (!id.getMarketDataType().isInstance(value)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Market data value {} does not match the type of the identifier {}",
-              value,
-              id));
-    }
-  }
-
   private static void checkBoxType(MarketDataId<?> id, MarketDataBox<?> box) {
     if (!id.getMarketDataType().isAssignableFrom(box.getMarketDataType())) {
       throw new IllegalArgumentException(

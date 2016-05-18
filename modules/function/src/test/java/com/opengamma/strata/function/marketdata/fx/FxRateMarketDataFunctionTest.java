@@ -64,7 +64,7 @@ public class FxRateMarketDataFunctionTest {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addValues(QUOTE_ID, quoteBox)
+        .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
@@ -75,7 +75,7 @@ public class FxRateMarketDataFunctionTest {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addValues(QUOTE_ID, quoteBox)
+        .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
@@ -86,7 +86,7 @@ public class FxRateMarketDataFunctionTest {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofScenarioValues(1.1d, 1.2d, 1.3d);
     CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
-        .addValues(QUOTE_ID, quoteBox)
+        .addBox(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isFalse();
