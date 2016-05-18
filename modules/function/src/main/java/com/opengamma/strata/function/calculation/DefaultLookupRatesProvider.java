@@ -45,7 +45,6 @@ import com.opengamma.strata.market.view.FxIndexRates;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.market.view.OvernightIndexRates;
 import com.opengamma.strata.market.view.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -55,7 +54,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupRatesProvider
-    extends AbstractRatesProvider
     implements RatesProvider, ImmutableBean {
 
   /**

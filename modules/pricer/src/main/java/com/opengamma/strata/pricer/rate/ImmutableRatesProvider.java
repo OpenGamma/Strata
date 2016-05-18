@@ -61,8 +61,7 @@ import com.opengamma.strata.market.view.PriceIndexValues;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class ImmutableRatesProvider
-    extends AbstractRatesProvider
-    implements ImmutableBean, Serializable {
+    implements RatesProvider, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
