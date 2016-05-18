@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.deposit;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 
@@ -51,7 +51,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @param provider  the rates provider
    * @return the present value of the product
    */
-  public CurrencyAmount presentValue(ResolvedIborFixingDepositTrade trade, ImmutableRatesProvider provider) {
+  public CurrencyAmount presentValue(ResolvedIborFixingDepositTrade trade, RatesProvider provider) {
     return productPricer.presentValue(trade.getProduct(), provider);
   }
 
@@ -65,7 +65,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @param provider  the rates provider
    * @return the point sensitivity of the present value
    */
-  public PointSensitivities presentValueSensitivity(ResolvedIborFixingDepositTrade trade, ImmutableRatesProvider provider) {
+  public PointSensitivities presentValueSensitivity(ResolvedIborFixingDepositTrade trade, RatesProvider provider) {
     return productPricer.presentValueSensitivity(trade.getProduct(), provider);
   }
 
@@ -77,7 +77,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @param provider  the rates provider
    * @return the par spread
    */
-  public double parSpread(ResolvedIborFixingDepositTrade trade, ImmutableRatesProvider provider) {
+  public double parSpread(ResolvedIborFixingDepositTrade trade, RatesProvider provider) {
     return productPricer.parSpread(trade.getProduct(), provider);
   }
 
@@ -88,7 +88,7 @@ public class DiscountingIborFixingDepositTradePricer {
    * @param provider  the rates provider
    * @return the par spread curve sensitivity
    */
-  public PointSensitivities parSpreadSensitivity(ResolvedIborFixingDepositTrade trade, ImmutableRatesProvider provider) {
+  public PointSensitivities parSpreadSensitivity(ResolvedIborFixingDepositTrade trade, RatesProvider provider) {
     return productPricer.parSpreadSensitivity(trade.getProduct(), provider);
   }
 
