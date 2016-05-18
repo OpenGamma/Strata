@@ -27,11 +27,11 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
@@ -63,7 +63,7 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).build();
     Results results1 = test.calculateSingleScenario(tasks, marketData, REF_DATA);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
@@ -89,7 +89,7 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).build();
     assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData, REF_DATA));
   }
 
@@ -108,7 +108,7 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 
-    CalculationMarketData marketData = MarketEnvironment.empty(VAL_DATE);
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).build();
     test.calculateSingleScenarioAsync(tasks, marketData, REF_DATA, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
