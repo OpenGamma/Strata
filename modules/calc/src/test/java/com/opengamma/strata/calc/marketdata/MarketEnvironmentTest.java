@@ -113,16 +113,16 @@ public class MarketEnvironmentTest {
     MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
         .addResult(TEST_ID4, Result.failure(FailureReason.ERROR, "foo"))
         .build();
 
     MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 10))
         .addTimeSeries(TEST_ID2, timeSeries2a)
         .addTimeSeries(TEST_ID3, timeSeries3)
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(21.0, 21.1, 21.2))
-        .addValue(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(21.0, 21.1, 21.2))
+        .addValues(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
         .addTimeSeriesResult(TEST_ID4, Result.failure(FailureReason.ERROR, "foo"))
         .build();
 
@@ -131,9 +131,9 @@ public class MarketEnvironmentTest {
         .addTimeSeries(TEST_ID1, timeSeries1)
         .addTimeSeries(TEST_ID2, timeSeries2)
         .addTimeSeries(TEST_ID3, timeSeries3)
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
-        .addValue(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(2.0, 2.1, 2.2))
+        .addValues(TEST_ID3, MarketDataBox.ofScenarioValues(3.0, 3.1, 3.2))
         .build();
 
     MarketEnvironment merged = marketData1.mergedWith(marketData2);
@@ -142,11 +142,11 @@ public class MarketEnvironmentTest {
 
   public void mergedWithIncompatibleScenarioCount() {
     MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0, 1.1, 1.2))
         .build();
 
     MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     assertThrowsIllegalArg(() -> marketData1.mergedWith(marketData2), ".* same number of scenarios .* 3 and 2");
@@ -154,16 +154,16 @@ public class MarketEnvironmentTest {
 
   public void mergedWithReceiverHasOneScenario() {
     MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .build();
 
     MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     MarketEnvironment expected = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);
@@ -171,16 +171,16 @@ public class MarketEnvironmentTest {
 
   public void mergedWithOtherHasOneScenario() {
     MarketEnvironment marketData1 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     MarketEnvironment marketData2 = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
         .build();
 
     MarketEnvironment expected = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
-        .addValue(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
+        .addValues(TEST_ID1, MarketDataBox.ofScenarioValues(1.0))
+        .addValues(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
     assertThat(marketData1.mergedWith(marketData2)).isEqualTo(expected);

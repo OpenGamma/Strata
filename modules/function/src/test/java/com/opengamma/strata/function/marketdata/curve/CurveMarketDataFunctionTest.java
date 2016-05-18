@@ -19,9 +19,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -53,7 +54,7 @@ public class CurveMarketDataFunctionTest {
         GROUP_NAME,
         ImmutableMap.of(Currency.AUD, curve),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
     CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataRequirements reqs = test.requirements(curveId1, MarketDataConfig.empty());
@@ -73,7 +74,7 @@ public class CurveMarketDataFunctionTest {
         GROUP_NAME,
         ImmutableMap.of(Currency.AUD, curve1, Currency.GBP, curve2),
         ImmutableMap.of());
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE).addValue(groupId, curveGroup).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE).addValue(groupId, curveGroup).build();
 
     CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataBox<Curve> result1 = test.build(curveId1, MarketDataConfig.empty(), marketData, REF_DATA);

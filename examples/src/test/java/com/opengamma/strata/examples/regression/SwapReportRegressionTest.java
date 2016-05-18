@@ -33,7 +33,6 @@ import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.examples.data.ExampleData;
@@ -83,7 +82,7 @@ public class SwapReportRegressionTest {
         Currency.USD,
         marketDataBuilder.ratesLookup(valuationDate));
 
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);

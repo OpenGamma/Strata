@@ -23,9 +23,9 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.market.id.QuoteId;
 
 @Test
@@ -63,8 +63,8 @@ public class FxRateMarketDataFunctionTest {
   public void build() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationMarketData marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(QUOTE_ID, quoteBox)
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValues(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
@@ -74,8 +74,8 @@ public class FxRateMarketDataFunctionTest {
   public void buildInverse() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofSingleValue(1.1d);
-    CalculationMarketData marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(QUOTE_ID, quoteBox)
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValues(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(FxRateId.of(CURRENCY_PAIR.inverse()), config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isTrue();
@@ -85,8 +85,8 @@ public class FxRateMarketDataFunctionTest {
   public void buildScenario() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
     MarketDataBox<Double> quoteBox = MarketDataBox.ofScenarioValues(1.1d, 1.2d, 1.3d);
-    CalculationMarketData marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(QUOTE_ID, quoteBox)
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValues(QUOTE_ID, quoteBox)
         .build();
     MarketDataBox<FxRate> rateBox = function.build(RATE_ID, config(), marketData, REF_DATA);
     assertThat(rateBox.isSingleValue()).isFalse();

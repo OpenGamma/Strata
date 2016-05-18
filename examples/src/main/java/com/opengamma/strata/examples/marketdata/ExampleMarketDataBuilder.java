@@ -30,8 +30,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketDataBuilder;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -45,9 +45,9 @@ import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.
@@ -178,8 +178,8 @@ public abstract class ExampleMarketDataBuilder {
    * @param marketDataDate  the date of the market data
    * @return the snapshot
    */
-  public MarketEnvironment buildSnapshot(LocalDate marketDataDate) {
-    MarketEnvironmentBuilder builder = MarketEnvironment.builder(marketDataDate);
+  public ImmutableCalculationMarketData buildSnapshot(LocalDate marketDataDate) {
+    ImmutableCalculationMarketDataBuilder builder = ImmutableCalculationMarketData.builder(marketDataDate);
     loadFixingSeries(builder);
     loadRatesCurves(builder, marketDataDate);
     loadQuotes(builder, marketDataDate);
@@ -227,7 +227,7 @@ public abstract class ExampleMarketDataBuilder {
   }
 
   //-------------------------------------------------------------------------
-  private void loadFixingSeries(MarketEnvironmentBuilder builder) {
+  private void loadFixingSeries(ImmutableCalculationMarketDataBuilder builder) {
     if (!subdirectoryExists(HISTORICAL_FIXINGS_DIR)) {
       log.debug("No historical fixings directory found");
       return;
@@ -241,7 +241,7 @@ public abstract class ExampleMarketDataBuilder {
     }
   }
 
-  private void loadRatesCurves(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
+  private void loadRatesCurves(ImmutableCalculationMarketDataBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CURVES_DIR)) {
       log.debug("No rates curves directory found");
       return;
@@ -280,7 +280,7 @@ public abstract class ExampleMarketDataBuilder {
   }
 
   // load quotes
-  private void loadQuotes(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
+  private void loadQuotes(ImmutableCalculationMarketDataBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(QUOTES_DIR)) {
       log.debug("No quotes directory found");
       return;
@@ -301,7 +301,7 @@ public abstract class ExampleMarketDataBuilder {
     }
   }
 
-  private void loadFxRates(MarketEnvironmentBuilder builder) {
+  private void loadFxRates(ImmutableCalculationMarketDataBuilder builder) {
     // TODO - load from CSV file - format to be defined
     builder.addValue(FxRateId.of(Currency.GBP, Currency.USD), FxRate.of(Currency.GBP, Currency.USD, 1.61));
   }
@@ -314,7 +314,7 @@ public abstract class ExampleMarketDataBuilder {
         .collect(toImmutableList());
   }
 
-  private void loadCreditMarketData(MarketEnvironmentBuilder builder, LocalDate marketDataDate) {
+  private void loadCreditMarketData(ImmutableCalculationMarketDataBuilder builder, LocalDate marketDataDate) {
     if (!subdirectoryExists(CREDIT_DIR)) {
       log.debug("No credit curves directory found");
       return;
@@ -336,7 +336,7 @@ public abstract class ExampleMarketDataBuilder {
     loadCdsIndexSpreadCurves(builder, creditMarketDataDateDirectory);
   }
 
-  private void loadCdsYieldCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsYieldCurves(ImmutableCalculationMarketDataBuilder builder, String creditMarketDataDateDirectory) {
     ResourceLocator cdsYieldCurvesResource = getResource(creditMarketDataDateDirectory, CDS_YIELD_CURVES_FILE);
     if (cdsYieldCurvesResource == null) {
       log.debug("Unable to load cds yield curves: file not found at {}/{}", creditMarketDataDateDirectory,
@@ -353,7 +353,8 @@ public abstract class ExampleMarketDataBuilder {
     }
   }
 
-  private void loadCdsSingleNameSpreadCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsSingleNameSpreadCurves(ImmutableCalculationMarketDataBuilder builder,
+      String creditMarketDataDateDirectory) {
     ResourceLocator singleNameCurvesResource = getResource(creditMarketDataDateDirectory, SINGLE_NAME_CREDIT_CURVES_FILE);
     if (singleNameCurvesResource == null) {
       log.debug("Unable to load single name spread curves: file not found at {}/{}", creditMarketDataDateDirectory,
@@ -380,7 +381,7 @@ public abstract class ExampleMarketDataBuilder {
     }
   }
 
-  private void loadCdsIndexSpreadCurves(MarketEnvironmentBuilder builder, String creditMarketDataDateDirectory) {
+  private void loadCdsIndexSpreadCurves(ImmutableCalculationMarketDataBuilder builder, String creditMarketDataDateDirectory) {
 
     ResourceLocator inputCurvesResource = getResource(creditMarketDataDateDirectory, INDEX_CREDIT_CURVES_FILE);
     if (inputCurvesResource == null) {

@@ -35,12 +35,12 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.result.CurrencyValuesArray;
@@ -95,10 +95,9 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData =
-        MarketEnvironment.builder(date(2011, 3, 8))
-            .addValue(FxRateId.of(GBP, USD), rates)
-            .build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+        .addValues(FxRateId.of(GBP, USD), rates)
+        .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -120,10 +119,9 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData =
-        MarketEnvironment.builder(date(2011, 3, 8))
-            .addValue(FxRateId.of(GBP, USD), rates)
-            .build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+        .addValues(FxRateId.of(GBP, USD), rates)
+        .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE_MULTI_CCY, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -145,10 +143,9 @@ public class CalculationTaskTest {
         .map(rate -> FxRate.of(GBP, USD, rate))
         .collect(toImmutableList());
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
-    CalculationMarketData marketData =
-        MarketEnvironment.builder(date(2011, 3, 8))
-            .addValue(FxRateId.of(GBP, USD), rates)
-            .build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
+        .addValues(FxRateId.of(GBP, USD), rates)
+        .build();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, USD);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -170,7 +167,7 @@ public class CalculationTaskTest {
     } , GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = CalculationMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -184,7 +181,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -198,7 +195,7 @@ public class CalculationTaskTest {
     TestFunction fn = new TestFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -212,7 +209,7 @@ public class CalculationTaskTest {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyValuesArray list = CurrencyValuesArray.of(GBP, values);
     // Market data doesn't include FX rates, conversion to USD will fail
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = CalculationMarketData.empty();
     ConvertibleFunction fn = ConvertibleFunction.of(() -> list, GBP);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -229,7 +226,7 @@ public class CalculationTaskTest {
     SupplierFunction<String> fn = SupplierFunction.of(() -> "foo");
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -245,7 +242,7 @@ public class CalculationTaskTest {
     });
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = CalculationMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -261,7 +258,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
@@ -276,7 +273,7 @@ public class CalculationTaskTest {
         SupplierFunction.of(() -> Result.failure(FailureReason.NOT_APPLICABLE, "bar"));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    CalculationMarketData marketData = MarketEnvironment.builder(date(2011, 3, 8)).build();
+    CalculationMarketData marketData = CalculationMarketData.empty();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();

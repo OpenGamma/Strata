@@ -35,12 +35,12 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
@@ -149,7 +149,7 @@ public class CurveEndToEndTest {
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
-    MarketEnvironment knownMarketData = MarketEnvironment.builder(date(2011, 3, 8))
+    CalculationMarketData knownMarketData = ImmutableCalculationMarketData.builder(date(2011, 3, 8))
         .addSingleValues(parRateData)
         .build();
 

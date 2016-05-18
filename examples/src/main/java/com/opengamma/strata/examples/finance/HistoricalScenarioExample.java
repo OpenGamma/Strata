@@ -39,7 +39,6 @@ import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.result.ScenarioResult;
@@ -126,7 +125,7 @@ public class HistoricalScenarioExample {
     // build a market data snapshot for the valuation date
     // this is the base snapshot which will be perturbed by the scenarios
     LocalDate valuationDate = LocalDate.of(2015, 4, 23);
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    CalculationMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();

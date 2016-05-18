@@ -119,7 +119,7 @@ public final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, MarketDataBox<T> value) {
+  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, MarketDataBox<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
     updateScenarioCount(value);
@@ -136,7 +136,7 @@ public final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, List<T> values) {
+  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, List<T> values) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(values, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValues(values);
@@ -154,7 +154,7 @@ public final class MarketEnvironmentBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> MarketEnvironmentBuilder addValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
+  public <T> MarketEnvironmentBuilder addValues(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
@@ -173,7 +173,7 @@ public final class MarketEnvironmentBuilder {
    * @param box  the market data box
    * @return this builder
    */
-  MarketEnvironmentBuilder addValueUnsafe(MarketDataId<?> id, MarketDataBox<?> box) {
+  MarketEnvironmentBuilder addValuesUnsafe(MarketDataId<?> id, MarketDataBox<?> box) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(box, "box");
     updateScenarioCount(box);

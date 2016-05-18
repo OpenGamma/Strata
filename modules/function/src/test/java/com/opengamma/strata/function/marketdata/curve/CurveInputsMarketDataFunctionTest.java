@@ -27,6 +27,8 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketEnvironment;
@@ -162,7 +164,7 @@ public class CurveInputsMarketDataFunctionTest {
     QuoteId idB = QuoteId.of(StandardId.of("test", "b"));
     QuoteId idC = QuoteId.of(StandardId.of("test", "c"));
 
-    MarketEnvironment marketData = MarketEnvironment.builder(VAL_DATE)
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(VAL_DATE)
         .addValue(idA, 1d)
         .addValue(idB, 2d)
         .addValue(idC, 3d)

@@ -35,9 +35,10 @@ import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.calc.CalculationMarketData;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
@@ -54,9 +55,9 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
@@ -113,7 +114,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
+    CalculationMarketData marketEnvironment = ImmutableCalculationMarketData.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup =
@@ -158,7 +159,7 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
+    CalculationMarketData marketEnvironment = ImmutableCalculationMarketData.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
         .build();
 
@@ -244,7 +245,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     LocalDate valuationDate = date(2011, 3, 8);
     CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate, REF_DATA));
-    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
+    CalculationMarketData marketData = ImmutableCalculationMarketData.builder(valuationDate)
         .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
         .build();
 
@@ -332,7 +333,7 @@ public class CurveGroupMarketDataFunctionTest {
         pointsKey2b, 0.2d);
     CurveInputs curveInputs1 = CurveInputs.of(marketDataMap1, DefaultCurveMetadata.of("curve1"));
     CurveInputs curveInputs2 = CurveInputs.of(marketDataMap2, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
+    ImmutableCalculationMarketData marketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
         .build();
@@ -343,7 +344,7 @@ public class CurveGroupMarketDataFunctionTest {
         FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
         pointsKey2a, 0.2d);
     CurveInputs badCurveInputs = CurveInputs.of(badMarketDataMap, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment badMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
+    CalculationMarketData badMarketData = ImmutableCalculationMarketData.builder(LocalDate.of(2011, 3, 8))
         .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
         .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
         .build();

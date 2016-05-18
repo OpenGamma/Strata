@@ -40,12 +40,12 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
  * <p>
  * This is the standard immutable implementation of {@link CalculationMarketData}.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class ImmutableCalculationMarketData
     implements CalculationMarketData, ImmutableBean, Serializable {
 
   /** An empty instance. */
-  static final ImmutableCalculationMarketData EMPTY =
+  private static final ImmutableCalculationMarketData EMPTY =
       new ImmutableCalculationMarketData(0, MarketDataBox.empty(), ImmutableMap.of(), ImmutableMap.of());
 
   /**
@@ -130,6 +130,37 @@ public final class ImmutableCalculationMarketData
     }
   }
 
+  /**
+   * Obtains a market data instance that contains no data and has no scenarios.
+   *
+   * @return an empty instance
+   */
+  public static ImmutableCalculationMarketData empty() {
+    return EMPTY;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a mutable builder that can be used to create an instance of the market data.
+   * 
+   * @param valuationDate  the valuation dates associated with the market data
+   * @return the mutable builder
+   */
+  public static ImmutableCalculationMarketDataBuilder builder(LocalDate valuationDate) {
+    return new ImmutableCalculationMarketDataBuilder(valuationDate);
+  }
+
+  /**
+   * Creates a mutable builder that can be used to create an instance of the market data.
+   * 
+   * @param valuationDate  the valuation dates associated with the market data, one for each scenario
+   * @return the mutable builder
+   */
+  public static ImmutableCalculationMarketDataBuilder builder(MarketDataBox<LocalDate> valuationDate) {
+
+    return new ImmutableCalculationMarketDataBuilder(valuationDate);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean containsValue(MarketDataId<?> id) {
@@ -190,7 +221,14 @@ public final class ImmutableCalculationMarketData
    */
   private static final long serialVersionUID = 1L;
 
-  private ImmutableCalculationMarketData(
+  /**
+   * Creates an instance.
+   * @param scenarioCount  the value of the property
+   * @param valuationDate  the value of the property, not null
+   * @param values  the value of the property, not null
+   * @param timeSeries  the value of the property, not null
+   */
+  ImmutableCalculationMarketData(
       int scenarioCount,
       MarketDataBox<LocalDate> valuationDate,
       Map<? extends MarketDataId<?>, MarketDataBox<?>> values,

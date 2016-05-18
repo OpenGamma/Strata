@@ -88,7 +88,7 @@ public interface CalculationMarketData {
    * @return an empty instance
    */
   public static CalculationMarketData empty() {
-    return ImmutableCalculationMarketData.EMPTY;
+    return ImmutableCalculationMarketData.empty();
   }
 
   //-------------------------------------------------------------------------

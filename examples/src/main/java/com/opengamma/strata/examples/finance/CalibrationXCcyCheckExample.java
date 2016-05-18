@@ -26,11 +26,11 @@ import com.opengamma.strata.calc.CalculationMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.ImmutableCalculationMarketData;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -185,7 +185,7 @@ public class CalibrationXCcyCheckExample {
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
+    CalculationMarketData marketSnapshot = ImmutableCalculationMarketData.builder(VAL_DATE)
         .addSingleValues(quotes)
         .addSingleValues(fxRates)
         .build();

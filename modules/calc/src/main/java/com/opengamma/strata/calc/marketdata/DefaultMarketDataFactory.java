@@ -331,7 +331,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       Result<MarketDataBox<?>> result = Result.of(() -> mapping.applyPerturbation(objectValue));
       builder.addResultUnsafe(id, result);
     } else {
-      builder.addValueUnsafe(id, value);
+      builder.addValuesUnsafe(id, value);
     }
   }
 
