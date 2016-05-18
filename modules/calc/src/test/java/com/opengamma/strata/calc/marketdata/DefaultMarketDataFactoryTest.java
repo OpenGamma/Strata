@@ -21,9 +21,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.market.TestObservableId;
@@ -63,7 +63,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(timeSeries),
             ObservableMarketDataFunction.none(),
-            FeedIdMapping.identity());
+            ObservableIdMapping.identity());
 
     MarketDataRequirements requirements = MarketDataRequirements.builder()
         .addTimeSeries(id1, id2)
@@ -88,7 +88,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataFunction.none(),
-            FeedIdMapping.identity());
+            ObservableIdMapping.identity());
     MarketDataRequirements requirements = MarketDataRequirements.builder()
         .addValues(id1, id2)
         .build();
@@ -116,7 +116,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataFunction.none(),
-            FeedIdMapping.identity(),
+            ObservableIdMapping.identity(),
             new TestMarketDataFunctionC());
 
     MarketDataRequirements requirements = MarketDataRequirements.builder()
@@ -134,7 +134,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataFunction(),
-            new TestFeedIdMapping());
+            new TestObservableIdMapping());
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
@@ -153,7 +153,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataFunction.none(),
-            new TestFeedIdMapping());
+            new TestObservableIdMapping());
 
     TestObservableId id1 = TestObservableId.of("a");
     TestObservableId id2 = TestObservableId.of("b");
@@ -204,7 +204,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             timeSeriesProvider,
             new TestObservableMarketDataFunction(),
-            FeedIdMapping.identity(),
+            ObservableIdMapping.identity(),
             builderB,
             builderC);
 
@@ -269,7 +269,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         TimeSeriesProvider.none(),
         ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
+        ObservableIdMapping.identity(),
         builderB,
         builderC);
 
@@ -306,7 +306,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataFunction(),
-            FeedIdMapping.identity(),
+            ObservableIdMapping.identity(),
             builder);
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
@@ -349,7 +349,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             timeSeriesProvider,
             new TestObservableMarketDataFunction(),
-            FeedIdMapping.identity(),
+            ObservableIdMapping.identity(),
             builderB,
             builderC);
 
@@ -383,7 +383,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             new TestObservableMarketDataFunction(),
-            new TestFeedIdMapping());
+            new TestObservableIdMapping());
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
@@ -413,7 +413,7 @@ public class DefaultMarketDataFactoryTest {
         new DefaultMarketDataFactory(
             new TestTimeSeriesProvider(ImmutableMap.of()),
             ObservableMarketDataFunction.none(),
-            new TestFeedIdMapping());
+            new TestObservableIdMapping());
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
     BuiltScenarioMarketData suppliedData =
@@ -446,7 +446,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         ObservableMarketDataFunction.none(),
-        new TestFeedIdMapping());
+        new TestObservableIdMapping());
 
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
     TestObservableId id2 = TestObservableId.of(StandardId.of("reqs", "b"));
@@ -489,7 +489,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping());
+        new TestObservableIdMapping());
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
@@ -517,7 +517,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping());
+        new TestObservableIdMapping());
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
     TestObservableId id1 = TestObservableId.of(StandardId.of("reqs", "a"));
@@ -549,7 +549,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping(),
+        new TestObservableIdMapping(),
         new NonObservableMarketDataFunction());
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
@@ -587,7 +587,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         ObservableMarketDataFunction.none(),
-        new TestFeedIdMapping());
+        new TestObservableIdMapping());
     NonObservableId id1 = new NonObservableId("a");
     NonObservableId id2 = new NonObservableId("b");
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8))
@@ -654,7 +654,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
         TimeSeriesProvider.none(),
         ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity(),
+        ObservableIdMapping.identity(),
         builderB,
         builderC);
 
@@ -702,7 +702,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping(),
+        new TestObservableIdMapping(),
         new NonObservableMarketDataFunction());
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
 
@@ -733,7 +733,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping(),
+        new TestObservableIdMapping(),
         new NonObservableMarketDataFunction());
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
 
@@ -767,7 +767,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping(),
+        new TestObservableIdMapping(),
         new NonObservableMarketDataFunction());
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
 
@@ -799,7 +799,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         new TestObservableMarketDataFunction(),
-        new TestFeedIdMapping());
+        new TestObservableIdMapping());
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     NonObservableId id1 = new NonObservableId("a");
@@ -831,7 +831,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity());
+        ObservableIdMapping.identity());
     NonObservableId id = new NonObservableId("a");
     PerturbationMapping<String> mapping = PerturbationMapping.of(
         String.class,
@@ -859,7 +859,7 @@ public class DefaultMarketDataFactoryTest {
     DefaultMarketDataFactory factory = new DefaultMarketDataFactory(
         new TestTimeSeriesProvider(ImmutableMap.of()),
         ObservableMarketDataFunction.none(),
-        FeedIdMapping.identity());
+        ObservableIdMapping.identity());
     TestObservableId id = TestObservableId.of(StandardId.of("reqs", "a"));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(id).build();
     PerturbationMapping<Double> mapping = PerturbationMapping.of(
@@ -917,7 +917,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Simple ID mapping backed by a map.
    */
-  private static final class TestFeedIdMapping implements FeedIdMapping {
+  private static final class TestObservableIdMapping implements ObservableIdMapping {
 
     private final Map<ObservableId, ObservableId> idMap =
         ImmutableMap.of(
@@ -925,7 +925,7 @@ public class DefaultMarketDataFactoryTest {
             TestObservableId.of(StandardId.of("reqs", "b")), TestObservableId.of(StandardId.of("vendor", "2")));
 
     @Override
-    public Optional<ObservableId> idForFeed(ObservableId id) {
+    public Optional<ObservableId> lookupId(ObservableId id) {
       return Optional.ofNullable(idMap.get(id));
     }
   }
@@ -953,12 +953,12 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public MarketDataFeed getMarketDataFeed() {
-      return MarketDataFeed.NONE;
+    public ObservableSource getObservableSource() {
+      return ObservableSource.NONE;
     }
 
     @Override
-    public ObservableId withMarketDataFeed(MarketDataFeed feed) {
+    public ObservableId withObservableSource(ObservableSource obsSource) {
       return this;
     }
 

@@ -47,10 +47,11 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   @PropertyDefinition(validate = "notNull")
   private final CurrencyPair pair;
   /**
-   * The market data feed used when looking up the underlying market quotes for the rate.
+   * The source of observable market data.
+   * This is used when looking up the underlying market quotes for the rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataFeed marketDataFeed;
+  private final ObservableSource observableSource;
 
   //-------------------------------------------------------------------------
   /**
@@ -60,7 +61,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
    * @return an ID for the FX rate for the currency pair
    */
   public static FxRateId of(CurrencyPair currencyPair) {
-    return new FxRateId(currencyPair, MarketDataFeed.NONE);
+    return new FxRateId(currencyPair, ObservableSource.NONE);
   }
 
   /**
@@ -71,38 +72,38 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
    * @return an ID for the FX rate for the currency pair
    */
   public static FxRateId of(Currency base, Currency counter) {
-    return new FxRateId(CurrencyPair.of(base, counter), MarketDataFeed.NONE);
+    return new FxRateId(CurrencyPair.of(base, counter), ObservableSource.NONE);
   }
 
   /**
-   * Obtains an instance representing the FX rate for a currency pair, specifying the feed.
+   * Obtains an instance representing the FX rate for a currency pair, specifying the source.
    *
    * @param currencyPair  a currency pair
-   * @param marketDataFeed  the feed that is the source of the observable market data used to create the rate
+   * @param observableSource  the source of the observable market data used to create the rate
    * @return an ID for the FX rate for the currency pair
    */
-  public static FxRateId of(CurrencyPair currencyPair, MarketDataFeed marketDataFeed) {
-    return new FxRateId(currencyPair, marketDataFeed);
+  public static FxRateId of(CurrencyPair currencyPair, ObservableSource observableSource) {
+    return new FxRateId(currencyPair, observableSource);
   }
 
   /**
-   * Obtains an instance representing the FX rate for a currency pair, specifying the feed.
+   * Obtains an instance representing the FX rate for a currency pair, specifying the source.
    *
    * @param base  the base currency of the pair
    * @param counter  the counter currency of the pair
-   * @param marketDataFeed  the feed that is the source of the observable market data used to create the rate
+   * @param observableSource  the source of the observable market data used to create the rate
    * @return an ID for the FX rate for the currency pair
    */
-  public static FxRateId of(Currency base, Currency counter, MarketDataFeed marketDataFeed) {
-    return new FxRateId(CurrencyPair.of(base, counter), marketDataFeed);
+  public static FxRateId of(Currency base, Currency counter, ObservableSource observableSource) {
+    return new FxRateId(CurrencyPair.of(base, counter), observableSource);
   }
 
   @ImmutableConstructor
-  private FxRateId(CurrencyPair currencyPair, MarketDataFeed marketDataFeed) {
+  private FxRateId(CurrencyPair currencyPair, ObservableSource observableSource) {
     ArgChecker.notNull(currencyPair, "currencyPair");
-    ArgChecker.notNull(marketDataFeed, "marketDataFeed");
+    ArgChecker.notNull(observableSource, "observableSource");
     this.pair = currencyPair.toConventional();
-    this.marketDataFeed = marketDataFeed;
+    this.observableSource = observableSource;
   }
 
   //-------------------------------------------------------------------------
@@ -157,11 +158,12 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data feed used when looking up the underlying market quotes for the rate.
+   * Gets the source of observable market data.
+   * This is used when looking up the underlying market quotes for the rate.
    * @return the value of the property, not null
    */
-  public MarketDataFeed getMarketDataFeed() {
-    return marketDataFeed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   //-----------------------------------------------------------------------
@@ -173,7 +175,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     if (obj != null && obj.getClass() == this.getClass()) {
       FxRateId other = (FxRateId) obj;
       return JodaBeanUtils.equal(pair, other.pair) &&
-          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
+          JodaBeanUtils.equal(observableSource, other.observableSource);
     }
     return false;
   }
@@ -182,7 +184,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(pair);
-    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
     return hash;
   }
 
@@ -191,7 +193,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxRateId{");
     buf.append("pair").append('=').append(pair).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
+    buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();
   }
@@ -212,17 +214,17 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     private final MetaProperty<CurrencyPair> pair = DirectMetaProperty.ofImmutable(
         this, "pair", FxRateId.class, CurrencyPair.class);
     /**
-     * The meta-property for the {@code marketDataFeed} property.
+     * The meta-property for the {@code observableSource} property.
      */
-    private final MetaProperty<MarketDataFeed> marketDataFeed = DirectMetaProperty.ofImmutable(
-        this, "marketDataFeed", FxRateId.class, MarketDataFeed.class);
+    private final MetaProperty<ObservableSource> observableSource = DirectMetaProperty.ofImmutable(
+        this, "observableSource", FxRateId.class, ObservableSource.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "pair",
-        "marketDataFeed");
+        "observableSource");
 
     /**
      * Restricted constructor.
@@ -235,8 +237,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
       switch (propertyName.hashCode()) {
         case 3433178:  // pair
           return pair;
-        case 842621124:  // marketDataFeed
-          return marketDataFeed;
+        case 1793526590:  // observableSource
+          return observableSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -266,11 +268,11 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     }
 
     /**
-     * The meta-property for the {@code marketDataFeed} property.
+     * The meta-property for the {@code observableSource} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFeed> marketDataFeed() {
-      return marketDataFeed;
+    public MetaProperty<ObservableSource> observableSource() {
+      return observableSource;
     }
 
     //-----------------------------------------------------------------------
@@ -279,8 +281,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
       switch (propertyName.hashCode()) {
         case 3433178:  // pair
           return ((FxRateId) bean).getPair();
-        case 842621124:  // marketDataFeed
-          return ((FxRateId) bean).getMarketDataFeed();
+        case 1793526590:  // observableSource
+          return ((FxRateId) bean).getObservableSource();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -303,7 +305,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
   private static final class Builder extends DirectFieldsBeanBuilder<FxRateId> {
 
     private CurrencyPair pair;
-    private MarketDataFeed marketDataFeed;
+    private ObservableSource observableSource;
 
     /**
      * Restricted constructor.
@@ -317,8 +319,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
       switch (propertyName.hashCode()) {
         case 3433178:  // pair
           return pair;
-        case 842621124:  // marketDataFeed
-          return marketDataFeed;
+        case 1793526590:  // observableSource
+          return observableSource;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -330,8 +332,8 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
         case 3433178:  // pair
           this.pair = (CurrencyPair) newValue;
           break;
-        case 842621124:  // marketDataFeed
-          this.marketDataFeed = (MarketDataFeed) newValue;
+        case 1793526590:  // observableSource
+          this.observableSource = (ObservableSource) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -367,7 +369,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
     public FxRateId build() {
       return new FxRateId(
           pair,
-          marketDataFeed);
+          observableSource);
     }
 
     //-----------------------------------------------------------------------
@@ -376,7 +378,7 @@ public final class FxRateId implements MarketDataId<FxRate>, ImmutableBean, Seri
       StringBuilder buf = new StringBuilder(96);
       buf.append("FxRateId.Builder{");
       buf.append("pair").append('=').append(JodaBeanUtils.toString(pair)).append(',').append(' ');
-      buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
+      buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
       buf.append('}');
       return buf.toString();
     }

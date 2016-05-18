@@ -17,8 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -83,7 +83,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     List<CurveInputsId> curveInputsIds = groupDefn.getCurveDefinitions().stream()
         .filter(defn -> requiresMarketData(defn))
         .map(defn -> defn.getName())
-        .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getMarketDataFeed()))
+        .map(curveName -> CurveInputsId.of(groupDefn.getName(), curveName, id.getObservableSource()))
         .collect(toImmutableList());
 
     return MarketDataRequirements.builder().addValues(curveInputsIds).build();
@@ -104,7 +104,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
     // calibrate
     CurveGroupName groupName = id.getCurveGroupName();
     CurveGroupDefinition groupDefn = marketDataConfig.get(CurveGroupDefinition.class, groupName);
-    return buildCurveGroup(groupDefn, calibrator, marketData, refData, id.getMarketDataFeed());
+    return buildCurveGroup(groupDefn, calibrator, marketData, refData, id.getObservableSource());
   }
 
   @Override
@@ -120,7 +120,7 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param calibrator  the calibrator
    * @param marketData  the market data containing any values required to build the curve group
    * @param refData  the reference data, used for resolving trades
-   * @param feed  the market data feed that is the source of the observable data
+   * @param obsSource  the source of observable market data
    * @return a result containing the curve group or details of why it couldn't be built
    */
   MarketDataBox<CurveGroup> buildCurveGroup(
@@ -128,13 +128,13 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
       CurveCalibrator calibrator,
       ScenarioMarketData marketData,
       ReferenceData refData,
-      MarketDataFeed feed) {
+      ObservableSource obsSource) {
 
     // find and combine all the input data
     CurveGroupName groupName = groupDefn.getName();
 
     List<MarketDataBox<CurveInputs>> inputBoxes = groupDefn.getCurveDefinitions().stream()
-        .map(curveDefn -> curveInputs(curveDefn, marketData, groupName, feed))
+        .map(curveDefn -> curveInputs(curveDefn, marketData, groupName, obsSource))
         .collect(toImmutableList());
     // If any of the inputs have values for multiple scenarios then we need to build a curve group for each scenario.
     // If all inputs contain a single value then we only need to build a single curve group.
@@ -285,18 +285,18 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
    * @param curveDefn  the curve definition
    * @param marketData  the market data
    * @param groupName  the name of the curve group being built
-   * @param feed  the market data feed that is the source of the underlying market data
+   * @param obsSource  the source of the observable market data
    * @return the input data required for the curve if available
    */
   private MarketDataBox<CurveInputs> curveInputs(
       NodalCurveDefinition curveDefn,
       ScenarioMarketData marketData,
       CurveGroupName groupName,
-      MarketDataFeed feed) {
+      ObservableSource obsSource) {
 
     // only try to get inputs from the market data if the curve needs market data
     if (requiresMarketData(curveDefn)) {
-      CurveInputsId curveInputsId = CurveInputsId.of(groupName, curveDefn.getName(), feed);
+      CurveInputsId curveInputsId = CurveInputsId.of(groupName, curveDefn.getName(), obsSource);
       return marketData.getValue(curveInputsId);
     } else {
       return MarketDataBox.ofSingleValue(CurveInputs.builder().build());

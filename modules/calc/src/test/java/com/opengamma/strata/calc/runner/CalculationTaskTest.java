@@ -30,15 +30,15 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.ReportingCurrency;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
@@ -55,7 +55,7 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class CalculationTaskTest {
 
-  static final MarketDataFeed FEED = MarketDataFeed.of("MarketDataVendor");
+  static final ObservableSource OBS_SOURCE = ObservableSource.of("MarketDataVendor");
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ReportingCurrency NATURAL = ReportingCurrency.NATURAL;
@@ -72,7 +72,7 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> timeSeriesId = new TestObservableId("3", FEED);
+    MarketDataId<?> timeSeriesId = new TestObservableId("3", OBS_SOURCE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
@@ -80,7 +80,7 @@ public class CalculationTaskTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = new TestObservableId("2", FEED);
+    MarketDataId<?> observableId = new TestObservableId("2", OBS_SOURCE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
   }
@@ -290,8 +290,8 @@ public class CalculationTaskTest {
     MarketDataRequirements requirements = task.requirements(REF_DATA);
 
     assertThat(requirements.getNonObservables()).containsOnly(
-        FxRateId.of(GBP, USD, FEED),
-        FxRateId.of(EUR, USD, FEED));
+        FxRateId.of(GBP, USD, OBS_SOURCE),
+        FxRateId.of(EUR, USD, OBS_SOURCE));
   }
 
   public void testToString() {
@@ -354,7 +354,7 @@ public class CalculationTaskTest {
                   TestId.of("1"),
                   TestObservableId.of("2")))
           .timeSeriesRequirements(TestObservableId.of("3"))
-          .feed(FEED)
+          .observableSource(OBS_SOURCE)
           .build();
     }
 
@@ -517,7 +517,7 @@ public class CalculationTaskTest {
 
       return FunctionRequirements.builder()
           .outputCurrencies(GBP, EUR, USD)
-          .feed(FEED)
+          .observableSource(OBS_SOURCE)
           .build();
     }
 

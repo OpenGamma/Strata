@@ -12,17 +12,17 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link MarketDataFeed}.
+ * Test {@link ObservableSource}.
  */
 @Test
-public class MarketDataFeedTest {
+public class ObservableSourceTest {
 
   //-----------------------------------------------------------------------
   public void coverage() {
-    MarketDataFeed test = MarketDataFeed.of("Foo");
+    ObservableSource test = ObservableSource.of("Foo");
     assertEquals(test.toString(), "Foo");
     assertSerialization(test);
-    assertJodaConvert(MarketDataFeed.class, test);
+    assertJodaConvert(ObservableSource.class, test);
   }
 
 }

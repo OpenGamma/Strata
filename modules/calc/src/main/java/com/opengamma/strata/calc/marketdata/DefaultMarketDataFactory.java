@@ -45,24 +45,24 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   /** Market data functions, keyed by the type of the market data ID they can handle. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
-  /** For looking up IDs that are suitable for a particular market data feed. */
-  private final FeedIdMapping feedIdMapping;
+  /** For looking up IDs that are suitable for a particular market data source. */
+  private final ObservableIdMapping observableIdMapping;
 
   /**
    * Creates a new factory.
    *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
-   * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
+   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
    * @param functions  functions that create the market data
    */
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
       ObservableMarketDataFunction observablesBuilder,
-      FeedIdMapping feedIdMapping,
+      ObservableIdMapping observableIdMapping,
       MarketDataFunction<?, ?>... functions) {
 
-    this(timeSeriesProvider, observablesBuilder, feedIdMapping, ImmutableList.copyOf(functions));
+    this(timeSeriesProvider, observablesBuilder, observableIdMapping, ImmutableList.copyOf(functions));
   }
 
   /**
@@ -70,17 +70,17 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
-   * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
+   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
    * @param functions  functions that create the market data
    */
   @SuppressWarnings("unchecked")
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
       ObservableMarketDataFunction observablesBuilder,
-      FeedIdMapping feedIdMapping,
+      ObservableIdMapping observableIdMapping,
       List<MarketDataFunction<?, ?>> functions) {
 
-    this.feedIdMapping = feedIdMapping;
+    this.observableIdMapping = observableIdMapping;
     this.observablesBuilder = observablesBuilder;
     this.timeSeriesProvider = timeSeriesProvider;
 
@@ -341,40 +341,40 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param ids  IDs of the market data that should be built
    */
   private Map<ObservableId, Result<Double>> buildObservableData(Set<ObservableId> ids) {
-    // We need to convert between the input IDs from the requirements and the feed IDs
+    // We need to convert between the input IDs from the requirements and the source IDs
     // which are passed to the builder and used to request the data.
-    Map<ObservableId, ObservableId> feedIdToRequirementId = new HashMap<>();
+    Map<ObservableId, ObservableId> observableIdToRequirementId = new HashMap<>();
     // IDs that are in the requirements but have no mapping to an ID the data provider understands
     Set<ObservableId> unmappedIds = new HashSet<>();
 
     // TODO Mapping of IDs should probably go inside the ObservableMarketDataBuilder
     for (ObservableId id : ids) {
-      Optional<ObservableId> feedId = feedIdMapping.idForFeed(id);
+      Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
 
-      if (feedId.isPresent()) {
-        feedIdToRequirementId.put(feedId.get(), id);
+      if (obsSourceId.isPresent()) {
+        observableIdToRequirementId.put(obsSourceId.get(), id);
       } else {
         unmappedIds.add(id);
       }
     }
-    Map<ObservableId, Result<Double>> builtValues = observablesBuilder.build(feedIdToRequirementId.keySet());
+    Map<ObservableId, Result<Double>> builtValues = observablesBuilder.build(observableIdToRequirementId.keySet());
     ImmutableMap.Builder<ObservableId, Result<Double>> builder = ImmutableMap.builder();
-    // Put the built data into the results, mapping the feed ID to the ID that was passed in
-    builtValues.keySet().stream().forEach(id -> builder.put(feedIdToRequirementId.get(id), builtValues.get(id)));
-    // Add failures for IDs that don't have mappings to market data feed IDs
+    // Put the built data into the results, mapping the source ID to the ID that was passed in
+    builtValues.keySet().stream().forEach(id -> builder.put(observableIdToRequirementId.get(id), builtValues.get(id)));
+    // Add failures for IDs that don't have mappings to market data source IDs
     unmappedIds.forEach(id -> builder.put(id, noMappingResult(id)));
     return builder.build();
   }
 
   /**
-   * Returns a failure result for an observable ID that can't be mapped to an ID recognised by the market
-   * data feed.
+   * Returns a failure result for an observable ID that can't be mapped to an ID
+   * recognized by the market data source.
    *
-   * @param id  an observable ID that can't be mapped to an ID recognised by the market data feed
+   * @param id  an observable ID that can't be mapped to an ID recognized by the market data source
    * @return a failure result for the ID
    */
   private <T> Result<T> noMappingResult(ObservableId id) {
-    return Result.failure(FailureReason.MISSING_DATA, "No feed ID mapping found for ID {}", id);
+    return Result.failure(FailureReason.MISSING_DATA, "No source ID mapping found for ID {}", id);
   }
 
   /**
@@ -384,12 +384,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    */
   private Result<LocalDateDoubleTimeSeries> findTimeSeries(ObservableId id) {
     // TODO Should this go in the time series provider?
-    // Need to convert between the input ID from the requirements and the feed ID
+    // Need to convert between the input ID from the requirements and the source ID
     // which is used to store and retrieve the data.
-    Optional<ObservableId> feedId = feedIdMapping.idForFeed(id);
+    Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
 
-    if (feedId.isPresent()) {
-      return timeSeriesProvider.timeSeries(feedId.get());
+    if (obsSourceId.isPresent()) {
+      return timeSeriesProvider.timeSeries(obsSourceId.get());
     } else {
       return noMappingResult(id);
     }

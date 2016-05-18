@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
 
 /**
@@ -21,15 +21,15 @@ public class TestObservableId implements ObservableId, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final String id;
-  private final MarketDataFeed feed;
+  private final ObservableSource observableSource;
 
   public static TestObservableId of(String id) {
-    return new TestObservableId(id, MarketDataFeed.NONE);
+    return new TestObservableId(id, ObservableSource.NONE);
   }
 
-  public TestObservableId(String id, MarketDataFeed feed) {
+  public TestObservableId(String id, ObservableSource obsSource) {
     this.id = id;
-    this.feed = feed;
+    this.observableSource = obsSource;
   }
 
   @Override
@@ -43,13 +43,13 @@ public class TestObservableId implements ObservableId, Serializable {
   }
 
   @Override
-  public MarketDataFeed getMarketDataFeed() {
-    return feed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   @Override
-  public ObservableId withMarketDataFeed(MarketDataFeed feed) {
-    return new TestObservableId(id, feed);
+  public ObservableId withObservableSource(ObservableSource obsSource) {
+    return new TestObservableId(id, obsSource);
   }
 
   @Override
@@ -62,11 +62,11 @@ public class TestObservableId implements ObservableId, Serializable {
     }
     TestObservableId that = (TestObservableId) o;
     return Objects.equals(id, that.id) &&
-        Objects.equals(feed, that.feed);
+        Objects.equals(observableSource, that.observableSource);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, feed);
+    return Objects.hash(id, observableSource);
   }
 }

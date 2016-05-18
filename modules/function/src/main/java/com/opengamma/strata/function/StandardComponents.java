@@ -10,7 +10,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.calc.marketdata.FeedIdMapping;
+import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.ObservableMarketDataFunction;
@@ -118,7 +118,7 @@ public class StandardComponents {
     return new DefaultMarketDataFactory(
         TimeSeriesProvider.none(),
         observableMarketData,
-        FeedIdMapping.identity(),
+        ObservableIdMapping.identity(),
         marketDataFunctions());
   }
 

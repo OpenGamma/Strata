@@ -193,7 +193,7 @@ public final class CalculationTasks implements ImmutableBean {
   /**
    * Gets the market data that is required to perform the calculations.
    * <p>
-   * This can be used to feed into the market data system to obtain and calibrate data.
+   * This can be used to pass into the market data system to obtain and calibrate data.
    *
    * @param refData  the reference data
    * @return the market data required for all calculations

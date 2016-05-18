@@ -14,10 +14,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.calc.CalculationRules;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -60,7 +60,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       Map<Currency, CurveId> discountCurveIds,
       Map<Index, CurveId> forwardCurveIds) {
 
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, MarketDataFeed.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE);
   }
 
   /**
@@ -75,15 +75,15 @@ public interface RatesMarketDataLookup extends CalculationParameter {
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
-   * @param feed  the source of market data for FX, quotes and other observable market data
+   * @param obsSource  the source of market data for FX, quotes and other observable market data
    * @return the rates lookup containing the specified curves
    */
   public static RatesMarketDataLookup of(
       Map<Currency, CurveId> discountCurveIds,
       Map<Index, CurveId> forwardCurveIds,
-      MarketDataFeed feed) {
+      ObservableSource obsSource) {
 
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, feed);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, obsSource);
   }
 
   /**
@@ -109,7 +109,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<? extends Index, CurveId> forwardCurveIds = MapStream.of(forwardCurves)
         .mapValues(c -> CurveId.of(groupName, c))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, MarketDataFeed.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurveIds, forwardCurveIds, ObservableSource.NONE);
   }
 
   /**
@@ -128,7 +128,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
     Map<Index, CurveId> forwardCurves = MapStream.of(curveGroup.getForwardCurves())
         .mapValues(c -> CurveId.of(groupName, c.getName()))
         .toMap();
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, MarketDataFeed.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE);
   }
 
   /**
@@ -148,7 +148,7 @@ public interface RatesMarketDataLookup extends CalculationParameter {
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }
-    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, MarketDataFeed.NONE);
+    return DefaultRatesMarketDataLookup.of(discountCurves, forwardCurves, ObservableSource.NONE);
   }
 
   //-------------------------------------------------------------------------

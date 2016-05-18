@@ -27,12 +27,12 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
@@ -141,16 +141,16 @@ public final class CalculationTask implements ImmutableBean {
   public MarketDataRequirements requirements(ReferenceData refData) {
     // determine market data requirements of the function
     FunctionRequirements functionRequirements = function.requirements(target, getMeasures(), parameters, refData);
-    MarketDataFeed feed = functionRequirements.getFeed();
+    ObservableSource obsSource = functionRequirements.getObservableSource();
 
     // convert function requirements to market data requirements
     MarketDataRequirementsBuilder requirementsBuilder = MarketDataRequirements.builder();
     for (ObservableId id : functionRequirements.getTimeSeriesRequirements()) {
-      requirementsBuilder.addTimeSeries(id.withMarketDataFeed(feed));
+      requirementsBuilder.addTimeSeries(id.withObservableSource(obsSource));
     }
     for (MarketDataId<?> id : functionRequirements.getSingleValueRequirements()) {
       if (id instanceof ObservableId) {
-        requirementsBuilder.addValues(((ObservableId) id).withMarketDataFeed(feed));
+        requirementsBuilder.addValues(((ObservableId) id).withObservableSource(obsSource));
       } else {
         requirementsBuilder.addValues(id);
       }
@@ -163,7 +163,7 @@ public final class CalculationTask implements ImmutableBean {
         List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
             .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
             .map(outputCurrency -> CurrencyPair.of(outputCurrency, reportingCurrency))
-            .map(pair -> FxRateId.of(pair, feed))
+            .map(pair -> FxRateId.of(pair, obsSource))
             .collect(toImmutableList());
         requirementsBuilder.addValues(fxRateIds);
       }

@@ -25,9 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 
 /**
  * Specifies the market data required for a function to perform a calculation.
@@ -63,10 +63,10 @@ public final class FunctionRequirements implements ImmutableBean {
    * The source of market data for FX, quotes and other observable market data.
    * <p>
    * This is used to control the source of observable market data.
-   * By default, this will be {@link MarketDataFeed#NONE}.
+   * By default, this will be {@link ObservableSource#NONE}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final MarketDataFeed feed;
+  private final ObservableSource observableSource;
 
   //-------------------------------------------------------------------------
   /**
@@ -80,7 +80,7 @@ public final class FunctionRequirements implements ImmutableBean {
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.feed = MarketDataFeed.NONE;
+    builder.observableSource = ObservableSource.NONE;
   }
 
   //-------------------------------------------------------------------------
@@ -97,7 +97,7 @@ public final class FunctionRequirements implements ImmutableBean {
         .singleValueRequirements(Sets.union(singleValueRequirements, other.singleValueRequirements))
         .timeSeriesRequirements(Sets.union(timeSeriesRequirements, other.timeSeriesRequirements))
         .outputCurrencies(Sets.union(outputCurrencies, other.outputCurrencies))
-        .feed(!this.feed.equals(MarketDataFeed.NONE) ? this.feed : other.feed)
+        .observableSource(!this.observableSource.equals(ObservableSource.NONE) ? this.observableSource : other.observableSource)
         .build();
   }
 
@@ -127,15 +127,15 @@ public final class FunctionRequirements implements ImmutableBean {
       Set<? extends MarketDataId<?>> singleValueRequirements,
       Set<ObservableId> timeSeriesRequirements,
       Set<Currency> outputCurrencies,
-      MarketDataFeed feed) {
+      ObservableSource observableSource) {
     JodaBeanUtils.notNull(singleValueRequirements, "singleValueRequirements");
     JodaBeanUtils.notNull(timeSeriesRequirements, "timeSeriesRequirements");
     JodaBeanUtils.notNull(outputCurrencies, "outputCurrencies");
-    JodaBeanUtils.notNull(feed, "feed");
+    JodaBeanUtils.notNull(observableSource, "observableSource");
     this.singleValueRequirements = ImmutableSet.copyOf(singleValueRequirements);
     this.timeSeriesRequirements = ImmutableSet.copyOf(timeSeriesRequirements);
     this.outputCurrencies = ImmutableSet.copyOf(outputCurrencies);
-    this.feed = feed;
+    this.observableSource = observableSource;
   }
 
   @Override
@@ -189,11 +189,11 @@ public final class FunctionRequirements implements ImmutableBean {
    * Gets the source of market data for FX, quotes and other observable market data.
    * <p>
    * This is used to control the source of observable market data.
-   * By default, this will be {@link MarketDataFeed#NONE}.
+   * By default, this will be {@link ObservableSource#NONE}.
    * @return the value of the property, not null
    */
-  public MarketDataFeed getFeed() {
-    return feed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   //-----------------------------------------------------------------------
@@ -215,7 +215,7 @@ public final class FunctionRequirements implements ImmutableBean {
       return JodaBeanUtils.equal(singleValueRequirements, other.singleValueRequirements) &&
           JodaBeanUtils.equal(timeSeriesRequirements, other.timeSeriesRequirements) &&
           JodaBeanUtils.equal(outputCurrencies, other.outputCurrencies) &&
-          JodaBeanUtils.equal(feed, other.feed);
+          JodaBeanUtils.equal(observableSource, other.observableSource);
     }
     return false;
   }
@@ -226,7 +226,7 @@ public final class FunctionRequirements implements ImmutableBean {
     hash = hash * 31 + JodaBeanUtils.hashCode(singleValueRequirements);
     hash = hash * 31 + JodaBeanUtils.hashCode(timeSeriesRequirements);
     hash = hash * 31 + JodaBeanUtils.hashCode(outputCurrencies);
-    hash = hash * 31 + JodaBeanUtils.hashCode(feed);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
     return hash;
   }
 
@@ -237,7 +237,7 @@ public final class FunctionRequirements implements ImmutableBean {
     buf.append("singleValueRequirements").append('=').append(singleValueRequirements).append(',').append(' ');
     buf.append("timeSeriesRequirements").append('=').append(timeSeriesRequirements).append(',').append(' ');
     buf.append("outputCurrencies").append('=').append(outputCurrencies).append(',').append(' ');
-    buf.append("feed").append('=').append(JodaBeanUtils.toString(feed));
+    buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();
   }
@@ -271,10 +271,10 @@ public final class FunctionRequirements implements ImmutableBean {
     private final MetaProperty<ImmutableSet<Currency>> outputCurrencies = DirectMetaProperty.ofImmutable(
         this, "outputCurrencies", FunctionRequirements.class, (Class) ImmutableSet.class);
     /**
-     * The meta-property for the {@code feed} property.
+     * The meta-property for the {@code observableSource} property.
      */
-    private final MetaProperty<MarketDataFeed> feed = DirectMetaProperty.ofImmutable(
-        this, "feed", FunctionRequirements.class, MarketDataFeed.class);
+    private final MetaProperty<ObservableSource> observableSource = DirectMetaProperty.ofImmutable(
+        this, "observableSource", FunctionRequirements.class, ObservableSource.class);
     /**
      * The meta-properties.
      */
@@ -283,7 +283,7 @@ public final class FunctionRequirements implements ImmutableBean {
         "singleValueRequirements",
         "timeSeriesRequirements",
         "outputCurrencies",
-        "feed");
+        "observableSource");
 
     /**
      * Restricted constructor.
@@ -300,8 +300,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
-        case 3138974:  // feed
-          return feed;
+        case 1793526590:  // observableSource
+          return observableSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -347,11 +347,11 @@ public final class FunctionRequirements implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code feed} property.
+     * The meta-property for the {@code observableSource} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFeed> feed() {
-      return feed;
+    public MetaProperty<ObservableSource> observableSource() {
+      return observableSource;
     }
 
     //-----------------------------------------------------------------------
@@ -364,8 +364,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return ((FunctionRequirements) bean).getTimeSeriesRequirements();
         case -1022597040:  // outputCurrencies
           return ((FunctionRequirements) bean).getOutputCurrencies();
-        case 3138974:  // feed
-          return ((FunctionRequirements) bean).getFeed();
+        case 1793526590:  // observableSource
+          return ((FunctionRequirements) bean).getObservableSource();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -390,7 +390,7 @@ public final class FunctionRequirements implements ImmutableBean {
     private Set<? extends MarketDataId<?>> singleValueRequirements = ImmutableSet.of();
     private Set<ObservableId> timeSeriesRequirements = ImmutableSet.of();
     private Set<Currency> outputCurrencies = ImmutableSet.of();
-    private MarketDataFeed feed;
+    private ObservableSource observableSource;
 
     /**
      * Restricted constructor.
@@ -407,7 +407,7 @@ public final class FunctionRequirements implements ImmutableBean {
       this.singleValueRequirements = beanToCopy.getSingleValueRequirements();
       this.timeSeriesRequirements = beanToCopy.getTimeSeriesRequirements();
       this.outputCurrencies = beanToCopy.getOutputCurrencies();
-      this.feed = beanToCopy.getFeed();
+      this.observableSource = beanToCopy.getObservableSource();
     }
 
     //-----------------------------------------------------------------------
@@ -420,8 +420,8 @@ public final class FunctionRequirements implements ImmutableBean {
           return timeSeriesRequirements;
         case -1022597040:  // outputCurrencies
           return outputCurrencies;
-        case 3138974:  // feed
-          return feed;
+        case 1793526590:  // observableSource
+          return observableSource;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -440,8 +440,8 @@ public final class FunctionRequirements implements ImmutableBean {
         case -1022597040:  // outputCurrencies
           this.outputCurrencies = (Set<Currency>) newValue;
           break;
-        case 3138974:  // feed
-          this.feed = (MarketDataFeed) newValue;
+        case 1793526590:  // observableSource
+          this.observableSource = (ObservableSource) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -479,7 +479,7 @@ public final class FunctionRequirements implements ImmutableBean {
           singleValueRequirements,
           timeSeriesRequirements,
           outputCurrencies,
-          feed);
+          observableSource);
     }
 
     //-----------------------------------------------------------------------
@@ -554,13 +554,13 @@ public final class FunctionRequirements implements ImmutableBean {
      * Sets the source of market data for FX, quotes and other observable market data.
      * <p>
      * This is used to control the source of observable market data.
-     * By default, this will be {@link MarketDataFeed#NONE}.
-     * @param feed  the new value, not null
+     * By default, this will be {@link ObservableSource#NONE}.
+     * @param observableSource  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder feed(MarketDataFeed feed) {
-      JodaBeanUtils.notNull(feed, "feed");
-      this.feed = feed;
+    public Builder observableSource(ObservableSource observableSource) {
+      JodaBeanUtils.notNull(observableSource, "observableSource");
+      this.observableSource = observableSource;
       return this;
     }
 
@@ -572,7 +572,7 @@ public final class FunctionRequirements implements ImmutableBean {
       buf.append("singleValueRequirements").append('=').append(JodaBeanUtils.toString(singleValueRequirements)).append(',').append(' ');
       buf.append("timeSeriesRequirements").append('=').append(JodaBeanUtils.toString(timeSeriesRequirements)).append(',').append(' ');
       buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies)).append(',').append(' ');
-      buf.append("feed").append('=').append(JodaBeanUtils.toString(feed));
+      buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
       buf.append('}');
       return buf.toString();
     }

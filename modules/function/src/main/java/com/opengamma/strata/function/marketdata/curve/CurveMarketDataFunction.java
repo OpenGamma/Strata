@@ -30,7 +30,7 @@ public class CurveMarketDataFunction
 
   @Override
   public MarketDataRequirements requirements(CurveId id, MarketDataConfig config) {
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getObservableSource());
     return MarketDataRequirements.builder()
         .addValues(curveGroupId)
         .build();
@@ -44,7 +44,7 @@ public class CurveMarketDataFunction
       ReferenceData refData) {
 
     // find curve
-    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getMarketDataFeed());
+    CurveGroupId curveGroupId = CurveGroupId.of(id.getCurveGroupName(), id.getObservableSource());
     MarketDataBox<CurveGroup> curveGroupBox = marketData.getValue(curveGroupId);
     return curveGroupBox.map(curveGroup -> findCurve(id, curveGroup));
   }

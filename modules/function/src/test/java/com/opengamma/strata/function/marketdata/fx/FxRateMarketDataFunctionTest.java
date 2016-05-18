@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.ScenarioMarketData;
@@ -114,7 +114,7 @@ public class FxRateMarketDataFunctionTest {
   private static MarketDataConfig config() {
     Map<CurrencyPair, QuoteId> ratesMap = ImmutableMap.of(CURRENCY_PAIR, QUOTE_ID);
     FxRateConfig fxRateConfig = FxRateConfig.builder().observableRates(ratesMap).build();
-    return MarketDataConfig.builder().add(MarketDataFeed.NONE, fxRateConfig).build();
+    return MarketDataConfig.builder().add(ObservableSource.NONE, fxRateConfig).build();
   }
 
 }

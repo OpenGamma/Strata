@@ -36,7 +36,7 @@ public class MarketDataFxRateProviderTest {
   private static final double GBP_USD = 1.50;
   private static final Currency BEF = Currency.of("BEF");
   private static final double EUR_BEF = 40.3399;
-  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
   public void fxRate() {
@@ -100,9 +100,9 @@ public class MarketDataFxRateProviderTest {
   //-------------------------------------------------------------------------
   private static MarketDataFxRateProvider provider() {
     Map<FxRateId, FxRate> marketDataMap =
-        ImmutableMap.of(FxRateId.of(EUR, USD, FEED), FxRate.of(EUR, USD, EUR_USD));
+        ImmutableMap.of(FxRateId.of(EUR, USD, OBS_SOURCE), FxRate.of(EUR, USD, EUR_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
-    return MarketDataFxRateProvider.of(marketData, FEED);
+    return MarketDataFxRateProvider.of(marketData, OBS_SOURCE);
   }
 
 }

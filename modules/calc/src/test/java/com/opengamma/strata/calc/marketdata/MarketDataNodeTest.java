@@ -17,9 +17,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.ScenarioMarketData;
@@ -297,12 +297,12 @@ public class MarketDataNodeTest {
     }
 
     @Override
-    public MarketDataFeed getMarketDataFeed() {
-      return MarketDataFeed.NONE;
+    public ObservableSource getObservableSource() {
+      return ObservableSource.NONE;
     }
 
     @Override
-    public ObservableId withMarketDataFeed(MarketDataFeed feed) {
+    public ObservableId withObservableSource(ObservableSource obsSource) {
       return this;
     }
 

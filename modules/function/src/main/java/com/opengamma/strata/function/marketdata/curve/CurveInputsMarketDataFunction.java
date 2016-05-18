@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -74,10 +74,10 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
       throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));
     }
     NodalCurveDefinition curveDefn = optionalDefinition.get();
-    MarketDataFeed marketDataFeed = id.getMarketDataFeed();
+    ObservableSource obsSource = id.getObservableSource();
     Set<? extends MarketDataId<?>> requirements = nodeRequirements(curveDefn);
     Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
-        getMarketDataValues(marketData, requirements, marketDataFeed);
+        getMarketDataValues(marketData, requirements, obsSource);
     MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
     // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
@@ -202,7 +202,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   private static Map<? extends MarketDataId<?>, MarketDataBox<?>> getMarketDataValues(
       ScenarioMarketData marketData,
       Set<? extends MarketDataId<?>> ids,
-      MarketDataFeed marketDataFeed) {
+      ObservableSource observableSource) {
 
     return ids.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
   }

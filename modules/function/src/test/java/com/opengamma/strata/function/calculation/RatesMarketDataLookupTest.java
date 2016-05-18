@@ -39,8 +39,8 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -61,7 +61,7 @@ public class RatesMarketDataLookupTest {
 
   private static final CurveId CURVE_ID_DSC = CurveId.of("Group", "USD-DSC");
   private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
-  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
@@ -188,12 +188,12 @@ public class RatesMarketDataLookupTest {
   public void coverage() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, MarketDataFeed.NONE);
+    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE);
     coverImmutableBean(test);
 
     ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test2 = DefaultRatesMarketDataLookup.of(discounts2, forwards2, FEED);
+    DefaultRatesMarketDataLookup test2 = DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE);
     coverBeanEquals(test, test2);
 
     // related coverage
@@ -210,7 +210,7 @@ public class RatesMarketDataLookupTest {
   public void test_serialization() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
-    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, MarketDataFeed.NONE);
+    DefaultRatesMarketDataLookup test = DefaultRatesMarketDataLookup.of(discounts, forwards, ObservableSource.NONE);
     assertSerialization(test);
   }
 

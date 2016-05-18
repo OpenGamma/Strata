@@ -7,8 +7,8 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableSource;
 
 /**
  * A test market data ID.
@@ -16,11 +16,11 @@ import com.opengamma.strata.basics.market.MarketDataId;
 public class TestSimpleId implements MarketDataId<String> {
 
   private final String id;
-  private final MarketDataFeed feed;
+  private final ObservableSource observableSource;
 
-  public TestSimpleId(String id, MarketDataFeed feed) {
+  public TestSimpleId(String id, ObservableSource obsSource) {
     this.id = id;
-    this.feed = feed;
+    this.observableSource = obsSource;
   }
 
   @Override
@@ -28,8 +28,8 @@ public class TestSimpleId implements MarketDataId<String> {
     return String.class;
   }
 
-  public MarketDataFeed getMarketDataFeed() {
-    return feed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   @Override
@@ -42,11 +42,11 @@ public class TestSimpleId implements MarketDataId<String> {
     }
     TestSimpleId that = (TestSimpleId) o;
     return Objects.equals(id, that.id) &&
-        Objects.equals(feed, that.feed);
+        Objects.equals(observableSource, that.observableSource);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, feed);
+    return Objects.hash(id, observableSource);
   }
 }

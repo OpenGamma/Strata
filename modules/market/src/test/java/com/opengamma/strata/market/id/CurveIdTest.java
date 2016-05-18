@@ -12,7 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -23,14 +23,14 @@ import com.opengamma.strata.market.curve.CurveName;
 @Test
 public class CurveIdTest {
 
-  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
   public void test_of_String() {
     CurveId test = CurveId.of("Group", "Name");
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
@@ -38,15 +38,15 @@ public class CurveIdTest {
     CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"));
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 
-  public void test_of_TypesFeed() {
-    CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"), FEED);
+  public void test_of_TypesSource() {
+    CurveId test = CurveId.of(CurveGroupName.of("Group"), CurveName.of("Name"), OBS_SOURCE);
     assertEquals(test.getCurveGroupName(), CurveGroupName.of("Group"));
     assertEquals(test.getCurveName(), CurveName.of("Name"));
-    assertEquals(test.getMarketDataFeed(), FEED);
+    assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getMarketDataType(), Curve.class);
   }
 

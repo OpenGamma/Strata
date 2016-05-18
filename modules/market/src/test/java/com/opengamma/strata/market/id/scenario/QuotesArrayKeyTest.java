@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.id.QuoteId;
@@ -23,7 +23,7 @@ public class QuotesArrayKeyTest {
   private static final QuotesArrayId KEY = QuotesArrayId.of(StandardId.of("test", "1"), FieldName.of("fieldName"));
 
   public void getMarketDataKey() {
-    QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), FieldName.of("fieldName"), MarketDataFeed.NONE);
+    QuoteId quoteId = QuoteId.of(StandardId.of("test", "1"), FieldName.of("fieldName"), ObservableSource.NONE);
     assertThat(KEY.getMarketDataId()).isEqualTo(quoteId);
     assertThat(QuotesArrayId.of(quoteId)).isEqualTo(KEY);
   }

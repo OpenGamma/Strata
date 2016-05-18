@@ -34,9 +34,9 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -64,9 +64,9 @@ public class FxSwapCurveNodeTest {
   private static final Period FAR_PERIOD = Period.ofMonths(6);
   private static final FxSwapTemplate TEMPLATE = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
 
-  private static final MarketDataFeed FEED = MarketDataFeed.of("Vendor");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final FxRateId FX_RATE_ID = FxRateId.of(EUR_USD);
-  private static final FxRateId FX_RATE_ID2 = FxRateId.of(EUR_USD, FEED);
+  private static final FxRateId FX_RATE_ID2 = FxRateId.of(EUR_USD, OBS_SOURCE);
   private static final QuoteId QUOTE_ID_PTS = QuoteId.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M"));
   private static final QuoteId QUOTE_ID_PTS2 = QuoteId.of(StandardId.of("OG-Ticker", "EUR_USD_3M_6M2"));
   private static final FxRate FX_RATE_NEAR = FxRate.of(EUR_USD, 1.30d);

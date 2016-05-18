@@ -13,7 +13,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
 
 /**
@@ -24,7 +24,7 @@ public class QuoteIdTest {
 
   private static final StandardId ID1 = StandardId.of("OG-Ticker", "1");
   private static final StandardId ID2 = StandardId.of("OG-Ticker", "2");
-  private static final MarketDataFeed FEED2 = MarketDataFeed.of("Feed2");
+  private static final ObservableSource OBS_SOURCE2 = ObservableSource.of("Vendor2");
   private static final FieldName FIELD2 = FieldName.of("Field2");
 
   //-------------------------------------------------------------------------
@@ -32,7 +32,7 @@ public class QuoteIdTest {
     QuoteId test = QuoteId.of(ID1);
     assertEquals(test.getStandardId(), ID1);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
@@ -40,15 +40,15 @@ public class QuoteIdTest {
     QuoteId test = QuoteId.of(ID1, FIELD2);
     assertEquals(test.getStandardId(), ID1);
     assertEquals(test.getFieldName(), FIELD2);
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   public void test_of_3args() {
-    QuoteId test = QuoteId.of(ID1, FIELD2, FEED2);
+    QuoteId test = QuoteId.of(ID1, FIELD2, OBS_SOURCE2);
     assertEquals(test.getStandardId(), ID1);
     assertEquals(test.getFieldName(), FIELD2);
-    assertEquals(test.getMarketDataFeed(), FEED2);
+    assertEquals(test.getObservableSource(), OBS_SOURCE2);
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
@@ -56,7 +56,7 @@ public class QuoteIdTest {
   public void coverage() {
     QuoteId test = QuoteId.of(ID1);
     coverImmutableBean(test);
-    QuoteId test2 = QuoteId.of(ID2, FIELD2, FEED2);
+    QuoteId test2 = QuoteId.of(ID2, FIELD2, OBS_SOURCE2);
     coverBeanEquals(test, test2);
   }
 
