@@ -44,7 +44,7 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveId;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
@@ -73,10 +73,10 @@ public class ExampleMarketDataBuilderTest {
   private static final LocalDate MARKET_DATA_DATE = LocalDate.of(2014, 1, 22);
 
   private static final Set<ObservableId> TIME_SERIES = ImmutableSet.of(
-      IndexRateId.of(IborIndices.USD_LIBOR_3M),
-      IndexRateId.of(IborIndices.USD_LIBOR_6M),
-      IndexRateId.of(OvernightIndices.USD_FED_FUND),
-      IndexRateId.of(IborIndices.GBP_LIBOR_3M));
+      IndexQuoteId.of(IborIndices.USD_LIBOR_3M),
+      IndexQuoteId.of(IborIndices.USD_LIBOR_6M),
+      IndexQuoteId.of(OvernightIndices.USD_FED_FUND),
+      IndexQuoteId.of(IborIndices.GBP_LIBOR_3M));
 
   private static final Set<MarketDataId<?>> VALUES = ImmutableSet.of(
       CurveGroupId.of(DEFAULT_CURVE_GROUP),

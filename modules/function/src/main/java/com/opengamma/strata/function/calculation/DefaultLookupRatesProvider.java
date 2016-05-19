@@ -36,7 +36,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.CurveId;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
@@ -116,7 +116,7 @@ final class DefaultLookupRatesProvider
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    return marketData.getTimeSeries(IndexRateId.of(index));
+    return marketData.getTimeSeries(IndexQuoteId.of(index));
   }
 
   //-------------------------------------------------------------------------

@@ -18,52 +18,52 @@ import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ObservableSource;
 
 /**
- * Test {@link IndexRateId}.
+ * Test {@link IndexQuoteId}.
  */
 @Test
-public class IndexRateIdTest {
+public class IndexQuoteIdTest {
 
   private static final FieldName FIELD = FieldName.of("Field");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
   public void test_of_1arg() {
-    IndexRateId test = IndexRateId.of(GBP_SONIA);
+    IndexQuoteId test = IndexQuoteId.of(GBP_SONIA);
     assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   public void test_of_2args() {
-    IndexRateId test = IndexRateId.of(GBP_SONIA, OBS_SOURCE);
+    IndexQuoteId test = IndexQuoteId.of(GBP_SONIA, FIELD);
     assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getObservableSource(), OBS_SOURCE);
-    assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
+    assertEquals(test.getFieldName(), FIELD);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   public void test_of_3args() {
-    IndexRateId test = IndexRateId.of(GBP_SONIA, OBS_SOURCE, FIELD);
+    IndexQuoteId test = IndexQuoteId.of(GBP_SONIA, FIELD, OBS_SOURCE);
     assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getFieldName(), FIELD);
+    assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getStandardId(), GBP_SONIA.getStandardId());
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IndexRateId test = IndexRateId.of(GBP_SONIA);
+    IndexQuoteId test = IndexQuoteId.of(GBP_SONIA);
     coverImmutableBean(test);
-    IndexRateId test2 = IndexRateId.of(USD_FED_FUND, OBS_SOURCE, FIELD);
+    IndexQuoteId test2 = IndexQuoteId.of(USD_FED_FUND, FIELD, OBS_SOURCE);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    IndexRateId test = IndexRateId.of(GBP_SONIA);
+    IndexQuoteId test = IndexQuoteId.of(GBP_SONIA);
     assertSerialization(test);
   }
 

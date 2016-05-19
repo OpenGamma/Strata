@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
 
 /**
- * The ID of a market quote.
+ * An identifier used to access a market quote.
  * <p>
  * A quote ID identifies a piece of data in an external data provider.
  * <p>
@@ -66,7 +66,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
   /**
-   * The field name in the market data record that contains the data.
+   * The field name in the market data record that contains the market data item.
+   * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
@@ -78,38 +79,42 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an ID representing a market quote with a field name of {@link FieldName#MARKET_VALUE}
-   * and a market data source of {@link ObservableSource#NONE}.
+   * Obtains an instance used to obtain an observable value.
+   * <p>
+   * The field name containing the data is {@link FieldName#MARKET_VALUE} and the market
+   * data source is {@link ObservableSource#NONE}.
    *
-   * @param id  the ID of the data in the underlying data provider
-   * @return an ID representing a market quote
+   * @param standardId  the standard identifier of the data in the underlying data provider
+   * @return the identifier
    */
-  public static QuoteId of(StandardId id) {
-    return new QuoteId(id, FieldName.MARKET_VALUE, ObservableSource.NONE);
+  public static QuoteId of(StandardId standardId) {
+    return new QuoteId(standardId, FieldName.MARKET_VALUE, ObservableSource.NONE);
   }
 
   /**
-   * Returns an ID representing a market quote with a field name
-   * and a market data source of {@link ObservableSource#NONE}.
+   * Obtains an instance used to obtain an observable value.
+   * <p>
+   * The market data source is {@link ObservableSource#NONE}.
    *
-   * @param id  the ID of the data in the underlying data provider
+   * @param standardId  the standard identifier of the data in the underlying data provider
    * @param fieldName  the name of the field in the market data record holding the data
-   * @return an ID representing a market quote
+   * @return the identifier
    */
-  public static QuoteId of(StandardId id, FieldName fieldName) {
-    return new QuoteId(id, fieldName, ObservableSource.NONE);
+  public static QuoteId of(StandardId standardId, FieldName fieldName) {
+    return new QuoteId(standardId, fieldName, ObservableSource.NONE);
   }
 
   /**
-   * Returns an ID representing a market quote.
+   * Obtains an instance used to obtain an observable value,
+   * specifying the source of observable market data.
    *
-   * @param id  the ID of the data in the underlying data provider
+   * @param standardId  the standard identifier of the data in the underlying data provider
    * @param fieldName  the name of the field in the market data record holding the data
-   * @param obsSource  the market data source from which the market data should be retrieved
-   * @return an ID representing a market quote
+   * @param obsSource  the source of observable market data
+   * @return the identifier
    */
-  public static QuoteId of(StandardId id, FieldName fieldName, ObservableSource obsSource) {
-    return new QuoteId(id, fieldName, obsSource);
+  public static QuoteId of(StandardId standardId, FieldName fieldName, ObservableSource obsSource) {
+    return new QuoteId(standardId, fieldName, obsSource);
   }
 
   //-------------------------------------------------------------------------
@@ -177,7 +182,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the field name in the market data record that contains the data.
+   * Gets the field name in the market data record that contains the market data item.
+   * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    * @return the value of the property, not null
    */
   @Override

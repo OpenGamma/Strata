@@ -36,7 +36,7 @@ import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.id.CurveId;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -133,8 +133,8 @@ final class DefaultRatesMarketDataLookup
     }
 
     // keys for time-series
-    Set<ObservableId> indexRateIds = indices.stream()
-        .map(IndexRateId::of)
+    Set<ObservableId> indexQuoteIds = indices.stream()
+        .map(IndexQuoteId::of)
         .collect(toImmutableSet());
 
     // keys for forward curves
@@ -149,7 +149,7 @@ final class DefaultRatesMarketDataLookup
 
     return FunctionRequirements.builder()
         .singleValueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
-        .timeSeriesRequirements(indexRateIds)
+        .timeSeriesRequirements(indexQuoteIds)
         .outputCurrencies(currencies)
         .observableSource(observableSource)
         .build();
