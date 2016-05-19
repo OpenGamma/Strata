@@ -30,7 +30,7 @@ import com.opengamma.strata.product.cms.ResolvedCmsLeg;
  * One must apply {@code expand()} in order to price {@link CmsLeg}. 
  */
 public class SabrExtrapolationReplicationCmsLegPricer {
-  
+
   /**
    * The pricer for {@link CmsPeriod}.
    */
@@ -172,13 +172,14 @@ public class SabrExtrapolationReplicationCmsLegPricer {
    * 
    * @param cmsLeg  the cms leg
    * @param provider  the rates provider
+   * @param volatilities  the swaption volatilities
    * @return the explanatory information
    */
   public ExplainMap explainPresentValue(
-		  ResolvedCmsLeg cmsLeg,
-		  RatesProvider provider,
-		  SabrParametersSwaptionVolatilities volatilities) {
-	  
+      ResolvedCmsLeg cmsLeg,
+      RatesProvider provider,
+      SabrParametersSwaptionVolatilities volatilities) {
+
     ExplainMapBuilder builder = ExplainMap.builder();
     builder.put(ExplainKey.ENTRY_TYPE, "CmsLeg");
     builder.put(ExplainKey.PAY_RECEIVE, cmsLeg.getPayReceive());
@@ -189,11 +190,11 @@ public class SabrExtrapolationReplicationCmsLegPricer {
     for (CmsPeriod period : cmsLeg.getCmsPeriods()) {
       builder.addListEntry(
           ExplainKey.PAYMENT_PERIODS, child -> cmsPeriodPricer.explainPresentValue(period, provider, child));
-    } 
+    }
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(cmsLeg, provider, volatilities));
     return builder.build();
   }
-  
+
   //-------------------------------------------------------------------------
   private void validate(RatesProvider ratesProvider, SabrParametersSwaptionVolatilities swaptionVolatilities) {
     ArgChecker.isTrue(swaptionVolatilities.getValuationDate().equals(ratesProvider.getValuationDate()),
