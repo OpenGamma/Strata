@@ -19,10 +19,10 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
-import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Pricer implementation for bond payment periods based on a capital indexed coupon.
@@ -35,28 +35,28 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
    * Default implementation. 
    */
   public static final DiscountingCapitalIndexedBondPaymentPeriodPricer DEFAULT =
-      new DiscountingCapitalIndexedBondPaymentPeriodPricer(RateObservationFn.instance());
+      new DiscountingCapitalIndexedBondPaymentPeriodPricer(RateComputationFn.instance());
   /**
    * Rate observation.
    */
-  private final RateObservationFn<RateObservation> rateObservationFn;
+  private final RateComputationFn<RateComputation> rateComputationFn;
 
   /**
    * Creates an instance. 
    * 
-   * @param rateObservationFn  the rate observation function
+   * @param rateComputationFn  the rate computation function
    */
-  public DiscountingCapitalIndexedBondPaymentPeriodPricer(RateObservationFn<RateObservation> rateObservationFn) {
-    this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");
+  public DiscountingCapitalIndexedBondPaymentPeriodPricer(RateComputationFn<RateComputation> rateComputationFn) {
+    this.rateComputationFn = ArgChecker.notNull(rateComputationFn, "rateComputationFn");
   }
 
   /**
-   * Obtains the rate observation function. 
+   * Obtains the rate computation function. 
    * 
-   * @return the rate observation function
+   * @return the rate computation function
    */
-  public RateObservationFn<RateObservation> getRateObservationFn() {
-    return rateObservationFn;
+  public RateComputationFn<RateComputation> getRateComputationFn() {
+    return rateComputationFn;
   }
 
   //-------------------------------------------------------------------------
@@ -118,8 +118,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     if (period.getPaymentDate().isBefore(ratesProvider.getValuationDate())) {
       return 0d;
     }
-    double rate = rateObservationFn.rate(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    double rate = rateComputationFn.rate(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
     return period.getNotional() * period.getRealCoupon() * (rate + 1d);
   }
 
@@ -143,10 +143,10 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     if (period.getPaymentDate().isBefore(ratesProvider.getValuationDate())) {
       return PointSensitivityBuilder.none(); 
     }
-    double rate = rateObservationFn.rate(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
-    PointSensitivityBuilder rateSensi = rateObservationFn.rateSensitivity(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    double rate = rateComputationFn.rate(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    PointSensitivityBuilder rateSensi = rateComputationFn.rateSensitivity(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
     double df = issuerDiscountFactors.discountFactor(period.getPaymentDate());
     PointSensitivityBuilder dfSensi = issuerDiscountFactors.zeroRatePointSensitivity(period.getPaymentDate());
     double factor = period.getNotional() * period.getRealCoupon();
@@ -178,10 +178,10 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     if (period.getPaymentDate().isBefore(ratesProvider.getValuationDate())) {
       return PointSensitivityBuilder.none();
     }
-    double rate = rateObservationFn.rate(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
-    PointSensitivityBuilder rateSensi = rateObservationFn.rateSensitivity(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    double rate = rateComputationFn.rate(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    PointSensitivityBuilder rateSensi = rateComputationFn.rateSensitivity(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
     double df = issuerDiscountFactors.getDiscountFactors()
         .discountFactorWithSpread(period.getPaymentDate(), zSpread, compoundedRateType, periodsPerYear);
     ZeroRateSensitivity zeroSensi = issuerDiscountFactors.getDiscountFactors()
@@ -209,8 +209,8 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
     if (period.getPaymentDate().isBefore(ratesProvider.getValuationDate())) {
       return PointSensitivityBuilder.none();
     }
-    PointSensitivityBuilder rateSensi = rateObservationFn.rateSensitivity(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), ratesProvider);
+    PointSensitivityBuilder rateSensi = rateComputationFn.rateSensitivity(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), ratesProvider);
     return rateSensi.multipliedBy(period.getNotional() * period.getRealCoupon());
   }
 

@@ -21,8 +21,8 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
@@ -82,7 +82,7 @@ public final class CashFlowEquivalentCalculator {
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount();
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      IborIndexObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation()).getObservation();
+      IborIndexObservation obs = ((IborRateComputation) rateAccrualPeriod.getRateComputation()).getObservation();
       IborIndex index = obs.getIndex();
       LocalDate fixingStartDate = obs.getEffectiveDate();
       double fixingYearFraction = obs.getYearFraction();
@@ -122,7 +122,7 @@ public final class CashFlowEquivalentCalculator {
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       double factor = rateAccrualPeriod.getYearFraction() *
-          ((FixedRateObservation) rateAccrualPeriod.getRateObservation()).getRate();
+          ((FixedRateComputation) rateAccrualPeriod.getRateComputation()).getRate();
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount().multipliedBy(factor);
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
       NotionalExchange pay = NotionalExchange.of(paymentDate, notional);
@@ -181,7 +181,7 @@ public final class CashFlowEquivalentCalculator {
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount();
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
-      IborIndexObservation obs = ((IborRateObservation) rateAccrualPeriod.getRateObservation()).getObservation();
+      IborIndexObservation obs = ((IborRateComputation) rateAccrualPeriod.getRateComputation()).getObservation();
       IborIndex index = obs.getIndex();
       LocalDate fixingStartDate = obs.getEffectiveDate();
       double fixingYearFraction = obs.getYearFraction();
@@ -228,7 +228,7 @@ public final class CashFlowEquivalentCalculator {
       ArgChecker.isTrue(ratePaymentPeriod.getAccrualPeriods().size() == 1, "rate payment should not be compounding");
       RateAccrualPeriod rateAccrualPeriod = ratePaymentPeriod.getAccrualPeriods().get(0);
       double factor = rateAccrualPeriod.getYearFraction() *
-          ((FixedRateObservation) rateAccrualPeriod.getRateObservation()).getRate();
+          ((FixedRateComputation) rateAccrualPeriod.getRateComputation()).getRate();
       CurrencyAmount notional = ratePaymentPeriod.getNotionalAmount().multipliedBy(factor);
       LocalDate paymentDate = ratePaymentPeriod.getPaymentDate();
       NotionalExchange pay = NotionalExchange.of(paymentDate, notional);

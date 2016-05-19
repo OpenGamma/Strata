@@ -35,9 +35,9 @@ import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
-import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Pricer for capital indexed bond products.
@@ -618,15 +618,15 @@ public class DiscountingCapitalIndexedBondProductPricer {
     double v = 1d / (1d + yield / couponPerYear);
     double rs = ratioPeriodToNextCoupon(period, settlementDate);
     if (yieldConvention.equals(CapitalIndexedBondYieldConvention.INDEX_LINKED_FLOAT)) {
-      RateObservation obs = period.getRateObservation();
+      RateComputation obs = period.getRateComputation();
       LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
       YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
       double indexRatio = ts.getLatestValue() / bond.getFirstIndexValue();
       YearMonth endFixingMonth = null;
-      if (obs instanceof InflationEndInterpolatedRateObservation) {
-        endFixingMonth = ((InflationEndInterpolatedRateObservation) obs).getEndSecondObservation().getFixingMonth();
-      } else if (obs instanceof InflationEndMonthRateObservation) {
-        endFixingMonth = ((InflationEndMonthRateObservation) obs).getEndObservation().getFixingMonth();
+      if (obs instanceof InflationEndInterpolatedRateComputation) {
+        endFixingMonth = ((InflationEndInterpolatedRateComputation) obs).getEndSecondObservation().getFixingMonth();
+      } else if (obs instanceof InflationEndMonthRateComputation) {
+        endFixingMonth = ((InflationEndMonthRateComputation) obs).getEndObservation().getFixingMonth();
       } else {
         throw new IllegalArgumentException("The rate observation " + obs.toString() + " is not supported.");
       }
@@ -1178,9 +1178,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
   double indexRatio(ResolvedCapitalIndexedBond bond, RatesProvider ratesProvider, LocalDate settlementDate) {
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
         ratesProvider.getValuationDate() : settlementDate;
-    RateObservation modifiedObservation = bond.getRateCalculation().createRateObservation(endReferenceDate);
-    return 1d + periodPricer.getRateObservationFn().rate(
-        modifiedObservation,
+    RateComputation modifiedComputation = bond.getRateCalculation().createRateComputation(endReferenceDate);
+    return 1d + periodPricer.getRateComputationFn().rate(
+        modifiedComputation,
         bond.getUnadjustedStartDate(), // dates not used
         bond.getUnadjustedEndDate(),
         ratesProvider);
@@ -1193,9 +1193,9 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     LocalDate endReferenceDate = settlementDate.isBefore(ratesProvider.getValuationDate()) ?
         ratesProvider.getValuationDate() : settlementDate;
-    RateObservation modifiedObservation = bond.getRateCalculation().createRateObservation(endReferenceDate);
-    return periodPricer.getRateObservationFn().rateSensitivity(
-        modifiedObservation,
+    RateComputation modifiedComputation = bond.getRateCalculation().createRateComputation(endReferenceDate);
+    return periodPricer.getRateComputationFn().rateSensitivity(
+        modifiedComputation,
         bond.getUnadjustedStartDate(), // dates not used
         bond.getUnadjustedEndDate(),
         ratesProvider);

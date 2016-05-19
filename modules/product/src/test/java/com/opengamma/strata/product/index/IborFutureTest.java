@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link IborFuture}.
@@ -114,7 +114,7 @@ public class IborFutureTest {
         .currency(USD)
         .notional(NOTIONAL)
         .accrualFactor(ACCRUAL_FACTOR)
-        .iborRate(IborRateObservation.of(USD_LIBOR_3M, LAST_TRADE_DATE, REF_DATA))
+        .iborRate(IborRateComputation.of(USD_LIBOR_3M, LAST_TRADE_DATE, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(test.resolve(REF_DATA), expected);

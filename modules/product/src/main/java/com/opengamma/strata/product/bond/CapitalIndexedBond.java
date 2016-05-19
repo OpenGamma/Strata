@@ -41,7 +41,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
@@ -52,7 +52,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * All of the payments are adjusted for inflation.
  * <p>
  * The periodic coupon payment schedule is defined using {@code periodicSchedule}.
- * The payment amount will be computed based on this schedule and {@link RateObservation} of {@code InflationRateCalculation}.
+ * The payment amount will be computed based on this schedule and {@link RateComputation} of {@code InflationRateCalculation}.
  * The nominal payment is defined from the last period of the periodic coupon payment schedule.
  * <p>
  * The legal entity of this bond is identified by {@code legalEntityId}.
@@ -191,7 +191,7 @@ public final class CapitalIndexedBond
           .detachmentDate(exCouponPeriodAdjuster.adjust(period.getEndDate()))
           .notional(notional)
           .currency(currency)
-          .rateObservation(rateCalculation.createRateObservation(period.getEndDate()))
+          .rateComputation(rateCalculation.createRateComputation(period.getEndDate()))
           .realCoupon(resolvedGearings.get(i))
           .build());
     }

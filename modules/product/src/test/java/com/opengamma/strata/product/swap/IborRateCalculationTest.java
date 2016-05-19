@@ -47,11 +47,11 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
-import com.opengamma.strata.product.rate.IborAveragedRateObservation;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborAveragedRateComputation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test.
@@ -215,15 +215,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -237,15 +237,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_FINAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_FINAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3STUB)
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_FINAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_FINAL_STUB, ACCRUAL_SCHEDULE_FINAL_STUB, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -259,15 +259,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
@@ -282,15 +282,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3STUB)
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
@@ -308,15 +308,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1W, DATE_01_06, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1W, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3STUB)
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_3M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
@@ -333,15 +333,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborInterpolatedRateObservation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .rateComputation(IborInterpolatedRateComputation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3STUB)
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, DATE_03_03, REF_DATA))
+        .rateComputation(IborInterpolatedRateComputation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -357,15 +357,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(FixedRateObservation.of(0.028d))
+        .rateComputation(FixedRateComputation.of(0.028d))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -380,15 +380,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(FixedRateObservation.of(0.028d))
+        .rateComputation(FixedRateComputation.of(0.028d))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_INITIAL_STUB))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
@@ -404,15 +404,15 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
         .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(FixedRateObservation.of(0.028d))
+        .rateComputation(FixedRateComputation.of(0.028d))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3STUB)
         .yearFraction(ACCRUAL3STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -448,7 +448,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.ofDaysInResetPeriod(obs3, DATE_03_05, DATE_04_07));
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(accrual1)
         .yearFraction(accrual1.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings1))
+        .rateComputation(IborAveragedRateComputation.of(fixings1))
         .build();
 
     IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
@@ -460,7 +460,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.ofDaysInResetPeriod(obs6, DATE_06_05, DATE_07_07));
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(accrual2)
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings2))
+        .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
@@ -496,7 +496,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.ofDaysInResetPeriod(obs3, DATE_03_05, DATE_04_07));
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(accrual1)
         .yearFraction(accrual1.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings1))
+        .rateComputation(IborAveragedRateComputation.of(fixings1))
         .build();
 
     IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
@@ -508,7 +508,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.ofDaysInResetPeriod(obs6, DATE_06_05, DATE_07_07));
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(accrual2)
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings2))
+        .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
@@ -543,7 +543,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.of(obs3));
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(accrual1)
         .yearFraction(accrual1.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings1))
+        .rateComputation(IborAveragedRateComputation.of(fixings1))
         .build();
 
     IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
@@ -555,7 +555,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.of(obs6));
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(accrual2)
         .yearFraction(accrual2.yearFraction(ACT_365F, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings2))
+        .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
@@ -585,7 +585,7 @@ public class IborRateCalculationTest {
 
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(accrual1)
         .yearFraction(accrual1.yearFraction(ACT_360, schedule))
-        .rateObservation(FixedRateObservation.of(0.030d))
+        .rateComputation(FixedRateComputation.of(0.030d))
         .build();
     IborIndexObservation obs4 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_04_03, REF_DATA);
     IborIndexObservation obs5 = IborIndexObservation.of(GBP_LIBOR_3M, DATE_05_01, REF_DATA);
@@ -596,7 +596,7 @@ public class IborRateCalculationTest {
         IborAveragedFixing.ofDaysInResetPeriod(obs6, DATE_06_05, DATE_07_07));
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(accrual2)
         .yearFraction(accrual2.yearFraction(ACT_360, schedule))
-        .rateObservation(IborAveragedRateObservation.of(fixings2))
+        .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2));
@@ -615,18 +615,18 @@ public class IborRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, DATE_01_31, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_3M, DATE_01_31, REF_DATA))
         .negativeRateMethod(NOT_NEGATIVE)
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, DATE_02_28, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_3M, DATE_02_28, REF_DATA))
         .negativeRateMethod(NOT_NEGATIVE)
         .spread(-0.025d)
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, DATE_04_02, REF_DATA))
+        .rateComputation(IborRateComputation.of(GBP_LIBOR_3M, DATE_04_02, REF_DATA))
         .negativeRateMethod(NOT_NEGATIVE)
         .gearing(2d)
         .spread(-0.025d)

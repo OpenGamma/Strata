@@ -43,9 +43,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * A forward rate agreement (FRA).
@@ -241,20 +241,20 @@ public final class Fra
         .endDate(end)
         .yearFraction(dayCount.yearFraction(start, end))
         .fixedRate(fixedRate)
-        .floatingRate(createRateObservation(refData))
+        .floatingRate(createRateComputation(refData))
         .currency(currency)
         .notional(buySell.normalize(notional))
         .discounting(discounting)
         .build();
   }
 
-  // creates an Ibor or IborInterpolated observation
-  private RateObservation createRateObservation(ReferenceData refData) {
+  // creates an Ibor or IborInterpolated computation
+  private RateComputation createRateComputation(ReferenceData refData) {
     LocalDate fixingDate = fixingDateOffset.adjust(startDate, refData);
     if (indexInterpolated != null) {
-      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate, refData);
+      return IborInterpolatedRateComputation.of(index, indexInterpolated, fixingDate, refData);
     } else {
-      return IborRateObservation.of(index, fixingDate, refData);
+      return IborRateComputation.of(index, fixingDate, refData);
     }
   }
 

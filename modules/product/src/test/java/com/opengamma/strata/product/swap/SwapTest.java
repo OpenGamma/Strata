@@ -43,7 +43,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
  * Test.
@@ -186,7 +186,7 @@ public class SwapTest {
             .endDate(date(2016, 2, 3))
             .unadjustedEndDate(date(2016, 2, 3))
             .yearFraction(ACT_360.yearFraction(date(2016, 1, 3), date(2016, 2, 3)))
-            .rateObservation(FixedRateObservation.of(RATE))
+            .rateComputation(FixedRateComputation.of(RATE))
             .build())
         .dayCount(ACT_360)
         .currency(GBP)
@@ -200,7 +200,7 @@ public class SwapTest {
             .endDate(date(2016, 3, 3))
             .unadjustedEndDate(date(2016, 3, 3))
             .yearFraction(ACT_360.yearFraction(date(2016, 2, 3), date(2016, 3, 3)))
-            .rateObservation(FixedRateObservation.of(RATE))
+            .rateComputation(FixedRateComputation.of(RATE))
             .build())
         .dayCount(ACT_360)
         .currency(GBP)
@@ -214,7 +214,7 @@ public class SwapTest {
             .endDate(date(2016, 4, 3))
             .unadjustedEndDate(date(2016, 4, 3))
             .yearFraction(ACT_360.yearFraction(date(2016, 3, 3), date(2016, 4, 3)))
-            .rateObservation(FixedRateObservation.of(RATE))
+            .rateComputation(FixedRateComputation.of(RATE))
             .build())
         .dayCount(ACT_360)
         .currency(GBP)
@@ -228,7 +228,7 @@ public class SwapTest {
             .endDate(date(2016, 5, 3))
             .unadjustedEndDate(date(2016, 5, 3))
             .yearFraction(ACT_360.yearFraction(date(2016, 4, 3), date(2016, 5, 3)))
-            .rateObservation(FixedRateObservation.of(RATE))
+            .rateComputation(FixedRateComputation.of(RATE))
             .build())
         .dayCount(ACT_360)
         .currency(GBP)

@@ -31,7 +31,7 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link DiscountingFraTradePricer}.
@@ -57,7 +57,7 @@ public class DiscountingFraTradePricerTest {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     RATES_PROVIDER = new SimpleRatesProvider(VAL_DATE, mockDf);
     RATES_PROVIDER.setIborRates(mockIbor);
-    IborIndexObservation obs = ((IborRateObservation) RFRA.getFloatingRate()).getObservation();
+    IborIndexObservation obs = ((IborRateComputation) RFRA.getFloatingRate()).getObservation();
     IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
     when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
     when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);

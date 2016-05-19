@@ -92,9 +92,9 @@ import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
@@ -1165,10 +1165,10 @@ public class FpmlDocumentParserTest {
     RateAccrualPeriod ap = pp.getAccrualPeriods().get(0);
     assertEquals(ap.getStartDate().toString(), startDateStr);
     assertEquals(ap.getEndDate().toString(), endDateStr);
-    if (ap.getRateObservation() instanceof IborInterpolatedRateObservation) {
-      assertEquals(((IborInterpolatedRateObservation) ap.getRateObservation()).getFixingDate().toString(), fixingDateStr);
-    } else if (ap.getRateObservation() instanceof IborRateObservation) {
-      assertEquals(((IborRateObservation) ap.getRateObservation()).getFixingDate().toString(), fixingDateStr);
+    if (ap.getRateComputation() instanceof IborInterpolatedRateComputation) {
+      assertEquals(((IborInterpolatedRateComputation) ap.getRateComputation()).getFixingDate().toString(), fixingDateStr);
+    } else if (ap.getRateComputation() instanceof IborRateComputation) {
+      assertEquals(((IborRateComputation) ap.getRateComputation()).getFixingDate().toString(), fixingDateStr);
     } else {
       fail();
     }
@@ -1191,10 +1191,10 @@ public class FpmlDocumentParserTest {
     RateAccrualPeriod ap = pp.getAccrualPeriods().get(accrualIndex);
     assertEquals(ap.getStartDate().toString(), startDateStr);
     assertEquals(ap.getEndDate().toString(), endDateStr);
-    if (ap.getRateObservation() instanceof IborInterpolatedRateObservation) {
-      assertEquals(((IborInterpolatedRateObservation) ap.getRateObservation()).getFixingDate().toString(), fixingDateStr);
-    } else if (ap.getRateObservation() instanceof IborRateObservation) {
-      assertEquals(((IborRateObservation) ap.getRateObservation()).getFixingDate().toString(), fixingDateStr);
+    if (ap.getRateComputation() instanceof IborInterpolatedRateComputation) {
+      assertEquals(((IborInterpolatedRateComputation) ap.getRateComputation()).getFixingDate().toString(), fixingDateStr);
+    } else if (ap.getRateComputation() instanceof IborRateComputation) {
+      assertEquals(((IborRateComputation) ap.getRateComputation()).getFixingDate().toString(), fixingDateStr);
     } else {
       fail();
     }
@@ -1216,8 +1216,8 @@ public class FpmlDocumentParserTest {
     RateAccrualPeriod ap = pp.getAccrualPeriods().get(0);
     assertEquals(ap.getStartDate().toString(), startDateStr);
     assertEquals(ap.getEndDate().toString(), endDateStr);
-    if (ap.getRateObservation() instanceof FixedRateObservation) {
-      assertEquals(((FixedRateObservation) ap.getRateObservation()).getRate(), rate);
+    if (ap.getRateComputation() instanceof FixedRateComputation) {
+      assertEquals(((FixedRateComputation) ap.getRateComputation()).getRate(), rate);
     } else {
       fail();
     }

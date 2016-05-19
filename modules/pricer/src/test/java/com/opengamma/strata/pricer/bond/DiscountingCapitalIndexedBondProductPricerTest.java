@@ -55,13 +55,13 @@ import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.pricer.impl.bond.DiscountingCapitalIndexedBondPaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBond;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
@@ -519,8 +519,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, realPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(refDate);
-    double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
+    RateComputation obs = RATE_CALC.createRateComputation(refDate);
+    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
     assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice),
@@ -531,8 +531,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER, refDate, realPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(VALUATION);
-    double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER);
+    RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
+    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
     assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice), realPrice, TOL);
@@ -543,8 +543,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT, RATES_PROVIDER, refDate, dirtyNominalPrice);
-    RateObservation obs = RATE_CALC.createRateObservation(VALUATION);
-    double refRate = RateObservationFn.instance().rate(obs, null, null, RATES_PROVIDER);
+    RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
+    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER);
     double expected = dirtyNominalPrice - PRODUCT.accruedInterest(refDate) * (refRate + 1d) / NOTIONAL;
     assertEquals(cleanNominalPrice, expected, TOL);
     assertEquals(PRICER.dirtyNominalPriceFromCleanNominalPrice(PRODUCT, RATES_PROVIDER, refDate, cleanNominalPrice),

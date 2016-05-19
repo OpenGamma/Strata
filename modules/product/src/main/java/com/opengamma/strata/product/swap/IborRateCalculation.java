@@ -47,11 +47,11 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
-import com.opengamma.strata.product.rate.IborAveragedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.IborAveragedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an Ibor index.
@@ -296,11 +296,11 @@ public final class IborRateCalculation
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
-      RateObservation rateObs = createRateObservation(
+      RateComputation rateComputation = createRateComputation(
           period, fixingDateAdjuster, resetScheduleFn, iborObservationFn, i, scheduleInitialStub, scheduleFinalStub, refData);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateObservation(rateObs)
+          .rateComputation(rateComputation)
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -309,8 +309,8 @@ public final class IborRateCalculation
     return accrualPeriods.build();
   }
 
-  // creates the rate observation
-  private RateObservation createRateObservation(
+  // creates the rate computation
+  private RateComputation createRateComputation(
       SchedulePeriod period,
       DateAdjuster fixingDateAdjuster,
       Function<SchedulePeriod, Schedule> resetScheduleFn,
@@ -323,14 +323,14 @@ public final class IborRateCalculation
     LocalDate fixingDate = fixingDateAdjuster.adjust(fixingRelativeTo.selectBaseDate(period));
     // handle stubs
     if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
-      return initialStub.createRateObservation(fixingDate, index, refData);
+      return initialStub.createRateComputation(fixingDate, index, refData);
     }
     if (scheduleFinalStub.isPresent() && scheduleFinalStub.get() == period) {
-      return finalStub.createRateObservation(fixingDate, index, refData);
+      return finalStub.createRateComputation(fixingDate, index, refData);
     }
     // handle explicit reset periods, possible averaging
     if (resetScheduleFn != null) {
-      return createRateObservationWithResetPeriods(
+      return createRateComputationWithResetPeriods(
           resetScheduleFn.apply(period),
           fixingDateAdjuster,
           iborObservationFn,
@@ -338,14 +338,14 @@ public final class IborRateCalculation
     }
     // handle possible fixed rate
     if (firstRegularRate != null && isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
-      return FixedRateObservation.of(firstRegularRate);
+      return FixedRateComputation.of(firstRegularRate);
     }
     // simple Ibor
-    return IborRateObservation.of(iborObservationFn.apply(fixingDate));
+    return IborRateComputation.of(iborObservationFn.apply(fixingDate));
   }
 
   // reset periods have been specified, which may or may not imply averaging
-  private RateObservation createRateObservationWithResetPeriods(
+  private RateComputation createRateComputationWithResetPeriods(
       Schedule resetSchedule,
       DateAdjuster fixingDateAdjuster,
       Function<LocalDate, IborIndexObservation> iborObservationFn,
@@ -361,7 +361,7 @@ public final class IborRateCalculation
           .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
-    return IborAveragedRateObservation.of(fixings);
+    return IborAveragedRateComputation.of(fixings);
   }
 
   // is the period the first regular period

@@ -44,11 +44,11 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Defines the calculation of a swap leg of a zero-coupon inflation coupon based on a price index. 
@@ -101,7 +101,7 @@ public final class InflationRateCalculation
    * Other calculation elements, such as gearing or spread, still apply.
    * After the first accrual period, the rate is observed via the normal fixing process.
    * <p>
-   * The method {@link InflationRateCalculation#createRateObservation(LocalDate)}
+   * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
    * allows this field to be used as the base for any end date, as typically seen
    * in capital indexed bonds.
    * <p>
@@ -215,30 +215,30 @@ public final class InflationRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(1d)  // inflation does not use a day count
-          .rateObservation(createRateObservation(period, i))
+          .rateComputation(createRateComputation(period, i))
           .gearing(resolvedGearings.get(i))
           .build());
     }
     return accrualPeriods.build();
   }
 
-  // creates the rate observation
-  private RateObservation createRateObservation(SchedulePeriod period, int scheduleIndex) {
+  // creates the rate computation
+  private RateComputation createRateComputation(SchedulePeriod period, int scheduleIndex) {
 
     // handle where index value at start date is known
     LocalDate endDate = period.getEndDate();
     if (firstIndexValue != null && scheduleIndex == 0) {
-      return createRateObservation(endDate);
+      return createRateComputation(endDate);
     }
     YearMonth referenceStartMonth = YearMonth.from(period.getStartDate().minus(lag));
     YearMonth referenceEndMonth = YearMonth.from(endDate.minus(lag));
     if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED)) {
       // interpolate between data from two different months
       double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
-      return InflationInterpolatedRateObservation.of(index, referenceStartMonth, referenceEndMonth, weight);
+      return InflationInterpolatedRateComputation.of(index, referenceStartMonth, referenceEndMonth, weight);
     } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.MONTHLY)) {
       // no interpolation
-      return InflationMonthlyRateObservation.of(index, referenceStartMonth, referenceEndMonth);
+      return InflationMonthlyRateComputation.of(index, referenceStartMonth, referenceEndMonth);
     } else {
       throw new IllegalArgumentException(
           "PriceIndexCalculationMethod " + indexCalculationMethod.toString() + " is not supported");
@@ -256,7 +256,7 @@ public final class InflationRateCalculation
    * @param endDate  the end date of the period
    * @return the rate observation
    */
-  public RateObservation createRateObservation(LocalDate endDate) {
+  public RateComputation createRateComputation(LocalDate endDate) {
     if (firstIndexValue == null) {
       throw new IllegalStateException("First index value must be specified");
     }
@@ -264,10 +264,10 @@ public final class InflationRateCalculation
     if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED)) {
       // interpolate between data from two different months
       double weight = 1d - (endDate.getDayOfMonth() - 1d) / endDate.lengthOfMonth();
-      return InflationEndInterpolatedRateObservation.of(index, firstIndexValue, referenceEndMonth, weight);
+      return InflationEndInterpolatedRateComputation.of(index, firstIndexValue, referenceEndMonth, weight);
     } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.MONTHLY)) {
       // no interpolation
-      return InflationEndMonthRateObservation.of(index, firstIndexValue, referenceEndMonth);
+      return InflationEndMonthRateComputation.of(index, firstIndexValue, referenceEndMonth);
     } else if (indexCalculationMethod.equals(PriceIndexCalculationMethod.INTERPOLATED_JAPAN)) {
       // interpolation, Japan
       double weight = 1d;
@@ -278,7 +278,7 @@ public final class InflationRateCalculation
         weight -= (dayOfMonth + endDate.minusMonths(1).lengthOfMonth() - 10d) / endDate.minusMonths(1).lengthOfMonth();
         referenceEndMonth = referenceEndMonth.minusMonths(1);
       }
-      return InflationEndInterpolatedRateObservation.of(index, firstIndexValue, referenceEndMonth, weight);
+      return InflationEndInterpolatedRateComputation.of(index, firstIndexValue, referenceEndMonth, weight);
     } else {
       throw new IllegalArgumentException(
           "PriceIndexCalculationMethod " + indexCalculationMethod.toString() + " is not supported");
@@ -395,7 +395,7 @@ public final class InflationRateCalculation
    * Other calculation elements, such as gearing or spread, still apply.
    * After the first accrual period, the rate is observed via the normal fixing process.
    * <p>
-   * The method {@link InflationRateCalculation#createRateObservation(LocalDate)}
+   * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
    * allows this field to be used as the base for any end date, as typically seen
    * in capital indexed bonds.
    * <p>
@@ -792,7 +792,7 @@ public final class InflationRateCalculation
      * Other calculation elements, such as gearing or spread, still apply.
      * After the first accrual period, the rate is observed via the normal fixing process.
      * <p>
-     * The method {@link InflationRateCalculation#createRateObservation(LocalDate)}
+     * The method {@link InflationRateCalculation#createRateComputation(LocalDate)}
      * allows this field to be used as the base for any end date, as typically seen
      * in capital indexed bonds.
      * <p>

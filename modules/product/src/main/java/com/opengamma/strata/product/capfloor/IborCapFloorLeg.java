@@ -43,7 +43,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 
@@ -212,7 +212,7 @@ public final class IborCapFloorLeg
           .unadjustedEndDate(period.getUnadjustedEndDate())
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .iborRate(IborRateObservation.of(obsFn.apply(fixingDate)))
+          .iborRate(IborRateComputation.of(obsFn.apply(fixingDate)))
           .paymentDate(paymentDate)
           .notional(signedNotional)
           .currency(currency)

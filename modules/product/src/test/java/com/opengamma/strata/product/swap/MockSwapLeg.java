@@ -38,7 +38,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
  * Mock.
@@ -55,7 +55,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           .accrualPeriods(RateAccrualPeriod.builder()
               .startDate(date(2012, 1, 15))
               .endDate(date(2012, 8, 15))
-              .rateObservation(FixedRateObservation.of(0.012d))
+              .rateComputation(FixedRateComputation.of(0.012d))
               .build())
           .dayCount(ACT_365F)
           .notional(1_000_000d)
@@ -72,7 +72,7 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
           .accrualPeriods(RateAccrualPeriod.builder()
               .startDate(date(2012, 1, 15))
               .endDate(date(2012, 8, 15))
-              .rateObservation(FixedRateObservation.of(0.012d))
+              .rateComputation(FixedRateComputation.of(0.012d))
               .build())
           .dayCount(ACT_365F)
           .notional(1_000_000d)

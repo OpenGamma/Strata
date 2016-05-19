@@ -31,11 +31,11 @@ import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
 import com.opengamma.strata.pricer.bond.CapitalIndexedBondCurveDataSet;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
-import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
-import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 
 /**
  * Test {@link DiscountingCapitalIndexedBondPaymentPeriodPricer}.
@@ -55,10 +55,10 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   private static final LocalDate DETACHMENT = LocalDate.of(2008, 1, 11);
   private static final double START_INDEX = 198.475;
   private static final double WEIGHT = 0.6;
-  private static final InflationEndInterpolatedRateObservation OBSERVATION_INTERP =
-      InflationEndInterpolatedRateObservation.of(US_CPI_U, START_INDEX, REF_END, WEIGHT);
-  private static final InflationEndMonthRateObservation OBSERVATION_MONTH =
-      InflationEndMonthRateObservation.of(US_CPI_U, START_INDEX, REF_END);
+  private static final InflationEndInterpolatedRateComputation COMPUTE_INTERP =
+      InflationEndInterpolatedRateComputation.of(US_CPI_U, START_INDEX, REF_END, WEIGHT);
+  private static final InflationEndMonthRateComputation COMPUTE_MONTH =
+      InflationEndMonthRateComputation.of(US_CPI_U, START_INDEX, REF_END);
   private static final CapitalIndexedBondPaymentPeriod PERIOD_INTERP = CapitalIndexedBondPaymentPeriod.builder()
       .currency(USD)
       .notional(NOTIONAL)
@@ -67,7 +67,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
       .endDate(END)
       .unadjustedStartDate(START_UNADJ)
       .unadjustedEndDate(END_UNADJ)
-      .rateObservation(OBSERVATION_INTERP)
+      .rateComputation(COMPUTE_INTERP)
       .realCoupon(REAL_COUPON)
       .build();
   private static final CapitalIndexedBondPaymentPeriod PERIOD_MONTHLY = CapitalIndexedBondPaymentPeriod.builder()
@@ -78,7 +78,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
       .endDate(END)
       .unadjustedStartDate(START_UNADJ)
       .unadjustedEndDate(END_UNADJ)
-      .rateObservation(OBSERVATION_MONTH)
+      .rateComputation(COMPUTE_MONTH)
       .realCoupon(REAL_COUPON)
       .build();
   // rates providers
@@ -130,7 +130,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_getter() {
-    assertEquals(PRICER.getRateObservationFn(), RateObservationFn.instance());
+    assertEquals(PRICER.getRateComputationFn(), RateComputationFn.instance());
   }
 
   //-------------------------------------------------------------------------

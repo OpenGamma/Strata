@@ -40,9 +40,9 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.rate.OvernightAveragedRateObservation;
-import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
+import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an Overnight index.
@@ -205,7 +205,7 @@ public final class OvernightRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateObservation(createRateObservation(period, paymentSchedule, refData))
+          .rateComputation(createRateComputation(period, paymentSchedule, refData))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -214,14 +214,14 @@ public final class OvernightRateCalculation
     return accrualPeriods.build();
   }
 
-  // creates the rate observation
-  private RateObservation createRateObservation(SchedulePeriod period, Schedule paymentSchedule, ReferenceData refData) {
+  // creates the rate computation
+  private RateComputation createRateComputation(SchedulePeriod period, Schedule paymentSchedule, ReferenceData refData) {
     int effectiveRateCutOffDaysOffset = (isLastAccrualInPaymentPeriod(period, paymentSchedule) ? rateCutOffDays : 0);
     if (accrualMethod == OvernightAccrualMethod.AVERAGED) {
-      return OvernightAveragedRateObservation.of(
+      return OvernightAveragedRateComputation.of(
           index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
     } else {
-      return OvernightCompoundedRateObservation.of(
+      return OvernightCompoundedRateComputation.of(
           index, period.getStartDate(), period.getEndDate(), effectiveRateCutOffDaysOffset, refData);
     }
   }

@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A single fixing of an index that is observed by {@code IborAveragedRateObservation}.
+ * A single fixing of an index that is observed by {@code IborAveragedRateComputation}.
  * <p>
  * The interest rate is determined for each reset period, with the weight used
  * to create a weighted average.
