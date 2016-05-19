@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link IborFixingDeposit}.
@@ -116,7 +116,7 @@ public class IborFixingDepositTest {
     ResolvedIborFixingDeposit test = base.resolve(REF_DATA);
     LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE, REF_DATA);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
-    IborRateObservation expectedObservation = IborRateObservation.of(
+    IborRateComputation expectedObservation = IborRateComputation.of(
         GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE, REF_DATA), REF_DATA);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getStartDate(), START_DATE);

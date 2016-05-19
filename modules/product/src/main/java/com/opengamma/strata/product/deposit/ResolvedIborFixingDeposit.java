@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * An Ibor fixing deposit, resolved for pricing.
@@ -106,7 +106,7 @@ public final class ResolvedIborFixingDeposit
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation floatingRate;
+  private final IborRateComputation floatingRate;
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
@@ -148,7 +148,7 @@ public final class ResolvedIborFixingDeposit
       LocalDate endDate,
       double yearFraction,
       double fixedRate,
-      IborRateObservation floatingRate) {
+      IborRateComputation floatingRate) {
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
@@ -264,7 +264,7 @@ public final class ResolvedIborFixingDeposit
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public IborRateObservation getFloatingRate() {
+  public IborRateComputation getFloatingRate() {
     return floatingRate;
   }
 
@@ -366,8 +366,8 @@ public final class ResolvedIborFixingDeposit
     /**
      * The meta-property for the {@code floatingRate} property.
      */
-    private final MetaProperty<IborRateObservation> floatingRate = DirectMetaProperty.ofImmutable(
-        this, "floatingRate", ResolvedIborFixingDeposit.class, IborRateObservation.class);
+    private final MetaProperty<IborRateComputation> floatingRate = DirectMetaProperty.ofImmutable(
+        this, "floatingRate", ResolvedIborFixingDeposit.class, IborRateComputation.class);
     /**
      * The meta-properties.
      */
@@ -476,7 +476,7 @@ public final class ResolvedIborFixingDeposit
      * The meta-property for the {@code floatingRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> floatingRate() {
+    public MetaProperty<IborRateComputation> floatingRate() {
       return floatingRate;
     }
 
@@ -525,7 +525,7 @@ public final class ResolvedIborFixingDeposit
     private LocalDate endDate;
     private double yearFraction;
     private double fixedRate;
-    private IborRateObservation floatingRate;
+    private IborRateComputation floatingRate;
 
     /**
      * Restricted constructor.
@@ -592,7 +592,7 @@ public final class ResolvedIborFixingDeposit
           this.fixedRate = (Double) newValue;
           break;
         case -2130225658:  // floatingRate
-          this.floatingRate = (IborRateObservation) newValue;
+          this.floatingRate = (IborRateComputation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -732,7 +732,7 @@ public final class ResolvedIborFixingDeposit
      * @param floatingRate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder floatingRate(IborRateObservation floatingRate) {
+    public Builder floatingRate(IborRateComputation floatingRate) {
       JodaBeanUtils.notNull(floatingRate, "floatingRate");
       this.floatingRate = floatingRate;
       return this;

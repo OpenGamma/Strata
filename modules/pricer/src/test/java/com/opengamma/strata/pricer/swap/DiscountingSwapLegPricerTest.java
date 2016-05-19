@@ -28,7 +28,7 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD_2;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_REC_USD;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_COMP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP_2;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP;
@@ -80,18 +80,18 @@ import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
-import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateObservationFn;
-import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateObservationFn;
+import com.opengamma.strata.pricer.impl.rate.ForwardInflationInterpolatedRateComputationFn;
+import com.opengamma.strata.pricer.impl.rate.ForwardInflationMonthlyRateComputationFn;
 import com.opengamma.strata.pricer.impl.swap.DispatchingPaymentEventPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalExchange;
@@ -356,7 +356,7 @@ public class DiscountingSwapLegPricerTest {
     Currency ccy = GBP_LIBOR_3M.getCurrency();
     LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate();
 
-    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_OBSERVATION.getObservation(), 140.0);
+    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), 140.0);
     ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, paymentDate, -162.0);
     PointSensitivityBuilder sensiPeriod = fwdSense.combinedWith(dscSense);
     LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
@@ -452,7 +452,7 @@ public class DiscountingSwapLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
     ResolvedSwapLeg expSwapLeg = IBOR_SWAP_LEG_REC_GBP;
-    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(IBOR_RATE_OBSERVATION.getObservation(), 140.0);
+    PointSensitivityBuilder sensiPeriod = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), 140.0);
     PointSensitivities expected = sensiPeriod.build();
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
@@ -571,10 +571,10 @@ public class DiscountingSwapLegPricerTest {
     // test forecastValueSensitivity and presentValueSensitivity
     PointSensitivityBuilder fvSensiComputed = pricer.forecastValueSensitivity(swapLeg, prov);
     PointSensitivityBuilder pvSensiComputed = pricer.presentValueSensitivity(swapLeg, prov);
-    ForwardInflationMonthlyRateObservationFn obsFn = ForwardInflationMonthlyRateObservationFn.DEFAULT;
+    ForwardInflationMonthlyRateComputationFn obsFn = ForwardInflationMonthlyRateComputationFn.DEFAULT;
     RatePaymentPeriod paymentPeriod = (RatePaymentPeriod) swapLeg.getPaymentPeriods().get(0);
-    InflationMonthlyRateObservation obs =
-        (InflationMonthlyRateObservation) paymentPeriod.getAccrualPeriods().get(0).getRateObservation();
+    InflationMonthlyRateComputation obs =
+        (InflationMonthlyRateComputation) paymentPeriod.getAccrualPeriods().get(0).getRateComputation();
     PointSensitivityBuilder pvSensiExpected = obsFn.rateSensitivity(obs, DATE_14_06_09, DATE_19_06_09, prov);
     pvSensiExpected = pvSensiExpected.multipliedBy(-NOTIONAL);
     assertTrue(fvSensiComputed.build().normalized()
@@ -604,10 +604,10 @@ public class DiscountingSwapLegPricerTest {
     CurrencyAmount pvComputed = pricer.presentValue(swapLeg, prov);
     LocalDate paymentDate = swapLeg.getPaymentPeriods().get(0).getPaymentDate();
     double dscFactor = prov.discountFactor(GBP, paymentDate);
-    ForwardInflationInterpolatedRateObservationFn obsFn = ForwardInflationInterpolatedRateObservationFn.DEFAULT;
+    ForwardInflationInterpolatedRateComputationFn obsFn = ForwardInflationInterpolatedRateComputationFn.DEFAULT;
     RatePaymentPeriod paymentPeriod = (RatePaymentPeriod) swapLeg.getPaymentPeriods().get(0);
-    InflationInterpolatedRateObservation obs =
-        (InflationInterpolatedRateObservation) paymentPeriod.getAccrualPeriods().get(0).getRateObservation();
+    InflationInterpolatedRateComputation obs =
+        (InflationInterpolatedRateComputation) paymentPeriod.getAccrualPeriods().get(0).getRateComputation();
     double indexRate = obsFn.rate(obs, DATE_14_06_09, DATE_19_06_09, prov);
     double fvExpected = indexRate * (NOTIONAL);
     assertEquals(fvComputed.getCurrency(), GBP);

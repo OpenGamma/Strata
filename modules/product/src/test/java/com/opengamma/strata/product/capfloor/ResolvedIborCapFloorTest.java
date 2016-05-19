@@ -21,8 +21,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -45,7 +45,7 @@ public class ResolvedIborCapFloorTest {
       .unadjustedStartDate(LocalDate.of(2011, 3, 17))
       .unadjustedEndDate(LocalDate.of(2011, 6, 17))
       .paymentDate(LocalDate.of(2011, 6, 21))
-      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 6, 15), REF_DATA))
+      .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 6, 15), REF_DATA))
       .yearFraction(0.2556)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_2 = IborCapletFloorletPeriod.builder()
@@ -57,7 +57,7 @@ public class ResolvedIborCapFloorTest {
       .unadjustedStartDate(LocalDate.of(2011, 6, 17))
       .unadjustedEndDate(LocalDate.of(2011, 9, 17))
       .paymentDate(LocalDate.of(2011, 9, 21))
-      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
+      .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
       .yearFraction(0.2611)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_3 = IborCapletFloorletPeriod.builder()
@@ -69,7 +69,7 @@ public class ResolvedIborCapFloorTest {
       .unadjustedStartDate(LocalDate.of(2011, 9, 17))
       .unadjustedEndDate(LocalDate.of(2011, 12, 17))
       .paymentDate(LocalDate.of(2011, 12, 21))
-      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 12, 15), REF_DATA))
+      .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 12, 15), REF_DATA))
       .yearFraction(0.2528)
       .build();
   private static final IborCapletFloorletPeriod PERIOD_4 = IborCapletFloorletPeriod.builder()
@@ -81,7 +81,7 @@ public class ResolvedIborCapFloorTest {
       .unadjustedStartDate(LocalDate.of(2011, 12, 17))
       .unadjustedEndDate(LocalDate.of(2012, 3, 17))
       .paymentDate(LocalDate.of(2012, 3, 21))
-      .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, LocalDate.of(2012, 3, 15), REF_DATA))
+      .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2012, 3, 15), REF_DATA))
       .yearFraction(0.2528)
       .build();
   static final ResolvedIborCapFloorLeg CAPFLOOR_LEG = ResolvedIborCapFloorLeg.builder()
@@ -96,7 +96,7 @@ public class ResolvedIborCapFloorTest {
           .startDate(LocalDate.of(2011, 3, 17))
           .endDate(LocalDate.of(2011, 9, 19))
           .yearFraction(0.517)
-          .rateObservation(FixedRateObservation.of(RATE))
+          .rateComputation(FixedRateComputation.of(RATE))
           .build())
       .dayCount(ACT_365F)
       .currency(EUR)
@@ -108,7 +108,7 @@ public class ResolvedIborCapFloorTest {
           .startDate(LocalDate.of(2011, 9, 19))
           .endDate(LocalDate.of(2012, 3, 19))
           .yearFraction(0.505)
-          .rateObservation(FixedRateObservation.of(RATE))
+          .rateComputation(FixedRateComputation.of(RATE))
           .build())
       .dayCount(ACT_365F)
       .currency(EUR)

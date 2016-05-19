@@ -38,10 +38,10 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 
 /**
  * Test {@link InflationRateCalculation}. 
@@ -156,24 +156,24 @@ public class InflationRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationMonthlyRateObservation.of(
+        .rateComputation(
+            InflationMonthlyRateComputation.of(
                 GB_HICP,
                 YearMonth.from(DATE_2015_01_05).minusMonths(3),
                 YearMonth.from(DATE_2015_02_05).minusMonths(3)))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationMonthlyRateObservation.of(
+        .rateComputation(
+            InflationMonthlyRateComputation.of(
                 GB_HICP,
                 YearMonth.from(DATE_2015_02_05).minusMonths(3),
                 YearMonth.from(DATE_2015_03_07).minusMonths(3)))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationMonthlyRateObservation.of(
+        .rateComputation(
+            InflationMonthlyRateComputation.of(
                 GB_HICP,
                 YearMonth.from(DATE_2015_03_07).minusMonths(3),
                 YearMonth.from(DATE_2015_04_05).minusMonths(3)))
@@ -194,7 +194,7 @@ public class InflationRateCalculationTest {
     RateAccrualPeriod rap1 = RateAccrualPeriod
         .builder(ACCRUAL1)
         .yearFraction(1.0)
-        .rateObservation(InflationInterpolatedRateObservation.of(
+        .rateComputation(InflationInterpolatedRateComputation.of(
             CH_CPI,
             YearMonth.from(DATE_2015_01_05).minusMonths(3),
             YearMonth.from(DATE_2015_02_05).minusMonths(3),
@@ -203,7 +203,7 @@ public class InflationRateCalculationTest {
     RateAccrualPeriod rap2 = RateAccrualPeriod
         .builder(ACCRUAL2)
         .yearFraction(1.0)
-        .rateObservation(InflationInterpolatedRateObservation.of(
+        .rateComputation(InflationInterpolatedRateComputation.of(
             CH_CPI,
             YearMonth.from(DATE_2015_02_05).minusMonths(3),
             YearMonth.from(DATE_2015_03_07).minusMonths(3),
@@ -212,7 +212,7 @@ public class InflationRateCalculationTest {
     RateAccrualPeriod rap3 = RateAccrualPeriod
         .builder(ACCRUAL3)
         .yearFraction(1.0)
-        .rateObservation(InflationInterpolatedRateObservation.of(
+        .rateComputation(InflationInterpolatedRateComputation.of(
             CH_CPI,
             YearMonth.from(DATE_2015_03_07).minusMonths(3),
             YearMonth.from(DATE_2015_04_05).minusMonths(3),
@@ -222,7 +222,7 @@ public class InflationRateCalculationTest {
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
-  public void test_createRateObservation_InterpolatedJapan() {
+  public void test_createRateComputation_InterpolatedJapan() {
     LocalDate date1 = LocalDate.of(2013, 3, 9);
     LocalDate date2 = LocalDate.of(2013, 3, 10);
     LocalDate date3 = LocalDate.of(2013, 3, 11);
@@ -235,15 +235,15 @@ public class InflationRateCalculationTest {
     double weight1 = 1.0 - (9.0 + 28.0 - 10.0) / 28.0;
     double weight2 = 1.0;
     double weight3 = 1.0 - 1.0 / 31.0;
-    InflationEndInterpolatedRateObservation obs1 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs1 = InflationEndInterpolatedRateComputation.of(
         JP_CPI_EXF, START_INDEX, YearMonth.from(date1).minusMonths(4), weight1);
-    InflationEndInterpolatedRateObservation obs2 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs2 = InflationEndInterpolatedRateComputation.of(
         JP_CPI_EXF, START_INDEX, YearMonth.from(date2).minusMonths(3), weight2);
-    InflationEndInterpolatedRateObservation obs3 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs3 = InflationEndInterpolatedRateComputation.of(
         JP_CPI_EXF, START_INDEX, YearMonth.from(date3).minusMonths(3), weight3);
-    assertEquals(test.createRateObservation(date1), obs1);
-    assertEquals(test.createRateObservation(date2), obs2);
-    assertEquals(test.createRateObservation(date3), obs3);
+    assertEquals(test.createRateComputation(date1), obs1);
+    assertEquals(test.createRateComputation(date2), obs2);
+    assertEquals(test.createRateComputation(date3), obs3);
   }
 
   public void test_createAccrualPeriods_Monthly_firstKnown() {
@@ -255,24 +255,24 @@ public class InflationRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationEndMonthRateObservation.of(
+        .rateComputation(
+            InflationEndMonthRateComputation.of(
                 GB_HICP,
                 123d,
                 YearMonth.from(DATE_2015_02_05).minusMonths(3)))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationMonthlyRateObservation.of(
+        .rateComputation(
+            InflationMonthlyRateComputation.of(
                 GB_HICP,
                 YearMonth.from(DATE_2015_02_05).minusMonths(3),
                 YearMonth.from(DATE_2015_03_07).minusMonths(3)))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(1.0)
-        .rateObservation(
-            InflationMonthlyRateObservation.of(
+        .rateComputation(
+            InflationMonthlyRateComputation.of(
                 GB_HICP,
                 YearMonth.from(DATE_2015_03_07).minusMonths(3),
                 YearMonth.from(DATE_2015_04_05).minusMonths(3)))
@@ -282,25 +282,25 @@ public class InflationRateCalculationTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_createRateObservation_Monthly() {
+  public void test_createRateComputation_Monthly() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(3))
         .indexCalculationMethod(MONTHLY)
         .firstIndexValue(START_INDEX)
         .build();
-    InflationEndMonthRateObservation obs1 = InflationEndMonthRateObservation.of(
+    InflationEndMonthRateComputation obs1 = InflationEndMonthRateComputation.of(
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_02_05).minusMonths(3));
-    InflationEndMonthRateObservation obs2 = InflationEndMonthRateObservation.of(
+    InflationEndMonthRateComputation obs2 = InflationEndMonthRateComputation.of(
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_03_07).minusMonths(3));
-    InflationEndMonthRateObservation obs3 = InflationEndMonthRateObservation.of(
+    InflationEndMonthRateComputation obs3 = InflationEndMonthRateComputation.of(
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_04_05).minusMonths(3));
-    assertEquals(test.createRateObservation(DATE_2015_02_05), obs1);
-    assertEquals(test.createRateObservation(DATE_2015_03_07), obs2);
-    assertEquals(test.createRateObservation(DATE_2015_04_05), obs3);
+    assertEquals(test.createRateComputation(DATE_2015_02_05), obs1);
+    assertEquals(test.createRateComputation(DATE_2015_03_07), obs2);
+    assertEquals(test.createRateComputation(DATE_2015_04_05), obs3);
   }
 
-  public void test_createRateObservation_Interpolated() {
+  public void test_createRateComputation_Interpolated() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
@@ -310,24 +310,24 @@ public class InflationRateCalculationTest {
     double weight1 = 1.0 - 4.0 / 28.0;
     double weight2 = 1.0 - 6.0 / 31.0;
     double weight3 = 1.0 - 4.0 / 30.0;
-    InflationEndInterpolatedRateObservation obs1 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs1 = InflationEndInterpolatedRateComputation.of(
         CH_CPI, START_INDEX, YearMonth.from(DATE_2015_02_05).minusMonths(3), weight1);
-    InflationEndInterpolatedRateObservation obs2 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs2 = InflationEndInterpolatedRateComputation.of(
         CH_CPI, START_INDEX, YearMonth.from(DATE_2015_03_07).minusMonths(3), weight2);
-    InflationEndInterpolatedRateObservation obs3 = InflationEndInterpolatedRateObservation.of(
+    InflationEndInterpolatedRateComputation obs3 = InflationEndInterpolatedRateComputation.of(
         CH_CPI, START_INDEX, YearMonth.from(DATE_2015_04_05).minusMonths(3), weight3);
-    assertEquals(test.createRateObservation(DATE_2015_02_05), obs1);
-    assertEquals(test.createRateObservation(DATE_2015_03_07), obs2);
-    assertEquals(test.createRateObservation(DATE_2015_04_05), obs3);
+    assertEquals(test.createRateComputation(DATE_2015_02_05), obs1);
+    assertEquals(test.createRateComputation(DATE_2015_03_07), obs2);
+    assertEquals(test.createRateComputation(DATE_2015_04_05), obs3);
   }
 
-  public void test_createRateObservation_noFirstIndexValue() {
+  public void test_createRateComputation_noFirstIndexValue() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
         .lag(Period.ofMonths(3))
         .indexCalculationMethod(INTERPOLATED)
         .build();
-    assertThrows(() -> test.createRateObservation(DATE_2015_04_05), IllegalStateException.class);
+    assertThrows(() -> test.createRateComputation(DATE_2015_04_05), IllegalStateException.class);
   }
 
   //-------------------------------------------------------------------------

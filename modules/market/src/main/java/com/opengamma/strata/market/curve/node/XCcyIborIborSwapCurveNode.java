@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -209,7 +209,7 @@ public final class XCcyIborIborSwapCurveNode
     RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
     List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
     int nbAccruals = accruals.size();
-    IborRateObservation ibor = (IborRateObservation) accruals.get(nbAccruals - 1).getRateObservation();
+    IborRateComputation ibor = (IborRateComputation) accruals.get(nbAccruals - 1).getRateComputation();
     return ibor.getFixingDate();
   }
 

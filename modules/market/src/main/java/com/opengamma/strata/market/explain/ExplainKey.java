@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.TypedString;
-import com.opengamma.strata.product.rate.IborInterpolatedRateObservation;
+import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 
 /**
@@ -172,7 +172,7 @@ public final class ExplainKey<T>
   /**
    * The combined rate, including weighting.
    * This rate differs from the observed rate if there is more than one fixing involved.
-   * For example, {@link IborInterpolatedRateObservation} has two observed rates
+   * For example, {@link IborInterpolatedRateComputation} has two observed rates
    * which are combined to create this rate.
    */
   public static final ExplainKey<Double> COMBINED_RATE = of("CombinedRate");

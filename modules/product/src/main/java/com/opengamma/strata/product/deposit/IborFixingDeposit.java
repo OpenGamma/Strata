@@ -37,7 +37,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * An Ibor fixing deposit.
@@ -182,7 +182,7 @@ public final class IborFixingDeposit
         .yearFraction(yearFraction)
         .currency(getCurrency())
         .notional(buySell.normalize(notional))
-        .floatingRate(IborRateObservation.of(index, fixingDate, refData))
+        .floatingRate(IborRateComputation.of(index, fixingDate, refData))
         .fixedRate(fixedRate)
         .build();
   }

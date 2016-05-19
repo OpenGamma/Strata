@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 
@@ -189,7 +189,7 @@ public class IborCapFloorLegTest {
           .unadjustedEndDate(unadjustedDates[i + 1])
           .paymentDate(PAYMENT_OFFSET.adjust(end, REF_DATA))
           .notional(NOTIONALS[i])
-          .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end, REF_DATA), REF_DATA))
+          .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, rateCalc.getFixingDateOffset().adjust(end, REF_DATA), REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }
@@ -197,7 +197,7 @@ public class IborCapFloorLegTest {
         .capletFloorletPeriods(periods)
         .payReceive(RECEIVE)
         .build();
-    ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);;
+    ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);
     assertEquals(computed, expected);
   }
 
@@ -228,7 +228,7 @@ public class IborCapFloorLegTest {
           .unadjustedEndDate(unadjustedDates[i + 1])
           .paymentDate(PAYMENT_OFFSET.adjust(end, REF_DATA))
           .notional(-NOTIONALS[i])
-          .iborRate(IborRateObservation.of(EUR_EURIBOR_3M, fixingDate, REF_DATA))
+          .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, fixingDate, REF_DATA))
           .yearFraction(yearFraction)
           .build();
     }
@@ -236,7 +236,7 @@ public class IborCapFloorLegTest {
         .capletFloorletPeriods(periods)
         .payReceive(PAY)
         .build();
-    ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);;
+    ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);
     assertEquals(computed, expected);
   }
 

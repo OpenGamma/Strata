@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.KnownAmountPaymentPeriod;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 
@@ -102,12 +102,12 @@ public final class CapitalIndexedBondTrade
               product.getAccrualSchedule().getStartDate(),
               settlementDate));
     } else {
-      RateObservation rateObservation = product.getRateCalculation().createRateObservation(settlementDate);
+      RateComputation rateComputation = product.getRateCalculation().createRateComputation(settlementDate);
       settlement = CapitalIndexedBondPaymentPeriod.builder()
           .startDate(resolvedProduct.getStartDate())
           .unadjustedStartDate(product.getAccrualSchedule().getStartDate())
           .endDate(settlementDate)
-          .rateObservation(rateObservation)
+          .rateComputation(rateComputation)
           .currency(product.getCurrency())
           .notional(-product.getNotional() * quantity * (price + accruedInterest))
           .realCoupon(1d)

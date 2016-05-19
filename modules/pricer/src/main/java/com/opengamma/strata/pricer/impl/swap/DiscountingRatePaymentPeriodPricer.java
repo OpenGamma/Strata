@@ -19,10 +19,10 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.FxIndexRates;
-import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.PaymentPeriodPricer;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FxReset;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
@@ -41,21 +41,21 @@ public class DiscountingRatePaymentPeriodPricer
    * Default implementation.
    */
   public static final DiscountingRatePaymentPeriodPricer DEFAULT = new DiscountingRatePaymentPeriodPricer(
-      RateObservationFn.instance());
+      RateComputationFn.instance());
 
   /**
-   * Rate observation.
+   * Rate computation.
    */
-  private final RateObservationFn<RateObservation> rateObservationFn;
+  private final RateComputationFn<RateComputation> rateComputationFn;
 
   /**
    * Creates an instance.
    * 
-   * @param rateObservationFn  the rate observation function
+   * @param rateComputationFn  the rate computation function
    */
   public DiscountingRatePaymentPeriodPricer(
-      RateObservationFn<RateObservation> rateObservationFn) {
-    this.rateObservationFn = ArgChecker.notNull(rateObservationFn, "rateObservationFn");
+      RateComputationFn<RateComputation> rateComputationFn) {
+    this.rateComputationFn = ArgChecker.notNull(rateComputationFn, "rateComputationFn");
   }
 
   //-------------------------------------------------------------------------
@@ -157,8 +157,8 @@ public class DiscountingRatePaymentPeriodPricer
   // finds the raw rate for the accrual period
   // the raw rate is the rate before gearing, spread and negative checks are applied
   private double rawRate(RateAccrualPeriod accrualPeriod, RatesProvider provider) {
-    return rateObservationFn.rate(
-        accrualPeriod.getRateObservation(),
+    return rateComputationFn.rate(
+        accrualPeriod.getRateComputation(),
         accrualPeriod.getStartDate(),
         accrualPeriod.getEndDate(),
         provider);
@@ -304,8 +304,8 @@ public class DiscountingRatePaymentPeriodPricer
       Currency ccy,
       RatesProvider provider) {
 
-    PointSensitivityBuilder sensi = rateObservationFn.rateSensitivity(
-        period.getRateObservation(), period.getStartDate(), period.getEndDate(), provider);
+    PointSensitivityBuilder sensi = rateComputationFn.rateSensitivity(
+        period.getRateComputation(), period.getStartDate(), period.getEndDate(), provider);
     return sensi.multipliedBy(period.getGearing() * period.getYearFraction());
   }
 
@@ -430,8 +430,8 @@ public class DiscountingRatePaymentPeriodPricer
       RatesProvider provider,
       ExplainMapBuilder builder) {
 
-    double rawRate = rateObservationFn.explainRate(
-        accrualPeriod.getRateObservation(), accrualPeriod.getStartDate(), accrualPeriod.getEndDate(), provider, builder);
+    double rawRate = rateComputationFn.explainRate(
+        accrualPeriod.getRateComputation(), accrualPeriod.getStartDate(), accrualPeriod.getEndDate(), provider, builder);
     double payOffRate = rawRate * accrualPeriod.getGearing() + accrualPeriod.getSpread();
     double ua = unitNotionalAccrual(accrualPeriod, accrualPeriod.getSpread(), provider);
 
@@ -535,7 +535,7 @@ public class DiscountingRatePaymentPeriodPricer
     PointSensitivityBuilder pvbpdr = dfdr.multipliedBy(dfB2);
     for (int j = 0; j < nbCmp; j++) {
       RateAccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(j);
-      pvbpdr = pvbpdr.combinedWith(rateObservationFn.rateSensitivity(accrualPeriod.getRateObservation(),
+      pvbpdr = pvbpdr.combinedWith(rateComputationFn.rateSensitivity(accrualPeriod.getRateComputation(),
           accrualPeriod.getStartDate(), accrualPeriod.getEndDate(), provider).multipliedBy(rateB2[j]));
     }
     return pvbpdr;

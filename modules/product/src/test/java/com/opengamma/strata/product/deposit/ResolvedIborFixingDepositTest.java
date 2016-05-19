@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link ResolvedTermDeposit}.
@@ -33,7 +33,7 @@ public class ResolvedIborFixingDepositTest {
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
   private static final LocalDate END_DATE = LocalDate.of(2015, 7, 20);
   private static final double YEAR_FRACTION = ACT_365F.yearFraction(START_DATE, END_DATE);
-  private static final IborRateObservation RATE_OBS = IborRateObservation.of(GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
+  private static final IborRateComputation RATE_COMP = IborRateComputation.of(GBP_LIBOR_6M, FIXING_DATE, REF_DATA);
   private static final double NOTIONAL = 100000000d;
   private static final double RATE = 0.0250;
 
@@ -45,7 +45,7 @@ public class ResolvedIborFixingDepositTest {
         .startDate(START_DATE)
         .endDate(END_DATE)
         .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_OBS)
+        .floatingRate(RATE_COMP)
         .fixedRate(RATE)
         .build();
     assertEquals(test.getCurrency(), GBP);
@@ -53,7 +53,7 @@ public class ResolvedIborFixingDepositTest {
     assertEquals(test.getStartDate(), START_DATE);
     assertEquals(test.getEndDate(), END_DATE);
     assertEquals(test.getYearFraction(), YEAR_FRACTION);
-    assertEquals(test.getFloatingRate(), RATE_OBS);
+    assertEquals(test.getFloatingRate(), RATE_COMP);
     assertEquals(test.getFixedRate(), RATE);
   }
 
@@ -64,7 +64,7 @@ public class ResolvedIborFixingDepositTest {
         .startDate(LocalDate.of(2015, 8, 20))
         .endDate(END_DATE)
         .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_OBS)
+        .floatingRate(RATE_COMP)
         .fixedRate(RATE)
         .build());
   }
@@ -77,7 +77,7 @@ public class ResolvedIborFixingDepositTest {
         .startDate(START_DATE)
         .endDate(END_DATE)
         .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_OBS)
+        .floatingRate(RATE_COMP)
         .fixedRate(RATE)
         .build();
     coverImmutableBean(test1);
@@ -87,7 +87,7 @@ public class ResolvedIborFixingDepositTest {
         .startDate(START_DATE)
         .endDate(LocalDate.of(2015, 4, 20))
         .yearFraction(0.25)
-        .floatingRate(IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA))
+        .floatingRate(IborRateComputation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA))
         .fixedRate(0.0375)
         .build();
     coverBeanEquals(test1, test2);
@@ -100,7 +100,7 @@ public class ResolvedIborFixingDepositTest {
         .startDate(START_DATE)
         .endDate(END_DATE)
         .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_OBS)
+        .floatingRate(RATE_COMP)
         .fixedRate(RATE)
         .build();
     assertSerialization(test);

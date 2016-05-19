@@ -25,7 +25,7 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY_USD;
-import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_OBSERVATION;
+import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_COMP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_RATE_PAYMENT_PERIOD_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.IBOR_SWAP_LEG_REC_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.INFLATION_FIXED_SWAP_LEG_PAY_GBP;
@@ -81,8 +81,8 @@ import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.market.view.PriceIndexValues;
+import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -508,7 +508,7 @@ public class DiscountingSwapProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     // ibor leg
-    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_OBSERVATION.getObservation(), GBP, 140.0);
+    IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), GBP, 140.0);
     ZeroRateSensitivity dscSense =
         ZeroRateSensitivity.of(GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), -162.0);
     PointSensitivityBuilder sensiFloating = fwdSense.combinedWith(dscSense);
@@ -568,7 +568,7 @@ public class DiscountingSwapProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
     // ibor leg
-    PointSensitivityBuilder sensiFloating = IborRateSensitivity.of(IBOR_RATE_OBSERVATION.getObservation(), GBP, 140.0);
+    PointSensitivityBuilder sensiFloating = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), GBP, 140.0);
     // fixed leg
     PointSensitivityBuilder sensiFixed = PointSensitivityBuilder.none();
     // events

@@ -18,8 +18,8 @@ import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -379,9 +379,9 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "Payment period must be RatePaymentPeriod");
     RatePaymentPeriod ratePaymentPeriod = (RatePaymentPeriod) paymentPeriod;
     // compounding is caught when par rate is computed
-    RateObservation rateObservation = ratePaymentPeriod.getAccrualPeriods().get(0).getRateObservation();
-    ArgChecker.isTrue(rateObservation instanceof FixedRateObservation, "Swap leg must be fixed leg");
-    return ((FixedRateObservation) rateObservation).getRate();
+    RateComputation rateComputation = ratePaymentPeriod.getAccrualPeriods().get(0).getRateComputation();
+    ArgChecker.isTrue(rateComputation instanceof FixedRateComputation, "Swap leg must be fixed leg");
+    return ((FixedRateComputation) rateComputation).getRate();
   }
 
   /**

@@ -46,7 +46,7 @@ import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.type.FraTemplate;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link FraCurveNode}.
@@ -195,7 +195,7 @@ public class FraCurveNodeTest {
     ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, 0.0d).build();
     FraTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
-    LocalDate fixingDate = ((IborRateObservation) (resolved.getFloatingRate())).getFixingDate();
+    LocalDate fixingDate = ((IborRateComputation) (resolved.getFloatingRate())).getFixingDate();
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), fixingDate);
     assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), TENOR_5M);

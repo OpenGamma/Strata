@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * A futures contract based on an Ibor index, resolved for pricing.
@@ -87,7 +87,7 @@ public final class ResolvedIborFuture
    * It will be a well known market index such as 'USD-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateObservation iborRate;
+  private final IborRateComputation iborRate;
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
    * <p>
@@ -181,7 +181,7 @@ public final class ResolvedIborFuture
       Currency currency,
       double notional,
       double accrualFactor,
-      IborRateObservation iborRate,
+      IborRateComputation iborRate,
       Rounding rounding) {
     JodaBeanUtils.notNull(securityId, "securityId");
     JodaBeanUtils.notNull(currency, "currency");
@@ -267,7 +267,7 @@ public final class ResolvedIborFuture
    * It will be a well known market index such as 'USD-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public IborRateObservation getIborRate() {
+  public IborRateComputation getIborRate() {
     return iborRate;
   }
 
@@ -370,8 +370,8 @@ public final class ResolvedIborFuture
     /**
      * The meta-property for the {@code iborRate} property.
      */
-    private final MetaProperty<IborRateObservation> iborRate = DirectMetaProperty.ofImmutable(
-        this, "iborRate", ResolvedIborFuture.class, IborRateObservation.class);
+    private final MetaProperty<IborRateComputation> iborRate = DirectMetaProperty.ofImmutable(
+        this, "iborRate", ResolvedIborFuture.class, IborRateComputation.class);
     /**
      * The meta-property for the {@code rounding} property.
      */
@@ -466,7 +466,7 @@ public final class ResolvedIborFuture
      * The meta-property for the {@code iborRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateObservation> iborRate() {
+    public MetaProperty<IborRateComputation> iborRate() {
       return iborRate;
     }
 
@@ -519,7 +519,7 @@ public final class ResolvedIborFuture
     private Currency currency;
     private double notional;
     private double accrualFactor;
-    private IborRateObservation iborRate;
+    private IborRateComputation iborRate;
     private Rounding rounding;
 
     /**
@@ -579,7 +579,7 @@ public final class ResolvedIborFuture
           this.accrualFactor = (Double) newValue;
           break;
         case -1621804100:  // iborRate
-          this.iborRate = (IborRateObservation) newValue;
+          this.iborRate = (IborRateComputation) newValue;
           break;
         case -142444:  // rounding
           this.rounding = (Rounding) newValue;
@@ -690,7 +690,7 @@ public final class ResolvedIborFuture
      * @param iborRate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder iborRate(IborRateObservation iborRate) {
+    public Builder iborRate(IborRateComputation iborRate) {
       JodaBeanUtils.notNull(iborRate, "iborRate");
       this.iborRate = iborRate;
       return this;

@@ -41,7 +41,7 @@ import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * A curve node whose instrument is a Forward Rate Agreement (FRA).
@@ -164,7 +164,7 @@ public final class FraCurveNode
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
-    return ((IborRateObservation) resolvedFra.getFloatingRate()).getFixingDate();
+    return ((IborRateComputation) resolvedFra.getFloatingRate()).getFixingDate();
   }
 
   @Override
