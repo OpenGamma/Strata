@@ -62,7 +62,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /** 
    * The valuation date-time.
    * <p>
-   * All data items in this environment are calibrated for this date-time.
+   * The volatilities are calibrated for this date-time. 
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
@@ -278,7 +278,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /**
    * Gets the valuation date-time.
    * <p>
-   * All data items in this environment are calibrated for this date-time.
+   * The volatilities are calibrated for this date-time.
    * @return the value of the property, not null
    */
   @Override

@@ -11,7 +11,6 @@ import java.util.Collection;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.Messages;
@@ -115,7 +114,7 @@ public final class QuotesCsvLoader {
           StandardId id = StandardId.of(symbologyStr, tickerStr);
           FieldName fieldName = fieldNameStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldNameStr);
 
-          builder.put(QuoteId.of(id, MarketDataFeed.NONE, fieldName), value);
+          builder.put(QuoteId.of(id, fieldName), value);
         }
       }
     } catch (RuntimeException ex) {

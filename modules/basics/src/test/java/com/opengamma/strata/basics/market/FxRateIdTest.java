@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.market.FxRateId.Meta;
 @Test
 public class FxRateIdTest {
 
-  private static final MarketDataFeed FEED = MarketDataFeed.of("Test");
+  private static final ObservableSource OBS_SOURCE = ObservableSource.of("Test");
   private static final CurrencyPair PAIR = CurrencyPair.of(GBP, USD);
   private static final CurrencyPair INVERSE = PAIR.inverse();
 
@@ -36,7 +36,7 @@ public class FxRateIdTest {
     FxRateId inverse = FxRateId.of(INVERSE);
     assertEquals(test.getPair(), PAIR);
     assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
@@ -45,26 +45,26 @@ public class FxRateIdTest {
     FxRateId inverse = FxRateId.of(USD, GBP);
     assertEquals(test.getPair(), PAIR);
     assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getMarketDataFeed(), MarketDataFeed.NONE);
+    assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
   //-------------------------------------------------------------------------
-  public void test_of_pairAndFeed() {
-    FxRateId test = FxRateId.of(PAIR, FEED);
+  public void test_of_pairAndSource() {
+    FxRateId test = FxRateId.of(PAIR, OBS_SOURCE);
     FxRateId inverse = FxRateId.of(INVERSE);
     assertEquals(test.getPair(), PAIR);
     assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getMarketDataFeed(), FEED);
+    assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
-  public void test_of_currenciesAndFeed() {
-    FxRateId test = FxRateId.of(GBP, USD, FEED);
+  public void test_of_currenciesAndSource() {
+    FxRateId test = FxRateId.of(GBP, USD, OBS_SOURCE);
     FxRateId inverse = FxRateId.of(USD, GBP);
     assertEquals(test.getPair(), PAIR);
     assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getMarketDataFeed(), FEED);
+    assertEquals(test.getObservableSource(), OBS_SOURCE);
     assertEquals(test.getMarketDataType(), FxRate.class);
   }
 
@@ -72,14 +72,14 @@ public class FxRateIdTest {
   public void coverage() {
     FxRateId test = FxRateId.of(GBP, USD);
     coverImmutableBean(test);
-    FxRateId test2 = FxRateId.of(EUR, CHF, FEED);
+    FxRateId test2 = FxRateId.of(EUR, CHF, OBS_SOURCE);
     coverBeanEquals(test, test2);
   }
 
   public void coverage_builder() {
     Meta meta = FxRateId.meta();
-    FxRateId test1 = meta.builder().setString(meta.pair(), "EUR/GBP").set(meta.marketDataFeed(), FEED).build();
-    FxRateId test2 = meta.builder().setString(meta.pair().name(), "EUR/GBP").set(meta.marketDataFeed(), FEED).build();
+    FxRateId test1 = meta.builder().setString(meta.pair(), "EUR/GBP").set(meta.observableSource(), OBS_SOURCE).build();
+    FxRateId test2 = meta.builder().setString(meta.pair().name(), "EUR/GBP").set(meta.observableSource(), OBS_SOURCE).build();
     coverBeanEquals(test1, test2);
   }
 

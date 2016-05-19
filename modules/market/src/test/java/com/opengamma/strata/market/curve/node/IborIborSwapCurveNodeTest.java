@@ -26,14 +26,14 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.IborIborSwapConventions;
 import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
@@ -50,8 +50,8 @@ public class IborIborSwapCurveNodeTest {
       IborIborSwapTemplate.of(Period.ZERO, TENOR_10Y, IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M);
   private static final IborIborSwapTemplate TEMPLATE2 =
       IborIborSwapTemplate.of(Period.ofMonths(1), TENOR_10Y, IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M);
-  private static final QuoteKey QUOTE_KEY = QuoteKey.of(StandardId.of("OG-Ticker", "USD-BS36-10Y"));
-  private static final QuoteKey QUOTE_KEY2 = QuoteKey.of(StandardId.of("OG-Ticker", "Test"));
+  private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "USD-BS36-10Y"));
+  private static final QuoteId QUOTE_ID2 = QuoteId.of(StandardId.of("OG-Ticker", "Test"));
   private static final double SPREAD = 0.0015;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
@@ -60,76 +60,76 @@ public class IborIborSwapCurveNodeTest {
     IborIborSwapCurveNode test = IborIborSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
-        .rateKey(QUOTE_KEY)
+        .rateId(QUOTE_ID)
         .additionalSpread(SPREAD)
         .build();
     assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
     assertEquals(test.getDate(), CurveNodeDate.END);
   }
 
   public void test_of_noSpread() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID);
     assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), 0.0d);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpread() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_of_withSpreadAndLabel() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
     assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateKey(), QUOTE_KEY);
+    assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD);
     assertEquals(test.getTemplate(), TEMPLATE);
   }
 
   public void test_requirements() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
-    Set<ObservableKey> set = test.requirements();
-    Iterator<ObservableKey> itr = set.iterator();
-    assertEquals(itr.next(), QUOTE_KEY);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    Set<ObservableId> set = test.requirements();
+    Iterator<ObservableId> itr = set.iterator();
+    assertEquals(itr.next(), QUOTE_ID);
     assertFalse(itr.hasNext());
   }
 
   public void test_trade() {
-    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
     SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
     SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
   public void test_trade_noMarketData() {
-    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
     assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
-    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_KEY, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), 0d);
     assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 1.0d);
   }
 
   public void test_metadata_end() {
-    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode node = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
@@ -140,7 +140,7 @@ public class IborIborSwapCurveNodeTest {
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     IborIborSwapCurveNode node =
-        IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
+        IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
     DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
@@ -148,7 +148,7 @@ public class IborIborSwapCurveNodeTest {
 
   public void test_metadata_last_fixing() {
     IborIborSwapCurveNode node =
-        IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
+        IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
     DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
@@ -158,14 +158,14 @@ public class IborIborSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
-    IborIborSwapCurveNode test2 = IborIborSwapCurveNode.of(TEMPLATE2, QUOTE_KEY2, 0.1);
+    IborIborSwapCurveNode test2 = IborIborSwapCurveNode.of(TEMPLATE2, QUOTE_ID2, 0.1);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_KEY, SPREAD);
+    IborIborSwapCurveNode test = IborIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertSerialization(test);
   }
 

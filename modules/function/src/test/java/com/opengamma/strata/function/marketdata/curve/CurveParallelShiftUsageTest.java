@@ -10,16 +10,16 @@ import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
+import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
+import com.opengamma.strata.calc.marketdata.ObservableMarketDataFunction;
+import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.TestHelper;
@@ -29,7 +29,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
-import com.opengamma.strata.market.id.DiscountCurveId;
+import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Test usage of {@link CurveParallelShift}.
@@ -47,17 +47,17 @@ public class CurveParallelShiftUsageTest {
         Curve.class,
         CurveNameFilter.of(curveName),
         CurveParallelShifts.absolute(0.1, 0.2, 0.3));
-    DiscountCurveId curveId = DiscountCurveId.of(Currency.GBP, curveGroupName);
-    MarketEnvironment marketData = MarketEnvironment.builder(TestHelper.date(2011, 3, 8))
+    CurveId curveId = CurveId.of(curveGroupName, curveName);
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(TestHelper.date(2011, 3, 8))
         .addValue(curveId, curve)
         .build();
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mapping);
     DefaultMarketDataFactory marketDataFactory = new DefaultMarketDataFactory(
         mock(TimeSeriesProvider.class),
         mock(ObservableMarketDataFunction.class),
-        FeedIdMapping.identity());
+        ObservableIdMapping.identity());
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(curveId).build();
-    MarketEnvironment scenarioData = marketDataFactory.buildMarketData(
+    ScenarioMarketData scenarioData = marketDataFactory.buildMarketData(
         requirements,
         MarketDataConfig.empty(),
         marketData,

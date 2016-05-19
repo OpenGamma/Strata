@@ -27,17 +27,19 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -53,15 +55,13 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.id.CurveGroupId;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.CurveInputsId;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.DiscountCurveKey;
-import com.opengamma.strata.market.key.IborIndexCurveKey;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -92,8 +92,8 @@ public class CurveGroupMarketDataFunctionTest {
         .map(FraCurveNode.class::cast)
         .collect(toImmutableList());
 
-    List<MarketDataKey<?>> keys = nodes.stream().map(CurveTestUtils::key).collect(toImmutableList());
-    Map<MarketDataKey<?>, Double> inputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    List<MarketDataId<?>> keys = nodes.stream().map(CurveTestUtils::key).collect(toImmutableList());
+    Map<MarketDataId<?>, Double> inputData = ImmutableMap.<MarketDataId<?>, Double>builder()
         .put(keys.get(0), 0.003)
         .put(keys.get(1), 0.0033)
         .put(keys.get(2), 0.0037)
@@ -114,23 +114,23 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
-        .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
+    ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate)
+        .addValue(CurveInputsId.of(groupName, curveName, ObservableSource.NONE), curveInputs)
         .build();
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, inputMarketData, REF_DATA, ObservableSource.NONE);
 
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
-    Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
+    Map<MarketDataId<?>, Object> marketDataMap = ImmutableMap.<MarketDataId<?>, Object>builder()
         .putAll(inputData)
-        .put(DiscountCurveKey.of(Currency.USD), curve)
-        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
+        .put(CurveId.of(groupName, curveName), curve)
         .build();
 
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
-    TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
+    TestMarketDataMap scenarioMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
+    RatesMarketDataLookup lookup = RatesMarketDataLookup.of(groupDefn);
+    RatesProvider ratesProvider = lookup.ratesProvider(scenarioMarketData.scenario(0));
 
     // The PV should be zero for an instrument used to build the curve
     nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, marketData));
@@ -150,7 +150,7 @@ public class CurveGroupMarketDataFunctionTest {
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
     LocalDate valuationDate = date(2011, 3, 8);
 
-    Map<MarketDataKey<?>, Double> inputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    Map<MarketDataId<?>, Double> inputData = ImmutableMap.<MarketDataId<?>, Double>builder()
         .put(CurveTestUtils.key(nodes.get(0)), 0.0037)
         .put(CurveTestUtils.key(nodes.get(1)), 0.0054)
         .put(CurveTestUtils.key(nodes.get(2)), 0.005)
@@ -159,22 +159,22 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveInputs curveInputs = CurveInputs.of(inputData, DefaultCurveMetadata.of(curveName));
-    MarketEnvironment marketEnvironment = MarketEnvironment.builder(valuationDate)
-        .addValue(CurveInputsId.of(groupName, curveName, MarketDataFeed.NONE), curveInputs)
+    ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate)
+        .addValue(CurveInputsId.of(groupName, curveName, ObservableSource.NONE), curveInputs)
         .build();
 
     MarketDataBox<CurveGroup> curveGroup =
-        function.buildCurveGroup(groupDefn, CALIBRATOR, marketEnvironment, REF_DATA, MarketDataFeed.NONE);
+        function.buildCurveGroup(groupDefn, CALIBRATOR, inputMarketData, REF_DATA, ObservableSource.NONE);
     Curve curve = curveGroup.getSingleValue().findDiscountCurve(Currency.USD).get();
 
-    Map<MarketDataKey<?>, Object> marketDataMap = ImmutableMap.<MarketDataKey<?>, Object>builder()
+    Map<MarketDataId<?>, Object> marketDataMap = ImmutableMap.<MarketDataId<?>, Object>builder()
         .putAll(inputData)
-        .put(DiscountCurveKey.of(Currency.USD), curve)
-        .put(IborIndexCurveKey.of(IborIndices.USD_LIBOR_3M), curve)
+        .put(CurveId.of(groupName, curveName), curve)
         .build();
     MarketData marketData = ImmutableMarketData.of(valuationDate, marketDataMap);
-    TestMarketDataMap calculationMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
-    MarketDataRatesProvider ratesProvider = MarketDataRatesProvider.of(calculationMarketData.scenario(0));
+    TestMarketDataMap scenarioMarketData = new TestMarketDataMap(valuationDate, marketDataMap, ImmutableMap.of());
+    RatesMarketDataLookup lookup = RatesMarketDataLookup.of(groupDefn);
+    RatesProvider ratesProvider = lookup.ratesProvider(scenarioMarketData.scenario(0));
 
     checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, marketData);
     checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, marketData);
@@ -191,7 +191,7 @@ public class CurveGroupMarketDataFunctionTest {
     List<CurveNode> nodes = ImmutableList.of(node1x4);
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     CurveName curveName = CurveName.of("FRA Curve");
-    MarketDataFeed feed = MarketDataFeed.of("TestFeed");
+    ObservableSource obsSource = ObservableSource.of("Vendor");
 
     InterpolatedNodalCurveDefinition curveDefn = InterpolatedNodalCurveDefinition.builder()
         .name(curveName)
@@ -211,10 +211,10 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
-    CurveGroupId curveGroupId = CurveGroupId.of(groupName, feed);
+    CurveGroupId curveGroupId = CurveGroupId.of(groupName, obsSource);
     MarketDataRequirements requirements = function.requirements(curveGroupId, marketDataConfig);
 
-    assertThat(requirements.getNonObservables()).contains(CurveInputsId.of(groupName, curveName, feed));
+    assertThat(requirements.getNonObservables()).contains(CurveInputsId.of(groupName, curveName, obsSource));
   }
 
   public void metadata() {
@@ -234,7 +234,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     CurveGroupId curveGroupId = CurveGroupId.of(groupName);
 
-    Map<MarketDataKey<?>, Double> fraInputData = ImmutableMap.<MarketDataKey<?>, Double>builder()
+    Map<MarketDataId<?>, Double> fraInputData = ImmutableMap.<MarketDataId<?>, Double>builder()
         .put(CurveTestUtils.key(fraNodes.get(0)), 0.003)
         .put(CurveTestUtils.key(fraNodes.get(1)), 0.0033)
         .put(CurveTestUtils.key(fraNodes.get(2)), 0.0037)
@@ -245,8 +245,8 @@ public class CurveGroupMarketDataFunctionTest {
 
     LocalDate valuationDate = date(2011, 3, 8);
     CurveInputs fraCurveInputs = CurveInputs.of(fraInputData, fraCurveDefn.metadata(valuationDate, REF_DATA));
-    MarketEnvironment marketData = MarketEnvironment.builder(valuationDate)
-        .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), MarketDataFeed.NONE), fraCurveInputs)
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(valuationDate)
+        .addValue(CurveInputsId.of(groupName, fraCurveDefn.getName(), ObservableSource.NONE), fraCurveInputs)
         .build();
 
     CurveGroupMarketDataFunction function = new CurveGroupMarketDataFunction();
@@ -283,10 +283,10 @@ public class CurveGroupMarketDataFunctionTest {
   public void duplicateInputDataKeys() {
     FxSwapTemplate template1 = FxSwapTemplate.of(Period.ofMonths(1), FxSwapConventions.EUR_USD);
     FxSwapTemplate template2 = FxSwapTemplate.of(Period.ofMonths(2), FxSwapConventions.EUR_USD);
-    QuoteKey pointsKey1a = QuoteKey.of(StandardId.of("test", "1a"));
-    QuoteKey pointsKey1b = QuoteKey.of(StandardId.of("test", "1b"));
-    QuoteKey pointsKey2a = QuoteKey.of(StandardId.of("test", "2a"));
-    QuoteKey pointsKey2b = QuoteKey.of(StandardId.of("test", "2b"));
+    QuoteId pointsKey1a = QuoteId.of(StandardId.of("test", "1a"));
+    QuoteId pointsKey1b = QuoteId.of(StandardId.of("test", "1b"));
+    QuoteId pointsKey2a = QuoteId.of(StandardId.of("test", "2a"));
+    QuoteId pointsKey2b = QuoteId.of(StandardId.of("test", "2b"));
     FxSwapCurveNode node1a = FxSwapCurveNode.of(template1, pointsKey1a);
     FxSwapCurveNode node1b = FxSwapCurveNode.of(template2, pointsKey1b);
     FxSwapCurveNode node2 = FxSwapCurveNode.of(template1, pointsKey2a);
@@ -321,36 +321,36 @@ public class CurveGroupMarketDataFunctionTest {
         .build();
 
     CurveGroupMarketDataFunction fn = new CurveGroupMarketDataFunction();
-    Map<MarketDataKey<?>, Object> marketDataMap1 = ImmutableMap.of(
-        FxRateKey.of(Currency.EUR, Currency.USD),
+    Map<MarketDataId<?>, Object> marketDataMap1 = ImmutableMap.of(
+        FxRateId.of(Currency.EUR, Currency.USD),
         FxRate.of(Currency.EUR, Currency.USD, 1.01),
         pointsKey1a, 0.1d,
         pointsKey1b, 0.2d);
-    Map<MarketDataKey<?>, Object> marketDataMap2 = ImmutableMap.of(
-        FxRateKey.of(Currency.EUR, Currency.USD),
+    Map<MarketDataId<?>, Object> marketDataMap2 = ImmutableMap.of(
+        FxRateId.of(Currency.EUR, Currency.USD),
         FxRate.of(Currency.EUR, Currency.USD, 1.01),
         pointsKey2a, 0.1d,
         pointsKey2b, 0.2d);
     CurveInputs curveInputs1 = CurveInputs.of(marketDataMap1, DefaultCurveMetadata.of("curve1"));
     CurveInputs curveInputs2 = CurveInputs.of(marketDataMap2, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment marketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
-        .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), curveInputs2)
+    ImmutableScenarioMarketData marketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValue(CurveInputsId.of(curveGroupName, curveName1, ObservableSource.NONE), curveInputs1)
+        .addValue(CurveInputsId.of(curveGroupName, curveName2, ObservableSource.NONE), curveInputs2)
         .build();
-    fn.buildCurveGroup(groupDefinition, CALIBRATOR, marketData, REF_DATA, MarketDataFeed.NONE);
+    fn.buildCurveGroup(groupDefinition, CALIBRATOR, marketData, REF_DATA, ObservableSource.NONE);
 
     // This has a duplicate key with a different value which should fail
-    Map<MarketDataKey<?>, Object> badMarketDataMap = ImmutableMap.of(
-        FxRateKey.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
+    Map<MarketDataId<?>, Object> badMarketDataMap = ImmutableMap.of(
+        FxRateId.of(Currency.EUR, Currency.USD), FxRate.of(Currency.EUR, Currency.USD, 1.02),
         pointsKey2a, 0.2d);
     CurveInputs badCurveInputs = CurveInputs.of(badMarketDataMap, DefaultCurveMetadata.of("curve2"));
-    MarketEnvironment badMarketData = MarketEnvironment.builder(LocalDate.of(2011, 3, 8))
-        .addValue(CurveInputsId.of(curveGroupName, curveName1, MarketDataFeed.NONE), curveInputs1)
-        .addValue(CurveInputsId.of(curveGroupName, curveName2, MarketDataFeed.NONE), badCurveInputs)
+    ScenarioMarketData badMarketData = ImmutableScenarioMarketData.builder(LocalDate.of(2011, 3, 8))
+        .addValue(CurveInputsId.of(curveGroupName, curveName1, ObservableSource.NONE), curveInputs1)
+        .addValue(CurveInputsId.of(curveGroupName, curveName2, ObservableSource.NONE), badCurveInputs)
         .build();
-    String msg = "Multiple unequal values found for key .*\\. Values: .* and .*";
+    String msg = "Multiple unequal values found for identifier .*\\. Values: .* and .*";
     assertThrowsIllegalArg(
-        () -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, REF_DATA, MarketDataFeed.NONE), msg);
+        () -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, REF_DATA, ObservableSource.NONE), msg);
   }
 
   //-----------------------------------------------------------------------------------------------------------

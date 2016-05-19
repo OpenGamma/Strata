@@ -24,9 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 
@@ -58,16 +55,6 @@ public final class Column implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Measure measure;
   /**
-   * The market data rules.
-   * <p>
-   * Market data rules provide logic that selects the appropriate market data for the calculation
-   * The rules from {@link CalculationRules} and {@code Column} are combined with column rules taking precedence.
-   * <p>
-   * When building, these will default to be empty.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final MarketDataRules marketDataRules;
-  /**
    * The calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
@@ -93,7 +80,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.empty());
+    return new Column(name, measure, CalculationParameters.empty());
   }
 
   /**
@@ -108,7 +95,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, Currency currency) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.of(ReportingCurrency.of(currency)));
+    return new Column(name, measure, CalculationParameters.of(ReportingCurrency.of(currency)));
   }
 
   /**
@@ -124,7 +111,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, CalculationParameter... parameters) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.of(parameters));
+    return new Column(name, measure, CalculationParameters.of(parameters));
   }
 
   /**
@@ -138,7 +125,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, String columnName) {
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.empty());
+    return new Column(name, measure, CalculationParameters.empty());
   }
 
   /**
@@ -153,7 +140,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, String columnName, Currency currency) {
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.of(ReportingCurrency.of(currency)));
+    return new Column(name, measure, CalculationParameters.of(ReportingCurrency.of(currency)));
   }
 
   /**
@@ -173,12 +160,11 @@ public final class Column implements ImmutableBean {
       CalculationParameter... parameters) {
 
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, MarketDataRules.empty(), CalculationParameters.of(parameters));
+    return new Column(name, measure, CalculationParameters.of(parameters));
   }
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.marketDataRules(MarketDataRules.empty());
     builder.parameters(CalculationParameters.empty());
   }
 
@@ -193,14 +179,12 @@ public final class Column implements ImmutableBean {
   /**
    * Combines the parameters with another set of parameters.
    * 
-   * @param defaultRules  the default market data rules
    * @param defaultParameters  the default parameters
    * @return the combined column
    */
-  public Column combineWithDefaults(MarketDataRules defaultRules, CalculationParameters defaultParameters) {
-    MarketDataRules combinedRules = marketDataRules.composedWith(defaultRules);
+  public Column combineWithDefaults(CalculationParameters defaultParameters) {
     CalculationParameters combinedParams = parameters.combinedWith(defaultParameters);
-    return new Column(name, measure, combinedRules, combinedParams);
+    return new Column(name, measure, combinedParams);
   }
 
   /**
@@ -254,14 +238,11 @@ public final class Column implements ImmutableBean {
   private Column(
       ColumnName name,
       Measure measure,
-      MarketDataRules marketDataRules,
       CalculationParameters parameters) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(measure, "measure");
-    JodaBeanUtils.notNull(marketDataRules, "marketDataRules");
     this.name = name;
     this.measure = measure;
-    this.marketDataRules = marketDataRules;
     this.parameters = parameters;
   }
 
@@ -304,20 +285,6 @@ public final class Column implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data rules.
-   * <p>
-   * Market data rules provide logic that selects the appropriate market data for the calculation
-   * The rules from {@link CalculationRules} and {@code Column} are combined with column rules taking precedence.
-   * <p>
-   * When building, these will default to be empty.
-   * @return the value of the property, not null
-   */
-  public MarketDataRules getMarketDataRules() {
-    return marketDataRules;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
@@ -351,7 +318,6 @@ public final class Column implements ImmutableBean {
       Column other = (Column) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(measure, other.measure) &&
-          JodaBeanUtils.equal(marketDataRules, other.marketDataRules) &&
           JodaBeanUtils.equal(parameters, other.parameters);
     }
     return false;
@@ -362,18 +328,16 @@ public final class Column implements ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(measure);
-    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataRules);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Column{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("measure").append('=').append(measure).append(',').append(' ');
-    buf.append("marketDataRules").append('=').append(marketDataRules).append(',').append(' ');
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
@@ -400,11 +364,6 @@ public final class Column implements ImmutableBean {
     private final MetaProperty<Measure> measure = DirectMetaProperty.ofImmutable(
         this, "measure", Column.class, Measure.class);
     /**
-     * The meta-property for the {@code marketDataRules} property.
-     */
-    private final MetaProperty<MarketDataRules> marketDataRules = DirectMetaProperty.ofImmutable(
-        this, "marketDataRules", Column.class, MarketDataRules.class);
-    /**
      * The meta-property for the {@code parameters} property.
      */
     private final MetaProperty<CalculationParameters> parameters = DirectMetaProperty.ofImmutable(
@@ -416,7 +375,6 @@ public final class Column implements ImmutableBean {
         this, null,
         "name",
         "measure",
-        "marketDataRules",
         "parameters");
 
     /**
@@ -432,8 +390,6 @@ public final class Column implements ImmutableBean {
           return name;
         case 938321246:  // measure
           return measure;
-        case 363016849:  // marketDataRules
-          return marketDataRules;
         case 458736106:  // parameters
           return parameters;
       }
@@ -473,14 +429,6 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code marketDataRules} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<MarketDataRules> marketDataRules() {
-      return marketDataRules;
-    }
-
-    /**
      * The meta-property for the {@code parameters} property.
      * @return the meta-property, not null
      */
@@ -496,8 +444,6 @@ public final class Column implements ImmutableBean {
           return ((Column) bean).getName();
         case 938321246:  // measure
           return ((Column) bean).getMeasure();
-        case 363016849:  // marketDataRules
-          return ((Column) bean).getMarketDataRules();
         case 458736106:  // parameters
           return ((Column) bean).getParameters();
       }
@@ -523,7 +469,6 @@ public final class Column implements ImmutableBean {
 
     private ColumnName name;
     private Measure measure;
-    private MarketDataRules marketDataRules;
     private CalculationParameters parameters;
 
     /**
@@ -540,7 +485,6 @@ public final class Column implements ImmutableBean {
     private Builder(Column beanToCopy) {
       this.name = beanToCopy.getName();
       this.measure = beanToCopy.getMeasure();
-      this.marketDataRules = beanToCopy.getMarketDataRules();
       this.parameters = beanToCopy.getParameters();
     }
 
@@ -552,8 +496,6 @@ public final class Column implements ImmutableBean {
           return name;
         case 938321246:  // measure
           return measure;
-        case 363016849:  // marketDataRules
-          return marketDataRules;
         case 458736106:  // parameters
           return parameters;
         default:
@@ -569,9 +511,6 @@ public final class Column implements ImmutableBean {
           break;
         case 938321246:  // measure
           this.measure = (Measure) newValue;
-          break;
-        case 363016849:  // marketDataRules
-          this.marketDataRules = (MarketDataRules) newValue;
           break;
         case 458736106:  // parameters
           this.parameters = (CalculationParameters) newValue;
@@ -612,7 +551,6 @@ public final class Column implements ImmutableBean {
       return new Column(
           name,
           measure,
-          marketDataRules,
           parameters);
     }
 
@@ -644,22 +582,6 @@ public final class Column implements ImmutableBean {
     }
 
     /**
-     * Sets the market data rules.
-     * <p>
-     * Market data rules provide logic that selects the appropriate market data for the calculation
-     * The rules from {@link CalculationRules} and {@code Column} are combined with column rules taking precedence.
-     * <p>
-     * When building, these will default to be empty.
-     * @param marketDataRules  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketDataRules(MarketDataRules marketDataRules) {
-      JodaBeanUtils.notNull(marketDataRules, "marketDataRules");
-      this.marketDataRules = marketDataRules;
-      return this;
-    }
-
-    /**
      * Sets the calculation parameters that apply to this column, used to control the how the calculation is performed.
      * <p>
      * The parameters from {@link CalculationRules} and {@code Column} are combined.
@@ -680,11 +602,10 @@ public final class Column implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Column.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
-      buf.append("marketDataRules").append('=').append(JodaBeanUtils.toString(marketDataRules)).append(',').append(' ');
       buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
       buf.append('}');
       return buf.toString();

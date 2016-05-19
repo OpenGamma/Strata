@@ -8,18 +8,17 @@ package com.opengamma.strata.function.calculation.index;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.ValuesArray;
+import com.opengamma.strata.calc.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.result.ValuesArray;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
@@ -48,7 +47,7 @@ final class IborFutureMeasureCalculations {
   // calculates par spread for all scenarios
   static ValuesArray parSpread(
       ResolvedIborFutureTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return ValuesArray.of(
         marketData.getScenarioCount(),
@@ -58,17 +57,18 @@ final class IborFutureMeasureCalculations {
   // par spread for one scenario
   private static double calculateParSpread(
       ResolvedIborFutureTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
+    RatesProvider provider = marketData.ratesProvider();
     double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.parSpread(trade, MarketDataRatesProvider.of(marketData), settlementPrice);
+    return PRICER.parSpread(trade, provider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedIborFutureTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -78,18 +78,19 @@ final class IborFutureMeasureCalculations {
   // present value for one scenario
   private static CurrencyAmount calculatePresentValue(
       ResolvedIborFutureTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
     // mark to model
+    RatesProvider provider = marketData.ratesProvider();
     double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.presentValue(trade, MarketDataRatesProvider.of(marketData), settlementPrice);
+    return PRICER.presentValue(trade, provider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
       ResolvedIborFutureTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
@@ -99,9 +100,9 @@ final class IborFutureMeasureCalculations {
   // PV01 for one scenario
   private static MultiCurrencyAmount calculatePv01(
       ResolvedIborFutureTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -110,7 +111,7 @@ final class IborFutureMeasureCalculations {
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedIborFutureTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     return ScenarioResult.of(
         marketData.getScenarioCount(),
@@ -120,19 +121,19 @@ final class IborFutureMeasureCalculations {
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedIborFutureTrade trade,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // gets the settlement price
-  private static double settlementPrice(ResolvedIborFutureTrade trade, MarketData marketData) {
-    StandardId id = trade.getProduct().getSecurityId().getStandardId();
-    QuoteKey key = QuoteKey.of(id, FieldName.SETTLEMENT_PRICE);
-    return marketData.getValue(key) / 100;  // convert market quote to value needed
+  private static double settlementPrice(ResolvedIborFutureTrade trade, RatesMarketData marketData) {
+    StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
+    QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
+    return marketData.getMarketData().getValue(id) / 100;  // convert market quote to value needed
   }
 
 }

@@ -15,12 +15,12 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -70,10 +70,9 @@ public class TestCalculator implements Calculator {
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
 
     // the complete set of rules for calculating measures
-    CalculationRules rules = CalculationRules.of(
-        StandardComponents.calculationFunctions(), marketDataBuilder.rules(), Currency.USD);
+    CalculationRules rules = CalculationRules.of(StandardComponents.calculationFunctions(), Currency.USD);
 
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     List<Column> columns = measures.stream().map(Column::of).collect(Collectors.toList());
 

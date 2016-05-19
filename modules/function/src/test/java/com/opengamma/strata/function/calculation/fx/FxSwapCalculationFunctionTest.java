@@ -23,26 +23,27 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FxRateKey;
+import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.result.ValuesArray;
 import com.opengamma.strata.calc.runner.CalculationParameters;
-import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantNodalCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
@@ -56,7 +57,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSwap;
 public class FxSwapCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final CalculationParameters PARAMS = CalculationParameters.empty();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final FxSingle LEG1 = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
@@ -68,6 +68,12 @@ public class FxSwapCalculationFunctionTest {
           .build())
       .product(PRODUCT)
       .build();
+  private static final CurveId DISCOUNT_CURVE_GBP_ID = CurveId.of("Default", "Discount-GBP");
+  private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
+  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+      ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_ID, USD, DISCOUNT_CURVE_USD_ID),
+      ImmutableMap.of());
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getNearLeg().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
@@ -77,15 +83,15 @@ public class FxSwapCalculationFunctionTest {
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
     assertThat(reqs.getSingleValueRequirements()).isEqualTo(
-        ImmutableSet.of(DiscountCurveKey.of(GBP), DiscountCurveKey.of(USD)));
+        ImmutableSet.of(DISCOUNT_CURVE_GBP_ID, DISCOUNT_CURVE_USD_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(GBP);
   }
 
   public void test_simpleMeasures() {
     FxSwapCalculationFunction function = new FxSwapCalculationFunction();
-    CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    ScenarioMarketData md = marketData();
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
     ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
@@ -115,8 +121,8 @@ public class FxSwapCalculationFunctionTest {
 
   public void test_pv01() {
     FxSwapCalculationFunction function = new FxSwapCalculationFunction();
-    CalculationMarketData md = marketData();
-    MarketDataRatesProvider provider = MarketDataRatesProvider.of(md.scenario(0));
+    ScenarioMarketData md = marketData();
+    RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
     ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
@@ -133,15 +139,15 @@ public class FxSwapCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private CalculationMarketData marketData() {
+  private ScenarioMarketData marketData() {
     Curve curve1 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
     Curve curve2 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(
-            DiscountCurveKey.of(GBP), curve1,
-            DiscountCurveKey.of(USD), curve2,
-            FxRateKey.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
+            DISCOUNT_CURVE_GBP_ID, curve1,
+            DISCOUNT_CURVE_USD_ID, curve2,
+            FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
         ImmutableMap.of());
     return md;
   }

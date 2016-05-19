@@ -7,16 +7,15 @@ package com.opengamma.strata.function.calculation.deposit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
-import com.opengamma.strata.calc.runner.function.result.ValuesArray;
+import com.opengamma.strata.calc.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.result.ValuesArray;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
@@ -45,7 +44,7 @@ class TermDepositMeasureCalculations {
   // calculates par rate for all scenarios
   static ValuesArray parRate(
       ResolvedTermDepositTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
     return ValuesArray.of(
@@ -54,8 +53,8 @@ class TermDepositMeasureCalculations {
   }
 
   // par rate for one scenario
-  private static double calculateParRate(ResolvedTermDeposit product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static double calculateParRate(ResolvedTermDeposit product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.parRate(product, provider);
   }
 
@@ -63,7 +62,7 @@ class TermDepositMeasureCalculations {
   // calculates par spread for all scenarios
   static ValuesArray parSpread(
       ResolvedTermDepositTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
     return ValuesArray.of(
@@ -72,8 +71,8 @@ class TermDepositMeasureCalculations {
   }
 
   // par spread for one scenario
-  private static double calculateParSpread(ResolvedTermDeposit product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static double calculateParSpread(ResolvedTermDeposit product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.parSpread(product, provider);
   }
 
@@ -81,7 +80,7 @@ class TermDepositMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedTermDepositTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
     return CurrencyValuesArray.of(
@@ -90,8 +89,8 @@ class TermDepositMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(ResolvedTermDeposit product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static CurrencyAmount calculatePresentValue(ResolvedTermDeposit product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(product, provider);
   }
 
@@ -99,7 +98,7 @@ class TermDepositMeasureCalculations {
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
       ResolvedTermDepositTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
     return MultiCurrencyValuesArray.of(
@@ -108,8 +107,8 @@ class TermDepositMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedTermDeposit product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static MultiCurrencyAmount calculatePv01(ResolvedTermDeposit product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -118,7 +117,7 @@ class TermDepositMeasureCalculations {
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedTermDepositTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
     return ScenarioResult.of(
@@ -129,9 +128,9 @@ class TermDepositMeasureCalculations {
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedTermDeposit product,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }

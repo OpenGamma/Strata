@@ -25,8 +25,6 @@ public class SwaptionVolatilitiesIdTest {
     SwaptionVolatilitiesId test = SwaptionVolatilitiesId.of("Foo");
     assertEquals(test.getName(), "Foo");
     assertEquals(test.getMarketDataType(), SwaptionVolatilities.class);
-    assertEquals(test.toMarketDataId(null), test);
-    assertEquals(test.toMarketDataKey(), test);
   }
 
   //-------------------------------------------------------------------------

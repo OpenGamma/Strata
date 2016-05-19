@@ -22,9 +22,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
@@ -38,7 +38,7 @@ import com.opengamma.strata.market.view.SwaptionVolatilities;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationMarketData}.
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultSwaptionMarketDataLookup
@@ -83,7 +83,7 @@ final class DefaultSwaptionMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getVolatilityIds(IborIndex index) {
+  public ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index) {
     SwaptionVolatilitiesId id = volatilityIds.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));

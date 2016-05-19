@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.loader.LoaderUtils;
-import com.opengamma.strata.market.id.IndexRateId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 
 /**
  * Loads a set of historical fixing series into memory from CSV resources.
@@ -98,7 +98,7 @@ public final class FixingSeriesCsvLoader {
         String valueStr = row.getField(VALUE_FIELD);
 
         Index index = LoaderUtils.findIndex(referenceStr);
-        ObservableId id = IndexRateId.of(index);
+        ObservableId id = IndexQuoteId.of(index);
         LocalDate date = LocalDate.parse(dateStr);
         double value = Double.parseDouble(valueStr);
 

@@ -22,7 +22,6 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

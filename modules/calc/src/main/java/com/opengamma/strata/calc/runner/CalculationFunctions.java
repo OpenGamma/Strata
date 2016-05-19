@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * The calculation functions.

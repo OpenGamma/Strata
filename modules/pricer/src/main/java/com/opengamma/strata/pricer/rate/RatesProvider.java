@@ -18,8 +18,15 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
+import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
+import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
+import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.FxForwardRates;
 import com.opengamma.strata.market.view.FxIndexRates;
 import com.opengamma.strata.market.view.IborIndexRates;
@@ -116,10 +123,45 @@ public interface RatesProvider
    * sensitivities to be relative to each parameter on the underlying curve, such as the 1 day, 1 week,
    * 1 month, 3 month, 12 month and 5 year nodal points.
    * 
-   * @param pointSensitivities  the point sensitivity
+   * @param pointSensitivities  the point sensitivities
    * @return the sensitivity to the curve parameters
    */
-  CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities);
+  public default CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
+    CurveCurrencyParameterSensitivities sens = CurveCurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof ZeroRateSensitivity) {
+        ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
+        DiscountFactors factors = discountFactors(pt.getCurveCurrency());
+        sens = sens.combinedWith(factors.curveParameterSensitivity(pt));
+
+      } else if (point instanceof IborRateSensitivity) {
+        IborRateSensitivity pt = (IborRateSensitivity) point;
+        IborIndexRates rates = iborIndexRates(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof OvernightRateSensitivity) {
+        OvernightRateSensitivity pt = (OvernightRateSensitivity) point;
+        OvernightIndexRates rates = overnightIndexRates(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof FxIndexSensitivity) {
+        FxIndexSensitivity pt = (FxIndexSensitivity) point;
+        FxIndexRates rates = fxIndexRates(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof InflationRateSensitivity) {
+        InflationRateSensitivity pt = (InflationRateSensitivity) point;
+        PriceIndexValues rates = priceIndexValues(pt.getIndex());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+
+      } else if (point instanceof FxForwardSensitivity) {
+        FxForwardSensitivity pt = (FxForwardSensitivity) point;
+        FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
+        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+      }
+    }
+    return sens;
+  }
 
   /**
    * Computes the currency exposure.
@@ -133,10 +175,26 @@ public interface RatesProvider
    * <p>
    * Reference: Currency Exposure and FX index, OpenGamma Documentation 32, July 2015.
    * 
-   * @param pointSensitivities  the point sensitivity
+   * @param pointSensitivities  the point sensitivities
    * @return the currency exposure
    */
-  MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities);
+  public default MultiCurrencyAmount currencyExposure(PointSensitivities pointSensitivities) {
+    MultiCurrencyAmount ce = MultiCurrencyAmount.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof FxIndexSensitivity) {
+        FxIndexSensitivity pt = (FxIndexSensitivity) point;
+        FxIndexRates rates = fxIndexRates(pt.getIndex());
+        ce = ce.plus(rates.currencyExposure(pt));
+      }
+      if (point instanceof FxForwardSensitivity) {
+        FxForwardSensitivity pt = (FxForwardSensitivity) point;
+        pt = (FxForwardSensitivity) pt.convertedTo(pt.getReferenceCurrency(), this);
+        FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
+        ce = ce.plus(rates.currencyExposure(pt));
+      }
+    }
+    return ce;
+  }
 
   //-------------------------------------------------------------------------
   /**

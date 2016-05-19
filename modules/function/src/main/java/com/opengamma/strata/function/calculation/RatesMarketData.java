@@ -7,6 +7,7 @@ package com.opengamma.strata.function.calculation;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
@@ -62,5 +63,17 @@ public interface RatesMarketData {
    * @return the rates provider
    */
   public abstract RatesProvider ratesProvider();
+
+  /**
+   * Gets the FX rate provider.
+   * <p>
+   * This provides access to FX rates.
+   * By default, this returns the rates provider.
+   * 
+   * @return the rates provider
+   */
+  public default FxRateProvider fxRateProvider() {
+    return ratesProvider();
+  }
 
 }

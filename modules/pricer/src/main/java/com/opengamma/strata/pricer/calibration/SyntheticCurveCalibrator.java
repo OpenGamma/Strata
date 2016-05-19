@@ -15,16 +15,14 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -108,22 +106,6 @@ public final class SyntheticCurveCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Calibrates synthetic curves from the configuration of the new curves and an existing set of market data.
-   * 
-   * @param group  the curve group definition for the synthetic curves and instruments
-   * @param marketData  the market data
-   * @param refData  the reference data, used to resolve the trades
-   * @return the rates provider
-   */
-  public RatesProvider calibrate(
-      CurveGroupDefinition group,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return calibrate(group, MarketDataRatesProvider.of(marketData), refData);
-  }
-
-  /**
    * Calibrates synthetic curves from the configuration of the new curves and an existing rates provider.
    * 
    * @param group  the curve group definition for the synthetic curves and instruments
@@ -171,28 +153,28 @@ public final class SyntheticCurveCalibrator {
     LocalDate valuationDate = inputProvider.getValuationDate();
     ImmutableList<NodalCurveDefinition> curveGroups = group.getCurveDefinitions();
     // Create fake market quotes of 0, only to be able to generate trades
-    Map<MarketDataKey<?>, Double> mapKey0 = new HashMap<>();
+    Map<MarketDataId<?>, Double> mapId0 = new HashMap<>();
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (int i = 0; i < nodes.size(); i++) {
-        for (SimpleMarketDataKey<?> key : nodes.get(i).requirements()) {
-          mapKey0.put(key, 0.0d);
+        for (MarketDataId<?> key : nodes.get(i).requirements()) {
+          mapId0.put(key, 0.0d);
         }
       }
     }
-    ImmutableMarketData marketQuotes0 = ImmutableMarketData.of(valuationDate, mapKey0);
+    ImmutableMarketData marketQuotes0 = ImmutableMarketData.of(valuationDate, mapId0);
     // Generate market quotes from the trades
-    Map<MarketDataKey<?>, Double> mapKeySy = new HashMap<>();
+    Map<MarketDataId<?>, Double> mapIdSy = new HashMap<>();
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade trade = node.resolvedTrade(valuationDate, marketQuotes0, refData);
         double mq = measures.value(trade, inputProvider);
-        MarketDataKey<?> k = node.requirements().iterator().next();
-        mapKeySy.put(k, mq);
+        MarketDataId<?> k = node.requirements().iterator().next();
+        mapIdSy.put(k, mq);
       }
     }
-    return ImmutableMarketData.of(valuationDate, mapKeySy);
+    return ImmutableMarketData.of(valuationDate, mapIdSy);
   }
 
   //-------------------------------------------------------------------------

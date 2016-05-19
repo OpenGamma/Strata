@@ -5,25 +5,31 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
 
 /**
  * An observable ID implementation used in tests.
  */
-public class TestObservableId implements ObservableId {
+public class TestObservableId implements ObservableId, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final String id;
-  private final MarketDataFeed marketDataFeed;
+  private final ObservableSource observableSource;
 
-  public TestObservableId(String id, MarketDataFeed marketDataFeed) {
+  public static TestObservableId of(String id) {
+    return new TestObservableId(id, ObservableSource.NONE);
+  }
+
+  public TestObservableId(String id, ObservableSource obsSource) {
     this.id = id;
-    this.marketDataFeed = marketDataFeed;
+    this.observableSource = obsSource;
   }
 
   @Override
@@ -37,13 +43,13 @@ public class TestObservableId implements ObservableId {
   }
 
   @Override
-  public MarketDataFeed getMarketDataFeed() {
-    return marketDataFeed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   @Override
-  public ObservableKey toMarketDataKey() {
-    return new TestObservableKey(id);
+  public ObservableId withObservableSource(ObservableSource obsSource) {
+    return new TestObservableId(id, obsSource);
   }
 
   @Override
@@ -56,11 +62,11 @@ public class TestObservableId implements ObservableId {
     }
     TestObservableId that = (TestObservableId) o;
     return Objects.equals(id, that.id) &&
-        Objects.equals(marketDataFeed, that.marketDataFeed);
+        Objects.equals(observableSource, that.observableSource);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, marketDataFeed);
+    return Objects.hash(id, observableSource);
   }
 }

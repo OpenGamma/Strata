@@ -8,15 +8,14 @@ package com.opengamma.strata.function.calculation.fx;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fx.DiscountingFxNdfProductPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ResolvedFxNdf;
 import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
@@ -46,7 +45,7 @@ final class FxNdfMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return CurrencyValuesArray.of(
@@ -55,8 +54,8 @@ final class FxNdfMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(ResolvedFxNdf product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static CurrencyAmount calculatePresentValue(ResolvedFxNdf product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(product, provider);
   }
 
@@ -64,7 +63,7 @@ final class FxNdfMeasureCalculations {
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return MultiCurrencyValuesArray.of(
@@ -73,8 +72,8 @@ final class FxNdfMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedFxNdf product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static MultiCurrencyAmount calculatePv01(ResolvedFxNdf product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -83,7 +82,7 @@ final class FxNdfMeasureCalculations {
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return ScenarioResult.of(
@@ -94,9 +93,9 @@ final class FxNdfMeasureCalculations {
   // bucketed PV01 for one scenario
   private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedFxNdf product,
-      MarketData marketData) {
+      RatesMarketData marketData) {
 
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
@@ -105,7 +104,7 @@ final class FxNdfMeasureCalculations {
   // calculates currency exposure for all scenarios
   static MultiCurrencyValuesArray currencyExposure(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return MultiCurrencyValuesArray.of(
@@ -114,8 +113,8 @@ final class FxNdfMeasureCalculations {
   }
 
   // currency exposure for one scenario
-  private static MultiCurrencyAmount calculateCurrencyExposure(ResolvedFxNdf product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static MultiCurrencyAmount calculateCurrencyExposure(ResolvedFxNdf product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.currencyExposure(product, provider);
   }
 
@@ -123,7 +122,7 @@ final class FxNdfMeasureCalculations {
   // calculates current cash for all scenarios
   static CurrencyValuesArray currentCash(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return CurrencyValuesArray.of(
@@ -132,8 +131,8 @@ final class FxNdfMeasureCalculations {
   }
 
   // current cash for one scenario
-  private static CurrencyAmount calculateCurrentCash(ResolvedFxNdf product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static CurrencyAmount calculateCurrentCash(ResolvedFxNdf product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.currentCash(product, provider);
   }
 
@@ -141,7 +140,7 @@ final class FxNdfMeasureCalculations {
   // calculates forward FX rate for all scenarios
   static ScenarioResult<FxRate> forwardFxRate(
       ResolvedFxNdfTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
     return ScenarioResult.of(
@@ -150,8 +149,8 @@ final class FxNdfMeasureCalculations {
   }
 
   // current cash for one scenario
-  private static FxRate calculateForwardFxRate(ResolvedFxNdf product, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static FxRate calculateForwardFxRate(ResolvedFxNdf product, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.forwardFxRate(product, provider);
   }
 

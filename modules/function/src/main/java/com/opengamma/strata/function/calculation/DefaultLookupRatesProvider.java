@@ -29,15 +29,14 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.DiscountFxForwardRates;
 import com.opengamma.strata.market.view.DiscountFxIndexRates;
@@ -46,7 +45,6 @@ import com.opengamma.strata.market.view.FxIndexRates;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.market.view.OvernightIndexRates;
 import com.opengamma.strata.market.view.PriceIndexValues;
-import com.opengamma.strata.pricer.rate.AbstractRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -56,7 +54,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  */
 @BeanDefinition(style = "light")
 final class DefaultLookupRatesProvider
-    extends AbstractRatesProvider
     implements RatesProvider, ImmutableBean {
 
   /**
@@ -93,7 +90,7 @@ final class DefaultLookupRatesProvider
   private DefaultLookupRatesProvider(DefaultRatesMarketDataLookup lookup, MarketData marketData) {
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
-    this.fxRateProvider = MarketDataFxRateProvider.of(marketData);
+    this.fxRateProvider = lookup.fxRateProvider(marketData);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +101,7 @@ final class DefaultLookupRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T data(MarketDataKey<T> key) {
+  public <T> T data(MarketDataId<T> key) {
     return marketData.getValue(key);
   }
 
@@ -119,7 +116,7 @@ final class DefaultLookupRatesProvider
 
   @Override
   public LocalDateDoubleTimeSeries timeSeries(Index index) {
-    return marketData.getTimeSeries(IndexRateKey.of(index));
+    return marketData.getTimeSeries(IndexQuoteId.of(index));
   }
 
   //-------------------------------------------------------------------------
@@ -131,7 +128,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    SimpleCurveId curveId = lookup.getDiscountCurves().get(currency);
+    CurveId curveId = lookup.getDiscountCurves().get(currency);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgCurrencyNotFound(currency));
     }
@@ -158,7 +155,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }
@@ -169,7 +166,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }
@@ -180,7 +177,7 @@ final class DefaultLookupRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
-    SimpleCurveId curveId = lookup.getForwardCurves().get(index);
+    CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
       throw new IllegalArgumentException(lookup.msgIndexNotFound(index));
     }

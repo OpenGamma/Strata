@@ -15,15 +15,15 @@ package com.opengamma.strata.basics.market;
  * <ul>
  *   <li>A {@link StandardId} identifying the market data. This ID can come from any system. It might be
  *   an OpenGamma ID, for example {@code OpenGammaIndex~GBP_LIBOR_3M}, or it can be an ID from a market
- *   data feed, for example {@code BloombergTicker~AAPL US Equity}.</li>
+ *   data source, for example {@code BloombergTicker~AAPL US Equity}.</li>
  *
  *   <li>A {@link FieldName} indicating the field in the market data record containing the data. See
  *   the {@code FieldName} documentation for more details.</li>
  *
- *   <li>A {@link MarketDataFeed} indicating where the data should come from. This is typically chosen
- *   by the market data rules. It is important to note that the standard ID is not necessarily related
- *   to the feed. There is typically a mapping step in the market data system that maps the standard ID
- *   into an ID that can be used to look up the data in the feed.</li>
+ *   <li>A {@link ObservableSource} indicating where the data should come from.
+ *   It is important to note that the standard ID is not necessarily related to the source.
+ *   There is typically a mapping step in the market data system that maps the standard ID
+ *   into an ID that can be used to look up the data in the source.</li>
  * </ul>
  */
 public interface ObservableId
@@ -52,16 +52,21 @@ public interface ObservableId
   public abstract FieldName getFieldName();
 
   /**
-   * Gets the market data feed from which the market data should be retrieved.
+   * Gets the source of market data from which the market data should be retrieved.
    * <p>
-   * The feed identifies the source of data, such as Bloomberg or Reuters.
+   * The source identifies the source of data, such as Bloomberg or Reuters.
    *
-   * @return the market data feed from which the market data should be retrieved
+   * @return the source from which the market data should be retrieved
    */
-  public abstract MarketDataFeed getMarketDataFeed();
+  public abstract ObservableSource getObservableSource();
 
-  @Override
-  public abstract ObservableKey toMarketDataKey();
+  /**
+   * Returns an identifier equivalent to this with the specified source.
+   *
+   * @param obsSource  the source of market data
+   * @return the observable identifier
+   */
+  public abstract ObservableId withObservableSource(ObservableSource obsSource);
 
   @Override
   public default Class<Double> getMarketDataType() {

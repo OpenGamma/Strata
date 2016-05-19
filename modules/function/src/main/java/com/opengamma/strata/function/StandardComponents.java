@@ -10,11 +10,11 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
+import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
-import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
+import com.opengamma.strata.calc.marketdata.MarketDataFunction;
+import com.opengamma.strata.calc.marketdata.ObservableMarketDataFunction;
+import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.function.calculation.credit.CdsCalculationFunction;
 import com.opengamma.strata.function.calculation.deposit.TermDepositCalculationFunction;
@@ -32,10 +32,7 @@ import com.opengamma.strata.function.calculation.swap.SwapCalculationFunction;
 import com.opengamma.strata.function.calculation.swaption.SwaptionCalculationFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.function.marketdata.curve.CurveInputsMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.DiscountCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.IborIndexCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.OvernightIndexCurveMarketDataFunction;
-import com.opengamma.strata.function.marketdata.curve.SimpleCurveMarketDataFunction;
+import com.opengamma.strata.function.marketdata.curve.CurveMarketDataFunction;
 import com.opengamma.strata.function.marketdata.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
@@ -121,7 +118,7 @@ public class StandardComponents {
     return new DefaultMarketDataFactory(
         TimeSeriesProvider.none(),
         observableMarketData,
-        FeedIdMapping.identity(),
+        ObservableIdMapping.identity(),
         marketDataFunctions());
   }
 
@@ -140,10 +137,7 @@ public class StandardComponents {
    */
   public static List<MarketDataFunction<?, ?>> marketDataFunctions() {
     return ImmutableList.of(
-        new SimpleCurveMarketDataFunction(),
-        new DiscountCurveMarketDataFunction(),
-        new IborIndexCurveMarketDataFunction(),
-        new OvernightIndexCurveMarketDataFunction(),
+        new CurveMarketDataFunction(),
         new CurveGroupMarketDataFunction(),
         new CurveInputsMarketDataFunction(),
         new FxRateMarketDataFunction());

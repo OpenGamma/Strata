@@ -225,7 +225,7 @@ public final class FxMatrix
     if (originalCurrency.equals(targetCurrency)) {
       return amount;
     }
-    return CurrencyAmount.of(targetCurrency, amount.getAmount() * fxRate(originalCurrency, targetCurrency));
+    return CurrencyAmount.of(targetCurrency, convert(amount.getAmount(), originalCurrency, targetCurrency));
   }
 
   /**
@@ -244,7 +244,7 @@ public final class FxMatrix
     // avoid creating extra objects we'll use doubles
     double total = amount.getAmounts()
         .stream()
-        .mapToDouble(ca -> ca.getAmount() * fxRate(ca.getCurrency(), targetCurrency))
+        .mapToDouble(ca -> convert(ca.getAmount(), ca.getCurrency(), targetCurrency))
         .sum();
     return CurrencyAmount.of(targetCurrency, total);
   }

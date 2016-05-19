@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.deposit.type.TermDepositConvention;
@@ -202,13 +202,13 @@ public final class RatesCalibrationCsvLoader {
       String spreadStr = row.getField(CURVE_SPREAD);
 
       CurveName curveName = CurveName.of(curveNameStr);
-      StandardId quoteId = StandardId.of(symbologyQuoteStr, tickerQuoteStr);
+      StandardId quoteStandardId = StandardId.of(symbologyQuoteStr, tickerQuoteStr);
       FieldName quoteField = fieldQuoteStr.isEmpty() ? FieldName.MARKET_VALUE : FieldName.of(fieldQuoteStr);
-      QuoteKey quoteKey = QuoteKey.of(quoteId, quoteField);
+      QuoteId quoteId = QuoteId.of(quoteStandardId, quoteField);
       double spread = spreadStr.isEmpty() ? 0d : Double.parseDouble(spreadStr);
 
       List<CurveNode> curveNodes = allNodes.computeIfAbsent(curveName, k -> new ArrayList<>());
-      curveNodes.add(createCurveNode(typeStr, conventionStr, timeStr, label, quoteKey, spread));
+      curveNodes.add(createCurveNode(typeStr, conventionStr, timeStr, label, quoteId, spread));
     }
     return buildCurveDefinition(settingsMap, allNodes);
   }
@@ -239,38 +239,38 @@ public final class RatesCalibrationCsvLoader {
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     if ("DEP".equalsIgnoreCase(typeStr) || "TermDeposit".equalsIgnoreCase(typeStr)) {
-      return curveTermDepositCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveTermDepositCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("FIX".equalsIgnoreCase(typeStr) || "IborFixingDeposit".equalsIgnoreCase(typeStr)) {
-      return curveIborFixingDepositCurveNode(conventionStr, label, quoteKey, spread);
+      return curveIborFixingDepositCurveNode(conventionStr, label, quoteId, spread);
     }
     if ("FRA".equalsIgnoreCase(typeStr)) {
-      return curveFraCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveFraCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("IFU".equalsIgnoreCase(typeStr) || "IborFuture".equalsIgnoreCase(typeStr)) {
-      return curveIborFuturesCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveIborFuturesCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("OIS".equalsIgnoreCase(typeStr) || "FixedOvernightSwap".equalsIgnoreCase(typeStr)) {
-      return curveFixedOvernightCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveFixedOvernightCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("IRS".equalsIgnoreCase(typeStr) || "FixedIborSwap".equalsIgnoreCase(typeStr)) {
-      return curveFixedIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveFixedIborCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("BAS".equalsIgnoreCase(typeStr) || "IborIborSwap".equalsIgnoreCase(typeStr)) {
-      return curveIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveIborIborCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("BS3".equalsIgnoreCase(typeStr) || "ThreeLegBasisSwap".equalsIgnoreCase(typeStr)) {
-      return curveThreeLegBasisCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveThreeLegBasisCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("XCS".equalsIgnoreCase(typeStr) || "XCcyIborIborSwap".equalsIgnoreCase(typeStr)) {
-      return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     if ("FXS".equalsIgnoreCase(typeStr) || "FxSwap".equalsIgnoreCase(typeStr)) {
-      return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteKey, spread);
+      return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteId, spread);
     }
     throw new IllegalArgumentException(Messages.format("Invalid curve node type: {}", typeStr));
   }
@@ -279,7 +279,7 @@ public final class RatesCalibrationCsvLoader {
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -289,26 +289,26 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     TermDepositConvention convention = TermDepositConvention.of(conventionStr);
     TermDepositTemplate template = TermDepositTemplate.of(periodToEnd, convention);
-    return TermDepositCurveNode.of(template, quoteKey, spread, label);
+    return TermDepositCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveIborFixingDepositCurveNode(
       String conventionStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     IborFixingDepositConvention convention = IborFixingDepositConvention.of(conventionStr);
     IborFixingDepositTemplate template = IborFixingDepositTemplate.of(
         convention.getIndex().getTenor().getPeriod(), convention);
-    return IborFixingDepositCurveNode.of(template, quoteKey, spread, label);
+    return IborFixingDepositCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveFraCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = FRA_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -320,14 +320,14 @@ public final class RatesCalibrationCsvLoader {
 
     FraConvention convention = FraConvention.of(conventionStr);
     FraTemplate template = FraTemplate.of(periodToStart, periodToEnd, convention);
-    return FraCurveNode.of(template, quoteKey, spread, label);
+    return FraCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveIborFuturesCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = FUT_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -338,7 +338,7 @@ public final class RatesCalibrationCsvLoader {
     int sequenceNumber = Integer.parseInt(matcher.group(2));
     IborFutureConvention convention = IborFutureConvention.of(conventionStr);
     IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, convention);
-    return IborFutureCurveNode.of(template, quoteKey, spread, label);
+    return IborFutureCurveNode.of(template, quoteId, spread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -346,7 +346,7 @@ public final class RatesCalibrationCsvLoader {
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YMD_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -356,14 +356,14 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FixedOvernightSwapConvention convention = FixedOvernightSwapConvention.of(conventionStr);
     FixedOvernightSwapTemplate template = FixedOvernightSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return FixedOvernightSwapCurveNode.of(template, quoteKey, spread, label);
+    return FixedOvernightSwapCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveFixedIborCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -373,14 +373,14 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(conventionStr);
     FixedIborSwapTemplate template = FixedIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return FixedIborSwapCurveNode.of(template, quoteKey, spread, label);
+    return FixedIborSwapCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveIborIborCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -390,14 +390,14 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     IborIborSwapConvention convention = IborIborSwapConvention.of(conventionStr);
     IborIborSwapTemplate template = IborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return IborIborSwapCurveNode.of(template, quoteKey, spread, label);
+    return IborIborSwapCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveThreeLegBasisCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -407,14 +407,14 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     ThreeLegBasisSwapConvention convention = ThreeLegBasisSwapConvention.of(conventionStr);
     ThreeLegBasisSwapTemplate template = ThreeLegBasisSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return ThreeLegBasisSwapCurveNode.of(template, quoteKey, spread, label);
+    return ThreeLegBasisSwapCurveNode.of(template, quoteId, spread, label);
   }
 
   private static CurveNode curveXCcyIborIborCurveNode(
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
@@ -424,7 +424,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
-    return XCcyIborIborSwapCurveNode.of(template, quoteKey, spread, label);
+    return XCcyIborIborSwapCurveNode.of(template, quoteId, spread, label);
   }
 
   //-------------------------------------------------------------------------
@@ -432,7 +432,7 @@ public final class RatesCalibrationCsvLoader {
       String conventionStr,
       String timeStr,
       String label,
-      QuoteKey quoteKey,
+      QuoteId quoteId,
       double spread) {
 
     if (!DoubleMath.fuzzyEquals(spread, 0d, 1e-10d)) {
@@ -445,7 +445,7 @@ public final class RatesCalibrationCsvLoader {
     Period periodToEnd = Period.parse("P" + matcher.group(1));
     FxSwapConvention convention = FxSwapConvention.of(conventionStr);
     FxSwapTemplate template = FxSwapTemplate.of(periodToEnd, convention);
-    return FxSwapCurveNode.of(template, quoteKey, label);
+    return FxSwapCurveNode.of(template, quoteId, label);
   }
 
   //-------------------------------------------------------------------------

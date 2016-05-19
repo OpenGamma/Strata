@@ -7,9 +7,8 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableSource;
 
 /**
  * A test market data ID.
@@ -17,11 +16,11 @@ import com.opengamma.strata.basics.market.MarketDataKey;
 public class TestSimpleId implements MarketDataId<String> {
 
   private final String id;
-  private final MarketDataFeed marketDataFeed;
+  private final ObservableSource observableSource;
 
-  public TestSimpleId(String id, MarketDataFeed marketDataFeed) {
+  public TestSimpleId(String id, ObservableSource obsSource) {
     this.id = id;
-    this.marketDataFeed = marketDataFeed;
+    this.observableSource = obsSource;
   }
 
   @Override
@@ -29,13 +28,8 @@ public class TestSimpleId implements MarketDataId<String> {
     return String.class;
   }
 
-  @Override
-  public MarketDataKey<String> toMarketDataKey() {
-    throw new UnsupportedOperationException("toMarketDataKey not implemented");
-  }
-
-  public MarketDataFeed getMarketDataFeed() {
-    return marketDataFeed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   @Override
@@ -48,11 +42,11 @@ public class TestSimpleId implements MarketDataId<String> {
     }
     TestSimpleId that = (TestSimpleId) o;
     return Objects.equals(id, that.id) &&
-        Objects.equals(marketDataFeed, that.marketDataFeed);
+        Objects.equals(observableSource, that.observableSource);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, marketDataFeed);
+    return Objects.hash(id, observableSource);
   }
 }

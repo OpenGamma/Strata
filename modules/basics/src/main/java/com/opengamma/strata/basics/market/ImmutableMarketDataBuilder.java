@@ -24,11 +24,11 @@ public class ImmutableMarketDataBuilder {
   /**
    * The market data values.
    */
-  private final Map<MarketDataKey<?>, Object> values = new HashMap<>();
+  private final Map<MarketDataId<?>, Object> values = new HashMap<>();
   /**
    * The time-series of historic market data values.
    */
-  private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
+  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = new HashMap<>();
 
   //-------------------------------------------------------------------------
   /**
@@ -44,13 +44,13 @@ public class ImmutableMarketDataBuilder {
    * Creates a builder pre-populated with data.
    *
    * @param valuationDate  the valuation date associated with the market data
-   * @param values  the single value market data items, keyed by ID
-   * @param timeSeries  time-series of observable market data values, keyed by ID
+   * @param values  the single value market data items, keyed by identifier
+   * @param timeSeries  time-series of observable market data values, keyed by identifier
    */
   ImmutableMarketDataBuilder(
       LocalDate valuationDate,
-      Map<MarketDataKey<?>, Object> values,
-      Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<MarketDataId<?>, Object> values,
+      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
 
     this.valuationDate = ArgChecker.notNull(valuationDate, "valuationDate");
     this.values.putAll(ArgChecker.notNull(values, "values"));
@@ -76,7 +76,7 @@ public class ImmutableMarketDataBuilder {
    * @param values  the values
    * @return this builder
    */
-  public ImmutableMarketDataBuilder values(Map<? extends MarketDataKey<?>, ?> values) {
+  public ImmutableMarketDataBuilder values(Map<? extends MarketDataId<?>, ?> values) {
     this.values.clear();
     return addValues(values);
   }
@@ -84,15 +84,15 @@ public class ImmutableMarketDataBuilder {
   /**
    * Adds a value to the builder.
    *
-   * @param key  the key which identifies the market data value
+   * @param id  the identifier of the market data value
    * @param value  the market data value
    * @param <T>  the type of the market data value
    * @return this builder
    */
-  public <T> ImmutableMarketDataBuilder addValue(MarketDataKey<T> key, T value) {
-    ArgChecker.notNull(key, "key");
+  public <T> ImmutableMarketDataBuilder addValue(MarketDataId<T> id, T value) {
+    ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "value");
-    values.put(key, value);
+    values.put(id, value);
     return this;
   }
 
@@ -102,27 +102,11 @@ public class ImmutableMarketDataBuilder {
    * @param values  the values
    * @return this builder
    */
-  public ImmutableMarketDataBuilder addValues(Map<? extends MarketDataKey<?>, ?> values) {
+  public ImmutableMarketDataBuilder addValues(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     values.entrySet().forEach(e -> {
       ImmutableMarketData.checkType(e.getKey(), e.getValue());
       this.values.put(e.getKey(), e.getValue());
-    });
-    return this;
-  }
-
-  /**
-   * Adds multiple values to the builder.
-   *
-   * @param values  the values
-   * @return this builder
-   */
-  public ImmutableMarketDataBuilder addValuesById(Map<? extends MarketDataId<?>, ?> values) {
-    ArgChecker.notNull(values, "values");
-    values.entrySet().forEach(e -> {
-      MarketDataKey<?> key = e.getKey().toMarketDataKey();
-      ImmutableMarketData.checkType(key, e.getValue());
-      this.values.put(key, e.getValue());
     });
     return this;
   }
@@ -133,7 +117,7 @@ public class ImmutableMarketDataBuilder {
    * @param timeSeries  the time-series
    * @return this builder
    */
-  public ImmutableMarketDataBuilder timeSeries(Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
+  public ImmutableMarketDataBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
     this.timeSeries.clear();
     return addTimeSeries(timeSeries);
   }
@@ -141,14 +125,14 @@ public class ImmutableMarketDataBuilder {
   /**
    * Adds a time-series of market data values to the builder.
    *
-   * @param key  the key identifying the market data value
+   * @param id  the identifier of the market data value
    * @param timeSeries  a time-series of the market data value
    * @return this builder
    */
-  public ImmutableMarketDataBuilder addTimeSeries(ObservableKey key, LocalDateDoubleTimeSeries timeSeries) {
-    ArgChecker.notNull(key, "key");
+  public ImmutableMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
+    ArgChecker.notNull(id, "id");
     ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.put(key, timeSeries);
+    this.timeSeries.put(id, timeSeries);
     return this;
   }
 
@@ -158,7 +142,7 @@ public class ImmutableMarketDataBuilder {
    * @param timeSeriesMap  the time-series
    * @return this builder
    */
-  public ImmutableMarketDataBuilder addTimeSeries(Map<? extends ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap) {
+  public ImmutableMarketDataBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap) {
     ArgChecker.notNull(timeSeriesMap, "timeSeriesMap");
     timeSeries.putAll(timeSeriesMap);
     return this;

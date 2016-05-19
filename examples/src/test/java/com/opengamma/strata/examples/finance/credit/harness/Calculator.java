@@ -8,8 +8,8 @@ package com.opengamma.strata.examples.finance.credit.harness;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.Measure;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 public interface Calculator {

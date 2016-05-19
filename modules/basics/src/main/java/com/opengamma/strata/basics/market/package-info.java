@@ -5,22 +5,17 @@
  */
 
 /**
- * Basic types for modelling the market and market data.
+ * Basic types for modelling the market data and reference data.
  * <p>
- * There are two key classes in this package.
- * {@link com.opengamma.strata.basics.market.MarketDataKey MarketDataKey} is used by
- * applications to represent the market data that is needed.
- * {@link com.opengamma.strata.basics.market.MarketDataId MarketDataId} is used by
- * the market data system to uniquely represent a specific piece of market data.
- * There may be more than one {@code MarketDataId} associated with a given {@code MarketDataKey}.
+ * Market data is used to capture the current market, such as quotes, FX rates,
+ * discount curves, forward curves and volatilities.
+ * The main market data interface is {@link com.opengamma.strata.basics.market.MarketData MarketData}
+ * which is keyed by {@link com.opengamma.strata.basics.market.MarketDataId MarketDataId}.
  * <p>
- * For example, the application code may use a key to request the IBM share price.
- * However, the share price could be obtained from any number of different sources,
- * including Bloomberg and Reuters. Thus in this case the key represents the concept
- * "IBM share price" and the ID represents the concept "IBM share price from Bloomberg".
- * <p>
- * Note that market data keys and IDs can represent any piece of market data, including
- * quotes, curves, surfaces and cubes.
+ * Reference data is used to capture the slow-moving data necessary to perform calculations,
+ * such as holiday calendars and securities.
+ * The main reference data interface is {@link com.opengamma.strata.basics.market.ReferenceData ReferenceData}
+ * which is keyed by {@link com.opengamma.strata.basics.market.ReferenceDataId ReferenceDataId}.
  */
 package com.opengamma.strata.basics.market;
 

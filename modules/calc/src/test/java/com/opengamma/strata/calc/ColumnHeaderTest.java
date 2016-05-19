@@ -14,8 +14,6 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.calc.config.Measures;
-
 /**
  * Test {@link ColumnHeader}.
  */

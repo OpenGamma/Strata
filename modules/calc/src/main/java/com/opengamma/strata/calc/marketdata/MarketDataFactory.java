@@ -6,7 +6,7 @@
 package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 
 /**
@@ -28,10 +28,10 @@ public interface MarketDataFactory {
    * @param refData  the reference data
    * @return the market data required by the calculations plus details of any data that could not be built
    */
-  public abstract MarketEnvironment buildMarketData(
+  public abstract BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData);
 
   /**
@@ -55,10 +55,10 @@ public interface MarketDataFactory {
    * @param scenarioDefinition  defines how the market data for each scenario is derived from the base data
    * @return the market data required by the calculations
    */
-  public abstract MarketEnvironment buildMarketData(
+  public abstract BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition);
 

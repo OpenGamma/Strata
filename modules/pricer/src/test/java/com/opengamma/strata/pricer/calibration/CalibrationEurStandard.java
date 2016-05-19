@@ -41,11 +41,11 @@ import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 import com.opengamma.strata.product.fra.type.FraTemplate;
@@ -181,31 +181,31 @@ public class CalibrationEurStandard {
     for (int i = 0; i < dscOisTenors.length; i++) {
       dscNodes[i] = FixedOvernightSwapCurveNode.of(
           FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(dscOisTenors[i]), EUR_FIXED_1Y_EONIA_OIS),
-          QuoteKey.of(StandardId.of(SCHEME, dscIdValues[i])));
+          QuoteId.of(StandardId.of(SCHEME, dscIdValues[i])));
     }
     CurveNode[] fwd3Nodes = new CurveNode[fwd3IdValues.length];
     fwd3Nodes[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(EUR_EURIBOR_3M),
-        QuoteKey.of(StandardId.of(SCHEME, fwd3IdValues[0])));
+        QuoteId.of(StandardId.of(SCHEME, fwd3IdValues[0])));
     for (int i = 0; i < fwd3FraTenors.length; i++) {
       fwd3Nodes[i + 1] = FraCurveNode.of(FraTemplate.of(fwd3FraTenors[i], EUR_EURIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd3IdValues[i + 1])));
+          QuoteId.of(StandardId.of(SCHEME, fwd3IdValues[i + 1])));
     }
     for (int i = 0; i < fwd3IrsTenors.length; i++) {
       fwd3Nodes[i + 1 + fwd3FraTenors.length] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(fwd3IrsTenors[i]), EUR_FIXED_1Y_EURIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd3IdValues[i + 1 + fwd3FraTenors.length])));
+          QuoteId.of(StandardId.of(SCHEME, fwd3IdValues[i + 1 + fwd3FraTenors.length])));
     }
     CurveNode[] fwd6Nodes = new CurveNode[fwd6IdValues.length];
     fwd6Nodes[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(EUR_EURIBOR_6M),
-        QuoteKey.of(StandardId.of(SCHEME, fwd6IdValues[0])));
+        QuoteId.of(StandardId.of(SCHEME, fwd6IdValues[0])));
     for (int i = 0; i < fwd6FraTenors.length; i++) {
       fwd6Nodes[i + 1] = FraCurveNode.of(FraTemplate.of(fwd6FraTenors[i], EUR_EURIBOR_6M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd6IdValues[i + 1])));
+          QuoteId.of(StandardId.of(SCHEME, fwd6IdValues[i + 1])));
     }
     for (int i = 0; i < fwd6IrsTenors.length; i++) {
       fwd6Nodes[i + 1 + fwd6FraTenors.length] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(fwd6IrsTenors[i]), EUR_FIXED_1Y_EURIBOR_6M),
-          QuoteKey.of(StandardId.of(SCHEME, fwd6IdValues[i + 1 + fwd6FraTenors.length])));
+          QuoteId.of(StandardId.of(SCHEME, fwd6IdValues[i + 1 + fwd6FraTenors.length])));
     }
     InterpolatedNodalCurveDefinition DSC_CURVE_DEFN =
         InterpolatedNodalCurveDefinition.builder()
@@ -254,13 +254,13 @@ public class CalibrationEurStandard {
     /* All quotes for the curve calibration */
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
     for (int i = 0; i < dscOisQuotes.length; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, dscIdValues[i])), dscOisQuotes[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, dscIdValues[i])), dscOisQuotes[i]);
     }
     for (int i = 0; i < fwd3MarketQuotes.length; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, fwd3IdValue[i])), fwd3MarketQuotes[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, fwd3IdValue[i])), fwd3MarketQuotes[i]);
     }
     for (int i = 0; i < fwd6MarketQuotes.length; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, fwd6IdValue[i])), fwd6MarketQuotes[i]);
     }
     return builder.build();
   }

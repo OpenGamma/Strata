@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
@@ -74,7 +73,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
@@ -86,7 +85,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
@@ -98,7 +97,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 
@@ -111,7 +110,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener) {
 

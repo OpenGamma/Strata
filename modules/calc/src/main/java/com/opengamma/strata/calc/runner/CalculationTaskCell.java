@@ -19,10 +19,8 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.CurrencyConvertible;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
@@ -107,7 +105,7 @@ public final class CalculationTaskCell implements ImmutableBean {
    * @param task  the calculation task
    * @param target  the target of the calculation
    * @param results  the map of result by measure
-   * @param marketData  the market data
+   * @param fxProvider  the market data
    * @param refData  the reference data
    * @return the calculation result
    */
@@ -115,7 +113,7 @@ public final class CalculationTaskCell implements ImmutableBean {
       CalculationTask task,
       CalculationTarget target,
       Map<Measure, Result<?>> results,
-      CalculationMarketData marketData,
+      ScenarioFxRateProvider fxProvider,
       ReferenceData refData) {
 
     // caller expects that this method does not throw an exception
@@ -126,7 +124,7 @@ public final class CalculationTaskCell implements ImmutableBean {
           "Measure '{}' was not calculated by the function for target type '{}'",
           measure, target.getClass().getName());
     }
-    Result<?> result = convertCurrencyIfNecessary(task, calculated, marketData, refData);
+    Result<?> result = convertCurrencyIfNecessary(task, calculated, fxProvider, refData);
     return CalculationResult.of(rowIndex, columnIndex, result);
   }
 
@@ -134,13 +132,13 @@ public final class CalculationTaskCell implements ImmutableBean {
   private Result<?> convertCurrencyIfNecessary(
       CalculationTask task,
       Result<?> result,
-      CalculationMarketData marketData,
+      ScenarioFxRateProvider fxProvider,
       ReferenceData refData) {
 
     // the result is only converted if it is a success and both the measure and value are convertible
     if (measure.isCurrencyConvertible() && result.isSuccess() && result.getValue() instanceof CurrencyConvertible) {
       CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) result.getValue();
-      return convertCurrency(task, convertible, marketData, refData);
+      return convertCurrency(task, convertible, fxProvider, refData);
     }
     return result;
   }
@@ -149,12 +147,12 @@ public final class CalculationTaskCell implements ImmutableBean {
   private Result<?> convertCurrency(
       CalculationTask task,
       CurrencyConvertible<?> value,
-      CalculationMarketData marketData,
+      ScenarioFxRateProvider fxProvider,
       ReferenceData refData) {
 
     Currency resolvedReportingCurrency = reportingCurrency(task, refData);
     try {
-      return Result.success(value.convertedTo(resolvedReportingCurrency, marketData));
+      return Result.success(value.convertedTo(resolvedReportingCurrency, fxProvider));
     } catch (RuntimeException ex) {
       return Result.failure(
           FailureReason.ERROR, ex, "Failed to convert value '{}' to currency '{}'", value, resolvedReportingCurrency);

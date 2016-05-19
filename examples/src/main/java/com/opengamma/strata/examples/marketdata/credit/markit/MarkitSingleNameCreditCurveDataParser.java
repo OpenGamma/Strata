@@ -22,7 +22,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.calc.marketdata.MarketEnvironmentBuilder;
+import com.opengamma.strata.calc.ImmutableScenarioMarketDataBuilder;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
@@ -90,7 +90,7 @@ public class MarkitSingleNameCreditCurveDataParser {
    * @param staticDataSource  the source of static data to parse
    */
   public static void parse(
-      MarketEnvironmentBuilder builder,
+      ImmutableScenarioMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
 

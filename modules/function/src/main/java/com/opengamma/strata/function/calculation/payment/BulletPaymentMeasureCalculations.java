@@ -8,15 +8,14 @@ package com.opengamma.strata.function.calculation.payment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
-import com.opengamma.strata.calc.runner.function.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.result.CurrencyValuesArray;
+import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.function.calculation.RatesMarketData;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.pricer.rate.MarketDataRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
@@ -44,7 +43,7 @@ class BulletPaymentMeasureCalculations {
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedBulletPaymentTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     Payment payment = trade.getProduct().getPayment();
     return CurrencyValuesArray.of(
@@ -53,8 +52,8 @@ class BulletPaymentMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(Payment payment, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static CurrencyAmount calculatePresentValue(Payment payment, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(payment, provider);
   }
 
@@ -62,7 +61,7 @@ class BulletPaymentMeasureCalculations {
   // calculates PV01 for all scenarios
   static MultiCurrencyValuesArray pv01(
       ResolvedBulletPaymentTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     Payment payment = trade.getProduct().getPayment();
     return MultiCurrencyValuesArray.of(
@@ -71,8 +70,8 @@ class BulletPaymentMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(Payment payment, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static MultiCurrencyAmount calculatePv01(Payment payment, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
@@ -81,7 +80,7 @@ class BulletPaymentMeasureCalculations {
   // calculates bucketed PV01 for all scenarios
   static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
       ResolvedBulletPaymentTrade trade,
-      CalculationMarketData marketData) {
+      RatesScenarioMarketData marketData) {
 
     Payment payment = trade.getProduct().getPayment();
     return ScenarioResult.of(
@@ -90,8 +89,8 @@ class BulletPaymentMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(Payment payment, MarketData marketData) {
-    RatesProvider provider = MarketDataRatesProvider.of(marketData);
+  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(Payment payment, RatesMarketData marketData) {
+    RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }

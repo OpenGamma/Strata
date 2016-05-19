@@ -23,18 +23,20 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataKey;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.MarketDataFxRateProvider;
+import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.id.SimpleCurveId;
-import com.opengamma.strata.market.key.IndexRateKey;
+import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.id.IndexQuoteId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -44,7 +46,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * <p>
  * The lookup implements {@link CalculationParameter} and is used by passing it
  * as an argument to {@link CalculationRules}. It provides the link between the
- * data that the function needs and the data that is available in {@link CalculationMarketData}.
+ * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultRatesMarketDataLookup
@@ -54,30 +56,37 @@ final class DefaultRatesMarketDataLookup
    * The discount curves in the group, keyed by currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, SimpleCurveId> discountCurves;
+  private final ImmutableMap<Currency, CurveId> discountCurves;
   /**
    * The forward curves in the group, keyed by index.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, SimpleCurveId>")
-  private final ImmutableMap<Index, SimpleCurveId> forwardCurves;
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends Index, CurveId>")
+  private final ImmutableMap<Index, CurveId> forwardCurves;
+  /**
+   * The source of market data for FX, quotes and other observable market data.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ObservableSource observableSource;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance based on a map of discount and forward curve identifiers.
    * <p>
    * The discount and forward curves refer to the curve identifier.
-   * The curves themselves are provided in {@link CalculationEnvironment}
-   * using {@link SimpleCurveId} as the identifier.
+   * The curves themselves are provided in {@link ScenarioMarketData}
+   * using {@link CurveId} as the identifier.
    * 
    * @param discountCurveIds  the discount curve identifiers, keyed by currency
    * @param forwardCurveIds  the forward curves identifiers, keyed by index
+   * @param obsSource  the source of market data for FX, quotes and other observable market data
    * @return the rates lookup containing the specified curves
    */
   public static DefaultRatesMarketDataLookup of(
-      Map<Currency, SimpleCurveId> discountCurveIds,
-      Map<? extends Index, SimpleCurveId> forwardCurveIds) {
+      Map<Currency, CurveId> discountCurveIds,
+      Map<? extends Index, CurveId> forwardCurveIds,
+      ObservableSource obsSource) {
 
-    return new DefaultRatesMarketDataLookup(discountCurveIds, forwardCurveIds);
+    return new DefaultRatesMarketDataLookup(discountCurveIds, forwardCurveIds, obsSource);
   }
 
   //-------------------------------------------------------------------------
@@ -87,8 +96,8 @@ final class DefaultRatesMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getDiscountMarketDataIds(Currency currency) {
-    SimpleCurveId id = discountCurves.get(currency);
+  public ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency) {
+    CurveId id = discountCurves.get(currency);
     if (id == null) {
       throw new IllegalArgumentException(msgCurrencyNotFound(currency));
     }
@@ -101,8 +110,8 @@ final class DefaultRatesMarketDataLookup
   }
 
   @Override
-  public ImmutableSet<MarketDataKey<?>> getForwardMarketDataIds(Index index) {
-    SimpleCurveId id = forwardCurves.get(index);
+  public ImmutableSet<MarketDataId<?>> getForwardMarketDataIds(Index index) {
+    CurveId id = forwardCurves.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));
     }
@@ -124,24 +133,25 @@ final class DefaultRatesMarketDataLookup
     }
 
     // keys for time-series
-    Set<ObservableKey> indexRateKeys = indices.stream()
-        .map(IndexRateKey::of)
+    Set<ObservableId> indexQuoteIds = indices.stream()
+        .map(IndexQuoteId::of)
         .collect(toImmutableSet());
 
     // keys for forward curves
-    Set<MarketDataKey<?>> indexCurveKeys = indices.stream()
+    Set<MarketDataId<?>> indexCurveIds = indices.stream()
         .map(idx -> forwardCurves.get(idx))
         .collect(toImmutableSet());
 
     // keys for discount factors
-    Set<MarketDataKey<?>> discountFactorsKeys = currencies.stream()
+    Set<MarketDataId<?>> discountFactorsIds = currencies.stream()
         .map(ccy -> discountCurves.get(ccy))
         .collect(toImmutableSet());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveKeys, discountFactorsKeys))
-        .timeSeriesRequirements(indexRateKeys)
+        .singleValueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
+        .timeSeriesRequirements(indexQuoteIds)
         .outputCurrencies(currencies)
+        .observableSource(observableSource)
         .build();
   }
 
@@ -149,6 +159,11 @@ final class DefaultRatesMarketDataLookup
   @Override
   public RatesProvider ratesProvider(MarketData marketData) {
     return DefaultLookupRatesProvider.of(this, marketData);
+  }
+
+  @Override
+  public FxRateProvider fxRateProvider(MarketData marketData) {
+    return MarketDataFxRateProvider.of(marketData, observableSource);
   }
 
   //-------------------------------------------------------------------------
@@ -185,12 +200,15 @@ final class DefaultRatesMarketDataLookup
   private static final long serialVersionUID = 1L;
 
   private DefaultRatesMarketDataLookup(
-      Map<Currency, SimpleCurveId> discountCurves,
-      Map<? extends Index, SimpleCurveId> forwardCurves) {
+      Map<Currency, CurveId> discountCurves,
+      Map<? extends Index, CurveId> forwardCurves,
+      ObservableSource observableSource) {
     JodaBeanUtils.notNull(discountCurves, "discountCurves");
     JodaBeanUtils.notNull(forwardCurves, "forwardCurves");
+    JodaBeanUtils.notNull(observableSource, "observableSource");
     this.discountCurves = ImmutableMap.copyOf(discountCurves);
     this.forwardCurves = ImmutableMap.copyOf(forwardCurves);
+    this.observableSource = observableSource;
   }
 
   @Override
@@ -213,7 +231,7 @@ final class DefaultRatesMarketDataLookup
    * Gets the discount curves in the group, keyed by currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, SimpleCurveId> getDiscountCurves() {
+  public ImmutableMap<Currency, CurveId> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -222,8 +240,17 @@ final class DefaultRatesMarketDataLookup
    * Gets the forward curves in the group, keyed by index.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Index, SimpleCurveId> getForwardCurves() {
+  public ImmutableMap<Index, CurveId> getForwardCurves() {
     return forwardCurves;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the source of market data for FX, quotes and other observable market data.
+   * @return the value of the property, not null
+   */
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   //-----------------------------------------------------------------------
@@ -235,7 +262,8 @@ final class DefaultRatesMarketDataLookup
     if (obj != null && obj.getClass() == this.getClass()) {
       DefaultRatesMarketDataLookup other = (DefaultRatesMarketDataLookup) obj;
       return JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
-          JodaBeanUtils.equal(forwardCurves, other.forwardCurves);
+          JodaBeanUtils.equal(forwardCurves, other.forwardCurves) &&
+          JodaBeanUtils.equal(observableSource, other.observableSource);
     }
     return false;
   }
@@ -245,15 +273,17 @@ final class DefaultRatesMarketDataLookup
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(forwardCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("DefaultRatesMarketDataLookup{");
     buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
-    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(forwardCurves));
+    buf.append("forwardCurves").append('=').append(forwardCurves).append(',').append(' ');
+    buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();
   }

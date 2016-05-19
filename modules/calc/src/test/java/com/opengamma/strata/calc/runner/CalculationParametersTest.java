@@ -16,8 +16,8 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.Measures;
+import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 
 /**

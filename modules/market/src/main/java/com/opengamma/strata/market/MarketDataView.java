@@ -7,18 +7,12 @@ package com.opengamma.strata.market;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
-
 /**
  * A high-level view of a single item of market data.
  * <p>
  * Implementations provide a high-level view of a single piece of market data.
  * The market data has typically been calibrated, such as a curve or surface.
  * The data is valid on a single valuation date.
- *
- * @see MarketDataKey
- * @see MarketDataId
  */
 public interface MarketDataView {
 
