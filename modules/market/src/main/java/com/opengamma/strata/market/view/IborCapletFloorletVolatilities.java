@@ -25,7 +25,7 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
  * This provides access to the volatilities for various pricing models, such as normal and Black.
  * The price and derivatives are also made available.
  */
-public interface IborCapletFloorletVolatilities 
+public interface IborCapletFloorletVolatilities
     extends MarketDataView {
 
   /**
@@ -84,17 +84,18 @@ public interface IborCapletFloorletVolatilities
    * @throws RuntimeException if the result cannot be calculated
    */
   default SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(
-        PointSensitivities pointSensitivities) {
+      PointSensitivities pointSensitivities) {
+
     List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal = pointSensitivities.getSensitivities()
-              .stream()
-              .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
-              .map(pointSensitivity -> surfaceCurrencyParameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
-              .collect(Collectors.toList());
+        .stream()
+        .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
+        .map(pointSensitivity -> surfaceCurrencyParameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
+        .collect(Collectors.toList());
     SurfaceCurrencyParameterSensitivities sensi = SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
     // sensi should be single SurfaceCurrencyParameterSensitivity or empty
     ArgChecker.isTrue(sensi.getSensitivities().size() <= 1, "The underlying surface must be unique");
     return sensi;
-    }
+  }
 
   /**
    * Calculates the surface parameter sensitivity from the point sensitivity.

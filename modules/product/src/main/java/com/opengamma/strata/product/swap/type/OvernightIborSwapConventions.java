@@ -29,7 +29,7 @@ public final class OvernightIborSwapConventions {
    */
   public static final OvernightIborSwapConvention USD_FED_FUND_AA_LIBOR_3M =
       OvernightIborSwapConvention.of(StandardOvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M.getName());
-  
+
   /**
    * The 'GBP-SONIA-OIS-1Y-LIBOR-3M' swap convention.
    * <p>

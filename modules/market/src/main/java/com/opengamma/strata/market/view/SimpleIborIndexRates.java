@@ -80,7 +80,7 @@ public final class SimpleIborIndexRates
    * The day count convention of the curve.
    */
   private final DayCount dayCount;  // cached, not a property
-  
+
   /**
    * Obtains an instance from a curve, with an empty time-series of fixings.
    * <p>
@@ -100,7 +100,7 @@ public final class SimpleIborIndexRates
       Curve curve) {
     return new SimpleIborIndexRates(index, valuationDate, curve, LocalDateDoubleTimeSeries.empty());
   }
-  
+
   /**
    * Obtains an instance from a curve and time-series of fixing.
    * <p>
@@ -213,7 +213,7 @@ public final class SimpleIborIndexRates
     LocalDate maturityDate = pointSensitivity.getObservation().getMaturityDate();
     double relativeYearFraction = relativeYearFraction(maturityDate);
     CurveUnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
-    CurveCurrencyParameterSensitivity sensitivity =  
+    CurveCurrencyParameterSensitivity sensitivity =
         unitSensitivity.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
     return CurveCurrencyParameterSensitivities.of(sensitivity);
   }
@@ -233,7 +233,7 @@ public final class SimpleIborIndexRates
   public SimpleIborIndexRates withCurve(Curve curve) {
     return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
-  
+
   // calculate the relative time between the valuation date and the specified date using the day count of the curve
   private double relativeYearFraction(LocalDate date) {
     return dayCount.relativeYearFraction(valuationDate, date);

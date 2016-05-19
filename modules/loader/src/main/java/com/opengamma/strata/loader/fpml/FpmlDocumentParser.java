@@ -166,7 +166,7 @@ public final class FpmlDocumentParser {
       FpmlTradeInfoParserPlugin tradeInfoParser,
       Map<String, FpmlParserPlugin> tradeParsers,
       ReferenceData refData) {
-    
+
     this.ourPartySelector = ourPartySelector;
     this.tradeInfoParser = tradeInfoParser;
     this.tradeParsers = tradeParsers;

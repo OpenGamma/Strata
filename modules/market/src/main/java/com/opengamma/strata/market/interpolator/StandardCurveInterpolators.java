@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.interpolator;
 
-
 /**
  * The standard set of curve interpolators.
  * <p>

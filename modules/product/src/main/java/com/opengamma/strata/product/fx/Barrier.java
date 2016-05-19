@@ -31,7 +31,7 @@ public interface Barrier {
    * @return the knock type
    */
   public abstract KnockType getKnockType();
-  
+
   /**
    * Obtains the barrier level for a given observation date. 
    * 

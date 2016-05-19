@@ -145,7 +145,6 @@ public final class FpmlDocument {
     return builder;
   };
 
-
   /**
    * The parsed file.
    */

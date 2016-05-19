@@ -243,7 +243,10 @@ public interface MarketDataBox<T> {
     return Collector.of(
         ArrayList::new,
         (list, value) -> list.add(value),
-        (list1, list2) -> { list1.addAll(list2); return list1; },
+        (list1, list2) -> {
+          list1.addAll(list2);
+          return list1;
+        },
         list -> list.size() == 1 ? MarketDataBox.ofSingleValue(list.get(0)) : MarketDataBox.ofScenarioValues(list));
   }
 }
