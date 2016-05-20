@@ -22,9 +22,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -211,10 +211,13 @@ public class ZeroRateDiscountFactorsTest {
   //-------------------------------------------------------------------------
   public void test_unitParameterSensitivity() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_AFTER);
+
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
+    CurveCurrencyParameterSensitivities expected = CurveCurrencyParameterSensitivities.of(
+        CURVE.yValueParameterSensitivity(relativeYearFraction)
+            .multipliedBy(sens.getCurrency(), sens.getSensitivity()));
+    assertEquals(test.curveParameterSensitivity(sens), expected);
   }
 
   //-------------------------------------------------------------------------

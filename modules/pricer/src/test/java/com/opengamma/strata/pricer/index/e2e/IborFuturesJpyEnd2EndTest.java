@@ -51,10 +51,10 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 public class IborFuturesJpyEnd2EndTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final double ONE_PERCENT = 1.0E-2;
-  private static final double ONE_BASIS_POINT = 1.0E-4;
+  private static final double ONE_PERCENT = 1e-2;
+  private static final double ONE_BASIS_POINT = 1e-4;
   private static final double HUNDRED = 100d;
-  private static final double TOL = 1.0E-14;
+  private static final double TOL = 1e-10;
   private static final LocalDate VALUATION = LocalDate.of(2016, 2, 10);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(LocalDate.of(2016, 2, 10)).build();
   private static final double NOTIONAL = 100_000_000D;

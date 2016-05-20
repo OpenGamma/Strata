@@ -16,7 +16,6 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -215,19 +214,6 @@ public interface DiscountFactors
       int periodsPerYear);
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the unit parameter sensitivity at the specified fixing date.
-   * <p>
-   * This returns the unit sensitivity of the zero-coupon rate continuously compounded to each parameter on 
-   * the underlying curve at the specified date. The zero-rate continuously compounded is associated to 
-   * the result of {@link #discountFactor(LocalDate)}.
-   * 
-   * @param date  the date to find the sensitivity for
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date);
-
   /**
    * Calculates the curve parameter sensitivity from the point sensitivity.
    * <p>
