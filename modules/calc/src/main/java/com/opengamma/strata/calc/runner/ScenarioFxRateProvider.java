@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.runner;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.calc.ScenarioMarketData;
 
 /**
  * A provider of FX rates for scenarios.
@@ -17,6 +18,16 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
  * Implementations do not have to be immutable, but calls to the methods must be thread-safe.
  */
 public interface ScenarioFxRateProvider {
+
+  /**
+   * Returns a scenario FX rate provider which takes its data from the provided market data.
+   *
+   * @param marketData  market data containing FX rates
+   * @return a scenario FX rate provider which takes its data from the provided market data
+   */
+  public static ScenarioFxRateProvider of(ScenarioMarketData marketData) {
+    return new DefaultScenarioFxRateProvider(marketData);
+  }
 
   /**
    * Gets the number of scenarios.
