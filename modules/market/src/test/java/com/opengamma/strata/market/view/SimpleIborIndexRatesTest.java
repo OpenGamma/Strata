@@ -24,9 +24,7 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
@@ -85,7 +83,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_withFixings() {
@@ -95,22 +92,9 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    Perturbation<Curve> perturbation = curve -> CURVE2;
-    SimpleIborIndexRates base = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
-    SimpleIborIndexRates test = base.applyPerturbation(perturbation);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getCurve(), CURVE2);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
-  }
-
   public void test_withDiscountFactors() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
     test = test.withCurve(CURVE2);
@@ -119,7 +103,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE2);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------

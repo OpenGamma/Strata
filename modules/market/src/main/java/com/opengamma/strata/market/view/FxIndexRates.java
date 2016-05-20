@@ -84,7 +84,7 @@ public interface FxIndexRates
   /**
    * Calculates the point sensitivity of the historic or forward rate at the specified fixing date.
    * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * This returns a sensitivity instance referring to the points that were queried in the market data.
    * If a time-series was used, then there is no sensitivity.
    * The sensitivity refers to the result of {@link #rate(FxIndexObservation, Currency)}.
    * 
@@ -97,9 +97,9 @@ public interface FxIndexRates
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * This is used to convert a single point sensitivity to parameter sensitivity.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity

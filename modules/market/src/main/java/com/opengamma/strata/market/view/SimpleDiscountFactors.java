@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -119,11 +118,6 @@ public final class SimpleDiscountFactors
   @Override
   public CurveName getCurveName() {
     return curve.getName();
-  }
-
-  @Override
-  public int getParameterCount() {
-    return curve.getParameterCount();
   }
 
   //-------------------------------------------------------------------------
@@ -224,11 +218,6 @@ public final class SimpleDiscountFactors
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public SimpleDiscountFactors applyPerturbation(Perturbation<Curve> perturbation) {
-    return withCurve(curve.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with a different curve.
    * 

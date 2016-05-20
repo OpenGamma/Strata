@@ -30,8 +30,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
@@ -116,11 +114,6 @@ public final class DiscountIborIndexRates
     return discountFactors.getCurveName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return discountFactors.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double rate(IborIndexObservation observation) {
@@ -197,11 +190,6 @@ public final class DiscountIborIndexRates
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public DiscountIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withDiscountFactors(discountFactors.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with different discount factors.
    * 

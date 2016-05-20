@@ -31,8 +31,6 @@ import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
@@ -115,11 +113,6 @@ public final class DiscountOvernightIndexRates
   @Override
   public CurveName getCurveName() {
     return discountFactors.getCurveName();
-  }
-
-  @Override
-  public int getParameterCount() {
-    return discountFactors.getParameterCount();
   }
 
   //-------------------------------------------------------------------------
@@ -224,11 +217,6 @@ public final class DiscountOvernightIndexRates
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public DiscountOvernightIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withDiscountFactors(discountFactors.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with different discount factors.
    * 

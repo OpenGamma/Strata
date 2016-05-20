@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
@@ -153,11 +152,6 @@ public final class SimpleIborIndexRates
     return curve.getName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return curve.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double rate(IborIndexObservation observation) {
@@ -216,11 +210,6 @@ public final class SimpleIborIndexRates
     CurveCurrencyParameterSensitivity sensitivity =
         unitSensitivity.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
     return CurveCurrencyParameterSensitivities.of(sensitivity);
-  }
-
-  @Override
-  public SimpleIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withCurve(curve.applyPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------

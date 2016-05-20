@@ -49,7 +49,6 @@ public class IssuerCurveDiscountFactorsTest {
     assertEquals(test.getLegalEntityGroup(), GROUP);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
     assertEquals(test.getValuationDate(), DATE);
     assertEquals(test.discountFactor(DATE_AFTER), DSC_FACTORS.discountFactor(DATE_AFTER));
   }
