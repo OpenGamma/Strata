@@ -86,7 +86,7 @@ public final class CalculationTasks implements ImmutableBean {
     // this is done once as it is the same for all targets
     List<Column> effectiveColumns =
         columns.stream()
-            .map(column -> column.combineWithDefaults(rules.getParameters()))
+            .map(column -> column.combineWithDefaults(rules.getReportingCurrency(), rules.getParameters()))
             .collect(toImmutableList());
 
     // loop around the targets, then the columns, to build the tasks
@@ -119,9 +119,10 @@ public final class CalculationTasks implements ImmutableBean {
       Column column = columns.get(colIndex);
       Measure measure = column.getMeasure();
 
-      CalculationTaskCell cell = CalculationTaskCell.of(rowIndex, colIndex, measure, column.getReportingCurrency());
+      ReportingCurrency reportingCurrency = column.getReportingCurrency().orElse(ReportingCurrency.NATURAL);
+      CalculationTaskCell cell = CalculationTaskCell.of(rowIndex, colIndex, measure, reportingCurrency);
       // group to find cells that can be shared, with same mappings and params (minus reporting currency)
-      CalculationParameters params = column.getParameters().filter(target, measure).without(ReportingCurrency.class);
+      CalculationParameters params = column.getParameters().filter(target, measure);
       grouped.put(params, cell);
     }
 

@@ -8,7 +8,6 @@ package com.opengamma.strata.calc;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,7 +27,6 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.runner.CalculationFunction;
-import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -44,7 +42,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(builderScope = "private")
 public final class ReportingCurrency
-    implements CalculationParameter, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable {
 
   /**
    * An instance requesting the "natural" currency of the target.
@@ -123,17 +121,6 @@ public final class ReportingCurrency
       throw new IllegalStateException(Messages.format("No currency available for type '{}'", type));
     }
     return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  @Override
-  public Class<ReportingCurrency> queryType() {
-    return ReportingCurrency.class;
-  }
-
-  @Override
-  public Optional<CalculationParameter> filter(CalculationTarget target, Measure measure) {
-    return measure.isCurrencyConvertible() ? Optional.of(this) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------

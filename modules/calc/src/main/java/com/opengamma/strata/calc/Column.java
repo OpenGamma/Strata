@@ -7,6 +7,7 @@ package com.opengamma.strata.calc;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -55,13 +56,22 @@ public final class Column implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Measure measure;
   /**
+   * The reporting currency, used to control currency conversion, optional.
+   * <p>
+   * This is used to specify the currency that the result should be reporting in.
+   * If the result is not associated with a currency, such as for "par rate", then the
+   * reporting currency will effectively be ignored.
+   * <p>
+   * If empty, the reporting currency from {@link CalculationRules} will be used. 
+   */
+  @PropertyDefinition(get = "optional")
+  private final ReportingCurrency reportingCurrency;
+  /**
    * The calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
    * If a parameter is defined here and in the rules with the same
    * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
-   * <p>
-   * There are many possible parameter implementations, for example {@link ReportingCurrency}.
    * <p>
    * When building, these will default to be empty.
    */
@@ -74,20 +84,20 @@ public final class Column implements ImmutableBean {
    * <p>
    * The column name will be the same as the name of the measure.
    * No calculation parameters are provided, thus the parameters from {@link CalculationRules} will be used.
+   * Currency conversion is controlled by the reporting currency in {@code CalculationRules}.
    *
    * @param measure  the measure to be calculated
    * @return a column with the specified measure
    */
   public static Column of(Measure measure) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, CalculationParameters.empty());
+    return new Column(name, measure, null, CalculationParameters.empty());
   }
 
   /**
    * Obtains an instance that will calculate the specified measure, converting to the specified currency.
    * <p>
    * The column name will be the same as the name of the measure.
-   * The specified currency will be wrapped in {@link ReportingCurrency} and added to the calculation parameters.
    *
    * @param measure  the measure to be calculated
    * @param currency  the currency to convert to
@@ -95,7 +105,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, Currency currency) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, CalculationParameters.of(ReportingCurrency.of(currency)));
+    return new Column(name, measure, ReportingCurrency.of(currency), CalculationParameters.empty());
   }
 
   /**
@@ -104,6 +114,7 @@ public final class Column implements ImmutableBean {
    * The column name will be the same as the name of the measure.
    * The specified calculation parameters take precedence over those in {@link CalculationRules},
    * with the combined set being used for the column.
+   * Currency conversion is controlled by the reporting currency in {@code CalculationRules}.
    *
    * @param measure  the measure to be calculated
    * @param parameters  the parameters that control the calculation, may be empty
@@ -111,13 +122,32 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, CalculationParameter... parameters) {
     ColumnName name = ColumnName.of(measure.toString());
-    return new Column(name, measure, CalculationParameters.of(parameters));
+    return new Column(name, measure, null, CalculationParameters.of(parameters));
+  }
+
+  /**
+   * Obtains an instance that will calculate the specified measure, converting to the specified currency,
+   * defining additional parameters.
+   * <p>
+   * The column name will be the same as the name of the measure.
+   * The specified calculation parameters take precedence over those in {@link CalculationRules},
+   * with the combined set being used for the column.
+   *
+   * @param measure  the measure to be calculated
+   * @param currency  the currency to convert to
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return a column with the specified measure and reporting currency
+   */
+  public static Column of(Measure measure, Currency currency, CalculationParameter... parameters) {
+    ColumnName name = ColumnName.of(measure.toString());
+    return new Column(name, measure, ReportingCurrency.of(currency), CalculationParameters.of(parameters));
   }
 
   /**
    * Obtains an instance that will calculate the specified measure, defining the column name.
    * <p>
    * No calculation parameters are provided, thus the parameters from {@link CalculationRules} will be used.
+   * Currency conversion is controlled by the reporting currency in {@code CalculationRules}.
    *
    * @param measure  the measure to be calculated
    * @param columnName  the column name
@@ -125,7 +155,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, String columnName) {
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, CalculationParameters.empty());
+    return new Column(name, measure, null, CalculationParameters.empty());
   }
 
   /**
@@ -140,7 +170,7 @@ public final class Column implements ImmutableBean {
    */
   public static Column of(Measure measure, String columnName, Currency currency) {
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, CalculationParameters.of(ReportingCurrency.of(currency)));
+    return new Column(name, measure, ReportingCurrency.of(currency), CalculationParameters.empty());
   }
 
   /**
@@ -148,6 +178,7 @@ public final class Column implements ImmutableBean {
    * <p>
    * The specified calculation parameters take precedence over those in {@link CalculationRules},
    * with the combined set being used for the column.
+   * Currency conversion is controlled by the reporting currency in {@code CalculationRules}.
    *
    * @param measure  the measure to be calculated
    * @param columnName  the column name
@@ -160,7 +191,30 @@ public final class Column implements ImmutableBean {
       CalculationParameter... parameters) {
 
     ColumnName name = ColumnName.of(columnName);
-    return new Column(name, measure, CalculationParameters.of(parameters));
+    return new Column(name, measure, null, CalculationParameters.of(parameters));
+  }
+
+  /**
+   * Obtains an instance that will calculate the specified measure, converting to the specified currency,
+   * defining the column name and parameters.
+   * <p>
+   * The specified calculation parameters take precedence over those in {@link CalculationRules},
+   * with the combined set being used for the column.
+   *
+   * @param measure  the measure to be calculated
+   * @param columnName  the column name
+   * @param currency  the currency to convert to
+   * @param parameters  the parameters that control the calculation, may be empty
+   * @return a column with the specified measure, column name and reporting currency
+   */
+  public static Column of(
+      Measure measure,
+      String columnName,
+      Currency currency,
+      CalculationParameter... parameters) {
+
+    ColumnName name = ColumnName.of(columnName);
+    return new Column(name, measure, ReportingCurrency.of(currency), CalculationParameters.of(parameters));
   }
 
   @ImmutableDefaults
@@ -177,23 +231,15 @@ public final class Column implements ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Combines the parameters with another set of parameters.
+   * Combines the parameters with another reporting currency and set of parameters.
    * 
+   * @param reportingCurrency  the default reporting currency
    * @param defaultParameters  the default parameters
    * @return the combined column
    */
-  public Column combineWithDefaults(CalculationParameters defaultParameters) {
+  public Column combineWithDefaults(ReportingCurrency reportingCurrency, CalculationParameters defaultParameters) {
     CalculationParameters combinedParams = parameters.combinedWith(defaultParameters);
-    return new Column(name, measure, combinedParams);
-  }
-
-  /**
-   * Gets the reporting currency, defaulting to "natural" if not specified.
-   * 
-   * @return the reporting currency
-   */
-  public ReportingCurrency getReportingCurrency() {
-    return parameters.findParameter(ReportingCurrency.class).orElse(ReportingCurrency.NATURAL);
+    return new Column(name, measure, getReportingCurrency().orElse(reportingCurrency), combinedParams);
   }
 
   /**
@@ -205,7 +251,7 @@ public final class Column implements ImmutableBean {
    */
   public ColumnHeader toHeader() {
     if (measure.isCurrencyConvertible()) {
-      ReportingCurrency reportingCurrency = getReportingCurrency();
+      ReportingCurrency reportingCurrency = getReportingCurrency().orElse(ReportingCurrency.NATURAL);
       if (reportingCurrency.isSpecific()) {
         return ColumnHeader.of(name, measure, reportingCurrency.getCurrency());
       }
@@ -238,11 +284,13 @@ public final class Column implements ImmutableBean {
   private Column(
       ColumnName name,
       Measure measure,
+      ReportingCurrency reportingCurrency,
       CalculationParameters parameters) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(measure, "measure");
     this.name = name;
     this.measure = measure;
+    this.reportingCurrency = reportingCurrency;
     this.parameters = parameters;
   }
 
@@ -285,13 +333,26 @@ public final class Column implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the reporting currency, used to control currency conversion, optional.
+   * <p>
+   * This is used to specify the currency that the result should be reporting in.
+   * If the result is not associated with a currency, such as for "par rate", then the
+   * reporting currency will effectively be ignored.
+   * <p>
+   * If empty, the reporting currency from {@link CalculationRules} will be used.
+   * @return the optional value of the property, not null
+   */
+  public Optional<ReportingCurrency> getReportingCurrency() {
+    return Optional.ofNullable(reportingCurrency);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the calculation parameters that apply to this column, used to control the how the calculation is performed.
    * <p>
    * The parameters from {@link CalculationRules} and {@code Column} are combined.
    * If a parameter is defined here and in the rules with the same
    * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
-   * <p>
-   * There are many possible parameter implementations, for example {@link ReportingCurrency}.
    * <p>
    * When building, these will default to be empty.
    * @return the value of the property
@@ -318,6 +379,7 @@ public final class Column implements ImmutableBean {
       Column other = (Column) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(measure, other.measure) &&
+          JodaBeanUtils.equal(reportingCurrency, other.reportingCurrency) &&
           JodaBeanUtils.equal(parameters, other.parameters);
     }
     return false;
@@ -328,16 +390,18 @@ public final class Column implements ImmutableBean {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(measure);
+    hash = hash * 31 + JodaBeanUtils.hashCode(reportingCurrency);
     hash = hash * 31 + JodaBeanUtils.hashCode(parameters);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("Column{");
     buf.append("name").append('=').append(name).append(',').append(' ');
     buf.append("measure").append('=').append(measure).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
@@ -364,6 +428,11 @@ public final class Column implements ImmutableBean {
     private final MetaProperty<Measure> measure = DirectMetaProperty.ofImmutable(
         this, "measure", Column.class, Measure.class);
     /**
+     * The meta-property for the {@code reportingCurrency} property.
+     */
+    private final MetaProperty<ReportingCurrency> reportingCurrency = DirectMetaProperty.ofImmutable(
+        this, "reportingCurrency", Column.class, ReportingCurrency.class);
+    /**
      * The meta-property for the {@code parameters} property.
      */
     private final MetaProperty<CalculationParameters> parameters = DirectMetaProperty.ofImmutable(
@@ -375,6 +444,7 @@ public final class Column implements ImmutableBean {
         this, null,
         "name",
         "measure",
+        "reportingCurrency",
         "parameters");
 
     /**
@@ -390,6 +460,8 @@ public final class Column implements ImmutableBean {
           return name;
         case 938321246:  // measure
           return measure;
+        case -1287844769:  // reportingCurrency
+          return reportingCurrency;
         case 458736106:  // parameters
           return parameters;
       }
@@ -429,6 +501,14 @@ public final class Column implements ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code reportingCurrency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ReportingCurrency> reportingCurrency() {
+      return reportingCurrency;
+    }
+
+    /**
      * The meta-property for the {@code parameters} property.
      * @return the meta-property, not null
      */
@@ -444,6 +524,8 @@ public final class Column implements ImmutableBean {
           return ((Column) bean).getName();
         case 938321246:  // measure
           return ((Column) bean).getMeasure();
+        case -1287844769:  // reportingCurrency
+          return ((Column) bean).reportingCurrency;
         case 458736106:  // parameters
           return ((Column) bean).getParameters();
       }
@@ -469,6 +551,7 @@ public final class Column implements ImmutableBean {
 
     private ColumnName name;
     private Measure measure;
+    private ReportingCurrency reportingCurrency;
     private CalculationParameters parameters;
 
     /**
@@ -485,6 +568,7 @@ public final class Column implements ImmutableBean {
     private Builder(Column beanToCopy) {
       this.name = beanToCopy.getName();
       this.measure = beanToCopy.getMeasure();
+      this.reportingCurrency = beanToCopy.reportingCurrency;
       this.parameters = beanToCopy.getParameters();
     }
 
@@ -496,6 +580,8 @@ public final class Column implements ImmutableBean {
           return name;
         case 938321246:  // measure
           return measure;
+        case -1287844769:  // reportingCurrency
+          return reportingCurrency;
         case 458736106:  // parameters
           return parameters;
         default:
@@ -511,6 +597,9 @@ public final class Column implements ImmutableBean {
           break;
         case 938321246:  // measure
           this.measure = (Measure) newValue;
+          break;
+        case -1287844769:  // reportingCurrency
+          this.reportingCurrency = (ReportingCurrency) newValue;
           break;
         case 458736106:  // parameters
           this.parameters = (CalculationParameters) newValue;
@@ -551,6 +640,7 @@ public final class Column implements ImmutableBean {
       return new Column(
           name,
           measure,
+          reportingCurrency,
           parameters);
     }
 
@@ -582,13 +672,27 @@ public final class Column implements ImmutableBean {
     }
 
     /**
+     * Sets the reporting currency, used to control currency conversion, optional.
+     * <p>
+     * This is used to specify the currency that the result should be reporting in.
+     * If the result is not associated with a currency, such as for "par rate", then the
+     * reporting currency will effectively be ignored.
+     * <p>
+     * If empty, the reporting currency from {@link CalculationRules} will be used.
+     * @param reportingCurrency  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder reportingCurrency(ReportingCurrency reportingCurrency) {
+      this.reportingCurrency = reportingCurrency;
+      return this;
+    }
+
+    /**
      * Sets the calculation parameters that apply to this column, used to control the how the calculation is performed.
      * <p>
      * The parameters from {@link CalculationRules} and {@code Column} are combined.
      * If a parameter is defined here and in the rules with the same
      * {@linkplain CalculationParameter#queryType() query type}, then the column parameter takes precedence.
-     * <p>
-     * There are many possible parameter implementations, for example {@link ReportingCurrency}.
      * <p>
      * When building, these will default to be empty.
      * @param parameters  the new value
@@ -602,10 +706,11 @@ public final class Column implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("Column.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
+      buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
       buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
       buf.append('}');
       return buf.toString();
