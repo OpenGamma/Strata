@@ -101,10 +101,10 @@ final class StandardFixedOvernightSwapConventions {
    * JPY fixed vs TONAR OIS swap for terms greater than one year.
    * <p>
    * Both legs pay annually and use day count 'Act/365F'.
-   * The spot date offset is 2 days and there is no payment date offset.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
    */
   public static final FixedOvernightSwapConvention JPY_FIXED_1Y_TONAR_OIS =
-      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 0, 2);
+      makeConvention("JPY-FIXED-1Y-TONAR-OIS", JPY_TONAR, ACT_365F, P12M, 2, 2);
 
   //-------------------------------------------------------------------------
   // build conventions
