@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.runner;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertNotNull;
@@ -17,14 +18,12 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
@@ -41,14 +40,13 @@ public class CalculationTasksTest {
   private static final TestTarget TARGET1 = new TestTarget();
   private static final TestTarget TARGET2 = new TestTarget();
   private static final CalculationFunctions CALC_FUNCTIONS = CalculationFunctions.empty();
-  private static final ReportingCurrency REPORTING_CURRENCY = ReportingCurrency.of(Currency.USD);
 
   //-------------------------------------------------------------------------
   public void test_of() {
     CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, new TestFunction()));
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET2);
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE), Column.of(Measures.PAR_RATE));
-    CalculationRules calculationRules = CalculationRules.of(functions, REPORTING_CURRENCY);
+    CalculationRules calculationRules = CalculationRules.of(functions, USD);
 
     CalculationTasks test = CalculationTasks.of(calculationRules, targets, columns);
     assertThat(test.getTargets()).hasSize(2);
@@ -81,7 +79,7 @@ public class CalculationTasksTest {
   //-------------------------------------------------------------------------
   public void test_requirements() {
     CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, new TestFunction()));
-    CalculationRules calculationRules = CalculationRules.of(functions, REPORTING_CURRENCY);
+    CalculationRules calculationRules = CalculationRules.of(functions, USD);
     List<TestTarget> targets = ImmutableList.of(TARGET1);
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
 
@@ -111,7 +109,7 @@ public class CalculationTasksTest {
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.PRESENT_VALUE));
-    CalculationRules rules = CalculationRules.of(CALC_FUNCTIONS, REPORTING_CURRENCY);
+    CalculationRules rules = CalculationRules.of(CALC_FUNCTIONS, USD);
     CalculationTasks task = CalculationTasks.of(rules, targets, columns);
     assertThat(task.toString()).isEqualTo("CalculationTasks[grid=2x3]");
   }
