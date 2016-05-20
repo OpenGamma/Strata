@@ -32,12 +32,12 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.option.DeltaStrike;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionNodeMetadata;
+import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
@@ -122,7 +122,7 @@ final class BlackVolatilitySmileFxProvider
     double[] times = smile.getTimeToExpiry().toArray();
     int nTimes = times.length;
     List<Double> sensiList = new ArrayList<Double>();
-    List<SurfaceParameterMetadata> paramList = new ArrayList<SurfaceParameterMetadata>();
+    List<ParameterMetadata> paramList = new ArrayList<ParameterMetadata>();
     for (int i = 0; i < nTimes; ++i) {
       DoubleArray deltas = smile.getVolatilityTerm().get(i).getDelta();
       int nDeltas = deltas.size();
@@ -135,7 +135,7 @@ final class BlackVolatilitySmileFxProvider
       for (int j = 0; j < nDeltasTotal; ++j) {
         sensiList.add(bucketedSensi.get(i, j) * pointValue);
         DeltaStrike absoluteDelta = DeltaStrike.of(deltasTotal[j]);
-        SurfaceParameterMetadata parameterMetadata = FxVolatilitySurfaceYearFractionNodeMetadata.of(
+        ParameterMetadata parameterMetadata = FxVolatilitySurfaceYearFractionParameterMetadata.of(
             times[i], absoluteDelta, currencyPair);
         paramList.add(parameterMetadata);
       }

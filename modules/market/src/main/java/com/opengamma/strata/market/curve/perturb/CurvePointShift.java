@@ -31,8 +31,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * A perturbation that applies different shifts to specific points on a curve.
@@ -48,7 +48,7 @@ import com.opengamma.strata.market.curve.NodalCurve;
  * This shift can only be applied to an instance of {@link NodalCurve} which contains parameter metadata.
  * The {@link #applyTo(Curve)} method will throw an exception for any other curves.
  *
- * @see CurveParameterMetadata#getIdentifier()
+ * @see ParameterMetadata#getIdentifier()
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class CurvePointShift
@@ -64,8 +64,8 @@ public final class CurvePointShift
   private final ShiftType shiftType;
   /**
    * The shift to apply to the rates.
-   * The key is typically the node {@linkplain CurveParameterMetadata#getIdentifier() identifier}.
-   * The key may also be the node {@linkplain CurveParameterMetadata#getLabel() label}.
+   * The key is typically the node {@linkplain ParameterMetadata#getIdentifier() identifier}.
+   * The key may also be the node {@linkplain ParameterMetadata#getLabel() label}.
    */
   @PropertyDefinition(validate = "notNull", builderType = "Map<?, Double>")
   private final ImmutableMap<Object, Double> shifts;
@@ -86,13 +86,13 @@ public final class CurvePointShift
   public Curve applyTo(Curve curve) {
     log.debug("Applying {} point shift to curve '{}'", shiftType, curve.getName());
     // curve parameter metadata is required, otherwise there is no way to find the nodes and apply the shifts
-    List<CurveParameterMetadata> nodeMetadata = curve.getMetadata().getParameterMetadata()
+    List<ParameterMetadata> nodeMetadata = curve.getMetadata().getParameterMetadata()
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
             "Unable to apply point shifts to curve '{}' because it has no parameter metadata", curve.getName())));
     NodalCurve nodalCurve = curve.toNodalCurve();
     DoubleArray yValues = nodalCurve.getYValues();
     DoubleArray shifted = yValues.mapWithIndex((i, v) -> {
-      CurveParameterMetadata meta = nodeMetadata.get(i);
+      ParameterMetadata meta = nodeMetadata.get(i);
       Double shiftAmount = shiftAmountForNode(meta);
       return shiftAmount != null ? shiftType.applyShift(v, shiftAmount) : v;
     });
@@ -100,7 +100,7 @@ public final class CurvePointShift
   }
 
   // find the shift amount applicable for the node, null if none
-  private Double shiftAmountForNode(CurveParameterMetadata meta) {
+  private Double shiftAmountForNode(ParameterMetadata meta) {
     Double shiftAmount = shifts.get(meta.getIdentifier());
     return shiftAmount != null ? shiftAmount : shifts.get(meta.getLabel());
   }
@@ -160,8 +160,8 @@ public final class CurvePointShift
   //-----------------------------------------------------------------------
   /**
    * Gets the shift to apply to the rates.
-   * The key is typically the node {@linkplain CurveParameterMetadata#getIdentifier() identifier}.
-   * The key may also be the node {@linkplain CurveParameterMetadata#getLabel() label}.
+   * The key is typically the node {@linkplain ParameterMetadata#getIdentifier() identifier}.
+   * The key may also be the node {@linkplain ParameterMetadata#getLabel() label}.
    * @return the value of the property, not null
    */
   public ImmutableMap<Object, Double> getShifts() {

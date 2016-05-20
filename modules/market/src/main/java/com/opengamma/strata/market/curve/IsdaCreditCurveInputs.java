@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
@@ -30,7 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
@@ -81,9 +81,9 @@ public final class IsdaCreditCurveInputs
    * @return curve metadata
    */
   public CurveMetadata getCurveMetaData() {
-    List<CurveParameterMetadata> parameters = Lists.newArrayList();
+    List<ParameterMetadata> parameters = Lists.newArrayList();
     for (int i = 0; i < creditCurvePoints.length; i++) {
-      TenorDateCurveNodeMetadata pointData = TenorDateCurveNodeMetadata.of(endDatePoints[i], Tenor.of(creditCurvePoints[i]));
+      TenorDateParameterMetadata pointData = TenorDateParameterMetadata.of(endDatePoints[i], Tenor.of(creditCurvePoints[i]));
       parameters.add(pointData);
     }
     return DefaultCurveMetadata.builder()

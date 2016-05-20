@@ -22,12 +22,12 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
@@ -203,7 +203,7 @@ public class SabrSwaptionCalibrator {
     DoubleArray alphaArray = DoubleArray.EMPTY;
     DoubleArray rhoArray = DoubleArray.EMPTY;
     DoubleArray nuArray = DoubleArray.EMPTY;
-    List<SurfaceParameterMetadata> parameterMetadata = new ArrayList<>();
+    List<ParameterMetadata> parameterMetadata = new ArrayList<>();
     for (int looptenor = 0; looptenor < nbTenors; looptenor++) {
       double timeTenor = tenors.get(looptenor).getPeriod().getYears() + tenors.get(looptenor).getPeriod().getMonths() / 12;
       List<Period> expiries = data.get(looptenor).getExpiries();
@@ -240,7 +240,7 @@ public class SabrSwaptionCalibrator {
           alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha()});
           rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
           nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
-          parameterMetadata.add(SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor,
+          parameterMetadata.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(timeToExpiry, timeTenor,
               expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
         }
       }

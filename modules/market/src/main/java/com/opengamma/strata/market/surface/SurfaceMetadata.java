@@ -11,6 +11,7 @@ import java.util.Optional;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Metadata about a surface and surface parameters.
@@ -94,7 +95,7 @@ public interface SurfaceMetadata {
    * 
    * @return the parameter metadata
    */
-  public abstract Optional<List<SurfaceParameterMetadata>> getParameterMetadata();
+  public abstract Optional<List<ParameterMetadata>> getParameterMetadata();
 
   //-------------------------------------------------------------------------
   /**
@@ -119,6 +120,6 @@ public interface SurfaceMetadata {
    * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new surface metadata
    */
-  public abstract SurfaceMetadata withParameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata);
+  public abstract SurfaceMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata);
 
 }

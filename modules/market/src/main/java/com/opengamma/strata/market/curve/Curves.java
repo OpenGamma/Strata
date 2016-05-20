@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Helper for creating common types of curves.
@@ -74,7 +75,7 @@ public final class Curves {
   public static CurveMetadata zeroRates(
       CurveName name,
       DayCount dayCount,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
+      List<? extends ParameterMetadata> parameterMetadata) {
 
     ArgChecker.notNull(name, "name");
     ArgChecker.notNull(dayCount, "dayCount");
@@ -83,7 +84,7 @@ public final class Curves {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .dayCount(dayCount)
-        .parameterMetadata((List<CurveParameterMetadata>) parameterMetadata)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
         .build();
   }
 
@@ -138,7 +139,7 @@ public final class Curves {
   public static CurveMetadata discountFactors(
       CurveName name,
       DayCount dayCount,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
+      List<? extends ParameterMetadata> parameterMetadata) {
 
     ArgChecker.notNull(name, "name");
     ArgChecker.notNull(dayCount, "dayCount");
@@ -147,7 +148,7 @@ public final class Curves {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(dayCount)
-        .parameterMetadata((List<CurveParameterMetadata>) parameterMetadata)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
         .build();
   }
 
@@ -191,13 +192,13 @@ public final class Curves {
    * @return the curve metadata
    */
   @SuppressWarnings("unchecked")
-  public static CurveMetadata prices(CurveName name, List<? extends CurveParameterMetadata> parameterMetadata) {
+  public static CurveMetadata prices(CurveName name, List<? extends ParameterMetadata> parameterMetadata) {
     ArgChecker.notNull(name, "name");
     return DefaultCurveMetadata.builder()
         .curveName(name)
         .xValueType(ValueType.MONTHS)
         .yValueType(ValueType.PRICE_INDEX)
-        .parameterMetadata((List<CurveParameterMetadata>) parameterMetadata)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
         .build();
   }
 
@@ -214,7 +215,7 @@ public final class Curves {
   @SuppressWarnings("unchecked")
   public static CurveMetadata isdaCredit(
       CurveName name,
-      List<? extends CurveParameterMetadata> parameterMetadata) {
+      List<? extends ParameterMetadata> parameterMetadata) {
 
     ArgChecker.notNull(name, "name");
     return DefaultCurveMetadata.builder()
@@ -222,7 +223,7 @@ public final class Curves {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ISDA_CREDIT)
         .dayCount(DayCounts.ACT_365F)
-        .parameterMetadata((List<CurveParameterMetadata>) parameterMetadata)
+        .parameterMetadata((List<ParameterMetadata>) parameterMetadata)
         .build();
   }
 

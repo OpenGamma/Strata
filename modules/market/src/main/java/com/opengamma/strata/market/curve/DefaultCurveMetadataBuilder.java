@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Builder for curve metadata.
@@ -55,7 +56,7 @@ public final class DefaultCurveMetadataBuilder {
    * <p>
    * If present, the parameter metadata will match the number of parameters on the curve.
    */
-  private List<CurveParameterMetadata> parameterMetadata;
+  private List<ParameterMetadata> parameterMetadata;
 
   /**
    * Restricted constructor.
@@ -199,7 +200,7 @@ public final class DefaultCurveMetadataBuilder {
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder parameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata) {
+  public DefaultCurveMetadataBuilder parameterMetadata(List<? extends ParameterMetadata> parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }
@@ -213,7 +214,7 @@ public final class DefaultCurveMetadataBuilder {
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultCurveMetadataBuilder parameterMetadata(CurveParameterMetadata... parameterMetadata) {
+  public DefaultCurveMetadataBuilder parameterMetadata(ParameterMetadata... parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }

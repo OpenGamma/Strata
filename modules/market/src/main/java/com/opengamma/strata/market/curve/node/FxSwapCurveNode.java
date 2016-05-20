@@ -37,9 +37,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
@@ -144,15 +144,15 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
-      return SimpleCurveNodeMetadata.of(nodeDate, label);
+      return LabelDateParameterMetadata.of(nodeDate, label);
     }
     Tenor tenor = Tenor.of(template.getPeriodToFar());
-    return TenorDateCurveNodeMetadata.of(nodeDate, tenor, label);
+    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date

@@ -21,11 +21,12 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
@@ -44,9 +45,9 @@ public class InterpolatedNodalCurveTest {
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
   private static final CurveMetadata METADATA = Curves.zeroRates(CURVE_NAME, ACT_365F);
   private static final CurveMetadata METADATA_ENTRIES =
-      Curves.zeroRates(CURVE_NAME, ACT_365F, CurveParameterMetadata.listOfEmpty(SIZE));
+      Curves.zeroRates(CURVE_NAME, ACT_365F, ParameterMetadata.listOfEmpty(SIZE));
   private static final CurveMetadata METADATA_ENTRIES2 =
-      Curves.zeroRates(CURVE_NAME, ACT_365F, CurveParameterMetadata.listOfEmpty(SIZE + 2));
+      Curves.zeroRates(CURVE_NAME, ACT_365F, ParameterMetadata.listOfEmpty(SIZE + 2));
   private static final DoubleArray XVALUES = DoubleArray.of(1d, 2d, 3d);
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d);
   private static final DoubleArray YVALUES = DoubleArray.of(5d, 7d, 8d);
@@ -212,13 +213,13 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withNode_atStart_metadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
-    SimpleCurveNodeMetadata item = SimpleCurveNodeMetadata.of(date(2015, 6, 30), TNR_1Y);
+    LabelDateParameterMetadata item = LabelDateParameterMetadata.of(date(2015, 6, 30), TNR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
     DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
     DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);
-    List<CurveParameterMetadata> list = new ArrayList<>();
+    List<ParameterMetadata> list = new ArrayList<>();
     list.add(item);
-    list.addAll(CurveParameterMetadata.listOfEmpty(SIZE));
+    list.addAll(ParameterMetadata.listOfEmpty(SIZE));
     CurveMetadata expectedMetadata = Curves.zeroRates(CURVE_NAME, ACT_365F, list);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE + 1);
@@ -229,7 +230,7 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withNode_atEnd_metadata_onCurveWithoutMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    SimpleCurveNodeMetadata item = SimpleCurveNodeMetadata.of(date(2015, 6, 30), TNR_1Y);
+    LabelDateParameterMetadata item = LabelDateParameterMetadata.of(date(2015, 6, 30), TNR_1Y);
     InterpolatedNodalCurve test = base.withNode(0, item, 0.5d, 4d);
     DoubleArray x = DoubleArray.of(0.5d, 1d, 2d, 3d);
     DoubleArray y = DoubleArray.of(4d, 5d, 7d, 8d);

@@ -48,7 +48,6 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
@@ -60,6 +59,7 @@ import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -254,10 +254,10 @@ public class CurveGroupMarketDataFunctionTest {
 
     // Check the FRA curve identifiers are the expected tenors
     Curve forwardCurve = curveGroup.getSingleValue().findForwardCurve(IborIndices.USD_LIBOR_3M).get();
-    List<CurveParameterMetadata> forwardMetadata = forwardCurve.getMetadata().getParameterMetadata().get();
+    List<ParameterMetadata> forwardMetadata = forwardCurve.getMetadata().getParameterMetadata().get();
 
     List<Object> forwardTenors = forwardMetadata.stream()
-        .map(CurveParameterMetadata::getIdentifier)
+        .map(ParameterMetadata::getIdentifier)
         .collect(toImmutableList());
 
     List<Tenor> expectedForwardTenors =
@@ -272,7 +272,7 @@ public class CurveGroupMarketDataFunctionTest {
 
     assertThat(forwardTenors).isEqualTo(expectedForwardTenors);
 
-    List<CurveParameterMetadata> expectedForwardMetadata = fraNodes.stream()
+    List<ParameterMetadata> expectedForwardMetadata = fraNodes.stream()
         .map(node -> node.metadata(valuationDate, REF_DATA))
         .collect(toImmutableList());
 

@@ -31,12 +31,12 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
@@ -53,8 +53,8 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -196,7 +196,7 @@ public class HistoricalScenarioExample {
       NodalCurve curve = historicalCurves.get(scenarioIndex);
 
       // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
-      List<CurveParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
+      List<ParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
 
       // build up the shifts to apply to each node
       // these are calculated as the actual change in the zero rate at that node between the two scenario dates

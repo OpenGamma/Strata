@@ -12,7 +12,7 @@ import java.util.function.IntFunction;
 
 import com.google.common.base.Strings;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Formatter for curve currency parameter sensitivity.
@@ -51,7 +51,7 @@ class CurveCurrencyParameterSensitivityValueFormatter
       boolean pad) {
 
     StringBuilder sb = new StringBuilder();
-    Optional<List<CurveParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameterMetadata();
+    Optional<List<ParameterMetadata>> parameterMetadata = sensitivity.getMetadata().getParameterMetadata();
     IntFunction<String> labelProvider = parameterMetadata.isPresent() ?
         i -> parameterMetadata.get().get(i).getLabel() :
         i -> String.valueOf(i + 1);

@@ -13,6 +13,7 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.Trade;
 
@@ -41,7 +42,7 @@ public interface CurveNode {
    * @param refData  the reference data to use to resolve the trade
    * @return metadata for the node
    */
-  public abstract DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData);
+  public abstract DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData);
 
   /**
    * Creates a trade representing the instrument at the node.
