@@ -37,6 +37,20 @@ public interface ScenarioFxRateProvider {
   public abstract int getScenarioCount();
 
   /**
+   * Converts an amount in a currency to an amount in a different currency using a rate from this provider.
+   *
+   * @param amount  an amount in {@code fromCurrency}
+   * @param fromCurrency  the currency of the amount
+   * @param toCurrency  the currency into which the amount should be converted
+   * @param scenarioIndex  the scenario index
+   * @return the amount converted into {@code toCurrency}
+   * @throws IllegalArgumentException if either of the currencies aren't included in the currency pair of this rate
+   */
+  public default double convert(double amount, Currency fromCurrency, Currency toCurrency, int scenarioIndex) {
+    return amount * fxRate(fromCurrency, toCurrency, scenarioIndex);
+  }
+
+  /**
    * Gets the FX rate for the specified currency pair and scenario index.
    * <p>
    * The rate returned is the rate from the base currency to the counter currency
