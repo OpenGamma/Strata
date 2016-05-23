@@ -18,8 +18,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
@@ -144,57 +142,6 @@ public class InterpolatedNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_shiftedBy_operator() {
-    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    InterpolatedNodalCurve test = base.shiftedBy((x, y) -> y - 2d);
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment() {
-    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d), ValueAdjustment.ofDeltaAmount(-2d), ValueAdjustment.ofDeltaAmount(-2d));
-    InterpolatedNodalCurve test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment_longList() {
-    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(2d));
-    InterpolatedNodalCurve test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment_shortList() {
-    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d));
-    DoubleArray bumped = DoubleArray.of(3d, 7d, 8d);
-    InterpolatedNodalCurve test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(bumped);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_withNode_atStart_noMetadata() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     InterpolatedNodalCurve test = base.withNode(0, 0.5d, 4d);
@@ -255,12 +202,6 @@ public class InterpolatedNodalCurveTest {
     ConstantNodalCurve result = ConstantNodalCurve.of(CURVE_NAME, 7d);
     Curve test = base.applyPerturbation(curve -> result);
     assertThat(test).isSameAs(result);
-  }
-
-  public void test_toNodalCurve() {
-    InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    NodalCurve test = base.toNodalCurve();
-    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------

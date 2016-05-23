@@ -7,7 +7,6 @@ package com.opengamma.strata.market.curve;
 
 import java.time.Period;
 
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -108,7 +107,7 @@ public interface Curve extends ParameterizedData {
   public abstract double firstDerivative(double x);
 
   /**
-   * Applies the perturbation to this curve.
+   * Applies a perturbation to this curve.
    * <p>
    * This returns a curve that has been changed by the {@link Perturbation} instance.
    * 
@@ -118,21 +117,6 @@ public interface Curve extends ParameterizedData {
    */
   public default Curve applyPerturbation(Perturbation<Curve> perturbation) {
     return perturbation.applyTo(this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Converts this curve to a nodal curve.
-   * <p>
-   * A nodal curve is based on specific x-y values, typically with interpolation.
-   * See {@link InterpolatedNodalCurve} for more details.
-   * 
-   * @return the equivalent nodal curve
-   * @throws UnsupportedOperationException if the curve cannot be converted
-   */
-  public default NodalCurve toNodalCurve() {
-    throw new UnsupportedOperationException(Messages.format(
-        "Unable to convert curve '{}' to NodalCurve, type was: {}", getName(), getClass().getName()));
   }
 
 }

@@ -21,7 +21,6 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -114,13 +113,6 @@ public class ParallelShiftedCurveTest {
     assertThat(curve.firstDerivative(0.1)).isEqualTo(0.5);
     assertThat(absoluteShiftedCurve.firstDerivative(0.1)).isEqualTo(0.5);
     assertThat(relativeShiftedCurve.firstDerivative(0.1)).isEqualTo(0.5 * 1.2);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_toNodalCurve() {
-    ParallelShiftedCurve base = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1);
-    NodalCurve test = base.toNodalCurve();
-    assertThat(test).isEqualTo(ConstantNodalCurve.of(METADATA, 4));
   }
 
   //-------------------------------------------------------------------------

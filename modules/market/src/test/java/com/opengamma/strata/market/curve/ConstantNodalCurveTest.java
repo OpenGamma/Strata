@@ -13,8 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
@@ -104,38 +102,12 @@ public class ConstantNodalCurveTest {
     assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
-  public void test_shiftedBy_operator() {
-    ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.shiftedBy((x, y) -> y - 2d);
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(1);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues().toArray()).containsExactly(0d);
-    assertThat(test.getYValues().toArray()).containsExactly(4d);
-  }
-
-  public void test_shiftedBy_adjustment() {
-    ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    ConstantNodalCurve test = base.shiftedBy(ImmutableList.of(ValueAdjustment.ofReplace(4d)));
-    assertThat(test.getName()).isEqualTo(CURVE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(1);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues().toArray()).containsExactly(0d);
-    assertThat(test.getYValues().toArray()).containsExactly(4d);
-  }
-
   //-------------------------------------------------------------------------
   public void test_applyPerturbation() {
     ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
     ConstantNodalCurve result = ConstantNodalCurve.of(CURVE_NAME, 7d);
     Curve test = base.applyPerturbation(curve -> result);
     assertThat(test).isSameAs(result);
-  }
-
-  public void test_toNodalCurve() {
-    ConstantNodalCurve base = ConstantNodalCurve.of(CURVE_NAME, VALUE);
-    NodalCurve test = base.toNodalCurve();
-    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -27,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
@@ -225,16 +223,6 @@ public final class InterpolatedNodalCurve
   @Override
   public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
-  }
-
-  @Override
-  public InterpolatedNodalCurve shiftedBy(DoubleBinaryOperator operator) {
-    return (InterpolatedNodalCurve) NodalCurve.super.shiftedBy(operator);
-  }
-
-  @Override
-  public InterpolatedNodalCurve shiftedBy(List<ValueAdjustment> adjustments) {
-    return (InterpolatedNodalCurve) NodalCurve.super.shiftedBy(adjustments);
   }
 
   //-------------------------------------------------------------------------
