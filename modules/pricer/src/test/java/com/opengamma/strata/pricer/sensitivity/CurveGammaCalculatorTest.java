@@ -42,7 +42,6 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -68,7 +67,7 @@ public class CurveGammaCalculatorTest {
 
   // Data, based on RatesProviderDataSets.SINGLE_USD but different valuation date
   private static final LocalDate VAL_DATE_2015_04_27 = LocalDate.of(2015, 4, 27);
-  private static final Curve USD_SINGLE_CURVE = InterpolatedNodalCurve.of(
+  private static final InterpolatedNodalCurve USD_SINGLE_CURVE = InterpolatedNodalCurve.of(
       Curves.zeroRates(RatesProviderDataSets.USD_SINGLE_NAME, ACT_360),
       RatesProviderDataSets.TIMES_1,
       RatesProviderDataSets.RATES_1_1,
@@ -98,9 +97,8 @@ public class CurveGammaCalculatorTest {
   //-------------------------------------------------------------------------
   public void semiParallelGammaValue() {
     ImmutableRatesProvider provider = SINGLE;
-    NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
     Currency curveCurrency = SINGLE_CURRENCY;
-    DoubleArray y = curve.getYValues();
+    DoubleArray y = USD_SINGLE_CURVE.getYValues();
     int nbNode = y.size();
     DoubleArray gammaExpected = DoubleArray.of(nbNode, i -> {
       double[][][] yBumped = new double[2][2][nbNode];
@@ -112,7 +110,7 @@ public class CurveGammaCalculatorTest {
           for (int j = 0; j < nbNode; j++) {
             yBumped[pmi][pmP][j] += (pmP == 0 ? 1.0 : -1.0) * FD_SHIFT;
           }
-          Curve curveBumped = curve.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
+          Curve curveBumped = USD_SINGLE_CURVE.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
               .discountCurves(provider.getDiscountCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
@@ -125,10 +123,10 @@ public class CurveGammaCalculatorTest {
       return (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     });
     CurveCurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
-        curve,
+        USD_SINGLE_CURVE,
         curveCurrency,
         c -> buildSensitivities(c, provider));
-    assertEquals(sensitivityComputed.getMetadata(), curve.getMetadata());
+    assertEquals(sensitivityComputed.getMetadata(), USD_SINGLE_CURVE.getMetadata());
     DoubleArray gammaComputed = sensitivityComputed.getSensitivity();
     assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
   }
@@ -136,7 +134,7 @@ public class CurveGammaCalculatorTest {
   // Checks that different finite difference types and shifts give similar results.
   public void semiParallelGammaCoherency() {
     ImmutableRatesProvider provider = SINGLE;
-    NodalCurve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values()).toNodalCurve();
+    Curve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values());
     Currency curveCurrency = SINGLE_CURRENCY;
     double toleranceCoherency = 1.0E+5;
     CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
@@ -159,7 +157,7 @@ public class CurveGammaCalculatorTest {
   }
 
   //-------------------------------------------------------------------------
-  private static CurveCurrencyParameterSensitivity buildSensitivities(NodalCurve bumpedCurve, ImmutableRatesProvider ratesProvider) {
+  private static CurveCurrencyParameterSensitivity buildSensitivities(Curve bumpedCurve, ImmutableRatesProvider ratesProvider) {
     RatesProvider bumpedRatesProvider = ratesProvider.toBuilder()
         .discountCurves(ratesProvider.getDiscountCurves().keySet().stream()
             .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
