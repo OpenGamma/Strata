@@ -23,8 +23,6 @@ import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -82,7 +80,6 @@ public class DiscountOvernightIndexRatesTest {
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_withFixings() {
@@ -92,23 +89,9 @@ public class DiscountOvernightIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    Perturbation<Curve> perturbation = curve -> CURVE2;
-    DiscountOvernightIndexRates base = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    DiscountOvernightIndexRates test = base.applyPerturbation(perturbation);
-    test = test.withDiscountFactors(DFCURVE2);
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getDiscountFactors(), DFCURVE2);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
-  }
-
   public void test_withDiscountFactors() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
     test = test.withDiscountFactors(DFCURVE2);
@@ -117,7 +100,6 @@ public class DiscountOvernightIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE2);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------

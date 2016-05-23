@@ -196,11 +196,6 @@ public final class SimplePriceIndexValues
     return curve.getName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return curve.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double value(PriceIndexObservation observation) {
@@ -240,7 +235,7 @@ public final class SimplePriceIndexValues
     // no sensitivity if historic month price index present in the time series
     if (fixings.get(month.atEndOfMonth()).isPresent()) {
       return CurveUnitParameterSensitivities.of(
-          CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleArray.filled(getParameterCount())));
+          CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleArray.filled(curve.getParameterCount())));
     }
     double nbMonth = numberOfMonths(month);
     int month0 = month.getMonthValue() - 1;

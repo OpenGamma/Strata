@@ -59,7 +59,6 @@ public class DiscountFactorsTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_zeroRate() {
@@ -68,7 +67,6 @@ public class DiscountFactorsTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_zeroRatePeriodic() {
@@ -77,7 +75,6 @@ public class DiscountFactorsTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_prices() {

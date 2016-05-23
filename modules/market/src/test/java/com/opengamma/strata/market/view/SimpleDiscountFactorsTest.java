@@ -21,12 +21,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -63,7 +61,6 @@ public class SimpleDiscountFactorsTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurve(), CURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_badCurve() {
@@ -214,20 +211,25 @@ public class SimpleDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_unitParameterSensitivity() {
+  public void test_currencyParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_AFTER);
+
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double discountFactor = CURVE.yValue(relativeYearFraction);
-    CurveUnitParameterSensitivities expected = CurveUnitParameterSensitivities.of(
-        CURVE.yValueParameterSensitivity(relativeYearFraction).multipliedBy(-1d / discountFactor / relativeYearFraction));
-    assertEquals(test.unitParameterSensitivity(DATE_AFTER), expected);
+    CurveCurrencyParameterSensitivities expected = CurveCurrencyParameterSensitivities.of(
+        CURVE.yValueParameterSensitivity(relativeYearFraction)
+            .multipliedBy(-1d / discountFactor / relativeYearFraction)
+            .multipliedBy(sens.getCurrency(), sens.getSensitivity()));
+    assertEquals(test.curveParameterSensitivity(sens), expected);
   }
 
   //-------------------------------------------------------------------------
-  public void test_unitParameterSensitivity_val_date() {
+  public void test_currencyParameterSensitivity_val_date() {
     // Discount factor at valuation date is always 0, no sensitivity.
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    assertEquals(test.unitParameterSensitivity(DATE_VAL), CurveUnitParameterSensitivities.empty());
+    ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_VAL);
+    assertEquals(test.curveParameterSensitivity(sens), CurveCurrencyParameterSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
@@ -239,12 +241,6 @@ public class SimpleDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    Perturbation<Curve> perturbation = curve -> CURVE2;
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE).applyPerturbation(perturbation);
-    assertEquals(test.getCurve(), CURVE2);
-  }
-
   public void test_withCurve() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE).withCurve(CURVE2);
     assertEquals(test.getCurve(), CURVE2);

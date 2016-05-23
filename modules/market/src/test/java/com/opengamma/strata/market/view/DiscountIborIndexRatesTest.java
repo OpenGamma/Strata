@@ -24,8 +24,6 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -80,7 +78,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   public void test_of_withFixings() {
@@ -90,23 +87,9 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    Perturbation<Curve> perturbation = curve -> CURVE2;
-    DiscountIborIndexRates base = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
-    DiscountIborIndexRates test = base.applyPerturbation(perturbation);
-    test = test.withDiscountFactors(DFCURVE2);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getDiscountFactors(), DFCURVE2);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
-  }
-
   public void test_withDiscountFactors() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
     test = test.withDiscountFactors(DFCURVE2);
@@ -115,7 +98,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE2);
     assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------

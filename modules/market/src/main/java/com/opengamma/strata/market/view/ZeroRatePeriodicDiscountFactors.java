@@ -29,13 +29,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -133,11 +132,6 @@ public final class ZeroRatePeriodicDiscountFactors
     return curve.getName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return curve.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double discountFactor(LocalDate date) {
@@ -219,27 +213,17 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
-    double relativeYearFraction = relativeYearFraction(date);
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSens) {
+    double relativeYearFraction = relativeYearFraction(pointSens.getDate());
     double rp = curve.yValue(relativeYearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
-    CurveUnitParameterSensitivity drpdp = curve.yValueParameterSensitivity(relativeYearFraction);
-    return CurveUnitParameterSensitivities.of(drpdp.multipliedBy(rpBar));
-  }
-
-  @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSensitivity) {
-    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getDate());
-    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
+    CurveUnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(rpBar);
+    CurveCurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
+    return CurveCurrencyParameterSensitivities.of(curSens);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ZeroRatePeriodicDiscountFactors applyPerturbation(Perturbation<Curve> perturbation) {
-    return withCurve(curve.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with a different curve.
    * 

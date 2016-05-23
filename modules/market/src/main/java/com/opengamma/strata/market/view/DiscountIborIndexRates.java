@@ -30,13 +30,11 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * An Ibor index curve providing rates from discount factors.
@@ -116,11 +114,6 @@ public final class DiscountIborIndexRates
     return discountFactors.getCurveName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return discountFactors.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double rate(IborIndexObservation observation) {
@@ -186,22 +179,14 @@ public final class DiscountIborIndexRates
     double dfForwardEnd = discountFactors.discountFactor(fixingEndDate);
     double dfStartBar = forwardBar / (accrualFactor * dfForwardEnd);
     double dfEndBar = -forwardBar * dfForwardStart / (accrualFactor * dfForwardEnd * dfForwardEnd);
-    double zrStartBar = discountFactors.zeroRatePointSensitivity(fixingStartDate).getSensitivity() * dfStartBar;
-    double zrEndBar = discountFactors.zeroRatePointSensitivity(fixingEndDate).getSensitivity() * dfEndBar;
-    CurveUnitParameterSensitivities dzrdpStart = discountFactors.unitParameterSensitivity(fixingStartDate);
-    CurveUnitParameterSensitivities dzrdpEnd = discountFactors.unitParameterSensitivity(fixingEndDate);
-    // combine unit and point sensitivities at start and end
-    CurveCurrencyParameterSensitivities sensStart = dzrdpStart.multipliedBy(pointSensitivity.getCurrency(), zrStartBar);
-    CurveCurrencyParameterSensitivities sensEnd = dzrdpEnd.multipliedBy(pointSensitivity.getCurrency(), zrEndBar);
-    return sensStart.combinedWith(sensEnd);
+    ZeroRateSensitivity zrsStart = discountFactors.zeroRatePointSensitivity(fixingStartDate, pointSensitivity.getCurrency());
+    ZeroRateSensitivity zrsEnd = discountFactors.zeroRatePointSensitivity(fixingEndDate, pointSensitivity.getCurrency());
+    CurveCurrencyParameterSensitivities psStart = discountFactors.curveParameterSensitivity(zrsStart).multipliedBy(dfStartBar);
+    CurveCurrencyParameterSensitivities psEnd = discountFactors.curveParameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
+    return psStart.combinedWith(psEnd);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public DiscountIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withDiscountFactors(discountFactors.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with different discount factors.
    * 

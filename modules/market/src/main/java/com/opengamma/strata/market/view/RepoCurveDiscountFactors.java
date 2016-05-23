@@ -102,17 +102,6 @@ public final class RepoCurveDiscountFactors
     return discountFactors.getCurveName();
   }
 
-  /**
-   * Gets the number of parameters defining the curve.
-   * <p>
-   * If the curve has no parameters, zero must be returned.
-   * 
-   * @return the number of parameters
-   */
-  public int getParameterCount() {
-    return discountFactors.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the discount factor.

@@ -28,13 +28,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -121,11 +121,6 @@ public final class SimpleDiscountFactors
     return curve.getName();
   }
 
-  @Override
-  public int getParameterCount() {
-    return curve.getParameterCount();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double discountFactor(LocalDate date) {
@@ -207,28 +202,21 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveUnitParameterSensitivities unitParameterSensitivity(LocalDate date) {
+  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSens) {
+    LocalDate date = pointSens.getDate();
     if (date.equals(valuationDate)) {
-      return CurveUnitParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
+      return CurveCurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
     }
     double relativeYearFraction = relativeYearFraction(date);
     double discountFactor = discountFactor(relativeYearFraction);
-    return CurveUnitParameterSensitivities.of(curve.yValueParameterSensitivity(relativeYearFraction)
-        .multipliedBy(-1d / (relativeYearFraction * discountFactor)));
-  }
-
-  @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSensitivity) {
-    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getDate());
-    return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
+    CurveUnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction);
+    CurveCurrencyParameterSensitivity curSens = unitSens
+        .multipliedBy(-1d / (relativeYearFraction * discountFactor))
+        .multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
+    return CurveCurrencyParameterSensitivities.of(curSens);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public SimpleDiscountFactors applyPerturbation(Perturbation<Curve> perturbation) {
-    return withCurve(curve.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with a different curve.
    * 
