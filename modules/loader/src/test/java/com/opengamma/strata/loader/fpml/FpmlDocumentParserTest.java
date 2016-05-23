@@ -41,7 +41,10 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +56,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteSource;
+import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -112,6 +116,9 @@ import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.StubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swaption.PhysicalSettlement;
+import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Test {@link FpmlDocumentParser}.
@@ -121,6 +128,7 @@ public class FpmlDocumentParserTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
 
   //-------------------------------------------------------------------------
   public void bulletPayment() {
@@ -231,6 +239,82 @@ public class FpmlDocumentParserTest {
     assertEquals(farLeg.getBaseCurrencyAmount(), CurrencyAmount.of(GBP, -10000000));
     assertEquals(farLeg.getCounterCurrencyAmount(), CurrencyAmount.of(USD, 15000000));
     assertEquals(farLeg.getPaymentDate(), date(2002, 2, 25));
+  }
+
+  public void swaption() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex10-euro-swaption-relative.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwaptionTrade.class);
+    SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
+    assertEquals(swaptionTrade.getInfo().getTradeDate(), Optional.of(date(1992, 8, 30)));
+    Swaption swaption = swaptionTrade.getProduct();
+
+    //Test the parsing of the underlying swap
+    Swap swap = swaption.getUnderlying();
+    NotionalSchedule notional = NotionalSchedule.of(EUR, 50000000d);
+    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PayReceive.PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(1994, 12, 14))
+            .endDate(date(1999, 12, 14))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA))
+            .frequency(Frequency.P6M)
+            .rollConvention(RollConvention.ofDayOfMonth(14))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P6M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA)))
+            .build())
+        .notionalSchedule(notional)
+        .calculation(IborRateCalculation.builder()
+            .index(EUR_LIBOR_6M)
+            .dayCount(ACT_360)
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+            .build())
+        .build();
+    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PayReceive.RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(1994, 12, 14))
+            .endDate(date(1999, 12, 14))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA))
+            .frequency(Frequency.P12M)
+            .rollConvention(RollConvention.ofDayOfMonth(14))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P12M)
+            .paymentDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA)))
+            .build())
+        .notionalSchedule(notional)
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(THIRTY_E_360)
+            .rate(ValueSchedule.of(0.06))
+            .build())
+        .build();
+    assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
+    assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
+
+    //Test the parsing of the option part of the swaption
+    Swap underylingSwap = Swap.of(payLeg, recLeg);
+    AdjustableDate expiryDate = AdjustableDate.of(
+        LocalDate.of(1993, 8, 28),
+        BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA));
+    LocalTime expiryTime = LocalTime.of(11, 0, 0);
+    ZoneId expiryZone = ZoneId.of("Europe/Brussels");
+    Swaption swaptionExpected = Swaption.builder()
+        .expiryDate(expiryDate)
+        .expiryZone(expiryZone)
+        .expiryTime(expiryTime)
+        .longShort(LongShort.LONG)
+        .swaptionSettlement(PhysicalSettlement.DEFAULT)
+        .underlying(underylingSwap)
+        .build();
+    assertEqualsBean((Bean) swaption, swaptionExpected);
   }
 
   //-------------------------------------------------------------------------

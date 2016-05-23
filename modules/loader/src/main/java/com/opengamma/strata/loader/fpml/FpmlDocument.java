@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -127,6 +128,20 @@ public final class FpmlDocument {
       .put("6M", Tenor.TENOR_6M)
       .put("12M", Tenor.TENOR_12M)
       .put("1Y", Tenor.TENOR_12M)
+      .build();
+
+  /**
+   * The map of holiday calendar ids to zone ids.
+   */
+  private static final Map<String, ZoneId> HOLIDAY_CALENDARID_MAP = ImmutableMap.<String, ZoneId>builder()
+      .put("BEBR", ZoneId.of("Europe/Brussels"))
+      .put("CATO", ZoneId.of("America/Toronto"))
+      .put("CHZU", ZoneId.of("Europe/Zurich"))
+      .put("DEFR", ZoneId.of("Europe/Berlin"))
+      .put("FRPA", ZoneId.of("Europe/Paris"))
+      .put("GBLO", ZoneId.of("Europe/London"))
+      .put("JPTO", ZoneId.of("Asia/Tokyo"))
+      .put("USNY", ZoneId.of("America/New_York"))
       .build();
 
   /**
@@ -801,6 +816,20 @@ public final class FpmlDocument {
    */
   public LocalDate convertDate(String dateStr) {
     return LocalDate.parse(dateStr, FPML_DATE_FORMAT);
+  }
+
+  /**
+  * Returns the {@code ZoneId} matching this string representation of a holiday calendar id.
+  * 
+  * @param holidayCalendarId  the holiday calendar id string.
+  * @return an optional zone id, an empty optional is returned if no zone id can be found for the holiday calendar id.
+  */
+  public Optional<ZoneId> getZoneId(String holidayCalendarId) {
+    ZoneId zoneId = HOLIDAY_CALENDARID_MAP.get(holidayCalendarId);
+    if (zoneId == null) {
+      return Optional.empty();
+    }
+    return Optional.of(zoneId);
   }
 
   //-------------------------------------------------------------------------
