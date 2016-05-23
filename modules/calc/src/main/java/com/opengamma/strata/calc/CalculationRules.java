@@ -92,6 +92,7 @@ public final class CalculationRules implements ImmutableBean {
     CalculationParameters params = CalculationParameters.of(parameters);
     return new CalculationRules(functions, ReportingCurrency.NATURAL, params);
   }
+
   /**
    * Obtains an instance specifying the functions to use and some additional parameters.
    * <p>

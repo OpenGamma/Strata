@@ -82,7 +82,6 @@ public interface ScenarioMarketData {
     return ImmutableScenarioMarketData.of(scenarioCount, valuationDate, values, timeSeries);
   }
 
-
   /**
    * Obtains a market data instance that contains no data and has no scenarios.
    *
