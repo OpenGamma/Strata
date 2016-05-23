@@ -10,6 +10,7 @@ import java.util.function.DoubleBinaryOperator;
 
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A curve based on {@code double} nodal points.
@@ -66,6 +67,15 @@ public interface NodalCurve
    * @return the new curve
    */
   public abstract NodalCurve withYValues(DoubleArray values);
+
+  //-------------------------------------------------------------------------
+  @Override
+  abstract NodalCurve withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default NodalCurve withPerturbation(ParameterPerturbation perturbation) {
+    return (NodalCurve) Curve.super.withPerturbation(perturbation);
+  }
 
   //-------------------------------------------------------------------------
   /**

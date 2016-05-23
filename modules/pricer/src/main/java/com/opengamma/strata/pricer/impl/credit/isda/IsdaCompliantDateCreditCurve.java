@@ -113,6 +113,12 @@ public class IsdaCompliantDateCreditCurve
   }
 
   @Override
+  public IsdaCompliantDateCreditCurve withParameter(int parameterIndex, double newValue) {
+    IsdaCompliantCreditCurve temp = super.withParameter(parameterIndex, newValue);
+    return new IsdaCompliantDateCreditCurve(baseDate, dates, dayCount, temp);
+  }
+
+  @Override
   public IsdaCompliantDateCreditCurve withRate(double rate, int index) {
     IsdaCompliantCreditCurve temp = super.withRate(rate, index);
     return new IsdaCompliantDateCreditCurve(baseDate, dates, dayCount, temp);

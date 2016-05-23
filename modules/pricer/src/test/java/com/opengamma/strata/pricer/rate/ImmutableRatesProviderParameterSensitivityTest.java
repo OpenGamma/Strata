@@ -21,6 +21,7 @@ import java.time.YearMonth;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -41,6 +42,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -247,11 +249,29 @@ public class ImmutableRatesProviderParameterSensitivityTest {
       return this;
     }
 
+    //-------------------------------------------------------------------------
     @Override
     public int getParameterCount() {
       return 1;
     }
 
+    @Override
+    public double getParameter(int parameterIndex) {
+      Preconditions.checkPositionIndex(parameterIndex, 1);
+      return discountFactor;
+    }
+
+    @Override
+    public ParameterMetadata getParameterMetadata(int parameterIndex) {
+      return ParameterMetadata.empty();
+    }
+
+    @Override
+    public ConstantDiscountFactorCurve withParameter(int parameterIndex, double newValue) {
+      return new ConstantDiscountFactorCurve(metadata.getCurveName().toString(), newValue);
+    }
+
+    //-------------------------------------------------------------------------
     @Override
     public double yValue(double x) {
       return -Math.log(discountFactor) / x;

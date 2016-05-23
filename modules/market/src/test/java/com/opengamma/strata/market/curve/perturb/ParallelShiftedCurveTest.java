@@ -23,45 +23,65 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 @Test
 public class ParallelShiftedCurveTest {
 
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
-  private static final Curve CONSTANT_CURVE = ConstantNodalCurve.of(METADATA, 3);
-  private static final Curve CONSTANT_CURVE2 = ConstantNodalCurve.of(METADATA, 5);
+  private static final Curve CONSTANT_CURVE = ConstantNodalCurve.of(METADATA, 3d);
+  private static final Curve CONSTANT_CURVE2 = ConstantNodalCurve.of(METADATA, 5d);
 
   //-------------------------------------------------------------------------
   public void absolute() {
-    ParallelShiftedCurve test = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1);
+    ParallelShiftedCurve test = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1d);
     assertThat(test.getUnderlyingCurve()).isEqualTo(CONSTANT_CURVE);
     assertThat(test.getShiftType()).isEqualTo(ShiftType.ABSOLUTE);
-    assertThat(test.getShiftAmount()).isEqualTo(1);
+    assertThat(test.getShiftAmount()).isEqualTo(1d);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
     assertThat(test.getName()).isEqualTo(METADATA.getCurveName());
-    assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameterCount()).isEqualTo(2);
+    assertThat(test.getParameter(0)).isEqualTo(3d);
+    assertThat(test.getParameter(1)).isEqualTo(1d);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.getParameterMetadata(1)).isEqualTo(LabelParameterMetadata.of("AbsoluteShift"));
+    assertThat(test.withParameter(0, 5d)).isEqualTo(ParallelShiftedCurve.absolute(CONSTANT_CURVE2, 1d));
+    assertThat(test.withParameter(1, 0.5d)).isEqualTo(ParallelShiftedCurve.absolute(CONSTANT_CURVE, 0.5d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 2d)).isEqualTo(ParallelShiftedCurve.absolute(CONSTANT_CURVE2, 3d));
     assertThat(test.yValue(0)).isEqualTo(4d);
     assertThat(test.yValue(1)).isEqualTo(4d);
   }
 
   public void relative() {
-    ParallelShiftedCurve test = ParallelShiftedCurve.relative(CONSTANT_CURVE, 0.1);
+    ParallelShiftedCurve test = ParallelShiftedCurve.relative(CONSTANT_CURVE, 0.1d);
     assertThat(test.getUnderlyingCurve()).isEqualTo(CONSTANT_CURVE);
     assertThat(test.getShiftType()).isEqualTo(ShiftType.RELATIVE);
-    assertThat(test.getShiftAmount()).isEqualTo(0.1);
+    assertThat(test.getShiftAmount()).isEqualTo(0.1d);
     assertThat(test.getMetadata()).isEqualTo(METADATA);
     assertThat(test.getName()).isEqualTo(METADATA.getCurveName());
-    assertThat(test.getParameterCount()).isEqualTo(1);
-    assertThat(test.yValue(0)).isEqualTo(3.3, offset(1e-10));
-    assertThat(test.yValue(1)).isEqualTo(3.3, offset(1e-10));
+    assertThat(test.getParameterCount()).isEqualTo(2);
+    assertThat(test.getParameter(0)).isEqualTo(3d);
+    assertThat(test.getParameter(1)).isEqualTo(0.1d);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.getParameterMetadata(1)).isEqualTo(LabelParameterMetadata.of("RelativeShift"));
+    assertThat(test.withParameter(0, 5d)).isEqualTo(ParallelShiftedCurve.relative(CONSTANT_CURVE2, 0.1d));
+    assertThat(test.withParameter(1, 0.5d)).isEqualTo(ParallelShiftedCurve.relative(CONSTANT_CURVE, 0.5d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 2d)).isEqualTo(ParallelShiftedCurve.relative(CONSTANT_CURVE2, 2.1d));
+    assertThat(test.yValue(0)).isEqualTo(3.3d, offset(1e-10d));
+    assertThat(test.yValue(1)).isEqualTo(3.3d, offset(1e-10d));
   }
 
   public void test_of() {
-    Curve test = ParallelShiftedCurve.of(CONSTANT_CURVE, ShiftType.RELATIVE, 0.1);
-    assertThat(test.yValue(0)).isEqualTo(3.3, offset(1e-10));
-    assertThat(test.yValue(1)).isEqualTo(3.3, offset(1e-10));
+    Curve test = ParallelShiftedCurve.of(CONSTANT_CURVE, ShiftType.RELATIVE, 0.1d);
+    assertThat(test.yValue(0)).isEqualTo(3.3d, offset(1e-10));
+    assertThat(test.yValue(1)).isEqualTo(3.3d, offset(1e-10));
     assertThat(test.getName()).isEqualTo(METADATA.getCurveName());
-    assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameterCount()).isEqualTo(2);
+    assertThat(test.getParameter(0)).isEqualTo(3d);
+    assertThat(test.getParameter(1)).isEqualTo(0.1d);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.getParameterMetadata(1)).isEqualTo(LabelParameterMetadata.of("RelativeShift"));
     assertThat(test.getMetadata()).isEqualTo(METADATA);
   }
 

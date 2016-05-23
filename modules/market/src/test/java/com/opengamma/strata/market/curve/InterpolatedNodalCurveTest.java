@@ -60,6 +60,14 @@ public class InterpolatedNodalCurveTest {
     InterpolatedNodalCurve test = InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES, INTERPOLATOR);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getParameter(0)).isEqualTo(YVALUES.get(0));
+    assertThat(test.getParameter(1)).isEqualTo(YVALUES.get(1));
+    assertThat(test.getParameterMetadata(0)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(0));
+    assertThat(test.getParameterMetadata(1)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(1));
+    assertThat(test.withParameter(0, 2d)).isEqualTo(
+        InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES.with(0, 2d), INTERPOLATOR));
+    assertThat(test.withPerturbation((i, v, m) -> v - 2d)).isEqualTo(
+        InterpolatedNodalCurve.of(METADATA_ENTRIES, XVALUES, YVALUES_BUMPED, INTERPOLATOR));
     assertThat(test.getExtrapolatorLeft().getName()).isEqualTo(FLAT_EXTRAPOLATOR.getName());
     assertThat(test.getInterpolator().getName()).isEqualTo(INTERPOLATOR.getName());
     assertThat(test.getExtrapolatorRight().getName()).isEqualTo(FLAT_EXTRAPOLATOR.getName());

@@ -101,6 +101,11 @@ public class IsdaCompliantCreditCurve extends IsdaCompliantCurve {
   }
 
   @Override
+  public IsdaCompliantCreditCurve withParameter(int parameterIndex, double newValue) {
+    return new IsdaCompliantCreditCurve(super.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
   public IsdaCompliantCreditCurve withRates(double[] r) {
     return new IsdaCompliantCreditCurve(super.withRates(r));
   }

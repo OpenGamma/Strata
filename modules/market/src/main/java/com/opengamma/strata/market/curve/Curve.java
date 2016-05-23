@@ -9,6 +9,9 @@ import java.time.Period;
 
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.Perturbation;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
@@ -21,7 +24,7 @@ import com.opengamma.strata.market.Perturbation;
  * 
  * @see InterpolatedNodalCurve
  */
-public interface Curve {
+public interface Curve extends ParameterizedData {
 
   /**
    * Gets the curve metadata.
@@ -59,14 +62,18 @@ public interface Curve {
     return getMetadata().getCurveName();
   }
 
-  /**
-   * Gets the number of parameters in the curve.
-   * <p>
-   * This returns the number of parameters that are used to define the curve.
-   * 
-   * @return the number of parameters
-   */
-  public abstract int getParameterCount();
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+  }
+
+  @Override
+  public abstract Curve withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default Curve withPerturbation(ParameterPerturbation perturbation) {
+    return (Curve) ParameterizedData.super.withPerturbation(perturbation);
+  }
 
   //-------------------------------------------------------------------------
   /**

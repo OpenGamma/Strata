@@ -84,6 +84,13 @@ public class AddFixedCurveTest {
   public void getter() {
     assertEquals(ADD_FIXED_CURVE.getMetadata(), METADATA_SPREAD);
     assertEquals(ADD_FIXED_CURVE.getParameterCount(), XVALUES_SPREAD.size());
+    assertEquals(ADD_FIXED_CURVE.getParameter(0), ADD_FIXED_CURVE.getSpreadCurve().getParameter(0));
+    assertEquals(ADD_FIXED_CURVE.getParameterMetadata(0), ADD_FIXED_CURVE.getSpreadCurve().getParameterMetadata(0));
+    assertEquals(ADD_FIXED_CURVE.withParameter(0, 9d), AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withParameter(0, 9d)));
+    assertEquals(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d),
+        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
+    assertEquals(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED),
+        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
   }
 
   public void yValue() {

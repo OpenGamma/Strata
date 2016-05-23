@@ -625,6 +625,17 @@ public class IsdaCompliantCurve
   }
 
   @Override
+  public double getParameter(int parameterIndex) {
+    return getZeroRateAtIndex(parameterIndex);
+  }
+
+  @Override
+  public IsdaCompliantCurve withParameter(int parameterIndex, double newValue) {
+    return withRate(newValue, parameterIndex);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public double yValue(double x) {
     return getZeroRate(x);
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.curve;
 
+import com.opengamma.strata.market.param.ParameterMetadata;
+
 /**
  * Testing curve implementation.
  * <p>
@@ -33,11 +35,28 @@ public class TestingCurve implements Curve {
     throw new IllegalStateException();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    throw new IllegalStateException();
+    return 0;
   }
 
+  @Override
+  public double getParameter(int parameterIndex) {
+    throw new IndexOutOfBoundsException();
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    throw new IndexOutOfBoundsException();
+  }
+
+  @Override
+  public TestingCurve withParameter(int parameterIndex, double newValue) {
+    throw new IndexOutOfBoundsException();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public double yValue(double x) {
     throw new IllegalStateException();

@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link ConstantNodalCurve}.
@@ -26,6 +27,7 @@ public class ConstantNodalCurveTest {
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of(CURVE_NAME);
+  private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of("Test2");
   private static final double VALUE = 6d;
 
   //-------------------------------------------------------------------------
@@ -33,27 +35,40 @@ public class ConstantNodalCurveTest {
     ConstantNodalCurve test = ConstantNodalCurve.of(NAME, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameter(0)).isEqualTo(VALUE);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.withParameter(0, 2d)).isEqualTo(ConstantNodalCurve.of(NAME, 2d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d)).isEqualTo(ConstantNodalCurve.of(NAME, VALUE + 1d));
     assertThat(test.getMetadata()).isEqualTo(METADATA);
     assertThat(test.getXValues().toArray()).containsExactly(0d);
     assertThat(test.getYValues().toArray()).containsExactly(VALUE);
+    assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantNodalCurve.of(METADATA2, VALUE));
   }
 
   public void test_of_CurveName() {
     ConstantNodalCurve test = ConstantNodalCurve.of(CURVE_NAME, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameter(0)).isEqualTo(VALUE);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.withParameter(0, 2d)).isEqualTo(ConstantNodalCurve.of(NAME, 2d));
     assertThat(test.getMetadata()).isEqualTo(METADATA);
     assertThat(test.getXValues().toArray()).containsExactly(0d);
     assertThat(test.getYValues().toArray()).containsExactly(VALUE);
+    assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantNodalCurve.of(METADATA2, VALUE));
   }
 
   public void test_of_CurveMetadata() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameter(0)).isEqualTo(VALUE);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.withParameter(0, 2d)).isEqualTo(ConstantNodalCurve.of(NAME, 2d));
     assertThat(test.getMetadata()).isEqualTo(METADATA);
     assertThat(test.getXValues().toArray()).containsExactly(0d);
     assertThat(test.getYValues().toArray()).containsExactly(VALUE);
+    assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantNodalCurve.of(METADATA2, VALUE));
   }
 
   //-------------------------------------------------------------------------

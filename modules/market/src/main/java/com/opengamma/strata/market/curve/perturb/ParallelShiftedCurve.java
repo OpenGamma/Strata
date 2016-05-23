@@ -30,6 +30,9 @@ import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.LabelParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A curve with a parallel shift applied to its y-values.
@@ -43,6 +46,8 @@ import com.opengamma.strata.market.curve.NodalCurve;
  * The shift amount is interpreted as a percentage.
  * For example, a shift amount of 0.1 is a shift of +10% which multiplies the value by 1.1.
  * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8.
+ * <p>
+ * The parameters consist of the parameters of the underlying curve, followed by the shift.
  * 
  * @see CurveParallelShift
  */
@@ -123,11 +128,45 @@ public final class ParallelShiftedCurve
     return underlyingCurve.getName();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    return underlyingCurve.getParameterCount();
+    return underlyingCurve.getParameterCount() + 1;
   }
 
+  @Override
+  public double getParameter(int parameterIndex) {
+    if (parameterIndex == underlyingCurve.getParameterCount()) {
+      return shiftAmount;
+    }
+    return underlyingCurve.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    if (parameterIndex == underlyingCurve.getParameterCount()) {
+      return LabelParameterMetadata.of(shiftType + "Shift");
+    }
+    return underlyingCurve.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public ParallelShiftedCurve withParameter(int parameterIndex, double newValue) {
+    if (parameterIndex == underlyingCurve.getParameterCount()) {
+      return new ParallelShiftedCurve(underlyingCurve, shiftType, newValue);
+    }
+    return new ParallelShiftedCurve(underlyingCurve.withParameter(parameterIndex, newValue), shiftType, shiftAmount);
+  }
+
+  @Override
+  public ParallelShiftedCurve withPerturbation(ParameterPerturbation perturbation) {
+    Curve bumpedCurve = underlyingCurve.withPerturbation(perturbation);
+    int shiftIndex = underlyingCurve.getParameterCount();
+    double bumpedShift = perturbation.perturbParameter(shiftIndex, shiftAmount, getParameterMetadata(shiftIndex));
+    return new ParallelShiftedCurve(bumpedCurve, shiftType, bumpedShift);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public double yValue(double x) {
     return shiftType.applyShift(underlyingCurve.yValue(x), shiftAmount);

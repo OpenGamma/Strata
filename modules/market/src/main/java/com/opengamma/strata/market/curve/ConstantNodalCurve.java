@@ -25,9 +25,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Preconditions;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A curve based on a single constant value.
@@ -55,7 +57,7 @@ public final class ConstantNodalCurve
   /**
    * The curve metadata.
    * <p>
-   * The metadata will have not have parameter metadata.
+   * The metadata will not normally have parameter metadata.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurveMetadata metadata;
@@ -111,6 +113,24 @@ public final class ConstantNodalCurve
     return 1;
   }
 
+  @Override
+  public double getParameter(int parameterIndex) {
+    Preconditions.checkPositionIndex(parameterIndex, 1);
+    return yValue;
+  }
+
+  @Override
+  public ConstantNodalCurve withParameter(int parameterIndex, double newValue) {
+    Preconditions.checkPositionIndex(parameterIndex, 1);
+    return new ConstantNodalCurve(metadata, newValue);
+  }
+
+  @Override
+  public ConstantNodalCurve withPerturbation(ParameterPerturbation perturbation) {
+    return new ConstantNodalCurve(metadata, perturbation.perturbParameter(0, yValue, getParameterMetadata(0)));
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public DoubleArray getXValues() {
     return X_VALUES;
@@ -206,7 +226,7 @@ public final class ConstantNodalCurve
   /**
    * Gets the curve metadata.
    * <p>
-   * The metadata will have not have parameter metadata.
+   * The metadata will not normally have parameter metadata.
    * @return the value of the property, not null
    */
   @Override

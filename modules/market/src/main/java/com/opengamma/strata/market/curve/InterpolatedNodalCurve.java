@@ -34,6 +34,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -178,6 +179,24 @@ public final class InterpolatedNodalCurve
   @Override
   public int getParameterCount() {
     return xValues.size();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return yValues.get(parameterIndex);
+  }
+
+  @Override
+  public InterpolatedNodalCurve withParameter(int parameterIndex, double newValue) {
+    return withYValues(yValues.with(parameterIndex, newValue));
+  }
+
+  @Override
+  public InterpolatedNodalCurve withPerturbation(ParameterPerturbation perturbation) {
+    int size = yValues.size();
+    DoubleArray perturbedValues = DoubleArray.of(
+        size, i -> perturbation.perturbParameter(i, yValues.get(i), getParameterMetadata(i)));
+    return withYValues(perturbedValues);
   }
 
   //-------------------------------------------------------------------------

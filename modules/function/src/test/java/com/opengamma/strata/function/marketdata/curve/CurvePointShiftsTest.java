@@ -34,6 +34,7 @@ import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link CurvePointShifts}.
@@ -246,11 +247,28 @@ public class CurvePointShiftsTest {
       throw new IllegalStateException();
     }
 
+    //-------------------------------------------------------------------------
     @Override
     public int getParameterCount() {
-      throw new IllegalStateException();
+      return 0;
     }
 
+    @Override
+    public double getParameter(int parameterIndex) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public ParameterMetadata getParameterMetadata(int parameterIndex) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public NonNodalCurve withParameter(int parameterIndex, double newValue) {
+      throw new IndexOutOfBoundsException();
+    }
+
+    //-------------------------------------------------------------------------
     @Override
     public double yValue(double x) {
       throw new IllegalStateException();
