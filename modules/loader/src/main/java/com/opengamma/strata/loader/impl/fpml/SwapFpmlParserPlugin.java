@@ -128,8 +128,9 @@ final class SwapFpmlParserPlugin
         .product(swap)
         .build();
   }
- 
-  protected Swap parseSwap(FpmlDocument document, XmlElement tradeEl, TradeInfoBuilder tradeInfoBuilder) {
+
+  // parses the swap
+  Swap parseSwap(FpmlDocument document, XmlElement tradeEl, TradeInfoBuilder tradeInfoBuilder) {
     XmlElement swapEl = tradeEl.getChild("swap");
     ImmutableList<XmlElement> legEls = swapEl.getChildren("swapStream");
     ImmutableList.Builder<SwapLeg> legsBuilder = ImmutableList.builder();

@@ -240,7 +240,7 @@ public class FpmlDocumentParserTest {
     assertEquals(farLeg.getCounterCurrencyAmount(), CurrencyAmount.of(USD, 15000000));
     assertEquals(farLeg.getPaymentDate(), date(2002, 2, 25));
   }
-  
+
   public void swaption() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex10-euro-swaption-relative.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();
@@ -251,7 +251,7 @@ public class FpmlDocumentParserTest {
     SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
     assertEquals(swaptionTrade.getInfo().getTradeDate(), Optional.of(date(1992, 8, 30)));
     Swaption swaption = swaptionTrade.getProduct();
-    
+
     //Test the parsing of the underlying swap
     Swap swap = swaption.getUnderlying();
     NotionalSchedule notional = NotionalSchedule.of(EUR, 50000000d);
@@ -298,7 +298,7 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
     assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
-    
+
     //Test the parsing of the option part of the swaption
     Swap underylingSwap = Swap.of(payLeg, recLeg);
     AdjustableDate expiryDate = AdjustableDate.of(
