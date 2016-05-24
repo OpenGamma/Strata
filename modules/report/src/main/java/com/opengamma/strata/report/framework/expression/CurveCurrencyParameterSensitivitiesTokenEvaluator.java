@@ -62,14 +62,14 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
   private Stream<String> tokensForSensitivity(CurveCurrencyParameterSensitivity sensitivity) {
     return ImmutableSet.of(
         sensitivity.getCurrency().getCode(),
-        sensitivity.getCurveName().toString())
+        sensitivity.getCurveName().getName())
         .stream()
         .map(v -> v.toLowerCase(Locale.ENGLISH));
   }
 
   private boolean matchesToken(CurveCurrencyParameterSensitivity sensitivity, String token) {
     return token.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
-        token.equalsIgnoreCase(sensitivity.getCurveName().toString());
+        token.equalsIgnoreCase(sensitivity.getCurveName().getName());
   }
 
 }

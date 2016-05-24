@@ -31,7 +31,7 @@ public class CurveCurrencyParameterSensitivityTokenEvaluator extends TokenEvalua
   public Set<String> tokens(CurveCurrencyParameterSensitivity sensitivity) {
     return ImmutableSet.of(
         sensitivity.getCurrency().getCode().toLowerCase(Locale.ENGLISH),
-        sensitivity.getCurveName().toString().toLowerCase(Locale.ENGLISH));
+        sensitivity.getCurveName().getName().toLowerCase(Locale.ENGLISH));
   }
 
   @Override
@@ -41,7 +41,7 @@ public class CurveCurrencyParameterSensitivityTokenEvaluator extends TokenEvalua
       List<String> remainingTokens) {
 
     if (firstToken.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
-        firstToken.equalsIgnoreCase(sensitivity.getCurveName().toString())) {
+        firstToken.equalsIgnoreCase(sensitivity.getCurveName().getName())) {
       return EvaluationResult.success(sensitivity, remainingTokens);
     } else {
       return invalidTokenFailure(sensitivity, firstToken);
