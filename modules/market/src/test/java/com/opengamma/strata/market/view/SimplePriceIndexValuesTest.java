@@ -97,7 +97,6 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test, test2);
@@ -109,7 +108,6 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), SEASONALITY);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   public void test_of_wrongSeasonalityLength() {

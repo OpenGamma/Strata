@@ -77,7 +77,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   public void test_of_withFixings() {
@@ -86,7 +85,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -97,7 +95,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE2);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   //-------------------------------------------------------------------------

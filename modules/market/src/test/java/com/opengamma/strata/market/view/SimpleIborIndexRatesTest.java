@@ -82,7 +82,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   public void test_of_withFixings() {
@@ -91,7 +90,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +100,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE2);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   //-------------------------------------------------------------------------

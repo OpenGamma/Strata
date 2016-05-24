@@ -13,7 +13,6 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
@@ -51,6 +50,9 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IndexQuoteId;
+import com.opengamma.strata.market.view.DiscountIborIndexRates;
+import com.opengamma.strata.market.view.DiscountOvernightIndexRates;
+import com.opengamma.strata.market.view.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
@@ -160,16 +162,22 @@ public class RatesMarketDataLookupTest {
     assertEquals(ratesProvider.findCurve(CURVE_ID_DSC.getCurveName()), Optional.of(dscCurve));
     assertEquals(ratesProvider.findCurve(CURVE_ID_FWD.getCurveName()), Optional.of(fwdCurve));
     assertEquals(ratesProvider.findCurve(CurveName.of("Rubbish")), Optional.empty());
-    // check curve lookup
-    assertEquals(ratesProvider.discountFactors(USD).getCurveName(), dscCurve.getName());
+    // check discount factors
+    SimpleDiscountFactors df = (SimpleDiscountFactors) ratesProvider.discountFactors(USD);
+    assertEquals(df.getCurve().getName(), dscCurve.getName());
     assertThrowsIllegalArg(() -> ratesProvider.discountFactors(GBP));
-    assertEquals(ratesProvider.iborIndexRates(USD_LIBOR_3M).getCurveName(), fwdCurve.getName());
+    // check Ibor
+    DiscountIborIndexRates ibor = (DiscountIborIndexRates) ratesProvider.iborIndexRates(USD_LIBOR_3M);
+    SimpleDiscountFactors iborDf = (SimpleDiscountFactors) ibor.getDiscountFactors();
+    assertEquals(iborDf.getCurve().getName(), fwdCurve.getName());
     assertThrowsIllegalArg(() -> ratesProvider.iborIndexRates(GBP_LIBOR_3M));
-    assertEquals(ratesProvider.overnightIndexRates(USD_FED_FUND).getCurveName(), dscCurve.getName());
+    // check Overnight
+    DiscountOvernightIndexRates on = (DiscountOvernightIndexRates) ratesProvider.overnightIndexRates(USD_FED_FUND);
+    SimpleDiscountFactors onDf = (SimpleDiscountFactors) on.getDiscountFactors();
+    assertEquals(onDf.getCurve().getName(), dscCurve.getName());
     assertThrowsIllegalArg(() -> ratesProvider.overnightIndexRates(GBP_SONIA));
-    // price curve must be interpolated
-    assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(US_CPI_U).getCurveName());
-    assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(GB_HICP));
+    // check price curve must be interpolated
+    assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(US_CPI_U));
   }
 
   public void test_fxProvider() {

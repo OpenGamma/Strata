@@ -105,7 +105,7 @@ public final class LegalEntityDiscountingProvider
   private void validate() {
     for (Entry<Pair<BondGroup, Currency>, DiscountFactors> entry : repoCurves.entrySet()) {
       if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
-        throw new IllegalArgumentException("Invalid valuation date for the curve: " + entry.getValue().getCurveName());
+        throw new IllegalArgumentException("Invalid valuation date for the repo curve: " + entry.getValue());
       }
       if (!bondMap.containsValue(entry.getKey().getFirst())) {
         throw new IllegalArgumentException("No map to the bond group from ID: " + entry.getKey().getFirst());
@@ -113,7 +113,7 @@ public final class LegalEntityDiscountingProvider
     }
     for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : issuerCurves.entrySet()) {
       if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
-        throw new IllegalArgumentException("Invalid valuation date for the curve: " + entry.getValue().getCurveName());
+        throw new IllegalArgumentException("Invalid valuation date for the issuer curve: " + entry.getValue());
       }
       if (!legalEntityMap.containsValue(entry.getKey().getFirst())) {
         throw new IllegalArgumentException("No map to the legal entity group from ID: " + entry.getKey().getFirst());

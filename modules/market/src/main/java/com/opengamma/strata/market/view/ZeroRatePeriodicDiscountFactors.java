@@ -34,7 +34,6 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -124,12 +123,6 @@ public final class ZeroRatePeriodicDiscountFactors
     this.curve = curve;
     this.dayCount = dayCount;
     this.frequency = frequencyOpt.get();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public CurveName getCurveName() {
-    return curve.getName();
   }
 
   //-------------------------------------------------------------------------

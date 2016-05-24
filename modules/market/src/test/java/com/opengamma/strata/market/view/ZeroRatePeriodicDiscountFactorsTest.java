@@ -73,7 +73,6 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   public void test_of_badCurve() {

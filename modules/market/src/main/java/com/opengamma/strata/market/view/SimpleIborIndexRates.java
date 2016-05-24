@@ -37,7 +37,6 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -145,11 +144,6 @@ public final class SimpleIborIndexRates
     this.curve = curve;
     this.fixings = fixings;
     this.dayCount = dayCount;
-  }
-
-  @Override
-  public CurveName getCurveName() {
-    return curve.getName();
   }
 
   //-------------------------------------------------------------------------

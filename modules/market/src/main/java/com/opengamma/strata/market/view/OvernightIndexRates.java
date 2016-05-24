@@ -14,7 +14,6 @@ import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -91,13 +90,6 @@ public interface OvernightIndexRates
    * @return the time-series fixings
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
-
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public abstract CurveName getCurveName();
 
   //-------------------------------------------------------------------------
   /**

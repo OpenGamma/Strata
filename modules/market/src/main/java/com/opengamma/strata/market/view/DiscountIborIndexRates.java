@@ -31,7 +31,6 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -107,11 +106,6 @@ public final class DiscountIborIndexRates
   @Override
   public LocalDate getValuationDate() {
     return discountFactors.getValuationDate();
-  }
-
-  @Override
-  public CurveName getCurveName() {
-    return discountFactors.getCurveName();
   }
 
   //-------------------------------------------------------------------------

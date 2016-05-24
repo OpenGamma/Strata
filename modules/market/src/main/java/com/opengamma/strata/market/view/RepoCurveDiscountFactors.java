@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.BondGroup;
@@ -91,15 +90,6 @@ public final class RepoCurveDiscountFactors
    */
   public LocalDate getValuationDate() {
     return discountFactors.getValuationDate();
-  }
-
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public CurveName getCurveName() {
-    return discountFactors.getCurveName();
   }
 
   //-------------------------------------------------------------------------
