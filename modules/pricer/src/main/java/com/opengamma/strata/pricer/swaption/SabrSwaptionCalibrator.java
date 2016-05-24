@@ -205,9 +205,7 @@ public class SabrSwaptionCalibrator {
     DoubleArray alphaArray = DoubleArray.EMPTY;
     DoubleArray rhoArray = DoubleArray.EMPTY;
     DoubleArray nuArray = DoubleArray.EMPTY;
-    List<SurfaceParameterMetadata> parameterMetadataAlpha = new ArrayList<>();
-    List<SurfaceParameterMetadata> parameterMetadataRho = new ArrayList<>();
-    List<SurfaceParameterMetadata> parameterMetadataNu = new ArrayList<>();
+    List<SurfaceParameterMetadata> parameterMetadata = new ArrayList<>();
     List<DoubleArray> dataSensitivityAlpha = new ArrayList<>(); // Sensitivity to the calibrating data
     List<DoubleArray> dataSensitivityRho = new ArrayList<>();
     List<DoubleArray> dataSensitivityNu = new ArrayList<>();    
@@ -251,32 +249,26 @@ public class SabrSwaptionCalibrator {
           alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha()});
           rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
           nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
-          parameterMetadataAlpha.add(
+          parameterMetadata.add(
               SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor, 
                 expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
           dataSensitivityAlpha.add(inverseJacobian.row(0));
-          parameterMetadataRho.add(
-              SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor, 
-                  expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
           dataSensitivityRho.add(inverseJacobian.row(2));
-          parameterMetadataNu.add(
-              SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor, 
-                  expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
           dataSensitivityNu.add(inverseJacobian.row(3));
         }
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
-        .withParameterMetadata(parameterMetadataAlpha)
+        .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityAlpha);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO)
-        .withParameterMetadata(parameterMetadataRho)
+        .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityRho);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU)
-        .withParameterMetadata(parameterMetadataNu)
+        .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);    
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);

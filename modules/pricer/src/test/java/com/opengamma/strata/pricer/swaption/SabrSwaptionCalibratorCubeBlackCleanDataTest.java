@@ -61,7 +61,7 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Tests {@link SabrSwaptionCalibrator} for a cube. Realistic dimension and data.
+ * Tests {@link SabrSwaptionCalibrator} for a cube. Reduced and simplify data set to avoid very slow test.
  */
 @Test
 public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
@@ -161,9 +161,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
                 time, volBlack, true);
             double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
                 time, DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney], true);
-            if (strike > 0.0025) { // Test only for strikes above 25bps
-              assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
-            }
+            assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
           }
         }
       }
@@ -173,7 +171,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   /**
    * Check that the sensitivities of parameters with respect to data is stored in the metadata.
    * Compare the sensitivities to a finite difference approximation.
-   * This test is relatively slow has it calibrates the full surface multiple times.
+   * This test is relatively slow as it calibrates the full surface multiple times.
    */
   @Test
   public void log_normal_cube_sensitivity() {
@@ -266,7 +264,6 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
                   "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
               availableDataIndex++;
             }
-
           }
           surfacePointIndex++;
         }
