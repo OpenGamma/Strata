@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 
 /**
@@ -22,13 +22,13 @@ public class CurveParallelShiftTest {
 
   public void absolute() {
     CurveParallelShift shift = CurveParallelShift.absolute(0.1);
-    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
+    Curve shiftedCurve = shift.applyTo(ConstantCurve.of("curveName", 2d));
     checkCurveValues(shiftedCurve, 2.1);
   }
 
   public void relative() {
     CurveParallelShift shift = CurveParallelShift.relative(0.1);
-    Curve shiftedCurve = shift.applyTo(ConstantNodalCurve.of("curveName", 2d));
+    Curve shiftedCurve = shift.applyTo(ConstantCurve.of("curveName", 2d));
     checkCurveValues(shiftedCurve, 2.2);
   }
 

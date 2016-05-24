@@ -36,7 +36,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.amount.CashFlows;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
@@ -142,7 +142,7 @@ public class SwapCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   private ScenarioMarketData marketData() {
-    Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
+    Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(DISCOUNT_CURVE_ID, curve, FORWARD_CURVE_ID, curve),

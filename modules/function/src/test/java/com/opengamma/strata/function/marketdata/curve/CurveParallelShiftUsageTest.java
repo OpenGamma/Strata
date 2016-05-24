@@ -24,7 +24,7 @@ import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.TestHelper;
 import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
@@ -42,7 +42,7 @@ public class CurveParallelShiftUsageTest {
   public void absoluteScenarios() {
     CurveName curveName = CurveName.of("curveName");
     CurveGroupName curveGroupName = CurveGroupName.of("curveGroupName");
-    Curve curve = ConstantNodalCurve.of(curveName, 2);
+    Curve curve = ConstantCurve.of(curveName, 2);
     PerturbationMapping<Curve> mapping = PerturbationMapping.of(
         Curve.class,
         CurveNameFilter.of(curveName),

@@ -36,7 +36,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
@@ -134,8 +134,8 @@ public class FxSingleCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   private ScenarioMarketData marketData() {
-    Curve curve1 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
-    Curve curve2 = ConstantNodalCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
+    Curve curve1 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
+    Curve curve2 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(

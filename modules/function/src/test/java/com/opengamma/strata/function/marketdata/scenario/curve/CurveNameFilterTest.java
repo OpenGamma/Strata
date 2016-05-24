@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.id.CurveId;
@@ -27,14 +27,14 @@ public class CurveNameFilterTest {
     CurveNameFilter test = CurveNameFilter.of(CurveName.of("name"));
     assertThat(test.getMarketDataIdType()).isEqualTo(CurveId.class);
     CurveId id = CurveId.of("group", "name");
-    Curve curve = ConstantNodalCurve.of("name", 1);
+    Curve curve = ConstantCurve.of("name", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }
 
   public void noMatch() {
     CurveNameFilter test = CurveNameFilter.of(CurveName.of("name"));
     CurveId id = CurveId.of("group", "name");
-    Curve curve = ConstantNodalCurve.of("notCurveName", 1);
+    Curve curve = ConstantCurve.of("notCurveName", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isFalse();
   }
 

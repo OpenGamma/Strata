@@ -44,7 +44,7 @@ import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
@@ -116,8 +116,8 @@ public class RatesMarketDataLookupTest {
   }
 
   public void test_of_curveGroup() {
-    ImmutableMap<Currency, Curve> discounts = ImmutableMap.of(USD, ConstantNodalCurve.of(CURVE_ID_DSC.getCurveName(), 1));
-    ImmutableMap<Index, Curve> forwards = ImmutableMap.of(USD_LIBOR_3M, ConstantNodalCurve.of(CURVE_ID_FWD.getCurveName(), 1));
+    ImmutableMap<Currency, Curve> discounts = ImmutableMap.of(USD, ConstantCurve.of(CURVE_ID_DSC.getCurveName(), 1));
+    ImmutableMap<Index, Curve> forwards = ImmutableMap.of(USD_LIBOR_3M, ConstantCurve.of(CURVE_ID_FWD.getCurveName(), 1));
     CurveGroup group = CurveGroup.of(CURVE_ID_DSC.getCurveGroupName(), discounts, forwards);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(group);
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
@@ -152,8 +152,8 @@ public class RatesMarketDataLookupTest {
         ImmutableMap.of(USD_FED_FUND, CURVE_ID_DSC, USD_LIBOR_3M, CURVE_ID_FWD, US_CPI_U, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     LocalDate valDate = date(2015, 6, 30);
-    Curve dscCurve = ConstantNodalCurve.of(Curves.discountFactors(CURVE_ID_DSC.getCurveName(), ACT_360), 1d);
-    Curve fwdCurve = ConstantNodalCurve.of(Curves.discountFactors(CURVE_ID_FWD.getCurveName(), ACT_360), 2d);
+    Curve dscCurve = ConstantCurve.of(Curves.discountFactors(CURVE_ID_DSC.getCurveName(), ACT_360), 1d);
+    Curve fwdCurve = ConstantCurve.of(Curves.discountFactors(CURVE_ID_FWD.getCurveName(), ACT_360), 2d);
     MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.of(CURVE_ID_DSC, dscCurve, CURVE_ID_FWD, fwdCurve));
     RatesProvider ratesProvider = test.ratesProvider(md);
     assertEquals(ratesProvider.getValuationDate(), valDate);

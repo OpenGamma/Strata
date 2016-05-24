@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
@@ -29,8 +29,8 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 public class ParallelShiftedCurveTest {
 
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
-  private static final Curve CONSTANT_CURVE = ConstantNodalCurve.of(METADATA, 3d);
-  private static final Curve CONSTANT_CURVE2 = ConstantNodalCurve.of(METADATA, 5d);
+  private static final Curve CONSTANT_CURVE = ConstantCurve.of(METADATA, 3d);
+  private static final Curve CONSTANT_CURVE2 = ConstantCurve.of(METADATA, 5d);
 
   //-------------------------------------------------------------------------
   public void absolute() {

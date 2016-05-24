@@ -199,7 +199,7 @@ public class InterpolatedNodalCurveTest {
   //-------------------------------------------------------------------------
   public void test_applyPerturbation() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    ConstantNodalCurve result = ConstantNodalCurve.of(CURVE_NAME, 7d);
+    ConstantCurve result = ConstantCurve.of(CURVE_NAME, 7d);
     Curve test = base.applyPerturbation(curve -> result);
     assertThat(test).isSameAs(result);
   }
