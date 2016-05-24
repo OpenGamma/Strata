@@ -29,7 +29,6 @@ import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SmileSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -267,21 +266,18 @@ public class SabrSwaptionCalibrator {
         }
       }
     }
-    SurfaceInfoType<List<DoubleArray>> alphaInfo = SurfaceInfoType.of("AlphaDataSensitivity");
-    SurfaceInfoType<List<DoubleArray>> rhoInfo = SurfaceInfoType.of("RhoDataSensitivity");
-    SurfaceInfoType<List<DoubleArray>> nuInfo = SurfaceInfoType.of("NuDataSensitivity");
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadataAlpha)
-        .withInfo(alphaInfo, dataSensitivityAlpha);
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityAlpha);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadataRho)
-        .withInfo(rhoInfo, dataSensitivityRho);
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityRho);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadataNu)
-        .withInfo(nuInfo, dataSensitivityNu);    
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);    
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
     InterpolatedNodalSurface rhoSurface = InterpolatedNodalSurface
@@ -344,9 +340,8 @@ public class SabrSwaptionCalibrator {
           }
         }
       }
-      if (r.getChiSq() < chi2) { // Better calibration
+      if (r.getChiSq() < chi2) { // Keep best calibration
         sabrCalibrationResult = r;
-//            SabrFormulaData.of(r.getModelParameters().toArrayUnsafe());
         chi2 = r.getChiSq();
       }
     }

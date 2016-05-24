@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -44,8 +45,10 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.SurfaceInfoType;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.SmileSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -84,7 +87,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.builder(CALIBRATION_DATE)
-      .addValuesById(MAP_MQ).build();
+      .addValues(MAP_MQ).build();
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
@@ -121,6 +124,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
 
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 1.0E-3; // Calibration Least Square; result not exact
   private static final double TOLERANCE_PARAM_SENSITIVITY = 4.0E-2;
+  private static final double TOLERANCE_EXPIRY = 1.0E-6;
 
   @Test
   public void log_normal_cube() {
@@ -166,91 +170,110 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     }
   }
 
-//  /**
-//   * Check that the sensitivities of parameters with respect to data is stored in the metadata.
-//   * Compare the sensitivities to a finite difference approximation.
-//   * This test is relatively slow has it calibrates the full surface multiple times.
-//   */
-//  @Test
-//  public void log_normal_cube_sensitivity() {
-//    double beta = 1.0;
-//    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
-//        .withMetadata(DefaultSurfaceMetadata.builder()
-//            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
-//            .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
-//    double shift = 0.0000;
-//    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
-//        .withMetadata(DefaultSurfaceMetadata.builder()
-//            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
-//    SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-//        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_SPARSE,
-//        MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);    
-//    double fdShift = 1.0E-5;
-//    List<SurfaceParameterMetadata> alphaParameterMetadata = 
-//        calibrated.getParameters().getAlphaSurface().getMetadata().getParameterMetadata().get();
-//    List<SurfaceParameterMetadata> rhoParameterMetadata = 
-//        calibrated.getParameters().getRhoSurface().getMetadata().getParameterMetadata().get();
-//    List<SurfaceParameterMetadata> nuParameterMetadata = 
-//        calibrated.getParameters().getNuSurface().getMetadata().getParameterMetadata().get();    
-//    int surfacePointIndex = 0;    
-//    for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
-//      double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
-//      for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
-//        LocalDate expiry = EUR_FIXED_1Y_EURIBOR_6M.getFloatingLeg().getStartDateBusinessDayAdjustment()
-//            .adjust(CALIBRATION_DATE.plus(EXPIRIES.get(loopexpiry)), REF_DATA);
-//        ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
-//        double time = calibrated.relativeTime(expiryDateTime);
-//        Pair<DoubleArray, DoubleArray> ds = DATA_SPARSE.get(looptenor).availableSmileAtExpiry(EXPIRIES.get(loopexpiry));
-//        if (!ds.getFirst().isEmpty()) {
-//          int availableDataIndex = 0;          
-//          SurfaceParameterMetadata alphaPM = alphaParameterMetadata.get(surfacePointIndex);
-//          assertTrue(alphaPM instanceof SmileSurfaceExpiryTenorNodeMetadata);
-//          SmileSurfaceExpiryTenorNodeMetadata pmAlphaSabr = (SmileSurfaceExpiryTenorNodeMetadata) alphaPM;
-//          DoubleArray alphaSensitivityToData = pmAlphaSabr.getModelParameterSensitivity();
-//          SurfaceParameterMetadata rhoPM = rhoParameterMetadata.get(surfacePointIndex);
-//          assertTrue(rhoPM instanceof SmileSurfaceExpiryTenorNodeMetadata);
-//          SmileSurfaceExpiryTenorNodeMetadata pmRhoSabr = (SmileSurfaceExpiryTenorNodeMetadata) rhoPM;
-//          DoubleArray rhoSensitivityToData = pmRhoSabr.getModelParameterSensitivity();
-//          SurfaceParameterMetadata nuPM = nuParameterMetadata.get(surfacePointIndex);
-//          assertTrue(nuPM instanceof SmileSurfaceExpiryTenorNodeMetadata);
-//          SmileSurfaceExpiryTenorNodeMetadata pmNuSabr = (SmileSurfaceExpiryTenorNodeMetadata) nuPM;
-//          DoubleArray nuSensitivityToData = pmNuSabr.getModelParameterSensitivity();
-//          for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
-//            if (!Double.isNaN(DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney])) {
-//              double[] alphaShifted = new double[2];
-//              double[] rhoShifted = new double[2];
-//              double[] nuShifted = new double[2];
-//              for (int loopsign = 0; loopsign < 2; loopsign++) {
-//                List<RawOptionData> dataShifted = rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
-//                SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-//                    EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, dataShifted,
-//                    MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
-//                alphaShifted[loopsign] = calibratedShifted.getParameters().getAlphaSurface().zValue(time, tenor);
-//                rhoShifted[loopsign] = calibratedShifted.getParameters().getRhoSurface().zValue(time, tenor);
-//                nuShifted[loopsign] = calibratedShifted.getParameters().getNuSurface().zValue(time, tenor);
-//              }
-//              double alphaSensitivityComputed = alphaSensitivityToData.get(availableDataIndex);
-//              double alphaSensitivityExpected = (alphaShifted[1] - alphaShifted[0]) / (2 * fdShift);
-//              checkAcceptable(alphaSensitivityComputed, alphaSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
-//                  "Alpha :" + looptenor + " / " + loopexpiry + " / " + loopmoney);
-//              double rhoSensitivityComputed = rhoSensitivityToData.get(availableDataIndex);
-//              double rhoSensitivityExpected = (rhoShifted[1] - rhoShifted[0]) / (2 * fdShift);
-//              checkAcceptable(rhoSensitivityComputed, rhoSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
-//                  "Rho :" + looptenor + " / " + loopexpiry + " / " + loopmoney);
-//              double nuSensitivityComputed = nuSensitivityToData.get(availableDataIndex);
-//              double nuSensitivityExpected = (nuShifted[1] - nuShifted[0]) / (2 * fdShift);
-//              checkAcceptable(nuSensitivityComputed, nuSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
-//                  "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
-//              availableDataIndex++;
-//            }
-//
-//          }
-//          surfacePointIndex++;
-//        }
-//      }
-//    }
-//  }
-  
+  /**
+   * Check that the sensitivities of parameters with respect to data is stored in the metadata.
+   * Compare the sensitivities to a finite difference approximation.
+   * This test is relatively slow has it calibrates the full surface multiple times.
+   */
+  @Test
+  public void log_normal_cube_sensitivity() {
+    double beta = 1.0;
+    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+        .withMetadata(DefaultSurfaceMetadata.builder()
+            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
+            .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
+    double shift = 0.0000;
+    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+        .withMetadata(DefaultSurfaceMetadata.builder()
+            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
+    SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_SPARSE,
+        MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
+    double fdShift = 1.0E-5;
+
+    SurfaceMetadata alphaMetadata = calibrated.getParameters().getAlphaSurface().getMetadata();
+    Optional<List<SurfaceParameterMetadata>> alphaParameterMetadataOption = alphaMetadata.getParameterMetadata();
+    assertTrue(alphaParameterMetadataOption.isPresent());
+    List<SurfaceParameterMetadata> alphaParameterMetadata = alphaParameterMetadataOption.get();
+    List<DoubleArray> alphaJacobian = alphaMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+    SurfaceMetadata rhoMetadata = calibrated.getParameters().getRhoSurface().getMetadata();
+    Optional<List<SurfaceParameterMetadata>> rhoParameterMetadataOption = rhoMetadata.getParameterMetadata();
+    assertTrue(rhoParameterMetadataOption.isPresent());
+    List<SurfaceParameterMetadata> rhoParameterMetadata = rhoParameterMetadataOption.get();
+    List<DoubleArray> rhoJacobian = rhoMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+    SurfaceMetadata nuMetadata = calibrated.getParameters().getNuSurface().getMetadata();
+    Optional<List<SurfaceParameterMetadata>> nuParameterMetadataOption = nuMetadata.getParameterMetadata();
+    assertTrue(nuParameterMetadataOption.isPresent());
+    List<SurfaceParameterMetadata> nuParameterMetadata = nuParameterMetadataOption.get();
+    List<DoubleArray> nuJacobian = nuMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+
+    int surfacePointIndex = 0;
+    for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
+      double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
+      for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
+        LocalDate expiry = EUR_FIXED_1Y_EURIBOR_6M.getFloatingLeg().getStartDateBusinessDayAdjustment()
+            .adjust(CALIBRATION_DATE.plus(EXPIRIES.get(loopexpiry)), REF_DATA);
+        ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
+        double time = calibrated.relativeTime(expiryDateTime);
+        Pair<DoubleArray, DoubleArray> ds = DATA_SPARSE.get(looptenor).availableSmileAtExpiry(EXPIRIES.get(loopexpiry));
+        if (!ds.getFirst().isEmpty()) {
+          int availableDataIndex = 0;
+
+          SurfaceParameterMetadata alphaPM = alphaParameterMetadata.get(surfacePointIndex);
+          assertTrue(alphaPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
+          SwaptionSurfaceExpiryTenorNodeMetadata pmAlphaSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) alphaPM;
+          assertEquals(tenor, pmAlphaSabr.getTenor());
+          assertEquals(time, pmAlphaSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          DoubleArray alphaSensitivityToData = alphaJacobian.get(surfacePointIndex);
+          SurfaceParameterMetadata rhoPM = rhoParameterMetadata.get(surfacePointIndex);
+          assertTrue(rhoPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
+          SwaptionSurfaceExpiryTenorNodeMetadata pmRhoSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) rhoPM;
+          assertEquals(tenor, pmRhoSabr.getTenor());
+          assertEquals(time, pmRhoSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          DoubleArray rhoSensitivityToData = rhoJacobian.get(surfacePointIndex);
+          SurfaceParameterMetadata nuPM = nuParameterMetadata.get(surfacePointIndex);
+          assertTrue(nuPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
+          SwaptionSurfaceExpiryTenorNodeMetadata pmNuSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) nuPM;
+          assertEquals(tenor, pmNuSabr.getTenor());
+          assertEquals(time, pmNuSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          DoubleArray nuSensitivityToData = nuJacobian.get(surfacePointIndex);
+
+          for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
+            if (!Double.isNaN(DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney])) {
+              double[] alphaShifted = new double[2];
+              double[] rhoShifted = new double[2];
+              double[] nuShifted = new double[2];
+              for (int loopsign = 0; loopsign < 2; loopsign++) {
+                List<RawOptionData> dataShifted = rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
+                SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+                    EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, dataShifted,
+                    MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
+                alphaShifted[loopsign] = calibratedShifted.getParameters().getAlphaSurface().zValue(time, tenor);
+                rhoShifted[loopsign] = calibratedShifted.getParameters().getRhoSurface().zValue(time, tenor);
+                nuShifted[loopsign] = calibratedShifted.getParameters().getNuSurface().zValue(time, tenor);
+              }
+              double alphaSensitivityComputed = alphaSensitivityToData.get(availableDataIndex);
+              double alphaSensitivityExpected = (alphaShifted[1] - alphaShifted[0]) / (2 * fdShift);
+              checkAcceptable(alphaSensitivityComputed, alphaSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
+                  "Alpha: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              double rhoSensitivityComputed = rhoSensitivityToData.get(availableDataIndex);
+              double rhoSensitivityExpected = (rhoShifted[1] - rhoShifted[0]) / (2 * fdShift);
+              checkAcceptable(rhoSensitivityComputed, rhoSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
+                  "Rho: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              double nuSensitivityComputed = nuSensitivityToData.get(availableDataIndex);
+              double nuSensitivityExpected = (nuShifted[1] - nuShifted[0]) / (2 * fdShift);
+              checkAcceptable(nuSensitivityComputed, nuSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
+                  "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              availableDataIndex++;
+            }
+
+          }
+          surfacePointIndex++;
+        }
+      }
+    }
+  }
+
   private static void checkAcceptable(double computed, double actual, double tolerance, String msg) {
     assertTrue((Math.abs(computed - actual) < tolerance) ||
         (Math.abs((computed - actual) / actual) < tolerance),
