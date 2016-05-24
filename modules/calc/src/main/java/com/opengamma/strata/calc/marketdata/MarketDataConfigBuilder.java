@@ -58,7 +58,7 @@ public final class MarketDataConfigBuilder {
 
     Class<?> configType = value.getClass();
     SingleTypeMarketDataConfig configs = configsForType(configType);
-    values.put(configType, configs.withConfig(name.toString(), value));
+    values.put(configType, configs.withConfig(name.getName(), value));
     return this;
   }
 

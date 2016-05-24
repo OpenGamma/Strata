@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.collect.named.Named;
+
 /**
  * An abstract class designed to enable typed strings.
  * <p>
@@ -40,7 +42,7 @@ import org.joda.convert.ToString;
  * @param <T>  the implementation subclass of this class
  */
 public abstract class TypedString<T extends TypedString<T>>
-    implements Comparable<T>, Serializable {
+    implements Named, Comparable<T>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -77,6 +79,16 @@ public abstract class TypedString<T extends TypedString<T>>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the name.
+   * 
+   * @return the name
+   */
+  @Override
+  public String getName() {
+    return name;
+  }
+
   /**
    * Compares this type to another.
    * <p>

@@ -261,7 +261,7 @@ public class CashFlowReportRunner
     if (header != null) {
       return header;
     }
-    return humanizeUpperCamelCase(key.toString());
+    return humanizeUpperCamelCase(key.getName());
   }
 
   private String humanizeUpperCamelCase(String str) {

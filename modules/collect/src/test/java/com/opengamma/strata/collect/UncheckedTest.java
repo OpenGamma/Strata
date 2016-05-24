@@ -8,10 +8,12 @@ package com.opengamma.strata.collect;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -21,6 +23,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import javax.naming.NamingException;
 
 import org.testng.annotations.Test;
 
@@ -284,8 +288,65 @@ public class UncheckedTest {
   }
 
   public void test_propagate() {
-    assertThrows(() -> Unchecked.propagate(new IOException()), UncheckedIOException.class);
-    assertThrows(() -> Unchecked.propagate(new Error()), Error.class);
-    assertThrows(() -> Unchecked.propagate(new IllegalArgumentException()), IllegalArgumentException.class);
+    Error error = new Error("a");
+    IllegalArgumentException argEx = new IllegalArgumentException("b");
+    IOException ioEx = new IOException("c");
+    NamingException namingEx = new NamingException("d");
+
+    // use old-style try-catch to ensure test really working
+    try {
+      Unchecked.propagate(error);
+      fail();
+    } catch (Error ex) {
+      assertSame(ex, error);
+    }
+    try {
+      Unchecked.propagate(argEx);
+      fail();
+    } catch (IllegalArgumentException ex) {
+      assertSame(ex, argEx);
+    }
+    try {
+      Unchecked.propagate(ioEx);
+      fail();
+    } catch (UncheckedIOException ex) {
+      assertEquals(ex.getClass(), UncheckedIOException.class);
+      assertSame(ex.getCause(), ioEx);
+    }
+    try {
+      Unchecked.propagate(namingEx);
+      fail();
+    } catch (RuntimeException ex) {
+      assertEquals(ex.getClass(), RuntimeException.class);
+      assertSame(ex.getCause(), namingEx);
+    }
+
+    try {
+      Unchecked.propagate(new InvocationTargetException(error));
+      fail();
+    } catch (Error ex) {
+      assertSame(ex, error);
+    }
+    try {
+      Unchecked.propagate(new InvocationTargetException(argEx));
+      fail();
+    } catch (IllegalArgumentException ex) {
+      assertSame(ex, argEx);
+    }
+    try {
+      Unchecked.propagate(new InvocationTargetException(ioEx));
+      fail();
+    } catch (UncheckedIOException ex) {
+      assertEquals(ex.getClass(), UncheckedIOException.class);
+      assertSame(ex.getCause(), ioEx);
+    }
+    try {
+      Unchecked.propagate(new InvocationTargetException(namingEx));
+      fail();
+    } catch (RuntimeException ex) {
+      assertEquals(ex.getClass(), RuntimeException.class);
+      assertSame(ex.getCause(), namingEx);
+    }
   }
+
 }

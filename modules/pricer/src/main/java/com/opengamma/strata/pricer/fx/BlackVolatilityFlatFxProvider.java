@@ -128,7 +128,7 @@ public final class BlackVolatilityFlatFxProvider
     DefaultSurfaceMetadata metadata = DefaultSurfaceMetadata.builder()
         .dayCount(dayCount)
         .parameterMetadata(paramList)
-        .surfaceName(SurfaceName.of(curve.getName().toString()))
+        .surfaceName(SurfaceName.of(curve.getName().getName()))
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.STRIKE)
         .zValueType(ValueType.BLACK_VOLATILITY)

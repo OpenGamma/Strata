@@ -104,7 +104,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
    */
   @SuppressWarnings("unchecked")
   public <T> T get(Class<T> type, TypedString<?> name) {
-    return get(type, name.toString());
+    return get(type, name.getName());
   }
 
   /**
