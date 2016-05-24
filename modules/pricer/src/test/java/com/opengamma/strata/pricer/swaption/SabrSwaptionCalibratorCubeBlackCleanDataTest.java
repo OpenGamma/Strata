@@ -168,10 +168,11 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     }
   }
 
+
   /**
    * Check that the sensitivities of parameters with respect to data is stored in the metadata.
    * Compare the sensitivities to a finite difference approximation.
-   * This test is relatively slow as it calibrates the full surface multiple times.
+   * This test is relatively slow has it calibrates the full surface multiple times.
    */
   @Test
   public void log_normal_cube_sensitivity() {
@@ -265,6 +266,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
                   "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
               availableDataIndex++;
             }
+
           }
           surfacePointIndex++;
         }
