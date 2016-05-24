@@ -31,7 +31,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -56,12 +56,12 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final SurfaceMetadata METADATA;
   static {
-    List<SwaptionSurfaceExpiryTenorNodeMetadata> list =
-        new ArrayList<SwaptionSurfaceExpiryTenorNodeMetadata>();
+    List<SwaptionSurfaceExpiryTenorParameterMetadata> list =
+        new ArrayList<SwaptionSurfaceExpiryTenorParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
-          SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME.get(i), TENOR.get(i));
+      SwaptionSurfaceExpiryTenorParameterMetadata parameterMetadata =
+          SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
     METADATA = Surfaces.swaptionBlackExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F, CONVENTION).withParameterMetadata(list);

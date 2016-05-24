@@ -34,7 +34,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
+import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -57,10 +57,10 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
       DoubleArray.of(0.01, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
   private static final SurfaceMetadata METADATA;
   static {
-    List<GenericVolatilitySurfaceYearFractionMetadata> list = new ArrayList<GenericVolatilitySurfaceYearFractionMetadata>();
+    List<GenericVolatilitySurfaceYearFractionParameterMetadata> list = new ArrayList<GenericVolatilitySurfaceYearFractionParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      GenericVolatilitySurfaceYearFractionMetadata parameterMetadata = GenericVolatilitySurfaceYearFractionMetadata.of(
+      GenericVolatilitySurfaceYearFractionParameterMetadata parameterMetadata = GenericVolatilitySurfaceYearFractionParameterMetadata.of(
           TIME.get(i), LogMoneynessStrike.of(MONEYNESS.get(i)));
       list.add(parameterMetadata);
     }

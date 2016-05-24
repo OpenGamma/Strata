@@ -32,10 +32,10 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
@@ -150,16 +150,16 @@ public class IborFixingDepositCurveNodeTest {
   public void test_metadata_end() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_3M);
+    ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
+    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_3M);
   }
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     IborFixingDepositCurveNode node =
         IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.of(nodeDate));
-    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -172,9 +172,9 @@ public class IborFixingDepositCurveNodeTest {
     IborFixingDepositTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     ResolvedIborFixingDeposit product = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateComputation) product.getFloatingRate()).getFixingDate();
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), fixingDate);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor().getPeriod(), TEMPLATE.getDepositPeriod());
+    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), fixingDate);
+    assertEquals(((TenorDateParameterMetadata) metadata).getTenor().getPeriod(), TEMPLATE.getDepositPeriod());
   }
 
   //-------------------------------------------------------------------------

@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link CurveUnitParameterSensitivity}.
@@ -43,7 +44,7 @@ public class CurveUnitParameterSensitivityTest {
 
   public void test_of_metadata_badMetadata() {
     CurveMetadata metadata = Curves.zeroRates(
-        CurveName.of("Name"), ACT_365F, CurveParameterMetadata.listOfEmpty(VECTOR1.size() + 1));
+        CurveName.of("Name"), ACT_365F, ParameterMetadata.listOfEmpty(VECTOR1.size() + 1));
     assertThrowsIllegalArg(() -> CurveUnitParameterSensitivity.of(metadata, VECTOR1));
   }
 

@@ -7,7 +7,7 @@
 /**
  * Surface metadata.
  * <p>
- * This package provides implementations of {@link com.opengamma.strata.market.surface.SurfaceParameterMetadata}.
+ * This package provides implementations of {@link com.opengamma.strata.market.surface.ParameterMetadata}.
  */
 package com.opengamma.strata.market.surface.meta;
 

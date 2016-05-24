@@ -11,6 +11,7 @@ import java.util.Optional;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Metadata about a curve and curve parameters.
@@ -97,7 +98,7 @@ public interface CurveMetadata {
    * 
    * @return the parameter metadata
    */
-  public abstract Optional<List<CurveParameterMetadata>> getParameterMetadata();
+  public abstract Optional<List<ParameterMetadata>> getParameterMetadata();
 
   //-------------------------------------------------------------------------
   /**
@@ -122,6 +123,6 @@ public interface CurveMetadata {
    * @param parameterMetadata  the new parameter metadata, may be null
    * @return the new curve metadata
    */
-  public abstract CurveMetadata withParameterMetadata(List<? extends CurveParameterMetadata> parameterMetadata);
+  public abstract CurveMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata);
 
 }

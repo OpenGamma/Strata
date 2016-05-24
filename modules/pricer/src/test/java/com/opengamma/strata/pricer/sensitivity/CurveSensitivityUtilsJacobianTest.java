@@ -43,10 +43,10 @@ import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
@@ -107,9 +107,9 @@ public class CurveSensitivityUtilsJacobianTest {
     Tenor[] tenors = new Tenor[] {Tenor.TENOR_1D, Tenor.TENOR_1M, Tenor.TENOR_3M, Tenor.TENOR_6M,
         Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y, Tenor.TENOR_4Y, Tenor.TENOR_5Y, 
         Tenor.TENOR_7Y, Tenor.TENOR_10Y, Tenor.TENOR_15Y, Tenor.TENOR_20Y, Tenor.TENOR_30Y};
-    List<TenorCurveNodeMetadata> metadataList = new ArrayList<>();
+    List<TenorParameterMetadata> metadataList = new ArrayList<>();
     for(int looptenor=0; looptenor< tenors.length; looptenor++) {
-      metadataList.add(TenorCurveNodeMetadata.of(tenors[looptenor]));
+      metadataList.add(TenorParameterMetadata.of(tenors[looptenor]));
     }
     DoubleArray rate_eur = 
         DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0150, 0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0140);

@@ -20,12 +20,14 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.market.param.ParameterMetadata;
+
 /**
  * Surface node metadata used when there is no applicable metadata.
  */
 @BeanDefinition(builderScope = "private")
 public final class EmptySurfaceParameterMetadata
-    implements SurfaceParameterMetadata, ImmutableBean, Serializable {
+    implements ParameterMetadata, ImmutableBean, Serializable {
 
   /**
    * The singleton instance.

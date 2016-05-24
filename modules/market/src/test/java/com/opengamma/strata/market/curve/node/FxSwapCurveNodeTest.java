@@ -40,10 +40,10 @@ import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
@@ -162,16 +162,16 @@ public class FxSwapCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
         .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate, REF_DATA).plus(FAR_PERIOD), REF_DATA);
-    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), endDate);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
+    ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), endDate);
+    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
   }
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
