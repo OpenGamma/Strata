@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.PriceIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
@@ -25,7 +24,6 @@ import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.PriceIndexValues;
 import com.opengamma.strata.market.view.SimpleDiscountFactors;
@@ -39,7 +37,6 @@ import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
  * <p>
  * This is based on an {@link ImmutableRatesProvider} or {@link LegalEntityDiscountingProvider}, 
  * and calculates the sensitivity by finite difference.
- * The curves underlying the rates provider must be of type {@link NodalCurve}.
  */
 public class RatesFiniteDifferenceSensitivityCalculator {
 
@@ -67,7 +64,6 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   /**
    * Computes the first order sensitivities of a function of a RatesProvider to a double by finite difference.
    * <p>
-   * The curves underlying the rates provider must be convertible to a {@link NodalCurve}.
    * The finite difference is computed by forward type. 
    * The function should return a value in the same currency for any rate provider.
    * 
@@ -111,10 +107,9 @@ public class RatesFiniteDifferenceSensitivityCalculator {
 
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<T, Curve> entry : baseCurves.entrySet()) {
-      NodalCurve curveInt = entry.getValue().toNodalCurve();
-      int nbNodePoint = curveInt.getXValues().size();
-      DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {
-        Curve dscBumped = bumpedCurve(curveInt, i);
+      Curve curve = entry.getValue();
+      DoubleArray sensitivity = DoubleArray.of(curve.getParameterCount(), i -> {
+        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<T, Curve> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(entry.getKey(), dscBumped);
         ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
@@ -137,10 +132,9 @@ public class RatesFiniteDifferenceSensitivityCalculator {
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Entry<PriceIndex, PriceIndexValues> entry : indexValues.entrySet()) {
       SimplePriceIndexValues indexValue = ((SimplePriceIndexValues) entry.getValue());
-      NodalCurve curveInt = indexValue.getCurve().toNodalCurve();
-      int nbNodePoint = curveInt.getXValues().size();
-      DoubleArray sensitivity = DoubleArray.of(nbNodePoint, i -> {
-        Curve dscBumped = bumpedCurve(curveInt, i);
+      Curve curve = indexValue.getCurve();
+      DoubleArray sensitivity = DoubleArray.of(curve.getParameterCount(), i -> {
+        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<PriceIndex, PriceIndexValues> mapBumped = new HashMap<>(indexValues);
         mapBumped.put(entry.getKey(), indexValue.withCurve((InterpolatedNodalCurve) dscBumped));
         ImmutableRatesProvider providerDscBumped = storeBumpedFn.apply(provider, mapBumped);
@@ -156,7 +150,6 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   /**
    * Computes the first order sensitivities of a function of a LegalEntityDiscountingProvider to a double by finite difference.
    * <p>
-   * The curves underlying the rates provider must be of type {@link NodalCurve}.
    * The finite difference is computed by forward type. 
    * The function should return a value in the same currency for any rates provider of LegalEntityDiscountingProvider.
    * 
@@ -181,22 +174,22 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       Function<LegalEntityDiscountingProvider, CurrencyAmount> valueFn,
       MetaProperty<ImmutableMap<Pair<T, Currency>, DiscountFactors>> metaProperty,
       CurrencyAmount valueInit) {
+
     ImmutableMap<Pair<T, Currency>, DiscountFactors> baseCurves = metaProperty.get(provider);
     CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
     for (Pair<T, Currency> key : baseCurves.keySet()) {
       DiscountFactors discountFactors = baseCurves.get(key);
       Curve curve = checkDiscountFactors(discountFactors);
-      NodalCurve curveInt = checkNodal(curve);
-      int nbNodePoint = curveInt.getXValues().size();
-      double[] sensitivity = new double[nbNodePoint];
-      for (int i = 0; i < nbNodePoint; i++) {
-        Curve dscBumped = bumpedCurve(curveInt, i);
+      int paramCount = curve.getParameterCount();
+      double[] sensitivity = new double[paramCount];
+      for (int i = 0; i < paramCount; i++) {
+        Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
         Map<Pair<T, Currency>, DiscountFactors> mapBumped = new HashMap<>(baseCurves);
         mapBumped.put(key, createDiscountFactors(discountFactors, dscBumped));
         LegalEntityDiscountingProvider providerDscBumped = provider.toBuilder().set(metaProperty, mapBumped).build();
         sensitivity[i] = (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
       }
-      CurveMetadata metadata = curveInt.getMetadata();
+      CurveMetadata metadata = curve.getMetadata();
       result = result.combinedWith(
           CurveCurrencyParameterSensitivity.of(metadata, valueInit.getCurrency(), DoubleArray.copyOf(sensitivity)));
     }
@@ -204,18 +197,6 @@ public class RatesFiniteDifferenceSensitivityCalculator {
   }
 
   //-------------------------------------------------------------------------
-  // check that the curve is a NodalCurve
-  private NodalCurve checkNodal(Curve curve) {
-    ArgChecker.isTrue(curve instanceof NodalCurve, "Curve must be a NodalCurve");
-    return (NodalCurve) curve;
-  }
-
-  // create new curve by bumping the existing curve at a given parameter
-  private NodalCurve bumpedCurve(NodalCurve curveInt, int loopnode) {
-    DoubleArray yValues = curveInt.getYValues();
-    return curveInt.withYValues(yValues.with(loopnode, yValues.get(loopnode) + shift));
-  }
-
   // check that the discountFactors is ZeroRateDiscountFactors or SimpleDiscountFactors
   private Curve checkDiscountFactors(DiscountFactors discountFactors) {
     if (discountFactors instanceof ZeroRateDiscountFactors) {

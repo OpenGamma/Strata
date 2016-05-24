@@ -664,12 +664,12 @@ public class IsdaCompliantCurve
   }
 
   @Override
-  public NodalCurve withYValues(DoubleArray values) {
+  public IsdaCompliantCurve withYValues(DoubleArray values) {
     return IsdaCompliantCurve.makeFromRT(getXValues(), values);
   }
 
   @Override
-  public NodalCurve withMetadata(CurveMetadata metadata) {
+  public IsdaCompliantCurve withMetadata(CurveMetadata metadata) {
     return this;
   }
 

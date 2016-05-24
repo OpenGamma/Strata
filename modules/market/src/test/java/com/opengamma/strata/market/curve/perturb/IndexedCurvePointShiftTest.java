@@ -5,22 +5,18 @@
  */
 package com.opengamma.strata.market.curve.perturb;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.TestingCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 
@@ -78,15 +74,6 @@ public class IndexedCurvePointShiftTest {
       double xValue = i * 0.1;
       assertThat(shiftedCurve.yValue(xValue)).isEqualTo(expectedCurve.yValue(xValue));
     }
-  }
-
-  public void notNodalCurve() {
-    CurveMetadata metadata = Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, ImmutableList.of());
-    Curve curve = new TestingCurve(metadata);
-
-    IndexedCurvePointShift shift = IndexedCurvePointShift.absolute(0, 0.1d);
-
-    assertThrows(() -> shift.applyTo(curve), UnsupportedOperationException.class, ".*NodalCurve.*");
   }
 
   //-------------------------------------------------------------------------

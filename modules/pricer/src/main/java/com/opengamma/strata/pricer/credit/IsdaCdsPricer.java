@@ -301,7 +301,7 @@ public class IsdaCdsPricer {
     NodalCurve yieldCurve = IsdaNodalCurve.of(valuationDate, yieldCurveInputs);
     NodalCurve creditCurve = IsdaNodalCurve.of(valuationDate, creditCurveInputs, yieldCurve, recoveryRate);
 
-    NodalCurve bumpedYieldCurve = yieldCurve.shiftedBy((x, y) -> y + ONE_BPS);
+    NodalCurve bumpedYieldCurve = yieldCurve.withPerturbation((i, value, meta) -> value + ONE_BPS);
     NodalCurve bumpedCreditCurve = IsdaNodalCurve.of(valuationDate, creditCurveInputs, bumpedYieldCurve, recoveryRate);
 
     CurrencyAmount basePrice = presentValue(
@@ -447,7 +447,7 @@ public class IsdaCdsPricer {
     NodalCurve creditCurve = IsdaNodalCurve.of(valuationDate, creditCurveInputs, yieldCurve, recoveryRate);
 
     NodalCurve bumpedYieldCurve = yieldCurve;
-    NodalCurve bumpedCreditCurve = creditCurve.shiftedBy((x, y) -> y + ONE_BPS);
+    NodalCurve bumpedCreditCurve = creditCurve.withPerturbation((i, value, meta) -> value + ONE_BPS);
 
     CurrencyAmount basePrice = presentValue(
         product, yieldCurve, creditCurve, valuationDate, recoveryRate, scalingFactor);

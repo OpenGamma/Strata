@@ -15,15 +15,12 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
@@ -165,11 +162,12 @@ public class SimplePriceIndexValuesTest {
       for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
-          List<ValueAdjustment> adjustments = new ArrayList<>();
-          for (int l = 0; l < VALUES.size(); l++) {
-            adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
-          }
-          SimplePriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));
+          // copy indices to provide access in lambda
+          int jIndex = j;
+          int kIndex = k;
+          InterpolatedNodalCurve bumpedCurve = INSTANCE.getCurve()
+              .withPerturbation((idx, value, meta) -> (idx == jIndex) ? (kIndex == 0 ? -shift : shift) : 0d);
+          SimplePriceIndexValues curveShifted = INSTANCE.withCurve(bumpedCurve);
           valueFd[k] = curveShifted.value(TEST_OBS[i]);
         }
         double sensitivityExpected = (valueFd[1] - valueFd[0]) / (2 * shift);

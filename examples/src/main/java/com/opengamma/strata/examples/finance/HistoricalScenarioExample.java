@@ -53,7 +53,6 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
@@ -146,22 +145,19 @@ public class HistoricalScenarioExample {
       List<LocalDate> scenarioDates) {
 
     // extract the curves to perturb
-    List<NodalCurve> usdDiscountCurves = scenarioDates.stream()
+    List<Curve> usdDiscountCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findDiscountCurve(Currency.USD).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
-    List<NodalCurve> libor3mCurves = scenarioDates.stream()
+    List<Curve> libor3mCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_3M).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
-    List<NodalCurve> libor6mCurves = scenarioDates.stream()
+    List<Curve> libor6mCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_6M).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
     // create mappings which will cause the point shift perturbations generated above
@@ -188,12 +184,12 @@ public class HistoricalScenarioExample {
         libor6mMappings);
   }
 
-  private static CurvePointShifts buildShifts(List<NodalCurve> historicalCurves) {
+  private static CurvePointShifts buildShifts(List<Curve> historicalCurves) {
     CurvePointShiftsBuilder builder = CurvePointShifts.builder(ShiftType.ABSOLUTE);
 
     for (int scenarioIndex = 1; scenarioIndex < historicalCurves.size(); scenarioIndex++) {
-      NodalCurve previousCurve = historicalCurves.get(scenarioIndex - 1);
-      NodalCurve curve = historicalCurves.get(scenarioIndex);
+      Curve previousCurve = historicalCurves.get(scenarioIndex - 1);
+      Curve curve = historicalCurves.get(scenarioIndex);
 
       // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
       List<ParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
@@ -201,8 +197,8 @@ public class HistoricalScenarioExample {
       // build up the shifts to apply to each node
       // these are calculated as the actual change in the zero rate at that node between the two scenario dates
       for (int curveNodeIdx = 0; curveNodeIdx < curve.getParameterCount(); curveNodeIdx++) {
-        double zeroRate = curve.getYValues().get(curveNodeIdx);
-        double previousZeroRate = previousCurve.getYValues().get(curveNodeIdx);
+        double zeroRate = curve.getParameter(curveNodeIdx);
+        double previousZeroRate = previousCurve.getParameter(curveNodeIdx);
         double shift = (zeroRate - previousZeroRate);
         builder.addShift(scenarioIndex, curveNodeMetadata.get(curveNodeIdx).getIdentifier(), shift);
       }

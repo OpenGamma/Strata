@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.market.curve.perturb;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -16,18 +15,14 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.curve.TestingCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
@@ -108,33 +103,6 @@ public class CurvePointShiftTest {
       double xValue = i * 0.1;
       assertThat(shiftedCurve.yValue(xValue)).isEqualTo(expectedCurve.yValue(xValue));
     }
-  }
-
-  public void noNodeMetadata() {
-    Curve curve = InterpolatedNodalCurve.of(
-        DefaultCurveMetadata.of("curve"),
-        DoubleArray.of(1, 2, 3),
-        DoubleArray.of(5, 6, 7),
-        INTERPOLATOR);
-
-    // use ImmutableMap to test coverage of builder.addShifts()
-    ImmutableMap<Tenor, Double> map = ImmutableMap.of(Tenor.TENOR_1W, 0.1, Tenor.TENOR_1M, 0.2, Tenor.TENOR_3M, 0.3);
-    CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE).addShifts(map).build();
-
-    assertThrows(() -> shift.applyTo(curve), IllegalArgumentException.class, ".* no parameter metadata.*");
-  }
-
-  public void notNodalCurve() {
-    CurveMetadata metadata = Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, ImmutableList.of());
-    Curve curve = new TestingCurve(metadata);
-
-    CurvePointShift shift = CurvePointShift.builder(ShiftType.RELATIVE)
-        .addShift(Tenor.TENOR_1W, 0.1)
-        .addShift(Tenor.TENOR_1M, 0.2)
-        .addShift(Tenor.TENOR_3M, 0.3)
-        .build();
-
-    assertThrows(() -> shift.applyTo(curve), UnsupportedOperationException.class, ".*NodalCurve.*");
   }
 
   //-------------------------------------------------------------------------
