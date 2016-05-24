@@ -198,6 +198,15 @@ public final class SabrParametersSwaptionVolatilities
     SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
     return unitSens.multipliedBy(currency, factor);
   }
+  
+  public SurfaceCurrencyParameterSensitivity parallelSmileDataSensitivity(
+      SurfaceCurrencyParameterSensitivities sabrSensitivity) {
+    ArgChecker.isTrue(sabrSensitivity.size() == 4, "SABR sensitivity must have 4 components");
+    // Check 4 parts: alpha/beta/rho/nu
+    // Check info alpha/x/x/  DataSensitivity At least one
+    // Multiply sd x ones x sp
+    return null;
+  }
 
   //-------------------------------------------------------------------------
   @Override
