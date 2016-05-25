@@ -11,7 +11,6 @@ import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.result.ValuesArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
@@ -19,6 +18,7 @@ import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.value.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCdsPricer;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -131,7 +131,7 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed IR01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> ir01BucketedZero(
+  static ScenarioResult<CurrencyParameterSensitivities> ir01BucketedZero(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
@@ -141,7 +141,7 @@ class CdsMeasureCalculations {
   }
 
   // bucketed IR01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateIr01BucketedZero(
+  private static CurrencyParameterSensitivities calculateIr01BucketedZero(
       ResolvedCdsTrade trade,
       MarketData marketData) {
 
@@ -189,7 +189,7 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed IR01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> ir01BucketedPar(
+  static ScenarioResult<CurrencyParameterSensitivities> ir01BucketedPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
@@ -199,7 +199,7 @@ class CdsMeasureCalculations {
   }
 
   // bucketed IR01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateIr01BucketedPar(
+  private static CurrencyParameterSensitivities calculateIr01BucketedPar(
       ResolvedCdsTrade trade,
       MarketData marketData) {
 
@@ -247,7 +247,7 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed CS01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> cs01BucketedPar(
+  static ScenarioResult<CurrencyParameterSensitivities> cs01BucketedPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
@@ -257,7 +257,7 @@ class CdsMeasureCalculations {
   }
 
   // bucketed CS01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateCs01BucketedPar(
+  private static CurrencyParameterSensitivities calculateCs01BucketedPar(
       ResolvedCdsTrade trade,
       MarketData marketData) {
 
@@ -305,7 +305,7 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed CS01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> cs01BucketedHazard(
+  static ScenarioResult<CurrencyParameterSensitivities> cs01BucketedHazard(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
@@ -315,7 +315,7 @@ class CdsMeasureCalculations {
   }
 
   // bucketed CS01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateCs01BucketedHazard(
+  private static CurrencyParameterSensitivities calculateCs01BucketedHazard(
       ResolvedCdsTrade trade,
       MarketData marketData) {
 

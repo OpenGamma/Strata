@@ -23,7 +23,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -66,7 +66,7 @@ public class SwaptionNormalVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final SurfaceMetadata METADATA =
       Surfaces.swaptionNormalExpiryTenor("Normal Vol", ACT_365F, USD_1Y_LIBOR3M);
-  private static final NodalSurface SURFACE_STD =
+  private static final InterpolatedNodalSurface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA, TIMES, TENORS, NORMAL_VOL, INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
@@ -125,7 +125,7 @@ public class SwaptionNormalVolatilityDataSets {
       99.3, 96.8, 94.3, 88.6, 77.3,  // 5Y
       88.4, 85.9, 82.2, 76.7, 65.1); // 10Y
   private static final DoubleArray NORMAL_VOL_20150320 = NORMAL_VOL_20150320_BP.map(v -> v * BP1);
-  private static final NodalSurface SURFACE_20150320 =
+  private static final Surface SURFACE_20150320 =
       InterpolatedNodalSurface.of(METADATA, TIMES_20150320, TENORS_20150320, NORMAL_VOL_20150320, INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE_20150320 = LocalDate.of(2015, 3, 20);

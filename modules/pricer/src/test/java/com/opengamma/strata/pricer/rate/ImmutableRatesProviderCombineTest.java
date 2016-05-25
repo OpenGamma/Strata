@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -49,13 +49,13 @@ public class ImmutableRatesProviderCombineTest {
 
   private static final double GBP_DSC = 0.99d;
   private static final double USD_DSC = 0.95d;
-  private static final Curve DISCOUNT_CURVE_GBP = ConstantNodalCurve.of(
+  private static final Curve DISCOUNT_CURVE_GBP = ConstantCurve.of(
       Curves.zeroRates("GBP-DSCON", ACT_ACT_ISDA), GBP_DSC);
-  private static final Curve DISCOUNT_CURVE_USD = ConstantNodalCurve.of(
+  private static final Curve DISCOUNT_CURVE_USD = ConstantCurve.of(
       Curves.zeroRates("USD-DSCON", ACT_ACT_ISDA), USD_DSC);
-  private static final Curve USD_LIBOR_CURVE = ConstantNodalCurve.of(
+  private static final Curve USD_LIBOR_CURVE = ConstantCurve.of(
       Curves.zeroRates("USD-LIBOR-3M", ACT_ACT_ISDA), 0.96d);
-  private static final Curve FED_FUND_CURVE = ConstantNodalCurve.of(
+  private static final Curve FED_FUND_CURVE = ConstantCurve.of(
       Curves.zeroRates("USD-FED_FUND", ACT_ACT_ISDA), 0.97d);
   private static final PriceIndexValues GBPRI_CURVE = SimplePriceIndexValues.of(
       GB_RPI,

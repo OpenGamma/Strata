@@ -23,13 +23,13 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
@@ -142,8 +142,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator) {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
@@ -190,8 +190,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator,
       boolean stopOnMathException) {
 
@@ -205,10 +205,10 @@ public class SabrSwaptionCalibrator {
     DoubleArray alphaArray = DoubleArray.EMPTY;
     DoubleArray rhoArray = DoubleArray.EMPTY;
     DoubleArray nuArray = DoubleArray.EMPTY;
-    List<SurfaceParameterMetadata> parameterMetadata = new ArrayList<>();
+    List<ParameterMetadata> parameterMetadata = new ArrayList<>();
     List<DoubleArray> dataSensitivityAlpha = new ArrayList<>(); // Sensitivity to the calibrating data
     List<DoubleArray> dataSensitivityRho = new ArrayList<>();
-    List<DoubleArray> dataSensitivityNu = new ArrayList<>();    
+    List<DoubleArray> dataSensitivityNu = new ArrayList<>();
     for (int looptenor = 0; looptenor < nbTenors; looptenor++) {
       double timeTenor = tenors.get(looptenor).getPeriod().getYears() + tenors.get(looptenor).getPeriod().getMonths() / 12;
       List<Period> expiries = data.get(looptenor).getExpiries();
@@ -250,8 +250,10 @@ public class SabrSwaptionCalibrator {
           rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
           nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
           parameterMetadata.add(
-              SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor, 
-                expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
+              SwaptionSurfaceExpiryTenorParameterMetadata.of(
+                  timeToExpiry,
+                  timeTenor,
+                  expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
           dataSensitivityAlpha.add(inverseJacobian.row(0));
           dataSensitivityRho.add(inverseJacobian.row(2));
           dataSensitivityNu.add(inverseJacobian.row(3));
@@ -269,7 +271,7 @@ public class SabrSwaptionCalibrator {
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
         "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata)
-        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);    
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
     InterpolatedNodalSurface rhoSurface = InterpolatedNodalSurface

@@ -12,9 +12,10 @@ import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -25,7 +26,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This is typically used in inflation products.
  */
 public interface PriceIndexValues
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a curve and time-series of fixings.
@@ -70,12 +71,11 @@ public interface PriceIndexValues
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
 
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public abstract CurveName getCurveName();
+  @Override
+  public abstract PriceIndexValues withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract PriceIndexValues withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
@@ -118,6 +118,6 @@ public interface PriceIndexValues
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(InflationRateSensitivity pointSensitivity);
 
 }

@@ -16,11 +16,10 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
@@ -39,7 +38,7 @@ public class InterpolatedNodalSurfaceTest {
   private static final SurfaceMetadata METADATA_ENTRIES = DefaultSurfaceMetadata.builder()
       .surfaceName(SURFACE_NAME)
       .dayCount(ACT_365F)
-      .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(SIZE))
+      .parameterMetadata(ParameterMetadata.listOfEmpty(SIZE))
       .build();
   private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d, 0d, 2d, 3d, 0d, 2d, 3d);
@@ -66,6 +65,14 @@ public class InterpolatedNodalSurfaceTest {
     InterpolatedNodalSurface test = InterpolatedNodalSurface.of(METADATA_ENTRIES, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getParameter(0)).isEqualTo(ZVALUES.get(0));
+    assertThat(test.getParameter(1)).isEqualTo(ZVALUES.get(1));
+    assertThat(test.getParameterMetadata(0)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(0));
+    assertThat(test.getParameterMetadata(1)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(1));
+    assertThat(test.withParameter(0, 2d)).isEqualTo(
+        InterpolatedNodalSurface.of(METADATA_ENTRIES, XVALUES, YVALUES, ZVALUES.with(0, 2d), INTERPOLATOR));
+    assertThat(test.withPerturbation((i, v, m) -> v - 2d)).isEqualTo(
+        InterpolatedNodalSurface.of(METADATA_ENTRIES, XVALUES, YVALUES, ZVALUES_BUMPED, INTERPOLATOR));
     assertThat(test.getInterpolator()).isEqualTo(INTERPOLATOR);
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
     assertThat(test.getXValues()).isEqualTo(XVALUES);
@@ -142,89 +149,6 @@ public class InterpolatedNodalSurfaceTest {
     InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
     assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.EMPTY));
     assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.of(4d, 6d)));
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_shiftedBy_operator() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    InterpolatedNodalSurface test = base.shiftedBy((x, y, z) -> z - 2d);
-    assertThat(test.getName()).isEqualTo(SURFACE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES);
-    assertThat(test.getZValues()).isEqualTo(ZVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofReplace(4d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofReplace(6d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d));
-    InterpolatedNodalSurface test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(SURFACE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES);
-    assertThat(test.getZValues()).isEqualTo(ZVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment_longList() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofReplace(4d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofReplace(6d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(-2d),
-        ValueAdjustment.ofDeltaAmount(2d));
-    InterpolatedNodalSurface test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(SURFACE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES);
-    assertThat(test.getZValues()).isEqualTo(ZVALUES_BUMPED);
-  }
-
-  public void test_shiftedBy_adjustment_shortList() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    ImmutableList<ValueAdjustment> adjustments = ImmutableList.of(
-        ValueAdjustment.ofReplace(3d));
-    DoubleArray bumped = DoubleArray.of(3d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
-    InterpolatedNodalSurface test = base.shiftedBy(adjustments);
-    assertThat(test.getName()).isEqualTo(SURFACE_NAME);
-    assertThat(test.getParameterCount()).isEqualTo(SIZE);
-    assertThat(test.getMetadata()).isEqualTo(METADATA);
-    assertThat(test.getXValues()).isEqualTo(XVALUES);
-    assertThat(test.getYValues()).isEqualTo(YVALUES);
-    assertThat(test.getZValues()).isEqualTo(bumped);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    ConstantNodalSurface result = ConstantNodalSurface.of(SURFACE_NAME, 7d);
-    Surface test = base.applyPerturbation(surface -> result);
-    assertThat(test).isSameAs(result);
-  }
-
-  public void test_toNodalSurface() {
-    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    NodalSurface test = base.toNodalSurface();
-    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------

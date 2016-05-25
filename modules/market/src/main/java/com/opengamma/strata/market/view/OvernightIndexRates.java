@@ -13,9 +13,10 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -25,7 +26,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
  */
 public interface OvernightIndexRates
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a forward curve, with an empty time-series of fixings.
@@ -92,12 +93,11 @@ public interface OvernightIndexRates
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
 
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public abstract CurveName getCurveName();
+  @Override
+  public abstract OvernightIndexRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract OvernightIndexRates withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
@@ -205,6 +205,6 @@ public interface OvernightIndexRates
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(OvernightRateSensitivity pointSensitivity);
 
 }

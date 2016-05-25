@@ -82,7 +82,14 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
+    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
+    // check IborIndexRates
+    IborIndexRates test2 = IborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE);
+    assertEquals(test, test2);
   }
 
   public void test_of_withFixings() {
@@ -91,7 +98,17 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
+  }
+
+  public void test_of_badCurve() {
+    CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
+        .curveName(NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .build();
+    InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
+        noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
+    assertThrowsIllegalArg(() -> SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, notDayCount));
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +119,6 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE2);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -176,10 +192,10 @@ public class SimpleIborIndexRatesTest {
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES);
     IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M_AFTER, GBP, 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+    assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------

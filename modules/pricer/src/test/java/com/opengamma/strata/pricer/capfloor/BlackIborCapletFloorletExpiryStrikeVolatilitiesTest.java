@@ -31,13 +31,13 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.SimpleStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
+import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -60,12 +60,12 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
       DoubleArray.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
   private static final SurfaceMetadata METADATA;
   static {
-    List<GenericVolatilitySurfaceYearFractionMetadata> list =
-        new ArrayList<GenericVolatilitySurfaceYearFractionMetadata>();
+    List<GenericVolatilitySurfaceYearFractionParameterMetadata> list =
+        new ArrayList<GenericVolatilitySurfaceYearFractionParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      GenericVolatilitySurfaceYearFractionMetadata parameterMetadata =
-          GenericVolatilitySurfaceYearFractionMetadata.of(TIME.get(i), SimpleStrike.of(STRIKE.get(i)));
+      GenericVolatilitySurfaceYearFractionParameterMetadata parameterMetadata =
+          GenericVolatilitySurfaceYearFractionParameterMetadata.of(TIME.get(i), SimpleStrike.of(STRIKE.get(i)));
       list.add(parameterMetadata);
     }
     METADATA = DefaultSurfaceMetadata.builder()
@@ -170,7 +170,7 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
           double fd = 0.5 * (volUp - volDw) / eps;
           sensFd[j] = fd * TEST_SENSITIVITY[i];
         }
-        SurfaceCurrencyParameterSensitivity sensActual = PROVIDER.surfaceCurrencyParameterSensitivity(point);
+        CurrencyParameterSensitivity sensActual = PROVIDER.parameterSensitivity(point);
         double[] computed = sensActual.getSensitivity().toArray();
         assertTrue(DoubleArrayMath.fuzzyEquals(computed, sensFd, eps));
       }

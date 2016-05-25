@@ -26,10 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
-import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
+import com.opengamma.strata.market.surface.Surface;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
@@ -47,7 +47,7 @@ public final class BlackVolatilitySurfaceFxProvider
    * The y-values represent the strike.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface surface;
+  private final Surface surface;
   /**
    * The currency pair for which the volatility data are presented.
    */
@@ -76,7 +76,7 @@ public final class BlackVolatilitySurfaceFxProvider
    * @return the provider
    */
   public static BlackVolatilitySurfaceFxProvider of(
-      NodalSurface surface,
+      Surface surface,
       CurrencyPair currencyPair,
       DayCount dayCount,
       ZonedDateTime valuationTime) {
@@ -103,10 +103,10 @@ public final class BlackVolatilitySurfaceFxProvider
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
+  public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
     double expiryTime = relativeTime(point.getExpiryDateTime());
     double strike = point.getCurrencyPair().isInverse(currencyPair) ? 1d / point.getStrike() : point.getStrike();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, strike);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
@@ -133,7 +133,7 @@ public final class BlackVolatilitySurfaceFxProvider
   }
 
   private BlackVolatilitySurfaceFxProvider(
-      NodalSurface surface,
+      Surface surface,
       CurrencyPair currencyPair,
       DayCount dayCount,
       ZonedDateTime valuationDateTime) {
@@ -170,7 +170,7 @@ public final class BlackVolatilitySurfaceFxProvider
    * The y-values represent the strike.
    * @return the value of the property, not null
    */
-  public NodalSurface getSurface() {
+  public Surface getSurface() {
     return surface;
   }
 
@@ -263,8 +263,8 @@ public final class BlackVolatilitySurfaceFxProvider
     /**
      * The meta-property for the {@code surface} property.
      */
-    private final MetaProperty<NodalSurface> surface = DirectMetaProperty.ofImmutable(
-        this, "surface", BlackVolatilitySurfaceFxProvider.class, NodalSurface.class);
+    private final MetaProperty<Surface> surface = DirectMetaProperty.ofImmutable(
+        this, "surface", BlackVolatilitySurfaceFxProvider.class, Surface.class);
     /**
      * The meta-property for the {@code currencyPair} property.
      */
@@ -331,7 +331,7 @@ public final class BlackVolatilitySurfaceFxProvider
      * The meta-property for the {@code surface} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalSurface> surface() {
+    public MetaProperty<Surface> surface() {
       return surface;
     }
 
@@ -392,7 +392,7 @@ public final class BlackVolatilitySurfaceFxProvider
    */
   public static final class Builder extends DirectFieldsBeanBuilder<BlackVolatilitySurfaceFxProvider> {
 
-    private NodalSurface surface;
+    private Surface surface;
     private CurrencyPair currencyPair;
     private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
@@ -435,7 +435,7 @@ public final class BlackVolatilitySurfaceFxProvider
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
-          this.surface = (NodalSurface) newValue;
+          this.surface = (Surface) newValue;
           break;
         case 1005147787:  // currencyPair
           this.currencyPair = (CurrencyPair) newValue;
@@ -494,7 +494,7 @@ public final class BlackVolatilitySurfaceFxProvider
      * @param surface  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder surface(NodalSurface surface) {
+    public Builder surface(Surface surface) {
       JodaBeanUtils.notNull(surface, "surface");
       this.surface = surface;
       return this;

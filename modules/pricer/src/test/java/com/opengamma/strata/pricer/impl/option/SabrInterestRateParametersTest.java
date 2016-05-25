@@ -14,9 +14,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -51,31 +51,31 @@ public class SabrInterestRateParametersTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAlpha() {
-    NodalSurface surface = null;
+    Surface surface = null;
     SabrInterestRateParameters.of(surface, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FUNCTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBeta() {
-    NodalSurface surface = null;
+    Surface surface = null;
     SabrInterestRateParameters.of(ALPHA_SURFACE, surface, RHO_SURFACE, NU_SURFACE, FUNCTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRho() {
-    NodalSurface surface = null;
+    Surface surface = null;
     SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, surface, NU_SURFACE, FUNCTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNu() {
-    NodalSurface surface = null;
+    Surface surface = null;
     SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, surface, FUNCTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullShift() {
-    NodalSurface surface = null;
+    Surface surface = null;
     SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, surface, FUNCTION);
   }
 
@@ -134,7 +134,7 @@ public class SabrInterestRateParametersTest {
   @Test
   public void negativeRates() {
     double shift = 0.05;
-    NodalSurface surface = ConstantNodalSurface.of("shfit", shift);
+    Surface surface = ConstantSurface.of("shfit", shift);
     SabrInterestRateParameters params =
         SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, surface, FUNCTION);
     double expiry = 2.0;

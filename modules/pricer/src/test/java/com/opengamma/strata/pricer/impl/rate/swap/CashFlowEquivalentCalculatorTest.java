@@ -28,7 +28,7 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -261,12 +261,12 @@ public class CashFlowEquivalentCalculatorTest {
     int size = keyComputedFull.size();
     for (int i = 0; i < size; ++i) {
       final int index = i;
-      CurveCurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
+      CurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
           p -> ((NotionalExchange) CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, p)
               .getPaymentEvents().get(index)).getPaymentAmount());
       PointSensitivityBuilder point = computedFull.get(
           CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index));
-      CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
+      CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
       assertTrue(computed.equalWithTolerance(expected, eps * NOTIONAL));
     }
   }

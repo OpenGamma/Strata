@@ -31,10 +31,10 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
-import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 
 /**
@@ -52,7 +52,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
    * The order of the dimensions is expiry/strike.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface surface;
+  private final Surface surface;
   /**
    * The Ibor index.
    * <p>
@@ -84,7 +84,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
    * @return the volatilities
    */
   public static NormalIborCapletFloorletExpiryStrikeVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       IborIndex index,
       ZonedDateTime valuationDateTime,
       DayCount dayCount) {
@@ -104,7 +104,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
    * @return the volatilities
    */
   public static NormalIborCapletFloorletExpiryStrikeVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       IborIndex index,
       LocalDate valuationDate,
       LocalTime valuationTime,
@@ -121,12 +121,12 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(IborCapletFloorletSensitivity point) {
+  public CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity point) {
     ArgChecker.isTrue(point.getIndex().equals(index),
         "Ibor index of provider must be the same as Ibor index of point sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double strike = point.getStrike();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
@@ -185,7 +185,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
   private static final long serialVersionUID = 1L;
 
   private NormalIborCapletFloorletExpiryStrikeVolatilities(
-      NodalSurface surface,
+      Surface surface,
       IborIndex index,
       DayCount dayCount,
       ZonedDateTime valuationDateTime) {
@@ -221,7 +221,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
    * The order of the dimensions is expiry/strike.
    * @return the value of the property, not null
    */
-  public NodalSurface getSurface() {
+  public Surface getSurface() {
     return surface;
   }
 
@@ -309,8 +309,8 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
     /**
      * The meta-property for the {@code surface} property.
      */
-    private final MetaProperty<NodalSurface> surface = DirectMetaProperty.ofImmutable(
-        this, "surface", NormalIborCapletFloorletExpiryStrikeVolatilities.class, NodalSurface.class);
+    private final MetaProperty<Surface> surface = DirectMetaProperty.ofImmutable(
+        this, "surface", NormalIborCapletFloorletExpiryStrikeVolatilities.class, Surface.class);
     /**
      * The meta-property for the {@code index} property.
      */
@@ -377,7 +377,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
      * The meta-property for the {@code surface} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalSurface> surface() {
+    public MetaProperty<Surface> surface() {
       return surface;
     }
 
@@ -438,7 +438,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NormalIborCapletFloorletExpiryStrikeVolatilities> {
 
-    private NodalSurface surface;
+    private Surface surface;
     private IborIndex index;
     private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
@@ -470,7 +470,7 @@ public final class NormalIborCapletFloorletExpiryStrikeVolatilities
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
-          this.surface = (NodalSurface) newValue;
+          this.surface = (Surface) newValue;
           break;
         case 100346066:  // index
           this.index = (IborIndex) newValue;

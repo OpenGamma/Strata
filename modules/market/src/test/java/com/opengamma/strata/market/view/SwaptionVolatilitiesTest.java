@@ -14,8 +14,8 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -51,7 +51,7 @@ public class SwaptionVolatilitiesTest {
     }
 
     @Override
-    public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity pointSensitivity) {
+    public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity) {
       throw new UnsupportedOperationException();
     }
 

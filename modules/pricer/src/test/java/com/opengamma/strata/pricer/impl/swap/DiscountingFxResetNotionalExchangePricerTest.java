@@ -35,7 +35,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -43,6 +42,7 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -107,9 +107,9 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
 
       PointSensitivityBuilder pointSensitivityComputed = test.presentValueSensitivity(expanded[i], prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.curveParameterSensitivity(
+      CurrencyParameterSensitivities parameterSensitivityComputed = prov.parameterSensitivity(
           pointSensitivityComputed.build());
-      CurveCurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
+      CurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.presentValue(fxReset, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(
           parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));
@@ -139,9 +139,9 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
 
       PointSensitivityBuilder pointSensitivityComputed = test.forecastValueSensitivity(expanded[i], prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed = prov.curveParameterSensitivity(
+      CurrencyParameterSensitivities parameterSensitivityComputed = prov.parameterSensitivity(
           pointSensitivityComputed.build());
-      CurveCurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
+      CurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.forecastValue(fxReset, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(
           parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));

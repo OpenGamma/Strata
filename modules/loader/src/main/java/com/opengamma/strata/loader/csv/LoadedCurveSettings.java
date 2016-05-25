@@ -25,13 +25,13 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 
 /**
  * Represents curve settings, used when loading curves.
@@ -106,13 +106,13 @@ final class LoadedCurveSettings
     // build each node
     double[] xValues = new double[nodes.size()];
     double[] yValues = new double[nodes.size()];
-    List<CurveParameterMetadata> pointsMetadata = new ArrayList<CurveParameterMetadata>(nodes.size());
+    List<ParameterMetadata> pointsMetadata = new ArrayList<ParameterMetadata>(nodes.size());
     for (int i = 0; i < nodes.size(); i++) {
       LoadedCurveNode point = nodes.get(i);
       double yearFraction = dayCount.yearFraction(date, point.getDate());
       xValues[i] = yearFraction;
       yValues[i] = point.getValue();
-      CurveParameterMetadata pointMetadata = SimpleCurveNodeMetadata.of(point.getDate(), point.getLabel());
+      ParameterMetadata pointMetadata = LabelDateParameterMetadata.of(point.getDate(), point.getLabel());
       pointsMetadata.add(pointMetadata);
     }
 

@@ -38,10 +38,10 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -122,11 +122,11 @@ public class CurveGammaCalculatorTest {
       }
       return (pv[1][1] - pv[1][0] - pv[0][1] + pv[0][0]) / (4 * FD_SHIFT * FD_SHIFT);
     });
-    CurveCurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
+    CurrencyParameterSensitivity sensitivityComputed = GAMMA_CAL.calculateSemiParallelGamma(
         USD_SINGLE_CURVE,
         curveCurrency,
         c -> buildSensitivities(c, provider));
-    assertEquals(sensitivityComputed.getMetadata(), USD_SINGLE_CURVE.getMetadata());
+    assertEquals(sensitivityComputed.getMarketDataName(), USD_SINGLE_CURVE.getName());
     DoubleArray gammaComputed = sensitivityComputed.getSensitivity();
     assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
   }
@@ -157,7 +157,7 @@ public class CurveGammaCalculatorTest {
   }
 
   //-------------------------------------------------------------------------
-  private static CurveCurrencyParameterSensitivity buildSensitivities(Curve bumpedCurve, ImmutableRatesProvider ratesProvider) {
+  private static CurrencyParameterSensitivity buildSensitivities(Curve bumpedCurve, ImmutableRatesProvider ratesProvider) {
     RatesProvider bumpedRatesProvider = ratesProvider.toBuilder()
         .discountCurves(ratesProvider.getDiscountCurves().keySet().stream()
             .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
@@ -165,7 +165,7 @@ public class CurveGammaCalculatorTest {
             .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
         .build();
     PointSensitivities pointSensitivities = PRICER_SWAP.presentValueSensitivity(SWAP, bumpedRatesProvider).build();
-    CurveCurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.curveParameterSensitivity(pointSensitivities);
+    CurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.parameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
   }
 

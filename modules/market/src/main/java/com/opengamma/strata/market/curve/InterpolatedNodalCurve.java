@@ -5,13 +5,15 @@
  */
 package com.opengamma.strata.market.curve;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
+import java.util.stream.IntStream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -27,12 +29,16 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -93,6 +99,10 @@ public final class InterpolatedNodalCurve
    * The bound interpolator.
    */
   private transient final BoundCurveInterpolator boundInterpolator;  // derived and cached, not a property
+  /**
+   * The parameter metadata.
+   */
+  private transient final List<ParameterMetadata> parameterMetadata;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -160,6 +170,9 @@ public final class InterpolatedNodalCurve
     this.interpolator = interpolator;
     this.extrapolatorRight = extrapolatorRight;
     this.boundInterpolator = interpolator.bind(xValues, yValues, extrapolatorLeft, extrapolatorRight);
+    this.parameterMetadata = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
   }
 
   @ImmutableDefaults
@@ -176,7 +189,25 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    return xValues.size();
+    return yValues.size();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return yValues.get(parameterIndex);
+  }
+
+  @Override
+  public InterpolatedNodalCurve withParameter(int parameterIndex, double newValue) {
+    return withYValues(yValues.with(parameterIndex, newValue));
+  }
+
+  @Override
+  public InterpolatedNodalCurve withPerturbation(ParameterPerturbation perturbation) {
+    int size = yValues.size();
+    DoubleArray perturbedValues = DoubleArray.of(
+        size, i -> perturbation.perturbParameter(i, yValues.get(i), getParameterMetadata(i)));
+    return withYValues(perturbedValues);
   }
 
   //-------------------------------------------------------------------------
@@ -186,9 +217,8 @@ public final class InterpolatedNodalCurve
   }
 
   @Override
-  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    DoubleArray array = boundInterpolator.parameterSensitivity(x);
-    return CurveUnitParameterSensitivity.of(metadata, array);
+  public UnitParameterSensitivity yValueParameterSensitivity(double x) {
+    return createParameterSensitivity(boundInterpolator.parameterSensitivity(x));
   }
 
   @Override
@@ -205,16 +235,6 @@ public final class InterpolatedNodalCurve
   @Override
   public InterpolatedNodalCurve withYValues(DoubleArray yValues) {
     return new InterpolatedNodalCurve(metadata, xValues, yValues, extrapolatorLeft, interpolator, extrapolatorRight);
-  }
-
-  @Override
-  public InterpolatedNodalCurve shiftedBy(DoubleBinaryOperator operator) {
-    return (InterpolatedNodalCurve) NodalCurve.super.shiftedBy(operator);
-  }
-
-  @Override
-  public InterpolatedNodalCurve shiftedBy(List<ValueAdjustment> adjustments) {
-    return (InterpolatedNodalCurve) NodalCurve.super.shiftedBy(adjustments);
   }
 
   //-------------------------------------------------------------------------
@@ -248,18 +268,29 @@ public final class InterpolatedNodalCurve
    * @param y  the new y-value
    * @return the updated curve
    */
-  public InterpolatedNodalCurve withNode(int index, CurveParameterMetadata paramMetadata, double x, double y) {
+  public InterpolatedNodalCurve withNode(int index, ParameterMetadata paramMetadata, double x, double y) {
     DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
     DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
     // add to existing metadata, or do nothing if no existing metadata
     CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
-          List<CurveParameterMetadata> extended = new ArrayList<>(params);
+          List<ParameterMetadata> extended = new ArrayList<>(params);
           extended.add(index, paramMetadata);
           return metadata.withParameterMetadata(extended);
         })
         .orElse(metadata);
     return new InterpolatedNodalCurve(md, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    return UnitParameterSensitivity.of(getName(), parameterMetadata, sensitivities);
+  }
+
+  @Override
+  public CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return CurrencyParameterSensitivity.of(getName(), parameterMetadata, currency, sensitivities);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

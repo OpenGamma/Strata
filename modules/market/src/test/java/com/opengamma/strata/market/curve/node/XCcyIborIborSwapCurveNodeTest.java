@@ -35,10 +35,10 @@ import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
@@ -161,17 +161,17 @@ public class XCcyIborIborSwapCurveNodeTest {
   public void test_metadata_end() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    CurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
+    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
+    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
   }
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     XCcyIborIborSwapCurveNode node =
         XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ, LABEL).withDate(CurveNodeDate.of(nodeDate));
-    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -180,10 +180,10 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode node =
         XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     LocalDate fixingExpected = LocalDate.of(2024, 10, 24);
     assertEquals(metadata.getDate(), fixingExpected);
-    assertEquals(((TenorDateCurveNodeMetadata) metadata).getTenor(), TENOR_10Y);
+    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), TENOR_10Y);
   }
 
   //-------------------------------------------------------------------------

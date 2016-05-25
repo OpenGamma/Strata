@@ -13,10 +13,11 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 
@@ -27,7 +28,7 @@ import com.opengamma.strata.market.value.CompoundedRateType;
  * when comparing the valuation date to the specified date.
  */
 public interface DiscountFactors
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a curve.
@@ -68,16 +69,15 @@ public interface DiscountFactors
    */
   public abstract Currency getCurrency();
 
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public abstract CurveName getCurveName();
+  @Override
+  public abstract DiscountFactors withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract DiscountFactors withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the discount factor.
+   * Gets the discount factor for the specified date.
    * <p>
    * The discount factor represents the time value of money for the specified currency
    * when comparing the valuation date to the specified date.
@@ -91,7 +91,7 @@ public interface DiscountFactors
   public abstract double discountFactor(LocalDate date);
 
   /**
-   * Gets the discount factor with z-spread.
+   * Gets the discount factor for the specified date with z-spread.
    * <p>
    * The discount factor represents the time value of money for the specified currency
    * when comparing the valuation date to the specified date.
@@ -225,6 +225,6 @@ public interface DiscountFactors
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity);
 
 }

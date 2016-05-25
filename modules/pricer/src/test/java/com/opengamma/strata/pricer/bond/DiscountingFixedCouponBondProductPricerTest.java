@@ -37,13 +37,13 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.LegalEntityGroup;
@@ -303,16 +303,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivity(PRODUCT, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> PRICER.presentValue(PRODUCT, p));
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> PRICER.presentValue(PRODUCT, p));
     assertTrue(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS));
   }
 
   public void test_presentValueSensitivityWithZSpread_continuous() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS,
         0);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> PRICER.presentValueWithZSpread(PRODUCT, p, Z_SPREAD, CONTINUOUS, 0));
     assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
   }
@@ -320,16 +320,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueSensitivityWithZSpread_periodic() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, 
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
         p -> PRICER.presentValueWithZSpread(PRODUCT, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
   }
 
   public void test_presentValueProductSensitivity_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivity(PRODUCT_NO_EXCOUPON, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> PRICER.presentValue(PRODUCT_NO_EXCOUPON, p));
     assertTrue(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS));
   }
@@ -337,8 +337,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueSensitivityWithZSpread_continuous_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, 
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
         p -> PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, CONTINUOUS, 0));
     assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
   }
@@ -346,16 +346,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_presentValueSensitivityWithZSpread_periodic_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p ->
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p ->
         PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
   }
 
   public void test_dirtyPriceSensitivity() {
     PointSensitivityBuilder point = PRICER.dirtyPriceSensitivity(PRODUCT, PROVIDER, REF_DATA);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, p, REF_DATA)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }
@@ -363,8 +363,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_dirtyPriceSensitivityWithZspread_continuous() {
     PointSensitivityBuilder point =
         PRICER.dirtyPriceSensitivityWithZspread(PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(
         EUR, PRICER.dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, CONTINUOUS, 0)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }
@@ -372,8 +372,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
   public void test_dirtyPriceSensitivityWithZspread_periodic() {
     PointSensitivityBuilder point = PRICER.dirtyPriceSensitivityWithZspread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(EUR, PRICER
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(EUR, PRICER
         .dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
     assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
   }

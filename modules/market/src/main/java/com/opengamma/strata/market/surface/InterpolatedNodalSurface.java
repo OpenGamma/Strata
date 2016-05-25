@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.market.surface;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -25,10 +28,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.value.ValueAdjustment;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTernaryOperator;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
@@ -83,6 +89,10 @@ public final class InterpolatedNodalSurface
    * The underlying data bundle.
    */
   private transient final Map<Double, Interpolator1DDataBundle> underlyingDataBundle;  // derived and cached, not a property
+  /**
+   * The parameter metadata.
+   */
+  private transient final List<ParameterMetadata> parameterMetadata;  // derived, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -151,6 +161,9 @@ public final class InterpolatedNodalSurface
     }
     this.interpolator = interpolator;
     underlyingDataBundle = interpolator.getDataBundle(pairs);
+    this.parameterMetadata = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
   }
 
   // ensure standard constructor is invoked
@@ -161,7 +174,25 @@ public final class InterpolatedNodalSurface
   //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    return xValues.size();
+    return zValues.size();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return zValues.get(parameterIndex);
+  }
+
+  @Override
+  public InterpolatedNodalSurface withParameter(int parameterIndex, double newValue) {
+    return withZValues(zValues.with(parameterIndex, newValue));
+  }
+
+  @Override
+  public InterpolatedNodalSurface withPerturbation(ParameterPerturbation perturbation) {
+    int size = zValues.size();
+    DoubleArray perturbedValues = DoubleArray.of(
+        size, i -> perturbation.perturbParameter(i, zValues.get(i), getParameterMetadata(i)));
+    return withZValues(perturbedValues);
   }
 
   //-------------------------------------------------------------------------
@@ -176,19 +207,19 @@ public final class InterpolatedNodalSurface
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+  public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     return zValueParameterSensitivity(DoublesPair.of(x, y));
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
+  public UnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
     int size = xValues.size();
     Map<DoublesPair, Double> result = interpolator.getNodeSensitivitiesForValue(underlyingDataBundle, xyPair);
     DoubleArray sensitivityValues = DoubleArray.of(size, i -> {
       Double sensitivity = result.get(DoublesPair.of(xValues.get(i), yValues.get(i)));
       return sensitivity != null ? sensitivity : 0d;
     });
-    return SurfaceUnitParameterSensitivity.of(metadata, sensitivityValues);
+    return createParameterSensitivity(sensitivityValues);
   }
 
   //-------------------------------------------------------------------------
@@ -202,14 +233,15 @@ public final class InterpolatedNodalSurface
     return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public InterpolatedNodalSurface shiftedBy(DoubleTernaryOperator operator) {
-    return (InterpolatedNodalSurface) NodalSurface.super.shiftedBy(operator);
+  public UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    return UnitParameterSensitivity.of(getName(), parameterMetadata, sensitivities);
   }
 
   @Override
-  public InterpolatedNodalSurface shiftedBy(List<ValueAdjustment> adjustments) {
-    return (InterpolatedNodalSurface) NodalSurface.super.shiftedBy(adjustments);
+  public CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return CurrencyParameterSensitivity.of(getName(), parameterMetadata, currency, sensitivities);
   }
 
   //------------------------- AUTOGENERATED START -------------------------

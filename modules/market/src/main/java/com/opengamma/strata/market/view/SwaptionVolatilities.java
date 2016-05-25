@@ -10,8 +10,8 @@ import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -83,17 +83,17 @@ public interface SwaptionVolatilities
    */
   public abstract double volatility(double expiry, double tenor, double strike, double forward);
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the surface parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to surface parameter sensitivity.
+   * This is used to convert a single point sensitivity to parameter sensitivity.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
-      SwaptionSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity);
 
   //-------------------------------------------------------------------------
   /**

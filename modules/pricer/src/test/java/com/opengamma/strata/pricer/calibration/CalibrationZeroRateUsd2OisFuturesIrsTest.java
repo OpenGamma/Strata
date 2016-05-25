@@ -46,7 +46,6 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -64,6 +63,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
@@ -306,8 +306,8 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     RatesProvider result = calibrator.apply(ALL_QUOTES);
     ResolvedSwap product = trade.getProduct().resolve(REF_DATA);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(product, result);
-    CurveCurrencyParameterSensitivities ps = result.curveParameterSensitivity(pts.build());
-    CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);
+    CurrencyParameterSensitivities ps = result.parameterSensitivity(pts.build());
+    CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);
     double pv0 = SWAP_PRICER.presentValue(product, result).getAmount(USD).getAmount();
     double[] mqsDscComputed = mqs.getSensitivity(DSCON_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < DSC_NB_NODES; i++) {

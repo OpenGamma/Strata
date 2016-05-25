@@ -107,6 +107,12 @@ public class IsdaCompliantDateYieldCurve
   }
 
   @Override
+  public IsdaCompliantDateYieldCurve withParameter(int parameterIndex, double newValue) {
+    IsdaCompliantYieldCurve temp = super.withParameter(parameterIndex, newValue);
+    return new IsdaCompliantDateYieldCurve(baseDate, dates, dayCount, temp);
+  }
+
+  @Override
   public IsdaCompliantDateYieldCurve withRate(double rate, int index) {
     IsdaCompliantYieldCurve temp = super.withRate(rate, index);
     return new IsdaCompliantDateYieldCurve(baseDate, dates, dayCount, temp);

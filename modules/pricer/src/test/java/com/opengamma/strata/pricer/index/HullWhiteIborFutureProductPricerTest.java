@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -71,8 +71,8 @@ public class HullWhiteIborFutureProductPricerTest {
 
   public void test_priceSensitivity() {
     PointSensitivities point = PRICER.priceSensitivity(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> CurrencyAmount.of(EUR, PRICER.price(FUTURE, (p), HW_PROVIDER)));
     assertTrue(computed.equalWithTolerance(expected, TOL_FD));
   }
@@ -116,7 +116,7 @@ public class HullWhiteIborFutureProductPricerTest {
 
   public void regression_sensitivity() {
     PointSensitivities point = PRICER.priceSensitivity(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] expected = new double[] {0.0, 0.0, 0.9514709785770106, -1.9399920741192112, 0.0, 0.0, 0.0, 0.0 };
     assertEquals(computed.size(), 1);
     assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD3_NAME, EUR)

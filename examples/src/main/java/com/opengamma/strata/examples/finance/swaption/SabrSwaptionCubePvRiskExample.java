@@ -38,16 +38,15 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
+import com.opengamma.strata.market.surface.ConstantSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -144,9 +143,9 @@ public class SabrSwaptionCubePvRiskExample {
     // SABR calibration 
     start = System.currentTimeMillis();
     double beta = 0.50;
-    NodalSurface betaSurface = ConstantNodalSurface.of("SABR-Beta", beta);
+    Surface betaSurface = ConstantSurface.of("SABR-Beta", beta);
     double shift = 0.0300;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("SABR-Shift", shift);
+    Surface shiftSurface = ConstantSurface.of("SABR-Shift", shift);
     SabrParametersSwaptionVolatilities sabr = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
         EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, data,
         multicurve, betaSurface, shiftSurface, INTERPOLATOR_2D);
@@ -160,13 +159,13 @@ public class SabrSwaptionCubePvRiskExample {
     System.out.println("  |-> PV: " + pv.toString());
 
     PointSensitivities deltaPts = SWAPTION_PRICER.presentValueSensitivity(resolvedSwaption, multicurve, sabr).build();
-    CurveCurrencyParameterSensitivities deltaBucketed = multicurve.curveParameterSensitivity(deltaPts);
+    CurrencyParameterSensitivities deltaBucketed = multicurve.parameterSensitivity(deltaPts);
     System.out.println("  |-> Delta bucketed: " + deltaBucketed.toString());
 
     SwaptionSabrSensitivity vegaPts = SWAPTION_PRICER.presentValueSensitivitySabrParameter(resolvedSwaption, multicurve, sabr);
     System.out.println("  |-> Vega point: " + vegaPts.toString());
 
-    SurfaceCurrencyParameterSensitivities vegaBucketed = sabr.surfaceCurrencyParameterSensitivity(vegaPts);
+    CurrencyParameterSensitivities vegaBucketed = sabr.parameterSensitivity(vegaPts);
     for (int i = 0; i < vegaBucketed.size(); i++) {
       System.out.println("  |-> Vega bucketed: " + vegaBucketed.getSensitivities().get(i));
     }

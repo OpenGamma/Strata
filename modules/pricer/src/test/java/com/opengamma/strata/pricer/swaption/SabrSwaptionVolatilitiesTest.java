@@ -22,11 +22,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -105,29 +105,29 @@ public class SabrSwaptionVolatilitiesTest {
     }
   }
 
-  public void test_surfaceCurrencyParameterSensitivity() {
+  public void test_parameterSensitivity() {
     double alphaSensi = 2.24, betaSensi = 3.45, rhoSensi = -2.12, nuSensi = -0.56;
     SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
       SwaptionSabrSensitivity point = SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], USD,
           alphaSensi, betaSensi, rhoSensi, nuSensi);
-      SurfaceCurrencyParameterSensitivities sensiComputed = prov.surfaceCurrencyParameterSensitivity(point);
-      SurfaceUnitParameterSensitivity alphaSensitivities = prov.getParameters().getAlphaSurface()
+      CurrencyParameterSensitivities sensiComputed = prov.parameterSensitivity(point);
+      UnitParameterSensitivity alphaSensitivities = prov.getParameters().getAlphaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      SurfaceUnitParameterSensitivity betaSensitivities = prov.getParameters().getBetaSurface()
+      UnitParameterSensitivity betaSensitivities = prov.getParameters().getBetaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      SurfaceUnitParameterSensitivity rhoSensitivities = prov.getParameters().getRhoSurface()
+      UnitParameterSensitivity rhoSensitivities = prov.getParameters().getRhoSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      SurfaceUnitParameterSensitivity nuSensitivities = prov.getParameters().getNuSurface()
+      UnitParameterSensitivity nuSensitivities = prov.getParameters().getNuSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
-      SurfaceCurrencyParameterSensitivity alphaSensiObj = sensiComputed.getSensitivity(
+      CurrencyParameterSensitivity alphaSensiObj = sensiComputed.getSensitivity(
           SwaptionSabrRateVolatilityDataSet.META_ALPHA.getSurfaceName(), USD);
-      SurfaceCurrencyParameterSensitivity betaSensiObj = sensiComputed.getSensitivity(
+      CurrencyParameterSensitivity betaSensiObj = sensiComputed.getSensitivity(
           SwaptionSabrRateVolatilityDataSet.META_BETA_USD.getSurfaceName(), USD);
-      SurfaceCurrencyParameterSensitivity rhoSensiObj = sensiComputed.getSensitivity(
+      CurrencyParameterSensitivity rhoSensiObj = sensiComputed.getSensitivity(
           SwaptionSabrRateVolatilityDataSet.META_RHO.getSurfaceName(), USD);
-      SurfaceCurrencyParameterSensitivity nuSensiObj = sensiComputed.getSensitivity(
+      CurrencyParameterSensitivity nuSensiObj = sensiComputed.getSensitivity(
           SwaptionSabrRateVolatilityDataSet.META_NU.getSurfaceName(), USD);
       DoubleArray alphaNodeSensiComputed = alphaSensiObj.getSensitivity();
       DoubleArray betaNodeSensiComputed = betaSensiObj.getSensitivity();
@@ -152,7 +152,7 @@ public class SabrSwaptionVolatilitiesTest {
     }
   }
 
-  public void test_surfaceCurrencyParameterSensitivity_multi() {
+  public void test_parameterSensitivity_multi() {
     double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56};
     double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0};
     double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18};
@@ -165,10 +165,10 @@ public class SabrSwaptionVolatilitiesTest {
       SwaptionSabrSensitivity sensi3 = SwaptionSabrSensitivity.of(
           CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], USD, points3[0], points3[1], points3[2], points3[3]);
       SwaptionSabrSensitivities sensis = SwaptionSabrSensitivities.of(Arrays.asList(sensi1, sensi2, sensi3)).normalize();
-      SurfaceCurrencyParameterSensitivities computed = prov.surfaceCurrencyParameterSensitivity(sensis);
-      SurfaceCurrencyParameterSensitivities expected = prov.surfaceCurrencyParameterSensitivity(sensi1)
-          .combinedWith(prov.surfaceCurrencyParameterSensitivity(sensi2))
-          .combinedWith(prov.surfaceCurrencyParameterSensitivity(sensi3));
+      CurrencyParameterSensitivities computed = prov.parameterSensitivity(sensis);
+      CurrencyParameterSensitivities expected = prov.parameterSensitivity(sensi1)
+          .combinedWith(prov.parameterSensitivity(sensi2))
+          .combinedWith(prov.parameterSensitivity(sensi3));
       DoubleArrayMath.fuzzyEquals(
           computed.getSensitivity(PARAM.getAlphaSurface().getName(), USD).getSensitivity().toArray(),
           expected.getSensitivity(PARAM.getAlphaSurface().getName(), USD).getSensitivity().toArray(),

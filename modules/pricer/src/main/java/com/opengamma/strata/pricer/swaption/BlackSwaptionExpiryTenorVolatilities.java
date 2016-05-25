@@ -32,12 +32,12 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -58,7 +58,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface surface;
+  private final Surface surface;
   /** 
    * The valuation date-time.
    * <p>
@@ -79,7 +79,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
   /**
    * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * <p>
-   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surface must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -96,7 +96,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       ZonedDateTime valuationDateTime) {
 
     return new BlackSwaptionExpiryTenorVolatilities(surface, valuationDateTime);
@@ -105,7 +105,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
   /**
    * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * <p>
-   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surface must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -124,7 +124,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * @return the volatilities
    */
   public static BlackSwaptionExpiryTenorVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       LocalDate valuationDate,
       LocalTime valuationTime,
       ZoneId valuationZone) {
@@ -134,7 +134,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
 
   @ImmutableConstructor
   private BlackSwaptionExpiryTenorVolatilities(
-      NodalSurface surface,
+      Surface surface,
       ZonedDateTime valuationDateTime) {
 
     ArgChecker.notNull(surface, "surface");
@@ -169,12 +169,12 @@ public final class BlackSwaptionExpiryTenorVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity point) {
+  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
     ArgChecker.isTrue(point.getConvention().equals(convention),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double tenor = point.getTenor();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
@@ -261,7 +261,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    * @return the value of the property, not null
    */
-  public NodalSurface getSurface() {
+  public Surface getSurface() {
     return surface;
   }
 
@@ -322,8 +322,8 @@ public final class BlackSwaptionExpiryTenorVolatilities
     /**
      * The meta-property for the {@code surface} property.
      */
-    private final MetaProperty<NodalSurface> surface = DirectMetaProperty.ofImmutable(
-        this, "surface", BlackSwaptionExpiryTenorVolatilities.class, NodalSurface.class);
+    private final MetaProperty<Surface> surface = DirectMetaProperty.ofImmutable(
+        this, "surface", BlackSwaptionExpiryTenorVolatilities.class, Surface.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
@@ -374,7 +374,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
      * The meta-property for the {@code surface} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalSurface> surface() {
+    public MetaProperty<Surface> surface() {
       return surface;
     }
 
@@ -415,7 +415,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
    */
   private static final class Builder extends DirectFieldsBeanBuilder<BlackSwaptionExpiryTenorVolatilities> {
 
-    private NodalSurface surface;
+    private Surface surface;
     private ZonedDateTime valuationDateTime;
 
     /**
@@ -441,7 +441,7 @@ public final class BlackSwaptionExpiryTenorVolatilities
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
-          this.surface = (NodalSurface) newValue;
+          this.surface = (Surface) newValue;
           break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;

@@ -23,7 +23,7 @@ import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -46,7 +46,7 @@ public class CurveMarketDataFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_singleCurve() {
-    Curve curve = ConstantNodalCurve.of(CURVE_NAME1, (double) 1);
+    Curve curve = ConstantCurve.of(CURVE_NAME1, (double) 1);
     CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1, OBS_SOURCE);
     CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2, OBS_SOURCE);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME, OBS_SOURCE);
@@ -65,8 +65,8 @@ public class CurveMarketDataFunctionTest {
   }
 
   public void test_multipleCurves() {
-    Curve curve1 = ConstantNodalCurve.of(CURVE_NAME1, (double) 1);
-    Curve curve2 = ConstantNodalCurve.of(CURVE_NAME2, (double) 2);
+    Curve curve1 = ConstantCurve.of(CURVE_NAME1, (double) 1);
+    Curve curve2 = ConstantCurve.of(CURVE_NAME2, (double) 2);
     CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1);
     CurveId curveId2 = CurveId.of(GROUP_NAME, CURVE_NAME2);
     CurveGroupId groupId = CurveGroupId.of(GROUP_NAME);

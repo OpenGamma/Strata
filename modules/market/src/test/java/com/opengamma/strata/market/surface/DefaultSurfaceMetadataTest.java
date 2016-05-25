@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link DefaultSurfaceMetadata}.
@@ -60,7 +61,7 @@ public class DefaultSurfaceMetadataTest {
         .zValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
         .addInfo(DESCRIPTION, "Hello")
-        .parameterMetadata(ImmutableList.of(SurfaceParameterMetadata.empty()))
+        .parameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
         .build();
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
@@ -72,7 +73,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.findInfo(DESCRIPTION)).isEqualTo(Optional.of("Hello"));
     assertThat(test.findInfo(SurfaceInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(SurfaceParameterMetadata.empty());
+    assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
   public void test_builder2() {
@@ -84,7 +85,7 @@ public class DefaultSurfaceMetadataTest {
         .dayCount(ACT_365F)
         .addInfo(SurfaceInfoType.DAY_COUNT, null)
         .addInfo(DESCRIPTION, "Hello")
-        .parameterMetadata(ImmutableList.of(SurfaceParameterMetadata.empty()))
+        .parameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
         .build();
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
@@ -96,13 +97,13 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.findInfo(DESCRIPTION)).isEqualTo(Optional.of("Hello"));
     assertThat(test.findInfo(SurfaceInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(SurfaceParameterMetadata.empty());
+    assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
   public void test_builder3() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
-        .parameterMetadata(ImmutableList.of(SurfaceParameterMetadata.empty()))
+        .parameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
         .clearParameterMetadata()
         .build();
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
@@ -124,13 +125,13 @@ public class DefaultSurfaceMetadataTest {
   //-------------------------------------------------------------------------
   public void test_withParameterMetadata() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME)
-        .withParameterMetadata(ImmutableList.of(SurfaceParameterMetadata.empty()));
+        .withParameterMetadata(ImmutableList.of(ParameterMetadata.empty()));
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getZValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(SurfaceParameterMetadata.empty());
+    assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
   public void test_withParameterMetadata_clearWhenEmpty() {
@@ -144,7 +145,7 @@ public class DefaultSurfaceMetadataTest {
 
   public void test_withParameterMetadata_clearWhenNonEmpty() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME)
-        .withParameterMetadata(ImmutableList.of(SurfaceParameterMetadata.empty()))
+        .withParameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
         .withParameterMetadata(null);
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.UNKNOWN);
@@ -163,7 +164,7 @@ public class DefaultSurfaceMetadataTest {
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .zValueType(ValueType.ZERO_RATE)
         .dayCount(ACT_365F)
-        .parameterMetadata(SurfaceParameterMetadata.empty())
+        .parameterMetadata(ParameterMetadata.empty())
         .build();
     coverBeanEquals(test, test2);
   }

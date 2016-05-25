@@ -40,9 +40,9 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -100,12 +100,12 @@ public class SabrSwaptionCalibratorCubeNormalTest {
   @Test
   public void normal_cube() {
     double beta = 0.50;
-    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
             .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
     double shift = 0.0300;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(

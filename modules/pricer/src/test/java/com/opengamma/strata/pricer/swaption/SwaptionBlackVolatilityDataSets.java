@@ -22,9 +22,9 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -64,7 +64,7 @@ public class SwaptionBlackVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final SurfaceMetadata METADATA_STD =
       Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_365F, USD_1Y_LIBOR3M);
-  private static final NodalSurface SURFACE_STD =
+  private static final Surface SURFACE_STD =
       InterpolatedNodalSurface.of(METADATA_STD, TIMES, TENOR, BLACK_VOL, INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE_STD = LocalDate.of(2015, 8, 7);
@@ -79,7 +79,7 @@ public class SwaptionBlackVolatilityDataSets {
   /** metadata for constant surface */
   public static final SurfaceMetadata META_DATA =
       Surfaces.swaptionBlackExpiryTenor("Constant Surface", ACT_365F, USD_FIXED_6M_LIBOR_3M);
-  private static final NodalSurface CST_SURFACE = ConstantNodalSurface.of(META_DATA, VOLATILITY);
+  private static final Surface CST_SURFACE = ConstantSurface.of(META_DATA, VOLATILITY);
   /** flat Black volatility provider */
   public static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
       BlackSwaptionExpiryTenorVolatilities.of(CST_SURFACE, VAL_DATE_STD, VAL_TIME_STD, VAL_ZONE_STD);

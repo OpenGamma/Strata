@@ -42,13 +42,13 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -110,12 +110,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   }
 
   private static final double[][][] DATA_LOGNORMAL_SPARSE = {
-    {{0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 } },
-    { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 } }
+      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}},
+      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}}
   };
   private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_LOGNORMAL_SPARSE);
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
@@ -129,12 +129,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   @Test
   public void log_normal_cube() {
     double beta = 0.50;
-    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
             .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
     double shift = 0.0000;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
@@ -176,12 +176,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   @Test
   public void log_normal_cube_sensitivity() {
     double beta = 1.0;
-    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
             .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
     double shift = 0.0000;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
@@ -190,19 +190,19 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     double fdShift = 1.0E-5;
 
     SurfaceMetadata alphaMetadata = calibrated.getParameters().getAlphaSurface().getMetadata();
-    Optional<List<SurfaceParameterMetadata>> alphaParameterMetadataOption = alphaMetadata.getParameterMetadata();
+    Optional<List<ParameterMetadata>> alphaParameterMetadataOption = alphaMetadata.getParameterMetadata();
     assertTrue(alphaParameterMetadataOption.isPresent());
-    List<SurfaceParameterMetadata> alphaParameterMetadata = alphaParameterMetadataOption.get();
+    List<ParameterMetadata> alphaParameterMetadata = alphaParameterMetadataOption.get();
     List<DoubleArray> alphaJacobian = alphaMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
     SurfaceMetadata rhoMetadata = calibrated.getParameters().getRhoSurface().getMetadata();
-    Optional<List<SurfaceParameterMetadata>> rhoParameterMetadataOption = rhoMetadata.getParameterMetadata();
+    Optional<List<ParameterMetadata>> rhoParameterMetadataOption = rhoMetadata.getParameterMetadata();
     assertTrue(rhoParameterMetadataOption.isPresent());
-    List<SurfaceParameterMetadata> rhoParameterMetadata = rhoParameterMetadataOption.get();
+    List<ParameterMetadata> rhoParameterMetadata = rhoParameterMetadataOption.get();
     List<DoubleArray> rhoJacobian = rhoMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
     SurfaceMetadata nuMetadata = calibrated.getParameters().getNuSurface().getMetadata();
-    Optional<List<SurfaceParameterMetadata>> nuParameterMetadataOption = nuMetadata.getParameterMetadata();
+    Optional<List<ParameterMetadata>> nuParameterMetadataOption = nuMetadata.getParameterMetadata();
     assertTrue(nuParameterMetadataOption.isPresent());
-    List<SurfaceParameterMetadata> nuParameterMetadata = nuParameterMetadataOption.get();
+    List<ParameterMetadata> nuParameterMetadata = nuParameterMetadataOption.get();
     List<DoubleArray> nuJacobian = nuMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
 
     int surfacePointIndex = 0;
@@ -217,21 +217,21 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         if (!ds.getFirst().isEmpty()) {
           int availableDataIndex = 0;
 
-          SurfaceParameterMetadata alphaPM = alphaParameterMetadata.get(surfacePointIndex);
-          assertTrue(alphaPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
-          SwaptionSurfaceExpiryTenorNodeMetadata pmAlphaSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) alphaPM;
+          ParameterMetadata alphaPM = alphaParameterMetadata.get(surfacePointIndex);
+          assertTrue(alphaPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          SwaptionSurfaceExpiryTenorParameterMetadata pmAlphaSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) alphaPM;
           assertEquals(tenor, pmAlphaSabr.getTenor());
           assertEquals(time, pmAlphaSabr.getYearFraction(), TOLERANCE_EXPIRY);
           DoubleArray alphaSensitivityToData = alphaJacobian.get(surfacePointIndex);
-          SurfaceParameterMetadata rhoPM = rhoParameterMetadata.get(surfacePointIndex);
-          assertTrue(rhoPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
-          SwaptionSurfaceExpiryTenorNodeMetadata pmRhoSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) rhoPM;
+          ParameterMetadata rhoPM = rhoParameterMetadata.get(surfacePointIndex);
+          assertTrue(rhoPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          SwaptionSurfaceExpiryTenorParameterMetadata pmRhoSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) rhoPM;
           assertEquals(tenor, pmRhoSabr.getTenor());
           assertEquals(time, pmRhoSabr.getYearFraction(), TOLERANCE_EXPIRY);
           DoubleArray rhoSensitivityToData = rhoJacobian.get(surfacePointIndex);
-          SurfaceParameterMetadata nuPM = nuParameterMetadata.get(surfacePointIndex);
-          assertTrue(nuPM instanceof SwaptionSurfaceExpiryTenorNodeMetadata);
-          SwaptionSurfaceExpiryTenorNodeMetadata pmNuSabr = (SwaptionSurfaceExpiryTenorNodeMetadata) nuPM;
+          ParameterMetadata nuPM = nuParameterMetadata.get(surfacePointIndex);
+          assertTrue(nuPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          SwaptionSurfaceExpiryTenorParameterMetadata pmNuSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) nuPM;
           assertEquals(tenor, pmNuSabr.getTenor());
           assertEquals(time, pmNuSabr.getYearFraction(), TOLERANCE_EXPIRY);
           DoubleArray nuSensitivityToData = nuJacobian.get(surfacePointIndex);
@@ -242,7 +242,8 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
               double[] rhoShifted = new double[2];
               double[] nuShifted = new double[2];
               for (int loopsign = 0; loopsign < 2; loopsign++) {
-                List<RawOptionData> dataShifted = rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
+                List<RawOptionData> dataShifted =
+                    rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
                 SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
                     EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, dataShifted,
                     MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
@@ -292,7 +293,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
           .map(row -> row.clone())
           .toArray(l -> new double[l][]); // deep copy of 2d array
-      if(looptenor == i) {
+      if (looptenor == i) {
         shiftedData[j][k] += shift;
       }
       raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,

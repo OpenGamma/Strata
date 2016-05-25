@@ -15,8 +15,8 @@ import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.result.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -104,12 +104,12 @@ final class IborFutureMeasureCalculations {
 
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+    return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -119,13 +119,13 @@ final class IborFutureMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
+  private static CurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedIborFutureTrade trade,
       RatesMarketData marketData) {
 
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------

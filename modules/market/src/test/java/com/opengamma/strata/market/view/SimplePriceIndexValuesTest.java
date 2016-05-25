@@ -15,25 +15,22 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -100,7 +97,11 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
+    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test, test2);
@@ -112,7 +113,6 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), SEASONALITY);
     assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getCurveName(), NAME);
   }
 
   public void test_of_wrongSeasonalityLength() {
@@ -160,16 +160,19 @@ public class SimplePriceIndexValuesTest {
   public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      CurveCurrencyParameterSensitivities cps = INSTANCE.curveParameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
-      DoubleArray sensitivityComputed = cps.getSensitivity(NAME, Currency.USD).getSensitivity();
+      CurrencyParameterSensitivities cps = INSTANCE.parameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
+      DoubleArray sensitivityComputed = cps.findSensitivity(NAME, Currency.USD)
+          .map(s -> s.getSensitivity())
+          .orElse(DoubleArray.filled(VALUES.size()));
       for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
-          List<ValueAdjustment> adjustments = new ArrayList<>();
-          for (int l = 0; l < VALUES.size(); l++) {
-            adjustments.add(ValueAdjustment.ofDeltaAmount((l == j) ? ((k == 0) ? -shift : shift) : 0.0d));
-          }
-          SimplePriceIndexValues curveShifted = INSTANCE.withCurve(INSTANCE.getCurve().shiftedBy(adjustments));
+          // copy indices to provide access in lambda
+          int jIndex = j;
+          int kIndex = k;
+          InterpolatedNodalCurve bumpedCurve = INSTANCE.getCurve()
+              .withPerturbation((idx, value, meta) -> (idx == jIndex) ? (kIndex == 0 ? -shift : shift) : 0d);
+          SimplePriceIndexValues curveShifted = INSTANCE.withCurve(bumpedCurve);
           valueFd[k] = curveShifted.value(TEST_OBS[i]);
         }
         double sensitivityExpected = (valueFd[1] - valueFd[0]) / (2 * shift);
@@ -180,11 +183,11 @@ public class SimplePriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+    assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------

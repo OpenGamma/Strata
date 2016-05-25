@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -105,7 +105,7 @@ public final class LegalEntityDiscountingProvider
   private void validate() {
     for (Entry<Pair<BondGroup, Currency>, DiscountFactors> entry : repoCurves.entrySet()) {
       if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
-        throw new IllegalArgumentException("Invalid valuation date for the curve: " + entry.getValue().getCurveName());
+        throw new IllegalArgumentException("Invalid valuation date for the repo curve: " + entry.getValue());
       }
       if (!bondMap.containsValue(entry.getKey().getFirst())) {
         throw new IllegalArgumentException("No map to the bond group from ID: " + entry.getKey().getFirst());
@@ -113,7 +113,7 @@ public final class LegalEntityDiscountingProvider
     }
     for (Entry<Pair<LegalEntityGroup, Currency>, DiscountFactors> entry : issuerCurves.entrySet()) {
       if (!entry.getValue().getValuationDate().isEqual(valuationDate)) {
-        throw new IllegalArgumentException("Invalid valuation date for the curve: " + entry.getValue().getCurveName());
+        throw new IllegalArgumentException("Invalid valuation date for the issuer curve: " + entry.getValue());
       }
       if (!legalEntityMap.containsValue(entry.getKey().getFirst())) {
         throw new IllegalArgumentException("No map to the legal entity group from ID: " + entry.getKey().getFirst());
@@ -189,7 +189,7 @@ public final class LegalEntityDiscountingProvider
   /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveCurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
    * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
    * <p>
    * The sensitivities handled here are {@link RepoCurveZeroRateSensitivity} and {@link IssuerCurveZeroRateSensitivity}. 
@@ -198,17 +198,17 @@ public final class LegalEntityDiscountingProvider
    * @param pointSensitivities  the point sensitivity
    * @return the sensitivity to the curve parameters
    */
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
-    CurveCurrencyParameterSensitivities sens = CurveCurrencyParameterSensitivities.empty();
+  public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof RepoCurveZeroRateSensitivity) {
         RepoCurveZeroRateSensitivity pt = (RepoCurveZeroRateSensitivity) point;
         RepoCurveDiscountFactors factors = repoCurveDiscountFactors(pt.getBondGroup(), pt.getCurveCurrency());
-        sens = sens.combinedWith(factors.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
       } else if (point instanceof IssuerCurveZeroRateSensitivity) {
         IssuerCurveZeroRateSensitivity pt = (IssuerCurveZeroRateSensitivity) point;
         IssuerCurveDiscountFactors factors = issuerCurveDiscountFactors(pt.getLegalEntityGroup(), pt.getCurveCurrency());
-        sens = sens.combinedWith(factors.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
       }
     }
     return sens;

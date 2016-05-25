@@ -16,8 +16,8 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
@@ -115,8 +115,8 @@ public interface RatesProvider
   /**
    * Computes the parameter sensitivity.
    * <p>
-   * This computes the {@link CurveCurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
-   * This corresponds to the projection of the point sensitivity to the curve internal parameters representation.
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * <p>
    * For example, the point sensitivities could represent the sensitivity to a date on the first
    * of each month in a year relative to a specific forward curve. This method converts to the point
@@ -126,38 +126,38 @@ public interface RatesProvider
    * @param pointSensitivities  the point sensitivities
    * @return the sensitivity to the curve parameters
    */
-  public default CurveCurrencyParameterSensitivities curveParameterSensitivity(PointSensitivities pointSensitivities) {
-    CurveCurrencyParameterSensitivities sens = CurveCurrencyParameterSensitivities.empty();
+  public default CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
     for (PointSensitivity point : pointSensitivities.getSensitivities()) {
       if (point instanceof ZeroRateSensitivity) {
         ZeroRateSensitivity pt = (ZeroRateSensitivity) point;
         DiscountFactors factors = discountFactors(pt.getCurveCurrency());
-        sens = sens.combinedWith(factors.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(factors.parameterSensitivity(pt));
 
       } else if (point instanceof IborRateSensitivity) {
         IborRateSensitivity pt = (IborRateSensitivity) point;
         IborIndexRates rates = iborIndexRates(pt.getIndex());
-        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(rates.parameterSensitivity(pt));
 
       } else if (point instanceof OvernightRateSensitivity) {
         OvernightRateSensitivity pt = (OvernightRateSensitivity) point;
         OvernightIndexRates rates = overnightIndexRates(pt.getIndex());
-        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(rates.parameterSensitivity(pt));
 
       } else if (point instanceof FxIndexSensitivity) {
         FxIndexSensitivity pt = (FxIndexSensitivity) point;
         FxIndexRates rates = fxIndexRates(pt.getIndex());
-        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(rates.parameterSensitivity(pt));
 
       } else if (point instanceof InflationRateSensitivity) {
         InflationRateSensitivity pt = (InflationRateSensitivity) point;
         PriceIndexValues rates = priceIndexValues(pt.getIndex());
-        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(rates.parameterSensitivity(pt));
 
       } else if (point instanceof FxForwardSensitivity) {
         FxForwardSensitivity pt = (FxForwardSensitivity) point;
         FxForwardRates rates = fxForwardRates(pt.getCurrencyPair());
-        sens = sens.combinedWith(rates.curveParameterSensitivity(pt));
+        sens = sens.combinedWith(rates.parameterSensitivity(pt));
       }
     }
     return sens;
