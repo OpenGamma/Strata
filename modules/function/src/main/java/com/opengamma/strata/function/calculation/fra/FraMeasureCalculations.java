@@ -26,9 +26,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -211,11 +211,11 @@ final class FraMeasureCalculations {
           singleId.getClass().getName(), singleId));
     }
     CurveId curveId = (CurveId) singleId;
-    NodalCurve nodalCurve = marketData.getMarketData().getValue(curveId).toNodalCurve();
+    Curve curve = marketData.getMarketData().getValue(curveId);
 
     // calculate gamma
     CurveCurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
-        nodalCurve, currency, c -> calculateCurveSensitivity(product, marketData, curveId, c));
+        curve, currency, c -> calculateCurveSensitivity(product, marketData, curveId, c));
     return CurveCurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
   }
 
@@ -224,7 +224,7 @@ final class FraMeasureCalculations {
       ResolvedFra product,
       RatesMarketData marketData,
       CurveId curveId,
-      NodalCurve bumpedCurve) {
+      Curve bumpedCurve) {
 
     MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);
     RatesProvider bumpedRatesProvider = marketData.withMarketData(bumpedMarketData).ratesProvider();
