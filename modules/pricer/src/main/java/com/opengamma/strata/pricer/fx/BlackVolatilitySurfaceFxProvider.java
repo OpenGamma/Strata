@@ -26,10 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model. 
@@ -103,10 +103,10 @@ public final class BlackVolatilitySurfaceFxProvider
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
+  public CurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
     double expiryTime = relativeTime(point.getExpiryDateTime());
     double strike = point.getCurrencyPair().isInverse(currencyPair) ? 1d / point.getStrike() : point.getStrike();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, strike);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiryTime, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 

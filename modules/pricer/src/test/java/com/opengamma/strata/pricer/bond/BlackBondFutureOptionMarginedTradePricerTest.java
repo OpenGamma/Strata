@@ -30,12 +30,12 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
@@ -155,7 +155,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   public void test_presentValueSensitivityBlackVolatility() {
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityBlackVolatility(
         OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER);
-    testPriceSensitivityBlackVolatility(VOL_PROVIDER.surfaceCurrencyParameterSensitivity(sensi),
+    testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi),
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), REFERENCE_PRICE).getAmount());
   }
 
@@ -163,14 +163,14 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     double futurePrice = 0.975d;
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityBlackVolatility(
         OPTION_TRADE, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    testPriceSensitivityBlackVolatility(VOL_PROVIDER.surfaceCurrencyParameterSensitivity(sensi), (p) ->
+    testPriceSensitivityBlackVolatility(VOL_PROVIDER.parameterSensitivity(sensi), (p) ->
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), futurePrice, REFERENCE_PRICE).getAmount());
   }
 
   private void testPriceSensitivityBlackVolatility(
-      SurfaceCurrencyParameterSensitivity computed,
+      CurrencyParameterSensitivity computed,
       Function<BlackVolatilityBondFutureProvider, Double> valueFn) {
-    List<ParameterMetadata> list = computed.getMetadata().getParameterMetadata().get();
+    List<ParameterMetadata> list = computed.getParameterMetadata();
     int nVol = VOL.size();
     assertEquals(list.size(), nVol);
     for (int i = 0; i < nVol; ++i) {

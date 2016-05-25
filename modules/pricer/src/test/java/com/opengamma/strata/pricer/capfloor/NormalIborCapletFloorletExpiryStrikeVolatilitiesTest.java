@@ -29,10 +29,10 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.SimpleStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
@@ -151,7 +151,7 @@ public class NormalIborCapletFloorletExpiryStrikeVolatilitiesTest {
       for (int k = 0; k < NB_TEST; k++) {
         IborCapletFloorletSensitivity point = IborCapletFloorletSensitivity.of(
             GBP_LIBOR_3M, TEST_OPTION_EXPIRY[i], TEST_STRIKE[k], TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
-        SurfaceCurrencyParameterSensitivity sensActual = PROVIDER.surfaceCurrencyParameterSensitivity(point);
+        CurrencyParameterSensitivity sensActual = PROVIDER.parameterSensitivity(point);
         DoubleArray computed = sensActual.getSensitivity();
         for (int j = 0; j < nData; ++j) {
           DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);

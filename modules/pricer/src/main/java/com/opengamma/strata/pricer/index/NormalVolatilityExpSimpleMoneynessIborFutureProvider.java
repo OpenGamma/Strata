@@ -26,9 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 
 /**
  * Data provider of volatility for Ibor future options in the normal or Bachelier model. 
@@ -118,11 +118,11 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
    * @param point  the point sensitivity at a given key
    * @return the sensitivity to the surface nodes
    */
-  public SurfaceUnitParameterSensitivity nodeSensitivity(IborFutureOptionSensitivity point) {
+  public UnitParameterSensitivity nodeSensitivity(IborFutureOptionSensitivity point) {
     double simpleMoneyness = isMoneynessOnPrice ?
         point.getStrikePrice() - point.getFuturePrice() : point.getFuturePrice() - point.getStrikePrice();
     double expiryTime = relativeTime(point.getExpiry());
-    SurfaceUnitParameterSensitivity unitSens = parameters.zValueParameterSensitivity(expiryTime, simpleMoneyness);
+    UnitParameterSensitivity unitSens = parameters.zValueParameterSensitivity(expiryTime, simpleMoneyness);
     return unitSens.multipliedBy(point.getSensitivity());
 
   }

@@ -44,6 +44,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -51,8 +52,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.ConstantSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
@@ -563,7 +562,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   public void test_presentValueVega_surface() {
     SwaptionSensitivity vegaRec = PRICER
         .presentValueSensitivityVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    assertThrowsWithCause(() -> VOL_PROVIDER.surfaceCurrencyParameterSensitivity(vegaRec),
+    assertThrowsWithCause(() -> VOL_PROVIDER.parameterSensitivity(vegaRec),
         UnsupportedOperationException.class);
   }
 
@@ -691,8 +690,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     assertEquals(pointComputed.getBetaSensitivity(), -1.1095143998998241E7, NOTIONAL * TOL);
     assertEquals(pointComputed.getRhoSensitivity(), 575158.6667143379, NOTIONAL * TOL);
     assertEquals(pointComputed.getNuSensitivity(), 790627.3506603877, NOTIONAL * TOL);
-    SurfaceCurrencyParameterSensitivities sensiComputed =
-        VOL_PROVIDER_REG.surfaceCurrencyParameterSensitivity(pointComputed);
+    CurrencyParameterSensitivities sensiComputed =
+        VOL_PROVIDER_REG.parameterSensitivity(pointComputed);
     double[][] alphaExp = new double[][] {
         {0.0, 0.0, 0.0}, {0.5, 0.0, 0.0}, {1.0, 0.0, 0.0}, {2.0, 0.0, 0.0}, {5.0, 0.0, 0.0}, {10.0, 0.0, 0.0},
         {0.0, 1.0, 0.0}, {0.5, 1.0, 0.0}, {1.0, 1.0, 0.0}, {2.0, 1.0, 0.0}, {5.0, 1.0, 2.3882653164816026E7},
@@ -724,7 +723,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     SurfaceMetadata[] metadata = new SurfaceMetadata[] {SwaptionSabrRateVolatilityDataSet.META_ALPHA,
         SwaptionSabrRateVolatilityDataSet.META_BETA_EUR, SwaptionSabrRateVolatilityDataSet.META_RHO,
         SwaptionSabrRateVolatilityDataSet.META_NU};
-    SurfaceCurrencyParameterSensitivities sensiExpected = SurfaceCurrencyParameterSensitivities.empty();
+    CurrencyParameterSensitivities sensiExpected = CurrencyParameterSensitivities.empty();
     for (int i = 0; i < exps.length; ++i) {
       int size = exps[i].length;
       List<ParameterMetadata> paramMetadata = new ArrayList<ParameterMetadata>(size);
@@ -735,22 +734,26 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       }
       SurfaceMetadata surfaceMetadata = metadata[i].withParameterMetadata(paramMetadata);
       sensiExpected = sensiExpected.combinedWith(
-          SurfaceCurrencyParameterSensitivity.of(surfaceMetadata, EUR, DoubleArray.copyOf(sensi)));
+          CurrencyParameterSensitivity.of(
+              surfaceMetadata.getSurfaceName(),
+              surfaceMetadata.getParameterMetadata().get(),
+              EUR,
+              DoubleArray.copyOf(sensi)));
     }
     testSurfaceParameterSensitivities(sensiComputed, sensiExpected, TOL * NOTIONAL);
   }
 
   //-------------------------------------------------------------------------
   private void testSurfaceParameterSensitivities(
-      SurfaceCurrencyParameterSensitivities computed,
-      SurfaceCurrencyParameterSensitivities expected,
+      CurrencyParameterSensitivities computed,
+      CurrencyParameterSensitivities expected,
       double tol) {
-    List<SurfaceCurrencyParameterSensitivity> listComputed = new ArrayList<>(computed.getSensitivities());
-    List<SurfaceCurrencyParameterSensitivity> listExpected = new ArrayList<>(expected.getSensitivities());
-    for (SurfaceCurrencyParameterSensitivity sensExpected : listExpected) {
+    List<CurrencyParameterSensitivity> listComputed = new ArrayList<>(computed.getSensitivities());
+    List<CurrencyParameterSensitivity> listExpected = new ArrayList<>(expected.getSensitivities());
+    for (CurrencyParameterSensitivity sensExpected : listExpected) {
       int index = Math.abs(Collections.binarySearch(listComputed, sensExpected,
-          SurfaceCurrencyParameterSensitivity::compareExcludingSensitivity));
-      SurfaceCurrencyParameterSensitivity sensComputed = listComputed.get(index);
+          CurrencyParameterSensitivity::compareKey));
+      CurrencyParameterSensitivity sensComputed = listComputed.get(index);
       int nSens = sensExpected.getParameterCount();
       assertEquals(sensComputed.getParameterCount(), nSens);
       for (int i = 0; i < nSens; ++i) {

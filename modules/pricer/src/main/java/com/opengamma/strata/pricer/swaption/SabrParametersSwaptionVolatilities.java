@@ -33,13 +33,13 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -49,8 +49,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * <p>
  * The volatility is represented in terms of SABR model parameters.
  * <p>
- * The {@code surfaceCurrencyParameterSensitivity()}, {@code priceGamma()} and
- * {@code priceTheta()} methods are not implemented.
+ * The {@code parameterSensitivity()}, {@code priceGamma()} and {@code priceTheta()} methods are not implemented.
  */
 @BeanDefinition(builderScope = "private")
 public final class SabrParametersSwaptionVolatilities
@@ -138,7 +137,7 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity) {
     throw new UnsupportedOperationException("Sensitivity is based on SwaptionSabrSensitivity, not SwaptionSensitivity");
   }
 
@@ -151,16 +150,14 @@ public final class SabrParametersSwaptionVolatilities
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(
-      SwaptionSabrSensitivities pointSensitivities) {
-
-    List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal =
+  public CurrencyParameterSensitivities parameterSensitivity(SwaptionSabrSensitivities pointSensitivities) {
+    List<CurrencyParameterSensitivity> sensitivitiesTotal =
         pointSensitivities.getSensitivities()
             .stream()
-            .map(pointSensitivity -> surfaceCurrencyParameterSensitivity(pointSensitivity).getSensitivities())
+            .map(pointSensitivity -> parameterSensitivity(pointSensitivity).getSensitivities())
             .flatMap(list -> list.stream())
             .collect(Collectors.toList());
-    return SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
+    return CurrencyParameterSensitivities.of(sensitivitiesTotal);
   }
 
   /**
@@ -172,30 +169,30 @@ public final class SabrParametersSwaptionVolatilities
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(SwaptionSabrSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(SwaptionSabrSensitivity pointSensitivity) {
     ArgChecker.isTrue(pointSensitivity.getConvention().equals(getConvention()),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(pointSensitivity.getExpiry());
     double tenor = pointSensitivity.getTenor();
-    SurfaceCurrencyParameterSensitivity alphaSensi = surfaceCurrencyParameterSensitivity(
+    CurrencyParameterSensitivity alphaSensi = parameterSensitivity(
         parameters.getAlphaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getAlphaSensitivity(), expiry, tenor);
-    SurfaceCurrencyParameterSensitivity betaSensi = surfaceCurrencyParameterSensitivity(
+    CurrencyParameterSensitivity betaSensi = parameterSensitivity(
         parameters.getBetaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getBetaSensitivity(), expiry, tenor);
-    SurfaceCurrencyParameterSensitivity rhoSensi = surfaceCurrencyParameterSensitivity(
+    CurrencyParameterSensitivity rhoSensi = parameterSensitivity(
         parameters.getRhoSurface(), pointSensitivity.getCurrency(), pointSensitivity.getRhoSensitivity(), expiry, tenor);
-    SurfaceCurrencyParameterSensitivity nuSensi = surfaceCurrencyParameterSensitivity(
+    CurrencyParameterSensitivity nuSensi = parameterSensitivity(
         parameters.getNuSurface(), pointSensitivity.getCurrency(), pointSensitivity.getNuSensitivity(), expiry, tenor);
-    return SurfaceCurrencyParameterSensitivities.of(alphaSensi, betaSensi, rhoSensi, nuSensi);
+    return CurrencyParameterSensitivities.of(alphaSensi, betaSensi, rhoSensi, nuSensi);
   }
 
-  private SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
+  private CurrencyParameterSensitivity parameterSensitivity(
       Surface surface,
       Currency currency,
       double factor,
       double expiry,
       double tenor) {
 
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
     return unitSens.multipliedBy(currency, factor);
   }
 

@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.base.Preconditions;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A surface based on a single constant value.
@@ -128,8 +129,8 @@ public final class ConstantSurface
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
-    return SurfaceUnitParameterSensitivity.of(metadata, SENSITIVITY);
+  public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+    return createParameterSensitivity(SENSITIVITY);
   }
 
   //-------------------------------------------------------------------------

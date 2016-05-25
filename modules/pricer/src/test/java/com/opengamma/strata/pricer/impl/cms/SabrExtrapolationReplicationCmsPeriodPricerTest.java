@@ -28,12 +28,11 @@ import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 import com.opengamma.strata.pricer.impl.option.SabrExtrapolationRightFunction;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
@@ -550,21 +549,21 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       RatesProvider ratesProvider, SabrParametersSwaptionVolatilities volatilities) {
     SwaptionSabrSensitivity pvPointCoupon =
         PRICER.presentValueSensitivitySabrParameter(coupon, ratesProvider, volatilities);
-    SurfaceCurrencyParameterSensitivities computedCoupon =
-        volatilities.surfaceCurrencyParameterSensitivity(pvPointCoupon);
+    CurrencyParameterSensitivities computedCoupon =
+        volatilities.parameterSensitivity(pvPointCoupon);
     SwaptionSabrSensitivity pvCapPoint =
         PRICER.presentValueSensitivitySabrParameter(caplet, ratesProvider, volatilities);
-    SurfaceCurrencyParameterSensitivities computedCap =
-        volatilities.surfaceCurrencyParameterSensitivity(pvCapPoint);
+    CurrencyParameterSensitivities computedCap =
+        volatilities.parameterSensitivity(pvCapPoint);
     SwaptionSabrSensitivity pvFloorPoint =
         PRICER.presentValueSensitivitySabrParameter(foorlet, ratesProvider, volatilities);
-    SurfaceCurrencyParameterSensitivities computedFloor =
-        volatilities.surfaceCurrencyParameterSensitivity(pvFloorPoint);
+    CurrencyParameterSensitivities computedFloor =
+        volatilities.parameterSensitivity(pvFloorPoint);
 
     SabrInterestRateParameters sabr = volatilities.getParameters();
     // alpha surface
     InterpolatedNodalSurface surfaceAlpha = (InterpolatedNodalSurface) sabr.getAlphaSurface();
-    SurfaceCurrencyParameterSensitivity sensiCouponAlpha = computedCoupon.getSensitivity(surfaceAlpha.getName(), EUR);
+    CurrencyParameterSensitivity sensiCouponAlpha = computedCoupon.getSensitivity(surfaceAlpha.getName(), EUR);
     int nParamsAlpha = surfaceAlpha.getParameterCount();
     for (int i = 0; i < nParamsAlpha; ++i) {
       InterpolatedNodalSurface[] bumpedSurfaces = bumpSurface(surfaceAlpha, i);
@@ -582,7 +581,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     }
     // beta surface
     InterpolatedNodalSurface surfaceBeta = (InterpolatedNodalSurface) sabr.getBetaSurface();
-    SurfaceCurrencyParameterSensitivity sensiCouponBeta = computedCoupon.getSensitivity(surfaceBeta.getName(), EUR);
+    CurrencyParameterSensitivity sensiCouponBeta = computedCoupon.getSensitivity(surfaceBeta.getName(), EUR);
     int nParamsBeta = surfaceBeta.getParameterCount();
     for (int i = 0; i < nParamsBeta; ++i) {
       InterpolatedNodalSurface[] bumpedSurfaces = bumpSurface(surfaceBeta, i);
@@ -600,7 +599,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     }
     // rho surface
     InterpolatedNodalSurface surfaceRho = (InterpolatedNodalSurface) sabr.getRhoSurface();
-    SurfaceCurrencyParameterSensitivity sensiCouponRho = computedCoupon.getSensitivity(surfaceRho.getName(), EUR);
+    CurrencyParameterSensitivity sensiCouponRho = computedCoupon.getSensitivity(surfaceRho.getName(), EUR);
     int nParamsRho = surfaceRho.getParameterCount();
     for (int i = 0; i < nParamsRho; ++i) {
       InterpolatedNodalSurface[] bumpedSurfaces = bumpSurface(surfaceRho, i);
@@ -618,7 +617,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     }
     // nu surface
     InterpolatedNodalSurface surfaceNu = (InterpolatedNodalSurface) sabr.getNuSurface();
-    SurfaceCurrencyParameterSensitivity sensiCouponNu = computedCoupon.getSensitivity(surfaceNu.getName(), EUR);
+    CurrencyParameterSensitivity sensiCouponNu = computedCoupon.getSensitivity(surfaceNu.getName(), EUR);
     int nParamsNu = surfaceNu.getParameterCount();
     for (int i = 0; i < nParamsNu; ++i) {
       InterpolatedNodalSurface[] bumpedSurfaces = bumpSurface(surfaceNu, i);

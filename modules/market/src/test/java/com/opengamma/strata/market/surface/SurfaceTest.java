@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * Test {@link Surface}.
@@ -91,8 +92,8 @@ public class SurfaceTest {
     }
 
     @Override
-    public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
-      return SurfaceUnitParameterSensitivity.of(getMetadata(), DoubleArray.filled(1));
+    public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+      return createParameterSensitivity(DoubleArray.filled(1));
     }
   }
 

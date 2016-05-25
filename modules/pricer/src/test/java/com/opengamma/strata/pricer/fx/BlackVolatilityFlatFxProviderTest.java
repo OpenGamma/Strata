@@ -30,9 +30,9 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
@@ -113,8 +113,8 @@ public class BlackVolatilityFlatFxProviderTest {
       for (int j = 0; j < NB_STRIKE; ++j) {
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        SurfaceCurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
-        Iterator<ParameterMetadata> itr = computed.getMetadata().getParameterMetadata().get().iterator();
+        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           FxVolatilitySurfaceYearFractionParameterMetadata meta = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next());
           double nodeExpiry = meta.getYearFraction();
@@ -131,8 +131,8 @@ public class BlackVolatilityFlatFxProviderTest {
       for (int j = 0; j < NB_STRIKE; ++j) {
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        SurfaceCurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
-        Iterator<ParameterMetadata> itr = computed.getMetadata().getParameterMetadata().get().iterator();
+        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        Iterator<ParameterMetadata> itr = computed.getParameterMetadata().iterator();
         for (double value : computed.getSensitivity().toArray()) {
           double nodeExpiry = ((FxVolatilitySurfaceYearFractionParameterMetadata) itr.next()).getYearFraction();
           double expected = nodeSensitivity(

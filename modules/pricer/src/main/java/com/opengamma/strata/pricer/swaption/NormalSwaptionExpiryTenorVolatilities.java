@@ -32,12 +32,12 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -178,12 +178,12 @@ public final class NormalSwaptionExpiryTenorVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity point) {
+  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
     ArgChecker.isTrue(point.getConvention().equals(convention),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double tenor = point.getTenor();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 

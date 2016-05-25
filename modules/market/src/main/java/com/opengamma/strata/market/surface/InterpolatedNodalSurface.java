@@ -207,19 +207,19 @@ public final class InterpolatedNodalSurface
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+  public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     return zValueParameterSensitivity(DoublesPair.of(x, y));
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
+  public UnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
     int size = xValues.size();
     Map<DoublesPair, Double> result = interpolator.getNodeSensitivitiesForValue(underlyingDataBundle, xyPair);
     DoubleArray sensitivityValues = DoubleArray.of(size, i -> {
       Double sensitivity = result.get(DoublesPair.of(xValues.get(i), yValues.get(i)));
       return sensitivity != null ? sensitivity : 0d;
     });
-    return SurfaceUnitParameterSensitivity.of(metadata, sensitivityValues);
+    return createParameterSensitivity(sensitivityValues);
   }
 
   //-------------------------------------------------------------------------

@@ -25,12 +25,12 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -118,7 +118,7 @@ public class BlackVolatilitySurfaceFxProviderTest {
       for (int j = 0; j < NB_STRIKE; ++j) {
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], GBP, 1d);
-        SurfaceCurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
         for (int k = 0; k < SURFACE.getParameterCount(); k++) {
           double value = computed.getSensitivity().get(k);
           double nodeExpiry = SURFACE.getXValues().get(k);
@@ -136,7 +136,7 @@ public class BlackVolatilitySurfaceFxProviderTest {
       for (int j = 0; j < NB_STRIKE; ++j) {
         FxOptionSensitivity sensi = FxOptionSensitivity.of(
             CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], GBP, 1d);
-        SurfaceCurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
+        CurrencyParameterSensitivity computed = PROVIDER.surfaceParameterSensitivity(sensi);
         for (int k = 0; k < SURFACE.getParameterCount(); k++) {
           double value = computed.getSensitivity().get(k);
           double nodeExpiry = SURFACE.getXValues().get(k);

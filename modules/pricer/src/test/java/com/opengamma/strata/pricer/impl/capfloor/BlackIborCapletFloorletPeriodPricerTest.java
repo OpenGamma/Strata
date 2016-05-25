@@ -25,9 +25,9 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.BlackIborCapletFloorletExpiryStrikeVolatilities;
 import com.opengamma.strata.pricer.capfloor.NormalIborCapletFloorletExpiryStrikeVolatilities;
@@ -428,17 +428,17 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityVolatility() {
     PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityVolatility(CAPLET_LONG, RATES, VOLS);
-    SurfaceCurrencyParameterSensitivity computedCaplet =
-        VOLS.surfaceCurrencyParameterSensitivity(pointCaplet.build()).getSensitivities().get(0);
+    CurrencyParameterSensitivity computedCaplet =
+        VOLS.parameterSensitivity(pointCaplet.build()).getSensitivities().get(0);
     PointSensitivityBuilder pointFloorlet = PRICER.presentValueSensitivityVolatility(FLOORLET_SHORT, RATES, VOLS);
-    SurfaceCurrencyParameterSensitivity computedFloorlet =
-        VOLS.surfaceCurrencyParameterSensitivity(pointFloorlet.build()).getSensitivities().get(0);
+    CurrencyParameterSensitivity computedFloorlet =
+        VOLS.parameterSensitivity(pointFloorlet.build()).getSensitivities().get(0);
     testSurfaceSensitivity(computedCaplet, VOLS, v -> PRICER.presentValue(CAPLET_LONG, RATES, v));
     testSurfaceSensitivity(computedFloorlet, VOLS, v -> PRICER.presentValue(FLOORLET_SHORT, RATES, v));
   }
 
   private void testSurfaceSensitivity(
-      SurfaceCurrencyParameterSensitivity computed,
+      CurrencyParameterSensitivity computed,
       BlackIborCapletFloorletExpiryStrikeVolatilities vols,
       Function<IborCapletFloorletVolatilities, CurrencyAmount> valueFn) {
     double pvBase = valueFn.apply(vols).getAmount();

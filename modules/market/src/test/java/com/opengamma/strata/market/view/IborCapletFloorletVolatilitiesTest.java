@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 
 /**
  * Test {@link IborCapletFloorletVolatilities}.
@@ -51,7 +51,7 @@ public class IborCapletFloorletVolatilitiesTest {
     }
 
     @Override
-    public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
+    public CurrencyParameterSensitivity parameterSensitivity(
         IborCapletFloorletSensitivity pointSensitivity) {
       throw new UnsupportedOperationException();
     }

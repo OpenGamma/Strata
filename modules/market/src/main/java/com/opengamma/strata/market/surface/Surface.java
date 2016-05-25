@@ -109,7 +109,7 @@ public interface Surface extends ParameterizedData {
    * @return the sensitivity at the x/y/ point
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public abstract SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y);
+  public abstract UnitParameterSensitivity zValueParameterSensitivity(double x, double y);
 
   /**
    * Computes the sensitivity of the z-value with respect to the surface parameters.
@@ -121,7 +121,7 @@ public interface Surface extends ParameterizedData {
    * @return the sensitivity at the x/y/ point
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public default SurfaceUnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
+  public default UnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
     return zValueParameterSensitivity(xyPair.getFirst(), xyPair.getSecond());
   }
 

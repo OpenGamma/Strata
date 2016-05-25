@@ -31,10 +31,10 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.SimpleStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
@@ -170,7 +170,7 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
           double fd = 0.5 * (volUp - volDw) / eps;
           sensFd[j] = fd * TEST_SENSITIVITY[i];
         }
-        SurfaceCurrencyParameterSensitivity sensActual = PROVIDER.surfaceCurrencyParameterSensitivity(point);
+        CurrencyParameterSensitivity sensActual = PROVIDER.parameterSensitivity(point);
         double[] computed = sensActual.getSensitivity().toArray();
         assertTrue(DoubleArrayMath.fuzzyEquals(computed, sensFd, eps));
       }

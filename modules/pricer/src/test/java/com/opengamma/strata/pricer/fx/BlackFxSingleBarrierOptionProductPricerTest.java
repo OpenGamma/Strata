@@ -25,10 +25,10 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackBarrierPriceFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchAssetPriceFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchCashPriceFormulaRepository;
@@ -696,18 +696,18 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
 
   public void regression_volSensitivity() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityVolatility(CALL_DKI, RATE_PROVIDER, VOL_PROVIDER);
-    SurfaceCurrencyParameterSensitivity pvSensi = VOL_PROVIDER.surfaceParameterSensitivity((FxOptionSensitivity) point);
+    CurrencyParameterSensitivity pvSensi = VOL_PROVIDER.surfaceParameterSensitivity((FxOptionSensitivity) point);
     PointSensitivityBuilder pointBase =
         PRICER.presentValueSensitivityVolatility(CALL_DKI_BASE, RATE_PROVIDER, VOL_PROVIDER);
-    SurfaceCurrencyParameterSensitivity pvSensiBase = VOL_PROVIDER
+    CurrencyParameterSensitivity pvSensiBase = VOL_PROVIDER
         .surfaceParameterSensitivity((FxOptionSensitivity) pointBase).convertedTo(EUR, RATE_PROVIDER);
     PointSensitivityBuilder pointPut =
         PRICER.presentValueSensitivityVolatility(PUT_DKO, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
-    SurfaceCurrencyParameterSensitivity pvSensiPut =
+    CurrencyParameterSensitivity pvSensiPut =
         VOL_PROVIDER.surfaceParameterSensitivity((FxOptionSensitivity) pointPut);
     PointSensitivityBuilder pointPutBase =
         PRICER.presentValueSensitivityVolatility(PUT_DKO_BASE, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
-    SurfaceCurrencyParameterSensitivity pvSensiPutBase = VOL_PROVIDER
+    CurrencyParameterSensitivity pvSensiPutBase = VOL_PROVIDER
         .surfaceParameterSensitivity((FxOptionSensitivity) pointPutBase).convertedTo(EUR, RATE_PROVIDER);
     double[] computed = pvSensi.getSensitivity().toArray();
     double[] computedBase = pvSensiBase.getSensitivity().toArray();

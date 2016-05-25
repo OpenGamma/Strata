@@ -31,10 +31,10 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 
 /**
@@ -121,12 +121,12 @@ public final class BlackIborCapletFloorletExpiryStrikeVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(IborCapletFloorletSensitivity point) {
+  public CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity point) {
     ArgChecker.isTrue(point.getIndex().equals(index),
         "Ibor index of provider must be the same as Ibor index of point sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double strike = point.getStrike();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, strike);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
