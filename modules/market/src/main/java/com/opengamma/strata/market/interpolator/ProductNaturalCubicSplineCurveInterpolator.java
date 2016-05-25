@@ -18,11 +18,12 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  * Product natural cubic spline interpolation. 
  * <p>
  * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline. 
- * See {@link NaturalSplineInterpolator} for the detail on the underlying interpolator. 
  * <p>
- * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose all of the x data to be the 
- * same sign such that the origin is not within data range.
- * Also the x key value must not be close to zero.
+ * As a curve for the product {@code x * y} is not well-defined at {@code x = 0}, we impose
+ * the condition that all of the x data to be the same sign, such that the origin is not within data range.
+ * The x key value must not be close to zero.
+ * <p>
+ * See {@link NaturalSplineInterpolator} for the detail on the underlying interpolator. 
  */
 final class ProductNaturalCubicSplineCurveInterpolator
     implements CurveInterpolator, Serializable {
@@ -44,7 +45,9 @@ final class ProductNaturalCubicSplineCurveInterpolator
    * The small parameter. 
    */
   private static final double SMALL = 1e-10;
-
+  /**
+   * The polynomial function.
+   */
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();
 
   /**
