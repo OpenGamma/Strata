@@ -13,14 +13,17 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * 
+ * Natural cubic spline interpolation. 
+ * <p>
+ * C2 cubic spline interpolator with the natural endpoint condition, i.e., the second derivative values are zero 
+ * at the first data point and the last data point. 
  */
 public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private CubicSplineSolver _solver;
 
   /**
-   * 
+   * Constructor.
    */
   public NaturalSplineInterpolator() {
     _solver = new CubicSplineNaturalSolver();

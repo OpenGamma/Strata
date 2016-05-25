@@ -60,6 +60,14 @@ public final class CurveExtrapolators {
   public static final CurveExtrapolator PRODUCT_POLYNOMIAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_POLYNOMIAL.getName());
   /**
+   * Product linear extrapolator.
+   * <p>
+   * Given a data set {@code (xValues[i], yValues[i])}, extrapolate {@code (x[i], x[i] * y[i])}
+   * by a linear function.
+   */
+  public static final CurveExtrapolator PRODUCT_LINEAR =
+      CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_LINEAR.getName());
+  /**
    * Reciprocal extrapolator.
    * <p>
    * Given a data set {@code x[i], y[i]}, extrapolate {@code (x[i], x[i] * y[i])} by a linear
