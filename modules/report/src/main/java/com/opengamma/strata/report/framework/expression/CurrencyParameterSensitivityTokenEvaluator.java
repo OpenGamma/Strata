@@ -10,38 +10,38 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
 /**
- * Token evaluator for curve currency parameter sensitivity.
+ * Token evaluator for currency parameter sensitivity.
  * <p>
  * Although there is a formatter for this type, users will traverse to a single sensitivity from
  * a list of sensitivities. This traversal may include redundant tokens, so the purpose of this
  * evaluator is to continue returning the same sensitivity object as long as the tokens are
  * consistent with the fields on this object.
  */
-public class CurveCurrencyParameterSensitivityTokenEvaluator extends TokenEvaluator<CurveCurrencyParameterSensitivity> {
+public class CurrencyParameterSensitivityTokenEvaluator extends TokenEvaluator<CurrencyParameterSensitivity> {
 
   @Override
   public Class<?> getTargetType() {
-    return CurveCurrencyParameterSensitivity.class;
+    return CurrencyParameterSensitivity.class;
   }
 
   @Override
-  public Set<String> tokens(CurveCurrencyParameterSensitivity sensitivity) {
+  public Set<String> tokens(CurrencyParameterSensitivity sensitivity) {
     return ImmutableSet.of(
         sensitivity.getCurrency().getCode().toLowerCase(Locale.ENGLISH),
-        sensitivity.getCurveName().getName().toLowerCase(Locale.ENGLISH));
+        sensitivity.getMarketDataName().getName().toLowerCase(Locale.ENGLISH));
   }
 
   @Override
   public EvaluationResult evaluate(
-      CurveCurrencyParameterSensitivity sensitivity,
+      CurrencyParameterSensitivity sensitivity,
       String firstToken,
       List<String> remainingTokens) {
 
     if (firstToken.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
-        firstToken.equalsIgnoreCase(sensitivity.getCurveName().getName())) {
+        firstToken.equalsIgnoreCase(sensitivity.getMarketDataName().getName())) {
       return EvaluationResult.success(sensitivity, remainingTokens);
     } else {
       return invalidTokenFailure(sensitivity, firstToken);

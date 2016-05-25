@@ -25,7 +25,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
@@ -233,10 +233,10 @@ public class NormalIborCapFloorLegPricerTest {
       floorExpected = floorExpected.combinedWith(
           PRICER_PERIOD.presentValueSensitivity(FLOOR.getCapletFloorletPeriods().get(i), RATES, VOLS));
     }
-    CurveCurrencyParameterSensitivities capSensiComputed = RATES_AFTER.curveParameterSensitivity(capComputed.build());
-    CurveCurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.curveParameterSensitivity(floorComputed.build());
-    CurveCurrencyParameterSensitivities capSensiExpected = RATES_AFTER.curveParameterSensitivity(capExpected.build());
-    CurveCurrencyParameterSensitivities floorSensiExpected = RATES_AFTER.curveParameterSensitivity(floorExpected.build());
+    CurrencyParameterSensitivities capSensiComputed = RATES_AFTER.parameterSensitivity(capComputed.build());
+    CurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.parameterSensitivity(floorComputed.build());
+    CurrencyParameterSensitivities capSensiExpected = RATES_AFTER.parameterSensitivity(capExpected.build());
+    CurrencyParameterSensitivities floorSensiExpected = RATES_AFTER.parameterSensitivity(floorExpected.build());
     assertTrue(capSensiComputed.equalWithTolerance(capSensiExpected, NOTIONAL_VALUE * TOL));
     assertTrue(floorSensiComputed.equalWithTolerance(floorSensiExpected, NOTIONAL_VALUE * TOL));
   }
@@ -256,10 +256,10 @@ public class NormalIborCapFloorLegPricerTest {
       floorExpected = floorExpected.combinedWith(
           PRICER_PERIOD.presentValueSensitivity(FLOOR.getCapletFloorletPeriods().get(i), RATES_AFTER, VOLS_AFTER));
     }
-    CurveCurrencyParameterSensitivities capSensiComputed = RATES_AFTER.curveParameterSensitivity(capComputed.build());
-    CurveCurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.curveParameterSensitivity(floorComputed.build());
-    CurveCurrencyParameterSensitivities capSensiExpected = RATES_AFTER.curveParameterSensitivity(capExpected.build());
-    CurveCurrencyParameterSensitivities floorSensiExpected = RATES_AFTER.curveParameterSensitivity(floorExpected.build());
+    CurrencyParameterSensitivities capSensiComputed = RATES_AFTER.parameterSensitivity(capComputed.build());
+    CurrencyParameterSensitivities floorSensiComputed = RATES_AFTER.parameterSensitivity(floorComputed.build());
+    CurrencyParameterSensitivities capSensiExpected = RATES_AFTER.parameterSensitivity(capExpected.build());
+    CurrencyParameterSensitivities floorSensiExpected = RATES_AFTER.parameterSensitivity(floorExpected.build());
     assertTrue(capSensiComputed.equalWithTolerance(capSensiExpected, NOTIONAL_VALUE * TOL));
     assertTrue(floorSensiComputed.equalWithTolerance(floorSensiExpected, NOTIONAL_VALUE * TOL));
   }

@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -102,10 +102,10 @@ public class DiscountingFxSingleProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(FWD, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expectedUsd = CAL_FD.sensitivity(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expectedUsd = CAL_FD.sensitivity(
         (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(USD));
-    CurveCurrencyParameterSensitivities expectedKrw = CAL_FD.sensitivity(
+    CurrencyParameterSensitivities expectedKrw = CAL_FD.sensitivity(
         (ImmutableRatesProvider) PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(KRW));
     assertTrue(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD));
   }

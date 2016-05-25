@@ -24,13 +24,13 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
@@ -215,10 +215,10 @@ public class LegalEntityDiscountingProviderTest {
     RepoCurveZeroRateSensitivity sensi2 = test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP)
         .zeroRatePointSensitivity(refDate, GBP);
     PointSensitivities sensi = PointSensitivities.of(sensi1, sensi2);
-    CurveCurrencyParameterSensitivities computed = test.curveParameterSensitivity(sensi);
-    CurveCurrencyParameterSensitivities expected =
-        DSC_FACTORS_ISSUER.curveParameterSensitivity(sensi1.createZeroRateSensitivity()).combinedWith(
-            DSC_FACTORS_REPO.curveParameterSensitivity(sensi2.createZeroRateSensitivity()));
+    CurrencyParameterSensitivities computed = test.parameterSensitivity(sensi);
+    CurrencyParameterSensitivities expected =
+        DSC_FACTORS_ISSUER.parameterSensitivity(sensi1.createZeroRateSensitivity()).combinedWith(
+            DSC_FACTORS_REPO.parameterSensitivity(sensi2.createZeroRateSensitivity()));
     assertTrue(computed.equalWithTolerance(expected, 1.0e-12));
   }
 
@@ -233,8 +233,8 @@ public class LegalEntityDiscountingProviderTest {
         .valuationDate(DATE)
         .build();
     ZeroRateSensitivity sensi = ZeroRateSensitivity.of(USD, date(2018, 11, 24), 25d);
-    CurveCurrencyParameterSensitivities computed = test.curveParameterSensitivity(sensi.build());
-    assertEquals(computed, CurveCurrencyParameterSensitivities.empty());
+    CurrencyParameterSensitivities computed = test.parameterSensitivity(sensi.build());
+    assertEquals(computed, CurrencyParameterSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------

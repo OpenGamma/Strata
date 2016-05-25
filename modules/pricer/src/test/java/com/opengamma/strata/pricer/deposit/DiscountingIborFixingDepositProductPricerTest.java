@@ -20,13 +20,13 @@ import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.ImmutableRatesProviderSimpleData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
-import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 
 /**
  * Test {@link DiscountingIborFixingDepositProductPricer}.
@@ -85,8 +85,8 @@ public class DiscountingIborFixingDepositProductPricerTest {
   //-------------------------------------------------------------------------
   public void present_value_sensitivity_no_fixing() {
     PointSensitivities computed = PRICER.presentValueSensitivity(RDEPOSIT, IMM_PROV_NOFIX);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV_NOFIX.curveParameterSensitivity(computed);
-    CurveCurrencyParameterSensitivities sensiExpected = 
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV_NOFIX.parameterSensitivity(computed);
+    CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV_NOFIX, (p) -> PRICER.presentValue(RDEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
@@ -94,9 +94,9 @@ public class DiscountingIborFixingDepositProductPricerTest {
   //-------------------------------------------------------------------------
   public void present_value_sensitivity_fixing() {
     PointSensitivities computedNoFix = PRICER.presentValueSensitivity(RDEPOSIT, IMM_PROV_NOFIX);
-    CurveCurrencyParameterSensitivities sensiComputedNoFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedNoFix);
+    CurrencyParameterSensitivities sensiComputedNoFix = IMM_PROV_NOFIX.parameterSensitivity(computedNoFix);
     PointSensitivities computedFix = PRICER.presentValueSensitivity(RDEPOSIT, IMM_PROV_FIX);
-    CurveCurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedFix);
+    CurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.parameterSensitivity(computedFix);
     assertTrue(sensiComputedNoFix.equalWithTolerance(sensiComputedFix, TOLERANCE_PV_DELTA));
   }
 
@@ -129,16 +129,16 @@ public class DiscountingIborFixingDepositProductPricerTest {
   //-------------------------------------------------------------------------
   public void par_spread_sensitivity_no_fixing() {
     PointSensitivities computedNoFix = PRICER.parSpreadSensitivity(RDEPOSIT, IMM_PROV_NOFIX);
-    CurveCurrencyParameterSensitivities sensiComputedNoFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedNoFix);
-    CurveCurrencyParameterSensitivities sensiExpected =
+    CurrencyParameterSensitivities sensiComputedNoFix = IMM_PROV_NOFIX.parameterSensitivity(computedNoFix);
+    CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV_NOFIX, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(RDEPOSIT, (p))));
     assertTrue(sensiComputedNoFix.equalWithTolerance(sensiExpected, TOLERANCE_RATE_DELTA));
     // Par rate and par spread sensitivities are equal
     PointSensitivities computedParRateNoFix = PRICER.parRateSensitivity(RDEPOSIT, IMM_PROV_NOFIX);
-    CurveCurrencyParameterSensitivities sensiComputedParRateNoFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedParRateNoFix);
+    CurrencyParameterSensitivities sensiComputedParRateNoFix = IMM_PROV_NOFIX.parameterSensitivity(computedParRateNoFix);
     assertTrue(sensiComputedNoFix.equalWithTolerance(sensiComputedParRateNoFix, TOLERANCE_RATE_DELTA));
     PointSensitivities computedFix = PRICER.parSpreadSensitivity(RDEPOSIT, IMM_PROV_FIX);
-    CurveCurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.curveParameterSensitivity(computedFix);
+    CurrencyParameterSensitivities sensiComputedFix = IMM_PROV_NOFIX.parameterSensitivity(computedFix);
     assertTrue(sensiComputedFix.equalWithTolerance(sensiExpected, TOLERANCE_RATE_DELTA));
   }
   

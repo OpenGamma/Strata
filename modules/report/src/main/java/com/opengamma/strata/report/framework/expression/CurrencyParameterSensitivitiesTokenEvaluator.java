@@ -14,25 +14,25 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
 /**
- * Evaluates a token against curve currency parameter sensitivities.
+ * Evaluates a token against currency parameter sensitivities.
  * <p>
- * Tokens are matched against the curve name and currency code of the sensitivities. All strings are converted to
- * lower case before matching.
+ * Tokens are matched against the name and currency code of the sensitivities.
+ * All strings are converted to lower case before matching.
  */
-public class CurveCurrencyParameterSensitivitiesTokenEvaluator
-    extends TokenEvaluator<CurveCurrencyParameterSensitivities> {
+public class CurrencyParameterSensitivitiesTokenEvaluator
+    extends TokenEvaluator<CurrencyParameterSensitivities> {
 
   @Override
   public Class<?> getTargetType() {
-    return CurveCurrencyParameterSensitivities.class;
+    return CurrencyParameterSensitivities.class;
   }
 
   @Override
-  public Set<String> tokens(CurveCurrencyParameterSensitivities sensitivities) {
+  public Set<String> tokens(CurrencyParameterSensitivities sensitivities) {
     return sensitivities.getSensitivities().stream()
         .flatMap(this::tokensForSensitivity)
         .collect(toImmutableSet());
@@ -40,11 +40,11 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
 
   @Override
   public EvaluationResult evaluate(
-      CurveCurrencyParameterSensitivities sensitivities,
+      CurrencyParameterSensitivities sensitivities,
       String firstToken,
       List<String> remainingTokens) {
 
-    List<CurveCurrencyParameterSensitivity> matchingSensitivities = sensitivities.getSensitivities().stream()
+    List<CurrencyParameterSensitivity> matchingSensitivities = sensitivities.getSensitivities().stream()
         .filter(sensitivity -> matchesToken(sensitivity, firstToken))
         .collect(toImmutableList());
 
@@ -55,21 +55,21 @@ public class CurveCurrencyParameterSensitivitiesTokenEvaluator
         return EvaluationResult.success(matchingSensitivities.get(0), remainingTokens);
 
       default:
-        return EvaluationResult.success(CurveCurrencyParameterSensitivities.of(matchingSensitivities), remainingTokens);
+        return EvaluationResult.success(CurrencyParameterSensitivities.of(matchingSensitivities), remainingTokens);
     }
   }
 
-  private Stream<String> tokensForSensitivity(CurveCurrencyParameterSensitivity sensitivity) {
+  private Stream<String> tokensForSensitivity(CurrencyParameterSensitivity sensitivity) {
     return ImmutableSet.of(
         sensitivity.getCurrency().getCode(),
-        sensitivity.getCurveName().getName())
+        sensitivity.getMarketDataName().getName())
         .stream()
         .map(v -> v.toLowerCase(Locale.ENGLISH));
   }
 
-  private boolean matchesToken(CurveCurrencyParameterSensitivity sensitivity, String token) {
+  private boolean matchesToken(CurrencyParameterSensitivity sensitivity, String token) {
     return token.equalsIgnoreCase(sensitivity.getCurrency().getCode()) ||
-        token.equalsIgnoreCase(sensitivity.getCurveName().getName());
+        token.equalsIgnoreCase(sensitivity.getMarketDataName().getName());
   }
 
 }

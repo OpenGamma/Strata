@@ -18,12 +18,12 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 @Test
 public class ParallelShiftedCurveTest {
@@ -95,7 +95,7 @@ public class ParallelShiftedCurveTest {
     Curve absoluteShiftedCurve = ParallelShiftedCurve.absolute(curve, 1);
     Curve relativeShiftedCurve = ParallelShiftedCurve.relative(curve, 0.2);
 
-    CurveUnitParameterSensitivity expected = curve.yValueParameterSensitivity(0.1);
+    UnitParameterSensitivity expected = curve.yValueParameterSensitivity(0.1);
     assertThat(absoluteShiftedCurve.yValueParameterSensitivity(0.1)).isEqualTo(expected);
     assertThat(relativeShiftedCurve.yValueParameterSensitivity(0.1)).isEqualTo(expected);
   }

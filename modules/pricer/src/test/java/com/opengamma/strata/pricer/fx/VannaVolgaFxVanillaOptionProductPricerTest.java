@@ -22,12 +22,12 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -154,16 +154,16 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
     for (int i = 0; i < NB_STRIKES; ++i) {
       ResolvedFxVanillaOption option = CALLS[i];
       PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATES_PROVIDER, VOL_PROVIDER);
-      CurveCurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.curveParameterSensitivity(point.build());
+      CurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.parameterSensitivity(point.build());
       double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY);
       double forwardRate = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER).fxRate(CURRENCY_PAIR);
       double strikeRate = option.getStrike();
       SmileDeltaParameters smileAtTime = VOL_PROVIDER.getSmile().smileForTime(timeToExpiry);
       double[] vols = smileAtTime.getVolatility().toArray();
       double df = RATES_PROVIDER.discountFactor(USD, PAY);
-      CurveCurrencyParameterSensitivities sensiExpected =
+      CurrencyParameterSensitivities sensiExpected =
           FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(option, p, VOL_PROVIDER));
-      CurveCurrencyParameterSensitivities sensiRes = FD_CAL.sensitivity(RATES_PROVIDER,
+      CurrencyParameterSensitivities sensiRes = FD_CAL.sensitivity(RATES_PROVIDER,
           new Function<ImmutableRatesProvider, CurrencyAmount>() {
             @Override
             public CurrencyAmount apply(ImmutableRatesProvider p) {
@@ -346,7 +346,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
       assertEquals(computed.getAmount(), expected[i], NOTIONAL * TOL);
       // curve sensitivity
       PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(CALLS[i], RATES_PROVIDER, VOL_PROVIDER);
-      CurveCurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.curveParameterSensitivity(point.build());
+      CurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.parameterSensitivity(point.build());
       assertTrue(DoubleArrayMath.fuzzyEquals(
           sensiComputed.getSensitivity(eurName, USD).getSensitivity().toArray(),
           sensiExpected[i][0],

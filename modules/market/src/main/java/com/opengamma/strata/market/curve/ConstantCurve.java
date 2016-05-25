@@ -24,8 +24,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve based on a single constant value.
@@ -128,8 +131,9 @@ public final class ConstantCurve
   }
 
   @Override
-  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-    return CurveUnitParameterSensitivity.of(metadata, SENSITIVITY);
+  public UnitParameterSensitivity yValueParameterSensitivity(double x) {
+    ImmutableList<ParameterMetadata> paramMeta = ImmutableList.of(getParameterMetadata(0));
+    return UnitParameterSensitivity.of(metadata.getCurveName(), paramMeta, SENSITIVITY);
   }
 
   @Override

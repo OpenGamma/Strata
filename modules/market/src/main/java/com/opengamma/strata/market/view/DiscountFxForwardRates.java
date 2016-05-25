@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -168,7 +168,7 @@ public final class DiscountFxForwardRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxForwardSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(FxForwardSensitivity pointSensitivity) {
     // use the specified base currency to determine the desired currency pair
     // then derive sensitivity from discount factors based off desired currency pair, not that of the index
     CurrencyPair currencyPair = pointSensitivity.getCurrencyPair();
@@ -193,8 +193,8 @@ public final class DiscountFxForwardRates
             .multipliedBy(-fxRate * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
                 dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
 
-    return discountFactorsRefBase.curveParameterSensitivity(dfCcyBaseAtMaturitySensitivity)
-        .combinedWith(discountFactorsRefCounter.curveParameterSensitivity(dfCcyCounterAtMaturitySensitivity));
+    return discountFactorsRefBase.parameterSensitivity(dfCcyBaseAtMaturitySensitivity)
+        .combinedWith(discountFactorsRefCounter.parameterSensitivity(dfCcyCounterAtMaturitySensitivity));
   }
 
   @Override

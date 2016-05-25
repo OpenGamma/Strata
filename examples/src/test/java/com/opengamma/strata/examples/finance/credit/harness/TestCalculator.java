@@ -15,18 +15,18 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.product.Trade;
 
 public class TestCalculator implements Calculator {
@@ -56,9 +56,9 @@ public class TestCalculator implements Calculator {
 
     Result<?> result = calculateResults(valuationDate, tradeSource, ImmutableList.of(measure)).getCells().get(0);
     Preconditions.checkArgument(
-        result.getValue() instanceof CurveCurrencyParameterSensitivities,
-        "Expecting a vector CurveCurrencyParameterSensitivities, found " + result.getValue());
-    CurveCurrencyParameterSensitivities value = (CurveCurrencyParameterSensitivities) result.getValue();
+        result.getValue() instanceof CurrencyParameterSensitivities,
+        "Expecting a vector CurrencyParameterSensitivities, found " + result.getValue());
+    CurrencyParameterSensitivities value = (CurrencyParameterSensitivities) result.getValue();
     Preconditions.checkArgument(value.getSensitivities().size() == 1);
     return value.getSensitivities().get(0).getSensitivity();
   }

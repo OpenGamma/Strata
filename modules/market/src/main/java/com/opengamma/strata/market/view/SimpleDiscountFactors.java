@@ -30,11 +30,11 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 
@@ -195,18 +195,18 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSens) {
+  public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     LocalDate date = pointSens.getDate();
     if (date.equals(valuationDate)) {
-      return CurveCurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
+      return CurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
     }
     double relativeYearFraction = relativeYearFraction(date);
     double discountFactor = discountFactor(relativeYearFraction);
-    CurveUnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction);
-    CurveCurrencyParameterSensitivity curSens = unitSens
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction);
+    CurrencyParameterSensitivity curSens = unitSens
         .multipliedBy(-1d / (relativeYearFraction * discountFactor))
         .multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
-    return CurveCurrencyParameterSensitivities.of(curSens);
+    return CurrencyParameterSensitivities.of(curSens);
   }
 
   //-------------------------------------------------------------------------

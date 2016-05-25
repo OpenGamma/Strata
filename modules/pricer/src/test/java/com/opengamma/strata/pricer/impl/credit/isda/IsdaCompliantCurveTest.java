@@ -15,8 +15,8 @@ import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * Test {@link IsdaCompliantCurve}.
@@ -634,7 +634,7 @@ public class IsdaCompliantCurveTest {
     assertEquals(cv11.getForwardRate(0. - tol), cv11.getForwardRate(0.));
     assertEquals(cv11.getForwardRate(T[1]), cv11.getForwardRate(T[1]));
 
-    CurveUnitParameterSensitivity rtSense = cv1.yValueParameterSensitivity(0.33);
+    UnitParameterSensitivity rtSense = cv1.yValueParameterSensitivity(0.33);
     for (int i = 0; i < num; ++i) {
       assertEquals(cv1.getSingleNodeSensitivity(0.33, i), rtSense.getSensitivity().get(i));
     }

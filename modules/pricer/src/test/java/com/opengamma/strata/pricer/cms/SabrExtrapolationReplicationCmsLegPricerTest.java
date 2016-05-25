@@ -30,9 +30,9 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.pricer.impl.cms.SabrExtrapolationReplicationCmsPeriodPricer;
@@ -181,8 +181,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivity(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATES_PROVIDER, p -> LEG_PRICER.presentValue(FLOOR_LEG, p, VOLATILITIES));
     assertTrue(computed.equalWithTolerance(expected, EPS * NOTIONAL_VALUE_0 * 80d));
   }
@@ -190,8 +190,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder point =
         LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         RATES_PROVIDER_AFTER_PERIOD, p -> LEG_PRICER.presentValue(COUPON_LEG, p, VOLATILITIES_AFTER_PERIOD));
     assertTrue(computed.equalWithTolerance(expected, EPS * NOTIONAL_VALUE_0 * 10d));
   }

@@ -27,10 +27,10 @@ import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve with a parallel shift applied to its y-values.
@@ -171,7 +171,7 @@ public final class ParallelShiftedCurve
   }
 
   @Override
-  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+  public UnitParameterSensitivity yValueParameterSensitivity(double x) {
     return underlyingCurve.yValueParameterSensitivity(x);
   }
 

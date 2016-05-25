@@ -38,11 +38,11 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
@@ -160,7 +160,7 @@ public class SabrSwaptionCubePvRiskExample {
     System.out.println("  |-> PV: " + pv.toString());
 
     PointSensitivities deltaPts = SWAPTION_PRICER.presentValueSensitivity(resolvedSwaption, multicurve, sabr).build();
-    CurveCurrencyParameterSensitivities deltaBucketed = multicurve.curveParameterSensitivity(deltaPts);
+    CurrencyParameterSensitivities deltaBucketed = multicurve.parameterSensitivity(deltaPts);
     System.out.println("  |-> Delta bucketed: " + deltaBucketed.toString());
 
     SwaptionSabrSensitivity vegaPts = SWAPTION_PRICER.presentValueSensitivitySabrParameter(resolvedSwaption, multicurve, sabr);

@@ -5,12 +5,20 @@
  */
 package com.opengamma.strata.market.curve;
 
-import java.time.Period;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.time.Period;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.Perturbation;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve that maps a {@code double} x-value to a {@code double} y-value.
@@ -93,7 +101,7 @@ public interface Curve extends ParameterizedData {
    * @return the sensitivity
    * @throws RuntimeException if the sensitivity cannot be calculated
    */
-  public abstract CurveUnitParameterSensitivity yValueParameterSensitivity(double x);
+  public abstract UnitParameterSensitivity yValueParameterSensitivity(double x);
 
   /**
    * Computes the first derivative of the curve.
@@ -117,6 +125,40 @@ public interface Curve extends ParameterizedData {
    */
   public default Curve applyPerturbation(Perturbation<Curve> perturbation) {
     return perturbation.applyTo(this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link UnitParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
+   */
+  public default UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return UnitParameterSensitivity.of(getName(), paramMeta, sensitivities);
+  }
+
+  /**
+   * Creates a parameter sensitivity instance for this curve when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #yValueParameterSensitivity(double)} should be used and manipulated.
+   * However, it can be useful to create a {@link CurrencyParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the curve
+   * @return the sensitivity
+   */
+  public default CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CurrencyParameterSensitivity.of(getName(), paramMeta, currency, sensitivities);
   }
 
 }

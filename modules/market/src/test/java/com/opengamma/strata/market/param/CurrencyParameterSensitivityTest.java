@@ -90,6 +90,13 @@ public class CurrencyParameterSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toUnitParameterSensitivity() {
+    CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
+    UnitParameterSensitivity test = base.toUnitParameterSensitivity();
+    assertEquals(test, UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     coverImmutableBean(test);

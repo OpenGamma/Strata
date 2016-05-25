@@ -34,11 +34,11 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -197,13 +197,13 @@ public final class SimpleIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(IborRateSensitivity pointSensitivity) {
     LocalDate maturityDate = pointSensitivity.getObservation().getMaturityDate();
     double relativeYearFraction = relativeYearFraction(maturityDate);
-    CurveUnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
-    CurveCurrencyParameterSensitivity sensitivity =
+    UnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
+    CurrencyParameterSensitivity sensitivity =
         unitSensitivity.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
-    return CurveCurrencyParameterSensitivities.of(sensitivity);
+    return CurrencyParameterSensitivities.of(sensitivity);
   }
 
   //-------------------------------------------------------------------------

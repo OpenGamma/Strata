@@ -136,12 +136,12 @@ public class DiscountFxForwardRatesTest {
 
   //-------------------------------------------------------------------------
   //proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     FxForwardSensitivity point = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, DATE_VAL, 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 2);
+    assertEquals(test.parameterSensitivity(point).size(), 2);
     FxForwardSensitivity point2 = FxForwardSensitivity.of(CURRENCY_PAIR, USD, DATE_VAL, 1d);
-    assertEquals(test.curveParameterSensitivity(point2).size(), 2);
+    assertEquals(test.parameterSensitivity(point2).size(), 2);
   }
 
   //-------------------------------------------------------------------------

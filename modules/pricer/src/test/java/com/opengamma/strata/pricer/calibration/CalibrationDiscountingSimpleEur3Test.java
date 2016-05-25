@@ -22,11 +22,11 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
@@ -207,11 +207,11 @@ public class CalibrationDiscountingSimpleEur3Test {
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
       PointSensitivities pts = SWAP_PRICER.parRateSensitivity(
           ((ResolvedSwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
-      CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
+      CurrencyParameterSensitivities ps = provider.parameterSensitivity(pts);
+      CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3); // Calibration of all curves simultaneously
-      CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
-      assertTrue(mqsDsc.getCurveName().equals(CalibrationEurStandard.DSCON_CURVE_NAME));
+      CurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
+      assertTrue(mqsDsc.getMarketDataName().equals(CalibrationEurStandard.DSCON_CURVE_NAME));
       assertTrue(mqsDsc.getCurrency().equals(EUR));
       DoubleArray mqsData = mqsDsc.getSensitivity();
       assertEquals(mqsData.size(), DSC_MARKET_QUOTES.length);
@@ -239,11 +239,11 @@ public class CalibrationDiscountingSimpleEur3Test {
         pts = SWAP_PRICER.parSpreadSensitivity(
             ((ResolvedSwapTrade) fwd3Trades.get(loopnode)).getProduct(), provider).build();
       }
-      CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
+      CurrencyParameterSensitivities ps = provider.parameterSensitivity(pts);
+      CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3);  // Calibration of all curves simultaneously
-      CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
-      CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
+      CurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
+      CurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
       DoubleArray mqsDscData = mqsDsc.getSensitivity();
       assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
       for (int i = 0; i < mqsDscData.size(); i++) {
@@ -275,12 +275,12 @@ public class CalibrationDiscountingSimpleEur3Test {
         pts = SWAP_PRICER.parSpreadSensitivity(
             ((ResolvedSwapTrade) fwd6Trades.get(loopnode)).getProduct(), provider).build();
       }
-      CurveCurrencyParameterSensitivities ps = provider.curveParameterSensitivity(pts);
-      CurveCurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
+      CurrencyParameterSensitivities ps = provider.parameterSensitivity(pts);
+      CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
       assertEquals(mqs.size(), 3);
-      CurveCurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
-      CurveCurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
-      CurveCurrencyParameterSensitivity mqsFwd6 = mqs.getSensitivity(CalibrationEurStandard.FWD6_CURVE_NAME, EUR);
+      CurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(CalibrationEurStandard.DSCON_CURVE_NAME, EUR);
+      CurrencyParameterSensitivity mqsFwd3 = mqs.getSensitivity(CalibrationEurStandard.FWD3_CURVE_NAME, EUR);
+      CurrencyParameterSensitivity mqsFwd6 = mqs.getSensitivity(CalibrationEurStandard.FWD6_CURVE_NAME, EUR);
       DoubleArray mqsDscData = mqsDsc.getSensitivity();
       assertEquals(mqsDscData.size(), DSC_MARKET_QUOTES.length);
       for (int i = 0; i < mqsDscData.size(); i++) {

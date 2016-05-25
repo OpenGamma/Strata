@@ -12,8 +12,8 @@ import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -110,6 +110,6 @@ public interface PriceIndexValues
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(InflationRateSensitivity pointSensitivity);
 
 }

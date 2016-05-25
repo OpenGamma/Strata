@@ -28,6 +28,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * Test {@link AddFixedCurve}.
@@ -111,8 +112,8 @@ public class AddFixedCurveTest {
 
   public void yParameterSensitivity() {
     for (int i = 0; i < X_SAMPLE.length; i++) {
-      CurveUnitParameterSensitivity dComputed = ADD_FIXED_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
-      CurveUnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
+      UnitParameterSensitivity dComputed = ADD_FIXED_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
+      UnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
       assertTrue(dComputed.compareKey(dExpected) == 0);
       assertTrue(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y));
     }

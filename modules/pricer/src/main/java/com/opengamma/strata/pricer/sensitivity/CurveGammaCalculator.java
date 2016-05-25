@@ -11,8 +11,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.perturb.ParallelShiftedCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 
@@ -60,15 +60,15 @@ public class CurveGammaCalculator {
    * @param sensitivitiesFn  the function to convert the bumped curve to parameter sensitivities
    * @return the "sum-of-columns" or "semi-parallel" gamma vector
    */
-  public CurveCurrencyParameterSensitivity calculateSemiParallelGamma(
+  public CurrencyParameterSensitivity calculateSemiParallelGamma(
       Curve curve,
       Currency curveCurrency,
-      Function<Curve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
+      Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn) {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
     Function<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
     DoubleArray gamma = gammaFn.apply(DoubleArray.filled(1)).column(0);
-    return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
+    return curve.createParameterSensitivity(curveCurrency, gamma);
   }
 
   //-------------------------------------------------------------------------
@@ -77,9 +77,9 @@ public class CurveGammaCalculator {
    */
   static class Delta implements Function<DoubleArray, DoubleArray> {
     private final Curve curve;
-    private final Function<Curve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
+    private final Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn;
 
-    Delta(Curve curve, Function<Curve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
+    Delta(Curve curve, Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn) {
       this.curve = curve;
       this.sensitivitiesFn = sensitivitiesFn;
     }
@@ -88,7 +88,7 @@ public class CurveGammaCalculator {
     public DoubleArray apply(DoubleArray s) {
       double shift = s.get(0);
       Curve curveBumped = ParallelShiftedCurve.absolute(curve, shift);
-      CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
+      CurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
       return pts.getSensitivity();
     }
   }

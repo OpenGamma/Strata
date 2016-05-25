@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -105,7 +105,7 @@ public interface FxIndexRates
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(FxIndexSensitivity pointSensitivity);
 
   /**
    * Calculates the currency exposure from the point sensitivity.

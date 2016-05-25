@@ -33,13 +33,13 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.value.BondGroup;
 import com.opengamma.strata.market.value.LegalEntityGroup;
@@ -282,7 +282,7 @@ public class BondFuturesJpyEnd2EndTest {
     // March
     PointSensitivities pointMar =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_MAR, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiMar = RATES_PROVIDER.curveParameterSensitivity(pointMar);
+    CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiIssuerMar = new double[] {-4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
       -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
       -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -294,7 +294,7 @@ public class BondFuturesJpyEnd2EndTest {
     // June
     PointSensitivities pointJun =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_JUN, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiJun = RATES_PROVIDER.curveParameterSensitivity(pointJun);
+    CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiIssuerJun = new double[] {-1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
       -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
       -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -306,7 +306,7 @@ public class BondFuturesJpyEnd2EndTest {
     // September
     PointSensitivities pointSep =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_SEP, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiSep = RATES_PROVIDER.curveParameterSensitivity(pointSep);
+    CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiIssuerSep = new double[] {-6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
       -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
       -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -333,7 +333,7 @@ public class BondFuturesJpyEnd2EndTest {
     // March
     PointSensitivities pointMar =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_MAR, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiMar = RATES_PROVIDER.curveParameterSensitivity(pointMar);
+    CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiIssuerMar = new double[] {-4.795692708445902, -20.78121586131013, -77.30767169573404,
       -160.71777740512184, -230.44416935116368, -333.3307694739688, -426.3036155523117, -568.5365085703306,
       -104079.34097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -345,7 +345,7 @@ public class BondFuturesJpyEnd2EndTest {
     // June
     PointSensitivities pointJun =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_JUN, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiJun = RATES_PROVIDER.curveParameterSensitivity(pointJun);
+    CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiIssuerJun = new double[] {-11.453989553600326, -23.489264982865656, -101.06640809190962,
       -195.09367993719025, -313.2622179286758, -439.5002117284386, -557.2262990208807, -785.8225833901945,
       -70871.70775675304, -35397.369780751746, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -357,7 +357,7 @@ public class BondFuturesJpyEnd2EndTest {
     // September
     PointSensitivities pointSep =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_SEP, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiSep = RATES_PROVIDER.curveParameterSensitivity(pointSep);
+    CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiIssuerSep = new double[] {-6.287268294968501, -27.244672992830814, -101.35221390528456,
       -210.7048653341435, -302.1178394458564, -437.0046427203812, -558.8942763935072, -745.3650144370276,
       -36876.05192905092, -73138.88023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -384,7 +384,7 @@ public class BondFuturesJpyEnd2EndTest {
     // March
     PointSensitivities pointMar =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_MAR, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiMar = RATES_PROVIDER.curveParameterSensitivity(pointMar);
+    CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiIssuerMar = new double[] {-4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
       -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
       -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -396,7 +396,7 @@ public class BondFuturesJpyEnd2EndTest {
     // June
     PointSensitivities pointJun =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_JUN, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiJun = RATES_PROVIDER.curveParameterSensitivity(pointJun);
+    CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiIssuerJun = new double[] {-1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
       -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
       -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
@@ -408,7 +408,7 @@ public class BondFuturesJpyEnd2EndTest {
     // September
     PointSensitivities pointSep =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_SEP, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
-    CurveCurrencyParameterSensitivities sensiSep = RATES_PROVIDER.curveParameterSensitivity(pointSep);
+    CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiIssuerSep = new double[] {-6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
       -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
       -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };

@@ -21,8 +21,8 @@ public class ParameterMetadataTest {
 
   public void test_empty() {
     ParameterMetadata test = ParameterMetadata.empty();
-    assertEquals(test.getLabel(), "Empty");
-    assertEquals(test.getIdentifier(), "Empty");
+    assertEquals(test.getLabel(), "");
+    assertEquals(test.getIdentifier(), "");
   }
 
   public void test_listOfEmpty() {

@@ -18,14 +18,12 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveParameterSize;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -55,7 +53,7 @@ public class CurveSensitivityUtils {
    */
   public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
       List<CurveParameterSize> curveOrder,
-      List<CurveCurrencyParameterSensitivities> marketQuoteSensitivities) {
+      List<CurrencyParameterSensitivities> marketQuoteSensitivities) {
 
     Currency ccy = marketQuoteSensitivities.get(0).getSensitivities().get(0).getCurrency();
     DoubleMatrix jacobianMatrix = DoubleMatrix.ofArrayObjects(
@@ -75,12 +73,12 @@ public class CurveSensitivityUtils {
    */
   private static DoubleArray row(
       List<CurveParameterSize> curveOrder,
-      CurveCurrencyParameterSensitivities parameterSensitivities,
+      CurrencyParameterSensitivities parameterSensitivities,
       Currency ccy) {
 
     DoubleArray row = DoubleArray.EMPTY;
     for (CurveParameterSize curveNameAndSize : curveOrder) {
-      Optional<CurveCurrencyParameterSensitivity> sensitivityOneCurve =
+      Optional<CurrencyParameterSensitivity> sensitivityOneCurve =
           parameterSensitivities.findSensitivity(curveNameAndSize.getName(), ccy);
       if (sensitivityOneCurve.isPresent()) {
         row = row.concat(sensitivityOneCurve.get().getSensitivity());
@@ -105,9 +103,9 @@ public class CurveSensitivityUtils {
   public static DoubleMatrix jacobianFromMarketQuoteSensitivities(
       List<CurveParameterSize> curveOrder,
       List<ResolvedTrade> trades,
-      Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction) {
+      Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction) {
 
-    List<CurveCurrencyParameterSensitivities> marketQuoteSensitivities = new ArrayList<>();
+    List<CurrencyParameterSensitivities> marketQuoteSensitivities = new ArrayList<>();
     for (ResolvedTrade t : trades) {
       marketQuoteSensitivities.add(sensitivityFunction.apply(t));
     }
@@ -115,7 +113,7 @@ public class CurveSensitivityUtils {
   }
 
   /**
-   * Re-buckets a {@link CurveCurrencyParameterSensitivities} to a given set of dates. 
+   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates. 
    * <p>
    * The list of dates must be sorted in chronological order. All sensitivities are re-bucketed to the same date list.
    * The re-bucketing is done by linear weighting on the number of days, i.e. the sensitivities for dates outside the 
@@ -128,8 +126,8 @@ public class CurveSensitivityUtils {
    * @param targetDates  the list of dates for the re-bucketing
    * @return the sensitivity after the re-bucketing
    */
-  public static CurveCurrencyParameterSensitivities linearRebucketing(
-      CurveCurrencyParameterSensitivities sensitivities,
+  public static CurrencyParameterSensitivities linearRebucketing(
+      CurrencyParameterSensitivities sensitivities,
       List<LocalDate> targetDates) {
 
     checkSortedDates(targetDates);
@@ -137,14 +135,12 @@ public class CurveSensitivityUtils {
     List<ParameterMetadata> pmdTarget = targetDates.stream()
         .map(date -> LabelDateParameterMetadata.of(date, date.toString()))
         .collect(toList());
-    ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
-    List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
-    for (CurveCurrencyParameterSensitivity sensitivity : sensitivitiesList) {
+    ImmutableList<CurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
+    List<CurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
+    for (CurrencyParameterSensitivity sensitivity : sensitivitiesList) {
       double[] rebucketedSensitivityAmounts = new double[nbBuckets];
-      CurveMetadata metadataCurve = sensitivity.getMetadata();
       DoubleArray sensitivityAmounts = sensitivity.getSensitivity();
-      List<ParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
-          .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
+      List<ParameterMetadata> parameterMetadataList = sensitivity.getParameterMetadata();
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
         ParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
         ArgChecker.isTrue(nodeMetadata instanceof DatedParameterMetadata,
@@ -154,17 +150,18 @@ public class CurveSensitivityUtils {
         LocalDate nodeDate = datedParameterMetadata.getDate();
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);
       }
-      CurveCurrencyParameterSensitivity rebucketedSensitivity =
-          CurveCurrencyParameterSensitivity.of(
-              DefaultCurveMetadata.builder().curveName(sensitivity.getCurveName()).parameterMetadata(pmdTarget).build(),
-              sensitivity.getCurrency(), DoubleArray.ofUnsafe(rebucketedSensitivityAmounts));
+      CurrencyParameterSensitivity rebucketedSensitivity = CurrencyParameterSensitivity.of(
+          sensitivity.getMarketDataName(),
+          pmdTarget,
+          sensitivity.getCurrency(),
+          DoubleArray.ofUnsafe(rebucketedSensitivityAmounts));
       sensitivityTarget.add(rebucketedSensitivity);
     }
-    return CurveCurrencyParameterSensitivities.of(sensitivityTarget);
+    return CurrencyParameterSensitivities.of(sensitivityTarget);
   }
 
   /**
-   * Re-buckets a {@link CurveCurrencyParameterSensitivities} to a given set of dates. 
+   * Re-buckets a {@link CurrencyParameterSensitivities} to a given set of dates. 
    * <p>
    * The list of dates must be sorted in chronological order. All sensitivities are re-bucketed to the same date list.
    * The re-bucketing is done by linear weighting on the number of days, i.e. the sensitivities for dates outside the 
@@ -179,8 +176,8 @@ public class CurveSensitivityUtils {
    * @param sensitivityDate  the date for which the sensitivities are valid
    * @return the sensitivity after the re-bucketing
    */
-  public static CurveCurrencyParameterSensitivities linearRebucketing(
-      CurveCurrencyParameterSensitivities sensitivities,
+  public static CurrencyParameterSensitivities linearRebucketing(
+      CurrencyParameterSensitivities sensitivities,
       List<LocalDate> targetDates,
       LocalDate sensitivityDate) {
 
@@ -189,14 +186,12 @@ public class CurveSensitivityUtils {
     List<ParameterMetadata> pmdTarget = targetDates.stream()
         .map(date -> LabelDateParameterMetadata.of(date, date.toString()))
         .collect(toList());
-    ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
-    List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
-    for (CurveCurrencyParameterSensitivity sensitivity : sensitivitiesList) {
+    ImmutableList<CurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
+    List<CurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
+    for (CurrencyParameterSensitivity sensitivity : sensitivitiesList) {
       double[] rebucketedSensitivityAmounts = new double[nbBuckets];
-      CurveMetadata metadataCurve = sensitivity.getMetadata();
       DoubleArray sensitivityAmounts = sensitivity.getSensitivity();
-      List<ParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
-          .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
+      List<ParameterMetadata> parameterMetadataList = sensitivity.getParameterMetadata();
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
         ParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
         ArgChecker.isTrue((nodeMetadata instanceof DatedParameterMetadata) ||
@@ -213,13 +208,14 @@ public class CurveSensitivityUtils {
         }
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);
       }
-      CurveCurrencyParameterSensitivity rebucketedSensitivity =
-          CurveCurrencyParameterSensitivity.of(
-              DefaultCurveMetadata.builder().curveName(sensitivity.getCurveName()).parameterMetadata(pmdTarget).build(),
-              sensitivity.getCurrency(), DoubleArray.ofUnsafe(rebucketedSensitivityAmounts));
+      CurrencyParameterSensitivity rebucketedSensitivity = CurrencyParameterSensitivity.of(
+          sensitivity.getMarketDataName(),
+          pmdTarget,
+          sensitivity.getCurrency(),
+          DoubleArray.ofUnsafe(rebucketedSensitivityAmounts));
       sensitivityTarget.add(rebucketedSensitivity);
     }
-    return CurveCurrencyParameterSensitivities.of(sensitivityTarget);
+    return CurrencyParameterSensitivities.of(sensitivityTarget);
   }
 
   /**
@@ -246,8 +242,10 @@ public class CurveSensitivityUtils {
       while (sensitivityDate.isAfter(targetDates.get(indexSensitivityDate))) {
         indexSensitivityDate++;
       } // 'indexSensitivityDate' contains the index of the node after the sensitivity date 
-      long intervalLength = targetDates.get(indexSensitivityDate).toEpochDay() - targetDates.get(indexSensitivityDate - 1).toEpochDay();
-      double weight = ((double) (targetDates.get(indexSensitivityDate).toEpochDay() - sensitivityDate.toEpochDay())) / intervalLength;
+      long intervalLength =
+          targetDates.get(indexSensitivityDate).toEpochDay() - targetDates.get(indexSensitivityDate - 1).toEpochDay();
+      double weight =
+          ((double) (targetDates.get(indexSensitivityDate).toEpochDay() - sensitivityDate.toEpochDay())) / intervalLength;
       rebucketedSensitivityAmounts[indexSensitivityDate - 1] += weight * sensitivityAmount;
       rebucketedSensitivityAmounts[indexSensitivityDate] += (1.0d - weight) * sensitivityAmount;
     }

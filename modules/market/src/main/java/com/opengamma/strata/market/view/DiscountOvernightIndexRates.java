@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -190,7 +190,7 @@ public final class DiscountOvernightIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(OvernightRateSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(OvernightRateSensitivity pointSensitivity) {
     OvernightIndex index = pointSensitivity.getIndex();
     LocalDate startDate = pointSensitivity.getObservation().getEffectiveDate();
     LocalDate endDate = pointSensitivity.getEndDate();
@@ -202,8 +202,8 @@ public final class DiscountOvernightIndexRates
     double dfEndBar = -forwardBar * dfForwardStart / (accrualFactor * dfForwardEnd * dfForwardEnd);
     ZeroRateSensitivity zrsStart = discountFactors.zeroRatePointSensitivity(startDate, pointSensitivity.getCurrency());
     ZeroRateSensitivity zrsEnd = discountFactors.zeroRatePointSensitivity(endDate, pointSensitivity.getCurrency());
-    CurveCurrencyParameterSensitivities psStart = discountFactors.curveParameterSensitivity(zrsStart).multipliedBy(dfStartBar);
-    CurveCurrencyParameterSensitivities psEnd = discountFactors.curveParameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
+    CurrencyParameterSensitivities psStart = discountFactors.parameterSensitivity(zrsStart).multipliedBy(dfStartBar);
+    CurrencyParameterSensitivities psEnd = discountFactors.parameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
     return psStart.combinedWith(psEnd);
   }
 

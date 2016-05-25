@@ -7,7 +7,7 @@ package com.opengamma.strata.report.framework.format;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
 /**
  * Provides standard formatters.
@@ -29,10 +29,10 @@ public final class ValueFormatters {
    */
   public static ValueFormatter<CurrencyAmount> CURRENCY_AMOUNT = CurrencyAmountValueFormatter.INSTANCE;
   /**
-   * The formatter to be used for {@code CurveCurrencyParameterSensitivity}.
+   * The formatter to be used for {@code CurrencyParameterSensitivity}.
    */
-  public static ValueFormatter<CurveCurrencyParameterSensitivity> CURVE_CURRENCY_PARAMETER_SENSITIVITY =
-      CurveCurrencyParameterSensitivityValueFormatter.INSTANCE;
+  public static ValueFormatter<CurrencyParameterSensitivity> CURRENCY_PARAMETER_SENSITIVITY =
+      CurrencyParameterSensitivityValueFormatter.INSTANCE;
   /**
    * The formatter to be used for {@code double[]}.
    */

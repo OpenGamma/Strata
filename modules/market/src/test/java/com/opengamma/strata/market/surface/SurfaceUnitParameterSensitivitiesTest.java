@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
 
 /**
  * Test {@link SurfaceUnitParameterSensitivities}.
@@ -172,7 +171,7 @@ public class SurfaceUnitParameterSensitivitiesTest {
   public void coverage() {
     SurfaceUnitParameterSensitivities test1 = SurfaceUnitParameterSensitivities.of(ENTRY_USD1);
     SurfaceUnitParameterSensitivities test2 = SurfaceUnitParameterSensitivities.of(ENTRY_EUR1, ENTRY_USD2);
-    coverImmutableBean(CurveUnitParameterSensitivities.empty());
+    coverImmutableBean(SurfaceUnitParameterSensitivities.empty());
     coverImmutableBean(test1);
     coverBeanEquals(test1, test2);
   }

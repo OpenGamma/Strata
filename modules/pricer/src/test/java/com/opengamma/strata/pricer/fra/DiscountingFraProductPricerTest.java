@@ -30,13 +30,13 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.amount.CashFlows;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -500,8 +500,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_ISDA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV);
@@ -513,8 +513,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_NONE() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_NONE, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_NONE.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_NONE, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_NONE, IMM_PROV);
@@ -526,8 +526,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_AFMA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_AFMA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_AFMA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_AFMA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_AFMA, IMM_PROV);
@@ -640,8 +640,8 @@ public class DiscountingFraProductPricerTest {
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra fraExp = RFRA;
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
-    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
     assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
   }
 
@@ -652,8 +652,8 @@ public class DiscountingFraProductPricerTest {
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra fraExp = RFRA;
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
-    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
     assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
   }
 

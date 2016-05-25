@@ -23,8 +23,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
@@ -33,6 +31,8 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
@@ -258,24 +258,24 @@ public class ZeroRatePeriodicDiscountFactorsTest {
 
   //-------------------------------------------------------------------------
   //-------------------------------------------------------------------------
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double sensiValue = 25d;
     ZeroRateSensitivity point = test.zeroRatePointSensitivity(DATE_AFTER);
     point = point.multipliedBy(sensiValue);
-    CurveCurrencyParameterSensitivities sensiObject = test.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities sensiObject = test.parameterSensitivity(point);
     assertEquals(sensiObject.size(), 1);
-    CurveCurrencyParameterSensitivity sensi1 = sensiObject.getSensitivities().get(0);
+    CurrencyParameterSensitivity sensi1 = sensiObject.getSensitivities().get(0);
     assertEquals(sensi1.getCurrency(), GBP);
   }
 
   //-------------------------------------------------------------------------
-  public void test_curveParameterSensitivity_full() {
+  public void test_parameterSensitivity_full() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double sensiValue = 25d;
     ZeroRateSensitivity point = test.zeroRatePointSensitivity(DATE_AFTER);
     point = point.multipliedBy(sensiValue);
-    CurveCurrencyParameterSensitivities sensiObject = test.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities sensiObject = test.parameterSensitivity(point);
     assertEquals(sensiObject.getSensitivities().size(), 1);
     DoubleArray sensi0 =  sensiObject.getSensitivities().get(0).getSensitivity();
     double shift = 1.0E-6;
@@ -292,14 +292,14 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     }    
   }
   
-  public void test_curveParameterSensitivity_withSpread_full() {
+  public void test_parameterSensitivity_withSpread_full() {
     int periodPerYear = 2;
     double spread = 0.0011; // 11 bp
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double sensiValue = 25d;
     ZeroRateSensitivity point = test.zeroRatePointSensitivityWithSpread(DATE_AFTER, spread, PERIODIC, periodPerYear);
     point = point.multipliedBy(sensiValue);
-    CurveCurrencyParameterSensitivities sensiObject = test.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities sensiObject = test.parameterSensitivity(point);
     assertEquals(sensiObject.getSensitivities().size(), 1);
     DoubleArray sensi0 =  sensiObject.getSensitivities().get(0).getSensitivity();
     double shift = 1.0E-6;

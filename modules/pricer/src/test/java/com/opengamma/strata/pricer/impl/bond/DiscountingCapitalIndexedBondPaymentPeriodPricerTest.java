@@ -21,10 +21,10 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.value.CompoundedRateType;
 import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
@@ -234,19 +234,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivity_beforeStart() {
     PointSensitivityBuilder pointInterp = 
         PRICER.presentValueSensitivity(PERIOD_INTERP, IRP_BEFORE_START, ICDF_BEFORE_START);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_BEFORE_START.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_BEFORE_START.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_BEFORE_START.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_BEFORE_START.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.presentValueSensitivity(PERIOD_MONTHLY, IRP_BEFORE_START, ICDF_BEFORE_START);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_BEFORE_START.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_BEFORE_START.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_BEFORE_START.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_BEFORE_START.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         fdSensitivity(PERIOD_INTERP, IRP_BEFORE_START, LEDP_BEFORE_START);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivity(PERIOD_MONTHLY, IRP_BEFORE_START, LEDP_BEFORE_START);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -255,19 +255,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivity_onFix() {
     PointSensitivityBuilder pointInterp =
         PRICER.presentValueSensitivity(PERIOD_INTERP, IRP_ON_FIX, ICDF_ON_FIX);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_ON_FIX.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_ON_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_ON_FIX.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_ON_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.presentValueSensitivity(PERIOD_MONTHLY, IRP_ON_FIX, ICDF_ON_FIX);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_ON_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_ON_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_ON_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_ON_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         fdSensitivity(PERIOD_INTERP, IRP_ON_FIX, LEDP_ON_FIX);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivity(PERIOD_MONTHLY, IRP_ON_FIX, LEDP_ON_FIX);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -276,19 +276,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivity_afterFix() {
     PointSensitivityBuilder pointInterp =
         PRICER.presentValueSensitivity(PERIOD_INTERP, IRP_AFTER_FIX, ICDF_AFTER_FIX);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_AFTER_FIX.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_AFTER_FIX.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_AFTER_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.presentValueSensitivity(PERIOD_MONTHLY, IRP_AFTER_FIX, ICDF_AFTER_FIX);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_AFTER_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_AFTER_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_AFTER_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         fdSensitivity(PERIOD_INTERP, IRP_AFTER_FIX, LEDP_AFTER_FIX);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivity(PERIOD_MONTHLY, IRP_AFTER_FIX, LEDP_AFTER_FIX);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -307,19 +307,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivityWithZSpread_beforeStart() {
     PointSensitivityBuilder pointInterp = PRICER.presentValueSensitivityWithZSpread(
         PERIOD_INTERP, IRP_BEFORE_START, ICDF_BEFORE_START, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_BEFORE_START.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_BEFORE_START.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_BEFORE_START.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_BEFORE_START.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly = PRICER.presentValueSensitivityWithZSpread(
         PERIOD_MONTHLY, IRP_BEFORE_START, ICDF_BEFORE_START, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_BEFORE_START.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_BEFORE_START.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp = fdSensitivityWithZSpread(
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_BEFORE_START.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_BEFORE_START.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp = fdSensitivityWithZSpread(
         PERIOD_INTERP, IRP_BEFORE_START, LEDP_BEFORE_START, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivityWithZSpread(PERIOD_MONTHLY, IRP_BEFORE_START, LEDP_BEFORE_START, Z_SPREAD, CONTINUOUS, 0);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -328,19 +328,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivityWithZSpread_onFix() {
     PointSensitivityBuilder pointInterp =
         PRICER.presentValueSensitivityWithZSpread(PERIOD_INTERP, IRP_ON_FIX, ICDF_ON_FIX, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_ON_FIX.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_ON_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_ON_FIX.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_ON_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly = PRICER.presentValueSensitivityWithZSpread(
         PERIOD_MONTHLY, IRP_ON_FIX, ICDF_ON_FIX, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_ON_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_ON_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_ON_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_ON_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         fdSensitivityWithZSpread(PERIOD_INTERP, IRP_ON_FIX, LEDP_ON_FIX, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivityWithZSpread(PERIOD_MONTHLY, IRP_ON_FIX, LEDP_ON_FIX, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -349,19 +349,19 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_presentValueSensitivityWithZSpread_afterFix() {
     PointSensitivityBuilder pointInterp = PRICER.presentValueSensitivityWithZSpread(
         PERIOD_INTERP, IRP_AFTER_FIX, ICDF_AFTER_FIX, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computedInterp1 =
-        LEDP_AFTER_FIX.curveParameterSensitivity(pointInterp.build());
-    CurveCurrencyParameterSensitivities computedInterp2 =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp1 =
+        LEDP_AFTER_FIX.parameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp2 =
+        IRP_AFTER_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly = PRICER.presentValueSensitivityWithZSpread(
         PERIOD_MONTHLY, IRP_AFTER_FIX, ICDF_AFTER_FIX, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computedMonthly1 =
-        LEDP_AFTER_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities computedMonthly2 =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly1 =
+        LEDP_AFTER_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities computedMonthly2 =
+        IRP_AFTER_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         fdSensitivityWithZSpread(PERIOD_INTERP, IRP_AFTER_FIX, LEDP_AFTER_FIX, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         fdSensitivityWithZSpread(PERIOD_MONTHLY, IRP_AFTER_FIX, LEDP_AFTER_FIX, Z_SPREAD, CONTINUOUS, 0);
     assertTrue(computedInterp1.combinedWith(computedInterp2).equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly1.combinedWith(computedMonthly2).equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -380,15 +380,15 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_forecastValueSensitivity_beforeStart() {
     PointSensitivityBuilder pointInterp =
         PRICER.forecastValueSensitivity(PERIOD_INTERP, IRP_BEFORE_START);
-    CurveCurrencyParameterSensitivities computedInterp =
-        IRP_BEFORE_START.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp =
+        IRP_BEFORE_START.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.forecastValueSensitivity(PERIOD_MONTHLY, IRP_BEFORE_START);
-    CurveCurrencyParameterSensitivities computedMonthly =
-        IRP_BEFORE_START.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly =
+        IRP_BEFORE_START.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         FD_CAL.sensitivity(IRP_BEFORE_START, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_INTERP, p)));
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         FD_CAL.sensitivity(IRP_BEFORE_START, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_MONTHLY, p)));
     assertTrue(computedInterp.equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly.equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -397,15 +397,15 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_forecastValueSensitivity_onFix() {
     PointSensitivityBuilder pointInterp =
         PRICER.forecastValueSensitivity(PERIOD_INTERP, IRP_ON_FIX);
-    CurveCurrencyParameterSensitivities computedInterp =
-        IRP_ON_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp =
+        IRP_ON_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.forecastValueSensitivity(PERIOD_MONTHLY, IRP_ON_FIX);
-    CurveCurrencyParameterSensitivities computedMonthly =
-        IRP_ON_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly =
+        IRP_ON_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         FD_CAL.sensitivity(IRP_ON_FIX, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_INTERP, p)));
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         FD_CAL.sensitivity(IRP_ON_FIX, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_MONTHLY, p)));
     assertTrue(computedInterp.equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly.equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -414,15 +414,15 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   public void test_forecastValueSensitivity_afterFix() {
     PointSensitivityBuilder pointInterp =
         PRICER.forecastValueSensitivity(PERIOD_INTERP, IRP_AFTER_FIX);
-    CurveCurrencyParameterSensitivities computedInterp =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointInterp.build());
+    CurrencyParameterSensitivities computedInterp =
+        IRP_AFTER_FIX.parameterSensitivity(pointInterp.build());
     PointSensitivityBuilder pointMonthly =
         PRICER.forecastValueSensitivity(PERIOD_MONTHLY, IRP_AFTER_FIX);
-    CurveCurrencyParameterSensitivities computedMonthly =
-        IRP_AFTER_FIX.curveParameterSensitivity(pointMonthly.build());
-    CurveCurrencyParameterSensitivities expectedInterp =
+    CurrencyParameterSensitivities computedMonthly =
+        IRP_AFTER_FIX.parameterSensitivity(pointMonthly.build());
+    CurrencyParameterSensitivities expectedInterp =
         FD_CAL.sensitivity(IRP_AFTER_FIX, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_INTERP, p)));
-    CurveCurrencyParameterSensitivities expectedMonthly =
+    CurrencyParameterSensitivities expectedMonthly =
         FD_CAL.sensitivity(IRP_AFTER_FIX, p -> CurrencyAmount.of(USD, PRICER.forecastValue(PERIOD_MONTHLY, p)));
     assertTrue(computedInterp.equalWithTolerance(expectedInterp, NOTIONAL * FD_EPS));
     assertTrue(computedMonthly.equalWithTolerance(expectedMonthly, NOTIONAL * FD_EPS));
@@ -519,12 +519,12 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   // computes sensitivity with finite difference approximation
-  private CurveCurrencyParameterSensitivities fdSensitivity(
+  private CurrencyParameterSensitivities fdSensitivity(
       CapitalIndexedBondPaymentPeriod period,
       ImmutableRatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerRatesProvider) {
 
-    CurveCurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(
         issuerRatesProvider,
         p -> CurrencyAmount.of(
             USD,
@@ -532,7 +532,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
                 period,
                 ratesProvider,
                 p.issuerCurveDiscountFactors(CapitalIndexedBondCurveDataSet.getIssuerId(), USD))));
-    CurveCurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(
         ratesProvider,
         p -> CurrencyAmount.of(
             USD,
@@ -544,7 +544,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
   }
 
   // computes sensitivity with finite difference approximation
-  private CurveCurrencyParameterSensitivities fdSensitivityWithZSpread(
+  private CurrencyParameterSensitivities fdSensitivityWithZSpread(
       CapitalIndexedBondPaymentPeriod period,
       ImmutableRatesProvider ratesProvider,
       LegalEntityDiscountingProvider issuerRatesProvider,
@@ -552,7 +552,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    CurveCurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities sensi1 = FD_CAL.sensitivity(
         issuerRatesProvider,
         p -> CurrencyAmount.of(USD,
             PRICER.presentValueWithZSpread(
@@ -562,7 +562,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
                 zSpread,
                 compoundedRateType,
                 periodsPerYear)));
-    CurveCurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities sensi2 = FD_CAL.sensitivity(
         ratesProvider,
         p -> CurrencyAmount.of(
             USD,

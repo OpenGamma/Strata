@@ -30,7 +30,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -164,7 +164,7 @@ public final class DiscountIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(IborRateSensitivity pointSensitivity) {
     LocalDate fixingStartDate = pointSensitivity.getObservation().getEffectiveDate();
     LocalDate fixingEndDate = pointSensitivity.getObservation().getMaturityDate();
     double accrualFactor = pointSensitivity.getObservation().getYearFraction();
@@ -175,8 +175,8 @@ public final class DiscountIborIndexRates
     double dfEndBar = -forwardBar * dfForwardStart / (accrualFactor * dfForwardEnd * dfForwardEnd);
     ZeroRateSensitivity zrsStart = discountFactors.zeroRatePointSensitivity(fixingStartDate, pointSensitivity.getCurrency());
     ZeroRateSensitivity zrsEnd = discountFactors.zeroRatePointSensitivity(fixingEndDate, pointSensitivity.getCurrency());
-    CurveCurrencyParameterSensitivities psStart = discountFactors.curveParameterSensitivity(zrsStart).multipliedBy(dfStartBar);
-    CurveCurrencyParameterSensitivities psEnd = discountFactors.curveParameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
+    CurrencyParameterSensitivities psStart = discountFactors.parameterSensitivity(zrsStart).multipliedBy(dfStartBar);
+    CurrencyParameterSensitivities psEnd = discountFactors.parameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
     return psStart.combinedWith(psEnd);
   }
 

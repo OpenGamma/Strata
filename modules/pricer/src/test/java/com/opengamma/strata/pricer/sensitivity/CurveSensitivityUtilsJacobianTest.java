@@ -35,7 +35,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
@@ -46,6 +45,7 @@ import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
@@ -161,8 +161,8 @@ public class CurveSensitivityUtilsJacobianTest {
       trades.add(t);
     }
     /* Par rate sensitivity */
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
-        (t) -> MULTICURVE_EUR_SINGLE_CALIBRATED.curveParameterSensitivity(
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
+        (t) -> MULTICURVE_EUR_SINGLE_CALIBRATED.parameterSensitivity(
                 PRICER_SWAP_PRODUCT.parRateSensitivity(((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_SINGLE_CALIBRATED).build());
     DoubleMatrix jiComputed = 
         CurveSensitivityUtils.jacobianFromMarketQuoteSensitivities(LIST_CURVE_NAMES_1, trades, sensitivityFunction);
@@ -197,9 +197,9 @@ public class CurveSensitivityUtilsJacobianTest {
       nodeDates.add(t.getProduct().getEndDate());
       trades.add(t);
     }
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
         (t) -> CurveSensitivityUtils.linearRebucketing(
-            MULTICURVE_EUR_SINGLE_INPUT.curveParameterSensitivity(
+            MULTICURVE_EUR_SINGLE_INPUT.parameterSensitivity(
                 PRICER_SWAP_PRODUCT.parRateSensitivity(((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_SINGLE_INPUT).build()),
             nodeDates, VALUATION_DATE);
 
@@ -295,8 +295,8 @@ public class CurveSensitivityUtilsJacobianTest {
       trades.addAll(tradesDsc);
     }
     /* Par rate sensitivity */
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
-        (t) -> MULTICURVE_EUR_2_CALIBRATED.curveParameterSensitivity(
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
+        (t) -> MULTICURVE_EUR_2_CALIBRATED.parameterSensitivity(
             (t instanceof ResolvedSwapTrade) ?
                 PRICER_SWAP_PRODUCT.parRateSensitivity(
                     ((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_2_CALIBRATED).build() :

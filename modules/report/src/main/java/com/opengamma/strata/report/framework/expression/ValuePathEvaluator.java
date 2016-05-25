@@ -44,8 +44,8 @@ public class ValuePathEvaluator {
   private static final ImmutableList<TokenEvaluator<?>> EVALUATORS = ImmutableList.of(
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
-      new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
-      new CurveCurrencyParameterSensitivityTokenEvaluator(),
+      new CurrencyParameterSensitivitiesTokenEvaluator(),
+      new CurrencyParameterSensitivityTokenEvaluator(),
       new PositionTokenEvaluator(),
       new TradeTokenEvaluator(),
       new SecurityTokenEvaluator(),

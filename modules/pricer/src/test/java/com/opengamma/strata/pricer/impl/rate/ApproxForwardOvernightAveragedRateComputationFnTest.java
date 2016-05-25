@@ -27,7 +27,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -35,6 +34,7 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.view.OvernightIndexRates;
@@ -1101,9 +1101,9 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
-      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
+      CurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+      CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
@@ -1126,9 +1126,9 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
           .build();
       PointSensitivityBuilder sensitivityBuilderComputed =
           OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-      CurveCurrencyParameterSensitivities parameterSensitivityComputed =
-          prov.curveParameterSensitivity(sensitivityBuilderComputed.build());
-      CurveCurrencyParameterSensitivities parameterSensitivityExpected =
+      CurrencyParameterSensitivities parameterSensitivityComputed =
+          prov.parameterSensitivity(sensitivityBuilderComputed.build());
+      CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
       assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));

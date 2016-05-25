@@ -35,7 +35,7 @@ final class EmptyParameterMetadata
   /**
    * The description and identifier.
    */
-  private static final String EMPTY = "Empty";
+  private static final String EMPTY = "";
 
   /**
    * Obtains the empty instance.
@@ -53,7 +53,7 @@ final class EmptyParameterMetadata
   }
 
   /**
-   * Returns 'Empty'.
+   * Returns an empty string.
    *
    * @return a simple identifier
    */

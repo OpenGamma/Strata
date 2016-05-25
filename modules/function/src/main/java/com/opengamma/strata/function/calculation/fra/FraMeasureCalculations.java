@@ -27,10 +27,10 @@ import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -150,12 +150,12 @@ final class FraMeasureCalculations {
   private static MultiCurrencyAmount calculatePv01(ResolvedFra product, RatesMarketData marketData) {
     RatesProvider ratesProvider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, ratesProvider);
-    return ratesProvider.curveParameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+    return ratesProvider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -166,18 +166,18 @@ final class FraMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateBucketedPv01(
+  private static CurrencyParameterSensitivities calculateBucketedPv01(
       ResolvedFra product,
       RatesMarketData marketData) {
 
     RatesProvider ratesProvider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, ratesProvider);
-    return ratesProvider.curveParameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    return ratesProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed gamma PV01 for all scenarios
-  static ScenarioResult<CurveCurrencyParameterSensitivities> bucketedGammaPv01(
+  static ScenarioResult<CurrencyParameterSensitivities> bucketedGammaPv01(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -188,7 +188,7 @@ final class FraMeasureCalculations {
   }
 
   // bucketed gamma PV01 for one scenario
-  private static CurveCurrencyParameterSensitivities calculateBucketedGammaPv01(
+  private static CurrencyParameterSensitivities calculateBucketedGammaPv01(
       ResolvedFra product,
       RatesMarketData marketData) {
 
@@ -214,13 +214,13 @@ final class FraMeasureCalculations {
     Curve curve = marketData.getMarketData().getValue(curveId);
 
     // calculate gamma
-    CurveCurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
+    CurrencyParameterSensitivity gamma = CurveGammaCalculator.DEFAULT.calculateSemiParallelGamma(
         curve, currency, c -> calculateCurveSensitivity(product, marketData, curveId, c));
-    return CurveCurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
+    return CurrencyParameterSensitivities.of(gamma).multipliedBy(ONE_BASIS_POINT * ONE_BASIS_POINT);
   }
 
   // calculates the sensitivity
-  private static CurveCurrencyParameterSensitivity calculateCurveSensitivity(
+  private static CurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedFra product,
       RatesMarketData marketData,
       CurveId curveId,
@@ -229,7 +229,7 @@ final class FraMeasureCalculations {
     MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);
     RatesProvider bumpedRatesProvider = marketData.withMarketData(bumpedMarketData).ratesProvider();
     PointSensitivities pointSensitivities = PRICER.presentValueSensitivity(product, bumpedRatesProvider);
-    CurveCurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.curveParameterSensitivity(pointSensitivities);
+    CurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.parameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
   }
 

@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -239,19 +239,19 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         .combinedWith(PRICER.presentValueSensitivityStickyStrike(callUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
     PointSensitivities computedPvSensiCallDw = PRICER.presentValueSensitivityStickyStrike(callDKO, RATE_PROVIDER, VOL_PROVIDER)
         .combinedWith(PRICER.presentValueSensitivityStickyStrike(callDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
-    assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiCall).equalWithTolerance(
-        RATE_PROVIDER.curveParameterSensitivity(computedPvSensiCallUp), TOL * NOTIONAL));
-    assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiCall).equalWithTolerance(
-        RATE_PROVIDER.curveParameterSensitivity(computedPvSensiCallDw), TOL * NOTIONAL));
+    assertTrue(RATE_PROVIDER.parameterSensitivity(pvSensiCall).equalWithTolerance(
+        RATE_PROVIDER.parameterSensitivity(computedPvSensiCallUp), TOL * NOTIONAL));
+    assertTrue(RATE_PROVIDER.parameterSensitivity(pvSensiCall).equalWithTolerance(
+        RATE_PROVIDER.parameterSensitivity(computedPvSensiCallDw), TOL * NOTIONAL));
     PointSensitivities pvSensiPut = VANILLA_PRICER.presentValueSensitivity(PUT, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivities computedPvSensiPutUp = PRICER.presentValueSensitivityStickyStrike(putUKO, RATE_PROVIDER, VOL_PROVIDER)
         .combinedWith(PRICER.presentValueSensitivityStickyStrike(putUKI, RATE_PROVIDER, VOL_PROVIDER)).build();
     PointSensitivities computedPvSensiPutDw = PRICER.presentValueSensitivityStickyStrike(putDKO, RATE_PROVIDER, VOL_PROVIDER)
         .combinedWith(PRICER.presentValueSensitivityStickyStrike(putDKI, RATE_PROVIDER, VOL_PROVIDER)).build();
-    assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiPut).equalWithTolerance(
-        RATE_PROVIDER.curveParameterSensitivity(computedPvSensiPutUp), TOL * NOTIONAL));
-    assertTrue(RATE_PROVIDER.curveParameterSensitivity(pvSensiPut).equalWithTolerance(
-        RATE_PROVIDER.curveParameterSensitivity(computedPvSensiPutDw), TOL * NOTIONAL));
+    assertTrue(RATE_PROVIDER.parameterSensitivity(pvSensiPut).equalWithTolerance(
+        RATE_PROVIDER.parameterSensitivity(computedPvSensiPutUp), TOL * NOTIONAL));
+    assertTrue(RATE_PROVIDER.parameterSensitivity(pvSensiPut).equalWithTolerance(
+        RATE_PROVIDER.parameterSensitivity(computedPvSensiPutDw), TOL * NOTIONAL));
   }
 
   public void farBarrierOutTest() {
@@ -334,12 +334,12 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   public void test_presentValueSensitivity() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
       PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATE_PROVIDER, VOL_PROVIDER);
-      CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point.build());
-      CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
+      CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point.build());
+      CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
           p -> PRICER.presentValue(option, p, VOL_PROVIDER));
       double pvVega = ((FxOptionSensitivity)
           PRICER.presentValueSensitivityVolatility(option, RATE_PROVIDER, VOL_PROVIDER)).getSensitivity();
-      CurveCurrencyParameterSensitivities sensiViaFwd = FD_CAL.sensitivity(RATE_PROVIDER,
+      CurrencyParameterSensitivities sensiViaFwd = FD_CAL.sensitivity(RATE_PROVIDER,
           p -> CurrencyAmount.of(USD, VANILLA_PRICER.impliedVolatility(CALL, p, VOL_PROVIDER))).multipliedBy(-pvVega);
       expected = expected.combinedWith(sensiViaFwd);
       assertTrue(computed.equalWithTolerance(expected, FD_EPS * NOTIONAL * 10d));
@@ -349,8 +349,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   public void test_presentValueSensitivity_atExpiry() {
     for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
       PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(option, RATE_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
-      CurveCurrencyParameterSensitivities computed = RATE_PROVIDER_EXPIRY.curveParameterSensitivity(point.build());
-      CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER_EXPIRY,
+      CurrencyParameterSensitivities computed = RATE_PROVIDER_EXPIRY.parameterSensitivity(point.build());
+      CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER_EXPIRY,
           p -> PRICER.presentValue(option, p, VOL_PROVIDER_EXPIRY));
       assertTrue(computed.equalWithTolerance(expected, FD_EPS * NOTIONAL * 10d));
     }
@@ -640,7 +640,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
 
   public void regression_curveSensitivity() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityStickyStrike(CALL_DKI, RATE_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities pvSensi = RATE_PROVIDER.curveParameterSensitivity(point.build());
+    CurrencyParameterSensitivities pvSensi = RATE_PROVIDER.parameterSensitivity(point.build());
     double[] eurSensi = new double[] {0.0, 0.0, 0.0, -8.23599758653779E7, -5.943903918586236E7 };
     double[] usdSensi = new double[] {0.0, 0.0, 0.0, 6.526531701730868E7, 4.710185614928411E7 };
     assertTrue(DoubleArrayMath.fuzzyEquals(
@@ -653,8 +653,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         NOTIONAL * TOL));
     PointSensitivityBuilder pointBase = PRICER.presentValueSensitivityStickyStrike(CALL_DKI_BASE, RATE_PROVIDER,
         VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities pvSensiBase =
-        RATE_PROVIDER.curveParameterSensitivity(pointBase.build()).convertedTo(EUR, RATE_PROVIDER);
+    CurrencyParameterSensitivities pvSensiBase =
+        RATE_PROVIDER.parameterSensitivity(pointBase.build()).convertedTo(EUR, RATE_PROVIDER);
     double[] eurSensiBase = new double[] {0.0, 0.0, 0.0, -5.885393657463378E7, -4.247477498074986E7 };
     double[] usdSensiBase = new double[] {0.0, 0.0, 0.0, 4.663853277047497E7, 3.365894110322015E7 };
     assertTrue(DoubleArrayMath.fuzzyEquals(
@@ -667,7 +667,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         NOTIONAL * TOL));
     PointSensitivityBuilder pointPut =
         PRICER.presentValueSensitivityStickyStrike(PUT_DKO, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
-    CurveCurrencyParameterSensitivities pvSensiPut = RATE_PROVIDER.curveParameterSensitivity(pointPut.build());
+    CurrencyParameterSensitivities pvSensiPut = RATE_PROVIDER.parameterSensitivity(pointPut.build());
     double[] eurSensiPut = new double[] {0.0, 0.0, 0.0, 22176.623866383557, 16004.827601682477 };
     double[] usdSensiPut = new double[] {0.0, 0.0, 0.0, -48509.60688347871, -35009.29176024644 };
     assertTrue(DoubleArrayMath.fuzzyEquals(
@@ -680,8 +680,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
         NOTIONAL * TOL));
     PointSensitivityBuilder pointPutBase =
         PRICER.presentValueSensitivityStickyStrike(PUT_DKO_BASE, RATE_PROVIDER, VOL_PROVIDER).multipliedBy(-1d);
-    CurveCurrencyParameterSensitivities pvSensiPutBase =
-        RATE_PROVIDER.curveParameterSensitivity(pointPutBase.build()).convertedTo(EUR, RATE_PROVIDER);
+    CurrencyParameterSensitivities pvSensiPutBase =
+        RATE_PROVIDER.parameterSensitivity(pointPutBase.build()).convertedTo(EUR, RATE_PROVIDER);
     double[] eurSensiPutBase = new double[] {0.0, 0.0, 0.0, 24062.637495868825, 17365.96007956571 };
     double[] usdSensiPutBase = new double[] {0.0, 0.0, 0.0, -44888.77092190999, -32396.141278548253 };
     assertTrue(DoubleArrayMath.fuzzyEquals(

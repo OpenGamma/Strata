@@ -201,10 +201,10 @@ public class DiscountOvernightIndexRatesTest {
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
     OvernightRateSensitivity point = OvernightRateSensitivity.ofPeriod(GBP_SONIA_AFTER, DATE_AFTER_END, GBP, 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+    assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------

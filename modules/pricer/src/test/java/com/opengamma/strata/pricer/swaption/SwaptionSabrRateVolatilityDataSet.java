@@ -71,7 +71,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       0.017362472692574276, 0.02026566836808523, 0.02272069332675379, 0.024782351990410997, 0.026505391310201288};
   private static final CurveName NAME_DSC_USD = CurveName.of("USD-DSCON");
   static final CurveMetadata META_DSC_USD = Curves.zeroRates(NAME_DSC_USD, ACT_ACT_ISDA);
-  private static final InterpolatedNodalCurve CURVE_DSC_USD = InterpolatedNodalCurve.of(
+  static final InterpolatedNodalCurve CURVE_DSC_USD = InterpolatedNodalCurve.of(
       META_DSC_USD, DoubleArray.copyOf(TIME_DSC_USD), DoubleArray.copyOf(RATE_DSC_USD), INTERPOLATOR);
   private static final double[] TIME_FWD_USD = new double[] {0.25205479452054796, 0.5013698630136987, 0.7534246575342466,
       1.010958904109589, 2.0107717643536196, 3.0054794520547947, 4.005479452054795, 5.005479452054795, 7.010958904109589,
@@ -82,7 +82,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       0.03689179443401795, 0.03776622232525561, 0.03810645431268746};
   private static final CurveName NAME_FWD_USD = CurveName.of("USD-LIBOR3M");
   static final CurveMetadata META_FWD_USD = Curves.zeroRates(NAME_FWD_USD, ACT_ACT_ISDA);
-  private static final InterpolatedNodalCurve CURVE_FWD_USD = InterpolatedNodalCurve.of(
+  static final InterpolatedNodalCurve CURVE_FWD_USD = InterpolatedNodalCurve.of(
       META_FWD_USD, DoubleArray.copyOf(TIME_FWD_USD), DoubleArray.copyOf(RATE_FWD_USD), INTERPOLATOR);
 
   private static final double[] EXPIRY_NODE_USD = new double[]

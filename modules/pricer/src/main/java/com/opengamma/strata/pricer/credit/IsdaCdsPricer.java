@@ -9,14 +9,14 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
@@ -190,8 +190,8 @@ public class IsdaCdsPricer {
     }
 
     @Override
-    public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-      return CurveUnitParameterSensitivity.of(curveMetadata, DoubleArray.EMPTY);
+    public UnitParameterSensitivity yValueParameterSensitivity(double x) {
+      return createParameterSensitivity(DoubleArray.filled(getParameterCount()));
     }
 
     @Override
@@ -322,7 +322,7 @@ public class IsdaCdsPricer {
    * @param scalingFactor  linear scaling factor associated with underlying index, or 1 in case of CDS
    * @return present value of fee leg and any up front fee
    */
-  public CurveCurrencyParameterSensitivities ir01BucketedPar(
+  public CurrencyParameterSensitivities ir01BucketedPar(
       ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
@@ -346,8 +346,8 @@ public class IsdaCdsPricer {
       CurrencyAmount sensitivity = bumpedPrice.minus(basePrice);
       return sensitivity.getAmount();
     });
-    return CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(yieldCurveInputs.getCurveMetaData(), product.getCurrency(), paramSens));
+    return CurrencyParameterSensitivities.of(
+        CurrencyParameterSensitivity.of(yieldCurveInputs.getName(), product.getCurrency(), paramSens));
   }
 
   /**
@@ -361,7 +361,7 @@ public class IsdaCdsPricer {
    * @param scalingFactor  linear scaling factor associated with underlying index, or 1 in case of CDS
    * @return present value of fee leg and any up front fee
    */
-  public CurveCurrencyParameterSensitivities ir01BucketedZero(
+  public CurrencyParameterSensitivities ir01BucketedZero(
       ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
@@ -385,8 +385,8 @@ public class IsdaCdsPricer {
       CurrencyAmount sensitivity = bumpedPrice.minus(basePrice);
       return sensitivity.getAmount();
     });
-    return CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(yieldCurveInputs.getCurveMetaData(), product.getCurrency(), paramSens));
+    return CurrencyParameterSensitivities.of(
+        CurrencyParameterSensitivity.of(yieldCurveInputs.getName(), product.getCurrency(), paramSens));
   }
 
   //-------------------------------------------------------------------------
@@ -467,7 +467,7 @@ public class IsdaCdsPricer {
    * @param scalingFactor  linear scaling factor associated with underlying index, or 1 in case of CDS
    * @return present value of fee leg and any up front fee
    */
-  public CurveCurrencyParameterSensitivities cs01BucketedPar(
+  public CurrencyParameterSensitivities cs01BucketedPar(
       ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
@@ -490,8 +490,8 @@ public class IsdaCdsPricer {
       CurrencyAmount sensitivity = bumpedPrice.minus(basePrice);
       return sensitivity.getAmount();
     });
-    return CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(creditCurveInputs.getCurveMetaData(), product.getCurrency(), paramSens));
+    return CurrencyParameterSensitivities.of(
+        CurrencyParameterSensitivity.of(creditCurveInputs.getName(), product.getCurrency(), paramSens));
   }
 
   /**
@@ -505,7 +505,7 @@ public class IsdaCdsPricer {
    * @param scalingFactor  linear scaling factor associated with underlying index, or 1 in case of CDS
    * @return present value of fee leg and any up front fee
    */
-  public CurveCurrencyParameterSensitivities cs01BucketedHazard(
+  public CurrencyParameterSensitivities cs01BucketedHazard(
       ResolvedCds product,
       IsdaYieldCurveInputs yieldCurveInputs,
       IsdaCreditCurveInputs creditCurveInputs,
@@ -529,8 +529,8 @@ public class IsdaCdsPricer {
       CurrencyAmount sensitivity = bumpedPrice.minus(basePrice);
       return sensitivity.getAmount();
     });
-    return CurveCurrencyParameterSensitivities.of(
-        CurveCurrencyParameterSensitivity.of(creditCurveInputs.getCurveMetaData(), product.getCurrency(), paramSens));
+    return CurrencyParameterSensitivities.of(
+        CurrencyParameterSensitivity.of(creditCurveInputs.getName(), product.getCurrency(), paramSens));
   }
 
   //-------------------------------------------------------------------------

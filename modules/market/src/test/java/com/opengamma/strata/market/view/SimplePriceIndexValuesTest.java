@@ -24,13 +24,13 @@ import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -155,8 +155,10 @@ public class SimplePriceIndexValuesTest {
   public void test_unitParameterSensitivity() {
     double shift = 0.0001;
     for (int i = 0; i < TEST_MONTHS.length; i++) {
-      CurveCurrencyParameterSensitivities cps = INSTANCE.curveParameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
-      DoubleArray sensitivityComputed = cps.getSensitivity(NAME, Currency.USD).getSensitivity();
+      CurrencyParameterSensitivities cps = INSTANCE.parameterSensitivity(InflationRateSensitivity.of(TEST_OBS[i], 1));
+      DoubleArray sensitivityComputed = cps.findSensitivity(NAME, Currency.USD)
+          .map(s -> s.getSensitivity())
+          .orElse(DoubleArray.filled(VALUES.size()));
       for (int j = 0; j < VALUES.size(); j++) {
         double[] valueFd = new double[2];
         for (int k = 0; k < 2; k++) {
@@ -176,11 +178,11 @@ public class SimplePriceIndexValuesTest {
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+    assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------

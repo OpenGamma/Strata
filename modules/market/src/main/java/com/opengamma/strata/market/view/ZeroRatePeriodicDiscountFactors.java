@@ -31,11 +31,11 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 
@@ -206,14 +206,14 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(ZeroRateSensitivity pointSens) {
+  public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     double relativeYearFraction = relativeYearFraction(pointSens.getDate());
     double rp = curve.yValue(relativeYearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
-    CurveUnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(rpBar);
-    CurveCurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
-    return CurveCurrencyParameterSensitivities.of(curSens);
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(rpBar);
+    CurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
+    return CurrencyParameterSensitivities.of(curSens);
   }
 
   //-------------------------------------------------------------------------

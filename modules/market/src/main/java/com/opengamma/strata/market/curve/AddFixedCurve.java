@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A curve formed from two curves, the fixed curve and the spread curve.
@@ -105,7 +106,7 @@ public final class AddFixedCurve
   }
 
   @Override
-  public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
+  public UnitParameterSensitivity yValueParameterSensitivity(double x) {
     return spreadCurve.yValueParameterSensitivity(x);
   }
 

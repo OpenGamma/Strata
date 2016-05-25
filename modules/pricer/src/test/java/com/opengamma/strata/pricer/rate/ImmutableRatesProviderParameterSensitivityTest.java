@@ -35,14 +35,14 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
@@ -120,11 +120,11 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void pointToParameterMultiple() {
-    CurveCurrencyParameterSensitivities psComputed = PROVIDER.curveParameterSensitivity(POINT);
+    CurrencyParameterSensitivities psComputed = PROVIDER.parameterSensitivity(POINT);
     assertEquals(psComputed.getSensitivities().size(), 6);
-    CurveCurrencyParameterSensitivities psExpected = CurveCurrencyParameterSensitivities.empty();
+    CurrencyParameterSensitivities psExpected = CurrencyParameterSensitivities.empty();
     for (int i = 0; i < POINTS.length; i++) {
-      psExpected = psExpected.combinedWith(PROVIDER.curveParameterSensitivity(POINTS[i]));
+      psExpected = psExpected.combinedWith(PROVIDER.parameterSensitivity(POINTS[i]));
     }
     assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_SENSI));
   }
@@ -179,8 +179,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, matuirtyDate, USD, sense_gbp1);
     sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, matuirtyDate, USD, sense_usd1));
-    CurveCurrencyParameterSensitivities paramSensiCmpGBP = test.curveParameterSensitivity(sensiBuildCmpGBP.build().normalized());
-    CurveCurrencyParameterSensitivities paramSensiExpGBP = test.curveParameterSensitivity(sensiBuildDecGBP.build().normalized());
+    CurrencyParameterSensitivities paramSensiCmpGBP = test.parameterSensitivity(sensiBuildCmpGBP.build().normalized());
+    CurrencyParameterSensitivities paramSensiExpGBP = test.parameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertTrue(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD));
     // USD based
     PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(obs, USD);
@@ -192,8 +192,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * USD_DSC);
     PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, matuirtyDate, GBP, sense_gbp2);
     sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, matuirtyDate, GBP, sense_usd2));
-    CurveCurrencyParameterSensitivities paramSensiCmpUSD = test.curveParameterSensitivity(sensiBuildCmpUSD.build().normalized());
-    CurveCurrencyParameterSensitivities paramSensiExpUSD = test.curveParameterSensitivity(sensiBuildDecUSD.build().normalized());
+    CurrencyParameterSensitivities paramSensiCmpUSD = test.parameterSensitivity(sensiBuildCmpUSD.build().normalized());
+    CurrencyParameterSensitivities paramSensiExpUSD = test.parameterSensitivity(sensiBuildDecUSD.build().normalized());
     assertTrue(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD));
   }
 
@@ -218,12 +218,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     YearMonth refMonth = YearMonth.from(valuationDate.plusMonths(9));
     InflationRateSensitivity pointSensi = InflationRateSensitivity.of(
         PriceIndexObservation.of(GB_RPI, refMonth), pointSensiValue);
-    CurveCurrencyParameterSensitivities computed = provider.curveParameterSensitivity(pointSensi.build());
+    CurrencyParameterSensitivities computed = provider.parameterSensitivity(pointSensi.build());
     DoubleArray sensiComputed = computed.getSensitivities().get(0).getSensitivity();
 
     InflationRateSensitivity pointSensi1 = InflationRateSensitivity.of(PriceIndexObservation.of(GB_RPI, refMonth), 1);
     DoubleArray sensiExpectedUnit =
-        provider.priceIndexValues(GB_RPI).curveParameterSensitivity(pointSensi1).getSensitivities().get(0).getSensitivity();
+        provider.priceIndexValues(GB_RPI).parameterSensitivity(pointSensi1).getSensitivities().get(0).getSensitivity();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpectedUnit.multipliedBy(pointSensiValue), eps));
   }
 
@@ -278,8 +278,8 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     }
 
     @Override
-    public CurveUnitParameterSensitivity yValueParameterSensitivity(double x) {
-      return CurveUnitParameterSensitivity.of(metadata, DoubleArray.of(1d));
+    public UnitParameterSensitivity yValueParameterSensitivity(double x) {
+      return createParameterSensitivity(DoubleArray.of(1d));
     }
 
     @Override

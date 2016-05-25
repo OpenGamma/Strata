@@ -77,7 +77,7 @@ public final class UnitParameterSensitivity
    * The parameter metadata provides information on each parameter.
    * The size of the parameter metadata list must match the size of the sensitivity array.
    * 
-   * @param marketDataName  the name of the market data that the senstivity refers to
+   * @param marketDataName  the name of the market data that the sensitivity refers to
    * @param parameterMetadata  the parameter metadata
    * @param sensitivity  the sensitivity values, one for each parameter
    * @return the sensitivity object
@@ -88,6 +88,21 @@ public final class UnitParameterSensitivity
       DoubleArray sensitivity) {
 
     return new UnitParameterSensitivity(marketDataName, parameterMetadata, sensitivity);
+  }
+
+  /**
+   * Obtains an instance from the market data name, currency and sensitivity.
+   * <p>
+   * The market data name identifies the {@link ParameterizedData} instance that was queried.
+   * The parameter metadata will be empty.
+   * The size of the parameter metadata list must match the size of the sensitivity array.
+   * 
+   * @param marketDataName  the name of the market data that the sensitivity refers to
+   * @param sensitivity  the sensitivity values, one for each parameter
+   * @return the sensitivity object
+   */
+  public static UnitParameterSensitivity of(MarketDataName<?> marketDataName, DoubleArray sensitivity) {
+    return of(marketDataName, ParameterMetadata.listOfEmpty(sensitivity.size()), sensitivity);
   }
 
   @ImmutableValidator

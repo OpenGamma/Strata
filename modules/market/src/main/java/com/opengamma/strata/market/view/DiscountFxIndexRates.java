@@ -34,7 +34,7 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -165,8 +165,8 @@ public final class DiscountFxIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(FxIndexSensitivity pointSensitivity) {
-    return fxForwardRates.curveParameterSensitivity(pointSensitivity.toFxForwardSensitivity());
+  public CurrencyParameterSensitivities parameterSensitivity(FxIndexSensitivity pointSensitivity) {
+    return fxForwardRates.parameterSensitivity(pointSensitivity.toFxForwardSensitivity());
   }
 
   @Override

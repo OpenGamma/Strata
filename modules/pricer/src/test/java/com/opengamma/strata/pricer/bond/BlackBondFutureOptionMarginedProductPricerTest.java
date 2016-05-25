@@ -26,10 +26,10 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -215,8 +215,8 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   public void test_priceSensitivity() {
     PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         (p) -> CurrencyAmount.of(EUR, OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, (p), VOL_PROVIDER)));
     double futurePrice = FUTURE_PRICER.price(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER);
     double strike = FUTURE_OPTION_PRODUCT.getStrikePrice();
@@ -229,7 +229,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     double volDw = SURFACE.zValue(expiryTime, logMoneynessDw);
     double volSensi = 0.5 * (volUp - volDw) / EPS;
     double vega = BlackFormulaRepository.vega(futurePrice, strike, expiryTime, vol);
-    CurveCurrencyParameterSensitivities sensiVol = RATE_PROVIDER.curveParameterSensitivity(
+    CurrencyParameterSensitivities sensiVol = RATE_PROVIDER.parameterSensitivity(
             FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER)).multipliedBy(
             -vega * volSensi);
     expected = expected.combinedWith(sensiVol);
@@ -240,9 +240,9 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     double futurePrice = 1.1d;
     PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    CurveCurrencyParameterSensitivities expected = RATE_PROVIDER.curveParameterSensitivity(
+    CurrencyParameterSensitivities expected = RATE_PROVIDER.parameterSensitivity(
         FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER)).multipliedBy(delta);
     assertTrue(computed.equalWithTolerance(expected, TOL));
   }

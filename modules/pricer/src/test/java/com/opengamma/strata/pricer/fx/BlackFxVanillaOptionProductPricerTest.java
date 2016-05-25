@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -224,24 +224,24 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivity() {
     // call
     PointSensitivities pointCall = PRICER.presentValueSensitivity(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities computedCall = RATES_PROVIDER.curveParameterSensitivity(pointCall);
-    CurveCurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
+    CurrencyParameterSensitivities computedCall = RATES_PROVIDER.parameterSensitivity(pointCall);
+    CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(CALL_OTM, (p), VOL_PROVIDER));
     // contribution via implied volatility, to be subtracted.
     CurrencyAmount pvVegaCall = PRICER.presentValueVega(CALL_OTM, RATES_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities impliedVolSenseCall =
+    CurrencyParameterSensitivities impliedVolSenseCall =
         FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
             (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(CALL_OTM, (p), VOL_PROVIDER)))
             .multipliedBy(-pvVegaCall.getAmount());
     assertTrue(computedCall.equalWithTolerance(expectedCall.combinedWith(impliedVolSenseCall), NOTIONAL * FD_EPS));
     // put
     PointSensitivities pointPut = PRICER.presentValueSensitivity(PUT_OTM, RATES_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities computedPut = RATES_PROVIDER.curveParameterSensitivity(pointPut);
-    CurveCurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
+    CurrencyParameterSensitivities computedPut = RATES_PROVIDER.parameterSensitivity(pointPut);
+    CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
         (p) -> PRICER.presentValue(PUT_OTM, (p), VOL_PROVIDER));
     // contribution via implied volatility, to be subtracted.
     CurrencyAmount pvVegaPut = PRICER.presentValueVega(PUT_OTM, RATES_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities impliedVolSensePut =
+    CurrencyParameterSensitivities impliedVolSensePut =
         FD_CAL.sensitivity((ImmutableRatesProvider) RATES_PROVIDER,
             (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(PUT_OTM, (p), VOL_PROVIDER)))
             .multipliedBy(-pvVegaPut.getAmount());
@@ -251,15 +251,15 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_presentValueSensitivity_atExpiry() {
     // call
     PointSensitivities pointCall = PRICER.presentValueSensitivity(CALL_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
-    CurveCurrencyParameterSensitivities computedCall = RATES_PROVIDER_EXPIRY.curveParameterSensitivity(pointCall);
-    CurveCurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computedCall = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointCall);
+    CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
         (ImmutableRatesProvider) RATES_PROVIDER_EXPIRY,
         (p) -> PRICER.presentValue(CALL_OTM, (p), VOL_PROVIDER_EXPIRY));
     assertTrue(computedCall.equalWithTolerance(expectedCall, NOTIONAL * FD_EPS));
     // put
     PointSensitivities pointPut = PRICER.presentValueSensitivity(PUT_OTM, RATES_PROVIDER_EXPIRY, VOL_PROVIDER_EXPIRY);
-    CurveCurrencyParameterSensitivities computedPut = RATES_PROVIDER_EXPIRY.curveParameterSensitivity(pointPut);
-    CurveCurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computedPut = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointPut);
+    CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity(
         (ImmutableRatesProvider) RATES_PROVIDER_EXPIRY,
         (p) -> PRICER.presentValue(PUT_OTM, (p), VOL_PROVIDER_EXPIRY));
     assertTrue(computedPut.equalWithTolerance(expectedPut, NOTIONAL * FD_EPS));

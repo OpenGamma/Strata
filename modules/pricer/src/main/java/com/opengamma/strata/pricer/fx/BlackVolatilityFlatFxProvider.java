@@ -30,10 +30,10 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
@@ -112,7 +112,7 @@ public final class BlackVolatilityFlatFxProvider
   public SurfaceCurrencyParameterSensitivity surfaceParameterSensitivity(FxOptionSensitivity point) {
     // transforms curve sensitivity to surface sensitivity
     double expiryTime = relativeTime(point.getExpiryDateTime());
-    CurveUnitParameterSensitivity yValueParameterSensitivity = curve.yValueParameterSensitivity(expiryTime);
+    UnitParameterSensitivity yValueParameterSensitivity = curve.yValueParameterSensitivity(expiryTime);
     DoubleArray times = curve.getXValues();
     double pointValue = point.getSensitivity();
     int paramCount = times.size();

@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 
 /**
  * Test {@link SurfaceCurrencyParameterSensitivities}.
@@ -233,7 +232,7 @@ public class SurfaceCurrencyParameterSensitivitiesTest {
   public void coverage() {
     SurfaceCurrencyParameterSensitivities test1 = SurfaceCurrencyParameterSensitivities.of(ENTRY_USD1);
     SurfaceCurrencyParameterSensitivities test2 = SurfaceCurrencyParameterSensitivities.of(ENTRY_EUR1, ENTRY_USD2);
-    coverImmutableBean(CurveCurrencyParameterSensitivities.empty());
+    coverImmutableBean(SurfaceCurrencyParameterSensitivities.empty());
     coverImmutableBean(test1);
     coverBeanEquals(test1, test2);
   }

@@ -35,10 +35,9 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.UnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -219,16 +218,15 @@ public final class SimplePriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity) {
-    CurveUnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getObservation().getFixingMonth());
+  public CurrencyParameterSensitivities parameterSensitivity(InflationRateSensitivity pointSensitivity) {
+    UnitParameterSensitivities sens = unitParameterSensitivity(pointSensitivity.getObservation().getFixingMonth());
     return sens.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
   }
 
-  private CurveUnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
+  private UnitParameterSensitivities unitParameterSensitivity(YearMonth month) {
     // no sensitivity if historic month price index present in the time series
     if (fixings.get(month.atEndOfMonth()).isPresent()) {
-      return CurveUnitParameterSensitivities.of(
-          CurveUnitParameterSensitivity.of(curve.getMetadata(), DoubleArray.filled(curve.getParameterCount())));
+      return UnitParameterSensitivities.empty();
     }
     double nbMonth = numberOfMonths(month);
     int month0 = month.getMonthValue() - 1;
@@ -236,7 +234,8 @@ public final class SimplePriceIndexValues
     DoubleArray unadjustedSensitivity = extendedCurve.yValueParameterSensitivity(nbMonth).getSensitivity();
     // remove first element which is to the last fixing and multiply by seasonality
     DoubleArray adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
-    return CurveUnitParameterSensitivities.of(CurveUnitParameterSensitivity.of(curve.getMetadata(), adjustedSensitivity));
+    return UnitParameterSensitivities.of(
+        curve.yValueParameterSensitivity(nbMonth).withSensitivity(adjustedSensitivity));
   }
 
   //-------------------------------------------------------------------------
