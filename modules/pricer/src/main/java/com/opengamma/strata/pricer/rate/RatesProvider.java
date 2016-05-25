@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -198,14 +199,16 @@ public interface RatesProvider
 
   //-------------------------------------------------------------------------
   /**
-   * Finds the curve with the specified name.
+   * Finds the market data with the specified name.
    * <p>
-   * If the curve cannot be found, empty is returned.
+   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
+   * If the market data cannot be found, empty is returned.
    * 
-   * @param name  the curve name
-   * @return the curve, empty if not found
+   * @param <T>  the type of the market data value
+   * @param name  the name to find
+   * @return the market data value, empty if not found
    */
-  public abstract Optional<Curve> findCurve(CurveName name);
+  public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
   /**
    * Gets the time series.

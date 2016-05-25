@@ -41,6 +41,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.view.DiscountFactors;
@@ -168,17 +169,15 @@ public final class ImmutableRatesProvider
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Finds the curve with the specified name.
-   * 
-   * @param name  the curve name
-   * @return the curve
-   */
   @Override
-  public Optional<Curve> findCurve(CurveName name) {
-    return Stream.concat(discountCurves.values().stream(), indexCurves.values().stream())
-        .filter(c -> c.getName().equals(name))
-        .findFirst();
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (name instanceof CurveName) {
+      return Stream.concat(discountCurves.values().stream(), indexCurves.values().stream())
+          .filter(c -> c.getName().equals(name))
+          .map(v -> name.getMarketDataType().cast(v))
+          .findFirst();
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

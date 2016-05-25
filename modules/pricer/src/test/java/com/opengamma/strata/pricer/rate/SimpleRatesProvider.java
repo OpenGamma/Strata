@@ -32,8 +32,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.FxForwardRates;
 import com.opengamma.strata.market.view.FxIndexRates;
@@ -141,7 +140,7 @@ public class SimpleRatesProvider
   }
 
   @Override
-  public Optional<Curve> findCurve(CurveName name) {
+  public <T> Optional<T> findData(MarketDataName<T> name) {
     return Optional.empty();
   }
 

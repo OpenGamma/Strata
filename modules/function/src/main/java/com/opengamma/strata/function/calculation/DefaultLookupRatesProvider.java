@@ -32,8 +32,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IndexQuoteId;
@@ -107,11 +107,12 @@ final class DefaultLookupRatesProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public Optional<Curve> findCurve(CurveName name) {
+  public <T> Optional<T> findData(MarketDataName<T> name) {
     return Stream.concat(lookup.getDiscountCurves().values().stream(), lookup.getForwardCurves().values().stream())
-        .filter(id -> id.getCurveName().equals(name))
+        .filter(id -> id.getMarketDataName().equals(name))
         .findFirst()
-        .flatMap(id -> marketData.findValue(id));
+        .flatMap(id -> marketData.findValue(id))
+        .map(v -> name.getMarketDataType().cast(v));
   }
 
   @Override
