@@ -54,7 +54,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
   private static final LatticeSpecification CRR = new CoxRossRubinsteinLatticeSpecification();
 
   /**
-   * Default interpolator and extrapolator for strike dimension. 
+   * Default interpolator and extrapolator for spot dimension. 
    */
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
@@ -77,12 +77,17 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
   /**
    * The interpolator for local volatilities. 
    * <p>
-   * The resulting local volatilities are interpolated by this {@code GridInterpolator2D} along time and strike dimensions. 
+   * The resulting local volatilities are interpolated by this {@code GridInterpolator2D} along time and spot dimensions. 
    */
   private final GridInterpolator2D interpolator;
 
   /**
    * Creates an instance with default setups. 
+   * <p>
+   * The number of time steps is 20, and the tree covers up to 3 years.  
+   * The time square linear interpolator is used for time direction, 
+   * whereas the linear interpolator is used for spot dimension. 
+   * The extrapolation is flat for both the dimensions. 
    */
   public ImpliedTrinomialTreeLocalVolatilityCalculator() {
     this(20, 3d, new GridInterpolator2D(TIMESQ_FLAT, LINEAR_FLAT));
@@ -90,6 +95,9 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
 
   /**
    * Creates an instance with the number of steps and maximum time fixed.
+   * <p>
+   * The default interpolators are used: the time square linear interpolator for time direction, 
+   * the linear interpolator for spot dimension, and flat extrapolator for both the dimensions. 
    * 
    * @param nSteps  the number of steps
    * @param maxTime  the maximum time
@@ -271,7 +279,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
           assetPriceLocal[j] = assetTmp;
           double impliedVol = impliedVolatilitySurface.apply(DoublesPair.of(timePrim[i], assetPriceLocal[j]));
           OptionFunction call = EuropeanVanillaOptionFunction.of(assetPriceLocal[j], timePrim[i], PutCall.CALL, i);
-          double price = TREE.optionPrice(CRR, call, spot, impliedVol, zeroRate, zeroDividendRate);
+          double price = TREE.optionPrice(call, CRR, spot, impliedVol, zeroRate, zeroDividendRate);
           callOptionPrice[j] = price > 0d ? price : BlackScholesFormulaRepository.price(
               spot, assetPriceLocal[j], timePrim[i], impliedVol, zeroRate, zeroCostRate, true);
           assetTmp *= downFactor;
@@ -282,7 +290,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
           assetPriceLocal[j] = assetTmp;
           double impliedVol = impliedVolatilitySurface.apply(DoublesPair.of(timePrim[i], assetPriceLocal[j]));
           OptionFunction put = EuropeanVanillaOptionFunction.of(assetPriceLocal[j], timePrim[i], PutCall.PUT, i);
-          double price = TREE.optionPrice(CRR, put, spot, impliedVol, zeroRate, zeroDividendRate);
+          double price = TREE.optionPrice(put, CRR, spot, impliedVol, zeroRate, zeroDividendRate);
           putOptionPrice[j] = price >= 0d ? price : BlackScholesFormulaRepository.price(
               spot, assetPriceLocal[j], timePrim[i], impliedVol, zeroRate, zeroCostRate, false);
           assetTmp *= upFactor;
@@ -393,7 +401,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
       }
       // smoothing
       for (int k = 0; k < nNodes - 2; ++k) {
-        double var = k == 0 || k == nNodes - 3 ? (varBare[k] + varBare[k + 1] + varBare[k + 2]) / 3d :
+        double var = (k == 0 || k == nNodes - 3) ? (varBare[k] + varBare[k + 1] + varBare[k + 2]) / 3d :
             (varBare[k - 1] + varBare[k] + varBare[k + 1] + varBare[k + 2] + varBare[k + 3]) / 5d;
         volRes[offset + k] = i == nSteps - 1 ? Math.sqrt(var) :
             Math.sqrt(0.5 * (var + volRes[offset - (2 * i - k)] * volRes[offset - (2 * i - k)]));

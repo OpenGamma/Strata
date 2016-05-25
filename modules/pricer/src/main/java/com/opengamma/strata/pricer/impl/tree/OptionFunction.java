@@ -11,16 +11,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
- * Option function interface used in tree option pricing.
+ * Option function interface used in trinomial tree option pricing.
  */
 public interface OptionFunction {
-
-  /**
-   * Obtains strike value.
-   * 
-   * @return strike
-   */
-  public abstract double getStrike();
 
   /**
    * Obtains time to expiry.
@@ -88,7 +81,7 @@ public interface OptionFunction {
    * @param spot  the spot
    * @param downFactor  the down factor
    * @param middleFactor  the middle factor
-   * @param i  the steps
+   * @param i  the step number for which the next option values are computed
    * @return the option values in the i-th layer
    */
   public default DoubleArray getNextOptionValues(
@@ -123,7 +116,7 @@ public interface OptionFunction {
    * @param transitionProbability  the transition probability
    * @param stateValue  the state value
    * @param value  the option value
-   * @param i  the steps
+   * @param i  the step number for which the next option values are computed
    * @return the option values in the i-th layer
    */
   public default DoubleArray getNextOptionValues(
@@ -134,15 +127,8 @@ public interface OptionFunction {
       int i) {
 
     int nNodes = 2 * i + 1;
-    double[] res = new double[nNodes];
-    for (int j = 0; j < nNodes; ++j) {
-      double upProbability = transitionProbability.get(j, 2);
-      double middleProbability = transitionProbability.get(j, 1);
-      double downProbability = transitionProbability.get(j, 0);
-      res[j] = discountFactor *
-          (upProbability * value.get(j + 2) + middleProbability * value.get(j + 1) + downProbability * value.get(j));
-    }
-    return DoubleArray.ofUnsafe(res);
+    return DoubleArray.of(nNodes, j -> discountFactor * (transitionProbability.get(j, 2) * value.get(j + 2) +
+            transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
   }
 
 }

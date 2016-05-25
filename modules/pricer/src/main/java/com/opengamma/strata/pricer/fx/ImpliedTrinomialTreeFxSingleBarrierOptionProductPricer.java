@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
@@ -20,7 +19,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
@@ -31,7 +29,6 @@ import com.opengamma.strata.pricer.impl.tree.ConstantContinuousSingleBarrierKnoc
 import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
-import com.opengamma.strata.pricer.impl.volatility.local.ImpliedTrinomialTreeLocalVolatilityCalculator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
@@ -65,7 +62,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   /**
    * Number of time steps.
    */
-  private final int nSteps;
+  private final ImpliedTrinomialTreeFxOptionCalibrator calibrator;
 
   /**
    * Pricer with the default number of time steps. 
@@ -80,8 +77,17 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param nSteps  number of time steps
    */
   public ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(int nSteps) {
-    ArgChecker.isTrue(nSteps > 1, "the number of steps should be greater than 1");
-    this.nSteps = nSteps;
+    this.calibrator = new ImpliedTrinomialTreeFxOptionCalibrator(nSteps);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the calibrator. 
+   * 
+   * @return the calibrator
+   */
+  public ImpliedTrinomialTreeFxOptionCalibrator getCalibrator() {
+    return calibrator;
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +112,8 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    RecombiningTrinomialTreeData treeData = calibrateTrinomialTree(option, ratesProvider, volatilityProvider);
+    RecombiningTrinomialTreeData treeData =
+        calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilityProvider);
     return price(option, ratesProvider, volatilityProvider, treeData);
   }
 
@@ -156,8 +163,9 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    RecombiningTrinomialTreeData data = calibrateTrinomialTree(option, ratesProvider, volatilityProvider);
-    return presentValue(option, ratesProvider, volatilityProvider, data);
+    RecombiningTrinomialTreeData treeData =
+        calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilityProvider);
+    return presentValue(option, ratesProvider, volatilityProvider, treeData);
   }
 
   /**
@@ -205,8 +213,9 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    RecombiningTrinomialTreeData baseData = calibrateTrinomialTree(option, ratesProvider, volatilityProvider);
-    return presentValueCurveParameterSensitivity(option, ratesProvider, volatilityProvider, baseData);
+    RecombiningTrinomialTreeData baseTreeData =
+        calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilityProvider);
+    return presentValueCurveParameterSensitivity(option, ratesProvider, volatilityProvider, baseTreeData);
   }
 
   /**
@@ -229,6 +238,8 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       BlackVolatilityFxProvider volatilityProvider,
       RecombiningTrinomialTreeData baseTreeData) {
 
+    ArgChecker.isTrue(baseTreeData.getNumberOfSteps() == calibrator.getNumberOfSteps(),
+        "the number of steps mismatch between pricer and trinomial tree data");
     double shift = 1.0e-5;
     CurrencyAmount pvBase = presentValue(option, ratesProvider, volatilityProvider, baseTreeData);
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
@@ -279,8 +290,9 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
-    RecombiningTrinomialTreeData data = calibrateTrinomialTree(option, ratesProvider, volatilityProvider);
-    return currencyExposure(option, ratesProvider, volatilityProvider, data);
+    RecombiningTrinomialTreeData treeData =
+        calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilityProvider);
+    return currencyExposure(option, ratesProvider, volatilityProvider, treeData);
   }
 
   /**
@@ -314,64 +326,6 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Calibrate trinomial tree to Black volatilities. 
-   * <p>
-   * The calibration procedure is in principle independent of the option to price. 
-   * However, {@code ResolvedFxSingleBarrierOption} is plugged in to ensure that the grid points properly cover 
-   * the lifetime of the target option. 
-   * 
-   * @param option  the option
-   * @param ratesProvider  the rates provider
-   * @param volatilityProvider  the Black volatility provider
-   * @return the trinomial tree data
-   */
-  public RecombiningTrinomialTreeData calibrateTrinomialTree(
-      ResolvedFxSingleBarrierOption option,
-      RatesProvider ratesProvider,
-      BlackVolatilityFxProvider volatilityProvider) {
-
-    validate(option, ratesProvider, volatilityProvider);
-    ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilityProvider.relativeTime(underlyingOption.getExpiry()) <= 0d) {
-      throw new IllegalArgumentException("option expired");
-    }
-    double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
-    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
-    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
-    Currency ccyBase = underlyingFx.getBaseCurrencyPayment().getCurrency();
-    Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
-    double todayFx = ratesProvider.fxRate(currencyPair);
-    DiscountFactors baseDiscountFactors = ratesProvider.discountFactors(ccyBase);
-    DiscountFactors counterDiscountFactors = ratesProvider.discountFactors(ccyCounter);
-
-    Function<Double, Double> interestRate = new Function<Double, Double>() {
-      @Override
-      public Double apply(Double t) {
-        return counterDiscountFactors.zeroRate(t);
-      }
-    };
-    Function<Double, Double> dividendRate = new Function<Double, Double>() {
-      @Override
-      public Double apply(Double t) {
-        return baseDiscountFactors.zeroRate(t);
-      }
-    };
-    Function<DoublesPair, Double> impliedVolSurface = new Function<DoublesPair, Double>() {
-      @Override
-      public Double apply(DoublesPair tk) {
-        double dfBase = baseDiscountFactors.discountFactor(tk.getFirst());
-        double dfCounter = counterDiscountFactors.discountFactor(tk.getFirst());
-        double forward = todayFx * dfBase / dfCounter;
-        return volatilityProvider.getVolatility(currencyPair, tk.getFirst(), tk.getSecond(), forward);
-      }
-    };
-    ImpliedTrinomialTreeLocalVolatilityCalculator localVol =
-        new ImpliedTrinomialTreeLocalVolatilityCalculator(nSteps, timeToExpiry);
-    return localVol.calibrateImpliedVolatility(impliedVolSurface, todayFx, interestRate, dividendRate);
-  }
-
-  //-------------------------------------------------------------------------
   private ValueDerivatives priceDerivatives(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
@@ -380,6 +334,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
 
     validate(option, ratesProvider, volatilityProvider);
     validateData(option, ratesProvider, volatilityProvider, data);
+    int nSteps = data.getNumberOfSteps();
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
     double timeToExpiry = data.getTime(nSteps);
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
@@ -397,7 +352,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       double rebatePerUnit = rebateCurrencyAmount.getAmount() / notional;
       boolean isCounter = rebateCurrencyAmount.getCurrency().equals(ccyCounter);
       double rebate = isCounter ? rebatePerUnit : rebatePerUnit * barrier.getBarrierLevel();
-      if (barrier.getKnockType().isKnockIn()) {
+      if (barrier.getKnockType().isKnockIn()) { // use in-out parity
         double dfCounterAtExpiry = counterDiscountFactors.discountFactor(timeToExpiry);
         double dfBaseAtExpiry = baseDiscountFactors.discountFactor(timeToExpiry);
         for (int i = 0; i < nSteps + 1; ++i) {
@@ -424,7 +379,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
         barrier.getBarrierLevel(),
         DoubleArray.ofUnsafe(rebateArray));
     ValueDerivatives barrierPrice = TREE.optionPriceAdjoint(barrierFunction, data);
-    if (barrier.getKnockType().isKnockIn()) {
+    if (barrier.getKnockType().isKnockIn()) {  // use in-out parity
       EuropeanVanillaOptionFunction vanillaFunction = EuropeanVanillaOptionFunction.of(
           underlyingOption.getStrike(), timeToExpiry, underlyingOption.getPutCall(), nSteps);
       ValueDerivatives vanillaPrice = TREE.optionPriceAdjoint(vanillaFunction, data);
@@ -439,10 +394,9 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
       RecombiningTrinomialTreeData data) {
-    ArgChecker.isTrue(data.getNumberOfSteps() == nSteps,
-        "the number of steps mismatch between pricer and trinomial tree data");
+
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    ArgChecker.isTrue(DoubleMath.fuzzyEquals(data.getTime(nSteps),
+    ArgChecker.isTrue(DoubleMath.fuzzyEquals(data.getTime(data.getNumberOfSteps()),
             volatilityProvider.relativeTime(underlyingOption.getExpiry()), SMALL),
         "time to expiry mismatch between pricing option and trinomial tree data");
     ArgChecker.isTrue(DoubleMath.fuzzyEquals(data.getSpot(),

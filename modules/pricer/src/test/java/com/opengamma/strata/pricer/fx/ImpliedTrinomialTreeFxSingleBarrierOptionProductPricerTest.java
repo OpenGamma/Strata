@@ -97,11 +97,11 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_89 =
       new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(89);
   private static final RecombiningTrinomialTreeData DATA_89 =
-      PRICER_89.calibrateTrinomialTree(CALL_DKO, RATE_PROVIDER, VOL_PROVIDER);
+      PRICER_89.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER, VOL_PROVIDER);
   private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_105 =
       new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(105);
   private static final RecombiningTrinomialTreeData DATA_105_FLAT =
-      PRICER_105.calibrateTrinomialTree(CALL_DKO, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
+      PRICER_105.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
   private static final BlackFxSingleBarrierOptionProductPricer BLACK_PRICER = BlackFxSingleBarrierOptionProductPricer.DEFAULT;
   private static final BlackFxVanillaOptionProductPricer VANILLA_PRICER = BlackFxVanillaOptionProductPricer.DEFAULT;
 
@@ -313,7 +313,8 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   public void test_withData() {
     ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer pricer =
         new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(5);
-    RecombiningTrinomialTreeData data = pricer.calibrateTrinomialTree(CALL_DKO, RATE_PROVIDER, VOL_PROVIDER);
+    RecombiningTrinomialTreeData data =
+        pricer.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(), RATE_PROVIDER, VOL_PROVIDER);
     double price = pricer.price(CALL_UKI_C, RATE_PROVIDER, VOL_PROVIDER);
     double priceWithData = pricer.price(CALL_UKI_C, RATE_PROVIDER, VOL_PROVIDER, data);
     assertEquals(price, priceWithData);
@@ -326,7 +327,8 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   }
 
   public void test_expired_calibration() {
-    assertThrowsIllegalArg(() -> PRICER_89.calibrateTrinomialTree(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
+    assertThrowsIllegalArg(() -> PRICER_89.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(),
+        RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
     // pricing also fails because trinomial data can not be obtained
     assertThrowsIllegalArg(() -> PRICER_89.price(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
     assertThrowsIllegalArg(() -> PRICER_89.presentValue(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
@@ -334,7 +336,8 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   }
 
   public void test_dataMismatch() {
-    assertThrowsIllegalArg(() -> PRICER_105.price(CALL_DKO, RATE_PROVIDER, VOL_PROVIDER, DATA_89));
+    assertThrowsIllegalArg(() -> PRICER_105.presentValueCurveParameterSensitivity(CALL_DKO, RATE_PROVIDER,
+        VOL_PROVIDER, DATA_89));
   }
 
   //-------------------------------------------------------------------------

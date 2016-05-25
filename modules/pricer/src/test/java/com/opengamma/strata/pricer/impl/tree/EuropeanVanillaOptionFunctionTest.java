@@ -86,7 +86,7 @@ public class EuropeanVanillaOptionFunctionTest {
               OptionFunction function = EuropeanVanillaOptionFunction.of(strike, TIME, PutCall.ofPut(!isCall), nSteps);
               double exact =
                   BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              double computed = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT, vol, interest, dividend);
+              double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
               assertEquals(computed, exact, Math.max(exact, 1d) * tol);
             }
           }

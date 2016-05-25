@@ -37,7 +37,7 @@ public final class EuropeanVanillaOptionFunction
   /**
    * The strike value.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition
   private final double strike;
   /**
    * The time to expiry.
@@ -135,7 +135,6 @@ public final class EuropeanVanillaOptionFunction
    * Gets the strike value.
    * @return the value of the property
    */
-  @Override
   public double getStrike() {
     return strike;
   }

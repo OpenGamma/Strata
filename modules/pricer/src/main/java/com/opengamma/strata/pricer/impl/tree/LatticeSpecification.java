@@ -20,6 +20,8 @@ public interface LatticeSpecification {
   /**
    * Computes parameters for uniform trinomial tree. 
    * <p>
+   * The interest rate must be zero-coupon continuously compounded rate.
+   * <p>
    * The trinomial tree parameters are represented as {@code DoubleArray} containing [0] up factor, [1] middle factor, 
    * [2] down factor, [3] up probability, [4] middle probability, [5] down probability. 
    * 

@@ -162,7 +162,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
               double exact = REBATE_AMOUNT *
                       REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType())
                   +BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
-              double computed = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT, vol, interest, dividend);
+              double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
               assertEquals(computed, exact, Math.max(exact, 1d) * tol);
             }
           }
@@ -189,7 +189,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
               double exact = REBATE_AMOUNT *
                   REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType())
                   + BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
-              double computed = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT, vol, interest, dividend);
+              double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
               assertEquals(computed, exact, Math.max(exact, 1d) * tol);
             }
           }

@@ -66,7 +66,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   /**
    * The time.
    * <p>
-   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code j}-th layer.   
+   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.   
    */
   @PropertyDefinition
   private final DoubleArray time;
@@ -250,7 +250,7 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   /**
    * Gets the time.
    * <p>
-   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code j}-th layer.
+   * The {@code i}-th element is the year fraction between the {@code 0}-th time layer and the {@code i}-th layer.
    * @return the value of the property
    */
   public DoubleArray getTime() {

@@ -72,8 +72,8 @@ public class ScalarSecondOrderDifferentiator
       public Double apply(Double x) {
         ArgChecker.notNull(x, "x");
         ArgChecker.isTrue(domain.apply(x), "point {} is not in the function domain", x.toString());
-        if (!domain.apply(x + eps)) {
-          if (!domain.apply(x - eps)) {
+        if (!domain.apply(x + threeEps)) {
+          if (!domain.apply(x - threeEps)) {
             throw new IllegalArgumentException("cannot get derivative at point " + x.toString());
           }
           return (-function.apply(x - threeEps) + 4d * function.apply(x - twoEps)

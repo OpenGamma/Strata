@@ -14,8 +14,18 @@ import com.opengamma.strata.product.fx.BarrierType;
 
 /**
  * Single barrier knock-out option function.
+ * <p>
+ * Note that there is no option function responsible for knock-in options because a knock-in option is priced via
+ * the in-out parity in a tree model.  
  */
 abstract class SingleBarrierKnockoutFunction implements OptionFunction {
+
+  /**
+   * Obtains strike value.
+   * 
+   * @return strike
+   */
+  public abstract double getStrike();
 
   /**
    * Obtains the barrier level for the time layer specified by {@code step}.
@@ -65,6 +75,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
     for (int i = iMin; i < iMmax; ++i) {
       values[i] = Math.max(getSign() * (stateValue.get(i) - getStrike()), 0d);
     }
+    // modification if barrier lies between two consecutive nodes 
     double bd = barrierLevel - stateValue.get(index);
     double ub = stateValue.get(index + 1) - barrierLevel;
     double ud = stateValue.get(index + 1) - stateValue.get(index);
@@ -102,6 +113,7 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
             (upProb * values.get(j + 2) + middleProb * values.get(j + 1) + downProb * values.get(j));
       }
     }
+    // modification if barrier lies between two consecutive nodes 
     int index = getLowerBoundIndex(stateValue, barrierLevel);
     if (index > -1 && index < nNodes - 1) {
       double bd = barrierLevel - stateValue.get(index);

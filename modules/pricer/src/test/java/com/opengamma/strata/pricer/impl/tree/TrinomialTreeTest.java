@@ -66,12 +66,12 @@ public class TrinomialTreeTest {
               RecombiningTrinomialTreeData treeData =
                   RecombiningTrinomialTreeData.of(DoubleMatrix.ofUnsafe(stateValue), prob, df, time);
               double priceData = TRINOMIAL_TREE.optionPrice(function, treeData);
-              double priceParams = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT, vol, interest, dividend);
+              double priceParams = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
               assertEquals(priceData, priceParams);
               ValueDerivatives priceDeriv = TRINOMIAL_TREE.optionPriceAdjoint(function, treeData);
               assertEquals(priceDeriv.getValue(), priceData);
-              double priceUp = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT + fdEps, vol, interest, dividend);
-              double priceDw = TRINOMIAL_TREE.optionPrice(lattice, function, SPOT - fdEps, vol, interest, dividend);
+              double priceUp = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT + fdEps, vol, interest, dividend);
+              double priceDw = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT - fdEps, vol, interest, dividend);
               double fdDelta = 0.5 * (priceUp - priceDw) / fdEps;
               assertEquals(priceDeriv.getDerivative(0), fdDelta, 3.0e-2);
             }
