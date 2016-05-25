@@ -33,6 +33,8 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -132,6 +134,49 @@ public final class DiscountFxForwardRates
   @Override
   public LocalDate getValuationDate() {
     return valuationDate;
+  }
+
+  @Override
+  public int getParameterCount() {
+    return baseCurrencyDiscountFactors.getParameterCount() + counterCurrencyDiscountFactors.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
+    if (parameterIndex < baseSize) {
+      return baseCurrencyDiscountFactors.getParameter(parameterIndex);
+    }
+    return counterCurrencyDiscountFactors.getParameter(parameterIndex - baseSize);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
+    if (parameterIndex < baseSize) {
+      return baseCurrencyDiscountFactors.getParameterMetadata(parameterIndex);
+    }
+    return counterCurrencyDiscountFactors.getParameterMetadata(parameterIndex - baseSize);
+  }
+
+  @Override
+  public DiscountFxForwardRates withParameter(int parameterIndex, double newValue) {
+    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
+    if (parameterIndex < baseSize) {
+      DiscountFactors newBase = baseCurrencyDiscountFactors.withParameter(parameterIndex, newValue);
+      return new DiscountFxForwardRates(currencyPair, fxRateProvider, newBase, counterCurrencyDiscountFactors);
+    }
+    DiscountFactors newCounter = counterCurrencyDiscountFactors.withParameter(parameterIndex - baseSize, newValue);
+    return new DiscountFxForwardRates(currencyPair, fxRateProvider, baseCurrencyDiscountFactors, newCounter);
+  }
+
+  @Override
+  public DiscountFxForwardRates withPerturbation(ParameterPerturbation perturbation) {
+    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
+    DiscountFactors newBase = baseCurrencyDiscountFactors.withPerturbation(perturbation);
+    DiscountFactors newCounter = counterCurrencyDiscountFactors.withPerturbation(
+        (i, v, m) -> perturbation.perturbParameter(i + baseSize, v, m));
+    return new DiscountFxForwardRates(currencyPair, fxRateProvider, newBase, newCounter);
   }
 
   //-------------------------------------------------------------------------

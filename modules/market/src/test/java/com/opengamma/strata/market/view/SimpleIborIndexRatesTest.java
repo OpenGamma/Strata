@@ -82,6 +82,14 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getCurve(), CURVE);
+    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
+    // check IborIndexRates
+    IborIndexRates test2 = IborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE);
+    assertEquals(test, test2);
   }
 
   public void test_of_withFixings() {
@@ -90,6 +98,17 @@ public class SimpleIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getCurve(), CURVE);
+  }
+
+  public void test_of_badCurve() {
+    CurveMetadata noDayCountMetadata = DefaultCurveMetadata.builder()
+        .curveName(NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.FORWARD_RATE)
+        .build();
+    InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
+        noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
+    assertThrowsIllegalArg(() -> SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, notDayCount));
   }
 
   //-------------------------------------------------------------------------

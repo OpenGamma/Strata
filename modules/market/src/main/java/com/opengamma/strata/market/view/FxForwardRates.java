@@ -12,6 +12,8 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -22,7 +24,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * The forward rate is the conversion rate between two currencies on a fixing date in the future. 
  */
 public interface FxForwardRates
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Gets the currency pair.
@@ -42,6 +44,12 @@ public interface FxForwardRates
    */
   @Override
   public abstract LocalDate getValuationDate();
+
+  @Override
+  public abstract FxForwardRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract FxForwardRates withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**

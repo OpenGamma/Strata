@@ -16,6 +16,8 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
 
@@ -26,7 +28,7 @@ import com.opengamma.strata.market.value.CompoundedRateType;
  * when comparing the valuation date to the specified date.
  */
 public interface DiscountFactors
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a curve.
@@ -66,6 +68,12 @@ public interface DiscountFactors
    * @return the currency
    */
   public abstract Currency getCurrency();
+
+  @Override
+  public abstract DiscountFactors withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract DiscountFactors withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**

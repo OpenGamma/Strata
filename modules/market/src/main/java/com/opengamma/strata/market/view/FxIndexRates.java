@@ -12,6 +12,8 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -23,7 +25,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * as published by a specific organization, typically at a well-known time-of-day.
  */
 public interface FxIndexRates
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Gets the FX index.
@@ -50,6 +52,12 @@ public interface FxIndexRates
    * @return the FX forward rates
    */
   public abstract FxForwardRates getFxForwardRates();
+
+  @Override
+  public abstract FxIndexRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract FxIndexRates withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**

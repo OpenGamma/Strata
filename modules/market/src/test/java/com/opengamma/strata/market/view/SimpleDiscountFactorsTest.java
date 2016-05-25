@@ -60,6 +60,11 @@ public class SimpleDiscountFactorsTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getCurve(), CURVE);
+    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
   }
 
   public void test_of_badCurve() {

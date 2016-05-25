@@ -34,6 +34,8 @@ import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.market.value.CompoundedRateType;
@@ -112,6 +114,32 @@ public final class SimpleDiscountFactors
     this.valuationDate = valuationDate;
     this.curve = curve;
     this.dayCount = dayCount;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int getParameterCount() {
+    return curve.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return curve.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return curve.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SimpleDiscountFactors withParameter(int parameterIndex, double newValue) {
+    return withCurve(curve.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public SimpleDiscountFactors withPerturbation(ParameterPerturbation perturbation) {
+    return withCurve(curve.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------

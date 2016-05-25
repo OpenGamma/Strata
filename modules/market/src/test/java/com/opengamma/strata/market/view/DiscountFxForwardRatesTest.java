@@ -60,6 +60,23 @@ public class DiscountFxForwardRatesTest {
     assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
     assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD);
     assertEquals(test.getFxRateProvider(), FX_RATE);
+
+    int baseSize = DFCURVE_USD.getParameterCount();
+    assertEquals(test.getParameterCount(), DFCURVE_GBP.getParameterCount() + baseSize);
+    assertEquals(test.getParameter(0), DFCURVE_GBP.getParameter(0));
+    assertEquals(test.getParameter(baseSize), DFCURVE_USD.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), DFCURVE_GBP.getParameterMetadata(0));
+    assertEquals(test.getParameterMetadata(baseSize), DFCURVE_USD.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getBaseCurrencyDiscountFactors(), DFCURVE_GBP.withParameter(0, 1d));
+    assertEquals(test.withParameter(0, 1d).getCounterCurrencyDiscountFactors(), DFCURVE_USD);
+    assertEquals(test.withParameter(baseSize, 1d).getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
+    assertEquals(test.withParameter(baseSize, 1d).getCounterCurrencyDiscountFactors(), DFCURVE_USD.withParameter(0, 1d));
+    assertEquals(
+        test.withPerturbation((i, v, m) -> v + 1d).getBaseCurrencyDiscountFactors(),
+        DFCURVE_GBP.withPerturbation((i, v, m) -> v + 1d));
+    assertEquals(
+        test.withPerturbation((i, v, m) -> v + 1d).getCounterCurrencyDiscountFactors(),
+        DFCURVE_USD.withPerturbation((i, v, m) -> v + 1d));
   }
 
   public void test_of_nonMatchingCurrency() {

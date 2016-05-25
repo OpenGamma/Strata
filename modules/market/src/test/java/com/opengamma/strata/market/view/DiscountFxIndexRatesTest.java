@@ -90,6 +90,13 @@ public class DiscountFxIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getFxForwardRates(), FWD_RATES);
+    assertEquals(test.getParameterCount(), FWD_RATES.getParameterCount());
+    assertEquals(test.getParameter(0), FWD_RATES.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), FWD_RATES.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getFxForwardRates(), FWD_RATES.withParameter(0, 1d));
+    assertEquals(
+        test.withPerturbation((i, v, m) -> v + 1d).getFxForwardRates(),
+        FWD_RATES.withPerturbation((i, v, m) -> v + 1d));
   }
 
   public void test_of_withFixings() {

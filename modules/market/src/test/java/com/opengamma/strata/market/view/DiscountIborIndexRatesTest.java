@@ -77,6 +77,15 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
+    assertEquals(test.getDiscountFactors(), DFCURVE);
+    assertEquals(test.getParameterCount(), DFCURVE.getParameterCount());
+    assertEquals(test.getParameter(0), DFCURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), DFCURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getDiscountFactors(), DFCURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getDiscountFactors(), DFCURVE.withPerturbation((i, v, m) -> v + 1d));
+    // check IborIndexRates
+    IborIndexRates test2 = IborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE);
+    assertEquals(test, test2);
   }
 
   public void test_of_withFixings() {

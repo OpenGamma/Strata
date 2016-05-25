@@ -15,6 +15,8 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -24,7 +26,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides historic and forward rates for a single {@link OvernightIndex}, such as 'EUR-EONIA'.
  */
 public interface OvernightIndexRates
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a forward curve, with an empty time-series of fixings.
@@ -90,6 +92,12 @@ public interface OvernightIndexRates
    * @return the time-series fixings
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
+
+  @Override
+  public abstract OvernightIndexRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract OvernightIndexRates withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**

@@ -37,6 +37,8 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -186,6 +188,32 @@ public final class SimplePriceIndexValues
     DoubleArray x = curve.getXValues();
     ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
     this.extendedCurve = curve.withNode(0, nbMonth, fixings.getLatestValue());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int getParameterCount() {
+    return curve.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return curve.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return curve.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SimplePriceIndexValues withParameter(int parameterIndex, double newValue) {
+    return withCurve(curve.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public SimplePriceIndexValues withPerturbation(ParameterPerturbation perturbation) {
+    return withCurve(curve.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------

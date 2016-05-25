@@ -97,6 +97,11 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getSeasonality(), DoubleArray.filled(12, 1d));
     assertEquals(test.getCurve(), CURVE);
+    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
+    assertEquals(test.getParameter(0), CURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test, test2);

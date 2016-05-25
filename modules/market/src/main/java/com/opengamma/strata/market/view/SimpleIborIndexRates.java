@@ -38,6 +38,8 @@ import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -144,6 +146,32 @@ public final class SimpleIborIndexRates
     this.curve = curve;
     this.fixings = fixings;
     this.dayCount = dayCount;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int getParameterCount() {
+    return curve.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return curve.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return curve.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SimpleIborIndexRates withParameter(int parameterIndex, double newValue) {
+    return withCurve(curve.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public SimpleIborIndexRates withPerturbation(ParameterPerturbation perturbation) {
+    return withCurve(curve.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
