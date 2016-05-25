@@ -80,6 +80,11 @@ public final class CurveInterpolators {
   public static final CurveInterpolator NATURAL_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE.getName());
   /**
+   * Product natural cubic spline interpolator.
+   */
+  public static final CurveInterpolator PRODUCT_NATURAL_CUBIC_SPLINE =
+      CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_CUBIC_SPLINE.getName());
+  /**
    * Log natural cubic spline interpolator for discount factors.
    * <p>
    * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a natural cubic spline going through
