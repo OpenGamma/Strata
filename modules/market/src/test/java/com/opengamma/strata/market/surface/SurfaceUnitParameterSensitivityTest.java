@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link SurfaceUnitParameterSensitivity}.
@@ -42,7 +43,7 @@ public class SurfaceUnitParameterSensitivityTest {
   public void test_of_metadata_badMetadata() {
     DefaultSurfaceMetadata metadata = DefaultSurfaceMetadata.builder()
         .surfaceName(NAME1)
-        .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1))
+        .parameterMetadata(ParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1))
         .build();
     assertThrowsIllegalArg(() -> SurfaceUnitParameterSensitivity.of(metadata, VECTOR_USD1));
   }

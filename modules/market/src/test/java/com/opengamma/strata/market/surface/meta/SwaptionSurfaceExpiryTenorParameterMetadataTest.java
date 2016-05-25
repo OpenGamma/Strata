@@ -16,17 +16,17 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
- * Test {@link SwaptionSurfaceExpiryTenorNodeMetadata}.
+ * Test {@link SwaptionSurfaceExpiryTenorParameterMetadata}.
  */
 @Test
-public class SwaptionSurfaceExpiryTenorNodeMetadataTest {
+public class SwaptionSurfaceExpiryTenorParameterMetadataTest {
 
   private static final double TIME_TO_EXPIRY = 1.5d;
   private static final double TENOR = 36d;
 
   public void test_of_noLabel() {
-    SwaptionSurfaceExpiryTenorNodeMetadata test =
-        SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME_TO_EXPIRY, TENOR);
+    SwaptionSurfaceExpiryTenorParameterMetadata test =
+        SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME_TO_EXPIRY, TENOR);
     assertEquals(test.getIdentifier(), Pair.of(TIME_TO_EXPIRY, TENOR));
     assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, TENOR).toString());
     assertEquals(test.getTenor(), TENOR);
@@ -35,8 +35,8 @@ public class SwaptionSurfaceExpiryTenorNodeMetadataTest {
 
   public void test_of_withLabel() {
     String label = "(1.5Y, 36M)";
-    SwaptionSurfaceExpiryTenorNodeMetadata test =
-        SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME_TO_EXPIRY, TENOR, label);
+    SwaptionSurfaceExpiryTenorParameterMetadata test =
+        SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME_TO_EXPIRY, TENOR, label);
     assertEquals(test.getIdentifier(), Pair.of(TIME_TO_EXPIRY, TENOR));
     assertEquals(test.getLabel(), label);
     assertEquals(test.getTenor(), TENOR);
@@ -44,12 +44,12 @@ public class SwaptionSurfaceExpiryTenorNodeMetadataTest {
   }
 
   public void test_builder_noLabel() {
-    BeanBuilder<? extends SwaptionSurfaceExpiryTenorNodeMetadata> builder =
-        SwaptionSurfaceExpiryTenorNodeMetadata.meta().builder();
+    BeanBuilder<? extends SwaptionSurfaceExpiryTenorParameterMetadata> builder =
+        SwaptionSurfaceExpiryTenorParameterMetadata.meta().builder();
     Pair<Double, Double> pair = Pair.of(TIME_TO_EXPIRY, TENOR);
-    builder.set(SwaptionSurfaceExpiryTenorNodeMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
-    builder.set(SwaptionSurfaceExpiryTenorNodeMetadata.meta().tenor(), TENOR);
-    SwaptionSurfaceExpiryTenorNodeMetadata test = builder.build();
+    builder.set(SwaptionSurfaceExpiryTenorParameterMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
+    builder.set(SwaptionSurfaceExpiryTenorParameterMetadata.meta().tenor(), TENOR);
+    SwaptionSurfaceExpiryTenorParameterMetadata test = builder.build();
     assertEquals(test.getIdentifier(), pair);
     assertEquals(test.getLabel(), pair.toString());
     assertEquals(test.getTenor(), TENOR);
@@ -57,14 +57,14 @@ public class SwaptionSurfaceExpiryTenorNodeMetadataTest {
   }
 
   public void test_builder_withLabel() {
-    BeanBuilder<? extends SwaptionSurfaceExpiryTenorNodeMetadata> builder =
-        SwaptionSurfaceExpiryTenorNodeMetadata.meta().builder();
+    BeanBuilder<? extends SwaptionSurfaceExpiryTenorParameterMetadata> builder =
+        SwaptionSurfaceExpiryTenorParameterMetadata.meta().builder();
     Pair<Double, Double> pair = Pair.of(TIME_TO_EXPIRY, TENOR);
     String label = "(1.5Y, 36M)";
-    builder.set(SwaptionSurfaceExpiryTenorNodeMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
-    builder.set(SwaptionSurfaceExpiryTenorNodeMetadata.meta().tenor(), TENOR);
-    builder.set(SwaptionSurfaceExpiryTenorNodeMetadata.meta().label(), label);
-    SwaptionSurfaceExpiryTenorNodeMetadata test = builder.build();
+    builder.set(SwaptionSurfaceExpiryTenorParameterMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
+    builder.set(SwaptionSurfaceExpiryTenorParameterMetadata.meta().tenor(), TENOR);
+    builder.set(SwaptionSurfaceExpiryTenorParameterMetadata.meta().label(), label);
+    SwaptionSurfaceExpiryTenorParameterMetadata test = builder.build();
     assertEquals(test.getIdentifier(), pair);
     assertEquals(test.getLabel(), label);
     assertEquals(test.getTenor(), TENOR);
@@ -73,17 +73,17 @@ public class SwaptionSurfaceExpiryTenorNodeMetadataTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    SwaptionSurfaceExpiryTenorNodeMetadata test1 =
-        SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME_TO_EXPIRY, TENOR);
+    SwaptionSurfaceExpiryTenorParameterMetadata test1 =
+        SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME_TO_EXPIRY, TENOR);
     coverImmutableBean(test1);
-    SwaptionSurfaceExpiryTenorNodeMetadata test2 =
-        SwaptionSurfaceExpiryTenorNodeMetadata.of(2.5d, 60d, "(2.5, 60)");
+    SwaptionSurfaceExpiryTenorParameterMetadata test2 =
+        SwaptionSurfaceExpiryTenorParameterMetadata.of(2.5d, 60d, "(2.5, 60)");
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    SwaptionSurfaceExpiryTenorNodeMetadata test =
-        SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME_TO_EXPIRY, TENOR);
+    SwaptionSurfaceExpiryTenorParameterMetadata test =
+        SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME_TO_EXPIRY, TENOR);
     assertSerialization(test);
   }
 

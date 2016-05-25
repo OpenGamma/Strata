@@ -33,12 +33,12 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.option.DeltaStrike;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionNodeMetadata;
+import com.opengamma.strata.market.surface.meta.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * Data provider of volatility for FX options in the lognormal or Black-Scholes model.
@@ -117,12 +117,12 @@ public final class BlackVolatilityFlatFxProvider
     double pointValue = point.getSensitivity();
     int paramCount = times.size();
     double[] sensi = new double[paramCount];
-    List<SurfaceParameterMetadata> paramList = new ArrayList<SurfaceParameterMetadata>();
+    List<ParameterMetadata> paramList = new ArrayList<ParameterMetadata>();
     for (int i = 0; i < paramCount; ++i) {
       sensi[i] = yValueParameterSensitivity.getSensitivity().get(i) * pointValue;
       DeltaStrike absoluteDelta = DeltaStrike.of(0.5d); // ATM
-      SurfaceParameterMetadata parameterMetadata =
-          FxVolatilitySurfaceYearFractionNodeMetadata.of(times.get(i), absoluteDelta, currencyPair);
+      ParameterMetadata parameterMetadata =
+          FxVolatilitySurfaceYearFractionParameterMetadata.of(times.get(i), absoluteDelta, currencyPair);
       paramList.add(parameterMetadata);
     }
     DefaultSurfaceMetadata metadata = DefaultSurfaceMetadata.builder()

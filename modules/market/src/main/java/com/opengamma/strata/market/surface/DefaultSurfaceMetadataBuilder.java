@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Builder for surface metadata.
@@ -57,7 +58,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * <p>
    * If present, the parameter metadata will match the number of parameters on the surface.
    */
-  private List<SurfaceParameterMetadata> parameterMetadata;
+  private List<ParameterMetadata> parameterMetadata;
 
   /**
    * Restricted constructor.
@@ -199,7 +200,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultSurfaceMetadataBuilder parameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata) {
+  public DefaultSurfaceMetadataBuilder parameterMetadata(List<? extends ParameterMetadata> parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }
@@ -213,7 +214,7 @@ public final class DefaultSurfaceMetadataBuilder {
    * @param parameterMetadata  the parameter metadata
    * @return this, for chaining
    */
-  public DefaultSurfaceMetadataBuilder parameterMetadata(SurfaceParameterMetadata... parameterMetadata) {
+  public DefaultSurfaceMetadataBuilder parameterMetadata(ParameterMetadata... parameterMetadata) {
     this.parameterMetadata = ImmutableList.copyOf(parameterMetadata);
     return this;
   }

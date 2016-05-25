@@ -23,12 +23,12 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.market.ValueType;
@@ -36,7 +36,6 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
@@ -44,6 +43,7 @@ import com.opengamma.strata.market.id.CurveInputsId;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 
 /**
@@ -178,7 +178,7 @@ public class CurveInputsMarketDataFunctionTest {
     assertThat(curveInputs.getMarketData().get(idB)).isEqualTo(2d);
     assertThat(curveInputs.getMarketData().get(idC)).isEqualTo(3d);
 
-    List<CurveParameterMetadata> expectedMetadata = ImmutableList.of(
+    List<ParameterMetadata> expectedMetadata = ImmutableList.of(
         node1x4.metadata(VAL_DATE, REF_DATA),
         node2x5.metadata(VAL_DATE, REF_DATA),
         node3x6.metadata(VAL_DATE, REF_DATA));

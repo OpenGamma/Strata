@@ -28,14 +28,14 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.ConstantNodalSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -105,12 +105,12 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(TENOR_NODE_USD),
       DoubleArray.copyOf(ALPHA_NODE_USD),
       INTERPOLATOR_2D);
-  private static final List<SurfaceParameterMetadata> PARAMETER_META_LIST_USD;
+  private static final List<ParameterMetadata> PARAMETER_META_LIST_USD;
   static {
     int n = EXPIRY_NODE_USD.length;
-    PARAMETER_META_LIST_USD = new ArrayList<SurfaceParameterMetadata>(n);
+    PARAMETER_META_LIST_USD = new ArrayList<ParameterMetadata>(n);
     for (int i = 0; i < n; ++i) {
-      PARAMETER_META_LIST_USD.add(SwaptionSurfaceExpiryTenorNodeMetadata.of(EXPIRY_NODE_USD[i], TENOR_NODE_USD[i]));
+      PARAMETER_META_LIST_USD.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(EXPIRY_NODE_USD[i], TENOR_NODE_USD[i]));
     }
   }
 
@@ -204,12 +204,12 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06,
           0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}),
       INTERPOLATOR_2D);
-  private static final List<SurfaceParameterMetadata> PARAMETER_META_LIST_EUR;
+  private static final List<ParameterMetadata> PARAMETER_META_LIST_EUR;
   static {
     int n = BETA_TENOR_NODE_EUR.length;
-    PARAMETER_META_LIST_EUR = new ArrayList<SurfaceParameterMetadata>(n);
+    PARAMETER_META_LIST_EUR = new ArrayList<ParameterMetadata>(n);
     for (int i = 0; i < n; ++i) {
-      PARAMETER_META_LIST_EUR.add(SwaptionSurfaceExpiryTenorNodeMetadata.of(BETA_EXPIRY_NODE_EUR[i],
+      PARAMETER_META_LIST_EUR.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(BETA_EXPIRY_NODE_EUR[i],
           BETA_TENOR_NODE_EUR[i]));
     }
   }

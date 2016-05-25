@@ -21,12 +21,12 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.CurveParameterSize;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -122,7 +122,7 @@ public class CurveSensitivityUtils {
    * extremes are fully bucketed to the extremes and for date between two re-bucketing dates, the weight on the start 
    * date is the number days between end date and the date re-bucketed divided by the number of days between the 
    * start and the end.
-   * The input sensitivity should have a {@link DatedCurveParameterMetadata} for each sensitivity.
+   * The input sensitivity should have a {@link DatedParameterMetadata} for each sensitivity.
    * 
    * @param sensitivities  the input sensitivities
    * @param targetDates  the list of dates for the re-bucketing
@@ -134,8 +134,8 @@ public class CurveSensitivityUtils {
 
     checkSortedDates(targetDates);
     int nbBuckets = targetDates.size();
-    List<CurveParameterMetadata> pmdTarget = targetDates.stream()
-        .map(date -> SimpleCurveNodeMetadata.of(date, date.toString()))
+    List<ParameterMetadata> pmdTarget = targetDates.stream()
+        .map(date -> LabelDateParameterMetadata.of(date, date.toString()))
         .collect(toList());
     ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
     List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
@@ -143,14 +143,14 @@ public class CurveSensitivityUtils {
       double[] rebucketedSensitivityAmounts = new double[nbBuckets];
       CurveMetadata metadataCurve = sensitivity.getMetadata();
       DoubleArray sensitivityAmounts = sensitivity.getSensitivity();
-      List<CurveParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
+      List<ParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
           .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
-        CurveParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
-        ArgChecker.isTrue(nodeMetadata instanceof DatedCurveParameterMetadata,
-            "re-bucketing requires sensitivity date for node {} which is of type {} while 'DatedCurveParameterMetadata' is expected",
+        ParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
+        ArgChecker.isTrue(nodeMetadata instanceof DatedParameterMetadata,
+            "re-bucketing requires sensitivity date for node {} which is of type {} while 'DatedParameterMetadata' is expected",
             nodeMetadata.getLabel(), nodeMetadata.getClass().getName());
-        DatedCurveParameterMetadata datedParameterMetadata = (DatedCurveParameterMetadata) nodeMetadata;
+        DatedParameterMetadata datedParameterMetadata = (DatedParameterMetadata) nodeMetadata;
         LocalDate nodeDate = datedParameterMetadata.getDate();
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);
       }
@@ -171,8 +171,8 @@ public class CurveSensitivityUtils {
    * extremes are fully bucketed to the extremes and for date between two re-bucketing dates, the weight on the start 
    * date is the number days between end date and the date re-bucketed divided by the number of days between the 
    * start and the end. The date of the nodes can be directly in the parameter metadata - when the metadata is of the 
-   * type {@link DatedCurveParameterMetadata} - or inferred from the sensitivity date and the tenor when the
-   * metadata is of the type {@link TenorCurveNodeMetadata}. Only those types of metadata are accepted.
+   * type {@link DatedParameterMetadata} - or inferred from the sensitivity date and the tenor when the
+   * metadata is of the type {@link TenorParameterMetadata}. Only those types of metadata are accepted.
    * 
    * @param sensitivities  the input sensitivities
    * @param targetDates  the list of dates for the re-bucketing
@@ -186,8 +186,8 @@ public class CurveSensitivityUtils {
 
     checkSortedDates(targetDates);
     int nbBuckets = targetDates.size();
-    List<CurveParameterMetadata> pmdTarget = targetDates.stream()
-        .map(date -> SimpleCurveNodeMetadata.of(date, date.toString()))
+    List<ParameterMetadata> pmdTarget = targetDates.stream()
+        .map(date -> LabelDateParameterMetadata.of(date, date.toString()))
         .collect(toList());
     ImmutableList<CurveCurrencyParameterSensitivity> sensitivitiesList = sensitivities.getSensitivities();
     List<CurveCurrencyParameterSensitivity> sensitivityTarget = new ArrayList<>();
@@ -195,20 +195,20 @@ public class CurveSensitivityUtils {
       double[] rebucketedSensitivityAmounts = new double[nbBuckets];
       CurveMetadata metadataCurve = sensitivity.getMetadata();
       DoubleArray sensitivityAmounts = sensitivity.getSensitivity();
-      List<CurveParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
+      List<ParameterMetadata> parameterMetadataList = metadataCurve.getParameterMetadata()
           .orElseThrow(() -> new IllegalArgumentException("parameter metadata must be present"));
       for (int loopnode = 0; loopnode < sensitivityAmounts.size(); loopnode++) {
-        CurveParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
-        ArgChecker.isTrue((nodeMetadata instanceof DatedCurveParameterMetadata) ||
-            (nodeMetadata instanceof TenorCurveNodeMetadata),
+        ParameterMetadata nodeMetadata = parameterMetadataList.get(loopnode);
+        ArgChecker.isTrue((nodeMetadata instanceof DatedParameterMetadata) ||
+            (nodeMetadata instanceof TenorParameterMetadata),
             "re-bucketing requires sensitivity date or node for node {} which is of type {}",
             nodeMetadata.getLabel(), nodeMetadata.getClass().getName());
         LocalDate nodeDate;
-        if (nodeMetadata instanceof DatedCurveParameterMetadata) {
-          DatedCurveParameterMetadata datedParameterMetadata = (DatedCurveParameterMetadata) nodeMetadata;
+        if (nodeMetadata instanceof DatedParameterMetadata) {
+          DatedParameterMetadata datedParameterMetadata = (DatedParameterMetadata) nodeMetadata;
           nodeDate = datedParameterMetadata.getDate();
         } else {
-          TenorCurveNodeMetadata tenorParameterMetadata = (TenorCurveNodeMetadata) nodeMetadata;
+          TenorParameterMetadata tenorParameterMetadata = (TenorParameterMetadata) nodeMetadata;
           nodeDate = sensitivityDate.plus(tenorParameterMetadata.getTenor());
         }
         rebucketingArray(targetDates, rebucketedSensitivityAmounts, sensitivityAmounts.get(loopnode), nodeDate);

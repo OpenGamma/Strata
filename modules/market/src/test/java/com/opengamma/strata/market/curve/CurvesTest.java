@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link Curves}.
@@ -25,7 +26,7 @@ public class CurvesTest {
 
   private static final String NAME = "Foo";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
-  private static final List<CurveParameterMetadata> PARAMS = ImmutableList.of();
+  private static final List<ParameterMetadata> PARAMS = ImmutableList.of();
 
   //-------------------------------------------------------------------------
   public void zeroRates_string() {

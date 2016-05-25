@@ -33,6 +33,7 @@ import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * A curve based on interpolation between a number of nodal points.
@@ -248,13 +249,13 @@ public final class InterpolatedNodalCurve
    * @param y  the new y-value
    * @return the updated curve
    */
-  public InterpolatedNodalCurve withNode(int index, CurveParameterMetadata paramMetadata, double x, double y) {
+  public InterpolatedNodalCurve withNode(int index, ParameterMetadata paramMetadata, double x, double y) {
     DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
     DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
     // add to existing metadata, or do nothing if no existing metadata
     CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {
-          List<CurveParameterMetadata> extended = new ArrayList<>(params);
+          List<ParameterMetadata> extended = new ArrayList<>(params);
           extended.add(index, paramMetadata);
           return metadata.withParameterMetadata(extended);
         })

@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link CurveCurrencyParameterSensitivity}.
@@ -37,7 +38,7 @@ public class CurveCurrencyParameterSensitivityTest {
   private static final CurveName NAME1 = CurveName.of("NAME-1");
   private static final CurveMetadata METADATA1 = DefaultCurveMetadata.of(NAME1);
   private static final CurveMetadata METADATA1_PARAM = METADATA1
-      .withParameterMetadata(CurveParameterMetadata.listOfEmpty(VECTOR_USD1.size()));
+      .withParameterMetadata(ParameterMetadata.listOfEmpty(VECTOR_USD1.size()));
   private static final CurveName NAME2 = CurveName.of("NAME-2");
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of(NAME2);
 
@@ -62,7 +63,7 @@ public class CurveCurrencyParameterSensitivityTest {
 
   public void test_of_metadata_badMetadata() {
     CurveMetadata metadata = Curves.zeroRates(
-        CurveName.of("Name"), ACT_365F, CurveParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1));
+        CurveName.of("Name"), ACT_365F, ParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1));
     assertThrowsIllegalArg(() -> CurveCurrencyParameterSensitivity.of(metadata, USD, VECTOR_USD1));
   }
 

@@ -22,11 +22,12 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
 import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link AddFixedCurve}.
@@ -42,11 +43,11 @@ public class AddFixedCurveTest {
   private static final String LABEL_1 = "Node1";
   private static final String LABEL_2 = "Node2";
   private static final String LABEL_3 = "Node3";
-  private static final List<CurveParameterMetadata> PARAM_METADATA_SPREAD = new ArrayList<>();
+  private static final List<ParameterMetadata> PARAM_METADATA_SPREAD = new ArrayList<>();
   static {
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 1, 1), LABEL_1));
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 2, 1), LABEL_2));
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 3, 1), LABEL_3));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 1, 1), LABEL_1));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 2, 1), LABEL_2));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 3, 1), LABEL_3));
   }
   private static final CurveMetadata METADATA_SPREAD = DefaultCurveMetadata.builder()
       .curveName(SPREAD_CURVE_NAME)

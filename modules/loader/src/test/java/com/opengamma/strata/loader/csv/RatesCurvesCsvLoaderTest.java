@@ -32,10 +32,10 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link RatesCurvesCsvLoader}.
@@ -282,7 +282,7 @@ public class RatesCurvesCsvLoaderTest {
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
-      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
+      ParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 
@@ -319,7 +319,7 @@ public class RatesCurvesCsvLoaderTest {
       double expectedYearFraction = getYearFraction(valuationDate, nodeDate);
       assertThat(actualYearFraction).isCloseTo(expectedYearFraction, offset(TOLERANCE));
 
-      CurveParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
+      ParameterMetadata nodeMetadata = nodalCurve.getMetadata().getParameterMetadata().get().get(i);
       assertEquals(nodeMetadata.getLabel(), labels[i]);
     }
 

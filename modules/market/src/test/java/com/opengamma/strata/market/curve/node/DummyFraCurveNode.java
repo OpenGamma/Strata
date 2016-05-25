@@ -26,8 +26,8 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 
 /**
  * Dummy curve node.
@@ -64,8 +64,8 @@ public final class DummyFraCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
-    return SimpleCurveNodeMetadata.of(
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+    return LabelDateParameterMetadata.of(
         HolidayCalendars.SAT_SUN.nextOrSame(valuationDate.plus(periodToEnd)), periodToEnd.toString());
   }
 

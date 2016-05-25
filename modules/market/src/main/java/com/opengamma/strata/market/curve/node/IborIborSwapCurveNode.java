@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +33,15 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.rate.IborRateComputation;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -157,14 +156,14 @@ public final class IborIborSwapCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
-      return SimpleCurveNodeMetadata.of(nodeDate, label);
+      return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    return TenorDateCurveNodeMetadata.of(nodeDate, template.getTenor(), label);
+    return TenorDateParameterMetadata.of(nodeDate, template.getTenor(), label);
   }
 
   // calculate the end date

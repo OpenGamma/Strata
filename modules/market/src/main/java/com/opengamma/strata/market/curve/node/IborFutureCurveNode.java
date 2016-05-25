@@ -31,8 +31,8 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
@@ -131,15 +131,15 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate, refData);
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(referenceDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
     if (label.isEmpty()) {
-      return YearMonthCurveNodeMetadata.of(nodeDate, YearMonth.from(referenceDate));
+      return YearMonthDateParameterMetadata.of(nodeDate, YearMonth.from(referenceDate));
     }
-    return YearMonthCurveNodeMetadata.of(nodeDate, YearMonth.from(referenceDate), label);
+    return YearMonthDateParameterMetadata.of(nodeDate, YearMonth.from(referenceDate), label);
   }
 
   // calculate the end date

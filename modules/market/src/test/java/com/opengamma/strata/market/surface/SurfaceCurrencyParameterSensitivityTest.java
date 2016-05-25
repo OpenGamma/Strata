@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link SurfaceCurrencyParameterSensitivity}.
@@ -51,7 +52,7 @@ public class SurfaceCurrencyParameterSensitivityTest {
   public void test_of_metadata_badMetadata() {
     DefaultSurfaceMetadata metadata = DefaultSurfaceMetadata.builder()
         .surfaceName(NAME1)
-        .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1))
+        .parameterMetadata(ParameterMetadata.listOfEmpty(VECTOR_USD1.size() + 1))
         .build();
     assertThrowsIllegalArg(() -> SurfaceCurrencyParameterSensitivity.of(metadata, USD, VECTOR_USD1));
   }

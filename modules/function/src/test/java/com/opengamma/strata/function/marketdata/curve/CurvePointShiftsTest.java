@@ -30,10 +30,10 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.NodalCurve;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
 import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 
 /**
  * Test {@link CurvePointShifts}.
@@ -48,10 +48,10 @@ public class CurvePointShiftsTest {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LOG_LINEAR;
 
   public void absolute() {
-    List<SimpleCurveNodeMetadata> nodeMetadata = ImmutableList.of(
-        SimpleCurveNodeMetadata.of(date(2011, 3, 8), TNR_1M),
-        SimpleCurveNodeMetadata.of(date(2011, 5, 8), TNR_3M),
-        SimpleCurveNodeMetadata.of(date(2011, 8, 8), TNR_6M));
+    List<LabelDateParameterMetadata> nodeMetadata = ImmutableList.of(
+        LabelDateParameterMetadata.of(date(2011, 3, 8), TNR_1M),
+        LabelDateParameterMetadata.of(date(2011, 5, 8), TNR_3M),
+        LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
     CurvePointShifts shift = CurvePointShifts.builder(ShiftType.ABSOLUTE)
@@ -114,10 +114,10 @@ public class CurvePointShiftsTest {
   }
 
   public void relative() {
-    List<SimpleCurveNodeMetadata> nodeMetadata = ImmutableList.of(
-        SimpleCurveNodeMetadata.of(date(2011, 3, 8), TNR_1M),
-        SimpleCurveNodeMetadata.of(date(2011, 5, 8), TNR_3M),
-        SimpleCurveNodeMetadata.of(date(2011, 8, 8), TNR_6M));
+    List<LabelDateParameterMetadata> nodeMetadata = ImmutableList.of(
+        LabelDateParameterMetadata.of(date(2011, 3, 8), TNR_1M),
+        LabelDateParameterMetadata.of(date(2011, 5, 8), TNR_3M),
+        LabelDateParameterMetadata.of(date(2011, 8, 8), TNR_6M));
 
     // This should create 4 scenarios. Scenario zero has no shifts and scenario 3 doesn't have shifts on all nodes
     CurvePointShifts shift = CurvePointShifts.builder(ShiftType.RELATIVE)

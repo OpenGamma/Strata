@@ -29,10 +29,10 @@ import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.YearMonthCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConvention;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -134,18 +134,18 @@ public class IborFutureCurveNodeTest {
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(date, REF_DATA);
     LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
-    CurveParameterMetadata metadata = node.metadata(date, REF_DATA);
+    ParameterMetadata metadata = node.metadata(date, REF_DATA);
     assertEquals(metadata.getLabel(), LABEL);
-    assertTrue(metadata instanceof YearMonthCurveNodeMetadata);
-    assertEquals(((YearMonthCurveNodeMetadata) metadata).getDate(), maturityDate);
-    assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
+    assertTrue(metadata instanceof YearMonthDateParameterMetadata);
+    assertEquals(((YearMonthDateParameterMetadata) metadata).getDate(), maturityDate);
+    assertEquals(((YearMonthDateParameterMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
   }
 
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     IborFutureCurveNode node =
         IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
-    DatedCurveParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), nodeDate);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
@@ -157,10 +157,10 @@ public class IborFutureCurveNodeTest {
     ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, 0.0d).build();
     IborFutureTrade trade = node.trade(valuationDate, marketData, REF_DATA);
     LocalDate fixingDate = trade.getProduct().getFixingDate();
-    DatedCurveParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), fixingDate);
     LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(valuationDate, REF_DATA);
-    assertEquals(((YearMonthCurveNodeMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
+    assertEquals(((YearMonthDateParameterMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
   }
 
   //-------------------------------------------------------------------------

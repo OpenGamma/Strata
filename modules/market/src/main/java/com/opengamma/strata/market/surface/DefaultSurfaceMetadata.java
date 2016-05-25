@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Default metadata for a surface.
@@ -85,8 +86,8 @@ public final class DefaultSurfaceMetadata
    * <p>
    * If present, the parameter metadata should match the number of parameters on the surface.
    */
-  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>", builderType = "List<? extends SurfaceParameterMetadata>")
-  private final ImmutableList<SurfaceParameterMetadata> parameterMetadata;
+  @PropertyDefinition(get = "optional", overrideGet = true, type = "List<>", builderType = "List<? extends ParameterMetadata>")
+  private final ImmutableList<ParameterMetadata> parameterMetadata;
 
   //-------------------------------------------------------------------------
   /**
@@ -156,7 +157,7 @@ public final class DefaultSurfaceMetadata
   }
 
   @Override
-  public DefaultSurfaceMetadata withParameterMetadata(List<? extends SurfaceParameterMetadata> parameterMetadata) {
+  public DefaultSurfaceMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata) {
     if (parameterMetadata == null) {
       return this.parameterMetadata != null ? toBuilder().clearParameterMetadata().build() : this;
     }
@@ -207,7 +208,7 @@ public final class DefaultSurfaceMetadata
       ValueType yValueType,
       ValueType zValueType,
       Map<SurfaceInfoType<?>, Object> info,
-      List<? extends SurfaceParameterMetadata> parameterMetadata) {
+      List<? extends ParameterMetadata> parameterMetadata) {
     JodaBeanUtils.notNull(surfaceName, "surfaceName");
     JodaBeanUtils.notNull(xValueType, "xValueType");
     JodaBeanUtils.notNull(yValueType, "yValueType");
@@ -308,7 +309,7 @@ public final class DefaultSurfaceMetadata
    * @return the optional value of the property, not null
    */
   @Override
-  public Optional<List<SurfaceParameterMetadata>> getParameterMetadata() {
+  public Optional<List<ParameterMetadata>> getParameterMetadata() {
     return Optional.ofNullable(parameterMetadata);
   }
 
@@ -396,7 +397,7 @@ public final class DefaultSurfaceMetadata
      * The meta-property for the {@code parameterMetadata} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<ParameterMetadata>> parameterMetadata = DirectMetaProperty.ofImmutable(
         this, "parameterMetadata", DefaultSurfaceMetadata.class, (Class) List.class);
     /**
      * The meta-properties.
@@ -495,7 +496,7 @@ public final class DefaultSurfaceMetadata
      * The meta-property for the {@code parameterMetadata} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<SurfaceParameterMetadata>> parameterMetadata() {
+    public MetaProperty<List<ParameterMetadata>> parameterMetadata() {
       return parameterMetadata;
     }
 
@@ -541,7 +542,7 @@ public final class DefaultSurfaceMetadata
     private ValueType yValueType;
     private ValueType zValueType;
     private Map<SurfaceInfoType<?>, Object> info = ImmutableMap.of();
-    private List<? extends SurfaceParameterMetadata> parameterMetadata;
+    private List<? extends ParameterMetadata> parameterMetadata;
 
     /**
      * Restricted constructor.
@@ -591,7 +592,7 @@ public final class DefaultSurfaceMetadata
           this.info = (Map<SurfaceInfoType<?>, Object>) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<? extends SurfaceParameterMetadata>) newValue;
+          this.parameterMetadata = (List<? extends ParameterMetadata>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
@@ -39,7 +40,7 @@ public class InterpolatedNodalSurfaceTest {
   private static final SurfaceMetadata METADATA_ENTRIES = DefaultSurfaceMetadata.builder()
       .surfaceName(SURFACE_NAME)
       .dayCount(ACT_365F)
-      .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(SIZE))
+      .parameterMetadata(ParameterMetadata.listOfEmpty(SIZE))
       .build();
   private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
   private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d, 0d, 2d, 3d, 0d, 2d, 3d);
