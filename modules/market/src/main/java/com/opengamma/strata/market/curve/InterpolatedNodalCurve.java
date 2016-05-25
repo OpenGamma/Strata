@@ -189,7 +189,7 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
-    return xValues.size();
+    return yValues.size();
   }
 
   @Override

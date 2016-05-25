@@ -27,7 +27,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.product.SecurityId;
@@ -47,7 +47,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    * The order of the dimensions is expiry/log moneyness.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface parameters;
+  private final Surface parameters;
   /**
    * The ID of the underlying future.
    */
@@ -139,7 +139,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
   }
 
   private BlackVolatilityExpLogMoneynessBondFutureProvider(
-      NodalSurface parameters,
+      Surface parameters,
       SecurityId futureSecurityId,
       DayCount dayCount,
       ZonedDateTime valuationDateTime) {
@@ -174,7 +174,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    * The order of the dimensions is expiry/log moneyness.
    * @return the value of the property, not null
    */
-  public NodalSurface getParameters() {
+  public Surface getParameters() {
     return parameters;
   }
 
@@ -267,8 +267,8 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
     /**
      * The meta-property for the {@code parameters} property.
      */
-    private final MetaProperty<NodalSurface> parameters = DirectMetaProperty.ofImmutable(
-        this, "parameters", BlackVolatilityExpLogMoneynessBondFutureProvider.class, NodalSurface.class);
+    private final MetaProperty<Surface> parameters = DirectMetaProperty.ofImmutable(
+        this, "parameters", BlackVolatilityExpLogMoneynessBondFutureProvider.class, Surface.class);
     /**
      * The meta-property for the {@code futureSecurityId} property.
      */
@@ -335,7 +335,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
      * The meta-property for the {@code parameters} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalSurface> parameters() {
+    public MetaProperty<Surface> parameters() {
       return parameters;
     }
 
@@ -396,7 +396,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
    */
   public static final class Builder extends DirectFieldsBeanBuilder<BlackVolatilityExpLogMoneynessBondFutureProvider> {
 
-    private NodalSurface parameters;
+    private Surface parameters;
     private SecurityId futureSecurityId;
     private DayCount dayCount;
     private ZonedDateTime valuationDateTime;
@@ -439,7 +439,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 458736106:  // parameters
-          this.parameters = (NodalSurface) newValue;
+          this.parameters = (Surface) newValue;
           break;
         case 1270940318:  // futureSecurityId
           this.futureSecurityId = (SecurityId) newValue;
@@ -496,7 +496,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
      * @param parameters  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder parameters(NodalSurface parameters) {
+    public Builder parameters(Surface parameters) {
       JodaBeanUtils.notNull(parameters, "parameters");
       this.parameters = parameters;
       return this;

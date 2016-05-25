@@ -43,9 +43,9 @@ import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
@@ -129,12 +129,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   @Test
   public void log_normal_cube() {
     double beta = 0.50;
-    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
             .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
     double shift = 0.0000;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
@@ -176,12 +176,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   @Test
   public void log_normal_cube_sensitivity() {
     double beta = 1.0;
-    NodalSurface betaSurface = ConstantNodalSurface.of("Beta", beta)
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
             .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
     double shift = 0.0000;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("Shift", shift)
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(

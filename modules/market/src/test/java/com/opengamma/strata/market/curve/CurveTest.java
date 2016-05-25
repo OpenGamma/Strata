@@ -100,7 +100,6 @@ public class CurveTest {
     public double firstDerivative(double x) {
       return 0;
     }
-
   }
 
 }

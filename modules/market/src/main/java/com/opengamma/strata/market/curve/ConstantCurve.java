@@ -58,7 +58,7 @@ public final class ConstantCurve
   /**
    * The single y-value.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double yValue;
 
   //-------------------------------------------------------------------------
@@ -170,7 +170,6 @@ public final class ConstantCurve
       CurveMetadata metadata,
       double yValue) {
     JodaBeanUtils.notNull(metadata, "metadata");
-    JodaBeanUtils.notNull(yValue, "yValue");
     this.metadata = metadata;
     this.yValue = yValue;
   }
@@ -205,7 +204,7 @@ public final class ConstantCurve
   //-----------------------------------------------------------------------
   /**
    * Gets the single y-value.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getYValue() {
     return yValue;

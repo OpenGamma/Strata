@@ -53,7 +53,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -116,7 +116,7 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
   private static final SurfaceMetadata METADATA =
       Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_ACT_ISDA, SWAP_CONVENTION);
-  private static final NodalSurface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
+  private static final Surface SURFACE = InterpolatedNodalSurface.of(METADATA, EXPIRY, TENOR, VOL, INTERPOLATOR_2D);
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       BlackSwaptionExpiryTenorVolatilities.of(SURFACE, VAL_DATE.atStartOfDay(ZoneOffset.UTC));
   // underlying swap and swaption

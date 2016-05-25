@@ -36,7 +36,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
@@ -189,7 +189,7 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   private SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
-      NodalSurface surface,
+      Surface surface,
       Currency currency,
       double factor,
       double expiry,

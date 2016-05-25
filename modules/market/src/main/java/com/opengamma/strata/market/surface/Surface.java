@@ -5,8 +5,19 @@
  */
 package com.opengamma.strata.market.surface;
 
-import com.opengamma.strata.collect.Messages;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * A surface that maps a {@code double} x-value and y-value to a {@code double} z-value.
@@ -20,7 +31,7 @@ import com.opengamma.strata.collect.tuple.DoublesPair;
  * 
  * @see InterpolatedNodalSurface
  */
-public interface Surface {
+public interface Surface extends ParameterizedData {
 
   /**
    * Gets the surface metadata.
@@ -54,14 +65,18 @@ public interface Surface {
     return getMetadata().getSurfaceName();
   }
 
-  /**
-   * Gets the number of parameters in the surface.
-   * <p>
-   * This returns the number of parameters that are used to define the surface.
-   * 
-   * @return the number of parameters
-   */
-  public abstract int getParameterCount();
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+  }
+
+  @Override
+  public abstract Surface withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default Surface withPerturbation(ParameterPerturbation perturbation) {
+    return (Surface) ParameterizedData.super.withPerturbation(perturbation);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -112,17 +127,36 @@ public interface Surface {
 
   //-------------------------------------------------------------------------
   /**
-   * Concerts this surface to a nodal surface.
+   * Creates a parameter sensitivity instance for this surface when the sensitivity values are known.
    * <p>
-   * A nodal surface is based on specific x-y-z values, typically with interpolation.
-   * See {@link InterpolatedNodalSurface} for more details.
+   * In most cases, {@link #zValueParameterSensitivity(double, double)} should be used and manipulated.
+   * However, it can be useful to create a {@link UnitParameterSensitivity} from pre-computed sensitivity values.
    * 
-   * @return the equivalent nodal surface
-   * @throws UnsupportedOperationException if the surface cannot be converted
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the surface
+   * @return the sensitivity
    */
-  public default NodalSurface toNodalSurface() {
-    throw new UnsupportedOperationException(Messages.format(
-        "Unable to convert surface '{}' to NodalSurface, type was: {}", getName(), getClass().getName()));
+  public default UnitParameterSensitivity createParameterSensitivity(DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return UnitParameterSensitivity.of(getName(), paramMeta, sensitivities);
+  }
+
+  /**
+   * Creates a parameter sensitivity instance for this surface when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #zValueParameterSensitivity(double, double)} should be used and manipulated.
+   * However, it can be useful to create a {@link CurrencyParameterSensitivity} from pre-computed sensitivity values.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count of the surface
+   * @return the sensitivity
+   */
+  public default CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    List<ParameterMetadata> paramMeta = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> getParameterMetadata(i))
+        .collect(toImmutableList());
+    return CurrencyParameterSensitivity.of(getName(), paramMeta, currency, sensitivities);
   }
 
 }

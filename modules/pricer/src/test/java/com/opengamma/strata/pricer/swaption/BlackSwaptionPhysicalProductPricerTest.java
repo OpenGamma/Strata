@@ -32,8 +32,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -436,9 +436,9 @@ public class BlackSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void present_value_sensitivityBlackVolatility_FD() {
     double shiftVol = 1.0E-4;
-    NodalSurface surfaceUp = ConstantNodalSurface.of(
+    Surface surfaceUp = ConstantSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY + shiftVol);
-    NodalSurface surfaceDw = ConstantNodalSurface.of(
+    Surface surfaceDw = ConstantSurface.of(
         SwaptionBlackVolatilityDataSets.META_DATA, SwaptionBlackVolatilityDataSets.VOLATILITY - shiftVol);
     CurrencyAmount pvP = PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_PAY, MULTI_USD,
         BlackSwaptionExpiryTenorVolatilities.of(surfaceUp, VAL_DATE.atStartOfDay(ZoneOffset.UTC)));

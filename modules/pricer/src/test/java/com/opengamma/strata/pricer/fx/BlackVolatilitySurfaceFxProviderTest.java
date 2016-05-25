@@ -29,6 +29,7 @@ import com.opengamma.strata.market.sensitivity.FxOptionSensitivity;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -172,7 +173,7 @@ public class BlackVolatilitySurfaceFxProviderTest {
       double nodeExpiry,
       double nodeStrike) {
 
-    NodalSurface surface = provider.getSurface();
+    NodalSurface surface = (NodalSurface) provider.getSurface();
     DoubleArray xValues = surface.getXValues();
     DoubleArray yValues = surface.getYValues();
     DoubleArray zValues = surface.getZValues();
@@ -183,8 +184,8 @@ public class BlackVolatilitySurfaceFxProviderTest {
         index = i;
       }
     }
-    NodalSurface surfaceUp = surface.withZValues(zValues.with(index, zValues.get(index) + EPS));
-    NodalSurface surfaceDw = surface.withZValues(zValues.with(index, zValues.get(index) - EPS));
+    Surface surfaceUp = surface.withZValues(zValues.with(index, zValues.get(index) + EPS));
+    Surface surfaceDw = surface.withZValues(zValues.with(index, zValues.get(index) - EPS));
     BlackVolatilitySurfaceFxProvider provUp =
         BlackVolatilitySurfaceFxProvider.of(surfaceUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilitySurfaceFxProvider provDw =

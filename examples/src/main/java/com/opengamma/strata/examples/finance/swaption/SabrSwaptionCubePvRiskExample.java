@@ -45,8 +45,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -144,9 +144,9 @@ public class SabrSwaptionCubePvRiskExample {
     // SABR calibration 
     start = System.currentTimeMillis();
     double beta = 0.50;
-    NodalSurface betaSurface = ConstantNodalSurface.of("SABR-Beta", beta);
+    Surface betaSurface = ConstantSurface.of("SABR-Beta", beta);
     double shift = 0.0300;
-    NodalSurface shiftSurface = ConstantNodalSurface.of("SABR-Shift", shift);
+    Surface shiftSurface = ConstantSurface.of("SABR-Shift", shift);
     SabrParametersSwaptionVolatilities sabr = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
         EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, data,
         multicurve, betaSurface, shiftSurface, INTERPOLATOR_2D);

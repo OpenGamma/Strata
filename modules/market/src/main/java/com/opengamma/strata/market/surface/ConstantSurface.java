@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.surface;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,30 +23,23 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.value.ValueAdjustment;
-import com.opengamma.strata.collect.ArgChecker;
+import com.google.common.base.Preconditions;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTernaryOperator;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A surface based on a single constant value.
  * <p>
  * This class defines a surface in terms of a single parameter, the constant value.
  * When queried, {@link #zValue(double, double)} always returns the constant value.
+ * The sensitivity is 1 and the first derivative is 0.
  * <p>
- * The {@link #getXValues()} method returns a single x-value of 0.
- * The {@link #getYValues()} method returns a single y-value of 0.
- * The {@link #getZValues()} method returns a single z-value of the constant.
- * The sensitivity is 1.
+ * The surface has one parameter, the value of the constant.
  */
 @BeanDefinition(builderScope = "private")
-public final class ConstantNodalSurface
-    implements NodalSurface, ImmutableBean, Serializable {
+public final class ConstantSurface
+    implements Surface, ImmutableBean, Serializable {
 
-  /**
-   * X-values and y-values do not vary.
-   */
-  private static final DoubleArray VALUES = DoubleArray.of(0d);
   /**
    * Sensitivity does not vary.
    */
@@ -63,7 +55,7 @@ public final class ConstantNodalSurface
   /**
    * The single z-value.
    */
-  @PropertyDefinition(get = "private")
+  @PropertyDefinition
   private final double zValue;
 
   //-------------------------------------------------------------------------
@@ -74,7 +66,7 @@ public final class ConstantNodalSurface
    * @param zValue  the constant z-value
    * @return the surface
    */
-  public static ConstantNodalSurface of(String name, double zValue) {
+  public static ConstantSurface of(String name, double zValue) {
     return of(SurfaceName.of(name), zValue);
   }
 
@@ -85,8 +77,8 @@ public final class ConstantNodalSurface
    * @param zValue  the constant z-value
    * @return the surface
    */
-  public static ConstantNodalSurface of(SurfaceName name, double zValue) {
-    return new ConstantNodalSurface(DefaultSurfaceMetadata.of(name), zValue);
+  public static ConstantSurface of(SurfaceName name, double zValue) {
+    return new ConstantSurface(DefaultSurfaceMetadata.of(name), zValue);
   }
 
   /**
@@ -96,14 +88,14 @@ public final class ConstantNodalSurface
    * @param zValue  the constant z-value
    * @return the surface
    */
-  public static ConstantNodalSurface of(SurfaceMetadata metadata, double zValue) {
-    return new ConstantNodalSurface(metadata, zValue);
+  public static ConstantSurface of(SurfaceMetadata metadata, double zValue) {
+    return new ConstantSurface(metadata, zValue);
   }
 
   //-------------------------------------------------------------------------
   // ensure standard constructor is invoked
   private Object readResolve() {
-    return new ConstantNodalSurface(metadata, zValue);
+    return new ConstantSurface(metadata, zValue);
   }
 
   //-------------------------------------------------------------------------
@@ -113,18 +105,20 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public DoubleArray getXValues() {
-    return VALUES;
+  public double getParameter(int parameterIndex) {
+    Preconditions.checkPositionIndex(parameterIndex, 1);
+    return zValue;
   }
 
   @Override
-  public DoubleArray getYValues() {
-    return VALUES;
+  public ConstantSurface withParameter(int parameterIndex, double newValue) {
+    Preconditions.checkPositionIndex(parameterIndex, 1);
+    return new ConstantSurface(metadata, newValue);
   }
 
   @Override
-  public DoubleArray getZValues() {
-    return DoubleArray.of(zValue);
+  public ConstantSurface withPerturbation(ParameterPerturbation perturbation) {
+    return new ConstantSurface(metadata, perturbation.perturbParameter(0, zValue, getParameterMetadata(0)));
   }
 
   //-------------------------------------------------------------------------
@@ -140,38 +134,22 @@ public final class ConstantNodalSurface
 
   //-------------------------------------------------------------------------
   @Override
-  public ConstantNodalSurface withMetadata(SurfaceMetadata metadata) {
-    return new ConstantNodalSurface(metadata.withParameterMetadata(null), zValue);
-  }
-
-  @Override
-  public ConstantNodalSurface withZValues(DoubleArray zValues) {
-    ArgChecker.isTrue(zValues.size() == 1, "ZValues array must be size one");
-    return new ConstantNodalSurface(metadata, zValues.get(0));
-  }
-
-  @Override
-  public ConstantNodalSurface shiftedBy(DoubleTernaryOperator operator) {
-    return (ConstantNodalSurface) NodalSurface.super.shiftedBy(operator);
-  }
-
-  @Override
-  public ConstantNodalSurface shiftedBy(List<ValueAdjustment> adjustments) {
-    return (ConstantNodalSurface) NodalSurface.super.shiftedBy(adjustments);
+  public ConstantSurface withMetadata(SurfaceMetadata metadata) {
+    return new ConstantSurface(metadata.withParameterMetadata(null), zValue);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ConstantNodalSurface}.
+   * The meta-bean for {@code ConstantSurface}.
    * @return the meta-bean, not null
    */
-  public static ConstantNodalSurface.Meta meta() {
-    return ConstantNodalSurface.Meta.INSTANCE;
+  public static ConstantSurface.Meta meta() {
+    return ConstantSurface.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ConstantNodalSurface.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ConstantSurface.Meta.INSTANCE);
   }
 
   /**
@@ -179,7 +157,7 @@ public final class ConstantNodalSurface
    */
   private static final long serialVersionUID = 1L;
 
-  private ConstantNodalSurface(
+  private ConstantSurface(
       SurfaceMetadata metadata,
       double zValue) {
     JodaBeanUtils.notNull(metadata, "metadata");
@@ -188,8 +166,8 @@ public final class ConstantNodalSurface
   }
 
   @Override
-  public ConstantNodalSurface.Meta metaBean() {
-    return ConstantNodalSurface.Meta.INSTANCE;
+  public ConstantSurface.Meta metaBean() {
+    return ConstantSurface.Meta.INSTANCE;
   }
 
   @Override
@@ -219,7 +197,7 @@ public final class ConstantNodalSurface
    * Gets the single z-value.
    * @return the value of the property
    */
-  private double getZValue() {
+  public double getZValue() {
     return zValue;
   }
 
@@ -230,7 +208,7 @@ public final class ConstantNodalSurface
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ConstantNodalSurface other = (ConstantNodalSurface) obj;
+      ConstantSurface other = (ConstantSurface) obj;
       return JodaBeanUtils.equal(metadata, other.metadata) &&
           JodaBeanUtils.equal(zValue, other.zValue);
     }
@@ -248,7 +226,7 @@ public final class ConstantNodalSurface
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("ConstantNodalSurface{");
+    buf.append("ConstantSurface{");
     buf.append("metadata").append('=').append(metadata).append(',').append(' ');
     buf.append("zValue").append('=').append(JodaBeanUtils.toString(zValue));
     buf.append('}');
@@ -257,7 +235,7 @@ public final class ConstantNodalSurface
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ConstantNodalSurface}.
+   * The meta-bean for {@code ConstantSurface}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -269,12 +247,12 @@ public final class ConstantNodalSurface
      * The meta-property for the {@code metadata} property.
      */
     private final MetaProperty<SurfaceMetadata> metadata = DirectMetaProperty.ofImmutable(
-        this, "metadata", ConstantNodalSurface.class, SurfaceMetadata.class);
+        this, "metadata", ConstantSurface.class, SurfaceMetadata.class);
     /**
      * The meta-property for the {@code zValue} property.
      */
     private final MetaProperty<Double> zValue = DirectMetaProperty.ofImmutable(
-        this, "zValue", ConstantNodalSurface.class, Double.TYPE);
+        this, "zValue", ConstantSurface.class, Double.TYPE);
     /**
      * The meta-properties.
      */
@@ -301,13 +279,13 @@ public final class ConstantNodalSurface
     }
 
     @Override
-    public BeanBuilder<? extends ConstantNodalSurface> builder() {
-      return new ConstantNodalSurface.Builder();
+    public BeanBuilder<? extends ConstantSurface> builder() {
+      return new ConstantSurface.Builder();
     }
 
     @Override
-    public Class<? extends ConstantNodalSurface> beanType() {
-      return ConstantNodalSurface.class;
+    public Class<? extends ConstantSurface> beanType() {
+      return ConstantSurface.class;
     }
 
     @Override
@@ -337,9 +315,9 @@ public final class ConstantNodalSurface
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -450004177:  // metadata
-          return ((ConstantNodalSurface) bean).getMetadata();
+          return ((ConstantSurface) bean).getMetadata();
         case -719790825:  // zValue
-          return ((ConstantNodalSurface) bean).getZValue();
+          return ((ConstantSurface) bean).getZValue();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -357,9 +335,9 @@ public final class ConstantNodalSurface
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ConstantNodalSurface}.
+   * The bean-builder for {@code ConstantSurface}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<ConstantNodalSurface> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ConstantSurface> {
 
     private SurfaceMetadata metadata;
     private double zValue;
@@ -423,8 +401,8 @@ public final class ConstantNodalSurface
     }
 
     @Override
-    public ConstantNodalSurface build() {
-      return new ConstantNodalSurface(
+    public ConstantSurface build() {
+      return new ConstantSurface(
           metadata,
           zValue);
     }
@@ -433,7 +411,7 @@ public final class ConstantNodalSurface
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("ConstantNodalSurface.Builder{");
+      buf.append("ConstantSurface.Builder{");
       buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
       buf.append("zValue").append('=').append(JodaBeanUtils.toString(zValue));
       buf.append('}');

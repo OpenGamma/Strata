@@ -29,7 +29,7 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
@@ -144,7 +144,7 @@ public class SwaptionSabrRateVolatilityDataSet {
 
   static final double SHIFT = 0.025;
   private static final DefaultSurfaceMetadata META_SHIFT = DefaultSurfaceMetadata.of("Shift");
-  private static final ConstantNodalSurface SURFACE_SHIFT_USD = ConstantNodalSurface.of(META_SHIFT, SHIFT);
+  private static final ConstantSurface SURFACE_SHIFT_USD = ConstantSurface.of(META_SHIFT, SHIFT);
   static final SabrInterestRateParameters SABR_PARAM_SHIFT_USD = SabrInterestRateParameters.of(SURFACE_ALPHA_USD,
       SURFACE_BETA_USD, SURFACE_RHO_USD, SURFACE_NU_USD, SURFACE_SHIFT_USD, SabrHaganVolatilityFunctionProvider.DEFAULT);
 
@@ -242,7 +242,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50,
           0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}),
       INTERPOLATOR_2D);
-  private static final ConstantNodalSurface SURFACE_SHIFT_EUR = ConstantNodalSurface.of(
+  private static final ConstantSurface SURFACE_SHIFT_EUR = ConstantSurface.of(
       META_SHIFT.toBuilder().addInfo(SurfaceInfoType.SWAP_CONVENTION, SWAP_CONVENTION_EUR).build(), SHIFT);
 
   static final SabrInterestRateParameters SABR_PARAM_EUR = SabrInterestRateParameters.of(

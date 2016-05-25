@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
@@ -142,8 +142,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator) {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
@@ -190,8 +190,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator,
       boolean stopOnMathException) {
 
