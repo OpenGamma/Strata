@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 
 /**
  * Test {@link NormalFormulaRepository} implied volatility.
@@ -46,6 +47,7 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
     }
   }
   private static final double TOLERANCE_PRICE = 1.0E-4;
+  private static final double TOLERANCE_VOL = 1.0E-6;
 
   public void implied_volatility() {
     double[] impliedVolatility = new double[N];
@@ -88,7 +90,6 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
     NormalFormulaRepository.impliedVolatilityFromBlackApproximated(-1.0d, FORWARD, T, 0.20d);
   }
 
-  @Test
   public void price_comparison() {
     priceCheck(STRIKES);
     priceCheck(STRIKES_ATM);
@@ -102,6 +103,24 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
           NormalFormulaRepository.price(FORWARD, strikes[i], T, ivNormalComputed, PutCall.CALL) * DF;
       double priceBlack = BlackFormulaRepository.price(FORWARD, strikes[i], T, SIGMA_BLACK[i], true) * DF;
       assertEquals(priceBlack, priceNormalComputed, TOLERANCE_PRICE);
+    }
+  }
+
+  public void implied_volatility_adjoint() {
+    double shiftFd = 1.0E-6;
+    for (int i = 0; i < N; i++) {
+      double impliedVol =
+          NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i]);
+      ValueDerivatives impliedVolAdj =
+          NormalFormulaRepository.impliedVolatilityFromBlackApproximatedAdjoint(FORWARD, STRIKES[i], T, SIGMA_BLACK[i]);
+      assertEquals(impliedVol, impliedVolAdj.getValue(), TOLERANCE_VOL);
+      double impliedVolP =
+          NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i] + shiftFd);
+      double impliedVolM =
+          NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i] - shiftFd);
+      double derivativeApproximated = (impliedVolP - impliedVolM) / (2 * shiftFd);
+      assertEquals(1, impliedVolAdj.getDerivatives().size());
+      assertEquals(derivativeApproximated, impliedVolAdj.getDerivative(0), TOLERANCE_VOL);
     }
   }
 
