@@ -110,12 +110,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   }
 
   private static final double[][][] DATA_LOGNORMAL_SPARSE = {
-    {{0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 } },
-    { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 },
-    {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55 } }
+      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}},
+      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}}
   };
   private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_LOGNORMAL_SPARSE);
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
@@ -242,7 +242,8 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
               double[] rhoShifted = new double[2];
               double[] nuShifted = new double[2];
               for (int loopsign = 0; loopsign < 2; loopsign++) {
-                List<RawOptionData> dataShifted = rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
+                List<RawOptionData> dataShifted =
+                    rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
                 SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
                     EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, dataShifted,
                     MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
@@ -292,7 +293,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
           .map(row -> row.clone())
           .toArray(l -> new double[l][]); // deep copy of 2d array
-      if(looptenor == i) {
+      if (looptenor == i) {
         shiftedData[j][k] += shift;
       }
       raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,

@@ -83,6 +83,7 @@ public interface SwaptionVolatilities
    */
   public abstract double volatility(double expiry, double tenor, double strike, double forward);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the parameter sensitivity from the point sensitivity.
    * <p>

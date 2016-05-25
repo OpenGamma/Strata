@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -35,6 +34,13 @@ public interface IborCapletFloorletVolatilities
    */
   public abstract IborIndex getIndex();
 
+  /**
+   * Gets the valuation date.
+   * <p>
+   * The raw data in this provider is calibrated for this date.
+   * 
+   * @return the valuation date
+   */
   @Override
   public default LocalDate getValuationDate() {
     return getValuationDateTime().toLocalDate();
@@ -76,6 +82,7 @@ public interface IborCapletFloorletVolatilities
    */
   public abstract double volatility(double expiry, double strike, double forward);
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
@@ -91,10 +98,7 @@ public interface IborCapletFloorletVolatilities
         .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
         .map(pointSensitivity -> parameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
         .collect(Collectors.toList());
-    CurrencyParameterSensitivities sensi = CurrencyParameterSensitivities.of(sensitivitiesTotal);
-    // sensi should be single CurrencyParameterSensitivity or empty
-    ArgChecker.isTrue(sensi.getSensitivities().size() <= 1, "The underlying surface must be unique");
-    return sensi;
+    return CurrencyParameterSensitivities.of(sensitivitiesTotal);
   }
 
   /**
