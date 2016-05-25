@@ -117,7 +117,7 @@ public final class ScenarioDefinition implements ImmutableBean {
                 mapping.get(i).getScenarioCount());
       }
     }
-    return new ScenarioDefinition(createMappings(mapping, false), generateNames(numScenarios));
+    return new ScenarioDefinition(mapping, generateNames(numScenarios));
   }
 
   /**
@@ -214,7 +214,7 @@ public final class ScenarioDefinition implements ImmutableBean {
                 mappings.get(i).getScenarioCount() + " scenarios.");
       }
     }
-    return new ScenarioDefinition(createMappings(mappings, false), scenarioNames);
+    return new ScenarioDefinition(mappings, scenarioNames);
   }
 
   /**
@@ -234,24 +234,6 @@ public final class ScenarioDefinition implements ImmutableBean {
           .reduce(1, (s1, s2) -> s1 * s2);
     } else {
       return mappings.get(0).getScenarioCount();
-    }
-  }
-
-  /**
-   * Returns a definition for each scenario.
-   *
-   * @param mappings  the filters and perturbations that define the scenarios
-   * @return the perturbations that should be applied in each scenario
-   */
-  private static List<? extends PerturbationMapping<?>> createMappings(
-      List<? extends PerturbationMapping<?>> mappings,
-      boolean allCombinations) {
-
-    if (allCombinations) {
-      // TODO Tidy up and remove references to allCombinations
-      throw new UnsupportedOperationException();
-    } else {
-      return mappings;
     }
   }
 
