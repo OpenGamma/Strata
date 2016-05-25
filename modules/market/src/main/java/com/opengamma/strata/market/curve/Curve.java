@@ -13,7 +13,6 @@ import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -113,19 +112,6 @@ public interface Curve extends ParameterizedData {
    * @throws RuntimeException if the derivative cannot be calculated
    */
   public abstract double firstDerivative(double x);
-
-  /**
-   * Applies a perturbation to this curve.
-   * <p>
-   * This returns a curve that has been changed by the {@link Perturbation} instance.
-   * 
-   * @param perturbation  the perturbation to apply
-   * @return the perturbed curve
-   * @throws RuntimeException if the perturbation cannot be applied
-   */
-  public default Curve applyPerturbation(Perturbation<Curve> perturbation) {
-    return perturbation.applyTo(this);
-  }
 
   //-------------------------------------------------------------------------
   /**

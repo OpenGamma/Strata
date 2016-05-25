@@ -7,7 +7,6 @@ package com.opengamma.strata.market.surface;
 
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.DoublesPair;
-import com.opengamma.strata.market.Perturbation;
 
 /**
  * A surface that maps a {@code double} x-value and y-value to a {@code double} z-value.
@@ -109,19 +108,6 @@ public interface Surface {
    */
   public default SurfaceUnitParameterSensitivity zValueParameterSensitivity(DoublesPair xyPair) {
     return zValueParameterSensitivity(xyPair.getFirst(), xyPair.getSecond());
-  }
-
-  /**
-   * Applies the perturbation to this surface.
-   * <p>
-   * This returns a surface that has been changed by the {@link Perturbation} instance.
-   * 
-   * @param perturbation  the perturbation to apply
-   * @return the perturbed surface
-   * @throws RuntimeException if the perturbation cannot be applied
-   */
-  public default Surface applyPerturbation(Perturbation<Surface> perturbation) {
-    return perturbation.applyTo(this);
   }
 
   //-------------------------------------------------------------------------

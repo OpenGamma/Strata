@@ -124,13 +124,6 @@ public class ConstantNodalSurfaceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
-    ConstantNodalSurface result = ConstantNodalSurface.of(SURFACE_NAME, 7d);
-    Surface test = base.applyPerturbation(surface -> result);
-    assertThat(test).isSameAs(result);
-  }
-
   public void test_toNodalSurface() {
     ConstantNodalSurface base = ConstantNodalSurface.of(SURFACE_NAME, VALUE);
     NodalSurface test = base.toNodalSurface();

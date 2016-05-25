@@ -15,9 +15,9 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
+import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
 import com.opengamma.strata.calc.marketdata.ObservableMarketDataFunction;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
@@ -28,14 +28,13 @@ import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
 import com.opengamma.strata.market.id.CurveId;
 
 /**
- * Test usage of {@link CurveParallelShift}.
+ * Test usage of {@link CurveParallelShifts}.
  */
 @Test
-public class CurveParallelShiftUsageTest {
+public class CurveParallelShiftsUsageTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 

@@ -19,11 +19,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
-import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
@@ -116,32 +112,6 @@ public class AddFixedCurveTest {
       UnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
       assertTrue(dComputed.compareKey(dExpected) == 0);
       assertTrue(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y));
-    }
-  }
-
-  public void apply_perturbation_parallel() {
-    double shift = 0.0010;
-    Perturbation<Curve> pert = CurveParallelShift.absolute(shift);
-    Curve shiftedCurve = ADD_FIXED_CURVE.applyPerturbation(pert);
-    for (int i = 0; i < NB_X_SAMPLE; i++) {
-      double yComputed = shiftedCurve.yValue(X_SAMPLE[i]);
-      double yExpected = ADD_FIXED_CURVE.yValue(X_SAMPLE[i]) + shift;
-      assertEquals(yComputed, yExpected, TOLERANCE_Y);
-    }
-  }
-
-  public void apply_perturbation_point() {
-    double shift = 0.0010;
-    Perturbation<Curve> pert = CurvePointShift.builder(ShiftType.ABSOLUTE).addShift(LABEL_1, shift).build();
-    Curve shiftedCurve1 = ADD_FIXED_CURVE.applyPerturbation(pert);
-    DoubleArray ySpreadShift = DoubleArray.of(shift, 0d, 0d);
-    InterpolatedNodalCurve shiftCurve =
-        InterpolatedNodalCurve.of(METADATA_SPREAD, XVALUES_SPREAD, ySpreadShift, INTERPOLATOR);
-    Curve shiftedCurve2 = AddFixedCurve.of(FIXED_CURVE, AddFixedCurve.of(SPREAD_CURVE, shiftCurve));
-    for (int i = 0; i < NB_X_SAMPLE; i++) {
-      double yComputed = shiftedCurve1.yValue(X_SAMPLE[i]);
-      double yExpected = shiftedCurve2.yValue(X_SAMPLE[i]);
-      assertEquals(yComputed, yExpected, TOLERANCE_Y);
     }
   }
 

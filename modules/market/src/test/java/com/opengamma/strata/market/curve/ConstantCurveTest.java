@@ -81,14 +81,6 @@ public class ConstantCurveTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    ConstantCurve base = ConstantCurve.of(CURVE_NAME, VALUE);
-    ConstantCurve result = ConstantCurve.of(CURVE_NAME, 7d);
-    Curve test = base.applyPerturbation(curve -> result);
-    assertThat(test).isSameAs(result);
-  }
-
-  //-------------------------------------------------------------------------
   public void coverage() {
     ConstantCurve test = ConstantCurve.of(CURVE_NAME, VALUE);
     coverImmutableBean(test);

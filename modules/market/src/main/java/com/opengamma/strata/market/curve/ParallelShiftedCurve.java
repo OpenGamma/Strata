@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.curve.perturb;
+package com.opengamma.strata.market.curve;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -24,9 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.market.ShiftType;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -46,8 +43,6 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
  * A shift amount of -0.2 is a shift of -20% which multiplies the value by 0.8.
  * <p>
  * The parameters consist of the parameters of the underlying curve, followed by the shift.
- * 
- * @see CurveParallelShift
  */
 @BeanDefinition(builderScope = "private")
 public final class ParallelShiftedCurve

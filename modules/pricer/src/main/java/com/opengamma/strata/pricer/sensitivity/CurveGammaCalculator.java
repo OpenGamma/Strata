@@ -11,7 +11,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.perturb.ParallelShiftedCurve;
+import com.opengamma.strata.market.curve.ParallelShiftedCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
