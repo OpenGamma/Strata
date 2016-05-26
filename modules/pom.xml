@@ -49,13 +49,14 @@
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>calc</module>
+    <module>data</module>
     <module>product</module>
-    <module>function</module>
-    <module>loader</module>
     <module>market</module>
+    <module>loader</module>
     <module>math</module>
     <module>pricer</module>
+    <module>calc</module>
+    <module>function</module>
     <module>report</module>
   </modules>
 
@@ -203,6 +204,11 @@
       <dependency>
         <groupId>com.opengamma.strata</groupId>
         <artifactId>strata-basics</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -27,6 +27,10 @@
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-basics</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-data</artifactId>
+    </dependency>
 
     <!-- Third Party -->
     <dependency>
