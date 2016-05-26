@@ -21,7 +21,7 @@ class EmptyTimeSeriesProvider implements TimeSeriesProvider {
   static final EmptyTimeSeriesProvider INSTANCE = new EmptyTimeSeriesProvider();
 
   @Override
-  public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
+  public Result<LocalDateDoubleTimeSeries> provideTimeSeries(ObservableId id) {
     return Result.success(LocalDateDoubleTimeSeries.empty());
   }
 

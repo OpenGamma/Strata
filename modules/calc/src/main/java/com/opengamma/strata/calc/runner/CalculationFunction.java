@@ -11,10 +11,10 @@ import java.util.Set;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.result.Result;
  * </ul>
  * <p>
  * If any of the calculated values contain any currency amounts and implement {@link CurrencyConvertible}
- * the calculation engine will automatically convert the amounts into the reporting currency.
+ * the calculation runner will automatically convert the amounts into the reporting currency.
  *
  * @param <T>  the type of target handled by this function
  */

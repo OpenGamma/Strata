@@ -41,8 +41,10 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * A single task that will be used to perform a calculation.
  * <p>
- * This presents a uniform interface to the engine so all functions can be treated equally during execution.
- * Without this class the engine would need to keep track of which functions to use for each input.
+ * This is a single unit of execution in the calculation runner.
+ * It consists of a {@link CalculationFunction} and the appropriate inputs,
+ * including a single {@link CalculationTarget}. When invoked, it will
+ * calculate a result for one or more columns in the grid of results.
  */
 @BeanDefinition(style = "light")
 public final class CalculationTask implements ImmutableBean {
