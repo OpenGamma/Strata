@@ -24,7 +24,6 @@ import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
-import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -148,7 +147,7 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableSet());
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
-      Map<ObservableId, Result<Double>> observableResults = provideObservableData(observableIds);
+      Map<ObservableId, Result<Double>> observableResults = observableDataProvider.provideObservableData(observableIds);
       MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
@@ -314,25 +313,6 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
     } else {
       builder.addBox(id, value);
     }
-  }
-
-  /**
-   * Provides observable market data.
-   *
-   * @param ids  the market data identifiers that are required
-   */
-  private Map<ObservableId, Result<Double>> provideObservableData(Set<ObservableId> ids) {
-    Map<ObservableId, Result<Double>> builtValues = observableDataProvider.provideObservableData(ids);
-    return ids.stream()
-        .collect(toImmutableMap(id -> id, id -> checkResult(id, builtValues.get(id))));
-  }
-
-  // provide a default is not found
-  private Result<Double> checkResult(ObservableId id, Result<Double> result) {
-    if (result == null) {
-      return Result.failure(FailureReason.MISSING_DATA, "No market data found for ID '{}'", id);
-    }
-    return result;
   }
 
 }
