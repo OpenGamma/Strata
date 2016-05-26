@@ -24,10 +24,10 @@ import com.google.common.collect.ImmutableMap;
 @Test
 public class CombinedReferenceDataTest {
 
-  private static final TestObservableId ID1 = TestObservableId.of("1");
-  private static final TestObservableId ID2 = TestObservableId.of("2");
-  private static final TestObservableId ID3 = TestObservableId.of("3");
-  private static final TestObservableId ID4 = TestObservableId.of("4");
+  private static final TestingReferenceDataId ID1 = new TestingReferenceDataId("1");
+  private static final TestingReferenceDataId ID2 = new TestingReferenceDataId("2");
+  private static final TestingReferenceDataId ID3 = new TestingReferenceDataId("3");
+  private static final TestingReferenceDataId ID4 = new TestingReferenceDataId("4");
   private static final Double VAL1 = 123d;
   private static final Double VAL2 = 234d;
   private static final Double VAL3 = 999d;
