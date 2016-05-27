@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.DeformedSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -63,7 +63,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
   public void flatVolTest() {
     double tol = 2.0e-4;
     double constantVol = 0.15;
-    ConstantNodalSurface impliedVolSurface = ConstantNodalSurface.of("impliedVol", constantVol);
+    ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
     Function<Double, Double> zeroRate = new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
@@ -89,7 +89,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
     double spot = 100d;
     double maxTime = 1d;
     int nSteps = 9;
-    ConstantNodalSurface impliedVolSurface = ConstantNodalSurface.of("impliedVol", constantVol);
+    ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
     Function<Double, Double> zeroRate = new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {

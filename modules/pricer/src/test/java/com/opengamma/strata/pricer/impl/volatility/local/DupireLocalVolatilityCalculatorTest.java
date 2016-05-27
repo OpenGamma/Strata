@@ -12,12 +12,12 @@ import java.util.function.Function;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.DeformedSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -53,7 +53,7 @@ public class DupireLocalVolatilityCalculatorTest {
 
   public void flatVolTest() {
     double constantVol = 0.15;
-    ConstantNodalSurface impliedVolSurface = ConstantNodalSurface.of("impliedVol", constantVol);
+    ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
     Function<Double, Double> zeroRate = new Function<Double, Double>() {
       @Override
       public Double apply(Double x) {
@@ -98,7 +98,7 @@ public class DupireLocalVolatilityCalculatorTest {
             .zValue(time, strike);
         double expectedVol = volFromFormula(r, q, time, strike, VOL_SURFACE);
         assertEquals(computedVol, expectedVol, FD_EPS);
-        SurfaceUnitParameterSensitivity computedSensi =
+        UnitParameterSensitivity computedSensi =
             CALC.localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
             .zValueParameterSensitivity(time, strike);
         for (int i = 0; i < VOLS.size(); ++i) {
@@ -137,7 +137,7 @@ public class DupireLocalVolatilityCalculatorTest {
           .zValue(time, strike);
       double expectedVol = volFromFormula(r, q, time, strike, VOL_SURFACE);
       assertEquals(computedVol, expectedVol, FD_EPS);
-      SurfaceUnitParameterSensitivity computedSensi =
+      UnitParameterSensitivity computedSensi =
           CALC.localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
               .zValueParameterSensitivity(time, strike);
         for (int i = 0; i < VOLS.size(); ++i) {
@@ -175,7 +175,7 @@ public class DupireLocalVolatilityCalculatorTest {
             .zValue(time, strike);
         double expectedVol = volFromFormulaPrice(r, q, time, strike, PRICE_SURFACE);
         assertEquals(computedVol, expectedVol, FD_EPS);
-        SurfaceUnitParameterSensitivity computedSensi =
+        UnitParameterSensitivity computedSensi =
             CALC.localVolatilityFromPrice(PRICE_SURFACE, SPOT, interestRate, dividendRate)
                 .zValueParameterSensitivity(time, strike);
         for (int i = 0; i < PRICES.size(); ++i) {

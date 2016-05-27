@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -19,6 +20,8 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
 
@@ -33,7 +36,7 @@ public class DeformedSurfaceTest {
   private static final SurfaceMetadata METADATA_ORG = DefaultSurfaceMetadata.builder()
       .surfaceName(SURFACE_NAME)
       .dayCount(ACT_365F)
-      .parameterMetadata(SurfaceParameterMetadata.listOfEmpty(SIZE))
+      .parameterMetadata(ParameterMetadata.listOfEmpty(SIZE))
       .build();
   private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
   private static final DoubleArray YVALUES = DoubleArray.of(0d, 3d, 4d, 0d, 3d, 4d, 0d, 3d, 4d);
@@ -60,6 +63,8 @@ public class DeformedSurfaceTest {
     assertEquals(test.getName(), METADATA.getSurfaceName());
     assertEquals(test.getOriginalSurface(), SURFACE_ORG);
     assertEquals(test.getParameterCount(), SIZE);
+    assertEquals(test.getParameter(2), SURFACE_ORG.getParameter(2));
+    assertEquals(test.getParameterMetadata(2), SURFACE_ORG.getParameterMetadata(2));
   }
 
   public void test_zValue() {
@@ -69,8 +74,8 @@ public class DeformedSurfaceTest {
     DeformedSurface test = DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION);
     double computedValue1 = test.zValue(x, y);
     double computedValue2 = test.zValue(DoublesPair.of(x, y));
-    SurfaceUnitParameterSensitivity computedSensi1 = test.zValueParameterSensitivity(x, y);
-    SurfaceUnitParameterSensitivity computedSensi2 = test.zValueParameterSensitivity(DoublesPair.of(x, y));
+    UnitParameterSensitivity computedSensi1 = test.zValueParameterSensitivity(x, y);
+    UnitParameterSensitivity computedSensi2 = test.zValueParameterSensitivity(DoublesPair.of(x, y));
     ValueDerivatives expected = FUNCTION.apply(DoublesPair.of(x, y));
     assertEquals(computedValue1, expected.getValue());
     assertEquals(computedValue2, expected.getValue());
@@ -78,6 +83,10 @@ public class DeformedSurfaceTest {
         computedSensi1.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol));
     assertTrue(DoubleArrayMath.fuzzyEquals(
         computedSensi2.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol));
+  }
+
+  public void test_withParameter() {
+    assertThrowsIllegalArg(() -> DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION).withParameter(1, 1.2d));
   }
 
   //-------------------------------------------------------------------------

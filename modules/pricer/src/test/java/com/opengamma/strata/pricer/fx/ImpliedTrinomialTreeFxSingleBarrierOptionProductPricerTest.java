@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -301,10 +301,10 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   public void test_presentValueSensitivity() {
     ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer pricer =
         new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(21);
-    CurveCurrencyParameterSensitivities computed =
+    CurrencyParameterSensitivities computed =
         pricer.presentValueCurveParameterSensitivity(CALL_UKI_C, RATE_PROVIDER, VOL_PROVIDER);
     RatesFiniteDifferenceSensitivityCalculator calc = new RatesFiniteDifferenceSensitivityCalculator(1.0e-5);
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities expected =
         calc.sensitivity(RATE_PROVIDER, p -> pricer.presentValue(CALL_UKI_C, p, VOL_PROVIDER));
     assertTrue(computed.equalWithTolerance(expected, 1.0e-13));
   }

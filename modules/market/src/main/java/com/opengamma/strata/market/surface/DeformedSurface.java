@@ -25,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * The deformed surface. 
@@ -75,6 +77,21 @@ public final class DeformedSurface
     return new DeformedSurface(metadata, originalSurface, deformationFunction);
   }
 
+  @Override
+  public double getParameter(int parameterIndex) {
+    return originalSurface.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return originalSurface.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public Surface withParameter(int parameterIndex, double newValue) {
+    throw new IllegalArgumentException("deformationFunction must be redefined with the new value");
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double zValue(double x, double y) {
@@ -82,9 +99,15 @@ public final class DeformedSurface
   }
 
   @Override
-  public SurfaceUnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
-    return SurfaceUnitParameterSensitivity.of(
-        getMetadata(), deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives());
+  public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
+    return getMetadata().getParameterMetadata().isPresent() ?
+        UnitParameterSensitivity.of(
+            getMetadata().getSurfaceName(), 
+            getMetadata().getParameterMetadata().get(), 
+            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives())
+        : UnitParameterSensitivity.of(
+            getMetadata().getSurfaceName(),
+            deformationFunction.apply(DoublesPair.of(x, y)).getDerivatives());
   }
 
   //-------------------------------------------------------------------------

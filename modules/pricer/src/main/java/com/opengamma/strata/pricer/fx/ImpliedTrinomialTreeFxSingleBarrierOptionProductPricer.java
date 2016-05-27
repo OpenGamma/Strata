@@ -20,10 +20,7 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.curve.CurveMetadata;
-import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.pricer.impl.tree.ConstantContinuousSingleBarrierKnockoutFunction;
 import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
@@ -208,7 +205,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value of the product
    */
-  public CurveCurrencyParameterSensitivities presentValueCurveParameterSensitivity(
+  public CurrencyParameterSensitivities presentValueCurveParameterSensitivity(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
@@ -232,7 +229,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
    * @param baseTreeData  the trinomial tree data
    * @return the present value of the product
    */
-  public CurveCurrencyParameterSensitivities presentValueCurveParameterSensitivity(
+  public CurrencyParameterSensitivities presentValueCurveParameterSensitivity(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider,
@@ -247,30 +244,24 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     ImmutableRatesProvider immRatesProvider = (ImmutableRatesProvider) ratesProvider;
     ImmutableMap<Currency, Curve> baseCurves = immRatesProvider.getDiscountCurves();
-    CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
+    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
 
     for (Entry<Currency, Curve> entry : baseCurves.entrySet()) {
       if (currencyPair.contains(entry.getKey())) {
-        NodalCurve nodalCurve = entry.getValue().toNodalCurve();
-        int nParams = nodalCurve.getXValues().size();
+        Curve curve = entry.getValue();
+        int nParams = curve.getParameterCount();
         DoubleArray sensitivity = DoubleArray.of(nParams, i -> {
-          Curve dscBumped = bumpedCurve(nodalCurve, shift, i);
+          Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
           Map<Currency, Curve> mapBumped = new HashMap<>(baseCurves);
           mapBumped.put(entry.getKey(), dscBumped);
           ImmutableRatesProvider providerDscBumped = immRatesProvider.toBuilder().discountCurves(mapBumped).build();
           double pvBumped = presentValue(option, providerDscBumped, volatilityProvider).getAmount();
           return (pvBumped - pvBase.getAmount()) / shift;
         });
-        CurveMetadata metadata = entry.getValue().getMetadata();
-        result = result.combinedWith(CurveCurrencyParameterSensitivity.of(metadata, pvBase.getCurrency(), sensitivity));
+        result = result.combinedWith(curve.createParameterSensitivity(pvBase.getCurrency(), sensitivity));
       }
     }
     return result;
-  }
-
-  private NodalCurve bumpedCurve(NodalCurve curveInt, double shift, int loopnode) {
-    DoubleArray yValues = curveInt.getYValues();
-    return curveInt.withYValues(yValues.with(loopnode, yValues.get(loopnode) + shift));
   }
 
   //-------------------------------------------------------------------------
