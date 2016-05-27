@@ -40,10 +40,10 @@ public class CurveGroupTest {
   private static final CurveName DISCOUNT_NAME = CurveName.of("Discount");
   private static final CurveName IBOR_NAME = CurveName.of("Ibor");
   private static final CurveName OVERNIGHT_NAME = CurveName.of("Overnight");
-  private static final Curve DISCOUNT_CURVE = ConstantNodalCurve.of("Discount", 0.99);
+  private static final Curve DISCOUNT_CURVE = ConstantCurve.of("Discount", 0.99);
   private static final Map<Currency, Curve> DISCOUNT_CURVES = ImmutableMap.of(GBP, DISCOUNT_CURVE);
-  private static final Curve IBOR_CURVE = ConstantNodalCurve.of("Ibor", 0.5);
-  private static final Curve OVERNIGHT_CURVE = ConstantNodalCurve.of("Overnight", 0.6);
+  private static final Curve IBOR_CURVE = ConstantCurve.of("Ibor", 0.5);
+  private static final Curve OVERNIGHT_CURVE = ConstantCurve.of("Overnight", 0.6);
   private static final Map<Index, Curve> IBOR_CURVES = ImmutableMap.of(GBP_LIBOR_3M, IBOR_CURVE);
 
   //-------------------------------------------------------------------------
@@ -52,6 +52,9 @@ public class CurveGroupTest {
     assertThat(test.getName()).isEqualTo(NAME);
     assertThat(test.getDiscountCurves()).isEqualTo(DISCOUNT_CURVES);
     assertThat(test.getForwardCurves()).isEqualTo(IBOR_CURVES);
+    assertThat(test.findCurve(DISCOUNT_NAME)).hasValue(DISCOUNT_CURVE);
+    assertThat(test.findCurve(IBOR_NAME)).hasValue(IBOR_CURVE);
+    assertThat(test.findCurve(OVERNIGHT_NAME)).isEmpty();
     assertThat(test.findDiscountCurve(GBP)).hasValue(DISCOUNT_CURVE);
     assertThat(test.findDiscountCurve(USD)).isEmpty();
     assertThat(test.findForwardCurve(GBP_LIBOR_3M)).hasValue(IBOR_CURVE);

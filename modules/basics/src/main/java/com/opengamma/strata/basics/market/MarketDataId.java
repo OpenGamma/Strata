@@ -12,29 +12,16 @@ package com.opengamma.strata.basics.market;
  * Implementations can identify any piece of market data.
  * This includes observable values, such as the quoted market value of a security, and derived
  * values, such as a volatility surface or a discounting curve.
- * <p>
- * Note that this interface is typically used by the market data system and not by applications.
- * Application code will generally use {@link MarketDataKey}, with a mapping step to convert
- * the key to a {@code MarketDataId}.
  *
- * @param <T>  the type of the market data identified by the identifier
- *
- * @see MarketDataKey
+ * @param <T>  the type of the market data this identifier refers to
  */
 public interface MarketDataId<T> {
 
   /**
-   * Gets the type of market data that is being identified.
+   * Gets the type of data this identifier refers to.
    *
-   * @return the type of market data that is being identified
+   * @return the type of the market data this identifier refers to
    */
   public abstract Class<T> getMarketDataType();
-
-  /**
-   * Converts this ID to the associated key.
-   *
-   * @return the key associated with this ID
-   */
-  public abstract MarketDataKey<T> toMarketDataKey();
 
 }

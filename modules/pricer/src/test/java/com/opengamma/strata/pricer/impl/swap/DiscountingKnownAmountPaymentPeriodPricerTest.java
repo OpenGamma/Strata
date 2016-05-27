@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.ConstantNodalCurve;
+import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
@@ -247,7 +247,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   //-------------------------------------------------------------------------
   // creates a simple provider
   private SimpleRatesProvider createProvider(LocalDate valDate) {
-    Curve curve = ConstantNodalCurve.of(Curves.discountFactors("Test", DAY_COUNT), DISCOUNT_FACTOR);
+    Curve curve = ConstantCurve.of(Curves.discountFactors("Test", DAY_COUNT), DISCOUNT_FACTOR);
     DiscountFactors df = SimpleDiscountFactors.of(GBP, valDate, curve);
     SimpleRatesProvider prov = new SimpleRatesProvider(valDate);
     prov.setDayCount(DAY_COUNT);

@@ -12,9 +12,10 @@ import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -25,7 +26,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This is typically used in inflation products.
  */
 public interface PriceIndexValues
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Obtains an instance from a curve and time-series of fixings.
@@ -70,21 +71,11 @@ public interface PriceIndexValues
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
 
-  /**
-   * Gets the name of the underlying curve.
-   * 
-   * @return the underlying curve name
-   */
-  public abstract CurveName getCurveName();
+  @Override
+  public abstract PriceIndexValues withParameter(int parameterIndex, double newValue);
 
-  /**
-   * Gets the number of parameters defining the curve.
-   * <p>
-   * If the curve has no parameters, zero must be returned.
-   * 
-   * @return the number of parameters
-   */
-  public abstract int getParameterCount();
+  @Override
+  public abstract PriceIndexValues withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
@@ -106,7 +97,7 @@ public interface PriceIndexValues
   /**
    * Calculates the point sensitivity of the historic or forward value at the specified fixing month.
    * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward value.
+   * This returns a sensitivity instance referring to the points that were queried in the market data.
    * If a time-series was used, then there is no sensitivity.
    * The sensitivity refers to the result of {@link #value(PriceIndexObservation)}.
    * 
@@ -118,15 +109,15 @@ public interface PriceIndexValues
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * This is used to convert a single point sensitivity to parameter sensitivity.
    * The calculation typically involves multiplying the point and unit sensitivities.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(InflationRateSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(InflationRateSensitivity pointSensitivity);
 
 }

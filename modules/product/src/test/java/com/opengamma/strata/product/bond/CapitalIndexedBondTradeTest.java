@@ -65,7 +65,7 @@ public class CapitalIndexedBondTradeTest {
       .unadjustedStartDate(START)
       .endDate(SETTLEMENT_DATE)
       .currency(USD)
-      .rateObservation(PRODUCT.getRateCalculation().createRateObservation(SETTLEMENT_DATE))
+      .rateComputation(PRODUCT.getRateCalculation().createRateComputation(SETTLEMENT_DATE))
       .notional(
           -PRODUCT.getNotional() * QUANTITY *
               (PRICE + PRODUCT.resolve(REF_DATA).accruedInterest(SETTLEMENT_DATE) / PRODUCT.getNotional()))

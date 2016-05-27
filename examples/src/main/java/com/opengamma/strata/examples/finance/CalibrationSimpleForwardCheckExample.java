@@ -20,22 +20,22 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.ImmutableScenarioMarketData;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.function.marketdata.mapping.MarketDataMappingsBuilder;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -174,13 +174,13 @@ public class CalibrationSimpleForwardCheckExample {
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
     // create the market data used for calculations
-    MarketEnvironment marketSnapshot = MarketEnvironment.builder(VAL_DATE)
-        .addSingleValues(quotes)
+    ScenarioMarketData marketSnapshot = ImmutableScenarioMarketData.builder(VAL_DATE)
+        .addValueMap(quotes)
         .build();
 
     // create the market data used for building trades
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
-        .addValuesById(quotes)
+        .addValues(quotes)
         .build();
 
     // load the curve definition
@@ -207,20 +207,16 @@ public class CalibrationSimpleForwardCheckExample {
         .add(CURVE_GROUP_NAME, curveGroupDefinition)
         .build();
 
-    // the configuration defining the curve group to use when finding a curve
-    MarketDataRules marketDataRules = MarketDataRules.anyTarget(
-        MarketDataMappingsBuilder.create()
-            .curveGroup(CURVE_GROUP_NAME)
-            .build());
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataRules);
+    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
+    CalculationRules rules = CalculationRules.of(functions, ratesLookup);
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
+    ScenarioMarketData enhancedMarketData =
+        marketDataFactory().buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
     Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
     return Pair.of(trades, results);
   }

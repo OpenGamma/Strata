@@ -12,10 +12,10 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.calc.config.MarketDataRules;
-import com.opengamma.strata.calc.config.ReportingCurrency;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.TestParameter;
 
 /**
  * Test {@link CalculationRules}.
@@ -24,42 +24,35 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 public class CalculationRulesTest {
 
   private static final CalculationFunctions FUNCTIONS = CalculationFunctions.empty();
-  private static final MarketDataRules MD_RULES = MarketDataRules.empty();
+  private static final CalculationParameter PARAM = new TestParameter();
 
   //-------------------------------------------------------------------------
-  public void test_of_MarketRules() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES);
+  public void test_of_FunctionsParameters() {
+    CalculationRules test = CalculationRules.of(FUNCTIONS, PARAM);
     assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getMarketDataRules(), MD_RULES);
-    assertEquals(test.getParameters(), CalculationParameters.empty());
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
+    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
   }
 
-  public void test_of_MarketRulesCurrency() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, USD);
+  public void test_of_FunctionsCurrencyParameters() {
+    CalculationRules test = CalculationRules.of(FUNCTIONS, USD, PARAM);
     assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getMarketDataRules(), MD_RULES);
-    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
+    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
   }
 
-  public void test_of_ParametersArray() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, ReportingCurrency.of(USD));
+  public void test_of_All() {
+    CalculationRules test = CalculationRules.of(FUNCTIONS, ReportingCurrency.of(USD), CalculationParameters.of(PARAM));
     assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getMarketDataRules(), MD_RULES);
-    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
-  }
-
-  public void test_of_Parameters() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES, CalculationParameters.of(ReportingCurrency.of(USD)));
-    assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getMarketDataRules(), MD_RULES);
-    assertEquals(test.getParameters(), CalculationParameters.of(ReportingCurrency.of(USD)));
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
+    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    CalculationRules test = CalculationRules.of(FUNCTIONS, MD_RULES);
+    CalculationRules test = CalculationRules.of(FUNCTIONS);
     coverImmutableBean(test);
-    CalculationRules test2 = CalculationRules.of(FUNCTIONS, MD_RULES, USD);
+    CalculationRules test2 = CalculationRules.of(FUNCTIONS, USD);
     coverBeanEquals(test, test2);
   }
 

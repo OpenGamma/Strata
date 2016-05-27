@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
-
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,13 +29,13 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ObservableKey;
+import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
-import com.opengamma.strata.market.curve.DatedCurveParameterMetadata;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.meta.TenorDateCurveNodeMetadata;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
@@ -55,10 +54,10 @@ public final class IborFixingDepositCurveNode
   @PropertyDefinition(validate = "notNull")
   private final IborFixingDepositTemplate template;
   /**
-   * The key identifying the market data value which provides the rate.
+   * The identifier of the market data value that provides the rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableKey rateKey;
+  private final ObservableId rateId;
   /**
    * The additional spread added to the rate.
    */
@@ -84,11 +83,11 @@ public final class IborFixingDepositCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateKey  the key identifying the market rate used when building the instrument for the node
+   * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFixingDepositCurveNode of(IborFixingDepositTemplate template, ObservableKey rateKey) {
-    return of(template, rateKey, 0d);
+  public static IborFixingDepositCurveNode of(IborFixingDepositTemplate template, ObservableId rateId) {
+    return of(template, rateId, 0d);
   }
 
   /**
@@ -97,18 +96,18 @@ public final class IborFixingDepositCurveNode
    * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
-   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFixingDepositCurveNode of(
       IborFixingDepositTemplate template,
-      ObservableKey rateKey,
+      ObservableId rateId,
       double additionalSpread) {
 
     return builder()
         .template(template)
-        .rateKey(rateKey)
+        .rateId(rateId)
         .additionalSpread(additionalSpread)
         .build();
   }
@@ -117,18 +116,18 @@ public final class IborFixingDepositCurveNode
    * Returns a curve node for an Ibor deposit using the specified template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
-   * @param rateKey  the key identifying the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
    * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFixingDepositCurveNode of(
       IborFixingDepositTemplate template,
-      ObservableKey rateKey,
+      ObservableId rateId,
       double additionalSpread,
       String label) {
 
-    return new IborFixingDepositCurveNode(template, rateKey, additionalSpread, label, CurveNodeDate.END);
+    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -145,20 +144,20 @@ public final class IborFixingDepositCurveNode
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableKey> requirements() {
-    return ImmutableSet.of(rateKey);
+  public Set<ObservableId> requirements() {
+    return ImmutableSet.of(rateId);
   }
 
   @Override
-  public DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
+  public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
         () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
-      return SimpleCurveNodeMetadata.of(nodeDate, label);
+      return LabelDateParameterMetadata.of(nodeDate, label);
     }
     Tenor tenor = Tenor.of(template.getDepositPeriod());
-    return TenorDateCurveNodeMetadata.of(nodeDate, tenor, label);
+    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date
@@ -177,7 +176,7 @@ public final class IborFixingDepositCurveNode
 
   @Override
   public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double fixedRate = marketData.getValue(rateKey) + additionalSpread;
+    double fixedRate = marketData.getValue(rateId) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
   }
 
@@ -189,11 +188,11 @@ public final class IborFixingDepositCurveNode
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return marketData.getValue(rateKey);
+      return marketData.getValue(rateId);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
       double approximateMaturity = template.getDepositPeriod().toTotalMonths() / 12.0d;
-      return Math.exp(-approximateMaturity * marketData.getValue(rateKey));
+      return Math.exp(-approximateMaturity * marketData.getValue(rateId));
     }
     return 0d;
   }
@@ -206,7 +205,7 @@ public final class IborFixingDepositCurveNode
    * @return the node based on this node with the specified date
    */
   public IborFixingDepositCurveNode withDate(CurveNodeDate date) {
-    return new IborFixingDepositCurveNode(template, rateKey, additionalSpread, label, date);
+    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -238,15 +237,15 @@ public final class IborFixingDepositCurveNode
 
   private IborFixingDepositCurveNode(
       IborFixingDepositTemplate template,
-      ObservableKey rateKey,
+      ObservableId rateId,
       double additionalSpread,
       String label,
       CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateKey, "rateKey");
+    JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
-    this.rateKey = rateKey;
+    this.rateId = rateId;
     this.additionalSpread = additionalSpread;
     this.label = label;
     this.date = date;
@@ -278,11 +277,11 @@ public final class IborFixingDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the key identifying the market data value which provides the rate.
+   * Gets the identifier of the market data value that provides the rate.
    * @return the value of the property, not null
    */
-  public ObservableKey getRateKey() {
-    return rateKey;
+  public ObservableId getRateId() {
+    return rateId;
   }
 
   //-----------------------------------------------------------------------
@@ -332,7 +331,7 @@ public final class IborFixingDepositCurveNode
     if (obj != null && obj.getClass() == this.getClass()) {
       IborFixingDepositCurveNode other = (IborFixingDepositCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(rateKey, other.rateKey) &&
+          JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(date, other.date);
@@ -344,7 +343,7 @@ public final class IborFixingDepositCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateKey);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
@@ -356,7 +355,7 @@ public final class IborFixingDepositCurveNode
     StringBuilder buf = new StringBuilder(192);
     buf.append("IborFixingDepositCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("rateKey").append('=').append(rateKey).append(',').append(' ');
+    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
@@ -380,10 +379,10 @@ public final class IborFixingDepositCurveNode
     private final MetaProperty<IborFixingDepositTemplate> template = DirectMetaProperty.ofImmutable(
         this, "template", IborFixingDepositCurveNode.class, IborFixingDepositTemplate.class);
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code rateId} property.
      */
-    private final MetaProperty<ObservableKey> rateKey = DirectMetaProperty.ofImmutable(
-        this, "rateKey", IborFixingDepositCurveNode.class, ObservableKey.class);
+    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
+        this, "rateId", IborFixingDepositCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
@@ -405,7 +404,7 @@ public final class IborFixingDepositCurveNode
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateKey",
+        "rateId",
         "additionalSpread",
         "label",
         "date");
@@ -421,8 +420,8 @@ public final class IborFixingDepositCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
+        case -938107365:  // rateId
+          return rateId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -458,11 +457,11 @@ public final class IborFixingDepositCurveNode
     }
 
     /**
-     * The meta-property for the {@code rateKey} property.
+     * The meta-property for the {@code rateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableKey> rateKey() {
-      return rateKey;
+    public MetaProperty<ObservableId> rateId() {
+      return rateId;
     }
 
     /**
@@ -495,8 +494,8 @@ public final class IborFixingDepositCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return ((IborFixingDepositCurveNode) bean).getTemplate();
-        case 983444831:  // rateKey
-          return ((IborFixingDepositCurveNode) bean).getRateKey();
+        case -938107365:  // rateId
+          return ((IborFixingDepositCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
           return ((IborFixingDepositCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
@@ -525,7 +524,7 @@ public final class IborFixingDepositCurveNode
   public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDepositCurveNode> {
 
     private IborFixingDepositTemplate template;
-    private ObservableKey rateKey;
+    private ObservableId rateId;
     private double additionalSpread;
     private String label;
     private CurveNodeDate date;
@@ -543,7 +542,7 @@ public final class IborFixingDepositCurveNode
      */
     private Builder(IborFixingDepositCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateKey = beanToCopy.getRateKey();
+      this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
       this.date = beanToCopy.getDate();
@@ -555,8 +554,8 @@ public final class IborFixingDepositCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case 983444831:  // rateKey
-          return rateKey;
+        case -938107365:  // rateId
+          return rateId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -574,8 +573,8 @@ public final class IborFixingDepositCurveNode
         case -1321546630:  // template
           this.template = (IborFixingDepositTemplate) newValue;
           break;
-        case 983444831:  // rateKey
-          this.rateKey = (ObservableKey) newValue;
+        case -938107365:  // rateId
+          this.rateId = (ObservableId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -621,7 +620,7 @@ public final class IborFixingDepositCurveNode
       preBuild(this);
       return new IborFixingDepositCurveNode(
           template,
-          rateKey,
+          rateId,
           additionalSpread,
           label,
           date);
@@ -640,13 +639,13 @@ public final class IborFixingDepositCurveNode
     }
 
     /**
-     * Sets the key identifying the market data value which provides the rate.
-     * @param rateKey  the new value, not null
+     * Sets the identifier of the market data value that provides the rate.
+     * @param rateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateKey(ObservableKey rateKey) {
-      JodaBeanUtils.notNull(rateKey, "rateKey");
-      this.rateKey = rateKey;
+    public Builder rateId(ObservableId rateId) {
+      JodaBeanUtils.notNull(rateId, "rateId");
+      this.rateId = rateId;
       return this;
     }
 
@@ -689,7 +688,7 @@ public final class IborFixingDepositCurveNode
       StringBuilder buf = new StringBuilder(192);
       buf.append("IborFixingDepositCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateKey").append('=').append(JodaBeanUtils.toString(rateKey)).append(',').append(' ');
+      buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("date").append('=').append(JodaBeanUtils.toString(date));

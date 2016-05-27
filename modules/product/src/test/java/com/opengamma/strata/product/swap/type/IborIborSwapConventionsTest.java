@@ -42,7 +42,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_spot_lag() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, 2},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, 2}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, 2 },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, 2 },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, 2 },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, 2 },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, 2 },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, 2 },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, 2 },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, 2 },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, 2 },
     };
   }
 
@@ -56,7 +64,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_period() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, Frequency.P6M},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, Frequency.P3M}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, Frequency.P3M },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, Frequency.P1M },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, Frequency.P3M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, Frequency.P6M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, Frequency.P6M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, Frequency.P1M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, Frequency.P3M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, Frequency.P1M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, Frequency.P3M }
     };
   }
 
@@ -70,7 +86,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_day_count() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, CompoundingMethod.FLAT},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, CompoundingMethod.FLAT}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, CompoundingMethod.FLAT },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, CompoundingMethod.NONE },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, CompoundingMethod.NONE }
     };
   }
 
@@ -84,7 +108,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_spread_leg() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, IborIndices.USD_LIBOR_3M},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, IborIndices.USD_LIBOR_1M}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, IborIndices.USD_LIBOR_1M },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, IborIndices.JPY_LIBOR_1M },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, IborIndices.JPY_LIBOR_3M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, IborIndices.JPY_LIBOR_6M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, IborIndices.JPY_LIBOR_6M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, IborIndices.JPY_TIBOR_EUROYEN_1M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, IborIndices.JPY_TIBOR_EUROYEN_3M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, IborIndices.JPY_TIBOR_JAPAN_1M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, IborIndices.JPY_TIBOR_JAPAN_3M }
     };
   }
 
@@ -98,7 +130,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_flat_leg() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, IborIndices.USD_LIBOR_6M},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, IborIndices.USD_LIBOR_3M}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, IborIndices.USD_LIBOR_3M },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, IborIndices.JPY_LIBOR_6M },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, IborIndices.JPY_LIBOR_6M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, IborIndices.JPY_TIBOR_EUROYEN_6M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, IborIndices.JPY_TIBOR_JAPAN_6M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, IborIndices.JPY_TIBOR_EUROYEN_6M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, IborIndices.JPY_TIBOR_EUROYEN_6M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, IborIndices.JPY_TIBOR_JAPAN_6M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, IborIndices.JPY_TIBOR_JAPAN_6M }
     };
   }
 
@@ -112,7 +152,15 @@ public class IborIborSwapConventionsTest {
   static Object[][] data_day_convention() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING},
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
+      {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, BusinessDayConventions.MODIFIED_FOLLOWING },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, BusinessDayConventions.MODIFIED_FOLLOWING }
     };
   }
 
@@ -125,7 +173,15 @@ public class IborIborSwapConventionsTest {
   @DataProvider(name = "stubIbor")
   static Object[][] data_stub_ibor() {
     return new Object[][] {
-        {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, Tenor.TENOR_8M}
+      {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M, Tenor.TENOR_8M },
+      {IborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M, Tenor.TENOR_8M }
     };
   }
   

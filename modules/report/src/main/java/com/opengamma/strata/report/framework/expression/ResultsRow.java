@@ -13,7 +13,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.function.StandardComponents;

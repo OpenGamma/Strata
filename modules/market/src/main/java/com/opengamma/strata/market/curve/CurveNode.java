@@ -9,10 +9,11 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.Trade;
 
@@ -30,7 +31,7 @@ public interface CurveNode {
    *
    * @return requirements for the market data needed to build a trade representing the instrument at the node
    */
-  public abstract Set<? extends SimpleMarketDataKey<?>> requirements();
+  public abstract Set<? extends MarketDataId<?>> requirements();
 
   /**
    * Returns metadata for the node.
@@ -41,7 +42,7 @@ public interface CurveNode {
    * @param refData  the reference data to use to resolve the trade
    * @return metadata for the node
    */
-  public abstract DatedCurveParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData);
+  public abstract DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData);
 
   /**
    * Creates a trade representing the instrument at the node.
@@ -94,7 +95,7 @@ public interface CurveNode {
    * @return the initial guess of the calibrated value
    */
   public abstract double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType);
-  
+
   /**
    * Gets the label to use for the node.
    * 

@@ -10,7 +10,10 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -20,7 +23,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
  * This provides forward rates for a single {@link Currency pair}, such as 'EUR/GBP'.
  * The forward rate is the conversion rate between two currencies on a fixing date in the future. 
  */
-public interface FxForwardRates {
+public interface FxForwardRates
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Gets the currency pair.
@@ -38,7 +42,14 @@ public interface FxForwardRates {
    * 
    * @return the valuation date
    */
+  @Override
   public abstract LocalDate getValuationDate();
+
+  @Override
+  public abstract FxForwardRates withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract FxForwardRates withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
   /**
@@ -68,7 +79,7 @@ public interface FxForwardRates {
   /**
    * Calculates the point sensitivity of the forward rate at the specified fixing date.
    * <p>
-   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * This returns a sensitivity instance referring to the points that were queried in the market data.
    * The sensitivity refers to the result of {@link #rate(Currency, LocalDate)}.
    * 
    * @param baseCurrency  the base currency that the rate should be expressed against
@@ -93,15 +104,15 @@ public interface FxForwardRates {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the curve parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to curve parameter sensitivity.
+   * This is used to convert a single point sensitivity to parameter sensitivity.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract CurveCurrencyParameterSensitivities curveParameterSensitivity(FxForwardSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivities parameterSensitivity(FxForwardSensitivity pointSensitivity);
 
   /**
    * Calculates the currency exposure from the point sensitivity.

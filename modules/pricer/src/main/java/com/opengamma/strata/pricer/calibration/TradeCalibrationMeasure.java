@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
@@ -165,9 +165,9 @@ public class TradeCalibrationMeasure<T extends ResolvedTrade>
   }
 
   @Override
-  public CurveCurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider) {
+  public CurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider) {
     PointSensitivities pts = sensitivityFn.apply(trade, provider);
-    return provider.curveParameterSensitivity(pts);
+    return provider.parameterSensitivity(pts);
   }
 
   //-------------------------------------------------------------------------

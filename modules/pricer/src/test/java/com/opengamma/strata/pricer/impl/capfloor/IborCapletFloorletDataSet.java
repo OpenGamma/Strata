@@ -28,7 +28,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -115,7 +115,7 @@ public class IborCapletFloorletDataSet {
       .zValueType(ValueType.BLACK_VOLATILITY)
       .surfaceName(SurfaceName.of("Black Vol"))
       .build();
-  private static final NodalSurface BLACK_SURFACE_EXP_STR =
+  private static final Surface BLACK_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(BLACK_METADATA, EXPIRIES, STRIKES, BLACK_VOLS, INTERPOLATOR_2D);
 
   /**
@@ -139,7 +139,7 @@ public class IborCapletFloorletDataSet {
       .zValueType(ValueType.NORMAL_VOLATILITY)
       .surfaceName(SurfaceName.of("Normal Vol"))
       .build();
-  private static final NodalSurface NORMAL_SURFACE_EXP_STR =
+  private static final Surface NORMAL_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(NORMAL_METADATA, EXPIRIES, STRIKES, NORMAL_VOLS, INTERPOLATOR_2D);
 
   /**

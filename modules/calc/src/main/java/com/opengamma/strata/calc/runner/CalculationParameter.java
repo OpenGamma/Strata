@@ -10,9 +10,8 @@ import java.util.Optional;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.ReportingCurrency;
 
 /**
  * The base interface for calculation parameters.

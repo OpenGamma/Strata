@@ -18,7 +18,6 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.config.Measures;
 import com.opengamma.strata.collect.result.Result;
 
 /**

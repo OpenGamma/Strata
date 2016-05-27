@@ -122,6 +122,15 @@ final class SwapFpmlParserPlugin
     //  'swapStream/calculationPeriodAmount/calculation/fxLinkedNotionalSchedule'
     //  'swapStream/calculationPeriodAmount/calculation/futureValueNotional'
     TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    Swap swap = parseSwap(document, tradeEl, tradeInfoBuilder);
+    return SwapTrade.builder()
+        .info(tradeInfoBuilder.build())
+        .product(swap)
+        .build();
+  }
+
+  // parses the swap
+  Swap parseSwap(FpmlDocument document, XmlElement tradeEl, TradeInfoBuilder tradeInfoBuilder) {
     XmlElement swapEl = tradeEl.getChild("swap");
     ImmutableList<XmlElement> legEls = swapEl.getChildren("swapStream");
     ImmutableList.Builder<SwapLeg> legsBuilder = ImmutableList.builder();
@@ -166,10 +175,7 @@ final class SwapFpmlParserPlugin
             .build());
       }
     }
-    return SwapTrade.builder()
-        .info(tradeInfoBuilder.build())
-        .product(Swap.of(legsBuilder.build()))
-        .build();
+    return Swap.of(legsBuilder.build());
   }
 
   // parses the accrual schedule

@@ -724,6 +724,11 @@ public class TestHelper {
 
     Class<? extends Bean> beanClass = bean.getClass();
     ignoreThrows(() -> {
+      Method m = beanClass.getDeclaredMethod("meta");
+      m.setAccessible(true);
+      m.invoke(null);
+    });
+    ignoreThrows(() -> {
       Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class);
       m.setAccessible(true);
       m.invoke(null, String.class);

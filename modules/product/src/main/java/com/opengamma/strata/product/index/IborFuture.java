@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * A futures contract based on an Ibor index.
@@ -144,7 +144,7 @@ public final class IborFuture
   //-------------------------------------------------------------------------
   @Override
   public ResolvedIborFuture resolve(ReferenceData refData) {
-    IborRateObservation iborRate = IborRateObservation.of(index, lastTradeDate, refData);
+    IborRateComputation iborRate = IborRateComputation.of(index, lastTradeDate, refData);
     return new ResolvedIborFuture(securityId, currency, notional, accrualFactor, iborRate, rounding);
   }
 

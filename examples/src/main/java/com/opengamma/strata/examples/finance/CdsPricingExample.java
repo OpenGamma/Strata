@@ -12,12 +12,12 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
@@ -75,15 +75,13 @@ public class CdsPricingExample {
         Column.of(Measures.CS01_BUCKETED_HAZARD));
 
     // use the built-in example market data
+    LocalDate valuationDate = LocalDate.of(2014, 10, 16);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
-
-    // build a market data snapshot for the valuation date
-    LocalDate valuationDate = LocalDate.of(2014, 10, 16);
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    CalculationRules rules = CalculationRules.of(functions);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();

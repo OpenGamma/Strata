@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link ResolvedFra}.
@@ -41,7 +41,7 @@ public class ResolvedFraTest {
     assertEquals(test.getEndDate(), date(2015, 9, 15));
     assertEquals(test.getYearFraction(), 0.25d, 0d);
     assertEquals(test.getFixedRate(), 0.25d, 0d);
-    assertEquals(test.getFloatingRate(), IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA));
+    assertEquals(test.getFloatingRate(), IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), NOTIONAL_1M, 0d);
     assertEquals(test.getDiscounting(), ISDA);
@@ -55,7 +55,7 @@ public class ResolvedFraTest {
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 6, 14))
         .fixedRate(0.25d)
-        .floatingRate(IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
+        .floatingRate(IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
         .build());
   }
 
@@ -78,7 +78,7 @@ public class ResolvedFraTest {
         .endDate(date(2015, 9, 15))
         .yearFraction(0.25d)
         .fixedRate(0.25d)
-        .floatingRate(IborRateObservation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
+        .floatingRate(IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
         .currency(GBP)
         .notional(NOTIONAL_1M)
         .discounting(ISDA)
@@ -92,7 +92,7 @@ public class ResolvedFraTest {
         .endDate(date(2015, 9, 16))
         .yearFraction(0.26d)
         .fixedRate(0.27d)
-        .floatingRate(IborRateObservation.of(GBP_LIBOR_2M, date(2015, 6, 12), REF_DATA))
+        .floatingRate(IborRateComputation.of(GBP_LIBOR_2M, date(2015, 6, 12), REF_DATA))
         .currency(USD)
         .notional(NOTIONAL_2M)
         .discounting(FraDiscountingMethod.NONE)

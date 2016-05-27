@@ -30,7 +30,9 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivities;
 import com.opengamma.strata.pricer.impl.cms.SabrExtrapolationReplicationCmsPeriodPricer;
@@ -179,8 +181,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivity(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATES_PROVIDER, p -> LEG_PRICER.presentValue(FLOOR_LEG, p, VOLATILITIES));
     assertTrue(computed.equalWithTolerance(expected, EPS * NOTIONAL_VALUE_0 * 80d));
   }
@@ -188,8 +190,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder point =
         LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         RATES_PROVIDER_AFTER_PERIOD, p -> LEG_PRICER.presentValue(COUPON_LEG, p, VOLATILITIES_AFTER_PERIOD));
     assertTrue(computed.equalWithTolerance(expected, EPS * NOTIONAL_VALUE_0 * 10d));
   }
@@ -288,6 +290,32 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
     CurrencyAmount computed = LEG_PRICER.currentCash(leg, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     assertEquals(computed.getAmount(),
         NOTIONAL_VALUE_1 * (OBS_INDEX - CAP_VALUE + FLOOR_VALUE_1 - OBS_INDEX) * 367d / 360d, NOTIONAL_VALUE_0 * TOL);
+  }
+  
+  //-------------------------------------------------------------------------
+  public void test_explainPresentValue() {
+    ExplainMap explain = LEG_PRICER.explainPresentValue(CAP_LEG, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "CmsLeg");
+    assertEquals(explain.get(ExplainKey.PAY_RECEIVE).get().toString(), "Receive");
+    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get().getCode(), "EUR");
+    assertEquals(explain.get(ExplainKey.START_DATE).get(), LocalDate.of(2015, 10, 21));
+    assertEquals(explain.get(ExplainKey.END_DATE).get(), LocalDate.of(2020, 10, 21));
+    assertEquals(explain.get(ExplainKey.INDEX).get().toString(), "EUR-EURIBOR-1100-5Y");
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 39728.51321029542);
+    
+    List<ExplainMap> paymentPeriods = explain.get(ExplainKey.PAYMENT_PERIODS).get();
+    assertEquals(paymentPeriods.size(), 5);
+    //Test First Period
+    ExplainMap cmsPeriod0 = paymentPeriods.get(0);
+    assertEquals(cmsPeriod0.get(ExplainKey.ENTRY_TYPE).get(), "CmsCapletPeriod");
+    assertEquals(cmsPeriod0.get(ExplainKey.STRIKE_VALUE).get(), 0.0125d);
+    assertEquals(cmsPeriod0.get(ExplainKey.NOTIONAL).get().getAmount(), 1000000d);
+    assertEquals(cmsPeriod0.get(ExplainKey.PAYMENT_DATE).get(), LocalDate.of(2016, 10, 21));
+    assertEquals(cmsPeriod0.get(ExplainKey.DISCOUNT_FACTOR).get(), 0.9820085531995826d);
+    assertEquals(cmsPeriod0.get(ExplainKey.START_DATE).get(), LocalDate.of(2015, 10, 21));
+    assertEquals(cmsPeriod0.get(ExplainKey.END_DATE).get(), LocalDate.of(2016, 10, 21));
+    assertEquals(cmsPeriod0.get(ExplainKey.FIXING_DATE).get(), LocalDate.of(2015, 10, 19));
+    assertEquals(cmsPeriod0.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), 1.0166666666666666d);
   }
 
 }

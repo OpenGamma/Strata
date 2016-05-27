@@ -10,15 +10,16 @@ import java.util.function.Function;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
-import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.ParallelShiftedCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.math.impl.differentiation.VectorFieldFirstOrderDifferentiator;
 
 /**
  * Computes the cross-gamma and related figures to the rate curves parameters for rates provider.
  * <p>
- * This implementation supports a single {@link NodalCurve} on the zero-coupon rates.
+ * This implementation supports a single {@link Curve} on the zero-coupon rates.
  * By default the gamma is computed using a one basis-point shift and a forward finite difference.
  * The results themselves are not scaled (they represent the second order derivative).
  * <p>
@@ -59,15 +60,15 @@ public class CurveGammaCalculator {
    * @param sensitivitiesFn  the function to convert the bumped curve to parameter sensitivities
    * @return the "sum-of-columns" or "semi-parallel" gamma vector
    */
-  public CurveCurrencyParameterSensitivity calculateSemiParallelGamma(
-      NodalCurve curve,
+  public CurrencyParameterSensitivity calculateSemiParallelGamma(
+      Curve curve,
       Currency curveCurrency,
-      Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
+      Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn) {
 
     Delta deltaShift = new Delta(curve, sensitivitiesFn);
     Function<DoubleArray, DoubleMatrix> gammaFn = fd.differentiate(deltaShift);
     DoubleArray gamma = gammaFn.apply(DoubleArray.filled(1)).column(0);
-    return CurveCurrencyParameterSensitivity.of(curve.getMetadata(), curveCurrency, gamma);
+    return curve.createParameterSensitivity(curveCurrency, gamma);
   }
 
   //-------------------------------------------------------------------------
@@ -75,10 +76,10 @@ public class CurveGammaCalculator {
    * Inner class to compute the delta for a given parallel shift of the curve.
    */
   static class Delta implements Function<DoubleArray, DoubleArray> {
-    private final NodalCurve curve;
-    private final Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn;
+    private final Curve curve;
+    private final Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn;
 
-    Delta(NodalCurve curve, Function<NodalCurve, CurveCurrencyParameterSensitivity> sensitivitiesFn) {
+    Delta(Curve curve, Function<Curve, CurrencyParameterSensitivity> sensitivitiesFn) {
       this.curve = curve;
       this.sensitivitiesFn = sensitivitiesFn;
     }
@@ -86,9 +87,8 @@ public class CurveGammaCalculator {
     @Override
     public DoubleArray apply(DoubleArray s) {
       double shift = s.get(0);
-      DoubleArray yieldBumped = curve.getYValues().map(v -> v + shift);
-      NodalCurve curveBumped = curve.withYValues(yieldBumped);
-      CurveCurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
+      Curve curveBumped = ParallelShiftedCurve.absolute(curve, shift);
+      CurrencyParameterSensitivity pts = sensitivitiesFn.apply(curveBumped);
       return pts.getSensitivity();
     }
   }

@@ -38,6 +38,13 @@ import java.util.stream.Stream;
 public interface ScenarioMarketDataValue<T> {
 
   /**
+   * Gets the number of scenarios for which this object contains data.
+   *
+   * @return the number of scenarios for which this object contains data
+   */
+  public abstract int getScenarioCount();
+
+  /**
    * Gets the market data value associated with the specified scenario.
    *
    * @param scenarioIndex  the index of the scenario
@@ -46,16 +53,10 @@ public interface ScenarioMarketDataValue<T> {
   public abstract T getValue(int scenarioIndex);
 
   /**
-   * Gets the number of scenarios for which this object contains data.
-   *
-   * @return the number of scenarios for which this object contains data
-   */
-  public abstract int getScenarioCount();
-
-  /**
    * Returns a stream over the market data values.
    *
    * @return a stream over the market data values
    */
   public Stream<T> stream();
+
 }

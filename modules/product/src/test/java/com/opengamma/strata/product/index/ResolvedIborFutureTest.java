@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link ResolvedIborFuture}.
@@ -48,7 +48,7 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), PRODUCT.getLastTradeDate());
     assertEquals(test.getIndex(), PRODUCT.getIndex());
     assertEquals(test.getRounding(), PRODUCT.getRounding());
-    assertEquals(test.getIborRate(), IborRateObservation.of(PRODUCT.getIndex(), PRODUCT.getLastTradeDate(), REF_DATA));
+    assertEquals(test.getIborRate(), IborRateComputation.of(PRODUCT.getIndex(), PRODUCT.getLastTradeDate(), REF_DATA));
   }
 
   public void test_builder_defaults() {
@@ -56,7 +56,7 @@ public class ResolvedIborFutureTest {
         .securityId(SECURITY_ID)
         .currency(GBP)
         .notional(NOTIONAL)
-        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
+        .iborRate(IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
         .build();
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getNotional(), NOTIONAL);
@@ -64,7 +64,7 @@ public class ResolvedIborFutureTest {
     assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
     assertEquals(test.getIndex(), GBP_LIBOR_2M);
     assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getIborRate(), IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA));
+    assertEquals(test.getIborRate(), IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA));
   }
 
   public void test_builder_noObservation() {
@@ -80,7 +80,7 @@ public class ResolvedIborFutureTest {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
-        .iborRate(IborRateObservation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
+        .iborRate(IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
         .rounding(ROUNDING)
         .build();
     assertEquals(GBP, test.getCurrency());

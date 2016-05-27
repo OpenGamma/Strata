@@ -40,6 +40,82 @@ public final class IborIborSwapConventions {
 
   //-------------------------------------------------------------------------
   /**
+   * The 'JPY-LIBOR-1M-LIBOR-6M' swap convention.
+   * <p>
+   * JPY standard LIBOR 1M vs LIBOR 6M swap.
+   * The LIBOR 1M leg pays monthly, the LIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_LIBOR_1M_LIBOR_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_LIBOR_1M_LIBOR_6M.getName());
+
+  /**
+   * The 'JPY-LIBOR-3M-LIBOR-6M' swap convention.
+   * <p>
+   * JPY standard LIBOR 3M vs LIBOR 6M swap.
+   * The LIBOR 3M leg pays quarterly, the LIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_LIBOR_3M_LIBOR_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_LIBOR_3M_LIBOR_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'JPY-LIBOR-6M-TIBOR-JAPAN-6M' swap convention.
+   * <p>
+   * JPY standard LIBOR 6M vs TIBOR JAPAN 6M swap.
+   * The two legs pay semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_LIBOR_6M_TIBOR_JAPAN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_LIBOR_6M_TIBOR_JAPAN_6M.getName());
+
+  /**
+   * The 'JPY-LIBOR-6M-TIBOR-EUROYEN-6M' swap convention.
+   * <p>
+   * JPY standard LIBOR 6M vs TIBOR EUROYEN 6M swap.
+   * The two legs pay semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_LIBOR_6M_TIBOR_EUROYEN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_LIBOR_6M_TIBOR_EUROYEN_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'JPY-TIBORJ-1M-TIBOR-JAPAN-6M' swap convention.
+   * <p>
+   * JPY standard TIBOR JAPAN 1M vs TIBOR JAPAN 6M swap.
+   * The TIBOR 1M leg pays monthly, the TIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_TIBOR_JAPAN_1M_TIBOR_JAPAN_6M.getName());
+
+  /**
+   * The 'JPY-TIBOR-JAPAN-3M-TIBOR-JAPAN-6M' swap convention.
+   * <p>
+   * JPY standard TIBOR JAPAN 3M vs TIBOR JAPAN 6M swap.
+   * The TIBOR 3M leg pays quarterly, the TIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_TIBOR_JAPAN_3M_TIBOR_JAPAN_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 'JPY-TIBOR-EUROYEN-1M-TIBOR-EUROYEN-6M' swap convention.
+   * <p>
+   * JPY standard TIBOR EUROYEN 1M vs TIBOR EUROYEN 6M swap.
+   * The TIBOR 1M leg pays monthly, the TIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_TIBOR_EUROYEN_1M_TIBOR_EUROYEN_6M.getName());
+
+  /**
+   * The 'JPY-TIBOR-EUROYEN-3M-TIBOR-EUROYEN-6M' swap convention.
+   * <p>
+   * JPY standard TIBOR EUROYEN 3M vs TIBOR EUROYEN 6M swap.
+   * The TIBOR 3M leg pays quarterly, the TIBOR 6M leg pays semi-annually.
+   */
+  public static final IborIborSwapConvention JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M =
+      IborIborSwapConvention.of(StandardIborIborSwapConventions.JPY_TIBOR_EUROYEN_3M_TIBOR_EUROYEN_6M.getName());
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private IborIborSwapConventions() {

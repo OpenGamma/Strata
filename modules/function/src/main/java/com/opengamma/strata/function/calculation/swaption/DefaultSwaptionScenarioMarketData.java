@@ -17,13 +17,13 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The default market view for swaptions, used for calculation across multiple scenarios.
+ * The default market data for swaptions, used for calculation across multiple scenarios.
  * <p>
- * This uses a {@link SwaptionMarketDataLookup} to provide a view on {@link CalculationMarketData}.
+ * This uses a {@link SwaptionMarketDataLookup} to provide a view on {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
 final class DefaultSwaptionScenarioMarketData
@@ -38,7 +38,7 @@ final class DefaultSwaptionScenarioMarketData
    * The market data.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final CalculationMarketData marketData;
+  private final ScenarioMarketData marketData;
   /**
    * The cache of single scenario instances.
    */
@@ -57,7 +57,7 @@ final class DefaultSwaptionScenarioMarketData
    */
   public static DefaultSwaptionScenarioMarketData of(
       SwaptionMarketDataLookup lookup,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     return new DefaultSwaptionScenarioMarketData(lookup, marketData);
   }
@@ -65,7 +65,7 @@ final class DefaultSwaptionScenarioMarketData
   @ImmutableConstructor
   private DefaultSwaptionScenarioMarketData(
       SwaptionMarketDataLookup lookup,
-      CalculationMarketData marketData) {
+      ScenarioMarketData marketData) {
 
     this.lookup = ArgChecker.notNull(lookup, "lookup");
     this.marketData = ArgChecker.notNull(marketData, "marketData");
@@ -74,7 +74,7 @@ final class DefaultSwaptionScenarioMarketData
 
   //-------------------------------------------------------------------------
   @Override
-  public SwaptionScenarioMarketData withMarketData(CalculationMarketData marketData) {
+  public SwaptionScenarioMarketData withMarketData(ScenarioMarketData marketData) {
     return DefaultSwaptionScenarioMarketData.of(lookup, marketData);
   }
 
@@ -145,7 +145,7 @@ final class DefaultSwaptionScenarioMarketData
    * @return the value of the property, not null
    */
   @Override
-  public CalculationMarketData getMarketData() {
+  public ScenarioMarketData getMarketData() {
     return marketData;
   }
 

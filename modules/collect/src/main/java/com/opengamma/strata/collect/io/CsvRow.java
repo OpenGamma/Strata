@@ -67,7 +67,7 @@ public final class CsvRow {
    * @param fields  the fields
    */
   CsvRow(ImmutableList<String> headers, ImmutableMap<String, Integer> searchHeaders, ImmutableList<String> fields) {
-    
+
     this.headers = headers;
     this.searchHeaders = searchHeaders;
     this.fields = fields;

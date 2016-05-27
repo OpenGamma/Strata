@@ -30,13 +30,13 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.amount.CashFlows;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -46,15 +46,15 @@ import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.market.view.IborIndexRates;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * Tests {@link DiscountingFraProductPricer}.
@@ -257,7 +257,7 @@ public class DiscountingFraProductPricerTest {
    * Test present value sensitivity for ISDA  
    */
   public void test_presentValueSensitivity_ISDA() {
-    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
@@ -304,7 +304,7 @@ public class DiscountingFraProductPricerTest {
    * Test present value sensitivity for NONE FRA discounting method. 
    */
   public void test_presentValueSensitivity_NONE() {
-    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
@@ -347,7 +347,7 @@ public class DiscountingFraProductPricerTest {
    * Test present value sensitivity for AFMA FRA discounting method. 
    */
   public void test_presentValueSensitivity_AFMA() {
-    RateObservationFn<RateObservation> mockObs = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(VAL_DATE, mockDf);
 
@@ -500,8 +500,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_ISDA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV);
@@ -513,8 +513,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_NONE() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_NONE, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_NONE.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_NONE, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_NONE, IMM_PROV);
@@ -526,8 +526,8 @@ public class DiscountingFraProductPricerTest {
    */
   public void test_parSpreadSensitivity_AFMA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_AFMA, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(sensiSpread);
-    CurveCurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
+    CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_AFMA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_AFMA, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_AFMA, IMM_PROV);
@@ -600,7 +600,7 @@ public class DiscountingFraProductPricerTest {
 
     assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
     ExplainMap explainObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
-    IborRateObservation floatingRate = (IborRateObservation) fraExp.getFloatingRate();
+    IborRateComputation floatingRate = (IborRateComputation) fraExp.getFloatingRate();
     assertEquals(explainObs.get(ExplainKey.INDEX).get(), floatingRate.getIndex());
     assertEquals(explainObs.get(ExplainKey.FIXING_DATE).get(), floatingRate.getFixingDate());
     assertEquals(explainObs.get(ExplainKey.INDEX_VALUE).get(), FORWARD_RATE, TOLERANCE);
@@ -623,7 +623,7 @@ public class DiscountingFraProductPricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE, mockDf);
     prov.setIborRates(mockIbor);
 
-    IborIndexObservation obs = ((IborRateObservation) fraExp.getFloatingRate()).getObservation();
+    IborIndexObservation obs = ((IborRateComputation) fraExp.getFloatingRate()).getObservation();
     IborRateSensitivity sens = IborRateSensitivity.of(obs, 1d);
     when(mockIbor.ratePointSensitivity(obs)).thenReturn(sens);
     when(mockIbor.rate(obs)).thenReturn(FORWARD_RATE);
@@ -640,8 +640,8 @@ public class DiscountingFraProductPricerTest {
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra fraExp = RFRA;
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
-    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
     assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
   }
 
@@ -652,15 +652,15 @@ public class DiscountingFraProductPricerTest {
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra fraExp = RFRA;
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
-    CurveCurrencyParameterSensitivities computed = prov.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
+    CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
     assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
   }
 
   //-------------------------------------------------------------------------
   private double forecastValueFwdSensitivity(ResolvedFra fra, double forwardRate, double eps) {
 
-    RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> obsFuncNew = mock(RateComputationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
     when(provNew.getValuationDate()).thenReturn(VAL_DATE);
     when(obsFuncNew.rate(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
@@ -674,7 +674,7 @@ public class DiscountingFraProductPricerTest {
 
   private double presentValueFwdSensitivity(ResolvedFra fra, double forwardRate, double discountFactor, double eps) {
 
-    RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> obsFuncNew = mock(RateComputationFn.class);
     RatesProvider provNew = mock(RatesProvider.class);
     when(provNew.getValuationDate()).thenReturn(VAL_DATE);
     when(provNew.discountFactor(fra.getCurrency(), fra.getPaymentDate()))
@@ -693,7 +693,7 @@ public class DiscountingFraProductPricerTest {
 
     RatesProvider provNew = mock(RatesProvider.class);
     when(provNew.getValuationDate()).thenReturn(VAL_DATE);
-    RateObservationFn<RateObservation> obsFuncNew = mock(RateObservationFn.class);
+    RateComputationFn<RateComputation> obsFuncNew = mock(RateComputationFn.class);
     when(obsFuncNew.rate(fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate(), provNew))
         .thenReturn(forwardRate);
     when(provNew.discountFactor(fra.getCurrency(), fra.getPaymentDate()))

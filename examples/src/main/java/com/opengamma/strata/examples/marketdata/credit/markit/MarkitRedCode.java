@@ -85,7 +85,7 @@ public final class MarkitRedCode
    * @return the standard identifier
    */
   public StandardId toStandardId() {
-    return StandardId.of(MARKIT_REDCODE_SCHEME, toString());
+    return StandardId.of(MARKIT_REDCODE_SCHEME, getName());
   }
 
 }

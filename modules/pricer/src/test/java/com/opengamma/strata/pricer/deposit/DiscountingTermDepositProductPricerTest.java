@@ -24,11 +24,11 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.view.DiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -123,8 +123,8 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER.presentValueSensitivity(RTERM_DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
-    CurveCurrencyParameterSensitivities sensiExpected =
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> PRICER.presentValue(RTERM_DEPOSIT, (p)));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }
@@ -165,8 +165,8 @@ public class DiscountingTermDepositProductPricerTest {
 
   public void test_parSpreadSensitivity() {
     PointSensitivities computed = PRICER.parSpreadSensitivity(RTERM_DEPOSIT, IMM_PROV);
-    CurveCurrencyParameterSensitivities sensiComputed = IMM_PROV.curveParameterSensitivity(computed);
-    CurveCurrencyParameterSensitivities sensiExpected =
+    CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
+    CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(RTERM_DEPOSIT, (p))));
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
   }

@@ -26,19 +26,19 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
-import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionMetadata;
+import com.opengamma.strata.market.surface.meta.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -76,10 +76,10 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   private static final DoubleArray VOL = DoubleArray.of(0.50, 0.49, 0.47, 0.48, 0.51, 0.45, 0.44, 0.42, 0.43, 0.46);
   private static final SurfaceMetadata METADATA;
   static {
-    List<GenericVolatilitySurfaceYearFractionMetadata> list = new ArrayList<GenericVolatilitySurfaceYearFractionMetadata>();
+    List<GenericVolatilitySurfaceYearFractionParameterMetadata> list = new ArrayList<GenericVolatilitySurfaceYearFractionParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      GenericVolatilitySurfaceYearFractionMetadata parameterMetadata = GenericVolatilitySurfaceYearFractionMetadata.of(
+      GenericVolatilitySurfaceYearFractionParameterMetadata parameterMetadata = GenericVolatilitySurfaceYearFractionParameterMetadata.of(
           TIME.get(i), LogMoneynessStrike.of(MONEYNESS.get(i)));
       list.add(parameterMetadata);
     }
@@ -215,8 +215,8 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
   public void test_priceSensitivity() {
     PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         (p) -> CurrencyAmount.of(EUR, OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, (p), VOL_PROVIDER)));
     double futurePrice = FUTURE_PRICER.price(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER);
     double strike = FUTURE_OPTION_PRODUCT.getStrikePrice();
@@ -229,7 +229,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     double volDw = SURFACE.zValue(expiryTime, logMoneynessDw);
     double volSensi = 0.5 * (volUp - volDw) / EPS;
     double vega = BlackFormulaRepository.vega(futurePrice, strike, expiryTime, vol);
-    CurveCurrencyParameterSensitivities sensiVol = RATE_PROVIDER.curveParameterSensitivity(
+    CurrencyParameterSensitivities sensiVol = RATE_PROVIDER.parameterSensitivity(
             FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER)).multipliedBy(
             -vega * volSensi);
     expected = expected.combinedWith(sensiVol);
@@ -240,9 +240,9 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     double futurePrice = 1.1d;
     PointSensitivities point = OPTION_PRICER.priceSensitivityStickyStrike(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    CurveCurrencyParameterSensitivities computed = RATE_PROVIDER.curveParameterSensitivity(point);
+    CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double delta = OPTION_PRICER.deltaStickyStrike(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
-    CurveCurrencyParameterSensitivities expected = RATE_PROVIDER.curveParameterSensitivity(
+    CurrencyParameterSensitivities expected = RATE_PROVIDER.parameterSensitivity(
         FUTURE_PRICER.priceSensitivity(FUTURE_OPTION_PRODUCT.getUnderlyingFuture(), RATE_PROVIDER)).multipliedBy(delta);
     assertTrue(computed.equalWithTolerance(expected, TOL));
   }
@@ -261,7 +261,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityBlackVolatility(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER);
     testPriceSensitivityBlackVolatility(
-        VOL_PROVIDER.surfaceCurrencyParameterSensitivity(sensi),
+        VOL_PROVIDER.parameterSensitivity(sensi),
         (p) -> OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, (p)));
   }
 
@@ -270,14 +270,14 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
     BondFutureOptionSensitivity sensi = OPTION_PRICER.priceSensitivityBlackVolatility(
         FUTURE_OPTION_PRODUCT, RATE_PROVIDER, VOL_PROVIDER, futurePrice);
     testPriceSensitivityBlackVolatility(
-        VOL_PROVIDER.surfaceCurrencyParameterSensitivity(sensi),
+        VOL_PROVIDER.parameterSensitivity(sensi),
         (p) -> OPTION_PRICER.price(FUTURE_OPTION_PRODUCT, RATE_PROVIDER, (p), futurePrice));
   }
 
   private void testPriceSensitivityBlackVolatility(
-      SurfaceCurrencyParameterSensitivity computed,
+      CurrencyParameterSensitivity computed,
       Function<BlackVolatilityBondFutureProvider, Double> valueFn) {
-    List<SurfaceParameterMetadata> list = computed.getMetadata().getParameterMetadata().get();
+    List<ParameterMetadata> list = computed.getParameterMetadata();
     int nVol = VOL.size();
     assertEquals(list.size(), nVol);
     for (int i = 0; i < nVol; ++i) {
@@ -296,7 +296,7 @@ public class BlackBondFutureOptionMarginedProductPricerTest {
       double expected = 0.5 * (valueFn.apply(provUp) - valueFn.apply(provDw)) / EPS;
       int index = -1;
       for (int j = 0; j < nVol; ++j) {
-        GenericVolatilitySurfaceYearFractionMetadata meta = (GenericVolatilitySurfaceYearFractionMetadata) list.get(j);
+        GenericVolatilitySurfaceYearFractionParameterMetadata meta = (GenericVolatilitySurfaceYearFractionParameterMetadata) list.get(j);
         if (meta.getYearFraction() == TIME.get(i) && meta.getStrike().getValue() == MONEYNESS.get(i)) {
           index = j;
           continue;

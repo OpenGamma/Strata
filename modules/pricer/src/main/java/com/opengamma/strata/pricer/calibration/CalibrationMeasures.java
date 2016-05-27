@@ -15,11 +15,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveParameterSize;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -152,7 +151,7 @@ public final class CalibrationMeasures {
    * @return the sensitivity derivative
    */
   public DoubleArray derivative(ResolvedTrade trade, RatesProvider provider, List<CurveParameterSize> curveOrder) {
-    CurveUnitParameterSensitivities unitSens = extractSensitivities(trade, provider);
+    UnitParameterSensitivities unitSens = extractSensitivities(trade, provider);
 
     // expand to a concatenated array
     DoubleArray result = DoubleArray.EMPTY;
@@ -166,12 +165,12 @@ public final class CalibrationMeasures {
   }
 
   // determine the curve parameter sensitivities, removing the curency
-  private CurveUnitParameterSensitivities extractSensitivities(ResolvedTrade trade, RatesProvider provider) {
+  private UnitParameterSensitivities extractSensitivities(ResolvedTrade trade, RatesProvider provider) {
     CalibrationMeasure<ResolvedTrade> measure = getMeasure(trade);
-    CurveCurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
-    CurveUnitParameterSensitivities unitSens = CurveUnitParameterSensitivities.empty();
-    for (CurveCurrencyParameterSensitivity ccySens : paramSens.getSensitivities()) {
-      unitSens = unitSens.combinedWith(CurveUnitParameterSensitivity.of(ccySens.getMetadata(), ccySens.getSensitivity()));
+    CurrencyParameterSensitivities paramSens = measure.sensitivities(trade, provider);
+    UnitParameterSensitivities unitSens = UnitParameterSensitivities.empty();
+    for (CurrencyParameterSensitivity ccySens : paramSens.getSensitivities()) {
+      unitSens = unitSens.combinedWith(ccySens.toUnitParameterSensitivity());
     }
     return unitSens;
   }

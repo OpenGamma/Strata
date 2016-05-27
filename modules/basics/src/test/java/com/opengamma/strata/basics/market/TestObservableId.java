@@ -5,39 +5,43 @@
  */
 package com.opengamma.strata.basics.market;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * ObservableId implementation used in tests.
  */
-public class TestObservableId implements ObservableId, ReferenceDataId<Number> {
+public class TestObservableId
+    implements ObservableId, ReferenceDataId<Number>, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final StandardId id;
 
-  private final MarketDataFeed feed;
+  private final ObservableSource observableSource;
 
   public static TestObservableId of(String id) {
-    return new TestObservableId(id, MarketDataFeed.NONE);
+    return new TestObservableId(id, ObservableSource.NONE);
   }
 
-  public static TestObservableId of(String id, MarketDataFeed feed) {
-    return new TestObservableId(id, feed);
+  public static TestObservableId of(String id, ObservableSource obsSource) {
+    return new TestObservableId(id, obsSource);
   }
 
   public static TestObservableId of(StandardId id) {
-    return new TestObservableId(id, MarketDataFeed.NONE);
+    return new TestObservableId(id, ObservableSource.NONE);
   }
 
-  public static TestObservableId of(StandardId id, MarketDataFeed feed) {
-    return new TestObservableId(id, feed);
+  public static TestObservableId of(StandardId id, ObservableSource obsSource) {
+    return new TestObservableId(id, obsSource);
   }
 
-  TestObservableId(String id, MarketDataFeed feed) {
-    this(StandardId.of("test", id), feed);
+  TestObservableId(String id, ObservableSource obsSource) {
+    this(StandardId.of("test", id), obsSource);
   }
 
-  TestObservableId(StandardId id, MarketDataFeed feed) {
-    this.feed = feed;
+  TestObservableId(StandardId id, ObservableSource obsSource) {
+    this.observableSource = obsSource;
     this.id = id;
   }
 
@@ -52,13 +56,13 @@ public class TestObservableId implements ObservableId, ReferenceDataId<Number> {
   }
 
   @Override
-  public MarketDataFeed getMarketDataFeed() {
-    return feed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   @Override
-  public ObservableKey toMarketDataKey() {
-    return TestObservableKey.of(id);
+  public ObservableId withObservableSource(ObservableSource obsSource) {
+    return new TestObservableId(id, obsSource);
   }
 
   @Override
@@ -86,6 +90,6 @@ public class TestObservableId implements ObservableId, ReferenceDataId<Number> {
 
   @Override
   public String toString() {
-    return "TestObservableId [id=" + id + ", feed=" + feed + "]";
+    return "TestObservableId [id=" + id + ", observableSource=" + observableSource + "]";
   }
 }

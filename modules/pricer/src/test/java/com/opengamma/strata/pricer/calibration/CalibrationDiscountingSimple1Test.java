@@ -45,11 +45,11 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -116,15 +116,15 @@ public class CalibrationDiscountingSimple1Test {
   private static final int FWD3_NB_IRS_NODES = FWD3_IRS_TENORS.length;
   static {
     ALL_NODES[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(USD_LIBOR_3M),
-        QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
+        QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
     for (int i = 0; i < FWD3_NB_FRA_NODES; i++) {
       ALL_NODES[i + 1] = FraCurveNode.of(FraTemplate.of(FWD3_FRA_TENORS[i], USD_LIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[1])));
+          QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[1])));
     }
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       ALL_NODES[i + 1 + FWD3_NB_FRA_NODES] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(FWD3_IRS_TENORS[i]), USD_FIXED_6M_LIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])));
+          QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])));
     }
   }
 
@@ -133,7 +133,7 @@ public class CalibrationDiscountingSimple1Test {
   static {
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
     for (int i = 0; i < FWD3_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
     ALL_QUOTES = builder.build();
   }

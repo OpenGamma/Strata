@@ -14,17 +14,18 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.FunctionUtils;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.DiscountCurveKey;
+import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
+import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
@@ -101,18 +102,15 @@ public class FxSwapCalculationFunction
       CalculationParameters parameters,
       ReferenceData refData) {
 
+    // extract data from product
     FxSwap fx = trade.getProduct();
     Currency baseCurrency = fx.getNearLeg().getBaseCurrencyAmount().getCurrency();
     Currency counterCurrency = fx.getNearLeg().getCounterCurrencyAmount().getCurrency();
+    ImmutableSet<Currency> currencies = ImmutableSet.of(baseCurrency, counterCurrency);
 
-    Set<DiscountCurveKey> discountCurveKeys =
-        ImmutableSet.of(DiscountCurveKey.of(baseCurrency), DiscountCurveKey.of(counterCurrency));
-
-    return FunctionRequirements.builder()
-        .singleValueRequirements(discountCurveKeys)
-        .timeSeriesRequirements()
-        .outputCurrencies(baseCurrency, counterCurrency)
-        .build();
+    // use lookup to build requirements
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    return ratesLookup.requirements(currencies);
   }
 
   //-------------------------------------------------------------------------
@@ -121,16 +119,20 @@ public class FxSwapCalculationFunction
       FxSwapTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData scenarioMarketData,
+      ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
     ResolvedFxSwapTrade resolved = trade.resolve(refData);
 
+    // use lookup to query market data
+    RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
+    RatesScenarioMarketData marketData = ratesLookup.marketDataView(scenarioMarketData);
+
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
     for (Measure measure : measures) {
-      results.put(measure, calculate(measure, resolved, scenarioMarketData));
+      results.put(measure, calculate(measure, resolved, marketData));
     }
     // The calculated value is the same for these two measures but they are handled differently WRT FX conversion
     FunctionUtils.duplicateResult(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY, results);
@@ -141,13 +143,13 @@ public class FxSwapCalculationFunction
   private Result<?> calculate(
       Measure measure,
       ResolvedFxSwapTrade trade,
-      CalculationMarketData scenarioMarketData) {
+      RatesScenarioMarketData marketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
       return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
     }
-    return Result.of(() -> calculator.calculate(trade, scenarioMarketData));
+    return Result.of(() -> calculator.calculate(trade, marketData));
   }
 
   //-------------------------------------------------------------------------
@@ -155,7 +157,7 @@ public class FxSwapCalculationFunction
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
         ResolvedFxSwapTrade trade,
-        CalculationMarketData marketData);
+        RatesScenarioMarketData marketData);
   }
 
 }

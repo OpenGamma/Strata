@@ -19,6 +19,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.SwaptionSabrSensitivity;
 import com.opengamma.strata.math.impl.MathException;
@@ -238,8 +240,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       CmsPeriod cmsPeriod,
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
-    
-    ArgChecker.isTrue(cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
+
+    ArgChecker.isTrue(
+        cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
         "Adjusted forward rate available only for CMS coupons");
     Currency ccy = cmsPeriod.getCurrency();
     double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
@@ -263,8 +266,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       CmsPeriod cmsPeriod,
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
-    
-    ArgChecker.isTrue(cmsPeriod.getFixingDate().isAfter(provider.getValuationDate()), 
+
+    ArgChecker.isTrue(
+        cmsPeriod.getFixingDate().isAfter(provider.getValuationDate()),
         "Adjustment computed only for coupon with fixing (strictly) after the valuation date");
     double adjustedForwardRate = adjustedForwardRate(cmsPeriod, provider, swaptionVolatilities);
     double forward = swapPricer.parRate(cmsPeriod.getUnderlyingSwap(), provider);
@@ -432,7 +436,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    ArgChecker.isFalse(cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
+    ArgChecker.isFalse(
+        cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
         "presentValueSensitivityStrike is not relevant for CMS coupon");
     Currency ccy = cmsPeriod.getCurrency();
     SwapIndex index = cmsPeriod.getIndex();
@@ -540,6 +545,22 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       }
     }
     return res;
+  }
+
+  //explain PV for an Cms period
+  public void explainPresentValue(CmsPeriod period, RatesProvider ratesProvider, ExplainMapBuilder builder) {
+    String type = period.getCmsPeriodType().toString();
+    Currency ccy = period.getCurrency();
+    LocalDate paymentDate = period.getPaymentDate();
+    builder.put(ExplainKey.ENTRY_TYPE, "Cms" + type + "Period");
+    builder.put(ExplainKey.STRIKE_VALUE, period.getStrike());
+    builder.put(ExplainKey.NOTIONAL, CurrencyAmount.of(ccy, period.getNotional()));
+    builder.put(ExplainKey.PAYMENT_DATE, period.getPaymentDate());
+    builder.put(ExplainKey.DISCOUNT_FACTOR, ratesProvider.discountFactor(ccy, paymentDate));
+    builder.put(ExplainKey.START_DATE, period.getStartDate());
+    builder.put(ExplainKey.END_DATE, period.getEndDate());
+    builder.put(ExplainKey.FIXING_DATE, period.getFixingDate());
+    builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, period.getYearFraction());
   }
 
   //-------------------------------------------------------------------------

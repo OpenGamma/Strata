@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**
- * The default market view for swaptions.
+ * The default market data for swaptions.
  * <p>
  * This uses a {@link SwaptionMarketDataLookup} to provide a view on {@link MarketData}.
  */

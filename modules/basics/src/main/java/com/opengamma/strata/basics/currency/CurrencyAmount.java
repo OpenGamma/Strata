@@ -340,8 +340,8 @@ public final class CurrencyAmount
     if (currency.equals(resultCurrency)) {
       return this;
     }
-    double fxRate = rateProvider.fxRate(currency, resultCurrency);
-    return CurrencyAmount.of(resultCurrency, amount * fxRate);
+    double converted = rateProvider.convert(amount, currency, resultCurrency);
+    return CurrencyAmount.of(resultCurrency, converted);
   }
 
   //-------------------------------------------------------------------------

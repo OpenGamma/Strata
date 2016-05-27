@@ -22,15 +22,7 @@ import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.MissingDataAwareObservableFunction;
-import com.opengamma.strata.calc.marketdata.function.MissingDataAwareTimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.function.MissingMappingMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.ObservableMarketDataFunction;
-import com.opengamma.strata.calc.marketdata.function.TimeSeriesProvider;
-import com.opengamma.strata.calc.marketdata.mapping.FeedIdMapping;
-import com.opengamma.strata.calc.marketdata.mapping.MissingDataAwareFeedIdMapping;
+import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
@@ -53,24 +45,24 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   /** Market data functions, keyed by the type of the market data ID they can handle. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
-  /** For looking up IDs that are suitable for a particular market data feed. */
-  private final FeedIdMapping feedIdMapping;
+  /** For looking up IDs that are suitable for a particular market data source. */
+  private final ObservableIdMapping observableIdMapping;
 
   /**
    * Creates a new factory.
    *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
-   * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
+   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
    * @param functions  functions that create the market data
    */
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
       ObservableMarketDataFunction observablesBuilder,
-      FeedIdMapping feedIdMapping,
+      ObservableIdMapping observableIdMapping,
       MarketDataFunction<?, ?>... functions) {
 
-    this(timeSeriesProvider, observablesBuilder, feedIdMapping, ImmutableList.copyOf(functions));
+    this(timeSeriesProvider, observablesBuilder, observableIdMapping, ImmutableList.copyOf(functions));
   }
 
   /**
@@ -78,59 +70,48 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    *
    * @param timeSeriesProvider  provides time series of observable market data values
    * @param observablesBuilder  builder to create observable market data
-   * @param feedIdMapping  for looking up IDs that are suitable for a particular market data feed
+   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
    * @param functions  functions that create the market data
    */
   @SuppressWarnings("unchecked")
   public DefaultMarketDataFactory(
       TimeSeriesProvider timeSeriesProvider,
       ObservableMarketDataFunction observablesBuilder,
-      FeedIdMapping feedIdMapping,
+      ObservableIdMapping observableIdMapping,
       List<MarketDataFunction<?, ?>> functions) {
 
-    // Wrap these 3 to handle market data where there is missing data for the calculation
-    this.feedIdMapping = new MissingDataAwareFeedIdMapping(feedIdMapping);
-    this.observablesBuilder = new MissingDataAwareObservableFunction(observablesBuilder);
-    this.timeSeriesProvider = new MissingDataAwareTimeSeriesProvider(timeSeriesProvider);
+    this.observableIdMapping = observableIdMapping;
+    this.observablesBuilder = observablesBuilder;
+    this.timeSeriesProvider = timeSeriesProvider;
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
     // If the functions argument includes a missing mapping builder it can overwrite the one inserted below
     Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> builderMap = new HashMap<>();
-
-    // Add a builder that adds failures with helpful error messages when there is no mapping configured for a key type
-    builderMap.put(
-        MissingMappingMarketDataFunction.INSTANCE.getMarketDataIdType(),
-        MissingMappingMarketDataFunction.INSTANCE);
-
-    // Add a builder that adds failures with helpful error messages when there is no market data rule for a calculation
-    builderMap.put(
-        NoMatchingRulesMarketDataFunction.INSTANCE.getMarketDataIdType(),
-        NoMatchingRulesMarketDataFunction.INSTANCE);
 
     functions.stream().forEach(builder -> builderMap.put(builder.getMarketDataIdType(), builder));
     this.functions = ImmutableMap.copyOf(builderMap);
   }
 
   @Override
-  public MarketEnvironment buildMarketData(
+  public BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData) {
 
     return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
   }
 
   @Override
-  public MarketEnvironment buildMarketData(
+  public BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment suppliedData,
+      ScenarioMarketData suppliedData,
       ReferenceData refData,
       ScenarioDefinition scenarioDefinition) {
 
-    MarketEnvironmentBuilder dataBuilder = MarketEnvironment.builder(suppliedData.getValuationDate());
-    MarketEnvironment builtData = dataBuilder.build();
+    BuiltScenarioMarketDataBuilder dataBuilder = BuiltScenarioMarketData.builder(suppliedData.getValuationDate());
+    BuiltScenarioMarketData builtData = dataBuilder.build();
 
     // Build a tree of the market data dependencies. The root of the tree represents the calculations.
     // The children of the root represent the market data directly used in the calculations. The children
@@ -157,7 +138,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
 
     while (!root.isLeaf()) {
       // Effectively final reference to buildData which can be used in a lambda expression
-      MarketEnvironment marketData = builtData;
+      BuiltScenarioMarketData marketData = builtData;
 
       // The leaves of the dependency tree represent market data with no dependencies that can be built immediately
       Pair<MarketDataNode, MarketDataRequirements> pair = root.withLeavesRemoved();
@@ -237,7 +218,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Result<MarketDataBox<?>> buildNonObservableData(
       MarketDataId id,
       MarketDataConfig marketDataConfig,
-      MarketEnvironment suppliedData,
+      BuiltScenarioMarketData suppliedData,
       ReferenceData refData) {
 
     // The raw types in this method are an unfortunate necessity. The type parameters on MarketDataBuilder
@@ -260,7 +241,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
   private Map<MarketDataId<?>, Result<MarketDataBox<?>>> buildNonObservableData(
       Set<? extends MarketDataId<?>> ids,
       MarketDataConfig marketDataConfig,
-      MarketEnvironment marketData,
+      BuiltScenarioMarketData marketData,
       ReferenceData refData) {
 
     return ids.stream()
@@ -284,10 +265,10 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       Result<MarketDataBox<?>> valueResult,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addResultUnsafe(id, valueResult);
+      builder.addResult(id, valueResult);
     } else {
       addValue(id, valueResult.getValue(), scenarioDefinition, builder);
     }
@@ -310,10 +291,10 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       ObservableId id,
       Result<Double> valueResult,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
-      builder.addResultUnsafe(id, Result.failure(valueResult));
+      builder.addResult(id, Result.failure(valueResult));
     } else {
       addValue(id, MarketDataBox.ofSingleValue(valueResult.getValue()), scenarioDefinition, builder);
     }
@@ -335,7 +316,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataId<?> id,
       MarketDataBox<?> value,
       ScenarioDefinition scenarioDefinition,
-      MarketEnvironmentBuilder builder) {
+      BuiltScenarioMarketDataBuilder builder) {
 
     Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
         .filter(m -> m.matches(id, value))
@@ -348,9 +329,9 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       MarketDataBox<Object> objectValue = ((MarketDataBox<Object>) value);
       // Result.of() catches any exceptions thrown by the mapping and wraps them in a failure
       Result<MarketDataBox<?>> result = Result.of(() -> mapping.applyPerturbation(objectValue));
-      builder.addResultUnsafe(id, result);
+      builder.addResult(id, result);
     } else {
-      builder.addValueUnsafe(id, value);
+      builder.addBox(id, value);
     }
   }
 
@@ -360,40 +341,40 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    * @param ids  IDs of the market data that should be built
    */
   private Map<ObservableId, Result<Double>> buildObservableData(Set<ObservableId> ids) {
-    // We need to convert between the input IDs from the requirements and the feed IDs
+    // We need to convert between the input IDs from the requirements and the source IDs
     // which are passed to the builder and used to request the data.
-    Map<ObservableId, ObservableId> feedIdToRequirementId = new HashMap<>();
+    Map<ObservableId, ObservableId> observableIdToRequirementId = new HashMap<>();
     // IDs that are in the requirements but have no mapping to an ID the data provider understands
     Set<ObservableId> unmappedIds = new HashSet<>();
 
     // TODO Mapping of IDs should probably go inside the ObservableMarketDataBuilder
     for (ObservableId id : ids) {
-      Optional<ObservableId> feedId = feedIdMapping.idForFeed(id);
+      Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
 
-      if (feedId.isPresent()) {
-        feedIdToRequirementId.put(feedId.get(), id);
+      if (obsSourceId.isPresent()) {
+        observableIdToRequirementId.put(obsSourceId.get(), id);
       } else {
         unmappedIds.add(id);
       }
     }
-    Map<ObservableId, Result<Double>> builtValues = observablesBuilder.build(feedIdToRequirementId.keySet());
+    Map<ObservableId, Result<Double>> builtValues = observablesBuilder.build(observableIdToRequirementId.keySet());
     ImmutableMap.Builder<ObservableId, Result<Double>> builder = ImmutableMap.builder();
-    // Put the built data into the results, mapping the feed ID to the ID that was passed in
-    builtValues.keySet().stream().forEach(id -> builder.put(feedIdToRequirementId.get(id), builtValues.get(id)));
-    // Add failures for IDs that don't have mappings to market data feed IDs
+    // Put the built data into the results, mapping the source ID to the ID that was passed in
+    builtValues.keySet().stream().forEach(id -> builder.put(observableIdToRequirementId.get(id), builtValues.get(id)));
+    // Add failures for IDs that don't have mappings to market data source IDs
     unmappedIds.forEach(id -> builder.put(id, noMappingResult(id)));
     return builder.build();
   }
 
   /**
-   * Returns a failure result for an observable ID that can't be mapped to an ID recognised by the market
-   * data feed.
+   * Returns a failure result for an observable ID that can't be mapped to an ID
+   * recognized by the market data source.
    *
-   * @param id  an observable ID that can't be mapped to an ID recognised by the market data feed
+   * @param id  an observable ID that can't be mapped to an ID recognized by the market data source
    * @return a failure result for the ID
    */
   private <T> Result<T> noMappingResult(ObservableId id) {
-    return Result.failure(FailureReason.MISSING_DATA, "No feed ID mapping found for ID {}", id);
+    return Result.failure(FailureReason.MISSING_DATA, "No source ID mapping found for ID {}", id);
   }
 
   /**
@@ -403,12 +384,12 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
    */
   private Result<LocalDateDoubleTimeSeries> findTimeSeries(ObservableId id) {
     // TODO Should this go in the time series provider?
-    // Need to convert between the input ID from the requirements and the feed ID
+    // Need to convert between the input ID from the requirements and the source ID
     // which is used to store and retrieve the data.
-    Optional<ObservableId> feedId = feedIdMapping.idForFeed(id);
+    Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
 
-    if (feedId.isPresent()) {
-      return timeSeriesProvider.timeSeries(feedId.get());
+    if (obsSourceId.isPresent()) {
+      return timeSeriesProvider.timeSeries(obsSourceId.get());
     } else {
       return noMappingResult(id);
     }

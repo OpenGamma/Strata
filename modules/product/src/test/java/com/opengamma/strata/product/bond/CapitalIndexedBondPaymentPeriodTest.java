@@ -24,9 +24,9 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationEndMonthRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 
 /**
  * Test {@link CapitalIndexedBondPaymentPeriod}.
@@ -43,10 +43,10 @@ public class CapitalIndexedBondPaymentPeriodTest {
   private static final double REAL_COUPON = 0.01d;
   private static final LocalDate DETACHMENT = LocalDate.of(2008, 1, 11);
   private static final double START_INDEX = 198.475;
-  private static final InflationEndInterpolatedRateObservation OBSERVATION_INTERP =
-      InflationEndInterpolatedRateObservation.of(US_CPI_U, START_INDEX, REF_END, 0.25);
-  private static final InflationEndMonthRateObservation OBSERVATION_MONTH =
-      InflationEndMonthRateObservation.of(US_CPI_U, START_INDEX, REF_END);
+  private static final InflationEndInterpolatedRateComputation COMPUTE_INTERP =
+      InflationEndInterpolatedRateComputation.of(US_CPI_U, START_INDEX, REF_END, 0.25);
+  private static final InflationEndMonthRateComputation COMPUTE_MONTH =
+      InflationEndMonthRateComputation.of(US_CPI_U, START_INDEX, REF_END);
 
   public void test_builder_full() {
     CapitalIndexedBondPaymentPeriod test = CapitalIndexedBondPaymentPeriod.builder()
@@ -57,7 +57,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build();
     assertEquals(test.getCurrency(), USD);
@@ -67,7 +67,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
     assertEquals(test.getEndDate(), END);
     assertEquals(test.getUnadjustedStartDate(), START_UNADJ);
     assertEquals(test.getUnadjustedEndDate(), END_UNADJ);
-    assertEquals(test.getRateObservation(), OBSERVATION_INTERP);
+    assertEquals(test.getRateComputation(), COMPUTE_INTERP);
     assertEquals(test.getRealCoupon(), REAL_COUPON);
   }
 
@@ -77,7 +77,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
-        .rateObservation(OBSERVATION_MONTH)
+        .rateComputation(COMPUTE_MONTH)
         .realCoupon(REAL_COUPON)
         .build();
     assertEquals(test.getCurrency(), USD);
@@ -87,13 +87,13 @@ public class CapitalIndexedBondPaymentPeriodTest {
     assertEquals(test.getEndDate(), END);
     assertEquals(test.getUnadjustedStartDate(), START);
     assertEquals(test.getUnadjustedEndDate(), END);
-    assertEquals(test.getRateObservation(), OBSERVATION_MONTH);
+    assertEquals(test.getRateComputation(), COMPUTE_MONTH);
     assertEquals(test.getRealCoupon(), REAL_COUPON);
   }
 
   public void test_builder_fail() {
     // not inflation rate observation
-    FixedRateObservation fixedRate = FixedRateObservation.of(0.01);
+    FixedRateComputation fixedRate = FixedRateComputation.of(0.01);
     assertThrowsIllegalArg(() -> CapitalIndexedBondPaymentPeriod.builder()
         .currency(USD)
         .notional(NOTIONAL)
@@ -102,7 +102,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(fixedRate)
+        .rateComputation(fixedRate)
         .realCoupon(REAL_COUPON)
         .build());
     // wrong start date and end date
@@ -114,7 +114,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build());
     // wrong unadjusted start date and unadjusted end date
@@ -126,7 +126,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(START_UNADJ.minusWeeks(1))
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build());
   }
@@ -140,7 +140,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build();
     assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, NOTIONAL));
@@ -162,7 +162,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(bondStartUnadj)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(1d)
         .build();
     assertEquals(test.withUnitCoupon(bondStart, bondStartUnadj), expected);
@@ -178,7 +178,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build();
     coverImmutableBean(test1);
@@ -187,7 +187,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .notional(5.0e6)
         .startDate(LocalDate.of(2008, 1, 15))
         .endDate(LocalDate.of(2008, 7, 15))
-        .rateObservation(InflationEndMonthRateObservation.of(GB_RPI, 155.32, REF_END))
+        .rateComputation(InflationEndMonthRateComputation.of(GB_RPI, 155.32, REF_END))
         .realCoupon(1d)
         .build();
     coverBeanEquals(test1, test2);
@@ -202,7 +202,7 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
         .unadjustedEndDate(END_UNADJ)
-        .rateObservation(OBSERVATION_INTERP)
+        .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build();
     assertSerialization(test);

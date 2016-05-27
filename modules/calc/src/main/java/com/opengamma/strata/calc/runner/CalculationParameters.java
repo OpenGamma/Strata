@@ -29,8 +29,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.ReportingCurrency;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.ReportingCurrency;
 
 /**
  * The calculation parameters.
@@ -132,6 +132,35 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
   }
 
   /**
+   * Returns a copy of this instance with the specified parameter added.
+   * <p>
+   * If this instance already has a parameter with the query type, it will be replaced.
+   * 
+   * @param parameter  the parameter to add
+   * @return the new instance based on this with the parameter added
+   */
+  public CalculationParameters with(CalculationParameter parameter) {
+    Map<Class<? extends CalculationParameter>, CalculationParameter> map = new HashMap<>(parameters);
+    map.put(parameter.queryType(), parameter);
+    return of(map);
+  }
+
+  /**
+   * Filters the parameters, returning a set without the specified type.
+   * 
+   * @param type  the type to remove
+   * @return the filtered calculation parameters
+   */
+  public CalculationParameters without(Class<? extends CalculationParameter> type) {
+    if (!parameters.containsKey(type)) {
+      return this;
+    }
+    Map<Class<? extends CalculationParameter>, CalculationParameter> map = new HashMap<>(parameters);
+    map.remove(type);
+    return of(map);
+  }
+
+  /**
    * Filters the parameters, matching only those that are applicable for the target and measure.
    * <p>
    * The resulting parameters are filtered to the target and measure.
@@ -151,21 +180,6 @@ public final class CalculationParameters implements ImmutableBean, Serializable 
         .map(opt -> opt.get())
         .collect(toImmutableList());
     return of(filtered);
-  }
-
-  /**
-   * Filters the parameters, returning a set without the specified type.
-   * 
-   * @param type  the type to remove
-   * @return the filtered calculation parameters
-   */
-  public CalculationParameters without(Class<? extends CalculationParameter> type) {
-    if (!parameters.containsKey(type)) {
-      return this;
-    }
-    Map<Class<? extends CalculationParameter>, CalculationParameter> map = new HashMap<>(parameters);
-    map.remove(type);
-    return of(map);
   }
 
   //-------------------------------------------------------------------------

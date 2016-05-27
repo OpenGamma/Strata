@@ -449,7 +449,7 @@ public final class MultiCurrencyAmount
     }
     double total = 0d;
     for (CurrencyAmount amount : amounts) {
-      total += amount.getAmount() * rateProvider.fxRate(amount.getCurrency(), resultCurrency);
+      total += rateProvider.convert(amount.getAmount(), amount.getCurrency(), resultCurrency);
     }
     return CurrencyAmount.of(resultCurrency, total);
   }

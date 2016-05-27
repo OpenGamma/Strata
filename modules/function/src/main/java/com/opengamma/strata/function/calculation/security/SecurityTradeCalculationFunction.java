@@ -13,17 +13,17 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.FunctionUtils;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.QuoteKey;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityTrade;
 
@@ -84,10 +84,10 @@ public class SecurityTradeCalculationFunction
       ReferenceData refData) {
 
     Security security = refData.getValue(trade.getSecurityId());
-    QuoteKey key = QuoteKey.of(trade.getSecurityId().getStandardId());
+    QuoteId id = QuoteId.of(trade.getSecurityId().getStandardId());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(ImmutableSet.of(key))
+        .singleValueRequirements(ImmutableSet.of(id))
         .outputCurrencies(security.getCurrency())
         .build();
   }
@@ -98,7 +98,7 @@ public class SecurityTradeCalculationFunction
       SecurityTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData scenarioMarketData,
+      ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve security
@@ -119,7 +119,7 @@ public class SecurityTradeCalculationFunction
       Measure measure,
       SecurityTrade trade,
       Security security,
-      CalculationMarketData scenarioMarketData) {
+      ScenarioMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
@@ -134,7 +134,7 @@ public class SecurityTradeCalculationFunction
     public abstract ScenarioResult<?> calculate(
         Security security,
         double quantity,
-        CalculationMarketData marketData);
+        ScenarioMarketData marketData);
   }
 
 }

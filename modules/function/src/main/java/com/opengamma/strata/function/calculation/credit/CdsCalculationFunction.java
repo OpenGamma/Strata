@@ -13,23 +13,23 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.config.Measure;
-import com.opengamma.strata.calc.config.Measures;
-import com.opengamma.strata.calc.marketdata.CalculationMarketData;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
-import com.opengamma.strata.calc.runner.function.FunctionUtils;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
+import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.market.key.IsdaIndexCreditCurveInputsKey;
-import com.opengamma.strata.market.key.IsdaIndexRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaSingleNameCreditCurveInputsKey;
-import com.opengamma.strata.market.key.IsdaSingleNameRecoveryRateKey;
-import com.opengamma.strata.market.key.IsdaYieldCurveInputsKey;
+import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
+import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
+import com.opengamma.strata.market.id.IsdaSingleNameRecoveryRateId;
+import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -121,29 +121,29 @@ public class CdsCalculationFunction
     Currency notionalCurrency = cds.getFeeLeg().getPeriodicPayments().getNotional().getCurrency();
     Currency feeCurrency = cds.getFeeLeg().getUpfrontFee().getCurrency();
 
-    Set<MarketDataKey<?>> rateCurveKeys = ImmutableSet.of(
-        IsdaYieldCurveInputsKey.of(notionalCurrency),
-        IsdaYieldCurveInputsKey.of(feeCurrency));
+    Set<MarketDataId<?>> rateCurveIds = ImmutableSet.of(
+        IsdaYieldCurveInputsId.of(notionalCurrency),
+        IsdaYieldCurveInputsId.of(feeCurrency));
 
     Set<Currency> currencies = ImmutableSet.of(notionalCurrency, feeCurrency);
     ReferenceInformation refInfo = cds.getReferenceInformation();
     if (refInfo instanceof SingleNameReferenceInformation) {
       SingleNameReferenceInformation singleNameRefInfo = (SingleNameReferenceInformation) refInfo;
-      Set<MarketDataKey<?>> keys = ImmutableSet.of(
-          IsdaSingleNameCreditCurveInputsKey.of(singleNameRefInfo),
-          IsdaSingleNameRecoveryRateKey.of(singleNameRefInfo));
+      Set<MarketDataId<?>> keys = ImmutableSet.of(
+          IsdaSingleNameCreditCurveInputsId.of(singleNameRefInfo),
+          IsdaSingleNameRecoveryRateId.of(singleNameRefInfo));
       return FunctionRequirements.builder()
-          .singleValueRequirements(Sets.union(rateCurveKeys, keys))
+          .singleValueRequirements(Sets.union(rateCurveIds, keys))
           .outputCurrencies(currencies)
           .build();
 
     } else if (refInfo instanceof IndexReferenceInformation) {
       IndexReferenceInformation indexRefInfo = (IndexReferenceInformation) refInfo;
-      Set<MarketDataKey<?>> keys = ImmutableSet.of(
-          IsdaIndexCreditCurveInputsKey.of(indexRefInfo),
-          IsdaIndexRecoveryRateKey.of(indexRefInfo));
+      Set<MarketDataId<?>> keys = ImmutableSet.of(
+          IsdaIndexCreditCurveInputsId.of(indexRefInfo),
+          IsdaIndexRecoveryRateId.of(indexRefInfo));
       return FunctionRequirements.builder()
-          .singleValueRequirements(Sets.union(rateCurveKeys, keys))
+          .singleValueRequirements(Sets.union(rateCurveIds, keys))
           .outputCurrencies(currencies)
           .build();
 
@@ -158,7 +158,7 @@ public class CdsCalculationFunction
       CdsTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
-      CalculationMarketData scenarioMarketData,
+      ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
@@ -178,7 +178,7 @@ public class CdsCalculationFunction
   private Result<?> calculate(
       Measure measure,
       ResolvedCdsTrade trade,
-      CalculationMarketData scenarioMarketData) {
+      ScenarioMarketData scenarioMarketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
@@ -192,7 +192,7 @@ public class CdsCalculationFunction
   interface SingleMeasureCalculation {
     public abstract ScenarioResult<?> calculate(
         ResolvedCdsTrade trade,
-        CalculationMarketData marketData);
+        ScenarioMarketData marketData);
   }
 
 }

@@ -12,12 +12,11 @@ import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.MarketDataView;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivities;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 
 /**
  * Volatilities for pricing Ibor caplet/floorlet.
@@ -25,7 +24,7 @@ import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
  * This provides access to the volatilities for various pricing models, such as normal and Black.
  * The price and derivatives are also made available.
  */
-public interface IborCapletFloorletVolatilities 
+public interface IborCapletFloorletVolatilities
     extends MarketDataView {
 
   /**
@@ -35,6 +34,13 @@ public interface IborCapletFloorletVolatilities
    */
   public abstract IborIndex getIndex();
 
+  /**
+   * Gets the valuation date.
+   * <p>
+   * The raw data in this provider is calibrated for this date.
+   * 
+   * @return the valuation date
+   */
   @Override
   public default LocalDate getValuationDate() {
     return getValuationDateTime().toLocalDate();
@@ -76,37 +82,35 @@ public interface IborCapletFloorletVolatilities
    */
   public abstract double volatility(double expiry, double strike, double forward);
 
+  //-------------------------------------------------------------------------
   /**
-   * Calculates the surface parameter sensitivities from the point sensitivities. 
+   * Calculates the parameter sensitivity from the point sensitivity.
+   * <p>
+   * This is used to convert point sensitivity to parameter sensitivity.
    * 
-   * @param pointSensitivities  the point sensitivities
+   * @param pointSensitivities  the point sensitivities to convert
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  default SurfaceCurrencyParameterSensitivities surfaceCurrencyParameterSensitivity(
-        PointSensitivities pointSensitivities) {
-    List<SurfaceCurrencyParameterSensitivity> sensitivitiesTotal = pointSensitivities.getSensitivities()
-              .stream()
-              .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
-              .map(pointSensitivity -> surfaceCurrencyParameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
-              .collect(Collectors.toList());
-    SurfaceCurrencyParameterSensitivities sensi = SurfaceCurrencyParameterSensitivities.of(sensitivitiesTotal);
-    // sensi should be single SurfaceCurrencyParameterSensitivity or empty
-    ArgChecker.isTrue(sensi.getSensitivities().size() <= 1, "The underlying surface must be unique");
-    return sensi;
-    }
+  default CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    List<CurrencyParameterSensitivity> sensitivitiesTotal = pointSensitivities.getSensitivities()
+        .stream()
+        .filter(pointSensitivity -> (pointSensitivity instanceof IborCapletFloorletSensitivity))
+        .map(pointSensitivity -> parameterSensitivity((IborCapletFloorletSensitivity) pointSensitivity))
+        .collect(Collectors.toList());
+    return CurrencyParameterSensitivities.of(sensitivitiesTotal);
+  }
 
   /**
-   * Calculates the surface parameter sensitivity from the point sensitivity.
+   * Calculates the parameter sensitivity from the point sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to surface parameter sensitivity.
+   * This is used to convert a single point sensitivity to parameter sensitivity.
    * 
    * @param pointSensitivity  the point sensitivity to convert
    * @return the parameter sensitivity
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(
-      IborCapletFloorletSensitivity pointSensitivity);
+  public abstract CurrencyParameterSensitivity parameterSensitivity(IborCapletFloorletSensitivity pointSensitivity);
 
   //-------------------------------------------------------------------------
   /**

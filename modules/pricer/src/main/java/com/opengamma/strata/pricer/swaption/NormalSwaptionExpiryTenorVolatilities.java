@@ -32,12 +32,12 @@ import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
-import com.opengamma.strata.market.surface.SurfaceUnitParameterSensitivity;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -58,11 +58,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface surface;
+  private final Surface surface;
   /** 
    * The valuation date-time.
    * <p>
-   * All data items in this environment are calibrated for this date-time.
+   * The volatilities are calibrated for this date-time. 
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZonedDateTime valuationDateTime;
@@ -79,7 +79,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /**
    * Obtains an instance from the implied volatility surface and the date-time for which it is valid.
    * <p>
-   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surface must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -96,7 +96,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       ZonedDateTime valuationDateTime) {
 
     return new NormalSwaptionExpiryTenorVolatilities(surface, valuationDateTime);
@@ -105,7 +105,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /**
    * Obtains an instance from the implied volatility surface and the date, time and zone for which it is valid.
    * <p>
-   * The surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * The surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surface must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -124,7 +124,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
-      NodalSurface surface,
+      Surface surface,
       LocalDate valuationDate,
       LocalTime valuationTime,
       ZoneId valuationZone) {
@@ -134,7 +134,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   @ImmutableConstructor
   private NormalSwaptionExpiryTenorVolatilities(
-      NodalSurface surface,
+      Surface surface,
       ZonedDateTime valuationDateTime) {
 
     ArgChecker.notNull(surface, "surface");
@@ -178,12 +178,12 @@ public final class NormalSwaptionExpiryTenorVolatilities
   }
 
   @Override
-  public SurfaceCurrencyParameterSensitivity surfaceCurrencyParameterSensitivity(SwaptionSensitivity point) {
+  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
     ArgChecker.isTrue(point.getConvention().equals(convention),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(point.getExpiry());
     double tenor = point.getTenor();
-    SurfaceUnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
     return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
@@ -270,7 +270,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
    * @return the value of the property, not null
    */
-  public NodalSurface getSurface() {
+  public Surface getSurface() {
     return surface;
   }
 
@@ -278,7 +278,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
   /**
    * Gets the valuation date-time.
    * <p>
-   * All data items in this environment are calibrated for this date-time.
+   * The volatilities are calibrated for this date-time.
    * @return the value of the property, not null
    */
   @Override
@@ -331,8 +331,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     /**
      * The meta-property for the {@code surface} property.
      */
-    private final MetaProperty<NodalSurface> surface = DirectMetaProperty.ofImmutable(
-        this, "surface", NormalSwaptionExpiryTenorVolatilities.class, NodalSurface.class);
+    private final MetaProperty<Surface> surface = DirectMetaProperty.ofImmutable(
+        this, "surface", NormalSwaptionExpiryTenorVolatilities.class, Surface.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
@@ -383,7 +383,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
      * The meta-property for the {@code surface} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NodalSurface> surface() {
+    public MetaProperty<Surface> surface() {
       return surface;
     }
 
@@ -424,7 +424,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   private static final class Builder extends DirectFieldsBeanBuilder<NormalSwaptionExpiryTenorVolatilities> {
 
-    private NodalSurface surface;
+    private Surface surface;
     private ZonedDateTime valuationDateTime;
 
     /**
@@ -450,7 +450,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1853231955:  // surface
-          this.surface = (NodalSurface) newValue;
+          this.surface = (Surface) newValue;
           break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;

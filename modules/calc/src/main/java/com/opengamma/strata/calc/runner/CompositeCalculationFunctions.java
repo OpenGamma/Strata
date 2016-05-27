@@ -17,7 +17,6 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * A set of calculation functions which combines the functions in two other sets of functions.

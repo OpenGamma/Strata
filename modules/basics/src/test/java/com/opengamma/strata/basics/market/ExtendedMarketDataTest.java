@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -28,10 +28,10 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class ExtendedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestObservableKey KEY1 = TestObservableKey.of("1");
-  private static final TestObservableKey KEY2 = TestObservableKey.of("2");
-  private static final TestObservableKey KEY3 = TestObservableKey.of("3");
-  private static final TestObservableKey KEY4 = TestObservableKey.of("4");
+  private static final TestObservableId ID1 = TestObservableId.of("1");
+  private static final TestObservableId ID2 = TestObservableId.of("2");
+  private static final TestObservableId ID3 = TestObservableId.of("3");
+  private static final TestObservableId ID4 = TestObservableId.of("4");
   private static final Double VAL1 = 123d;
   private static final Double VAL2 = 234d;
   private static final Double VAL3 = 999d;
@@ -43,58 +43,58 @@ public class ExtendedMarketDataTest {
 
   //-------------------------------------------------------------------------
   public void of_addition() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(KEY3, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), KEY3);
+    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID3, VAL3, BASE_DATA);
+    assertEquals(test.getId(), ID3);
     assertEquals(test.getValue(), VAL3);
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.containsValue(KEY1), true);
-    assertEquals(test.containsValue(KEY2), true);
-    assertEquals(test.containsValue(KEY3), true);
-    assertEquals(test.containsValue(KEY4), false);
-    assertEquals(test.getValue(KEY1), VAL1);
-    assertEquals(test.getValue(KEY2), VAL2);
-    assertEquals(test.getValue(KEY3), VAL3);
-    assertThrowsIllegalArg(() -> test.getValue(KEY4));
-    assertEquals(test.findValue(KEY1), Optional.of(VAL1));
-    assertEquals(test.findValue(KEY2), Optional.of(VAL2));
-    assertEquals(test.findValue(KEY3), Optional.of(VAL3));
-    assertEquals(test.findValue(KEY4), Optional.empty());
-    assertEquals(test.getTimeSeries(KEY2), TIME_SERIES);
+    assertEquals(test.containsValue(ID1), true);
+    assertEquals(test.containsValue(ID2), true);
+    assertEquals(test.containsValue(ID3), true);
+    assertEquals(test.containsValue(ID4), false);
+    assertEquals(test.getValue(ID1), VAL1);
+    assertEquals(test.getValue(ID2), VAL2);
+    assertEquals(test.getValue(ID3), VAL3);
+    assertThrows(() -> test.getValue(ID4), MarketDataNotFoundException.class);
+    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertEquals(test.findValue(ID2), Optional.of(VAL2));
+    assertEquals(test.findValue(ID3), Optional.of(VAL3));
+    assertEquals(test.findValue(ID4), Optional.empty());
+    assertEquals(test.getTimeSeries(ID2), TIME_SERIES);
   }
 
   public void of_override() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(KEY1, VAL3, BASE_DATA);
-    assertEquals(test.getKey(), KEY1);
+    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL3, BASE_DATA);
+    assertEquals(test.getId(), ID1);
     assertEquals(test.getValue(), VAL3);
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.containsValue(KEY1), true);
-    assertEquals(test.containsValue(KEY2), true);
-    assertEquals(test.containsValue(KEY3), false);
-    assertEquals(test.getValue(KEY1), VAL3);
-    assertEquals(test.getValue(KEY2), VAL2);
-    assertThrowsIllegalArg(() -> test.getValue(KEY3));
-    assertEquals(test.findValue(KEY1), Optional.of(VAL3));
-    assertEquals(test.findValue(KEY2), Optional.of(VAL2));
-    assertEquals(test.findValue(KEY3), Optional.empty());
-    assertEquals(test.getTimeSeries(KEY2), TIME_SERIES);
+    assertEquals(test.containsValue(ID1), true);
+    assertEquals(test.containsValue(ID2), true);
+    assertEquals(test.containsValue(ID3), false);
+    assertEquals(test.getValue(ID1), VAL3);
+    assertEquals(test.getValue(ID2), VAL2);
+    assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
+    assertEquals(test.findValue(ID1), Optional.of(VAL3));
+    assertEquals(test.findValue(ID2), Optional.of(VAL2));
+    assertEquals(test.findValue(ID3), Optional.empty());
+    assertEquals(test.getTimeSeries(ID2), TIME_SERIES);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(KEY1, VAL1, BASE_DATA);
+    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL1, BASE_DATA);
     coverImmutableBean(test);
-    ExtendedMarketData<Double> test2 = ExtendedMarketData.of(KEY2, VAL2, ImmutableMarketData.of(VAL_DATE, ImmutableMap.of()));
+    ExtendedMarketData<Double> test2 = ExtendedMarketData.of(ID2, VAL2, ImmutableMarketData.of(VAL_DATE, ImmutableMap.of()));
     coverBeanEquals(test, test2);
   }
 
   public void serialization() {
-    ExtendedMarketData<Double> test = ExtendedMarketData.of(KEY1, VAL3, BASE_DATA);
+    ExtendedMarketData<Double> test = ExtendedMarketData.of(ID1, VAL3, BASE_DATA);
     assertSerialization(test);
   }
 
   private static ImmutableMarketData baseData() {
-    Map<MarketDataKey<?>, Object> dataMap = ImmutableMap.of(KEY1, VAL1, KEY2, VAL2);
-    Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(KEY2, TIME_SERIES);
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
+    Map<ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap = ImmutableMap.of(ID2, TIME_SERIES);
     return ImmutableMarketData.builder(VAL_DATE).values(dataMap).timeSeries(timeSeriesMap).build();
   }
 

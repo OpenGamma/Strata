@@ -47,42 +47,43 @@ public final class ImmutableMarketData
   /**
    * The market data values.
    */
-  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataKey<?>, ?>")
-  private final Map<MarketDataKey<?>, Object> values;
+  @PropertyDefinition(validate = "notNull", builderType = "Map<? extends MarketDataId<?>, ?>")
+  private final Map<MarketDataId<?>, Object> values;
   /**
    * The time-series.
    * <p>
    * If a request is made for a time-series that is not in the map, an empty series will be returned.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries;
+  private final Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from a valuation date and map of values.
    * <p>
-   * Use the {@linkplain #builder(LocalDate) builder} more more complex use cases,
+   * Use the {@linkplain #builder(LocalDate) builder} for more more complex use cases,
    * including setting time-series.
    *
    * @param valuationDate  the valuation date associated with the market data
    * @param values  the market data values
    * @return a set of market data containing the values in the map
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
-  public static ImmutableMarketData of(LocalDate valuationDate, Map<? extends MarketDataKey<?>, ?> values) {
-    MapStream.of(values).forEach((key, value) -> checkType(key, value));
+  public static ImmutableMarketData of(LocalDate valuationDate, Map<? extends MarketDataId<?>, ?> values) {
+    MapStream.of(values).forEach((id, value) -> checkType(id, value));
     return new ImmutableMarketData(valuationDate, values, ImmutableMap.of());
   }
 
-  // checks the value is an instance of the market data type of the key
-  static void checkType(MarketDataKey<?> key, Object value) {
-    if (!key.getMarketDataType().isInstance(value)) {
-      throw new IllegalArgumentException(
-          Messages.format(
-              "Value type doesn't match expected type. expected type: {}, value type: {}, key: {}, value: {}",
-              key.getMarketDataType(),
-              value.getClass().getName(),
-              key,
-              value));
+  // checks the value is an instance of the market data type of the id
+  static void checkType(MarketDataId<?> id, Object value) {
+    if (!id.getMarketDataType().isInstance(value)) {
+      if (value == null) {
+        throw new IllegalArgumentException(Messages.format(
+            "Value for identifier '{}' must not be null", id));
+      }
+      throw new ClassCastException(Messages.format(
+          "Value for identifier '{}' does not implement expected type '{}': '{}'",
+          id, id.getMarketDataType().getSimpleName(), value));
     }
   }
 
@@ -107,32 +108,43 @@ public final class ImmutableMarketData
   }
 
   //-------------------------------------------------------------------------
-
   @Override
-  public boolean containsValue(MarketDataKey<?> key) {
-    return values.containsKey(key);
+  public boolean containsValue(MarketDataId<?> id) {
+    // overridden for performance
+    return values.containsKey(id);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> findValue(MarketDataKey<T> key) {
-    Object value = values.get(key);
-    return Optional.ofNullable((T) value);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T getValue(MarketDataKey<T> key) {
-    Object value = values.get(key);
+  public <T> T getValue(MarketDataId<T> id) {
+    // overridden for performance
+    // no type check against id.getMarketDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(id);
     if (value == null) {
-      throw new IllegalArgumentException("No market data available for key " + key);
+      throw new MarketDataNotFoundException(msgValueNotFound(id));
     }
-    return (T) value;
+    return value;
+  }
+
+  // extracted to aid inlining performance
+  private String msgValueNotFound(MarketDataId<?> id) {
+    return Messages.format(
+        "Market data not found for identifier '{}' of type '{}'", id, id.getClass().getSimpleName());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> findValue(MarketDataId<T> id) {
+    // no type check against id.getMarketDataType() as checked in factory
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(id);
+    return Optional.ofNullable(value);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(ObservableKey key) {
-    LocalDateDoubleTimeSeries found = timeSeries.get(key);
+  public LocalDateDoubleTimeSeries getTimeSeries(ObservableId id) {
+    LocalDateDoubleTimeSeries found = timeSeries.get(id);
     return found == null ? LocalDateDoubleTimeSeries.empty() : found;
   }
 
@@ -163,8 +175,8 @@ public final class ImmutableMarketData
    */
   ImmutableMarketData(
       LocalDate valuationDate,
-      Map<? extends MarketDataKey<?>, ?> values,
-      Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends MarketDataId<?>, ?> values,
+      Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(values, "values");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
@@ -203,7 +215,7 @@ public final class ImmutableMarketData
    * Gets the market data values.
    * @return the value of the property, not null
    */
-  public Map<MarketDataKey<?>, Object> getValues() {
+  public Map<MarketDataId<?>, Object> getValues() {
     return values;
   }
 
@@ -214,7 +226,7 @@ public final class ImmutableMarketData
    * If a request is made for a time-series that is not in the map, an empty series will be returned.
    * @return the value of the property, not null
    */
-  public Map<ObservableKey, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public Map<ObservableId, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -272,13 +284,13 @@ public final class ImmutableMarketData
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<MarketDataKey<?>, Object>> values = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Map<MarketDataId<?>, Object>> values = DirectMetaProperty.ofImmutable(
         this, "values", ImmutableMarketData.class, (Class) Map.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<ObservableKey, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Map<ObservableId, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", ImmutableMarketData.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -336,7 +348,7 @@ public final class ImmutableMarketData
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<MarketDataKey<?>, Object>> values() {
+    public MetaProperty<Map<MarketDataId<?>, Object>> values() {
       return values;
     }
 
@@ -344,7 +356,7 @@ public final class ImmutableMarketData
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<ObservableKey, LocalDateDoubleTimeSeries>> timeSeries() {
+    public MetaProperty<Map<ObservableId, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 
@@ -380,8 +392,8 @@ public final class ImmutableMarketData
   private static final class Builder extends DirectFieldsBeanBuilder<ImmutableMarketData> {
 
     private LocalDate valuationDate;
-    private Map<? extends MarketDataKey<?>, ?> values = ImmutableMap.of();
-    private Map<ObservableKey, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
+    private Map<? extends MarketDataId<?>, ?> values = ImmutableMap.of();
+    private Map<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -412,10 +424,10 @@ public final class ImmutableMarketData
           this.valuationDate = (LocalDate) newValue;
           break;
         case -823812830:  // values
-          this.values = (Map<? extends MarketDataKey<?>, ?>) newValue;
+          this.values = (Map<? extends MarketDataId<?>, ?>) newValue;
           break;
         case 779431844:  // timeSeries
-          this.timeSeries = (Map<ObservableKey, LocalDateDoubleTimeSeries>) newValue;
+          this.timeSeries = (Map<ObservableId, LocalDateDoubleTimeSeries>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

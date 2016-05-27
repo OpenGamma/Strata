@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestFunction;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
-import com.opengamma.strata.calc.runner.function.CalculationFunction;
 
 /**
  * Test {@link CalculationFunctions}.

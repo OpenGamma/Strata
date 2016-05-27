@@ -53,10 +53,10 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.InflationInterpolatedRateObservation;
-import com.opengamma.strata.product.rate.InflationMonthlyRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
+import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 
 /**
  * Test.
@@ -215,7 +215,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -227,7 +227,7 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -240,7 +240,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -291,13 +291,13 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_01_02, REF_DATA))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -312,7 +312,7 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_04_07)
@@ -320,7 +320,7 @@ public class RateCalculationSwapLegTest {
                 .unadjustedStartDate(DATE_04_05)
                 .unadjustedEndDate(DATE_05_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_04_07, DATE_05_06))
-                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_04_03, REF_DATA))
+                .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_04_03, REF_DATA))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -334,7 +334,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_06_05)
             .unadjustedStartDate(DATE_05_05)
             .yearFraction(ACT_365F.yearFraction(DATE_05_06, DATE_06_05))
-            .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_05_01, REF_DATA))
+            .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_05_01, REF_DATA))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -384,20 +384,20 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_03_05)
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rateObservation(FixedRateObservation.of(0.025d))
+                .rateComputation(FixedRateComputation.of(0.025d))
                 .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -449,7 +449,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -462,7 +462,7 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -476,7 +476,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rateObservation(FixedRateObservation.of(0.025d))
+            .rateComputation(FixedRateComputation.of(0.025d))
             .build())
         .dayCount(ACT_365F)
         .currency(GBP)
@@ -571,8 +571,8 @@ public class RateCalculationSwapLegTest {
             .unadjustedStartDate(DATE_14_06_09)
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
-            .rateObservation(
-                InflationMonthlyRateObservation.of(
+            .rateComputation(
+                InflationMonthlyRateComputation.of(
                     GB_RPI,
                     YearMonth.from(bda.adjust(DATE_14_06_09, REF_DATA)).minusMonths(3),
                     YearMonth.from(bda.adjust(DATE_19_06_09, REF_DATA)).minusMonths(3)))
@@ -634,8 +634,8 @@ public class RateCalculationSwapLegTest {
             .unadjustedStartDate(DATE_14_06_09)
             .unadjustedEndDate(DATE_19_06_09)
             .yearFraction(1.0)
-            .rateObservation(
-                InflationInterpolatedRateObservation.of(
+            .rateComputation(
+                InflationInterpolatedRateComputation.of(
                     GB_RPI,
                     YearMonth.from(bda.adjust(DATE_14_06_09, REF_DATA)).minusMonths(3),
                     YearMonth.from(bda.adjust(DATE_19_06_09, REF_DATA)).minusMonths(3),
@@ -693,7 +693,7 @@ public class RateCalculationSwapLegTest {
         .unadjustedStartDate(DATE_14_06_09)
         .unadjustedEndDate(DATE_14_06_09.plusYears(1))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder()
         .startDate(bda.adjust(DATE_14_06_09.plusYears(1), REF_DATA))
@@ -701,7 +701,7 @@ public class RateCalculationSwapLegTest {
         .unadjustedStartDate(DATE_14_06_09.plusYears(1))
         .unadjustedEndDate(DATE_14_06_09.plusYears(2))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder()
         .startDate(bda.adjust(DATE_14_06_09.plusYears(2), REF_DATA))
@@ -709,7 +709,7 @@ public class RateCalculationSwapLegTest {
         .unadjustedStartDate(DATE_14_06_09.plusYears(2))
         .unadjustedEndDate(DATE_14_06_09.plusYears(3))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder()
         .startDate(bda.adjust(DATE_14_06_09.plusYears(3), REF_DATA))
@@ -717,7 +717,7 @@ public class RateCalculationSwapLegTest {
         .unadjustedStartDate(DATE_14_06_09.plusYears(3))
         .unadjustedEndDate(DATE_14_06_09.plusYears(4))
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RateAccrualPeriod rap4 = RateAccrualPeriod.builder()
         .startDate(bda.adjust(DATE_14_06_09.plusYears(4), REF_DATA))
@@ -725,7 +725,7 @@ public class RateCalculationSwapLegTest {
         .unadjustedStartDate(DATE_14_06_09.plusYears(4))
         .unadjustedEndDate(DATE_19_06_09)
         .yearFraction(1.0)
-        .rateObservation(FixedRateObservation.of(0.05))
+        .rateComputation(FixedRateComputation.of(0.05))
         .build();
     RatePaymentPeriod rpp = RatePaymentPeriod.builder()
         .paymentDate(DaysAdjustment.ofBusinessDays(2, GBLO).adjust(bda.adjust(DATE_19_06_09, REF_DATA), REF_DATA))

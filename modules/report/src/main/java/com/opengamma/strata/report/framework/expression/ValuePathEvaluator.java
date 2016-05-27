@@ -17,7 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.calc.config.Measure;
+import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.product.fra.Fra;
@@ -44,8 +44,8 @@ public class ValuePathEvaluator {
   private static final ImmutableList<TokenEvaluator<?>> EVALUATORS = ImmutableList.of(
       new CurrencyAmountTokenEvaluator(),
       new MapTokenEvaluator(),
-      new CurveCurrencyParameterSensitivitiesTokenEvaluator(),
-      new CurveCurrencyParameterSensitivityTokenEvaluator(),
+      new CurrencyParameterSensitivitiesTokenEvaluator(),
+      new CurrencyParameterSensitivityTokenEvaluator(),
       new PositionTokenEvaluator(),
       new TradeTokenEvaluator(),
       new SecurityTokenEvaluator(),

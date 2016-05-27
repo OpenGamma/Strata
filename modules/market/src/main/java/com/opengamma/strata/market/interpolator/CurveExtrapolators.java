@@ -60,6 +60,21 @@ public final class CurveExtrapolators {
   public static final CurveExtrapolator PRODUCT_POLYNOMIAL =
       CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_POLYNOMIAL.getName());
   /**
+   * Product linear extrapolator.
+   * <p>
+   * Given a data set {@code (xValues[i], yValues[i])}, extrapolate {@code (x[i], x[i] * y[i])}
+   * by a linear function.
+   * <p>
+   * The gradient of the extrapolation is obtained from the gradient of the interpolated
+   * curve on {@code (x[i], x[i] * y[i])} at the first/last node.
+   * <p>
+   * The extrapolation is ambiguous at x=0. Thus the following rule applies: 
+   * The x value of the first node must be strictly negative for the left extrapolation, whereas the x value of 
+   * the last node must be strictly positive for the right extrapolation. 
+   */
+  public static final CurveExtrapolator PRODUCT_LINEAR =
+      CurveExtrapolator.of(StandardCurveExtrapolators.PRODUCT_LINEAR.getName());
+  /**
    * Reciprocal extrapolator.
    * <p>
    * Given a data set {@code x[i], y[i]}, extrapolate {@code (x[i], x[i] * y[i])} by a linear

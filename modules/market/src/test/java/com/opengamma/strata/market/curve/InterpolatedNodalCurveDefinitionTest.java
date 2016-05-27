@@ -26,9 +26,9 @@ import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.node.DummyFraCurveNode;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 
 /**
  * Test {@link InterpolatedNodalCurveDefinition}.
@@ -42,8 +42,8 @@ public class InterpolatedNodalCurveDefinitionTest {
   private static final LocalDate DATE2 = GBLO.resolve(REF_DATA).nextOrSame(VAL_DATE.plusMonths(4));
   private static final CurveName CURVE_NAME = CurveName.of("Test");
   private static final ImmutableList<DummyFraCurveNode> NODES = ImmutableList.of(
-      DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))),
-      DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_1M, QuoteKey.of(StandardId.of("OG", "Ticker"))));
+      DummyFraCurveNode.of(Period.ofMonths(1), GBP_LIBOR_1M, QuoteId.of(StandardId.of("OG", "Ticker"))),
+      DummyFraCurveNode.of(Period.ofMonths(3), GBP_LIBOR_1M, QuoteId.of(StandardId.of("OG", "Ticker"))));
 
   public void test_builder() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()

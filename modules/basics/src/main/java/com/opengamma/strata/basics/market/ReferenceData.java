@@ -25,14 +25,14 @@ public interface ReferenceData {
   /**
    * Obtains an instance from a map of reference data.
    * <p>
-   * Each entry in the map is a unit of reference data, keyed by the matching identifier.
-   * For example, a {@link HolidayCalendarId} associated with a {@link HolidayCalendar}.
+   * Each entry in the map is a single piece of reference data, keyed by the matching identifier.
+   * For example, a {@link HolidayCalendar} can be looked up using a {@link HolidayCalendarId}.
    * The caller must ensure that the each entry in the map corresponds with the parameterized
    * type on the identifier.
    *
    * @param values  the reference data values
-   * @return the reference data instance
-   * @throws ClassCastException if a value does not match the parameterized type associated with the key
+   * @return the reference data instance containing the values in the map
+   * @throws ClassCastException if a value does not match the parameterized type associated with the identifier
    */
   public static ReferenceData of(Map<? extends ReferenceDataId<?>, ?> values) {
     return ImmutableReferenceData.of(values);
@@ -76,7 +76,7 @@ public interface ReferenceData {
    * If this reference data instance contains the identifier, the value will be returned.
    * Otherwise, an exception will be thrown.
    *
-   * @param <T>  the type of the reference data
+   * @param <T>  the type of the reference data value
    * @param id  the identifier to find
    * @return the reference data value
    * @throws ReferenceDataNotFoundException if the identifier is not found
@@ -93,7 +93,7 @@ public interface ReferenceData {
    * If this reference data instance contains the identifier, the value will be returned.
    * Otherwise, an empty optional will be returned.
    *
-   * @param <T>  the type of the reference data
+   * @param <T>  the type of the reference data value
    * @param id  the identifier to find
    * @return the reference data value, empty if not found
    */
@@ -103,12 +103,9 @@ public interface ReferenceData {
   /**
    * Combines this reference data with another.
    * <p>
-   * The result combines both sets reference data.
-   * Values are taken from this set of reference data if available, otherwise they are looked
-   * up in the other set.
-   * <p>
-   * Therefore if the same ID is present in both sets of reference data the value in this object
-   * will be returned.
+   * The result combines both sets of reference data.
+   * Values are taken from this set of reference data if available, otherwise they are taken
+   * from the other set.
    *
    * @param other  the other reference data
    * @return the combined reference data

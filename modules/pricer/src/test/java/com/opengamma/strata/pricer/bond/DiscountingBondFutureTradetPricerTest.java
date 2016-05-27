@@ -17,9 +17,8 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
@@ -100,8 +99,8 @@ public class DiscountingBondFutureTradetPricerTest {
 
   public void test_presentValueSensitivity() {
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(PROVIDER, (p) -> TRADE_PRICER.presentValue(FUTURE_TRADE, (p), REFERENCE_PRICE));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -109,8 +108,8 @@ public class DiscountingBondFutureTradetPricerTest {
   public void test_presentValueSensitivityWithZSpread_continuous() {
     PointSensitivities point = TRADE_PRICER.presentValueSensitivityWithZSpread(
         FUTURE_TRADE, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
         (p) -> TRADE_PRICER.presentValueWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, CONTINUOUS, 0));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -118,8 +117,8 @@ public class DiscountingBondFutureTradetPricerTest {
   public void test_presentValueSensitivityWithZSpread_periodic() {
     PointSensitivities point = TRADE_PRICER.presentValueSensitivityWithZSpread(
         FUTURE_TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) ->
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) ->
         TRADE_PRICER.presentValueWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -147,8 +146,8 @@ public class DiscountingBondFutureTradetPricerTest {
 
   public void test_parSpreadSensitivity() {
     PointSensitivities point = TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE, PROVIDER);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, (p) -> CurrencyAmount.of(USD, TRADE_PRICER.parSpread(FUTURE_TRADE, (p), REFERENCE_PRICE)));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -156,8 +155,8 @@ public class DiscountingBondFutureTradetPricerTest {
   public void test_parSpreadSensitivityWithZSpread_continuous() {
     PointSensitivities point = TRADE_PRICER.parSpreadSensitivityWithZSpread(
         FUTURE_TRADE, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(
         USD, TRADE_PRICER.parSpreadWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, CONTINUOUS, 0)));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -165,8 +164,8 @@ public class DiscountingBondFutureTradetPricerTest {
   public void test_parSpreadSensitivityWithZSpread_periodic() {
     PointSensitivities point = TRADE_PRICER.parSpreadSensitivityWithZSpread(
         FUTURE_TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point);
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD,
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD,
         TRADE_PRICER.parSpreadWithZSpread(FUTURE_TRADE, (p), REFERENCE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
     assertTrue(computed.equalWithTolerance(expected, 10.0 * EPS * NOTIONAL * QUANTITY));
   }
@@ -192,14 +191,16 @@ public class DiscountingBondFutureTradetPricerTest {
     CurrencyAmount pv = TRADE_PRICER.presentValue(FUTURE_TRADE, PROVIDER, REFERENCE_PRICE);
     assertEquals(pv.getAmount(), -2937800.66334416, EPS * NOTIONAL * QUANTITY);
     PointSensitivities pvPoint = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
-    CurveCurrencyParameterSensitivities pvSensi = PROVIDER.curveParameterSensitivity(pvPoint);
-    DoubleArray sensiIssuer = DoubleArray.of(
-        -48626.82968419264, -513532.4556150143, -1768520.182827613, -1.262340715772077E8, -5.208162480624767E8, 0.0);
-    DoubleArray sensiRepo = DoubleArray.of(1.8204636592806276E7, 2.5799948548745323E7, 0.0, 0.0, 0.0, 0.0);
-    CurveCurrencyParameterSensitivities pvSensiOld = CurveCurrencyParameterSensitivities
-        .of(CurveCurrencyParameterSensitivity.of(METADATA_ISSUER, USD, sensiIssuer));
-    pvSensiOld = pvSensiOld.combinedWith(CurveCurrencyParameterSensitivity.of(METADATA_REPO, USD, sensiRepo));
-    assertTrue(pvSensi.equalWithTolerance(pvSensiOld, TOL * NOTIONAL * QUANTITY));
+    CurrencyParameterSensitivities test = PROVIDER.parameterSensitivity(pvPoint);
+
+    DoubleArray expectedIssuer = DoubleArray.of(
+        -48626.82968419264, -513532.4556150143, -1768520.182827613, -1.262340715772077E8, -5.208162480624767E8, 0);
+    DoubleArray actualIssuer = test.getSensitivity(METADATA_ISSUER.getCurveName(), USD).getSensitivity();
+    assertTrue(actualIssuer.equalWithTolerance(expectedIssuer, TOL * NOTIONAL * QUANTITY));
+
+    DoubleArray expectedRepo = DoubleArray.of(1.8204636592806276E7, 2.5799948548745323E7, 0.0, 0.0, 0.0, 0.0);
+    DoubleArray actualRepo = test.getSensitivity(METADATA_REPO.getCurveName(), USD).getSensitivity();
+    assertTrue(actualRepo.equalWithTolerance(expectedRepo, TOL * NOTIONAL * QUANTITY));
   }
 
   public void regression_withZSpread_continuous() {
@@ -214,14 +215,16 @@ public class DiscountingBondFutureTradetPricerTest {
     assertEquals(pv.getAmount(), -7710148.864076961, EPS * NOTIONAL * QUANTITY);
     PointSensitivities pvPoint = TRADE_PRICER.presentValueSensitivityWithZSpread(
         FUTURE_TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    CurveCurrencyParameterSensitivities pvSensi = PROVIDER.curveParameterSensitivity(pvPoint);
-    DoubleArray sensiIssuer = DoubleArray.of(-48374.31671055041, -510470.43789512076, -1748988.1122760356,
-        -1.2199872917663E8, -5.0289585725762194E8, 0.0);
-    DoubleArray sensiRepo = DoubleArray.of(1.7625865116887797E7, 2.497970288088735E7, 0.0, 0.0, 0.0, 0.0);
-    CurveCurrencyParameterSensitivities pvSensiOld = CurveCurrencyParameterSensitivities
-        .of(CurveCurrencyParameterSensitivity.of(METADATA_ISSUER, USD, sensiIssuer));
-    pvSensiOld = pvSensiOld.combinedWith(CurveCurrencyParameterSensitivity.of(METADATA_REPO, USD, sensiRepo));
-    assertTrue(pvSensi.equalWithTolerance(pvSensiOld, TOL * NOTIONAL * QUANTITY));
+    CurrencyParameterSensitivities test = PROVIDER.parameterSensitivity(pvPoint);
+
+    DoubleArray expectedIssuer = DoubleArray.of(
+        -48374.31671055041, -510470.43789512076, -1748988.1122760356, -1.2199872917663E8, -5.0289585725762194E8, 0);
+    DoubleArray actualIssuer = test.getSensitivity(METADATA_ISSUER.getCurveName(), USD).getSensitivity();
+    assertTrue(actualIssuer.equalWithTolerance(expectedIssuer, TOL * NOTIONAL * QUANTITY));
+
+    DoubleArray expectedRepo = DoubleArray.of(1.7625865116887797E7, 2.497970288088735E7, 0.0, 0.0, 0.0, 0.0);
+    DoubleArray actualRepo = test.getSensitivity(METADATA_REPO.getCurveName(), USD).getSensitivity();
+    assertTrue(actualRepo.equalWithTolerance(expectedRepo, TOL * NOTIONAL * QUANTITY));
   }
 
 }

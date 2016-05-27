@@ -44,11 +44,11 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.key.QuoteKey;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -106,7 +106,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       DSC_NODES[i] = FixedOvernightSwapCurveNode.of(
           FixedOvernightSwapTemplate.of(Period.ZERO, Tenor.of(DSC_OIS_TENORS[i]), EUR_FIXED_1Y_EONIA_OIS),
-          QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
+          QuoteId.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
     }
   }
 
@@ -127,7 +127,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       FWD3_NODES[i] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(FWD3_IRS_TENORS[i]), EUR_FIXED_1Y_EURIBOR_3M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])));
+          QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])));
     }
   }
 
@@ -148,7 +148,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < FWD6_NB_IRS_NODES; i++) {
       FWD6_NODES[i] = FixedIborSwapCurveNode.of(
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(FWD6_IRS_TENORS[i]), EUR_FIXED_1Y_EURIBOR_6M),
-          QuoteKey.of(StandardId.of(SCHEME, FWD6_ID_VALUE[i])));
+          QuoteId.of(StandardId.of(SCHEME, FWD6_ID_VALUE[i])));
     }
   }
 
@@ -157,13 +157,13 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
   static {
     ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
     for (int i = 0; i < DSC_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])), DSC_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])), DSC_MARKET_QUOTES[i]);
     }
     for (int i = 0; i < FWD3_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i])), FWD3_MARKET_QUOTES[i]);
     }
     for (int i = 0; i < FWD6_NB_NODES; i++) {
-      builder.addValue(QuoteKey.of(StandardId.of(SCHEME, FWD6_ID_VALUE[i])), FWD6_MARKET_QUOTES[i]);
+      builder.addValue(QuoteId.of(StandardId.of(SCHEME, FWD6_ID_VALUE[i])), FWD6_MARKET_QUOTES[i]);
     }
     ALL_QUOTES = builder.build();
   }

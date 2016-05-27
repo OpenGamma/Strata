@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 
@@ -84,7 +83,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
   /**
@@ -105,7 +104,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData);
 
   //-------------------------------------------------------------------------
@@ -129,7 +128,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 
@@ -153,7 +152,7 @@ public interface CalculationRunner extends AutoCloseable {
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData,
       CalculationListener listener);
 

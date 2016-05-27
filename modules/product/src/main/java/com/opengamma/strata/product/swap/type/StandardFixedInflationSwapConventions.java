@@ -146,7 +146,7 @@ final class StandardFixedInflationSwapConventions {
           InflationRateSwapLegConvention.of(PriceIndices.FR_EXT_CPI, LAG_3M),
           BusinessDayAdjustment.of(MODIFIED_FOLLOWING, FRPA),
           DaysAdjustment.ofBusinessDays(2, EUTA));
-  
+
   // Create a zero-coupon fixed leg convention
   private static FixedRateSwapLegConvention fixedLegZcConvention(Currency ccy, HolidayCalendarId cal) {
     return FixedRateSwapLegConvention.builder()

@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
@@ -284,6 +285,34 @@ public class PiecewisePolynomialFunction1DTest {
     {
       final double ref = integrateExp[1][0] == 0. ? 1. : Math.abs(integrateExp[1][0]);
       assertEquals(function.integrate(result, initials[1], xKeys[0]), integrateExp[1][0], ref * EPS);
+    }
+  }
+
+  /**
+   * Consistency with evaluate and differentiate.
+   */
+  @Test
+  public void evaluateAndDifferentiateTest() {
+    double[][][] coefsMatrix = new double[][][] { { {1., -3., 3., -1 }, {1., 0., 0., 0. }, {1., 3., 3., 1. }, },
+          { {0., 5., -20., 20 }, {0., 5., -10., 5 }, {0., 5., 0., 0. } } };
+    double[][] xKeys = new double[][] { {-2, 1, 2, 2.5 }, {1.5, 7. / 3., 29. / 7., 5. } };
+    int dim = 2;
+    int nCoefs = 4;
+    int keyLength = xKeys[0].length;
+    PiecewisePolynomialResult[] pp = new PiecewisePolynomialResult[dim];
+    for (int i = 0; i < dim; ++i) {
+      pp[i] = new PiecewisePolynomialResult(X_VALUES, DoubleMatrix.ofUnsafe(coefsMatrix[i]), nCoefs, 1);
+    }
+    PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
+    for (int i = 0; i < dim; ++i) {
+      for (int j = 0; j < keyLength; ++j) {
+        ValueDerivatives computed = function.evaluateAndDifferentiate(pp[i], xKeys[i][j]);
+        double value = function.evaluate(pp[i], xKeys[i][j]).get(0);
+        double deriv = function.differentiate(pp[i], xKeys[i][j]).get(0);
+        assertEquals(computed.getValue(), value, EPS);
+        assertEquals(computed.getDerivatives().size(), 1);
+        assertEquals(computed.getDerivative(0), deriv, EPS);
+      }
     }
   }
 
@@ -776,4 +805,19 @@ public class PiecewisePolynomialFunction1DTest {
 
     function.differentiateTwice(pp, xKeys);
   }
+
+  /**
+   * dim must be 1 for evaluateAndDifferentiate.
+   */
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void dimFailTest() {
+    DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(new double[][] { {1., -3., 3., -1 }, {0., 5., -20., 20 },
+      {1., 0., 0., 0. }, {0., 5., -10., 5 }, {1., 3., 3., 1. }, {0., 5., 0., 0. } });
+    int dim = 2;
+    int nCoefs = 4;
+    PiecewisePolynomialResult pp = new PiecewisePolynomialResult(X_VALUES, coefsMatrix, nCoefs, dim);
+    PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
+    function.evaluateAndDifferentiate(pp, 1.5);
+  }
+
 }

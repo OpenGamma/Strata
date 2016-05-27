@@ -20,14 +20,16 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
+import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
@@ -140,8 +142,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator) {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
@@ -188,8 +190,8 @@ public class SabrSwaptionCalibrator {
       List<Tenor> tenors,
       List<RawOptionData> data,
       RatesProvider ratesProvider,
-      NodalSurface betaSurface,
-      NodalSurface shiftSurface,
+      Surface betaSurface,
+      Surface shiftSurface,
       GridInterpolator2D interpolator,
       boolean stopOnMathException) {
 
@@ -203,7 +205,10 @@ public class SabrSwaptionCalibrator {
     DoubleArray alphaArray = DoubleArray.EMPTY;
     DoubleArray rhoArray = DoubleArray.EMPTY;
     DoubleArray nuArray = DoubleArray.EMPTY;
-    List<SurfaceParameterMetadata> parameterMetadata = new ArrayList<>();
+    List<ParameterMetadata> parameterMetadata = new ArrayList<>();
+    List<DoubleArray> dataSensitivityAlpha = new ArrayList<>(); // Sensitivity to the calibrating data
+    List<DoubleArray> dataSensitivityRho = new ArrayList<>();
+    List<DoubleArray> dataSensitivityNu = new ArrayList<>();
     for (int looptenor = 0; looptenor < nbTenors; looptenor++) {
       double timeTenor = tenors.get(looptenor).getPeriod().getYears() + tenors.get(looptenor).getPeriod().getMonths() / 12;
       List<Period> expiries = data.get(looptenor).getExpiries();
@@ -222,10 +227,14 @@ public class SabrSwaptionCalibrator {
         SwapTrade swap0 = convention.toTrade(calibrationDate, effectiveDate, endDate, BuySell.BUY, 1.0, 0.0);
         double forward = swapPricer.parRate(swap0.getProduct().resolve(refData), ratesProvider);
         SabrFormulaData sabrPoint = null;
+        DoubleMatrix inverseJacobian = null;
         boolean error = false;
         try {
-          sabrPoint = calibration(forward, shift, beta, fixed, bda, calibrationDateTime, dayCount,
-              availableSmile.getFirst(), availableSmile.getSecond(), expiries.get(loopexpiry), data.get(looptenor));
+          LeastSquareResultsWithTransform calibrationResult =
+              calibration(forward, shift, beta, fixed, bda, calibrationDateTime, dayCount,
+                  availableSmile.getFirst(), availableSmile.getSecond(), expiries.get(loopexpiry), data.get(looptenor));
+          sabrPoint = SabrFormulaData.of(calibrationResult.getModelParameters().toArrayUnsafe());
+          inverseJacobian = calibrationResult.getModelParameterSensitivityToData();
         } catch (MathException e) {
           error = true;
           if (stopOnMathException) {
@@ -240,19 +249,29 @@ public class SabrSwaptionCalibrator {
           alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha()});
           rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
           nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
-          parameterMetadata.add(SwaptionSurfaceExpiryTenorNodeMetadata.of(timeToExpiry, timeTenor,
-              expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
+          parameterMetadata.add(
+              SwaptionSurfaceExpiryTenorParameterMetadata.of(
+                  timeToExpiry,
+                  timeTenor,
+                  expiries.get(loopexpiry).toString() + "x" + tenors.get(looptenor).toString()));
+          dataSensitivityAlpha.add(inverseJacobian.row(0));
+          dataSensitivityRho.add(inverseJacobian.row(2));
+          dataSensitivityNu.add(inverseJacobian.row(3));
         }
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA).withParameterMetadata(parameterMetadata);
-    SurfaceMetadata metadataBeta = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Beta", dayCount, convention, ValueType.SABR_BETA).withParameterMetadata(parameterMetadata);
+        "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        .withParameterMetadata(parameterMetadata)
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityAlpha);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO).withParameterMetadata(parameterMetadata);
+        "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO)
+        .withParameterMetadata(parameterMetadata)
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityRho);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU).withParameterMetadata(parameterMetadata);
+        "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU)
+        .withParameterMetadata(parameterMetadata)
+        .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
         .of(metadataAlpha, timeToExpiryArray, timeTenorArray, alphaArray, interpolator);
     InterpolatedNodalSurface rhoSurface = InterpolatedNodalSurface
@@ -260,13 +279,13 @@ public class SabrSwaptionCalibrator {
     InterpolatedNodalSurface nuSurface = InterpolatedNodalSurface
         .of(metadataNu, timeToExpiryArray, timeTenorArray, nuArray, interpolator);
     SabrInterestRateParameters params = SabrInterestRateParameters.of(
-        alphaSurface, betaSurface.withMetadata(metadataBeta), rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
+        alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
     return SabrParametersSwaptionVolatilities.of(params, calibrationDateTime);
   }
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high
   // volatilities and high and low vol of vol. The best result (in term of chi^2) is returned.
-  private SabrFormulaData calibration(
+  private LeastSquareResultsWithTransform calibration(
       double forward,
       double shift,
       double beta,
@@ -292,7 +311,7 @@ public class SabrSwaptionCalibrator {
     nuStart[2] = 0.10;
     nuStart[3] = 0.50;
     double chi2 = 1.0E+12; // Large number 
-    SabrFormulaData sabrPoint = null;
+    LeastSquareResultsWithTransform sabrCalibrationResult = null;
     for (int i = 0; i < 4; i++) { // Try different starting points and take the best
       DoubleArray startParameters = DoubleArray.of(alphaStart[i], beta, rhoStart, nuStart[i]);
       LeastSquareResultsWithTransform r = null;
@@ -315,12 +334,12 @@ public class SabrSwaptionCalibrator {
           }
         }
       }
-      if (r.getChiSq() < chi2) { // Better calibration
-        sabrPoint = SabrFormulaData.of(r.getModelParameters().toArrayUnsafe());
+      if (r.getChiSq() < chi2) { // Keep best calibration
+        sabrCalibrationResult = r;
         chi2 = r.getChiSq();
       }
     }
-    return sabrPoint;
+    return sabrCalibrationResult;
   }
 
   //-------------------------------------------------------------------------

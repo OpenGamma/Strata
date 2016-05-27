@@ -30,13 +30,13 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.SurfaceCurrencyParameterSensitivity;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
-import com.opengamma.strata.market.surface.SurfaceParameterMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorNodeMetadata;
+import com.opengamma.strata.market.surface.meta.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
@@ -62,12 +62,12 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final SurfaceMetadata METADATA;
   static {
-    List<SwaptionSurfaceExpiryTenorNodeMetadata> list =
-        new ArrayList<SwaptionSurfaceExpiryTenorNodeMetadata>();
+    List<SwaptionSurfaceExpiryTenorParameterMetadata> list =
+        new ArrayList<SwaptionSurfaceExpiryTenorParameterMetadata>();
     int nData = TIME.size();
     for (int i = 0; i < nData; ++i) {
-      SwaptionSurfaceExpiryTenorNodeMetadata parameterMetadata =
-          SwaptionSurfaceExpiryTenorNodeMetadata.of(TIME.get(i), TENOR.get(i));
+      SwaptionSurfaceExpiryTenorParameterMetadata parameterMetadata =
+          SwaptionSurfaceExpiryTenorParameterMetadata.of(TIME.get(i), TENOR.get(i));
       list.add(parameterMetadata);
     }
     METADATA = Surfaces.swaptionNormalExpiryTenor("GOVT1-SWAPTION-VOL", ACT_365F, CONVENTION).withParameterMetadata(list);
@@ -132,7 +132,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSensitivity point = SwaptionSensitivity.of(
           CONVENTION, TEST_OPTION_EXPIRY[i], TENOR.get(i), TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
-      SurfaceCurrencyParameterSensitivity sensi = PROVIDER.surfaceCurrencyParameterSensitivity(point);
+      CurrencyParameterSensitivity sensi = PROVIDER.parameterSensitivity(point);
       Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
       for (int j = 0; j < nData; ++j) {
         DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
@@ -148,16 +148,16 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
         double fd = 0.5 * (volUp - volDw) / eps;
         map.put(DoublesPair.of(TIME.get(j), TENOR.get(j)), fd);
       }
-      SurfaceCurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.surfaceCurrencyParameterSensitivity(point);
-      List<SurfaceParameterMetadata> list = sensi.getMetadata().getParameterMetadata().get();
+      CurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.parameterSensitivity(point);
+      List<ParameterMetadata> list = sensi.getParameterMetadata();
       DoubleArray computed = sensi.getSensitivity();
       assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
-        SwaptionSurfaceExpiryTenorNodeMetadata metadata =
-            (SwaptionSurfaceExpiryTenorNodeMetadata) list.get(i);
+        SwaptionSurfaceExpiryTenorParameterMetadata metadata =
+            (SwaptionSurfaceExpiryTenorParameterMetadata) list.get(i);
         double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getTenor()));
         assertEquals(computed.get(i), expected, eps);
-        assertTrue(sensiFromNoMetadata.getMetadata().getParameterMetadata().get().contains(metadata));
+        assertTrue(sensiFromNoMetadata.getParameterMetadata().contains(metadata));
       }
     }
   }

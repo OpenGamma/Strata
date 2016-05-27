@@ -35,7 +35,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
@@ -43,10 +42,11 @@ import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
-import com.opengamma.strata.market.curve.meta.TenorCurveNodeMetadata;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
@@ -78,7 +78,7 @@ public class CurveSensitivityUtilsJacobianTest {
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));
   private static final ImmutableMarketData MARKET_QUOTES_INPUT = 
-      ImmutableMarketData.builder(VALUATION_DATE).addValuesById(MQ_INPUT).build();
+      ImmutableMarketData.builder(VALUATION_DATE).addValues(MQ_INPUT).build();
   
   // Group input based on IRS for EURIBOR6M  
   public static final CurveName EUR_SINGLE_NAME = CurveName.of("EUR-ALLIRS");
@@ -107,9 +107,9 @@ public class CurveSensitivityUtilsJacobianTest {
     Tenor[] tenors = new Tenor[] {Tenor.TENOR_1D, Tenor.TENOR_1M, Tenor.TENOR_3M, Tenor.TENOR_6M,
         Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y, Tenor.TENOR_4Y, Tenor.TENOR_5Y, 
         Tenor.TENOR_7Y, Tenor.TENOR_10Y, Tenor.TENOR_15Y, Tenor.TENOR_20Y, Tenor.TENOR_30Y};
-    List<TenorCurveNodeMetadata> metadataList = new ArrayList<>();
+    List<TenorParameterMetadata> metadataList = new ArrayList<>();
     for(int looptenor=0; looptenor< tenors.length; looptenor++) {
-      metadataList.add(TenorCurveNodeMetadata.of(tenors[looptenor]));
+      metadataList.add(TenorParameterMetadata.of(tenors[looptenor]));
     }
     DoubleArray rate_eur = 
         DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0150, 0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0140);
@@ -161,8 +161,8 @@ public class CurveSensitivityUtilsJacobianTest {
       trades.add(t);
     }
     /* Par rate sensitivity */
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
-        (t) -> MULTICURVE_EUR_SINGLE_CALIBRATED.curveParameterSensitivity(
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
+        (t) -> MULTICURVE_EUR_SINGLE_CALIBRATED.parameterSensitivity(
                 PRICER_SWAP_PRODUCT.parRateSensitivity(((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_SINGLE_CALIBRATED).build());
     DoubleMatrix jiComputed = 
         CurveSensitivityUtils.jacobianFromMarketQuoteSensitivities(LIST_CURVE_NAMES_1, trades, sensitivityFunction);
@@ -197,9 +197,9 @@ public class CurveSensitivityUtilsJacobianTest {
       nodeDates.add(t.getProduct().getEndDate());
       trades.add(t);
     }
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
         (t) -> CurveSensitivityUtils.linearRebucketing(
-            MULTICURVE_EUR_SINGLE_INPUT.curveParameterSensitivity(
+            MULTICURVE_EUR_SINGLE_INPUT.parameterSensitivity(
                 PRICER_SWAP_PRODUCT.parRateSensitivity(((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_SINGLE_INPUT).build()),
             nodeDates, VALUATION_DATE);
 
@@ -209,7 +209,7 @@ public class CurveSensitivityUtilsJacobianTest {
       mqCmp.put(QuoteId.of(StandardId.of(OG_TICKER, TICKERS_STD_1[looptenor])), marketQuotes[looptenor]);
     }
     ImmutableMarketData marketQuotesObject =
-        ImmutableMarketData.builder(VALUATION_DATE).addValuesById(mqCmp).build();
+        ImmutableMarketData.builder(VALUATION_DATE).addValues(mqCmp).build();
     RatesProvider multicurveCmp =
         CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, marketQuotesObject, REF_DATA, TS_EMPTY);
 
@@ -295,8 +295,8 @@ public class CurveSensitivityUtilsJacobianTest {
       trades.addAll(tradesDsc);
     }
     /* Par rate sensitivity */
-    Function<ResolvedTrade, CurveCurrencyParameterSensitivities> sensitivityFunction =
-        (t) -> MULTICURVE_EUR_2_CALIBRATED.curveParameterSensitivity(
+    Function<ResolvedTrade, CurrencyParameterSensitivities> sensitivityFunction =
+        (t) -> MULTICURVE_EUR_2_CALIBRATED.parameterSensitivity(
             (t instanceof ResolvedSwapTrade) ?
                 PRICER_SWAP_PRODUCT.parRateSensitivity(
                     ((ResolvedSwapTrade) t).getProduct(), MULTICURVE_EUR_2_CALIBRATED).build() :

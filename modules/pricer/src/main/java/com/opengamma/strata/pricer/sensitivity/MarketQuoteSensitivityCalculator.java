@@ -12,13 +12,11 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -49,19 +47,19 @@ public class MarketQuoteSensitivityCalculator {
    * @param provider  the rates provider, containing Jacobian calibration information
    * @return the market quote sensitivities
    */
-  public CurveCurrencyParameterSensitivities sensitivity(
-      CurveCurrencyParameterSensitivities paramSensitivities,
+  public CurrencyParameterSensitivities sensitivity(
+      CurrencyParameterSensitivities paramSensitivities,
       RatesProvider provider) {
 
     ArgChecker.notNull(paramSensitivities, "paramSensitivities");
     ArgChecker.notNull(provider, "provider");
 
-    CurveCurrencyParameterSensitivities result = CurveCurrencyParameterSensitivities.empty();
-    for (CurveCurrencyParameterSensitivity paramSens : paramSensitivities.getSensitivities()) {
+    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
+    for (CurrencyParameterSensitivity paramSens : paramSensitivities.getSensitivities()) {
       // find the matching calibration info
-      Curve curve = provider.findCurve(paramSens.getCurveName())
+      Curve curve = provider.findCurve((CurveName) paramSens.getMarketDataName())
           .orElseThrow(() -> new IllegalArgumentException(
-              "Market Quote sensitivity requires curve: " + paramSens.getCurveName()));
+              "Market Quote sensitivity requires curve: " + paramSens.getMarketDataName()));
       JacobianCalibrationMatrix info = curve.getMetadata().findInfo(CurveInfoType.JACOBIAN)
           .orElseThrow(() -> new IllegalArgumentException(
               "Market Quote sensitivity requires Jacobian calibration information"));
@@ -76,13 +74,9 @@ public class MarketQuoteSensitivityCalculator {
       Map<CurveName, DoubleArray> split = info.splitValues(marketQuoteSens);
       for (Entry<CurveName, DoubleArray> entry : split.entrySet()) {
         CurveName curveName = entry.getKey();
-        CurveMetadata curveMetadata = provider.findCurve(curveName)
-            .map(c -> c.getMetadata())
-            .orElseGet(() -> DefaultCurveMetadata.of(curveName));
-        CurveCurrencyParameterSensitivity maketQuoteSens = CurveCurrencyParameterSensitivity.of(
-            curveMetadata,
-            paramSens.getCurrency(),
-            entry.getValue());
+        CurrencyParameterSensitivity maketQuoteSens = provider.findCurve(curveName)
+            .map(c -> c.createParameterSensitivity(paramSens.getCurrency(), entry.getValue()))
+            .orElse(CurrencyParameterSensitivity.of(curveName, paramSens.getCurrency(), entry.getValue()));
         result = result.combinedWith(maketQuoteSens);
       }
     }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.calibration;
 
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
@@ -49,6 +49,6 @@ public interface CalibrationMeasure<T extends ResolvedTrade> {
    * @return the sensitivity
    * @throws IllegalArgumentException if the trade cannot be valued
    */
-  public abstract CurveCurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider);
+  public abstract CurrencyParameterSensitivities sensitivities(T trade, RatesProvider provider);
 
 }

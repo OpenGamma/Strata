@@ -24,8 +24,6 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -79,8 +77,15 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
+    assertEquals(test.getDiscountFactors(), DFCURVE);
+    assertEquals(test.getParameterCount(), DFCURVE.getParameterCount());
+    assertEquals(test.getParameter(0), DFCURVE.getParameter(0));
+    assertEquals(test.getParameterMetadata(0), DFCURVE.getParameterMetadata(0));
+    assertEquals(test.withParameter(0, 1d).getDiscountFactors(), DFCURVE.withParameter(0, 1d));
+    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getDiscountFactors(), DFCURVE.withPerturbation((i, v, m) -> v + 1d));
+    // check IborIndexRates
+    IborIndexRates test2 = IborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE);
+    assertEquals(test, test2);
   }
 
   public void test_of_withFixings() {
@@ -89,24 +94,9 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------
-  public void test_applyPerturbation() {
-    Perturbation<Curve> perturbation = curve -> CURVE2;
-    DiscountIborIndexRates base = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
-    DiscountIborIndexRates test = base.applyPerturbation(perturbation);
-    test = test.withDiscountFactors(DFCURVE2);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getDiscountFactors(), DFCURVE2);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
-  }
-
   public void test_withDiscountFactors() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
     test = test.withDiscountFactors(DFCURVE2);
@@ -114,8 +104,6 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE2);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
   }
 
   //-------------------------------------------------------------------------
@@ -195,10 +183,10 @@ public class DiscountIborIndexRatesTest {
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
     IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M_AFTER, GBP, 1d);
-    assertEquals(test.curveParameterSensitivity(point).size(), 1);
+    assertEquals(test.parameterSensitivity(point).size(), 1);
   }
 
   //-------------------------------------------------------------------------

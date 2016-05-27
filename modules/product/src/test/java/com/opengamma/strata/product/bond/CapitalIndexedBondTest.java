@@ -42,7 +42,7 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
 /**
@@ -163,7 +163,7 @@ public class CapitalIndexedBondTest {
       LocalDate start = SCHEDULE_ADJ.adjust(unAdjDates[i], REF_DATA);
       LocalDate end = SCHEDULE_ADJ.adjust(unAdjDates[i + 1], REF_DATA);
       LocalDate detachment = EX_COUPON.adjust(end, REF_DATA);
-      RateObservation obs = RATE_CALC.createRateObservation(end);
+      RateComputation comp = RATE_CALC.createRateComputation(end);
       periodic[i] = CapitalIndexedBondPaymentPeriod.builder()
           .currency(USD)
           .startDate(start)
@@ -172,7 +172,7 @@ public class CapitalIndexedBondTest {
           .unadjustedEndDate(unAdjDates[i + 1])
           .detachmentDate(detachment)
           .realCoupon(COUPONS[i])
-          .rateObservation(obs)
+          .rateComputation(comp)
           .notional(NOTIONAL)
           .build();
     }

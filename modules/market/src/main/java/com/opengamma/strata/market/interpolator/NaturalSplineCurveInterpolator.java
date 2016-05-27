@@ -186,7 +186,6 @@ final class NaturalSplineCurveInterpolator
         res = (DoubleArray) MA.scale(res, s);
         res = (DoubleArray) MA.add(res, coefficientSensitivity.row(i));
       }
-      
       return res;
     }
 

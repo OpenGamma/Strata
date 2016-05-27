@@ -98,6 +98,11 @@ public class IsdaCompliantYieldCurve extends IsdaCompliantCurve {
 
   //-------------------------------------------------------------------------
   @Override
+  public IsdaCompliantYieldCurve withParameter(int parameterIndex, double newValue) {
+    return new IsdaCompliantYieldCurve(super.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
   public IsdaCompliantYieldCurve withOffset(double offsetFromNewBaseDate) {
     return new IsdaCompliantYieldCurve(super.withOffset(offsetFromNewBaseDate));
   }

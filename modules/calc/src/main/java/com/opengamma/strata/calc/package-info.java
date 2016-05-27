@@ -5,7 +5,7 @@
  */
 
 /**
- * Calculate risk measures on trades, applies scenarios and manages market data.
+ * Calculates risk measures on trades, applies scenarios and manages market data.
  * <p>
  * The strata-pricer module provides the ability to calculate results for a single trade,
  * single measure and single set of market data. The strata-calc module provides the ability

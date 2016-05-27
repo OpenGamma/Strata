@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
-import com.opengamma.strata.product.rate.FixedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
  * Test.
@@ -79,15 +79,15 @@ public class FixedRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(period1)
         .yearFraction(period1.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.025d))
+        .rateComputation(FixedRateComputation.of(0.025d))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(period2)
         .yearFraction(period2.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.025d))
+        .rateComputation(FixedRateComputation.of(0.025d))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(period3)
         .yearFraction(period3.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.025d))
+        .rateComputation(FixedRateComputation.of(0.025d))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -111,15 +111,15 @@ public class FixedRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(period1)
         .yearFraction(period1.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.025d))
+        .rateComputation(FixedRateComputation.of(0.025d))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(period2)
         .yearFraction(period2.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.020d))
+        .rateComputation(FixedRateComputation.of(0.020d))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(period3)
         .yearFraction(period3.yearFraction(ACT_365F, schedule))
-        .rateObservation(FixedRateObservation.of(0.015d))
+        .rateComputation(FixedRateComputation.of(0.015d))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));

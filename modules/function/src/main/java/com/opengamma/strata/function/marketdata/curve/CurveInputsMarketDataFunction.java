@@ -18,15 +18,13 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataKey;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.SimpleMarketDataKey;
-import com.opengamma.strata.calc.marketdata.CalculationEnvironment;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.marketdata.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
-import com.opengamma.strata.calc.marketdata.function.MarketDataFunction;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -57,19 +55,14 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
       return MarketDataRequirements.empty();
     }
     InterpolatedNodalCurveDefinition curveDefn = (InterpolatedNodalCurveDefinition) definition;
-    MarketDataFeed marketDataFeed = id.getMarketDataFeed();
-    Set<? extends SimpleMarketDataKey<?>> requirementKeys = nodeRequirements(curveDefn);
-    Set<MarketDataId<?>> requirements = requirementKeys.stream()
-        .map(key -> key.toMarketDataId(marketDataFeed))
-        .collect(toImmutableSet());
-    return MarketDataRequirements.builder().addValues(requirements).build();
+    return MarketDataRequirements.builder().addValues(nodeRequirements(curveDefn)).build();
   }
 
   @Override
   public MarketDataBox<CurveInputs> build(
       CurveInputsId id,
       MarketDataConfig marketDataConfig,
-      CalculationEnvironment marketData,
+      ScenarioMarketData marketData,
       ReferenceData refData) {
 
     CurveGroupName groupName = id.getCurveGroupName();
@@ -81,10 +74,10 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
       throw new IllegalArgumentException(Messages.format("No curve named '{}' found in group '{}'", curveName, groupName));
     }
     NodalCurveDefinition curveDefn = optionalDefinition.get();
-    MarketDataFeed marketDataFeed = id.getMarketDataFeed();
-    Set<? extends SimpleMarketDataKey<?>> requirements = nodeRequirements(curveDefn);
-    Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketDataValues =
-        getMarketDataValues(marketData, requirements, marketDataFeed);
+    ObservableSource obsSource = id.getObservableSource();
+    Set<? extends MarketDataId<?>> requirements = nodeRequirements(curveDefn);
+    Map<? extends MarketDataId<?>, MarketDataBox<?>> marketDataValues =
+        getMarketDataValues(marketData, requirements, obsSource);
     MarketDataBox<LocalDate> valuationDate = marketData.getValuationDate();
     // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
@@ -97,13 +90,13 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
   private MarketDataBox<CurveInputs> buildSingleCurveInputs(
       NodalCurveDefinition curveDefn,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
       MarketDataBox<LocalDate> valuationDate,
       ReferenceData refData) {
 
     // There is only a single map of values and single valuation date - create a single CurveInputs instance
     CurveMetadata curveMetadata = curveDefn.metadata(valuationDate.getSingleValue(), refData);
-    Map<? extends MarketDataKey<?>, ?> singleMarketDataValues = MapStream.of(marketData)
+    Map<? extends MarketDataId<?>, ?> singleMarketDataValues = MapStream.of(marketData)
         .mapValues(box -> box.getSingleValue())
         .toMap();
 
@@ -113,12 +106,12 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
   private MarketDataBox<CurveInputs> buildMultipleCurveInputs(
       NodalCurveDefinition curveDefn,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData,
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData,
       MarketDataBox<LocalDate> valuationDate,
       ReferenceData refData) {
 
-    // If there are multiple values for any of the input data values or for the valuation dates then we need to create
-    // multiple sets of inputs
+    // If there are multiple values for any of the input data values or for the valuation
+    // dates then we need to create multiple sets of inputs
     int scenarioCount = scenarioCount(valuationDate, marketData);
 
     List<CurveMetadata> curveMetadata = IntStream.range(0, scenarioCount)
@@ -126,7 +119,7 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
         .map((LocalDate valDate) -> curveDefn.metadata(valDate, refData))
         .collect(toImmutableList());
 
-    List<Map<? extends MarketDataKey<?>, ?>> scenarioValues = IntStream.range(0, scenarioCount)
+    List<Map<? extends MarketDataId<?>, ?>> scenarioValues = IntStream.range(0, scenarioCount)
         .mapToObj(i -> buildScenarioValues(marketData, i))
         .collect(toImmutableList());
 
@@ -138,14 +131,14 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
   }
 
   /**
-   * Builds a map of market data key to market data value for a single scenario.
+   * Builds a map of market data identifier to market data value for a single scenario.
    *
    * @param values  the market data values for all scenarios
    * @param scenarioIndex  the index of the scenario
    * @return map of market data values for one scenario
    */
-  private static Map<? extends MarketDataKey<?>, ?> buildScenarioValues(
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> values,
+  private static Map<? extends MarketDataId<?>, ?> buildScenarioValues(
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> values,
       int scenarioIndex) {
 
     return MapStream.of(values).mapValues(box -> box.getValue(scenarioIndex)).toMap();
@@ -153,16 +146,16 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
 
   private static int scenarioCount(
       MarketDataBox<LocalDate> valuationDate,
-      Map<? extends MarketDataKey<?>, MarketDataBox<?>> marketData) {
+      Map<? extends MarketDataId<?>, MarketDataBox<?>> marketData) {
 
     int scenarioCount = 0;
 
     if (valuationDate.isScenarioValue()) {
       scenarioCount = valuationDate.getScenarioCount();
     }
-    for (Map.Entry<? extends MarketDataKey<?>, MarketDataBox<?>> entry : marketData.entrySet()) {
+    for (Map.Entry<? extends MarketDataId<?>, MarketDataBox<?>> entry : marketData.entrySet()) {
       MarketDataBox<?> box = entry.getValue();
-      MarketDataKey<?> id = entry.getKey();
+      MarketDataId<?> id = entry.getKey();
 
       if (box.isScenarioValue()) {
         int boxScenarioCount = box.getScenarioCount();
@@ -200,17 +193,17 @@ public final class CurveInputsMarketDataFunction implements MarketDataFunction<C
    * @param curveDefn  the curve definition containing the nodes
    * @return requirements for the market data needed by the nodes to build trades
    */
-  private static Set<? extends SimpleMarketDataKey<?>> nodeRequirements(NodalCurveDefinition curveDefn) {
+  private static Set<? extends MarketDataId<?>> nodeRequirements(NodalCurveDefinition curveDefn) {
     return curveDefn.getNodes().stream()
         .flatMap(node -> node.requirements().stream())
         .collect(toImmutableSet());
   }
 
-  private static Map<? extends MarketDataKey<?>, MarketDataBox<?>> getMarketDataValues(
-      CalculationEnvironment marketData,
-      Set<? extends SimpleMarketDataKey<?>> keys,
-      MarketDataFeed marketDataFeed) {
+  private static Map<? extends MarketDataId<?>, MarketDataBox<?>> getMarketDataValues(
+      ScenarioMarketData marketData,
+      Set<? extends MarketDataId<?>> ids,
+      ObservableSource observableSource) {
 
-    return keys.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k.toMarketDataId(marketDataFeed))));
+    return ids.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
   }
 }

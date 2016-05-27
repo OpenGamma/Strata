@@ -138,6 +138,20 @@ public final class CurveGroup
 
   //-------------------------------------------------------------------------
   /**
+   * Finds the curve with the specified name.
+   * <p>
+   * If the curve cannot be found, empty is returned.
+   * 
+   * @param name  the curve name
+   * @return the curve, empty if not found
+   */
+  public Optional<Curve> findCurve(CurveName name) {
+    return Stream.concat(discountCurves.values().stream(), forwardCurves.values().stream())
+        .filter(c -> c.getName().equals(name))
+        .findFirst();
+  }
+
+  /**
    * Finds the discount curve for the currency if there is one in the group.
    * <p>
    * If the curve is not found, optional empty is returned.

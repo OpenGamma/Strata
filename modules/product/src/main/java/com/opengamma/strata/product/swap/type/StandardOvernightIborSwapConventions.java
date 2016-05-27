@@ -16,7 +16,6 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.AVERAGED;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDED;
 
-
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;

@@ -34,7 +34,7 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
-import com.opengamma.strata.product.rate.RateObservation;
+import com.opengamma.strata.product.rate.RateComputation;
 
 /**
  * A forward rate agreement (FRA), resolved for pricing.
@@ -118,7 +118,7 @@ public final class ResolvedFra
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final RateObservation floatingRate;
+  private final RateComputation floatingRate;
   /**
    * The method to use for discounting.
    * <p>
@@ -142,7 +142,7 @@ public final class ResolvedFra
       LocalDate endDate,
       double yearFraction,
       double fixedRate,
-      RateObservation floatingRate,
+      RateComputation floatingRate,
       FraDiscountingMethod discounting) {
 
     this.currency = ArgChecker.notNull(currency, "currency");
@@ -159,7 +159,7 @@ public final class ResolvedFra
   }
 
   // collect the set of indices, validating they are IborIndex
-  private static ImmutableSet<IborIndex> buildIndices(RateObservation floatingRate) {
+  private static ImmutableSet<IborIndex> buildIndices(RateComputation floatingRate) {
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     floatingRate.collectIndices(builder);
     return builder.build().stream()
@@ -318,7 +318,7 @@ public final class ResolvedFra
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public RateObservation getFloatingRate() {
+  public RateComputation getFloatingRate() {
     return floatingRate;
   }
 
@@ -443,8 +443,8 @@ public final class ResolvedFra
     /**
      * The meta-property for the {@code floatingRate} property.
      */
-    private final MetaProperty<RateObservation> floatingRate = DirectMetaProperty.ofImmutable(
-        this, "floatingRate", ResolvedFra.class, RateObservation.class);
+    private final MetaProperty<RateComputation> floatingRate = DirectMetaProperty.ofImmutable(
+        this, "floatingRate", ResolvedFra.class, RateComputation.class);
     /**
      * The meta-property for the {@code discounting} property.
      */
@@ -572,7 +572,7 @@ public final class ResolvedFra
      * The meta-property for the {@code floatingRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateObservation> floatingRate() {
+    public MetaProperty<RateComputation> floatingRate() {
       return floatingRate;
     }
 
@@ -634,7 +634,7 @@ public final class ResolvedFra
     private LocalDate endDate;
     private double yearFraction;
     private double fixedRate;
-    private RateObservation floatingRate;
+    private RateComputation floatingRate;
     private FraDiscountingMethod discounting;
 
     /**
@@ -711,7 +711,7 @@ public final class ResolvedFra
           this.fixedRate = (Double) newValue;
           break;
         case -2130225658:  // floatingRate
-          this.floatingRate = (RateObservation) newValue;
+          this.floatingRate = (RateComputation) newValue;
           break;
         case -536441087:  // discounting
           this.discounting = (FraDiscountingMethod) newValue;
@@ -869,7 +869,7 @@ public final class ResolvedFra
      * @param floatingRate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder floatingRate(RateObservation floatingRate) {
+    public Builder floatingRate(RateComputation floatingRate) {
       JodaBeanUtils.notNull(floatingRate, "floatingRate");
       this.floatingRate = floatingRate;
       return this;

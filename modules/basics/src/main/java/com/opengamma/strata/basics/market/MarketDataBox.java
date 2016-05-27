@@ -34,7 +34,7 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
  * <p>
  * In some cases a function might need to access the data for all scenarios at the same time. For example, if
  * part of the calculation is the same for all scenarios it can be done once and reused instead of recalculated
- * for each scenario. In this case a {@link ScenarioMarketDataKey} should be used to retrieve the scenario
+ * for each scenario. In this case a {@link ScenarioMarketDataId} should be used to retrieve the scenario
  * value from the market data container.
  * 
  * @param <T>  the type of data held in the box
@@ -243,7 +243,10 @@ public interface MarketDataBox<T> {
     return Collector.of(
         ArrayList::new,
         (list, value) -> list.add(value),
-        (list1, list2) -> { list1.addAll(list2); return list1; },
+        (list1, list2) -> {
+          list1.addAll(list2);
+          return list1;
+        },
         list -> list.size() == 1 ? MarketDataBox.ofSingleValue(list.get(0)) : MarketDataBox.ofScenarioValues(list));
   }
 }

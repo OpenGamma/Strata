@@ -28,15 +28,15 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
@@ -64,32 +64,32 @@ public class CashFlowEquivalentCalculatorTest {
   private static final double PAY_YC2 = 0.249;
   private static final double RATE = 0.0123d;
   private static final double NOTIONAL = 100_000_000;
-  private static final IborRateObservation GBP_LIBOR_3M_OBS1 = IborRateObservation.of(GBP_LIBOR_3M, FIXING1, REF_DATA);
-  private static final IborRateObservation GBP_LIBOR_3M_OBS2 = IborRateObservation.of(GBP_LIBOR_3M, FIXING2, REF_DATA);
+  private static final IborRateComputation GBP_LIBOR_3M_COMP1 = IborRateComputation.of(GBP_LIBOR_3M, FIXING1, REF_DATA);
+  private static final IborRateComputation GBP_LIBOR_3M_COMP2 = IborRateComputation.of(GBP_LIBOR_3M, FIXING2, REF_DATA);
 
   // accrual periods
   private static final  RateAccrualPeriod IBOR1 = RateAccrualPeriod.builder()
       .startDate(START1)
       .endDate(END1)
-      .rateObservation(GBP_LIBOR_3M_OBS1)
+      .rateComputation(GBP_LIBOR_3M_COMP1)
       .yearFraction(PAY_YC1)
       .build();
   private static final  RateAccrualPeriod IBOR2 = RateAccrualPeriod.builder()
       .startDate(START2)
       .endDate(END2)
-      .rateObservation(GBP_LIBOR_3M_OBS2)
+      .rateComputation(GBP_LIBOR_3M_COMP2)
       .yearFraction(PAY_YC2)
       .build();
   private static final  RateAccrualPeriod FIXED1 = RateAccrualPeriod.builder()
       .startDate(START1)
       .endDate(END1)
-      .rateObservation(FixedRateObservation.of(RATE))
+      .rateComputation(FixedRateComputation.of(RATE))
       .yearFraction(PAY_YC1)
       .build();
   private static final RateAccrualPeriod FIXED2 = RateAccrualPeriod.builder()
       .startDate(START2)
       .endDate(END2)
-      .rateObservation(FixedRateObservation.of(RATE))
+      .rateComputation(FixedRateComputation.of(RATE))
       .yearFraction(PAY_YC2)
       .build();
   //Ibor leg
@@ -153,7 +153,7 @@ public class CashFlowEquivalentCalculatorTest {
     LocalDate fixingSTART1 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING1, REF_DATA);
     double fixedYearFraction1 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART1,
         GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART1, REF_DATA));
-    double beta1 = (1d + fixedYearFraction1 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_OBS1.getObservation()))
+    double beta1 = (1d + fixedYearFraction1 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_COMP1.getObservation()))
         * PROVIDER.discountFactor(GBP, PAYMENT1) / PROVIDER.discountFactor(GBP, fixingSTART1);
     NotionalExchange iborPayment11 =
         NotionalExchange.of(fixingSTART1, CurrencyAmount.of(GBP, -NOTIONAL * beta1 * PAY_YC1 / fixedYearFraction1));
@@ -162,7 +162,7 @@ public class CashFlowEquivalentCalculatorTest {
     LocalDate fixingSTART2 = GBP_LIBOR_3M.calculateEffectiveFromFixing(FIXING2, REF_DATA);
     double fixedYearFraction2 = GBP_LIBOR_3M.getDayCount().relativeYearFraction(fixingSTART2,
         GBP_LIBOR_3M.calculateMaturityFromEffective(fixingSTART2, REF_DATA));
-    double beta2 = (1d + fixedYearFraction2 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_OBS2.getObservation()))
+    double beta2 = (1d + fixedYearFraction2 * PROVIDER.iborIndexRates(GBP_LIBOR_3M).rate(GBP_LIBOR_3M_COMP2.getObservation()))
         * PROVIDER.discountFactor(GBP, PAYMENT2) / PROVIDER.discountFactor(GBP, fixingSTART2);
     NotionalExchange iborPayment21 =
         NotionalExchange.of(fixingSTART2, CurrencyAmount.of(GBP, -NOTIONAL * beta2 * PAY_YC2 / fixedYearFraction2));
@@ -261,12 +261,12 @@ public class CashFlowEquivalentCalculatorTest {
     int size = keyComputedFull.size();
     for (int i = 0; i < size; ++i) {
       final int index = i;
-      CurveCurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
+      CurrencyParameterSensitivities expected = calc.sensitivity(PROVIDER,
           p -> ((NotionalExchange) CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, p)
               .getPaymentEvents().get(index)).getPaymentAmount());
       PointSensitivityBuilder point = computedFull.get(
           CashFlowEquivalentCalculator.cashFlowEquivalentSwap(swap, PROVIDER).getPaymentEvents().get(index));
-      CurveCurrencyParameterSensitivities computed = PROVIDER.curveParameterSensitivity(point.build());
+      CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
       assertTrue(computed.equalWithTolerance(expected, eps * NOTIONAL));
     }
   }

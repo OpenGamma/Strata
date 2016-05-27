@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.basics.market;
 
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
@@ -81,6 +83,24 @@ public class ReferenceDataTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_defaultMethods() {
+    ReferenceData test = new ReferenceData() {
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> Optional<T> findValue(ReferenceDataId<T> id) {
+        return id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty();
+      }
+    };
+    assertEquals(test.containsValue(ID1), true);
+    assertEquals(test.containsValue(ID2), false);
+    assertEquals(test.getValue(ID1), VAL1);
+    assertThrows(() -> test.getValue(ID2), ReferenceDataNotFoundException.class);
+    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertEquals(test.findValue(ID2), Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combinedWith_noClash() {
     Map<ReferenceDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     ReferenceData test1 = ReferenceData.of(dataMap1);
@@ -120,6 +140,14 @@ public class ReferenceDataTest {
     Map<ReferenceDataId<?>, Object> dataMap2 = ImmutableMap.of(ID2, VAL2);
     ImmutableReferenceData test2 = ImmutableReferenceData.of(dataMap2);
     coverBeanEquals(test, test2);
+
+    coverPrivateConstructor(StandardReferenceData.class);
+  }
+
+  public void test_serialization() {
+    Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
+    ReferenceData test = ImmutableReferenceData.of(dataMap);
+    assertSerialization(test);
   }
 
 }

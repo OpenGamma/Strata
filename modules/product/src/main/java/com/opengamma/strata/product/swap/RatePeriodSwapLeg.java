@@ -41,16 +41,16 @@ import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.product.rate.FixedRateObservation;
-import com.opengamma.strata.product.rate.IborRateObservation;
-import com.opengamma.strata.product.rate.OvernightCompoundedRateObservation;
+import com.opengamma.strata.product.rate.FixedRateComputation;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 
 /**
  * A rate swap leg defined using payment and accrual periods.
  * <p>
  * This defines a single swap leg paying a rate, such as an interest rate.
- * The rate may be fixed or floating, for examples see {@link FixedRateObservation},
- * {@link IborRateObservation} and {@link OvernightCompoundedRateObservation}.
+ * The rate may be fixed or floating, for examples see {@link FixedRateComputation},
+ * {@link IborRateComputation} and {@link OvernightCompoundedRateComputation}.
  * <p>
  * The swap is built up of one or more <i>payment periods</i>, each of which produces a single payment.
  * Each payment period is made up of one or more <i>accrual periods</i>.

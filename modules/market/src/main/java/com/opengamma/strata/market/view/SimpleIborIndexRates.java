@@ -32,15 +32,15 @@ import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivity;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivity;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -80,7 +80,7 @@ public final class SimpleIborIndexRates
    * The day count convention of the curve.
    */
   private final DayCount dayCount;  // cached, not a property
-  
+
   /**
    * Obtains an instance from a curve, with an empty time-series of fixings.
    * <p>
@@ -100,7 +100,7 @@ public final class SimpleIborIndexRates
       Curve curve) {
     return new SimpleIborIndexRates(index, valuationDate, curve, LocalDateDoubleTimeSeries.empty());
   }
-  
+
   /**
    * Obtains an instance from a curve and time-series of fixing.
    * <p>
@@ -148,14 +148,30 @@ public final class SimpleIborIndexRates
     this.dayCount = dayCount;
   }
 
-  @Override
-  public CurveName getCurveName() {
-    return curve.getName();
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
     return curve.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return curve.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return curve.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SimpleIborIndexRates withParameter(int parameterIndex, double newValue) {
+    return withCurve(curve.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public SimpleIborIndexRates withPerturbation(ParameterPerturbation perturbation) {
+    return withCurve(curve.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
@@ -209,18 +225,13 @@ public final class SimpleIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(IborRateSensitivity pointSensitivity) {
     LocalDate maturityDate = pointSensitivity.getObservation().getMaturityDate();
     double relativeYearFraction = relativeYearFraction(maturityDate);
-    CurveUnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
-    CurveCurrencyParameterSensitivity sensitivity =  
+    UnitParameterSensitivity unitSensitivity = curve.yValueParameterSensitivity(relativeYearFraction);
+    CurrencyParameterSensitivity sensitivity =
         unitSensitivity.multipliedBy(pointSensitivity.getCurrency(), pointSensitivity.getSensitivity());
-    return CurveCurrencyParameterSensitivities.of(sensitivity);
-  }
-
-  @Override
-  public SimpleIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withCurve(curve.applyPerturbation(perturbation));
+    return CurrencyParameterSensitivities.of(sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -233,7 +244,7 @@ public final class SimpleIborIndexRates
   public SimpleIborIndexRates withCurve(Curve curve) {
     return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
-  
+
   // calculate the relative time between the valuation date and the specified date using the day count of the curve
   private double relativeYearFraction(LocalDate date) {
     return dayCount.relativeYearFraction(valuationDate, date);

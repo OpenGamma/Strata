@@ -18,13 +18,13 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.value.BondGroup;
 
@@ -48,8 +48,6 @@ public class RepoCurveDiscountFactorsTest {
     RepoCurveDiscountFactors test = RepoCurveDiscountFactors.of(DSC_FACTORS, GROUP);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getCurveName(), NAME);
-    assertEquals(test.getParameterCount(), 2);
     assertEquals(test.getValuationDate(), DATE);
     assertEquals(test.discountFactor(DATE_AFTER), DSC_FACTORS.discountFactor(DATE_AFTER));
   }
@@ -70,12 +68,12 @@ public class RepoCurveDiscountFactorsTest {
     assertEquals(computed, expected);
   }
 
-  public void test_curveParameterSensitivity() {
+  public void test_parameterSensitivity() {
     RepoCurveDiscountFactors base = RepoCurveDiscountFactors.of(DSC_FACTORS, GROUP);
     RepoCurveZeroRateSensitivity sensi = base.zeroRatePointSensitivity(DATE_AFTER, USD);
-    CurveCurrencyParameterSensitivities computed = base.curveParameterSensitivity(sensi);
-    CurveCurrencyParameterSensitivities expected =
-        DSC_FACTORS.curveParameterSensitivity(DSC_FACTORS.zeroRatePointSensitivity(DATE_AFTER, USD));
+    CurrencyParameterSensitivities computed = base.parameterSensitivity(sensi);
+    CurrencyParameterSensitivities expected =
+        DSC_FACTORS.parameterSensitivity(DSC_FACTORS.zeroRatePointSensitivity(DATE_AFTER, USD));
     assertEquals(computed, expected);
   }
 

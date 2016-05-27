@@ -21,9 +21,9 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.surface.ConstantNodalSurface;
+import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
-import com.opengamma.strata.market.surface.NodalSurface;
+import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.volatility.VolatilityModel;
@@ -35,10 +35,10 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * The volatility surface description under SABR model.  
  * <p>
  * This is used in interest rate modeling. 
- * Each SABR parameter is a {@link NodalSurface} defined by expiry and tenor.
+ * Each SABR parameter is a {@link Surface} defined by expiry and tenor.
  * <p>
  * The implementation allows for shifted SABR model. 
- * The shift parameter is also {@link NodalSurface} defined by expiry and tenor.
+ * The shift parameter is also {@link Surface} defined by expiry and tenor.
  */
 @BeanDefinition(style = "light")
 public final class SabrInterestRateParameters
@@ -47,7 +47,7 @@ public final class SabrInterestRateParameters
   /**
    * A surface used to apply no shift.
    */
-  private static final ConstantNodalSurface ZERO_SHIFT = ConstantNodalSurface.of("Zero shift", 0d);
+  private static final ConstantSurface ZERO_SHIFT = ConstantSurface.of("Zero shift", 0d);
 
   /**
    * The alpha (volatility level) surface. 
@@ -55,28 +55,28 @@ public final class SabrInterestRateParameters
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface alphaSurface;
+  private final Surface alphaSurface;
   /**
    * The beta (elasticity) surface. 
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface betaSurface;
+  private final Surface betaSurface;
   /**
    * The rho (correlation) surface. 
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface rhoSurface;
+  private final Surface rhoSurface;
   /**
    * The nu (volatility of volatility) surface. 
    * <p>
    * The first dimension is the expiry and the second the tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface nuSurface;
+  private final Surface nuSurface;
   /**
    * The shift parameter of shifted SABR model.
    * <p>
@@ -84,7 +84,7 @@ public final class SabrInterestRateParameters
    * The shift is set to be 0 unless specified.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NodalSurface shiftSurface;
+  private final Surface shiftSurface;
   /**
    * The volatility function provider.
    * <p>
@@ -105,7 +105,7 @@ public final class SabrInterestRateParameters
   /**
    * Obtains an instance without shift from nodal surfaces and volatility function provider.
    * <p>
-   * Each surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * Each surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surfaces must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -128,10 +128,10 @@ public final class SabrInterestRateParameters
    * @return {@code SABRInterestRateParameters}
    */
   public static SabrInterestRateParameters of(
-      NodalSurface alphaSurface,
-      NodalSurface betaSurface,
-      NodalSurface rhoSurface,
-      NodalSurface nuSurface,
+      Surface alphaSurface,
+      Surface betaSurface,
+      Surface rhoSurface,
+      Surface nuSurface,
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
 
     return new SabrInterestRateParameters(
@@ -141,7 +141,7 @@ public final class SabrInterestRateParameters
   /**
    * Obtains an instance with shift from nodal surfaces and volatility function provider.
    * <p>
-   * Each surface is specified by an instance of {@link NodalSurface}, such as {@link InterpolatedNodalSurface}.
+   * Each surface is specified by an instance of {@link Surface}, such as {@link InterpolatedNodalSurface}.
    * The surfaces must contain the correct metadata:
    * <ul>
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
@@ -168,11 +168,11 @@ public final class SabrInterestRateParameters
    * @return {@code SABRInterestRateParameters}
    */
   public static SabrInterestRateParameters of(
-      NodalSurface alphaSurface,
-      NodalSurface betaSurface,
-      NodalSurface rhoSurface,
-      NodalSurface nuSurface,
-      NodalSurface shiftSurface,
+      Surface alphaSurface,
+      Surface betaSurface,
+      Surface rhoSurface,
+      Surface nuSurface,
+      Surface shiftSurface,
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
 
     return new SabrInterestRateParameters(
@@ -181,11 +181,11 @@ public final class SabrInterestRateParameters
 
   @ImmutableConstructor
   private SabrInterestRateParameters(
-      NodalSurface alphaSurface,
-      NodalSurface betaSurface,
-      NodalSurface rhoSurface,
-      NodalSurface nuSurface,      
-      NodalSurface shiftSurface,
+      Surface alphaSurface,
+      Surface betaSurface,
+      Surface rhoSurface,
+      Surface nuSurface,
+      Surface shiftSurface,
       VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
 
     validate(alphaSurface, "alphaSurface", ValueType.SABR_ALPHA);
@@ -214,7 +214,7 @@ public final class SabrInterestRateParameters
   }
 
   // basic value tpe checks
-  private static void validate(NodalSurface surface, String name, ValueType zType) {
+  private static void validate(Surface surface, String name, ValueType zType) {
     ArgChecker.notNull(surface, name);
     surface.getMetadata().getXValueType().checkEquals(
         ValueType.YEAR_FRACTION, "Incorrect x-value type for SABR volatilities");
@@ -226,7 +226,7 @@ public final class SabrInterestRateParameters
   }
 
   // ensure all surfaces that specify convention or day count are consistent
-  private static void validate(NodalSurface surface, FixedIborSwapConvention swapConvention, DayCount dayCount) {
+  private static void validate(Surface surface, FixedIborSwapConvention swapConvention, DayCount dayCount) {
     if (!surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION).orElse(swapConvention).equals(swapConvention)) {
       throw new IllegalArgumentException("SABR surfaces must have the same swap convention");
     }
@@ -401,7 +401,7 @@ public final class SabrInterestRateParameters
    * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
-  public NodalSurface getAlphaSurface() {
+  public Surface getAlphaSurface() {
     return alphaSurface;
   }
 
@@ -412,7 +412,7 @@ public final class SabrInterestRateParameters
    * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
-  public NodalSurface getBetaSurface() {
+  public Surface getBetaSurface() {
     return betaSurface;
   }
 
@@ -423,7 +423,7 @@ public final class SabrInterestRateParameters
    * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
-  public NodalSurface getRhoSurface() {
+  public Surface getRhoSurface() {
     return rhoSurface;
   }
 
@@ -434,7 +434,7 @@ public final class SabrInterestRateParameters
    * The first dimension is the expiry and the second the tenor.
    * @return the value of the property, not null
    */
-  public NodalSurface getNuSurface() {
+  public Surface getNuSurface() {
     return nuSurface;
   }
 
@@ -446,7 +446,7 @@ public final class SabrInterestRateParameters
    * The shift is set to be 0 unless specified.
    * @return the value of the property, not null
    */
-  public NodalSurface getShiftSurface() {
+  public Surface getShiftSurface() {
     return shiftSurface;
   }
 

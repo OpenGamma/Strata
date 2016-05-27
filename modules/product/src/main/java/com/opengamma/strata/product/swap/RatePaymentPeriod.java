@@ -204,7 +204,7 @@ public final class RatePaymentPeriod
 
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    accrualPeriods.stream().forEach(accrual -> accrual.getRateObservation().collectIndices(builder));
+    accrualPeriods.stream().forEach(accrual -> accrual.getRateComputation().collectIndices(builder));
     getFxReset().ifPresent(fxReset -> builder.add(fxReset.getIndex()));
   }
 

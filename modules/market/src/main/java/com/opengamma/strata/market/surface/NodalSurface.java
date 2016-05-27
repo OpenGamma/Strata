@@ -5,12 +5,8 @@
  */
 package com.opengamma.strata.market.surface;
 
-import java.util.List;
-import java.util.function.DoubleUnaryOperator;
-
-import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.function.DoubleTernaryOperator;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
  * A surface based on {@code double} nodal points.
@@ -81,46 +77,12 @@ public interface NodalSurface
   public abstract NodalSurface withZValues(DoubleArray values);
 
   //-------------------------------------------------------------------------
-  /**
-   * Returns a new surface where each z-value has been shifted.
-   * <p>
-   * The desired adjustment is specified using {@link DoubleUnaryOperator}.
-   * <p>
-   * The operator will be called once for each parameter of the curve.
-   * The input will be the x, y and z values of the parameter.
-   * The output will be the new z-value.
-   * 
-   * @param operator  the operator that provides the change
-   * @return the new surface
-   */
-  public default NodalSurface shiftedBy(DoubleTernaryOperator operator) {
-    DoubleArray xValues = getXValues();
-    DoubleArray yValues = getYValues();
-    DoubleArray zValues = getZValues();
-    DoubleArray shifted = zValues.mapWithIndex((i, v) -> operator.applyAsDouble(xValues.get(i), yValues.get(i), v));
-    return withZValues(shifted);
-  }
-
-  /**
-   * Returns a new surface where each z-value has been shifted.
-   * <p>
-   * The desired adjustment is specified using {@link ValueAdjustment}.
-   * The size of the list of adjustments will typically match the number of parameters.
-   * If there are too many adjustments, no error will occur and the excess will be ignored.
-   * If there are too few adjustments, no error will occur and the remaining points will not be adjusted.
-   * 
-   * @param adjustments  the adjustments to make
-   * @return the new surface
-   */
-  public default NodalSurface shiftedBy(List<ValueAdjustment> adjustments) {
-    DoubleArray zValues = getZValues();
-    return withZValues(zValues.mapWithIndex((i, v) -> i < adjustments.size() ? adjustments.get(i).adjust(v) : v));
-  }
-
-  //-------------------------------------------------------------------------
   @Override
-  public default NodalSurface toNodalSurface() {
-    return this;
+  abstract NodalSurface withParameter(int parameterIndex, double newValue);
+
+  @Override
+  default NodalSurface withPerturbation(ParameterPerturbation perturbation) {
+    return (NodalSurface) Surface.super.withPerturbation(perturbation);
   }
 
 }

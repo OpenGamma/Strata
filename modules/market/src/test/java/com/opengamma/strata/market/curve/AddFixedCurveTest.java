@@ -19,14 +19,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.meta.SimpleCurveNodeMetadata;
-import com.opengamma.strata.market.curve.perturb.CurveParallelShift;
-import com.opengamma.strata.market.curve.perturb.CurvePointShift;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.LabelDateParameterMetadata;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
 /**
  * Test {@link AddFixedCurve}.
@@ -42,11 +40,11 @@ public class AddFixedCurveTest {
   private static final String LABEL_1 = "Node1";
   private static final String LABEL_2 = "Node2";
   private static final String LABEL_3 = "Node3";
-  private static final List<CurveParameterMetadata> PARAM_METADATA_SPREAD = new ArrayList<>();
+  private static final List<ParameterMetadata> PARAM_METADATA_SPREAD = new ArrayList<>();
   static {
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 1, 1), LABEL_1));
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 2, 1), LABEL_2));
-    PARAM_METADATA_SPREAD.add(SimpleCurveNodeMetadata.of(LocalDate.of(2015, 3, 1), LABEL_3));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 1, 1), LABEL_1));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 2, 1), LABEL_2));
+    PARAM_METADATA_SPREAD.add(LabelDateParameterMetadata.of(LocalDate.of(2015, 3, 1), LABEL_3));
   }
   private static final CurveMetadata METADATA_SPREAD = DefaultCurveMetadata.builder()
       .curveName(SPREAD_CURVE_NAME)
@@ -83,6 +81,13 @@ public class AddFixedCurveTest {
   public void getter() {
     assertEquals(ADD_FIXED_CURVE.getMetadata(), METADATA_SPREAD);
     assertEquals(ADD_FIXED_CURVE.getParameterCount(), XVALUES_SPREAD.size());
+    assertEquals(ADD_FIXED_CURVE.getParameter(0), ADD_FIXED_CURVE.getSpreadCurve().getParameter(0));
+    assertEquals(ADD_FIXED_CURVE.getParameterMetadata(0), ADD_FIXED_CURVE.getSpreadCurve().getParameterMetadata(0));
+    assertEquals(ADD_FIXED_CURVE.withParameter(0, 9d), AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withParameter(0, 9d)));
+    assertEquals(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d),
+        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
+    assertEquals(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED),
+        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
   }
 
   public void yValue() {
@@ -103,36 +108,10 @@ public class AddFixedCurveTest {
 
   public void yParameterSensitivity() {
     for (int i = 0; i < X_SAMPLE.length; i++) {
-      CurveUnitParameterSensitivity dComputed = ADD_FIXED_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
-      CurveUnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
+      UnitParameterSensitivity dComputed = ADD_FIXED_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
+      UnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
       assertTrue(dComputed.compareKey(dExpected) == 0);
       assertTrue(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y));
-    }
-  }
-
-  public void apply_perturbation_parallel() {
-    double shift = 0.0010;
-    Perturbation<Curve> pert = CurveParallelShift.absolute(shift);
-    Curve shiftedCurve = ADD_FIXED_CURVE.applyPerturbation(pert);
-    for (int i = 0; i < NB_X_SAMPLE; i++) {
-      double yComputed = shiftedCurve.yValue(X_SAMPLE[i]);
-      double yExpected = ADD_FIXED_CURVE.yValue(X_SAMPLE[i]) + shift;
-      assertEquals(yComputed, yExpected, TOLERANCE_Y);
-    }
-  }
-
-  public void apply_perturbation_point() {
-    double shift = 0.0010;
-    Perturbation<Curve> pert = CurvePointShift.builder(ShiftType.ABSOLUTE).addShift(LABEL_1, shift).build();
-    Curve shiftedCurve1 = ADD_FIXED_CURVE.applyPerturbation(pert);
-    DoubleArray ySpreadShift = DoubleArray.of(shift, 0d, 0d);
-    InterpolatedNodalCurve shiftCurve =
-        InterpolatedNodalCurve.of(METADATA_SPREAD, XVALUES_SPREAD, ySpreadShift, INTERPOLATOR);
-    Curve shiftedCurve2 = AddFixedCurve.of(FIXED_CURVE, AddFixedCurve.of(SPREAD_CURVE, shiftCurve));
-    for (int i = 0; i < NB_X_SAMPLE; i++) {
-      double yComputed = shiftedCurve1.yValue(X_SAMPLE[i]);
-      double yExpected = shiftedCurve2.yValue(X_SAMPLE[i]);
-      assertEquals(yComputed, yExpected, TOLERANCE_Y);
     }
   }
 

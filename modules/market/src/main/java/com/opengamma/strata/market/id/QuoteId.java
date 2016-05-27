@@ -24,13 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataFeed;
 import com.opengamma.strata.basics.market.ObservableId;
+import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.market.key.QuoteKey;
 
 /**
- * The ID of a market quote.
+ * An identifier used to access a market quote.
  * <p>
  * A quote ID identifies a piece of data in an external data provider.
  * <p>
@@ -60,55 +59,68 @@ import com.opengamma.strata.market.key.QuoteKey;
 @BeanDefinition(builderScope = "private")
 public final class QuoteId implements ObservableId, ImmutableBean, Serializable {
 
-  /** The ID of the data, typically an ID from an external data provider. */
+  /**
+   * The identifier of the data.
+   * This is typically an identifier from an external data provider.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
-
-  /** The field name in the market data record that contains the data. */
+  /**
+   * The field name in the market data record that contains the market data item.
+   * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
-
-  /** The market data feed from which the market data should be retrieved. */
+  /**
+   * The source of observable market data.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final MarketDataFeed marketDataFeed;
+  private final ObservableSource observableSource;
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns an ID representing a market quote with a field name of {@link FieldName#MARKET_VALUE}
-   * and a market data feed of {@link MarketDataFeed#NONE}.
+   * Obtains an instance used to obtain an observable value.
+   * <p>
+   * The field name containing the data is {@link FieldName#MARKET_VALUE} and the market
+   * data source is {@link ObservableSource#NONE}.
    *
-   * @param id  the ID of the data in the underlying data provider
-   * @return an ID representing a market quote
+   * @param standardId  the standard identifier of the data in the underlying data provider
+   * @return the identifier
    */
-  public static QuoteId of(StandardId id) {
-    return new QuoteId(id, FieldName.MARKET_VALUE, MarketDataFeed.NONE);
+  public static QuoteId of(StandardId standardId) {
+    return new QuoteId(standardId, FieldName.MARKET_VALUE, ObservableSource.NONE);
   }
 
   /**
-   * Returns an ID representing a market quote with a field name of {@link FieldName#MARKET_VALUE}.
+   * Obtains an instance used to obtain an observable value.
+   * <p>
+   * The market data source is {@link ObservableSource#NONE}.
    *
-   * @param id  the ID of the data in the underlying data provider
-   * @param feed  the market data feed from which the market data should be retrieved
-   * @return an ID representing a market quote
-   */
-  public static QuoteId of(StandardId id, MarketDataFeed feed) {
-    return new QuoteId(id, FieldName.MARKET_VALUE, feed);
-  }
-
-  /**
-   * Returns an ID representing a market quote.
-   *
-   * @param id  the ID of the data in the underlying data provider
-   * @param feed  the market data feed from which the market data should be retrieved
+   * @param standardId  the standard identifier of the data in the underlying data provider
    * @param fieldName  the name of the field in the market data record holding the data
-   * @return an ID representing a market quote
+   * @return the identifier
    */
-  public static QuoteId of(StandardId id, MarketDataFeed feed, FieldName fieldName) {
-    return new QuoteId(id, fieldName, feed);
+  public static QuoteId of(StandardId standardId, FieldName fieldName) {
+    return new QuoteId(standardId, fieldName, ObservableSource.NONE);
   }
 
+  /**
+   * Obtains an instance used to obtain an observable value,
+   * specifying the source of observable market data.
+   *
+   * @param standardId  the standard identifier of the data in the underlying data provider
+   * @param fieldName  the name of the field in the market data record holding the data
+   * @param obsSource  the source of observable market data
+   * @return the identifier
+   */
+  public static QuoteId of(StandardId standardId, FieldName fieldName, ObservableSource obsSource) {
+    return new QuoteId(standardId, fieldName, obsSource);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public QuoteKey toMarketDataKey() {
-    return QuoteKey.of(standardId, fieldName);
+  public QuoteId withObservableSource(ObservableSource obsSource) {
+    return new QuoteId(standardId, fieldName, obsSource);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -133,13 +145,13 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
   private QuoteId(
       StandardId standardId,
       FieldName fieldName,
-      MarketDataFeed marketDataFeed) {
+      ObservableSource observableSource) {
     JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(fieldName, "fieldName");
-    JodaBeanUtils.notNull(marketDataFeed, "marketDataFeed");
+    JodaBeanUtils.notNull(observableSource, "observableSource");
     this.standardId = standardId;
     this.fieldName = fieldName;
-    this.marketDataFeed = marketDataFeed;
+    this.observableSource = observableSource;
   }
 
   @Override
@@ -159,7 +171,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ID of the data, typically an ID from an external data provider.
+   * Gets the identifier of the data.
+   * This is typically an identifier from an external data provider.
    * @return the value of the property, not null
    */
   @Override
@@ -169,7 +182,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the field name in the market data record that contains the data.
+   * Gets the field name in the market data record that contains the market data item.
+   * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    * @return the value of the property, not null
    */
   @Override
@@ -179,12 +193,12 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data feed from which the market data should be retrieved.
+   * Gets the source of observable market data.
    * @return the value of the property, not null
    */
   @Override
-  public MarketDataFeed getMarketDataFeed() {
-    return marketDataFeed;
+  public ObservableSource getObservableSource() {
+    return observableSource;
   }
 
   //-----------------------------------------------------------------------
@@ -197,7 +211,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
       QuoteId other = (QuoteId) obj;
       return JodaBeanUtils.equal(standardId, other.standardId) &&
           JodaBeanUtils.equal(fieldName, other.fieldName) &&
-          JodaBeanUtils.equal(marketDataFeed, other.marketDataFeed);
+          JodaBeanUtils.equal(observableSource, other.observableSource);
     }
     return false;
   }
@@ -207,7 +221,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(standardId);
     hash = hash * 31 + JodaBeanUtils.hashCode(fieldName);
-    hash = hash * 31 + JodaBeanUtils.hashCode(marketDataFeed);
+    hash = hash * 31 + JodaBeanUtils.hashCode(observableSource);
     return hash;
   }
 
@@ -217,7 +231,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
     buf.append("QuoteId{");
     buf.append("standardId").append('=').append(standardId).append(',').append(' ');
     buf.append("fieldName").append('=').append(fieldName).append(',').append(' ');
-    buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
+    buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();
   }
@@ -243,10 +257,10 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
     private final MetaProperty<FieldName> fieldName = DirectMetaProperty.ofImmutable(
         this, "fieldName", QuoteId.class, FieldName.class);
     /**
-     * The meta-property for the {@code marketDataFeed} property.
+     * The meta-property for the {@code observableSource} property.
      */
-    private final MetaProperty<MarketDataFeed> marketDataFeed = DirectMetaProperty.ofImmutable(
-        this, "marketDataFeed", QuoteId.class, MarketDataFeed.class);
+    private final MetaProperty<ObservableSource> observableSource = DirectMetaProperty.ofImmutable(
+        this, "observableSource", QuoteId.class, ObservableSource.class);
     /**
      * The meta-properties.
      */
@@ -254,7 +268,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
         this, null,
         "standardId",
         "fieldName",
-        "marketDataFeed");
+        "observableSource");
 
     /**
      * Restricted constructor.
@@ -269,8 +283,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
           return standardId;
         case 1265009317:  // fieldName
           return fieldName;
-        case 842621124:  // marketDataFeed
-          return marketDataFeed;
+        case 1793526590:  // observableSource
+          return observableSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -308,11 +322,11 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
     }
 
     /**
-     * The meta-property for the {@code marketDataFeed} property.
+     * The meta-property for the {@code observableSource} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<MarketDataFeed> marketDataFeed() {
-      return marketDataFeed;
+    public MetaProperty<ObservableSource> observableSource() {
+      return observableSource;
     }
 
     //-----------------------------------------------------------------------
@@ -323,8 +337,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
           return ((QuoteId) bean).getStandardId();
         case 1265009317:  // fieldName
           return ((QuoteId) bean).getFieldName();
-        case 842621124:  // marketDataFeed
-          return ((QuoteId) bean).getMarketDataFeed();
+        case 1793526590:  // observableSource
+          return ((QuoteId) bean).getObservableSource();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -348,7 +362,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
 
     private StandardId standardId;
     private FieldName fieldName;
-    private MarketDataFeed marketDataFeed;
+    private ObservableSource observableSource;
 
     /**
      * Restricted constructor.
@@ -364,8 +378,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
           return standardId;
         case 1265009317:  // fieldName
           return fieldName;
-        case 842621124:  // marketDataFeed
-          return marketDataFeed;
+        case 1793526590:  // observableSource
+          return observableSource;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -380,8 +394,8 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
         case 1265009317:  // fieldName
           this.fieldName = (FieldName) newValue;
           break;
-        case 842621124:  // marketDataFeed
-          this.marketDataFeed = (MarketDataFeed) newValue;
+        case 1793526590:  // observableSource
+          this.observableSource = (ObservableSource) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -418,7 +432,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
       return new QuoteId(
           standardId,
           fieldName,
-          marketDataFeed);
+          observableSource);
     }
 
     //-----------------------------------------------------------------------
@@ -428,7 +442,7 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
       buf.append("QuoteId.Builder{");
       buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("fieldName").append('=').append(JodaBeanUtils.toString(fieldName)).append(',').append(' ');
-      buf.append("marketDataFeed").append('=').append(JodaBeanUtils.toString(marketDataFeed));
+      buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
       buf.append('}');
       return buf.toString();
     }

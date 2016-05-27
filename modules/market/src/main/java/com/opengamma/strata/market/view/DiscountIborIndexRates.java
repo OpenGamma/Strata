@@ -30,13 +30,12 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.Perturbation;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.CurveUnitParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 
 /**
  * An Ibor index curve providing rates from discount factors.
@@ -112,13 +111,28 @@ public final class DiscountIborIndexRates
   }
 
   @Override
-  public CurveName getCurveName() {
-    return discountFactors.getCurveName();
+  public int getParameterCount() {
+    return discountFactors.getParameterCount();
   }
 
   @Override
-  public int getParameterCount() {
-    return discountFactors.getParameterCount();
+  public double getParameter(int parameterIndex) {
+    return discountFactors.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return discountFactors.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public DiscountIborIndexRates withParameter(int parameterIndex, double newValue) {
+    return withDiscountFactors(discountFactors.withParameter(parameterIndex, newValue));
+  }
+
+  @Override
+  public DiscountIborIndexRates withPerturbation(ParameterPerturbation perturbation) {
+    return withDiscountFactors(discountFactors.withPerturbation(perturbation));
   }
 
   //-------------------------------------------------------------------------
@@ -177,7 +191,7 @@ public final class DiscountIborIndexRates
 
   //-------------------------------------------------------------------------
   @Override
-  public CurveCurrencyParameterSensitivities curveParameterSensitivity(IborRateSensitivity pointSensitivity) {
+  public CurrencyParameterSensitivities parameterSensitivity(IborRateSensitivity pointSensitivity) {
     LocalDate fixingStartDate = pointSensitivity.getObservation().getEffectiveDate();
     LocalDate fixingEndDate = pointSensitivity.getObservation().getMaturityDate();
     double accrualFactor = pointSensitivity.getObservation().getYearFraction();
@@ -186,22 +200,14 @@ public final class DiscountIborIndexRates
     double dfForwardEnd = discountFactors.discountFactor(fixingEndDate);
     double dfStartBar = forwardBar / (accrualFactor * dfForwardEnd);
     double dfEndBar = -forwardBar * dfForwardStart / (accrualFactor * dfForwardEnd * dfForwardEnd);
-    double zrStartBar = discountFactors.zeroRatePointSensitivity(fixingStartDate).getSensitivity() * dfStartBar;
-    double zrEndBar = discountFactors.zeroRatePointSensitivity(fixingEndDate).getSensitivity() * dfEndBar;
-    CurveUnitParameterSensitivities dzrdpStart = discountFactors.unitParameterSensitivity(fixingStartDate);
-    CurveUnitParameterSensitivities dzrdpEnd = discountFactors.unitParameterSensitivity(fixingEndDate);
-    // combine unit and point sensitivities at start and end
-    CurveCurrencyParameterSensitivities sensStart = dzrdpStart.multipliedBy(pointSensitivity.getCurrency(), zrStartBar);
-    CurveCurrencyParameterSensitivities sensEnd = dzrdpEnd.multipliedBy(pointSensitivity.getCurrency(), zrEndBar);
-    return sensStart.combinedWith(sensEnd);
+    ZeroRateSensitivity zrsStart = discountFactors.zeroRatePointSensitivity(fixingStartDate, pointSensitivity.getCurrency());
+    ZeroRateSensitivity zrsEnd = discountFactors.zeroRatePointSensitivity(fixingEndDate, pointSensitivity.getCurrency());
+    CurrencyParameterSensitivities psStart = discountFactors.parameterSensitivity(zrsStart).multipliedBy(dfStartBar);
+    CurrencyParameterSensitivities psEnd = discountFactors.parameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
+    return psStart.combinedWith(psEnd);
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public DiscountIborIndexRates applyPerturbation(Perturbation<Curve> perturbation) {
-    return withDiscountFactors(discountFactors.applyPerturbation(perturbation));
-  }
-
   /**
    * Returns a new instance with different discount factors.
    * 

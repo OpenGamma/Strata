@@ -34,27 +34,26 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
+import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.config.Measures;
+import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
-import com.opengamma.strata.calc.marketdata.MarketEnvironment;
-import com.opengamma.strata.calc.marketdata.config.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.calc.runner.function.result.ScenarioResult;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShifts;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShiftsBuilder;
-import com.opengamma.strata.function.marketdata.scenario.curve.AnyDiscountCurveFilter;
-import com.opengamma.strata.function.marketdata.scenario.curve.IndexCurveFilter;
+import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
-import com.opengamma.strata.market.curve.CurveParameterMetadata;
-import com.opengamma.strata.market.curve.NodalCurve;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -109,7 +108,7 @@ public class HistoricalScenarioExample {
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.rules());
+    CalculationRules rules = CalculationRules.of(functions, marketDataBuilder.ratesLookup(LocalDate.of(2015, 4, 23)));
 
     // load the historical calibrated curves from which we will build our scenarios
     // these curves are provided in the example data environment
@@ -125,15 +124,15 @@ public class HistoricalScenarioExample {
     // build a market data snapshot for the valuation date
     // this is the base snapshot which will be perturbed by the scenarios
     LocalDate valuationDate = LocalDate.of(2015, 4, 23);
-    MarketEnvironment marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    MarketEnvironment enhancedMarketData = marketDataFactory()
-        .buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
+    ScenarioMarketData enhancedMarketData = 
+        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario
@@ -146,39 +145,36 @@ public class HistoricalScenarioExample {
       List<LocalDate> scenarioDates) {
 
     // extract the curves to perturb
-    List<NodalCurve> usdDiscountCurves = scenarioDates.stream()
+    List<Curve> usdDiscountCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findDiscountCurve(Currency.USD).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
-    List<NodalCurve> libor3mCurves = scenarioDates.stream()
+    List<Curve> libor3mCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_3M).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
-    List<NodalCurve> libor6mCurves = scenarioDates.stream()
+    List<Curve> libor6mCurves = scenarioDates.stream()
         .map(date -> historicalCurves.get(date))
         .map(group -> group.findForwardCurve(IborIndices.USD_LIBOR_6M).get())
-        .map(NodalCurve.class::cast)
         .collect(toImmutableList());
 
     // create mappings which will cause the point shift perturbations generated above
     // to be applied to the correct curves
     PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
         Curve.class,
-        AnyDiscountCurveFilter.INSTANCE,
+        CurveNameFilter.of(CurveName.of("USD-Disc")),
         buildShifts(usdDiscountCurves));
 
     PerturbationMapping<Curve> libor3mMappings = PerturbationMapping.of(
         Curve.class,
-        IndexCurveFilter.of(IborIndices.USD_LIBOR_3M),
+        CurveNameFilter.of(CurveName.of("USD-3ML")),
         buildShifts(libor3mCurves));
 
     PerturbationMapping<Curve> libor6mMappings = PerturbationMapping.of(
         Curve.class,
-        IndexCurveFilter.of(IborIndices.USD_LIBOR_6M),
+        CurveNameFilter.of(CurveName.of("USD-6ML")),
         buildShifts(libor6mCurves));
 
     // create a scenario definition from these mappings
@@ -188,21 +184,21 @@ public class HistoricalScenarioExample {
         libor6mMappings);
   }
 
-  private static CurvePointShifts buildShifts(List<NodalCurve> historicalCurves) {
+  private static CurvePointShifts buildShifts(List<Curve> historicalCurves) {
     CurvePointShiftsBuilder builder = CurvePointShifts.builder(ShiftType.ABSOLUTE);
 
     for (int scenarioIndex = 1; scenarioIndex < historicalCurves.size(); scenarioIndex++) {
-      NodalCurve previousCurve = historicalCurves.get(scenarioIndex - 1);
-      NodalCurve curve = historicalCurves.get(scenarioIndex);
+      Curve previousCurve = historicalCurves.get(scenarioIndex - 1);
+      Curve curve = historicalCurves.get(scenarioIndex);
 
       // obtain the curve node metadata - this is used to identify a node to apply a perturbation to
-      List<CurveParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
+      List<ParameterMetadata> curveNodeMetadata = curve.getMetadata().getParameterMetadata().get();
 
       // build up the shifts to apply to each node
       // these are calculated as the actual change in the zero rate at that node between the two scenario dates
       for (int curveNodeIdx = 0; curveNodeIdx < curve.getParameterCount(); curveNodeIdx++) {
-        double zeroRate = curve.getYValues().get(curveNodeIdx);
-        double previousZeroRate = previousCurve.getYValues().get(curveNodeIdx);
+        double zeroRate = curve.getParameter(curveNodeIdx);
+        double previousZeroRate = previousCurve.getParameter(curveNodeIdx);
         double shift = (zeroRate - previousZeroRate);
         builder.addShift(scenarioIndex, curveNodeMetadata.get(curveNodeIdx).getIdentifier(), shift);
       }
