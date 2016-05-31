@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**

@@ -15,11 +15,11 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
 
 @Test
 public class CombinedScenarioMarketDataTest {

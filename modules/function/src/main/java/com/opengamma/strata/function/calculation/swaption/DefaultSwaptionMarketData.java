@@ -17,8 +17,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 
 /**

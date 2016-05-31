@@ -17,9 +17,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.id.IndexQuoteId;
 
 /**

@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableSource;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;

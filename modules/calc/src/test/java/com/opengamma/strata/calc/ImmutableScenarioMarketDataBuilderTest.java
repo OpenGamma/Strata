@@ -21,14 +21,14 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.FxRatesArray;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.FxRatesArray;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
 
 /**
  * Test {@link ImmutableScenarioMarketDataBuilder}.

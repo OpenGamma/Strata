@@ -7,8 +7,8 @@ package com.opengamma.strata.calc.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableSource;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableSource;
 
 /**
  * A test market data ID.

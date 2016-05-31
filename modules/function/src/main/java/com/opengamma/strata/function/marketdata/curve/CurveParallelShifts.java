@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.ParallelShiftedCurve;

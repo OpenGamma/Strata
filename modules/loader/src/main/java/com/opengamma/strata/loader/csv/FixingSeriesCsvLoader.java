@@ -13,7 +13,6 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -21,6 +20,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.id.IndexQuoteId;
 

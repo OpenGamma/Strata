@@ -8,7 +8,7 @@ package com.opengamma.strata.function.calculation;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.market.MarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

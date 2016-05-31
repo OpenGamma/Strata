@@ -22,16 +22,16 @@ import java.util.stream.Stream;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ScenarioMarketDataId;
+import com.opengamma.strata.data.ScenarioMarketDataValue;
 
 /**
  * Test {@link ScenarioMarketData} and {@link ImmutableScenarioMarketData}.

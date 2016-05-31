@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * Test implementation of {@link ScenarioMarketData} backed by a map.

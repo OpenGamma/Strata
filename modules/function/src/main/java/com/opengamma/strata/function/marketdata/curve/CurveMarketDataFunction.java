@@ -6,12 +6,12 @@
 package com.opengamma.strata.function.marketdata.curve;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.id.CurveGroupId;

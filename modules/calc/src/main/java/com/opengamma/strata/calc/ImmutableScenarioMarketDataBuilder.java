@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ScenarioMarketDataValue;
 
 /**
  * A mutable builder for market data.

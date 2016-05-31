@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * Builds a dependency tree for the items of market used in a set of calculations.

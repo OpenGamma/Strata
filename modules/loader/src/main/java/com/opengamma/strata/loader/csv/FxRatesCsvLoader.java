@@ -12,10 +12,10 @@ import java.util.Collection;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.data.FxRateId;
 
 /**
  * Loads a set of FX rates into memory from CSV resources.

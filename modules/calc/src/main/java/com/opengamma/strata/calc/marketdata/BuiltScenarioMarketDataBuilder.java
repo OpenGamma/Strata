@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketDataBuilder;
 import com.opengamma.strata.collect.ArgChecker;
@@ -19,6 +16,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * A mutable builder for building up {@link BuiltScenarioMarketData} instances.

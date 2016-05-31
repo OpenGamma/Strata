@@ -11,15 +11,15 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataId;
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ScenarioMarketDataId;
+import com.opengamma.strata.data.ScenarioMarketDataValue;
 
 /**
  * Provides access to market data across one or more scenarios.

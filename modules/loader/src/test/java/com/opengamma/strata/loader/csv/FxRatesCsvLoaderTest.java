@@ -20,8 +20,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.data.FxRateId;
 
 /**
  * Test {@link FxRatesCsvLoader}.

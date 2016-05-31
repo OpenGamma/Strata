@@ -12,7 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ObservableSource;
+import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveName;

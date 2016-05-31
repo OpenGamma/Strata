@@ -19,8 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measures;
@@ -29,6 +27,8 @@ import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestFunction;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * Test {@link CalculationTasks}.

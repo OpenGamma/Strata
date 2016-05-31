@@ -10,8 +10,8 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.product.ResolvedTrade;

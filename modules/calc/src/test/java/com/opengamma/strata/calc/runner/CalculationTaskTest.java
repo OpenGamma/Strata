@@ -30,10 +30,6 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
@@ -48,6 +44,10 @@ import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
 
 /**
  * Test {@link CalculationTask}.

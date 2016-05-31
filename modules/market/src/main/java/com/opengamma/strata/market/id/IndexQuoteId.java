@@ -25,9 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
 
 /**
  * An identifier used to access the current value of an index.
