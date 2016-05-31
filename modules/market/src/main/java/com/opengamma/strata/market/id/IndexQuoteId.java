@@ -97,7 +97,7 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
   //-------------------------------------------------------------------------
   @Override
   public StandardId getStandardId() {
-    return index.getStandardId();
+    return StandardId.of("OG-Index", index.getName());
   }
 
   @Override

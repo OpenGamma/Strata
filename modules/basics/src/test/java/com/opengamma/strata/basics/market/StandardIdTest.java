@@ -98,21 +98,6 @@ public class StandardIdTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_isScheme_ExternalScheme() {
-    StandardId test = StandardId.of(SCHEME, "value");
-    assertEquals((Object) test.isScheme(SCHEME), true);
-    assertEquals((Object) test.isScheme(OTHER_SCHEME), false);
-    assertEquals((Object) test.isScheme(null), false);
-  }
-
-  public void test_isNotScheme_ExternalScheme() {
-    StandardId test = StandardId.of(SCHEME, "value");
-    assertEquals((Object) test.isNotScheme(SCHEME), false);
-    assertEquals((Object) test.isNotScheme(OTHER_SCHEME), true);
-    assertEquals((Object) test.isNotScheme(null), true);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_equals() {
     StandardId d1a = StandardId.of(SCHEME, "d1");
     StandardId d1b = StandardId.of(SCHEME, "d1");
@@ -138,11 +123,6 @@ public class StandardIdTest {
     StandardId d1a = StandardId.of(SCHEME, "d1");
     StandardId d1b = StandardId.of(SCHEME, "d1");
     assertEquals((Object) d1b.hashCode(), d1a.hashCode());
-  }
-
-  public void test_getIdentityKey() {
-    StandardId test = StandardId.of(SCHEME, "value");
-    assertEquals(test.getStandardId(), test);
   }
 
   public void test_comparisonByScheme() {
