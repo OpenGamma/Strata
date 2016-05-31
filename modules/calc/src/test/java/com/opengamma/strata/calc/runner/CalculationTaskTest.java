@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.ReportingCurrency;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
@@ -349,7 +348,7 @@ public class CalculationTaskTest {
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
-          .singleValueRequirements(
+          .valueRequirements(
               ImmutableSet.of(
                   TestId.of("1"),
                   TestObservableId.of("2")))

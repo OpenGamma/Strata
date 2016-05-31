@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -57,10 +57,10 @@ public class SwaptionMarketDataLookupTest {
 
     assertEquals(
         test.requirements(USD_LIBOR_3M),
-        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
+        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
-        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
+        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
   }
 
@@ -74,10 +74,10 @@ public class SwaptionMarketDataLookupTest {
 
     assertEquals(
         test.requirements(USD_LIBOR_3M),
-        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
+        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
-        FunctionRequirements.builder().singleValueRequirements(VOL_ID1).build());
+        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
 
     assertEquals(test.volatilities(USD_LIBOR_3M, MOCK_MARKET_DATA), MOCK_VOLS);

@@ -26,8 +26,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataFxRateProvider;
@@ -148,7 +148,7 @@ final class DefaultRatesMarketDataLookup
         .collect(toImmutableSet());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
+        .valueRequirements(Sets.union(indexCurveIds, discountFactorsIds))
         .timeSeriesRequirements(indexQuoteIds)
         .outputCurrencies(currencies)
         .observableSource(observableSource)

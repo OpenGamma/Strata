@@ -22,8 +22,8 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
@@ -100,7 +100,7 @@ final class DefaultSwaptionMarketDataLookup
       }
     }
     return FunctionRequirements.builder()
-        .singleValueRequirements(ImmutableSet.copyOf(volatilityIds.values()))
+        .valueRequirements(ImmutableSet.copyOf(volatilityIds.values()))
         .build();
   }
 

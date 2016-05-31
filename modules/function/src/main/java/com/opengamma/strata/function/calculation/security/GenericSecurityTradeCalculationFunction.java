@@ -15,9 +15,9 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -85,7 +85,7 @@ public class GenericSecurityTradeCalculationFunction
     QuoteId id = QuoteId.of(trade.getSecurityId().getStandardId());
 
     return FunctionRequirements.builder()
-        .singleValueRequirements(ImmutableSet.of(id))
+        .valueRequirements(ImmutableSet.of(id))
         .outputCurrencies(trade.getCurrency())
         .build();
   }
