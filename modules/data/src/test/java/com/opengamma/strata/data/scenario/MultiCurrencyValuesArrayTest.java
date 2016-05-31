@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.result;
+package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -29,8 +29,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.scenario.FxRatesArray;
-import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 @Test
 public class MultiCurrencyValuesArrayTest {

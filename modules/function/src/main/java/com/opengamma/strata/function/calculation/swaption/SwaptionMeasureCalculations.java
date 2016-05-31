@@ -6,7 +6,7 @@
 package com.opengamma.strata.function.calculation.swaption;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.calc.result.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
