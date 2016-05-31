@@ -23,8 +23,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -60,7 +60,7 @@ public class SecurityPositionCalculationFunctionTest {
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(POSITION, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(ImmutableSet.of(QuoteId.of(SEC_ID.getStandardId())));
+    assertThat(reqs.getValueRequirements()).isEqualTo(ImmutableSet.of(QuoteId.of(SEC_ID.getStandardId())));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
     assertThat(function.naturalCurrency(POSITION, REF_DATA)).isEqualTo(CURRENCY);
   }

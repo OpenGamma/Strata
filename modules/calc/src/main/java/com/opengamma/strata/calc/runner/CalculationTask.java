@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.collect.result.Result;
@@ -151,7 +150,7 @@ public final class CalculationTask implements ImmutableBean {
     for (ObservableId id : functionRequirements.getTimeSeriesRequirements()) {
       requirementsBuilder.addTimeSeries(id.withObservableSource(obsSource));
     }
-    for (MarketDataId<?> id : functionRequirements.getSingleValueRequirements()) {
+    for (MarketDataId<?> id : functionRequirements.getValueRequirements()) {
       if (id instanceof ObservableId) {
         requirementsBuilder.addValues(((ObservableId) id).withObservableSource(obsSource));
       } else {

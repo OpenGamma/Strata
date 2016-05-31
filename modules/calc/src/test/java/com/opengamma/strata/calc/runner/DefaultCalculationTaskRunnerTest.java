@@ -28,7 +28,6 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
@@ -148,7 +147,7 @@ public class DefaultCalculationTaskRunnerTest {
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
-          .singleValueRequirements(
+          .valueRequirements(
               ImmutableSet.of(
                   TestId.of("1"),
                   TestObservableId.of("2")))
