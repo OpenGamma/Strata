@@ -27,11 +27,6 @@ import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
-import com.opengamma.strata.data.scenario.FxRatesArray;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketDataBuilder;
-import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Test {@link ImmutableScenarioMarketDataBuilder}.

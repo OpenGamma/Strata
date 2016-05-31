@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner;
+package com.opengamma.strata.data.scenario;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,8 +15,6 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.data.FxRateId;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 @Test
 public class ScenarioFxRateProviderTest {

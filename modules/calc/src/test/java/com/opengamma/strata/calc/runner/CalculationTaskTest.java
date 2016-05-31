@@ -86,7 +86,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
+   * Test that the result is converted to the reporting currency if it implements ScenarioFxConvertible and
    * the FX rates are available in the market data.
    */
   public void convertResultCurrencyUsingReportingCurrency() {
@@ -134,7 +134,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
+   * Test that the result is converted to the reporting currency if it implements ScenarioFxConvertible and
    * the FX rates are available in the market data. The "natural" currency is taken from the function.
    */
   public void convertResultCurrencyUsingDefaultReportingCurrency() {
@@ -175,7 +175,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test the result is returned unchanged if it is not CurrencyConvertible.
+   * Test the result is returned unchanged if it is not ScenarioFxConvertible.
    */
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();

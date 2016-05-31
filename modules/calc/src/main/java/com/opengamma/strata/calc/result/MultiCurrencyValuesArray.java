@@ -39,12 +39,12 @@ import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.calc.runner.CurrencyConvertible;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A currency-convertible scenario result for multi-currency amounts, holding one amount for each scenario.
@@ -57,7 +57,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyValuesArray
-    implements ScenarioResult<MultiCurrencyAmount>, CurrencyConvertible<CurrencyValuesArray>, ImmutableBean {
+    implements ScenarioResult<MultiCurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /** The currency values, keyed by currency. */
   @PropertyDefinition(validate = "notNull")

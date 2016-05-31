@@ -3,17 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner;
+package com.opengamma.strata.data.scenario;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A provider of FX rates for scenarios.
  * <p>
  * This provides the ability to obtain a set of FX rates, one for each scenario.
  * The interface does not mandate when the rate applies, however it typically represents the current rate.
+ * <p>
+ * This is the multi-scenario version of {@link FxRateProvider}.
  * <p>
  * Implementations do not have to be immutable, but calls to the methods must be thread-safe.
  */

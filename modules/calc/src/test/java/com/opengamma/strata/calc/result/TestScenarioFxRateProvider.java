@@ -7,8 +7,8 @@ package com.opengamma.strata.calc.result;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.data.scenario.FxRatesArray;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * Testing implementation of {@link ScenarioFxRateProvider}.

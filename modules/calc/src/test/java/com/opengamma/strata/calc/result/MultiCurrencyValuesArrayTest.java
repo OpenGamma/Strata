@@ -28,9 +28,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.FxRatesArray;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 @Test
 public class MultiCurrencyValuesArrayTest {

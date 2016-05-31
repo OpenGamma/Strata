@@ -31,10 +31,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
-import com.opengamma.strata.calc.runner.CurrencyConvertible;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A scenario result holding one value that is valid for all scenarios.
@@ -46,7 +46,7 @@ import com.opengamma.strata.collect.Messages;
  */
 @BeanDefinition(builderScope = "private")
 public final class SingleScenarioResult<T>
-    implements ScenarioResult<T>, CurrencyConvertible<ScenarioResult<?>>, ImmutableBean, Serializable {
+    implements ScenarioResult<T>, ScenarioFxConvertible<ScenarioResult<?>>, ImmutableBean, Serializable {
 
   /**
    * The number of scenarios.

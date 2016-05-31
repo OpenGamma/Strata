@@ -25,6 +25,8 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A single cell within a calculation task.
@@ -136,8 +138,8 @@ public final class CalculationTaskCell implements ImmutableBean {
       ReferenceData refData) {
 
     // the result is only converted if it is a success and both the measure and value are convertible
-    if (measure.isCurrencyConvertible() && result.isSuccess() && result.getValue() instanceof CurrencyConvertible) {
-      CurrencyConvertible<?> convertible = (CurrencyConvertible<?>) result.getValue();
+    if (measure.isCurrencyConvertible() && result.isSuccess() && result.getValue() instanceof ScenarioFxConvertible) {
+      ScenarioFxConvertible<?> convertible = (ScenarioFxConvertible<?>) result.getValue();
       return convertCurrency(task, convertible, fxProvider, refData);
     }
     return result;
@@ -146,7 +148,7 @@ public final class CalculationTaskCell implements ImmutableBean {
   // converts the value
   private Result<?> convertCurrency(
       CalculationTask task,
-      CurrencyConvertible<?> value,
+      ScenarioFxConvertible<?> value,
       ScenarioFxRateProvider fxProvider,
       ReferenceData refData) {
 
