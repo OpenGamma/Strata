@@ -21,8 +21,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.market.ImmutableReferenceData;
 
 /**
  * Test {@link DaysAdjustment}.

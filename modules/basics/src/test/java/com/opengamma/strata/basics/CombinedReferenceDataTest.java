@@ -17,7 +17,6 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.ImmutableReferenceData;
 
 /**
  * Test {@link CombinedReferenceData}.
