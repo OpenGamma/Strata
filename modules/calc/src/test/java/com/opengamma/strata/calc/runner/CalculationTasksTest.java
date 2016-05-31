@@ -93,11 +93,11 @@ public class CalculationTasksTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(TestId.of("1"));
 
-    MarketDataId<?> observableId = new TestObservableId("2", CalculationTaskTest.OBS_SOURCE);
+    MarketDataId<?> observableId = TestObservableId.of("2", CalculationTaskTest.OBS_SOURCE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> timeSeriesId = new TestObservableId("3", CalculationTaskTest.OBS_SOURCE);
+    MarketDataId<?> timeSeriesId = TestObservableId.of("3", CalculationTaskTest.OBS_SOURCE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }

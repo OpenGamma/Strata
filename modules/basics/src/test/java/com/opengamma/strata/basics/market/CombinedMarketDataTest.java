@@ -28,10 +28,10 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class CombinedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestObservableId ID1 = TestObservableId.of("1");
-  private static final TestObservableId ID2 = TestObservableId.of("2");
-  private static final TestObservableId ID3 = TestObservableId.of("3");
-  private static final TestObservableId ID4 = TestObservableId.of("4");
+  private static final TestingObservableId ID1 = new TestingObservableId("1");
+  private static final TestingObservableId ID2 = new TestingObservableId("2");
+  private static final TestingObservableId ID3 = new TestingObservableId("3");
+  private static final TestingObservableId ID4 = new TestingObservableId("4");
   private static final Double VAL1 = 123d;
   private static final Double VAL2 = 234d;
   private static final Double VAL3 = 999d;
