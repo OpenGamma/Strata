@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -104,9 +104,9 @@ public class FraCalculationFunctionTest {
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(
-            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioResult.of(ImmutableList.of(expectedExplainPv))))
+            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
-            Measures.CASH_FLOWS, Result.success(ScenarioResult.of(ImmutableList.of(expectedCashFlows))));
+            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))));
   }
 
   public void test_pv01() {
@@ -125,7 +125,7 @@ public class FraCalculationFunctionTest {
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

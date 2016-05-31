@@ -34,7 +34,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * A currency-convertible scenario result for a single currency, holding one amount for each scenario.
+ * A currency-convertible scenario array for a single currency, holding one amount for each scenario.
  * <p>
  * This contains a list of amounts in a single currency, one amount for each scenario.
  * The calculation runner is able to convert the currency of the values if required.
@@ -44,7 +44,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyValuesArray
-    implements ScenarioResult<CurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
+    implements ScenarioArray<CurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /**
    * The currency of the values.
@@ -137,7 +137,7 @@ public final class CurrencyValuesArray
   }
 
   @Override
-  public int size() {
+  public int getScenarioCount() {
     return values.size();
   }
 

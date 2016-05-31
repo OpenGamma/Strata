@@ -26,8 +26,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
-import com.opengamma.strata.data.scenario.ScenarioResult;
-import com.opengamma.strata.data.scenario.SingleScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
@@ -129,12 +128,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates explain present value for all scenarios
-  static ScenarioResult<ExplainMap> explainPresentValue(
+  static ScenarioArray<ExplainMap> explainPresentValue(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedSwap product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateExplainPresentValue(product, marketData.scenario(i)));
   }
@@ -147,12 +146,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates cash flows for all scenarios
-  static ScenarioResult<CashFlows> cashFlows(
+  static ScenarioArray<CashFlows> cashFlows(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedSwap product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCashFlows(product, marketData.scenario(i)));
   }
@@ -184,12 +183,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedSwap product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
@@ -206,12 +205,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed gamma PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedGammaPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedGammaPv01(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedSwap product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedGammaPv01(product, marketData.scenario(i)));
   }
@@ -285,12 +284,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates leg initial notional for all scenarios
-  static SingleScenarioResult<LegAmounts> legInitialNotional(
+  static ScenarioArray<LegAmounts> legInitialNotional(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     LegAmounts legInitialNotional = calculateLegInitialNotional(trade);
-    return SingleScenarioResult.of(marketData.getScenarioCount(), legInitialNotional);
+    return ScenarioArray.ofSingleValue(marketData.getScenarioCount(), legInitialNotional);
   }
 
   // leg initial notional, which is the same for all scenarios
@@ -326,12 +325,12 @@ final class SwapMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates leg present value for all scenarios
-  static ScenarioResult<LegAmounts> legPresentValue(
+  static ScenarioArray<LegAmounts> legPresentValue(
       ResolvedSwapTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedSwap product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateLegPresentValue(product, marketData.scenario(i)));
   }

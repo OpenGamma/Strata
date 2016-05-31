@@ -22,7 +22,7 @@ import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
@@ -144,7 +144,7 @@ public class TermDepositCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioResult<?> calculate(
+    public abstract ScenarioArray<?> calculate(
         ResolvedTermDepositTrade trade,
         RatesScenarioMarketData marketData);
   }

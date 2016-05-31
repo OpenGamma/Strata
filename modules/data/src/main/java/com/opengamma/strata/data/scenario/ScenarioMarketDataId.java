@@ -20,7 +20,7 @@ import com.opengamma.strata.data.MarketDataId;
  * @param <T>  the type of data referred to by the identifier
  * @param <U>  the type of the multi-scenario data
  */
-public interface ScenarioMarketDataId<T, U extends ScenarioMarketDataValue<T>> {
+public interface ScenarioMarketDataId<T, U extends ScenarioArray<T>> {
 
   /**
    * Gets the market data identifier of the market data value.

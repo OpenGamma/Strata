@@ -10,7 +10,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -80,12 +80,12 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
@@ -138,12 +138,12 @@ final class FxNdfMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates forward FX rate for all scenarios
-  static ScenarioResult<FxRate> forwardFxRate(
+  static ScenarioArray<FxRate> forwardFxRate(
       ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedFxNdf product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateForwardFxRate(product, marketData.scenario(i)));
   }

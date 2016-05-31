@@ -29,14 +29,14 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * A scenario result holding one {@code double} value for each scenario.
+ * A scenario array holding one {@code double} value for each scenario.
  * <p>
  * This contains a list of values, one value for each scenario.
  * The calculation runner will not attempt to convert the currency of the values.
  */
 @BeanDefinition(builderScope = "private")
 public final class ValuesArray
-    implements ScenarioResult<Double>, ImmutableBean {
+    implements ScenarioArray<Double>, ImmutableBean {
 
   /**
    * The calculated values, one per scenario.
@@ -82,7 +82,7 @@ public final class ValuesArray
 
   //-------------------------------------------------------------------------
   @Override
-  public int size() {
+  public int getScenarioCount() {
     return values.size();
   }
 

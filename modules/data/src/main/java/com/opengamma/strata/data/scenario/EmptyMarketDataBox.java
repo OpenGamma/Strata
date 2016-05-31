@@ -37,7 +37,7 @@ class EmptyMarketDataBox implements MarketDataBox<Void> {
   }
 
   @Override
-  public ScenarioMarketDataValue<Void> getScenarioValue() {
+  public ScenarioArray<Void> getScenarioValue() {
     throw new UnsupportedOperationException("Cannot get a value from an empty market data box");
   }
 

@@ -44,7 +44,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * @see FxRate
  */
 @BeanDefinition(builderScope = "private")
-public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, ImmutableBean {
+public final class FxRatesArray implements ScenarioArray<FxRate>, ImmutableBean {
 
   /**
    * The currency pair.
@@ -104,7 +104,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
    * @return the FX rate for the specified scenario
    */
   @Override
-  public FxRate getValue(int scenarioIndex) {
+  public FxRate get(int scenarioIndex) {
     return FxRate.of(pair, rates.get(scenarioIndex));
   }
 
@@ -122,7 +122,7 @@ public final class FxRatesArray implements ScenarioMarketDataValue<FxRate>, Immu
    * <p>
    * This will return the rate or inverse rate, or 1 if the two input currencies are the same.
    * <p>
-   * This method is more efficient than {@link #getValue(int)} as it doesn't create an instance
+   * This method is more efficient than {@link #get(int)} as it doesn't create an instance
    * of {@link FxRate} for every invocation.
    *
    * @param baseCurrency  the base currency, to convert from

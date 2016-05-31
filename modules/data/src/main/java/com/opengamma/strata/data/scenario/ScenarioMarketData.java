@@ -197,13 +197,13 @@ public interface ScenarioMarketData {
    * @throws IllegalArgumentException if no value is found
    */
   @SuppressWarnings("unchecked")
-  public default <T, U extends ScenarioMarketDataValue<T>> U getScenarioValue(ScenarioMarketDataId<T, U> id) {
+  public default <T, U extends ScenarioArray<T>> U getScenarioValue(ScenarioMarketDataId<T, U> id) {
     MarketDataBox<T> box = getValue(id.getMarketDataId());
 
     if (box.isSingleValue()) {
       return id.createScenarioValue(box, getScenarioCount());
     }
-    ScenarioMarketDataValue<T> scenarioValue = box.getScenarioValue();
+    ScenarioArray<T> scenarioValue = box.getScenarioValue();
     if (id.getScenarioMarketDataType().isInstance(scenarioValue)) {
       return (U) scenarioValue;
     }

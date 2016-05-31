@@ -38,7 +38,7 @@ import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
@@ -136,8 +136,8 @@ public class CurveScenarioExample {
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 
     // The results are lists of currency amounts containing one value for each scenario
-    ScenarioResult<?> pvList = (ScenarioResult<?>) results.get(0, 0).getValue();
-    ScenarioResult<?> pv01List = (ScenarioResult<?>) results.get(0, 1).getValue();
+    ScenarioArray<?> pvList = (ScenarioArray<?>) results.get(0, 0).getValue();
+    ScenarioArray<?> pv01List = (ScenarioArray<?>) results.get(0, 1).getValue();
 
     double pvBase = ((CurrencyAmount) pvList.get(0)).getAmount();
     double pvShifted = ((CurrencyAmount) pvList.get(1)).getAmount();

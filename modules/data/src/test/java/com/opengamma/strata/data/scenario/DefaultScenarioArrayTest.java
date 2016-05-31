@@ -24,15 +24,15 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link DefaultScenarioResult}.
+ * Test {@link DefaultScenarioArray}.
  */
 @Test
-public class DefaultScenarioResultTest {
+public class DefaultScenarioArrayTest {
 
   public void create() {
-    DefaultScenarioResult<Integer> test = DefaultScenarioResult.of(1, 2, 3);
+    DefaultScenarioArray<Integer> test = DefaultScenarioArray.of(1, 2, 3);
     assertThat(test.getValues()).isEqualTo(ImmutableList.of(1, 2, 3));
-    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(1);
     assertThat(test.get(1)).isEqualTo(2);
     assertThat(test.get(2)).isEqualTo(3);
@@ -40,9 +40,9 @@ public class DefaultScenarioResultTest {
   }
 
   public void create_withFunction() {
-    DefaultScenarioResult<Integer> test = DefaultScenarioResult.of(3, i -> (i + 1));
+    DefaultScenarioArray<Integer> test = DefaultScenarioArray.of(3, i -> (i + 1));
     assertThat(test.getValues()).isEqualTo(ImmutableList.of(1, 2, 3));
-    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(1);
     assertThat(test.get(1)).isEqualTo(2);
     assertThat(test.get(2)).isEqualTo(3);
@@ -58,14 +58,14 @@ public class DefaultScenarioResultTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    DefaultScenarioResult<CurrencyAmount> test = DefaultScenarioResult.of(values);
+    DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
-    ScenarioResult<?> convertedList = test.convertedTo(Currency.USD, fxProvider);
+    ScenarioArray<?> convertedList = test.convertedTo(Currency.USD, fxProvider);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
         CurrencyAmount.of(Currency.USD, 1 * 1.61),
         CurrencyAmount.of(Currency.USD, 2 * 1.62),
         CurrencyAmount.of(Currency.USD, 3 * 1.63));
-    DefaultScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(expectedValues);
+    DefaultScenarioArray<CurrencyAmount> expectedList = DefaultScenarioArray.of(expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
@@ -77,11 +77,22 @@ public class DefaultScenarioResultTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    DefaultScenarioResult<CurrencyAmount> test = DefaultScenarioResult.of(values);
+    DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
-    ScenarioResult<?> convertedList = test.convertedTo(Currency.GBP, fxProvider);
-    ScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(values);
+    ScenarioArray<?> convertedList = test.convertedTo(Currency.GBP, fxProvider);
+    ScenarioArray<CurrencyAmount> expectedList = DefaultScenarioArray.of(values);
     assertThat(convertedList).isEqualTo(expectedList);
+  }
+
+  public void notConvertible() {
+    FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
+    ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
+
+    List<String> values = ImmutableList.of("a", "b", "c");
+    DefaultScenarioArray<String> test = DefaultScenarioArray.of(values);
+
+    ScenarioArray<?> convertedList = test.convertedTo(Currency.GBP, fxProvider);
+    assertThat(convertedList).isEqualTo(test);
   }
 
   public void missingFxRates() {
@@ -92,7 +103,7 @@ public class DefaultScenarioResultTest {
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2),
         CurrencyAmount.of(Currency.GBP, 3));
-    DefaultScenarioResult<CurrencyAmount> test = DefaultScenarioResult.of(values);
+    DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
     assertThrows(() -> test.convertedTo(Currency.USD, fxProvider), IllegalArgumentException.class);
   }
@@ -104,7 +115,7 @@ public class DefaultScenarioResultTest {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.GBP, 2));
-    DefaultScenarioResult<CurrencyAmount> test = DefaultScenarioResult.of(values);
+    DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
     assertThrows(
         () -> test.convertedTo(Currency.USD, fxProvider),
@@ -114,9 +125,9 @@ public class DefaultScenarioResultTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DefaultScenarioResult<Integer> test = DefaultScenarioResult.of(1, 2, 3);
+    DefaultScenarioArray<Integer> test = DefaultScenarioArray.of(1, 2, 3);
     coverImmutableBean(test);
-    DefaultScenarioResult<String> test2 = DefaultScenarioResult.of("2", "3");
+    DefaultScenarioArray<String> test2 = DefaultScenarioArray.of("2", "3");
     coverBeanEquals(test, test2);
   }
 

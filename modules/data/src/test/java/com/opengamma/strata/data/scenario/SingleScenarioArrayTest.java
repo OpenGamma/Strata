@@ -22,13 +22,13 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * Test {@link SingleScenarioResult}.
+ * Test {@link SingleScenarioArray}.
  */
 @Test
-public class SingleScenarioResultTest {
+public class SingleScenarioArrayTest {
 
   public void create() {
-    SingleScenarioResult<String> test = SingleScenarioResult.of(3, "A");
+    SingleScenarioArray<String> test = SingleScenarioArray.of(3, "A");
     assertEquals(test.getScenarioCount(), 3);
     assertEquals(test.getValue(), "A");
     assertEquals(test.get(0), "A");
@@ -40,21 +40,21 @@ public class SingleScenarioResultTest {
   public void convertCurrencyAmount() {
     FxRatesArray rates = FxRatesArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
-    SingleScenarioResult<CurrencyAmount> test = SingleScenarioResult.of(3, CurrencyAmount.of(GBP, 2));
+    SingleScenarioArray<CurrencyAmount> test = SingleScenarioArray.of(3, CurrencyAmount.of(GBP, 2));
 
-    ScenarioResult<?> convertedList = test.convertedTo(USD, fxProvider);
+    ScenarioArray<?> convertedList = test.convertedTo(USD, fxProvider);
     List<CurrencyAmount> expectedValues = ImmutableList.of(
         CurrencyAmount.of(USD, 2 * 1.61),
         CurrencyAmount.of(USD, 2 * 1.62),
         CurrencyAmount.of(USD, 2 * 1.63));
-    DefaultScenarioResult<CurrencyAmount> expectedList = DefaultScenarioResult.of(expectedValues);
+    DefaultScenarioArray<CurrencyAmount> expectedList = DefaultScenarioArray.of(expectedValues);
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
   public void coverage() {
-    SingleScenarioResult<String> test = SingleScenarioResult.of(3, "A");
+    SingleScenarioArray<String> test = SingleScenarioArray.of(3, "A");
     coverImmutableBean(test);
-    SingleScenarioResult<String> test2 = SingleScenarioResult.of(2, "B");
+    SingleScenarioArray<String> test2 = SingleScenarioArray.of(2, "B");
     coverBeanEquals(test, test2);
   }
 

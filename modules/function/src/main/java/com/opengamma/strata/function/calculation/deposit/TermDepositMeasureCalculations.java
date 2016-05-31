@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
@@ -115,12 +115,12 @@ class TermDepositMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedTermDepositTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedTermDeposit product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }

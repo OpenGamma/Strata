@@ -59,7 +59,7 @@ public interface MarketDataBox<T> {
    * @param scenarioValue  the market data value containing data for multiple scenarios
    * @return a box containing a scenario market data value with data for multiple scenarios
    */
-  public static <T> MarketDataBox<T> ofScenarioValue(ScenarioMarketDataValue<T> scenarioValue) {
+  public static <T> MarketDataBox<T> ofScenarioValue(ScenarioArray<T> scenarioValue) {
     return ScenarioMarketDataBox.of(scenarioValue);
   }
 
@@ -123,7 +123,7 @@ public interface MarketDataBox<T> {
    * @return the market data value containing data for multiple scenarios
    * @throws UnsupportedOperationException if this box contains data for a single scenario
    */
-  public abstract ScenarioMarketDataValue<T> getScenarioValue();
+  public abstract ScenarioArray<T> getScenarioValue();
 
   /**
    * Gets the market data value associated with the specified scenario.

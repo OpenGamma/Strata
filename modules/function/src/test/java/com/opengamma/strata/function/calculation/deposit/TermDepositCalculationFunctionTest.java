@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
@@ -132,7 +132,7 @@ public class TermDepositCalculationFunctionTest {
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

@@ -21,7 +21,7 @@ import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
@@ -108,10 +108,10 @@ final class FraMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates explain present value for all scenarios
-  static ScenarioResult<ExplainMap> explainPresentValue(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
+  static ScenarioArray<ExplainMap> explainPresentValue(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateExplainPresentValue(product, marketData.scenario(i)));
   }
@@ -123,10 +123,10 @@ final class FraMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates cash flows for all scenarios
-  static ScenarioResult<CashFlows> cashFlows(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
+  static ScenarioArray<CashFlows> cashFlows(ResolvedFraTrade trade, RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCashFlows(product, marketData.scenario(i)));
   }
@@ -155,12 +155,12 @@ final class FraMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(product, marketData.scenario(i)));
   }
@@ -177,12 +177,12 @@ final class FraMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed gamma PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedGammaPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedGammaPv01(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
     ResolvedFra product = trade.getProduct();
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedGammaPv01(product, marketData.scenario(i)));
   }
