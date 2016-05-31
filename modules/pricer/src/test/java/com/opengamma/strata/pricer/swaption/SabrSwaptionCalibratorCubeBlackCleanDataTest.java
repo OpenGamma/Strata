@@ -168,6 +168,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     }
   }
 
+
   /**
    * Check that the sensitivities of parameters with respect to data is stored in the metadata.
    * Compare the sensitivities to a finite difference approximation.
