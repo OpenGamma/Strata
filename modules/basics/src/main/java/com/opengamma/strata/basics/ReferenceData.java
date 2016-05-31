@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**
