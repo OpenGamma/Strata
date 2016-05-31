@@ -8,10 +8,10 @@ package com.opengamma.strata.calc.marketdata;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.StandardId;
 
 /**
  * An observable ID implementation used in tests.

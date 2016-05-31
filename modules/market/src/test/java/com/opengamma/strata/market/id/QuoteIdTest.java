@@ -12,9 +12,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.market.FieldName;
 import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.StandardId;
 
 /**
  * Test {@link QuoteId}.
