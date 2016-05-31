@@ -17,8 +17,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.collect.ArgChecker;

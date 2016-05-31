@@ -28,6 +28,7 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -42,7 +43,6 @@ import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ImmutableMarketDataBuilder;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;

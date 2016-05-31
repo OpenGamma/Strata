@@ -19,7 +19,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link Business252DayCount}.

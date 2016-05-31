@@ -26,13 +26,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexObservation;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.Messages;
 

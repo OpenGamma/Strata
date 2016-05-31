@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.rate.RateComputation;

@@ -19,8 +19,8 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndexObservation;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;

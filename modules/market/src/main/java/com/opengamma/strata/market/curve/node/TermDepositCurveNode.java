@@ -26,10 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.param.DatedParameterMetadata;

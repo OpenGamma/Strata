@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.ColumnHeader;

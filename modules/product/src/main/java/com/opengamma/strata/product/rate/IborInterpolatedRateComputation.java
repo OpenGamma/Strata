@@ -26,10 +26,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**

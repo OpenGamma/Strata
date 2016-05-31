@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.market;
+package com.opengamma.strata.basics;
 
 import java.util.Map;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.market.ImmutableReferenceData;
 import com.opengamma.strata.collect.Messages;
 
 /**

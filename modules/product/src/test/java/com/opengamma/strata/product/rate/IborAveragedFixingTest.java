@@ -16,8 +16,8 @@ import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndexObservation;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test.

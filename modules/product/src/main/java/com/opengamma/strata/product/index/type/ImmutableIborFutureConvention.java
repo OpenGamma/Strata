@@ -31,10 +31,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.IborFuture;

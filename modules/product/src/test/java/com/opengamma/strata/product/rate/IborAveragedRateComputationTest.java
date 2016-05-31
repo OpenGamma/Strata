@@ -16,9 +16,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test.

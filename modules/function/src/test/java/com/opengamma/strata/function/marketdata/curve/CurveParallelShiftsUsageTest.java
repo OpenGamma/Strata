@@ -10,8 +10,8 @@ import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;

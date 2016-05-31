@@ -12,8 +12,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.ResolvedIborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;

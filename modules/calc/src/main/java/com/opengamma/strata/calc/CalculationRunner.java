@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 

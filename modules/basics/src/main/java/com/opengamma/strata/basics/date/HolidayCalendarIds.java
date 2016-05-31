@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.basics.date;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Identifiers for common holiday calendars.

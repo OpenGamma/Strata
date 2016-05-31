@@ -24,9 +24,9 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link SchedulePeriod}.

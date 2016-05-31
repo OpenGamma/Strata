@@ -22,7 +22,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.rate.IborRateComputation;

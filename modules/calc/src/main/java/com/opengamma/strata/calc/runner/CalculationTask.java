@@ -23,6 +23,7 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -30,7 +31,6 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;

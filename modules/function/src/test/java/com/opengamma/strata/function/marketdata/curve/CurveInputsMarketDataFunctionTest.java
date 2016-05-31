@@ -19,6 +19,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -26,7 +27,6 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;

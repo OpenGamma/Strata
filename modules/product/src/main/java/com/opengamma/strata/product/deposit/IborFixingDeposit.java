@@ -26,14 +26,14 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.BuySell;

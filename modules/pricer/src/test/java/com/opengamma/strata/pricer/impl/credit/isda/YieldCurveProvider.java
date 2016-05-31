@@ -9,10 +9,10 @@ package com.opengamma.strata.pricer.impl.credit.isda;
 import java.time.LocalDate;
 import java.time.Period;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * This holds yield curves use in tests

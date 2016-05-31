@@ -8,7 +8,7 @@ package com.opengamma.strata.calc.marketdata;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 
