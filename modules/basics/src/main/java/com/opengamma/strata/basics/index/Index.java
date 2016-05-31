@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.basics.index;
 
-import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.basics.market.StandardIdentifiable;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -21,19 +19,6 @@ import com.opengamma.strata.collect.named.Named;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface Index
-    extends Named, StandardIdentifiable {
-
-  /**
-   * Returns the standard identifier of the index.
-   * <p>
-   * The standard identifier has a scheme of "OG-Index".
-   * The value is the {@linkplain #getName() name} of the index.
-   * 
-   * @return the standard identifier
-   */
-  @Override
-  public default StandardId getStandardId() {
-    return StandardId.of("OG-Index", getName());
-  }
+    extends Named {
 
 }

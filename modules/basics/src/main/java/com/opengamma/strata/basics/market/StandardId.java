@@ -55,7 +55,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class StandardId
-    implements StandardIdentifiable, Comparable<StandardId>, ImmutableBean, Serializable {
+    implements Comparable<StandardId>, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -157,37 +157,6 @@ public final class StandardId
   // resolve after deserialization
   private Object readResolve() {
     return of(scheme, value);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the standard identifier, which simply returns {@code this}.
-   *
-   * @return {@code this}
-   */
-  @Override
-  public StandardId getStandardId() {
-    return this;
-  }
-
-  /**
-   * Checks if the scheme of this identifier equals the specified scheme.
-   * 
-   * @param scheme  the scheme to check for, null returns false
-   * @return true if the schemes match
-   */
-  public boolean isScheme(String scheme) {
-    return this.scheme.equals(scheme);
-  }
-
-  /**
-   * Checks if the scheme of this identifier does not equal the specified scheme.
-   * 
-   * @param scheme  the scheme to check for, null returns true
-   * @return true if the schemes are different
-   */
-  public boolean isNotScheme(String scheme) {
-    return !isScheme(scheme);
   }
 
   //-------------------------------------------------------------------------

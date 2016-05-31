@@ -27,7 +27,7 @@ package com.opengamma.strata.basics.market;
  * </ul>
  */
 public interface ObservableId
-    extends MarketDataId<Double>, StandardIdentifiable {
+    extends MarketDataId<Double> {
 
   /**
    * Gets the standard identifier identifying the data.
@@ -38,7 +38,6 @@ public interface ObservableId
    *
    * @return a standard identifier, such as a ticker, to identify the desired data
    */
-  @Override
   public abstract StandardId getStandardId();
 
   /**
