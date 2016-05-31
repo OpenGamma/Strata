@@ -15,9 +15,9 @@ import static org.testng.Assert.assertSame;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 
 /**
  * Test {@link HolidayCalendarId}.

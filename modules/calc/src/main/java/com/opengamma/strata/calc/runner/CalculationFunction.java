@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;

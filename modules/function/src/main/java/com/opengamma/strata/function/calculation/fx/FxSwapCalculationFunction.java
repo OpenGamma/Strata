@@ -11,9 +11,9 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;

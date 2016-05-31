@@ -26,11 +26,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.node.DummyFraCurveNode;
 import com.opengamma.strata.market.id.QuoteId;

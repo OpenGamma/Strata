@@ -27,13 +27,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -23,7 +24,6 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.ImmutableFxIndex;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;

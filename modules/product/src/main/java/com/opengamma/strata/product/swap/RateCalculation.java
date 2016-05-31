@@ -7,10 +7,10 @@ package com.opengamma.strata.product.swap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.schedule.Schedule;
 
 /**

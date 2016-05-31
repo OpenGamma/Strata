@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataId;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.Resolvable;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataId;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.Resolvable;
 
 /**
  * A trade that can to be resolved using reference data.

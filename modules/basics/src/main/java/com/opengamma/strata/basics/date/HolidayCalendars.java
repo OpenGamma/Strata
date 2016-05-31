@@ -6,7 +6,7 @@
 package com.opengamma.strata.basics.date;
 
 import com.google.common.base.Splitter;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**

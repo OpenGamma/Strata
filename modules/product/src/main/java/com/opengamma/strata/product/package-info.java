@@ -46,7 +46,7 @@
  * The first approach is to use {@link com.opengamma.strata.product.SecurityTrade SecurityTrade}.
  * A {@code SecurityTrade} stores just the security identifier, quantity and trade price.
  * When the trade needs to be priced, the identifier can be resolved to a {@code Security} using
- * {@link com.opengamma.strata.basics.market.ReferenceData ReferenceData}.
+ * {@link com.opengamma.strata.basics.ReferenceData ReferenceData}.
  * The reference data could be backed by an in-memory store or a database.
  * <p>
  * The second approach is to use a more specific trade type, such as

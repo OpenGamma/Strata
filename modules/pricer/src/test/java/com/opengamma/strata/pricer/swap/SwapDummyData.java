@@ -20,6 +20,7 @@ import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 
 import java.time.Period;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -27,7 +28,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;

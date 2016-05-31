@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.market;
+package com.opengamma.strata.basics;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.HolidayCalendar;

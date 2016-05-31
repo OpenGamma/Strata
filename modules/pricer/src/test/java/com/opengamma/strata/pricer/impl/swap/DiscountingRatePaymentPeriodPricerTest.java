@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -40,7 +41,6 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;

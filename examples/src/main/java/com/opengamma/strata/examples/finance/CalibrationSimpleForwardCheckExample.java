@@ -15,11 +15,11 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;

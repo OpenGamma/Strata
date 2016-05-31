@@ -17,8 +17,8 @@ import java.util.BitSet;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;

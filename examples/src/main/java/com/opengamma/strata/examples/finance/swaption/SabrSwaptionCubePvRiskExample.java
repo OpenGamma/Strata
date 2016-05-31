@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;

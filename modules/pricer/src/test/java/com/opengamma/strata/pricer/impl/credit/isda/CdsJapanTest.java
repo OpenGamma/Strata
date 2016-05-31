@@ -13,9 +13,9 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test.

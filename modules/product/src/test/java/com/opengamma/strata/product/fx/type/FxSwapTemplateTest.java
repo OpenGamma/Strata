@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -29,7 +30,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 

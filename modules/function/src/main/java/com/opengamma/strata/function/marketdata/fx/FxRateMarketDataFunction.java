@@ -7,10 +7,10 @@ package com.opengamma.strata.function.marketdata.fx;
 
 import java.util.Optional;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;

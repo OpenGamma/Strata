@@ -19,10 +19,10 @@ import org.joda.convert.ToString;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataId;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.Resolvable;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataId;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 

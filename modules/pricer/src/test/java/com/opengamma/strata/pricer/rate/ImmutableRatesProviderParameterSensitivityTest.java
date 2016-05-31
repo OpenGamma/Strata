@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DayCount;
@@ -31,7 +32,6 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;

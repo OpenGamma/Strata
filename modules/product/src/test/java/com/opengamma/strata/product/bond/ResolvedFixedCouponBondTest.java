@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 
 /**

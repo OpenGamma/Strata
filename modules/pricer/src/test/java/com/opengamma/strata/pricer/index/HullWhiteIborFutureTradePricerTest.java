@@ -13,9 +13,9 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;

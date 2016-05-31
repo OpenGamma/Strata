@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.Resolvable;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
 
 /**
  * An adjustment that alters a date by adding a period of days.

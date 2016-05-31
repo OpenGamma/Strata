@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics.market;
+package com.opengamma.strata.basics;
 
 /**
  * An identifier for a unique item of reference data.

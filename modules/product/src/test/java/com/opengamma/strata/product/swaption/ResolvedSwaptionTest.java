@@ -20,8 +20,8 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;

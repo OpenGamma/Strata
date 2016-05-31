@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link ResolvedIborFutureOption}. 

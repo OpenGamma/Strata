@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -33,7 +34,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.market.ImmutableReferenceData;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;

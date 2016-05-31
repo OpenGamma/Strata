@@ -14,13 +14,13 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.DoubleArrayMath;

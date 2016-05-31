@@ -19,8 +19,8 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link Cds}.

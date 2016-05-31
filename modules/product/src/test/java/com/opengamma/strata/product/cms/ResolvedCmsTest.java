@@ -13,7 +13,7 @@ import static org.testng.Assert.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**

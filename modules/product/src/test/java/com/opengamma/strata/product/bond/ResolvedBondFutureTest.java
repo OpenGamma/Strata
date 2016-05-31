@@ -15,8 +15,8 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link ResolvedBondFuture}.

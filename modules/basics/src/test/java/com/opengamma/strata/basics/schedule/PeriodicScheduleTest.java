@@ -48,11 +48,11 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * Test {@link PeriodicSchedule}.

@@ -21,13 +21,13 @@ import java.time.ZoneId;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;

@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.product;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.ReferenceData;
 
 /**
  * A trade that is directly based on a securitized product.
