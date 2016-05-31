@@ -15,9 +15,9 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
 
 /**
  * Primary interface for all calculation functions that calculate measures.
@@ -106,11 +106,11 @@ public interface CalculationFunction<T extends CalculationTarget> {
    * as returned by {@link #supportedMeasures()}. The market data must provide at least the
    * set of data requested by {@link #requirements(CalculationTarget, Set, CalculationParameters, ReferenceData)}.
    * <p>
-   * The result of this method will often be an instance of {@link ScenarioResult}, which
+   * The result of this method will often be an instance of {@link ScenarioArray}, which
    * handles the common case where there is one calculated value for each scenario.
    * However, it is also possible for the function to calculate an aggregated result, such
    * as the maximum or minimum value across all scenarios, in which case the result would
-   * not implement {@code ScenarioResult}.
+   * not implement {@code ScenarioArray}.
    *
    * @param target  the target of the calculation
    * @param measures  the set of measures to calculate

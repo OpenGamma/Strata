@@ -198,7 +198,7 @@ public class ScenarioMarketDataTest {
 
   //--------------------------------------------------------------------------------------------------
 
-  private static final class TestDoubleArray implements ScenarioMarketDataValue<Double> {
+  private static final class TestDoubleArray implements ScenarioArray<Double> {
 
     private final DoubleArray values;
 
@@ -207,7 +207,7 @@ public class ScenarioMarketDataTest {
     }
 
     @Override
-    public Double getValue(int scenarioIndex) {
+    public Double get(int scenarioIndex) {
       return values.get(scenarioIndex);
     }
 

@@ -34,7 +34,7 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray test = CurrencyValuesArray.of(GBP, values);
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(values);
-    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
     assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
     assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));
@@ -48,7 +48,7 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray test = CurrencyValuesArray.of(values);
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
-    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
     assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
     assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));
@@ -68,7 +68,7 @@ public class CurrencyValuesArrayTest {
     CurrencyValuesArray test = CurrencyValuesArray.of(3, i -> values.get(i));
     assertThat(test.getCurrency()).isEqualTo(GBP);
     assertThat(test.getValues()).isEqualTo(DoubleArray.of(1d, 2d, 3d));
-    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
     assertThat(test.get(0)).isEqualTo(CurrencyAmount.of(GBP, 1));
     assertThat(test.get(1)).isEqualTo(CurrencyAmount.of(GBP, 2));
     assertThat(test.get(2)).isEqualTo(CurrencyAmount.of(GBP, 3));

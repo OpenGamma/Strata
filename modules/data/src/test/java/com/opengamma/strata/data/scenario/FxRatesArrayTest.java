@@ -28,10 +28,10 @@ public class FxRatesArrayTest {
     FxRatesArray rates = FxRatesArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
     assertThat(rates.getPair()).isEqualTo(CurrencyPair.of(Currency.EUR, Currency.USD));
     assertThat(rates.getScenarioCount()).isEqualTo(3);
-    assertThat(rates.getValue(0)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.07));
-    assertThat(rates.getValue(1)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.08));
-    assertThat(rates.getValue(2)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.09));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> rates.getValue(3));
+    assertThat(rates.get(0)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.07));
+    assertThat(rates.get(1)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.08));
+    assertThat(rates.get(2)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.09));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> rates.get(3));
   }
 
   public void fxRate() {

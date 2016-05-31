@@ -24,7 +24,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
@@ -190,7 +190,7 @@ public class CdsCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioResult<?> calculate(
+    public abstract ScenarioArray<?> calculate(
         ResolvedCdsTrade trade,
         ScenarioMarketData marketData);
   }

@@ -41,8 +41,8 @@ import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.marketdata.curve.CurvePointShifts;
@@ -136,7 +136,7 @@ public class HistoricalScenarioExample {
     Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario
-    ScenarioResult<?> scenarioValuations = (ScenarioResult<?>) results.get(0, 0).getValue();
+    ScenarioArray<?> scenarioValuations = (ScenarioArray<?>) results.get(0, 0).getValue();
     outputPnl(scenarioDates, scenarioValuations);
   }
 
@@ -206,13 +206,13 @@ public class HistoricalScenarioExample {
     return builder.build();
   }
 
-  private static void outputPnl(List<LocalDate> scenarioDates, ScenarioResult<?> scenarioValuations) {
+  private static void outputPnl(List<LocalDate> scenarioDates, ScenarioArray<?> scenarioValuations) {
     NumberFormat numberFormat = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
     double basePv = ((CurrencyAmount) scenarioValuations.get(0)).getAmount();
     System.out.println("Base PV (USD): " + numberFormat.format(basePv));
     System.out.println();
     System.out.println("P&L series (USD):");
-    for (int i = 1; i < scenarioValuations.size(); i++) {
+    for (int i = 1; i < scenarioValuations.getScenarioCount(); i++) {
       double scenarioPv = ((CurrencyAmount) scenarioValuations.get(i)).getAmount();
       double pnl = scenarioPv - basePv;
       LocalDate scenarioDate = scenarioDates.get(i);

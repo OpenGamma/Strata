@@ -66,7 +66,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   }
 
   @Override
-  public ScenarioMarketDataValue<T> getScenarioValue() {
+  public ScenarioArray<T> getScenarioValue() {
     throw new IllegalStateException("This box does not contain a scenario value");
   }
 
@@ -113,7 +113,7 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   }
 
   private <U, R> MarketDataBox<R> combineWithMultiple(MarketDataBox<U> other, BiFunction<T, U, R> fn) {
-    ScenarioMarketDataValue<U> otherValue = other.getScenarioValue();
+    ScenarioArray<U> otherValue = other.getScenarioValue();
     int scenarioCount = otherValue.getScenarioCount();
 
     List<R> values = IntStream.range(0, scenarioCount)

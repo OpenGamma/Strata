@@ -5,10 +5,15 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zipWithIndex;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -25,46 +30,70 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
- * A simple {@link ScenarioMarketDataValue} implementation containing a list of single market data values, one
- * for each scenario.
- *
- * @param <T> the type of the market data value used in each scenario
+ * A scenario array holding one value for each scenario.
+ * <p>
+ * This contains a list of values, one value for each scenario.
+ * 
+ * @param <T>  the type of each individual value
  */
 @BeanDefinition(builderScope = "private")
-public final class ScenarioValuesList<T>
-    implements ScenarioMarketDataValue<T>, ImmutableBean {
+final class DefaultScenarioArray<T>
+    implements ScenarioArray<T>, ScenarioFxConvertible<ScenarioArray<?>>, ImmutableBean, Serializable {
 
   /**
-   * The market data values, one for each scenario.
+   * The values, one per scenario.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableList<T> values;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance containing the specified values.
+   * Obtains an instance from the specified array of values.
    *
-   * @param <T> the type of the value
-   * @param values  the market data values, one for each scenario
-   * @return a scenario values list containing the values
+   * @param <T>  the type of the value
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
    */
   @SafeVarargs
-  public static <T> ScenarioValuesList<T> of(T... values) {
-    return new ScenarioValuesList<>(ImmutableList.copyOf(values));
+  public static <T> DefaultScenarioArray<T> of(T... values) {
+    return new DefaultScenarioArray<>(ImmutableList.copyOf(values));
   }
 
   /**
-   * Obtains an instance containing the specified values.
+   * Obtains an instance from the specified list of values.
    *
-   * @param <T> the type of the value
-   * @param values  the market data values, one for each scenario
-   * @return a scenario values list containing the values
+   * @param <T>  the type of the value
+   * @param values  the values, one value for each scenario
+   * @return an instance with the specified values
    */
-  public static <T> ScenarioValuesList<T> of(List<T> values) {
-    return new ScenarioValuesList<>(values);
+  public static <T> DefaultScenarioArray<T> of(List<T> values) {
+    return new DefaultScenarioArray<>(values);
+  }
+
+  /**
+   * Obtains an instance using a function to create the entries.
+   * <p>
+   * The function is passed the scenario index and returns the value for that index.
+   * 
+   * @param <T>  the type of the value
+   * @param scenarioCount  the number of scenarios
+   * @param valueFunction  the function used to obtain each value
+   * @return an instance initialized using the function
+   * @throws IllegalArgumentException is size is zero or less
+   */
+  public static <T> DefaultScenarioArray<T> of(int scenarioCount, IntFunction<T> valueFunction) {
+    ArgChecker.notNegativeOrZero(scenarioCount, "scenarioCount");
+    ImmutableList.Builder<T> builder = ImmutableList.builder();
+    for (int i = 0; i < scenarioCount; i++) {
+      builder.add(valueFunction.apply(i));
+    }
+    return new DefaultScenarioArray<>(builder.build());
   }
 
   //-------------------------------------------------------------------------
@@ -74,9 +103,8 @@ public final class ScenarioValuesList<T>
   }
 
   @Override
-  public T getValue(int scenarioIndex) {
-    ArgChecker.inRange(scenarioIndex, 0, values.size(), "scenarioIndex");
-    return values.get(scenarioIndex);
+  public T get(int index) {
+    return values.get(index);
   }
 
   @Override
@@ -84,42 +112,70 @@ public final class ScenarioValuesList<T>
     return values.stream();
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public ScenarioArray<?> convertedTo(Currency resultCurrency, ScenarioFxRateProvider fxRateProvider) {
+    int scenarioCount = getScenarioCount();
+    if (fxRateProvider.getScenarioCount() != scenarioCount) {
+      throw new IllegalArgumentException(Messages.format(
+          "Expected {} FX rates but received {}", scenarioCount, fxRateProvider.getScenarioCount()));
+    }
+    ImmutableList<Object> converted = zipWithIndex(values.stream())
+        .map(tp -> convert(resultCurrency, fxRateProvider, tp.getFirst(), tp.getSecond()))
+        .collect(toImmutableList());
+    return DefaultScenarioArray.of(converted);
+  }
+
+  // convert value if possible
+  private Object convert(Currency reportingCurrency, ScenarioFxRateProvider fxRateProvider, Object base, int index) {
+    if (base instanceof FxConvertible<?>) {
+      FxConvertible<?> convertible = (FxConvertible<?>) base;
+      return convertible.convertedTo(reportingCurrency, fxRateProvider.fxRateProvider(index));
+    }
+    return base;
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ScenarioValuesList}.
+   * The meta-bean for {@code DefaultScenarioArray}.
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
-  public static ScenarioValuesList.Meta meta() {
-    return ScenarioValuesList.Meta.INSTANCE;
+  public static DefaultScenarioArray.Meta meta() {
+    return DefaultScenarioArray.Meta.INSTANCE;
   }
 
   /**
-   * The meta-bean for {@code ScenarioValuesList}.
+   * The meta-bean for {@code DefaultScenarioArray}.
    * @param <R>  the bean's generic type
    * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ScenarioValuesList.Meta<R> metaScenarioValuesList(Class<R> cls) {
-    return ScenarioValuesList.Meta.INSTANCE;
+  public static <R> DefaultScenarioArray.Meta<R> metaDefaultScenarioArray(Class<R> cls) {
+    return DefaultScenarioArray.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ScenarioValuesList.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(DefaultScenarioArray.Meta.INSTANCE);
   }
 
-  private ScenarioValuesList(
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private DefaultScenarioArray(
       List<T> values) {
-    JodaBeanUtils.notEmpty(values, "values");
+    JodaBeanUtils.notNull(values, "values");
     this.values = ImmutableList.copyOf(values);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ScenarioValuesList.Meta<T> metaBean() {
-    return ScenarioValuesList.Meta.INSTANCE;
+  public DefaultScenarioArray.Meta<T> metaBean() {
+    return DefaultScenarioArray.Meta.INSTANCE;
   }
 
   @Override
@@ -134,8 +190,8 @@ public final class ScenarioValuesList<T>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data values, one for each scenario.
-   * @return the value of the property, not empty
+   * Gets the values, one per scenario.
+   * @return the value of the property, not null
    */
   public ImmutableList<T> getValues() {
     return values;
@@ -148,7 +204,7 @@ public final class ScenarioValuesList<T>
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ScenarioValuesList<?> other = (ScenarioValuesList<?>) obj;
+      DefaultScenarioArray<?> other = (DefaultScenarioArray<?>) obj;
       return JodaBeanUtils.equal(values, other.values);
     }
     return false;
@@ -164,7 +220,7 @@ public final class ScenarioValuesList<T>
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("ScenarioValuesList{");
+    buf.append("DefaultScenarioArray{");
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();
@@ -172,7 +228,7 @@ public final class ScenarioValuesList<T>
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ScenarioValuesList}.
+   * The meta-bean for {@code DefaultScenarioArray}.
    * @param <T>  the type
    */
   public static final class Meta<T> extends DirectMetaBean {
@@ -187,7 +243,7 @@ public final class ScenarioValuesList<T>
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableList<T>> values = DirectMetaProperty.ofImmutable(
-        this, "values", ScenarioValuesList.class, (Class) ImmutableList.class);
+        this, "values", DefaultScenarioArray.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -211,14 +267,14 @@ public final class ScenarioValuesList<T>
     }
 
     @Override
-    public BeanBuilder<? extends ScenarioValuesList<T>> builder() {
-      return new ScenarioValuesList.Builder<T>();
+    public BeanBuilder<? extends DefaultScenarioArray<T>> builder() {
+      return new DefaultScenarioArray.Builder<T>();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ScenarioValuesList<T>> beanType() {
-      return (Class) ScenarioValuesList.class;
+    public Class<? extends DefaultScenarioArray<T>> beanType() {
+      return (Class) DefaultScenarioArray.class;
     }
 
     @Override
@@ -240,7 +296,7 @@ public final class ScenarioValuesList<T>
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          return ((ScenarioValuesList<?>) bean).getValues();
+          return ((DefaultScenarioArray<?>) bean).getValues();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -258,10 +314,10 @@ public final class ScenarioValuesList<T>
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ScenarioValuesList}.
+   * The bean-builder for {@code DefaultScenarioArray}.
    * @param <T>  the type
    */
-  private static final class Builder<T> extends DirectFieldsBeanBuilder<ScenarioValuesList<T>> {
+  private static final class Builder<T> extends DirectFieldsBeanBuilder<DefaultScenarioArray<T>> {
 
     private List<T> values = ImmutableList.of();
 
@@ -320,8 +376,8 @@ public final class ScenarioValuesList<T>
     }
 
     @Override
-    public ScenarioValuesList<T> build() {
-      return new ScenarioValuesList<T>(
+    public DefaultScenarioArray<T> build() {
+      return new DefaultScenarioArray<T>(
           values);
     }
 
@@ -329,7 +385,7 @@ public final class ScenarioValuesList<T>
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("ScenarioValuesList.Builder{");
+      buf.append("DefaultScenarioArray.Builder{");
       buf.append("values").append('=').append(JodaBeanUtils.toString(values));
       buf.append('}');
       return buf.toString();

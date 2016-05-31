@@ -45,7 +45,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * A currency-convertible scenario result for multi-currency amounts, holding one amount for each scenario.
+ * A currency-convertible scenario array for multi-currency amounts, holding one amount for each scenario.
  * <p>
  * This contains a list of amounts in a multiple currencies, one amount for each scenario.
  * The calculation runner is able to convert the currency of the values if required.
@@ -55,7 +55,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyValuesArray
-    implements ScenarioResult<MultiCurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
+    implements ScenarioArray<MultiCurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /** The currency values, keyed by currency. */
   @PropertyDefinition(validate = "notNull")
@@ -194,7 +194,7 @@ public final class MultiCurrencyValuesArray
    * @return the number of currency values for each currency
    */
   @Override
-  public int size() {
+  public int getScenarioCount() {
     return size;
   }
 
@@ -204,7 +204,7 @@ public final class MultiCurrencyValuesArray
    * This method is not very efficient for large sizes as a new object must be created at each index.
    * Consider using {@link #getValues(Currency)} instead.
    *
-   * @param index  the index of the result that should be returned
+   * @param index  the index that should be returned
    * @return a multi currency amount containing the currency values at the specified index
    */
   @Override
@@ -260,12 +260,12 @@ public final class MultiCurrencyValuesArray
    * @throws IllegalArgumentException if the arrays have different sizes
    */
   public MultiCurrencyValuesArray plus(MultiCurrencyValuesArray other) {
-    if (other.size() != size) {
+    if (other.getScenarioCount() != size) {
       throw new IllegalArgumentException(
           Messages.format(
               "Sizes must be equal when adding, this size is {}, other size is {}",
               size,
-              other.size()));
+              other.getScenarioCount()));
     }
     Map<Currency, DoubleArray> addedValues = Stream.concat(values.entrySet().stream(), other.values.entrySet().stream())
         .collect(toMap(e -> e.getKey(), e -> e.getValue(), (arr1, arr2) -> arr1.plus(arr2)));
@@ -305,12 +305,12 @@ public final class MultiCurrencyValuesArray
    * @throws IllegalArgumentException if the arrays have different sizes
    */
   public MultiCurrencyValuesArray minus(MultiCurrencyValuesArray other) {
-    if (other.size() != size) {
+    if (other.getScenarioCount() != size) {
       throw new IllegalArgumentException(
           Messages.format(
               "Sizes must be equal when subtracting, this size is {}, other size is {}",
               size,
-              other.size()));
+              other.getScenarioCount()));
     }
     ImmutableMap.Builder<Currency, DoubleArray> builder = ImmutableMap.builder();
 

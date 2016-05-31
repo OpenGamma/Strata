@@ -65,7 +65,7 @@ public class MultiCurrencyValuesArrayTest {
             MultiCurrencyAmount.of(
                 CurrencyAmount.of(Currency.EUR, 44))));
 
-    assertThat(raggedArray.size()).isEqualTo(3);
+    assertThat(raggedArray.getScenarioCount()).isEqualTo(3);
     assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
     assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
     assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));

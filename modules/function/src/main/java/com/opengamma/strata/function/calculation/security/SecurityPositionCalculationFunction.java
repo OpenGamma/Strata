@@ -22,7 +22,7 @@ import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityPosition;
@@ -131,7 +131,7 @@ public class SecurityPositionCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioResult<?> calculate(
+    public abstract ScenarioArray<?> calculate(
         Security security,
         double quantity,
         ScenarioMarketData marketData);

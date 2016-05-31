@@ -15,30 +15,29 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.data.scenario.DefaultScenarioResult;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
-import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 @Test
 public class FunctionUtilsTest {
 
-  public void toScenarioResult() {
+  public void toScenarioArray() {
     List<CurrencyAmount> amounts = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
         CurrencyAmount.of(Currency.USD, 2));
 
-    ScenarioResult<CurrencyAmount> expectedResult = DefaultScenarioResult.of(amounts);
-    ScenarioResult<CurrencyAmount> result = amounts.stream().collect(FunctionUtils.toScenarioResult());
+    ScenarioArray<CurrencyAmount> expectedResult = ScenarioArray.of(amounts);
+    ScenarioArray<CurrencyAmount> result = amounts.stream().collect(FunctionUtils.toScenarioArray());
     assertThat(result).isEqualTo(expectedResult);
   }
 
-  public void toScenarioResult2() {
+  public void toScenarioArray2() {
     List<MultiCurrencyAmount> amounts = ImmutableList.of(
         MultiCurrencyAmount.of(Currency.GBP, 1),
         MultiCurrencyAmount.of(CurrencyAmount.of(Currency.USD, 2), CurrencyAmount.of(Currency.GBP, 3)));
 
-    ScenarioResult<MultiCurrencyAmount> expectedResult = DefaultScenarioResult.of(amounts);
-    ScenarioResult<MultiCurrencyAmount> result = amounts.stream().collect(FunctionUtils.toScenarioResult());
+    ScenarioArray<MultiCurrencyAmount> expectedResult = ScenarioArray.of(amounts);
+    ScenarioArray<MultiCurrencyAmount> result = amounts.stream().collect(FunctionUtils.toScenarioArray());
     assertThat(result).isEqualTo(expectedResult);
   }
 

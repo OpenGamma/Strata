@@ -140,7 +140,7 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @param <T>  the type of the market data values
    * @return this builder
    */
-  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioMarketDataValue<T> value) {
+  public <T> ImmutableScenarioMarketDataBuilder addScenarioValue(MarketDataId<T> id, ScenarioArray<T> value) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(value, "values");
     MarketDataBox<T> box = MarketDataBox.ofScenarioValue(value);
@@ -159,12 +159,12 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @return this builder
    */
   public ImmutableScenarioMarketDataBuilder addScenarioValueMap(
-      Map<? extends MarketDataId<?>, ? extends ScenarioMarketDataValue<?>> values) {
+      Map<? extends MarketDataId<?>, ? extends ScenarioArray<?>> values) {
 
     ArgChecker.notNull(values, "values");
-    for (Entry<? extends MarketDataId<?>, ? extends ScenarioMarketDataValue<?>> entry : values.entrySet()) {
+    for (Entry<? extends MarketDataId<?>, ? extends ScenarioArray<?>> entry : values.entrySet()) {
       MarketDataId<?> id = entry.getKey();
-      ScenarioMarketDataValue<?> value = entry.getValue();
+      ScenarioArray<?> value = entry.getValue();
       MarketDataBox<?> box = MarketDataBox.ofScenarioValue(value);
       checkBoxType(id, box);
       checkAndUpdateScenarioCount(box);

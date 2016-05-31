@@ -40,11 +40,11 @@ public class ScenarioMarketDataBoxTest {
 
   public void getScenarioValue() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
-    ScenarioMarketDataValue<Integer> scenarioValue = box.getScenarioValue();
+    ScenarioArray<Integer> scenarioValue = box.getScenarioValue();
     assertThat(scenarioValue.getScenarioCount()).isEqualTo(3);
-    assertThat(scenarioValue.getValue(0)).isEqualTo(27);
-    assertThat(scenarioValue.getValue(1)).isEqualTo(28);
-    assertThat(scenarioValue.getValue(2)).isEqualTo(29);
+    assertThat(scenarioValue.get(0)).isEqualTo(27);
+    assertThat(scenarioValue.get(1)).isEqualTo(28);
+    assertThat(scenarioValue.get(2)).isEqualTo(29);
   }
 
   public void getScenarioCount() {
