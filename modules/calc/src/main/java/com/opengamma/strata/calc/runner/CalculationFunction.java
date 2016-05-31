@@ -17,6 +17,7 @@ import com.opengamma.strata.calc.ReportingCurrency;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -38,7 +39,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
  *  - perform the calculation
  * </ul>
  * <p>
- * If any of the calculated values contain any currency amounts and implement {@link CurrencyConvertible}
+ * If any of the calculated values contain any currency amounts and implement {@link ScenarioFxConvertible}
  * the calculation runner will automatically convert the amounts into the reporting currency.
  *
  * @param <T>  the type of target handled by this function

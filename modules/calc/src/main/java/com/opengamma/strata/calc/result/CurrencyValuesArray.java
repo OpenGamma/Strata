@@ -29,11 +29,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.calc.runner.CurrencyConvertible;
-import com.opengamma.strata.calc.runner.ScenarioFxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A currency-convertible scenario result for a single currency, holding one amount for each scenario.
@@ -46,7 +46,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(builderScope = "private")
 public final class CurrencyValuesArray
-    implements ScenarioResult<CurrencyAmount>, CurrencyConvertible<CurrencyValuesArray>, ImmutableBean {
+    implements ScenarioResult<CurrencyAmount>, ScenarioFxConvertible<CurrencyValuesArray>, ImmutableBean {
 
   /**
    * The currency of the values.

@@ -3,11 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.runner;
+package com.opengamma.strata.data.scenario;
 
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.data.MarketDataFxRateProvider;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A provider of FX rates which takes its data from one scenario in a set of data for multiple scenarios.

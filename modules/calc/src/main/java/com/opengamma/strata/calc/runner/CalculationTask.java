@@ -36,6 +36,7 @@ import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -201,7 +202,7 @@ public final class CalculationTask implements ImmutableBean {
     Map<Measure, Result<?>> results = calculate(marketData, refData);
 
     // convert the results, using a normal loop for better stack traces
-    ScenarioFxRateProvider fxProvider = new DefaultScenarioFxRateProvider(marketData);
+    ScenarioFxRateProvider fxProvider = ScenarioFxRateProvider.of(marketData);
     ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
     for (CalculationTaskCell cell : cells) {
       resultBuilder.add(cell.createResult(this, target, results, fxProvider, refData));
