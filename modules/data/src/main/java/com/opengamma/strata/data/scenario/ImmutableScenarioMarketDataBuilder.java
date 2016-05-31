@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc;
+package com.opengamma.strata.data.scenario;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -16,8 +16,6 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.scenario.MarketDataBox;
-import com.opengamma.strata.data.scenario.ScenarioMarketDataValue;
 
 /**
  * A mutable builder for market data.

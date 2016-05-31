@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Test {@link CalculationRunner} and {@link DefaultCalculationRunner}.

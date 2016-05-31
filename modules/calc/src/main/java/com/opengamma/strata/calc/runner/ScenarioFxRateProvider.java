@@ -7,7 +7,7 @@ package com.opengamma.strata.calc.runner;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A provider of FX rates for scenarios.

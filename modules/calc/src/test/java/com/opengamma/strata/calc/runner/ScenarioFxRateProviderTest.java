@@ -14,9 +14,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.calc.ImmutableScenarioMarketData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 @Test
 public class ScenarioFxRateProviderTest {

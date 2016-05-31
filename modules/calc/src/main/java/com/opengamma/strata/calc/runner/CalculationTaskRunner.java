@@ -8,11 +8,11 @@ package com.opengamma.strata.calc.runner;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Component that provides the ability to run calculation tasks.

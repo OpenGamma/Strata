@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc;
+package com.opengamma.strata.data.scenario;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -34,7 +34,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.scenario.MarketDataBox;
 
 /**
  * An immutable set of market data across one or more scenarios.

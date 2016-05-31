@@ -14,6 +14,7 @@ import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * The default calculation runner.

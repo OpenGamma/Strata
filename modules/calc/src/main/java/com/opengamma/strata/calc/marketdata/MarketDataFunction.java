@@ -6,9 +6,9 @@
 package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A market data function creates items of market data for a set of market data IDs.
