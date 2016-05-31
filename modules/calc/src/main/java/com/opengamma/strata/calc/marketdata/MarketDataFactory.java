@@ -9,8 +9,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A market data factory build market data. It can source observable data from a data provider

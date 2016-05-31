@@ -14,10 +14,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Primary interface for all calculation functions that calculate measures.
