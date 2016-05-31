@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.result;
+package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
@@ -33,8 +33,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
-import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A scenario result holding one value that is valid for all scenarios.

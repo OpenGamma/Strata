@@ -7,9 +7,9 @@ package com.opengamma.strata.function.calculation.fx;
 
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
-import com.opengamma.strata.calc.result.ValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ScenarioResult;
+import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;

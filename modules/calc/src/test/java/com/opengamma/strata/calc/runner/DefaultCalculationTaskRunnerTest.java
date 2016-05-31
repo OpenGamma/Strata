@@ -31,11 +31,11 @@ import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioResult;
 
 /**
  * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.

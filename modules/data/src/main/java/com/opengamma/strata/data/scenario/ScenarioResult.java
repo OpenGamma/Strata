@@ -3,20 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.result;
+package com.opengamma.strata.data.scenario;
 
 import java.util.List;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A container for multiple results produced by performing a single calculation across multiple scenarios.
  * <p>
- * A {@link CalculationFunction} produces a map of measure to result, where the value of
+ * A {@code CalculationFunction} produces a map of measure to result, where the value of
  * the result is typically an instance of {@code ScenarioResult}. This interface represents
  * the common case where there is one calculated value for each scenario. In this case, the
  * size must match the number of scenarios in the market data provided to the function.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.result;
+package com.opengamma.strata.data.scenario;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -43,8 +43,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.scenario.ScenarioFxConvertible;
-import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
 
 /**
  * A currency-convertible scenario result for multi-currency amounts, holding one amount for each scenario.
