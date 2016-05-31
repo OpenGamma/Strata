@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;

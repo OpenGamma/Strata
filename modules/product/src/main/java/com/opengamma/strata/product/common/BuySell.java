@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics;
+package com.opengamma.strata.product.common;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;

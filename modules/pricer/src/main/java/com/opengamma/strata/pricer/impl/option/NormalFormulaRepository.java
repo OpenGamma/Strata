@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.impl.option;
 import java.util.function.Function;
 
 import com.google.common.math.DoubleMath;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -16,6 +15,7 @@ import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * The primary location for normal model formulas.

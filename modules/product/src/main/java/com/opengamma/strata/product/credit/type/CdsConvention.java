@@ -11,7 +11,6 @@ import java.time.Period;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -24,6 +23,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.TradeConvention;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.CdsDatesLogic;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;

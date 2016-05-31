@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.capfloor;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -15,6 +14,7 @@ import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.VolatilityIborCapFloorLegPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Pricer for caplet/floorlet based on volatilities.

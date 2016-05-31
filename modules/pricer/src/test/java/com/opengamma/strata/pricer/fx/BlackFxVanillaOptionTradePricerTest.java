@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.LongShort.SHORT;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

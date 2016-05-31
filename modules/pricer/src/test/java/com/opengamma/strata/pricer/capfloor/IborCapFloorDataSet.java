@@ -11,8 +11,6 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.PayReceive;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -27,6 +25,8 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
+import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;

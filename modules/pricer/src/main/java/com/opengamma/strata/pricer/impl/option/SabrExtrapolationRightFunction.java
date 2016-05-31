@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.impl.option;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -21,6 +20,7 @@ import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Pricing function in the SABR model with Hagan et al. volatility function and controlled extrapolation 

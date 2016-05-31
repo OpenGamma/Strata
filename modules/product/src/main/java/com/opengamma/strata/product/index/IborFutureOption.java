@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
@@ -37,6 +36,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.common.FutureOptionPremiumStyle;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * A futures option contract, based on an Ibor index.
