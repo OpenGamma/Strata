@@ -10,12 +10,12 @@ import java.util.List;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 

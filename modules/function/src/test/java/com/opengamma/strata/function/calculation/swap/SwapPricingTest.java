@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.function.calculation.swap;
 
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -50,6 +49,7 @@ import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.swap.e2e.CalendarUSD;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;

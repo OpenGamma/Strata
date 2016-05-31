@@ -5,13 +5,13 @@
  */
 package com.opengamma.strata.product.index;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
-import static com.opengamma.strata.basics.PutCall.PUT;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.PutCall.CALL;
+import static com.opengamma.strata.product.common.PutCall.PUT;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

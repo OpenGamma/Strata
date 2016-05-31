@@ -7,7 +7,6 @@ package com.opengamma.strata.loader.impl.fpml;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
@@ -15,6 +14,7 @@ import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;

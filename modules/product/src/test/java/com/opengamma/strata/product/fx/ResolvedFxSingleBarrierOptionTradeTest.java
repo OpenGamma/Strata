@@ -5,13 +5,13 @@
  */
 package com.opengamma.strata.product.fx;
 
-import static com.opengamma.strata.basics.LongShort.LONG;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.LongShort.LONG;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

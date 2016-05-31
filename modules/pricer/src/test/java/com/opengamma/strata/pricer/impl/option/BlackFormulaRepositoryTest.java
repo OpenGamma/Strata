@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
-import static com.opengamma.strata.basics.PutCall.PUT;
+import static com.opengamma.strata.product.common.PutCall.CALL;
+import static com.opengamma.strata.product.common.PutCall.PUT;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -14,13 +14,13 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.integration.GaussHermiteQuadratureIntegrator1D;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Test {@link BlackFormulaRepository}.

@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.ScenarioMarketData;
@@ -25,6 +24,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.product.Trade;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.RestructuringClause;
 import com.opengamma.strata.product.credit.SeniorityLevel;

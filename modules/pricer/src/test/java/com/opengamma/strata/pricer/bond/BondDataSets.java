@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.bond;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.product.common.PutCall.CALL;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

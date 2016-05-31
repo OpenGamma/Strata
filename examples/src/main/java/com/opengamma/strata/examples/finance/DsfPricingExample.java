@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.StandardId;
@@ -28,6 +27,7 @@ import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.dsf.Dsf;
 import com.opengamma.strata.product.dsf.DsfTrade;
 import com.opengamma.strata.product.swap.Swap;

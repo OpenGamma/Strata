@@ -31,7 +31,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -43,6 +42,7 @@ import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.market.Resolvable;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;

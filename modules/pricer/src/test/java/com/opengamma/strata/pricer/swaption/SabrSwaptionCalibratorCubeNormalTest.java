@@ -25,8 +25,6 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -53,6 +51,8 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics;
+package com.opengamma.strata.product.common;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -12,6 +12,8 @@ import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.product.common.BuySell;
 
 /**
  * Test {@link BuySell}.

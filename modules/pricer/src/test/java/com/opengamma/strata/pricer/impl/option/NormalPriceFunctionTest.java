@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
-import static com.opengamma.strata.basics.PutCall.PUT;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.product.common.PutCall.CALL;
+import static com.opengamma.strata.product.common.PutCall.PUT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

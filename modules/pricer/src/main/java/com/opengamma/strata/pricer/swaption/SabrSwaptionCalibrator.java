@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -42,6 +41,7 @@ import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolat
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 

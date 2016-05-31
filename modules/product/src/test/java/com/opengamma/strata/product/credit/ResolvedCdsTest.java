@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.product.credit;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -16,6 +15,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;

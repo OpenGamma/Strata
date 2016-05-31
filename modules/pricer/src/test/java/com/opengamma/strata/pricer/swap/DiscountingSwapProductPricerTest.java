@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.swap;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -40,6 +38,8 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_CROSS_CURRENCY
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_INFLATION;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE_CROSS_CURRENCY;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;

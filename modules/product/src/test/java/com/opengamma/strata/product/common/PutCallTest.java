@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.basics;
+package com.opengamma.strata.product.common;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -14,71 +14,68 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.product.common.PutCall;
+
 /**
- * Test {@link LongShort}.
+ * Test {@link PutCall}.
  */
 @Test
-public class LongShortTest {
+public class PutCallTest {
 
   //-------------------------------------------------------------------------
-  public void test_ofLong() {
-    assertEquals(LongShort.ofLong(true), LongShort.LONG);
-    assertEquals(LongShort.ofLong(false), LongShort.SHORT);
+  public void test_ofPut() {
+    assertEquals(PutCall.ofPut(true), PutCall.PUT);
+    assertEquals(PutCall.ofPut(false), PutCall.CALL);
   }
 
-  public void test_isLong() {
-    assertEquals(LongShort.LONG.isLong(), true);
-    assertEquals(LongShort.SHORT.isLong(), false);
+  public void test_isPut() {
+    assertEquals(PutCall.PUT.isPut(), true);
+    assertEquals(PutCall.CALL.isPut(), false);
   }
 
-  public void test_isShort() {
-    assertEquals(LongShort.LONG.isShort(), false);
-    assertEquals(LongShort.SHORT.isShort(), true);
-  }
-
-  public void test_sign() {
-    assertEquals(LongShort.LONG.sign(), 1);
-    assertEquals(LongShort.SHORT.sign(), -1);
+  public void test_isCall() {
+    assertEquals(PutCall.PUT.isCall(), false);
+    assertEquals(PutCall.CALL.isCall(), true);
   }
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {LongShort.LONG, "Long"},
-        {LongShort.SHORT, "Short"},
+        {PutCall.PUT, "Put"},
+        {PutCall.CALL, "Call"},
     };
   }
 
   @Test(dataProvider = "name")
-  public void test_toString(LongShort convention, String name) {
+  public void test_toString(PutCall convention, String name) {
     assertEquals(convention.toString(), name);
   }
 
   @Test(dataProvider = "name")
-  public void test_of_lookup(LongShort convention, String name) {
-    assertEquals(LongShort.of(name), convention);
+  public void test_of_lookup(PutCall convention, String name) {
+    assertEquals(PutCall.of(name), convention);
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> LongShort.of("Rubbish"));
+    assertThrowsIllegalArg(() -> PutCall.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> LongShort.of(null));
+    assertThrowsIllegalArg(() -> PutCall.of(null));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverEnum(LongShort.class);
+    coverEnum(PutCall.class);
   }
 
   public void test_serialization() {
-    assertSerialization(LongShort.LONG);
+    assertSerialization(PutCall.PUT);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(LongShort.class, LongShort.LONG);
+    assertJodaConvert(PutCall.class, PutCall.PUT);
   }
 
 }

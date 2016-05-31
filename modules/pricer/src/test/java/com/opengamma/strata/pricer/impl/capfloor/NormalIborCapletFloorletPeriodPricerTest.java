@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.pricer.impl.capfloor;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
-import static com.opengamma.strata.basics.PutCall.PUT;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
+import static com.opengamma.strata.product.common.PutCall.CALL;
+import static com.opengamma.strata.product.common.PutCall.PUT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

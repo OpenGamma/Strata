@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.market.ImmutableMarketData;
@@ -37,6 +36,7 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.IborFixingDeposit;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;

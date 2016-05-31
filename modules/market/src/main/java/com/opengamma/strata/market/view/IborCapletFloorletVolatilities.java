@@ -10,13 +10,13 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Volatilities for pricing Ibor caplet/floorlet.

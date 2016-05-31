@@ -20,8 +20,8 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;

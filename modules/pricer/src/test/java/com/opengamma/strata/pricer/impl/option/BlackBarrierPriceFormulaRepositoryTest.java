@@ -12,10 +12,10 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.TestHelper;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.BarrierType;
 import com.opengamma.strata.product.fx.KnockType;
 import com.opengamma.strata.product.fx.SimpleConstantContinuousBarrier;

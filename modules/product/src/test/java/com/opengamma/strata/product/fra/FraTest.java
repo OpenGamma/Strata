@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product.fra;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
-import static com.opengamma.strata.basics.BuySell.SELL;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
@@ -24,6 +22,8 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;

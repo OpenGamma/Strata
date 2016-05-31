@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.BuySell;
-import com.opengamma.strata.basics.LongShort;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
@@ -57,6 +55,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionPhysicalProductPricer;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;

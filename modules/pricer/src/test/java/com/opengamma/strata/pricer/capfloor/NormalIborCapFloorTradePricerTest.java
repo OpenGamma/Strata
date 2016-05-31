@@ -5,13 +5,13 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
-import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static com.opengamma.strata.product.common.PutCall.CALL;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

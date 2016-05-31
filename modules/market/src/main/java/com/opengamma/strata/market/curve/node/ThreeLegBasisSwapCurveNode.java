@@ -27,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.market.MarketData;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ReferenceData;
@@ -36,6 +35,7 @@ import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;

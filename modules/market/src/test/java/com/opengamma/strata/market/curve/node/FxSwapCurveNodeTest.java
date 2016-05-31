@@ -24,7 +24,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.BuySell;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -44,6 +43,7 @@ import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;

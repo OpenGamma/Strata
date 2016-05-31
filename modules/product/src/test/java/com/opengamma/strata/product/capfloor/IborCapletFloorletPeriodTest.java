@@ -20,8 +20,8 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
