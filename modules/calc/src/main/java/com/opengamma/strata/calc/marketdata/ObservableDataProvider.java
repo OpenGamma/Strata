@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.ObservableId;
 
@@ -28,7 +30,10 @@ public interface ObservableDataProvider {
    * @return a provider that returns failures if invoked
    */
   public static ObservableDataProvider none() {
-    return requirements -> ImmutableMap.of();
+    return identifiers -> identifiers.stream()
+        .collect(toImmutableMap(
+            id -> id,
+            id -> Result.failure(FailureReason.MISSING_DATA, "No market data found for ID '{}'", id)));
   }
 
   //-------------------------------------------------------------------------
