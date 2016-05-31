@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;

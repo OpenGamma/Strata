@@ -14,6 +14,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -21,7 +22,6 @@ import com.opengamma.strata.basics.market.FxRateId;
 import com.opengamma.strata.basics.market.MarketDataBox;
 import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;

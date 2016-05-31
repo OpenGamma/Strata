@@ -15,8 +15,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.id.QuoteId;
 
 /**

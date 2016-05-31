@@ -8,6 +8,8 @@ package com.opengamma.strata.basics.market;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.opengamma.strata.basics.StandardId;
+
 /**
  * ObservableId implementation used in tests.
  */

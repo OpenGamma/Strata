@@ -10,8 +10,8 @@ import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;

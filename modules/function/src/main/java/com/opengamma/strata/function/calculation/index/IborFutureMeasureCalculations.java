@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.calc.result.CurrencyValuesArray;
 import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
 import com.opengamma.strata.calc.result.ScenarioResult;

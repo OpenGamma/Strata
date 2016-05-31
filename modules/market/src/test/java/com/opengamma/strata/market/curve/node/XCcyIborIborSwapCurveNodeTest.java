@@ -23,6 +23,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
@@ -33,7 +34,6 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.MarketDataNotFoundException;
 import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
