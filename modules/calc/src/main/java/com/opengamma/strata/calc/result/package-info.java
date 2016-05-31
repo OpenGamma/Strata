@@ -5,9 +5,10 @@
  */
 
 /**
- * Types which are used as return values from calculation functions.
- * Returning a known type allows the engine to perform automatic post-processing,
- * for example conversion of the results to the reporting currency.
+ * Return types from calculation functions.
+ * <p>
+ * These types are primarily intended to handle scenario results.
+ * They allow for the calculation runner to perform automatic currency conversion.
  */
 package com.opengamma.strata.calc.result;
 

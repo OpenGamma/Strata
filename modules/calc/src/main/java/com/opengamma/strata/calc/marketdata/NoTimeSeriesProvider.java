@@ -22,7 +22,7 @@ class NoTimeSeriesProvider implements TimeSeriesProvider {
   static final NoTimeSeriesProvider INSTANCE = new NoTimeSeriesProvider();
 
   @Override
-  public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
+  public Result<LocalDateDoubleTimeSeries> provideTimeSeries(ObservableId id) {
     return Result.failure(FailureReason.MISSING_DATA, "No time-series provider configured", id);
   }
 

@@ -10,15 +10,18 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
- * A source of time series of observable market data.
+ * A provider of time-series.
+ * <p>
+ * This plugin point allows a market data supplier of time-series to be provided.
  */
 public interface TimeSeriesProvider {
 
   /**
    * Returns a time-series provider that is unable to source any time-series.
    * <p>
-   * This is useful when it is not necessary for the engine to source time-series on-demand, for
-   * example because all market data is being provided in a snapshot.
+   * All requests for a time-series will return a failure.
+   * This is used to validate that no time-series have been requested that were not
+   * already supplied in the input to the market data factory.
    *
    * @return the time-series provider
    */
@@ -27,10 +30,10 @@ public interface TimeSeriesProvider {
   }
 
   /**
-   * Returns a time-series provider that returns an empty time series for any ID.
+   * Returns a time-series provider that returns an empty time-series for any ID.
    * <p>
-   * This is useful when calculations might require a time series and therefore request it but the
-   * user knows that in the current case the time series data won't be used.
+   * All requests for a time-series will succeed, returning an empty time-series.
+   * This is used for those cases where time-series are considered optional.
    *
    * @return the time-series provider
    */
@@ -40,12 +43,14 @@ public interface TimeSeriesProvider {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a time series of market data for the specified ID.
+   * Provides the time-series for the specified identifier.
+   * <p>
+   * The implementation will provide a time-series for the identifier, returning
+   * a failure if unable to do so.
    *
-   * @param id  the ID of the market data in the time series
-   * @return a time series of market data for the specified ID
-   * @throws IllegalArgumentException if there is no time series available for the specified ID
+   * @param identifier  the market data identifier to find
+   * @return the time-series of market data for the specified identifier
    */
-  public abstract Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id);
+  public abstract Result<LocalDateDoubleTimeSeries> provideTimeSeries(ObservableId identifier);
 
 }
