@@ -5,17 +5,12 @@
  */
 
 /**
- * Basic types for modelling the market data and reference data.
+ * Basic types for modelling market data.
  * <p>
  * Market data is used to capture the current market, such as quotes, FX rates,
  * discount curves, forward curves and volatilities.
  * The main market data interface is {@link com.opengamma.strata.basics.market.MarketData MarketData}
  * which is keyed by {@link com.opengamma.strata.basics.market.MarketDataId MarketDataId}.
- * <p>
- * Reference data is used to capture the slow-moving data necessary to perform calculations,
- * such as holiday calendars and securities.
- * The main reference data interface is {@link com.opengamma.strata.basics.ReferenceData ReferenceData}
- * which is keyed by {@link com.opengamma.strata.basics.ReferenceDataId ReferenceDataId}.
  */
 package com.opengamma.strata.basics.market;
 

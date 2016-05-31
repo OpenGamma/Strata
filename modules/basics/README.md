@@ -6,12 +6,12 @@ This directory contains the `strata-basics` module.
 
 This module provides common financial concepts used by Strata:
 
+* reference data
 * money and currency
 * day counts
 * day rolling
 * schedule generation
 * indices
-* market data keys
 
 
 ### Source code
