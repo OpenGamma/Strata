@@ -32,7 +32,7 @@ import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
-import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.ParameterMetadata;

@@ -14,7 +14,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.data.FxRateId;
-import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.id.QuoteId;
 
 /**

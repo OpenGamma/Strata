@@ -25,10 +25,10 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
-import com.opengamma.strata.data.FxRatesArray;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.FxRatesArray;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 /**
  * Test {@link ImmutableScenarioMarketDataBuilder}.

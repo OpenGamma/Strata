@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.MarketDataBox;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 @Test
 public class BuiltScenarioMarketDataTest {

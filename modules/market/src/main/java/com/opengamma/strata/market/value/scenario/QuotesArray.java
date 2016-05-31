@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.ScenarioMarketDataValue;
+import com.opengamma.strata.data.scenario.ScenarioMarketDataValue;
 import com.opengamma.strata.market.id.scenario.QuotesArrayId;
 
 /**

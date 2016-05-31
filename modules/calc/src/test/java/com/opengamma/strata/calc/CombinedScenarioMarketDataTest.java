@@ -17,9 +17,9 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FieldName;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 @Test
 public class CombinedScenarioMarketDataTest {

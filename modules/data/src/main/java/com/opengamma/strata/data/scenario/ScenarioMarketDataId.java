@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.data;
+package com.opengamma.strata.data.scenario;
+
+import com.opengamma.strata.data.MarketDataId;
 
 /**
  * Market data identifier used by functions that need access to objects containing market data for multiple scenarios.

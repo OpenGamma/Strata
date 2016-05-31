@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.data;
+package com.opengamma.strata.data.scenario;
 
 import java.util.List;
 import java.util.Map;

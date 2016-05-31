@@ -3,9 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.data;
+package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.data.MarketDataBox.toMarketDataBox;
+import static com.opengamma.strata.data.scenario.MarketDataBox.toMarketDataBox;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;

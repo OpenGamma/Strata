@@ -20,9 +20,9 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 /**
  * A set of market data which combines two underlying sets of data.

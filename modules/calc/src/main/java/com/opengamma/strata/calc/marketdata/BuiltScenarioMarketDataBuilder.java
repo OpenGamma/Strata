@@ -16,9 +16,9 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 /**
  * A mutable builder for building up {@link BuiltScenarioMarketData} instances.

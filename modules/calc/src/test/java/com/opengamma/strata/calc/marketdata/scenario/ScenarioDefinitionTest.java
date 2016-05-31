@@ -15,8 +15,8 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 @Test
 public class ScenarioDefinitionTest {

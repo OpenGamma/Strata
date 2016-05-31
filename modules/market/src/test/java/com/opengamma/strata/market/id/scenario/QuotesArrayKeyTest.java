@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.FieldName;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.value.scenario.QuotesArray;
 

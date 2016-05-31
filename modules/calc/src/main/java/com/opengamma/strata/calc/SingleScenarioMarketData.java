@@ -21,9 +21,9 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 /**
  * A single scenario view of multi-scenario market data.

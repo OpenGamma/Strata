@@ -14,12 +14,12 @@ import java.util.stream.Stream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.MarketDataBox;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.ScenarioMarketDataId;
-import com.opengamma.strata.data.ScenarioMarketDataValue;
+import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioMarketDataId;
+import com.opengamma.strata.data.scenario.ScenarioMarketDataValue;
 
 /**
  * Provides access to market data across one or more scenarios.

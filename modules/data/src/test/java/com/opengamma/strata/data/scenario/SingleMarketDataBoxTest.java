@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.data;
+package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static java.util.stream.Collectors.toList;
