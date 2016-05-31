@@ -25,7 +25,6 @@ import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.basics.market.ObservableSource;
 import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
