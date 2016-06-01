@@ -9,7 +9,11 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.market.MarketDataView;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -20,7 +24,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  * The price and derivatives are also made available.
  */
 public interface SwaptionVolatilities
-    extends MarketDataView {
+    extends MarketDataView, ParameterizedData {
 
   /**
    * Gets the name of these volatilities.
@@ -57,6 +61,12 @@ public interface SwaptionVolatilities
    */
   public abstract ZonedDateTime getValuationDateTime();
 
+  @Override
+  public abstract SwaptionVolatilities withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract SwaptionVolatilities withPerturbation(ParameterPerturbation perturbation);
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the volatility at the specified date-time.
@@ -91,15 +101,28 @@ public interface SwaptionVolatilities
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the parameter sensitivity from the point sensitivity.
+   * Computes the parameter sensitivity.
    * <p>
-   * This is used to convert a single point sensitivity to parameter sensitivity.
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the internal parameters representation.
    * 
-   * @param pointSensitivity  the point sensitivity to convert
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the result cannot be calculated
+   * @param pointSensitivities  the point sensitivities
+   * @return the sensitivity to the curve parameters
    */
-  public abstract CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity);
+  public default CurrencyParameterSensitivities parameterSensitivity(PointSensitivity... pointSensitivities) {
+    return parameterSensitivity(PointSensitivities.of(pointSensitivities));
+  }
+
+  /**
+   * Computes the parameter sensitivity.
+   * <p>
+   * This computes the {@link CurrencyParameterSensitivities} associated with the {@link PointSensitivities}.
+   * This corresponds to the projection of the point sensitivity to the internal parameters representation.
+   * 
+   * @param pointSensitivities  the point sensitivities
+   * @return the sensitivity to the curve parameters
+   */
+  public abstract CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities);
 
   //-------------------------------------------------------------------------
   /**

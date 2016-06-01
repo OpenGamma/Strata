@@ -36,11 +36,13 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
@@ -162,6 +164,47 @@ public final class SabrParametersSwaptionVolatilities
     return getParameters().getDayCount();
   }
 
+  @Override
+  public int getParameterCount() {
+    return parameters.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return parameters.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return parameters.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SabrParametersSwaptionVolatilities withParameter(int parameterIndex, double newValue) {
+    SabrInterestRateParameters updated = parameters.withParameter(parameterIndex, newValue);
+    return new SabrParametersSwaptionVolatilities(
+        name,
+        updated,
+        valuationDateTime,
+        dataSensitivityAlpha,
+        dataSensitivityBeta,
+        dataSensitivityRho,
+        dataSensitivityNu);
+  }
+
+  @Override
+  public SabrParametersSwaptionVolatilities withPerturbation(ParameterPerturbation perturbation) {
+    SabrInterestRateParameters updated = parameters.withPerturbation(perturbation);
+    return new SabrParametersSwaptionVolatilities(
+        name,
+        updated,
+        valuationDateTime,
+        dataSensitivityAlpha,
+        dataSensitivityBeta,
+        dataSensitivityRho,
+        dataSensitivityNu);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double volatility(double expiry, double tenor, double strike, double forwardRate) {
@@ -179,8 +222,8 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   @Override
-  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity) {
-    throw new UnsupportedOperationException("Sensitivity is based on SwaptionSabrSensitivity, not SwaptionSensitivity");
+  public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    throw new UnsupportedOperationException("Sensitivity is based on SwaptionSabrSensitivities, not PointSensitivities");
   }
 
   /**

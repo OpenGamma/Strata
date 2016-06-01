@@ -562,8 +562,7 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   public void test_presentValueVega_surface() {
     SwaptionSensitivity vegaRec = PRICER
         .presentValueSensitivityVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER);
-    assertThrowsWithCause(() -> VOL_PROVIDER.parameterSensitivity(vegaRec),
-        UnsupportedOperationException.class);
+    assertThrowsWithCause(() -> VOL_PROVIDER.parameterSensitivity(vegaRec), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

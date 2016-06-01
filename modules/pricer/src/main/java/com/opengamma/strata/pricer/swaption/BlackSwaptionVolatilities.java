@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 
 /**
@@ -12,5 +13,11 @@ import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
  */
 public interface BlackSwaptionVolatilities
     extends SwaptionVolatilities {
+
+  @Override
+  public abstract BlackSwaptionVolatilities withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract BlackSwaptionVolatilities withPerturbation(ParameterPerturbation perturbation);
 
 }

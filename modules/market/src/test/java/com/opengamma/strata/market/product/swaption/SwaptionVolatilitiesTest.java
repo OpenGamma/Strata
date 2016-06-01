@@ -13,7 +13,10 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -50,12 +53,37 @@ public class SwaptionVolatilitiesTest {
     }
 
     @Override
+    public int getParameterCount() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double getParameter(int parameterIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ParameterMetadata getParameterMetadata(int parameterIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SwaptionVolatilities withParameter(int parameterIndex, double newValue) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SwaptionVolatilities withPerturbation(ParameterPerturbation perturbation) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public double volatility(double expiry, double tenor, double strike, double forward) {
       return expiry * 2d;
     }
 
     @Override
-    public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity pointSensitivity) {
+    public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
       throw new UnsupportedOperationException();
     }
 

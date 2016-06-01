@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 
 /**
@@ -16,6 +17,13 @@ import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 public interface SabrSwaptionVolatilities
     extends SwaptionVolatilities {
 
+  @Override
+  public abstract SabrSwaptionVolatilities withParameter(int parameterIndex, double newValue);
+
+  @Override
+  public abstract SabrSwaptionVolatilities withPerturbation(ParameterPerturbation perturbation);
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the shift parameter for the specified time to expiry and instrument tenor.
    * 
