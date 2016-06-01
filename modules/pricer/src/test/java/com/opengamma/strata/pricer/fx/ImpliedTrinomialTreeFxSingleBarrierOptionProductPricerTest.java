@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.LongShort.LONG;
-import static com.opengamma.strata.basics.LongShort.SHORT;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -25,6 +23,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.fx.BarrierType;
 import com.opengamma.strata.product.fx.KnockType;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
@@ -77,7 +76,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   private static final CurrencyAmount USD_AMOUNT_PAY = CurrencyAmount.of(USD, -NOTIONAL * STRIKE_RATE_LOW);
   private static final ResolvedFxSingle FX_PRODUCT = ResolvedFxSingle.of(EUR_AMOUNT_REC, USD_AMOUNT_PAY, PAY_DATE);
   private static final ResolvedFxVanillaOption CALL = ResolvedFxVanillaOption.builder()
-      .longShort(LONG)
+      .longShort(LongShort.LONG)
       .expiry(EXPIRY_DATETIME)
       .underlying(FX_PRODUCT)
       .build();
@@ -85,7 +84,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   private static final CurrencyAmount USD_AMOUNT_REC = CurrencyAmount.of(USD, NOTIONAL * STRIKE_RATE_HIGH);
   private static final ResolvedFxSingle FX_PRODUCT_INV = ResolvedFxSingle.of(EUR_AMOUNT_PAY, USD_AMOUNT_REC, PAY_DATE);
   private static final ResolvedFxVanillaOption PUT = ResolvedFxVanillaOption.builder()
-      .longShort(SHORT)
+      .longShort(LongShort.SHORT)
       .expiry(EXPIRY_DATETIME)
       .underlying(FX_PRODUCT_INV)
       .build();

@@ -10,10 +10,10 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.option.BlackScholesFormulaRepository;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Test {@link EuropeanVanillaOptionFunction}.

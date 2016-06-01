@@ -10,11 +10,11 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.pricer.impl.option.BlackBarrierPriceFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchCashPriceFormulaRepository;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.BarrierType;
 import com.opengamma.strata.product.fx.KnockType;
 import com.opengamma.strata.product.fx.SimpleConstantContinuousBarrier;

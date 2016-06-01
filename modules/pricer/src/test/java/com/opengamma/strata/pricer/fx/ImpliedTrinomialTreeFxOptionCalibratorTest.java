@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static com.opengamma.strata.basics.LongShort.LONG;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.testng.Assert.assertEquals;
@@ -16,7 +15,6 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
@@ -24,6 +22,8 @@ import com.opengamma.strata.pricer.impl.tree.OptionFunction;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fx.ResolvedFxVanillaOption;
 
@@ -55,7 +55,7 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
   private static final CurrencyAmount USD_AMOUNT_PAY = CurrencyAmount.of(USD, -NOTIONAL * STRIKE_RATE);
   private static final ResolvedFxSingle FX_PRODUCT = ResolvedFxSingle.of(EUR_AMOUNT_REC, USD_AMOUNT_PAY, PAY_DATE);
   private static final ResolvedFxVanillaOption CALL = ResolvedFxVanillaOption.builder()
-      .longShort(LONG)
+      .longShort(LongShort.LONG)
       .expiry(EXPIRY_DATETIME)
       .underlying(FX_PRODUCT)
       .build();
