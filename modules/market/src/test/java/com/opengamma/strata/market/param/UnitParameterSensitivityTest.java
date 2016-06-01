@@ -16,7 +16,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.MarketDataName;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**

@@ -18,7 +18,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.MarketDataName;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
