@@ -36,44 +36,4 @@ public class MarketDataNameTest {
     assertEquals(test.compareTo(new TestingName2("Foo")) < 0, true);
   }
 
-  //-------------------------------------------------------------------------
-  static class TestingName extends MarketDataName<String> {
-
-    private final String name;
-
-    public TestingName(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public Class<String> getMarketDataType() {
-      return String.class;
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  static class TestingName2 extends MarketDataName<String> {
-
-    private final String name;
-
-    public TestingName2(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public Class<String> getMarketDataType() {
-      return String.class;
-    }
-  }
-
 }

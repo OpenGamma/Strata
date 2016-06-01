@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.ObservableId;
 
 /**
@@ -79,14 +80,19 @@ final class SingleScenarioMarketData
   }
 
   @Override
+  public <T> T getValue(MarketDataId<T> id) {
+    return marketData.getValue(id).getValue(scenarioIndex);
+  }
+
+  @Override
   public <T> Optional<T> findValue(MarketDataId<T> id) {
     Optional<MarketDataBox<T>> optionalBox = marketData.findValue(id);
     return optionalBox.map(box -> box.getValue(scenarioIndex));
   }
 
   @Override
-  public <T> T getValue(MarketDataId<T> id) {
-    return marketData.getValue(id).getValue(scenarioIndex);
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    return marketData.findIds(name);
   }
 
   @Override

@@ -17,15 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 
@@ -133,6 +136,11 @@ public class ScenarioMarketDataTest {
       @SuppressWarnings("unchecked")
       public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
         return id.equals(ID1) ? Optional.of((MarketDataBox<T>) BOX1) : Optional.empty();
+      }
+
+      @Override
+      public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+        return ImmutableSet.of();
       }
     };
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
@@ -288,14 +296,19 @@ public class ScenarioMarketDataTest {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
+      return (MarketDataBox<T>) value;
+    }
+
+    @Override
     public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
       throw new UnsupportedOperationException("findValue not implemented");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
-      return (MarketDataBox<T>) value;
+    public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+      return ImmutableSet.of();
     }
 
     @Override

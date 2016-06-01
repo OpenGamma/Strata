@@ -5,12 +5,17 @@
  */
 package com.opengamma.strata.function.marketdata.curve;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.data.NamedMarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -51,13 +56,6 @@ public final class TestMarketDataMap implements ScenarioMarketData {
     return valueMap.containsKey(id);
   }
 
-  @Override
-  public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
-    @SuppressWarnings("unchecked")
-    T value = (T) valueMap.get(id);
-    return value == null ? Optional.empty() : Optional.of(MarketDataBox.ofSingleValue(value));
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
@@ -67,6 +65,24 @@ public final class TestMarketDataMap implements ScenarioMarketData {
     } else {
       throw new IllegalArgumentException("No market data for " + id);
     }
+  }
+
+  @Override
+  public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
+    @SuppressWarnings("unchecked")
+    T value = (T) valueMap.get(id);
+    return value == null ? Optional.empty() : Optional.of(MarketDataBox.ofSingleValue(value));
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    // no type check against id.getMarketDataType() as checked in factory
+    return valueMap.keySet().stream()
+        .filter(id -> id instanceof NamedMarketDataId)
+        .filter(id -> ((NamedMarketDataId<?>) id).getMarketDataName().equals(name))
+        .map(id -> (MarketDataId<T>) id)
+        .collect(toImmutableSet());
   }
 
   @Override

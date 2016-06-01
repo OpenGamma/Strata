@@ -32,6 +32,7 @@ import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
@@ -159,6 +160,11 @@ public final class BuiltScenarioMarketData
   @Override
   public <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id) {
     return marketData.findValue(id);
+  }
+
+  @Override
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    return marketData.findIds(name);
   }
 
   @Override
