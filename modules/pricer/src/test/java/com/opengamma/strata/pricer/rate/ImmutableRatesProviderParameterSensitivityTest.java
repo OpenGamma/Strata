@@ -257,7 +257,7 @@ public class ImmutableRatesProviderParameterSensitivityTest {
 
     @Override
     public double getParameter(int parameterIndex) {
-      Preconditions.checkPositionIndex(parameterIndex, 1);
+      Preconditions.checkElementIndex(parameterIndex, 1);
       return discountFactor;
     }
 

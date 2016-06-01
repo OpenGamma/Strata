@@ -35,6 +35,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedDataCombiner;
 import com.opengamma.strata.market.sensitivity.FxForwardSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
@@ -75,6 +76,10 @@ public final class DiscountFxForwardRates
    * The valuation date.
    */
   private final LocalDate valuationDate;  // not a property, derived and cached from input data
+  /**
+   * The parameter combiner.
+   */
+  private final ParameterizedDataCombiner paramCombiner;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -128,6 +133,7 @@ public final class DiscountFxForwardRates
     this.baseCurrencyDiscountFactors = baseCurrencyDiscountFactors;
     this.counterCurrencyDiscountFactors = counterCurrencyDiscountFactors;
     this.valuationDate = baseCurrencyDiscountFactors.getValuationDate();
+    this.paramCombiner = ParameterizedDataCombiner.of(baseCurrencyDiscountFactors, counterCurrencyDiscountFactors);
   }
 
   //-------------------------------------------------------------------------
@@ -138,45 +144,35 @@ public final class DiscountFxForwardRates
 
   @Override
   public int getParameterCount() {
-    return baseCurrencyDiscountFactors.getParameterCount() + counterCurrencyDiscountFactors.getParameterCount();
+    return paramCombiner.getParameterCount();
   }
 
   @Override
   public double getParameter(int parameterIndex) {
-    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
-    if (parameterIndex < baseSize) {
-      return baseCurrencyDiscountFactors.getParameter(parameterIndex);
-    }
-    return counterCurrencyDiscountFactors.getParameter(parameterIndex - baseSize);
+    return paramCombiner.getParameter(parameterIndex);
   }
 
   @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
-    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
-    if (parameterIndex < baseSize) {
-      return baseCurrencyDiscountFactors.getParameterMetadata(parameterIndex);
-    }
-    return counterCurrencyDiscountFactors.getParameterMetadata(parameterIndex - baseSize);
+    return paramCombiner.getParameterMetadata(parameterIndex);
   }
 
   @Override
   public DiscountFxForwardRates withParameter(int parameterIndex, double newValue) {
-    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
-    if (parameterIndex < baseSize) {
-      DiscountFactors newBase = baseCurrencyDiscountFactors.withParameter(parameterIndex, newValue);
-      return new DiscountFxForwardRates(currencyPair, fxRateProvider, newBase, counterCurrencyDiscountFactors);
-    }
-    DiscountFactors newCounter = counterCurrencyDiscountFactors.withParameter(parameterIndex - baseSize, newValue);
-    return new DiscountFxForwardRates(currencyPair, fxRateProvider, baseCurrencyDiscountFactors, newCounter);
+    return new DiscountFxForwardRates(
+        currencyPair,
+        fxRateProvider,
+        paramCombiner.underlyingWithParameter(0, DiscountFactors.class, parameterIndex, newValue),
+        paramCombiner.underlyingWithParameter(1, DiscountFactors.class, parameterIndex, newValue));
   }
 
   @Override
   public DiscountFxForwardRates withPerturbation(ParameterPerturbation perturbation) {
-    int baseSize = baseCurrencyDiscountFactors.getParameterCount();
-    DiscountFactors newBase = baseCurrencyDiscountFactors.withPerturbation(perturbation);
-    DiscountFactors newCounter = counterCurrencyDiscountFactors.withPerturbation(
-        (i, v, m) -> perturbation.perturbParameter(i + baseSize, v, m));
-    return new DiscountFxForwardRates(currencyPair, fxRateProvider, newBase, newCounter);
+    return new DiscountFxForwardRates(
+        currencyPair,
+        fxRateProvider,
+        paramCombiner.underlyingWithPerturbation(0, DiscountFactors.class, perturbation),
+        paramCombiner.underlyingWithPerturbation(1, DiscountFactors.class, perturbation));
   }
 
   //-------------------------------------------------------------------------
