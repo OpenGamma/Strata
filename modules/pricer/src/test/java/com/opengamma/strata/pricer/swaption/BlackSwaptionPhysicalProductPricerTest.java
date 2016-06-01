@@ -56,7 +56,7 @@ import com.opengamma.strata.product.swaption.SwaptionSettlement;
 public class BlackSwaptionPhysicalProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate VAL_DATE = LocalDate.of(2015, 8, 7);
+  private static final LocalDate VAL_DATE = RatesProviderDataSets.MULTI_USD_2015_08_07.getValuationDate();
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalDate SWAPTION_PAST_EXERCISE_DATE = VAL_DATE.minusYears(1);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
@@ -154,8 +154,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR =
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
 
-  private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
-      .build();
+  private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.MULTI_USD_2015_08_07;
   private static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_CST_SWAPTION_PROVIDER_USD =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
   private static final BlackSwaptionExpiryTenorVolatilities BLACK_VOL_SWAPTION_PROVIDER_USD_STD =

@@ -184,6 +184,14 @@ public class RatesProviderDataSets {
       .iborIndexCurve(USD_LIBOR_6M, USD_L6)
       .build();
 
+  public static final ImmutableRatesProvider MULTI_USD_2015_08_07 = ImmutableRatesProvider.builder(LocalDate.of(2015, 8, 7))
+      .fxRateProvider(FX_MATRIX_USD)
+      .discountCurve(USD, USD_DSC)
+      .overnightIndexCurve(USD_FED_FUND, USD_DSC)
+      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
+      .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+      .build();
+
   public static final ImmutableRatesProvider MULTI_CPI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
       .discountCurve(USD, USD_DSC)

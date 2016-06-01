@@ -45,7 +45,7 @@ import com.opengamma.strata.product.swaption.Swaption;
 public class BlackSwaptionCashParYieldTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate VAL_DATE = LocalDate.of(2015, 8, 7);
+  private static final LocalDate VAL_DATE = RatesProviderDataSets.MULTI_USD_2015_08_07.getValuationDate();
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
@@ -89,8 +89,7 @@ public class BlackSwaptionCashParYieldTradePricerTest {
       .premium(PREMIUM_PAST_PAY)
       .build();
 
-  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD.toBuilder(VAL_DATE)
-      .build();
+  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD_2015_08_07;
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
 
