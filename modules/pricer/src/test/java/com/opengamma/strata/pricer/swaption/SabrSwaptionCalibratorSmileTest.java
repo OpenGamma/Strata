@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
@@ -143,10 +144,10 @@ public class SabrSwaptionCalibratorSmileTest {
       BitSet fixed,
       double shift,
       double tolerance) {
-    LeastSquareResultsWithTransform rComputed = SABR_CALIBRATION
+    Pair<LeastSquareResultsWithTransform, DoubleArray> rComputed = SABR_CALIBRATION
         .calibrateShiftedFromNormalVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD,
             moneyness, ValueType.SIMPLE_MONEYNESS, normalVol, startParameters, fixed, shift);
-    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getModelParameters().toArrayUnsafe());
+    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
           .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
@@ -165,10 +166,10 @@ public class SabrSwaptionCalibratorSmileTest {
       BitSet fixed,
       double shift,
       double tolerance) {
-    LeastSquareResultsWithTransform rComputed = SABR_CALIBRATION
+    Pair<LeastSquareResultsWithTransform, DoubleArray> rComputed = SABR_CALIBRATION
         .calibrateShiftedFromBlackVolatilities(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD,
             moneyness, ValueType.SIMPLE_MONEYNESS, blackVol, 0.0, startParameters, fixed, shift);
-    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getModelParameters().toArrayUnsafe());
+    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
           .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
@@ -194,10 +195,10 @@ public class SabrSwaptionCalibratorSmileTest {
           .price(FORWARD, FORWARD + moneyness.get(i), TIME_EXPIRY, blackVol.get(i), true);
       // Prices generated from Black implied volatilities
     }
-    LeastSquareResultsWithTransform rComputed = SABR_CALIBRATION
+    Pair<LeastSquareResultsWithTransform, DoubleArray> rComputed = SABR_CALIBRATION
         .calibrateShiftedFromPrices(BDA, CALIBRATION_TIME, ACT_365F, EXPIRY_PERIOD, FORWARD,
             moneyness, ValueType.SIMPLE_MONEYNESS, DoubleArray.ofUnsafe(prices), startParameters, fixed, shift);
-    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getModelParameters().toArrayUnsafe());
+    SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
           .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
