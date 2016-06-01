@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.market.ScenarioMarketDataValue;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.id.scenario.QuotesArrayId;
 
 /**
@@ -41,7 +41,7 @@ import com.opengamma.strata.market.id.scenario.QuotesArrayId;
  * a {@code QuotesArray} from the market data container if they need direct access to the array of quotes.
  */
 @BeanDefinition(builderScope = "private")
-public final class QuotesArray implements ScenarioMarketDataValue<Double>, ImmutableBean {
+public final class QuotesArray implements ScenarioArray<Double>, ImmutableBean {
 
   /**
    * The values of the quotes.
@@ -67,7 +67,7 @@ public final class QuotesArray implements ScenarioMarketDataValue<Double>, Immut
   }
 
   @Override
-  public Double getValue(int scenarioIndex) {
+  public Double get(int scenarioIndex) {
     return quotes.get(scenarioIndex);
   }
 

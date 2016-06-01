@@ -20,20 +20,20 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.ScenarioMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
-import com.opengamma.strata.calc.result.ValuesArray;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantCurve;
@@ -73,7 +73,7 @@ public class FxSingleCalculationFunctionTest {
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
-    assertThat(reqs.getSingleValueRequirements()).isEqualTo(
+    assertThat(reqs.getValueRequirements()).isEqualTo(
         ImmutableSet.of(DISCOUNT_CURVE_GBP_ID, DISCOUNT_CURVE_USD_ID));
     assertThat(reqs.getTimeSeriesRequirements()).isEmpty();
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(GBP);
@@ -110,7 +110,7 @@ public class FxSingleCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENT_CASH, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
-            Measures.FORWARD_FX_RATE, Result.success(ScenarioResult.of(ImmutableList.of(expectedForwardFx))));
+            Measures.FORWARD_FX_RATE, Result.success(ScenarioArray.of(ImmutableList.of(expectedForwardFx))));
   }
 
   public void test_pv01() {
@@ -129,7 +129,7 @@ public class FxSingleCalculationFunctionTest {
         .containsEntry(
             Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioResult.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

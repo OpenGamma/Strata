@@ -13,12 +13,11 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 @Test
 public class CompositeCalculationFunctionsTest {

@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
+import static com.opengamma.strata.product.common.PutCall.CALL;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;

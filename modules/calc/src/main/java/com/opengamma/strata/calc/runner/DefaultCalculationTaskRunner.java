@@ -18,15 +18,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.ColumnHeader;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * The default calculation task runner.
@@ -113,30 +113,30 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   /**
-   * Unwraps the result from an instance of {@link ScenarioResult} containing a single result.
+   * Unwraps the result from an instance of {@link ScenarioArray} containing a single result.
    * <p>
    * When the user executes a single scenario the functions are invoked with a set of scenario market data
    * of size 1. This means the functions are simpler and always deal with scenarios. But if the user has
    * asked for a single set of results they don't want to see a collection of size 1 so the scenario results
    * need to be unwrapped.
    * <p>
-   * If {@code result} is a failure or doesn't contain a {@code ScenarioResult} it is returned.
+   * If {@code result} is a failure or doesn't contain a {@code ScenarioArray} it is returned.
    * <p>
-   * If this method is called with a {@code ScenarioResult} containing more than one value it throws an exception.
+   * If this method is called with a {@code ScenarioArray} containing more than one value it throws an exception.
    */
   private static Result<?> unwrapScenarioResult(Result<?> result) {
     if (result.isFailure()) {
       return result;
     }
     Object value = result.getValue();
-    if (!(value instanceof ScenarioResult)) {
+    if (!(value instanceof ScenarioArray)) {
       return result;
     }
-    ScenarioResult<?> scenarioResult = (ScenarioResult<?>) value;
+    ScenarioArray<?> scenarioResult = (ScenarioArray<?>) value;
 
-    if (scenarioResult.size() != 1) {
+    if (scenarioResult.getScenarioCount() != 1) {
       throw new IllegalArgumentException(Messages.format(
-          "Expected one result but found {} in {}", scenarioResult.size(), scenarioResult));
+          "Expected one result but found {} in {}", scenarioResult.getScenarioCount(), scenarioResult));
     }
     return Result.success(scenarioResult.get(0));
   }
@@ -159,7 +159,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
       ReferenceData refData,
       CalculationListener listener) {
 
-    // the listener is decorated to unwrap ScenarioResults containing a single result
+    // the listener is decorated to unwrap ScenarioArrays containing a single result
     UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
     calculateMultipleScenariosAsync(tasks, marketData, refData, unwrappingListener);
   }
@@ -253,7 +253,7 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   /**
-   * Listener that decorates another listener and unwraps {@link ScenarioResult} instances
+   * Listener that decorates another listener and unwraps {@link ScenarioArray} instances
    * containing a single value before passing the value to the delegate listener.
    * This is used by the single scenario async method.
    */

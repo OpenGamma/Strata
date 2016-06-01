@@ -14,12 +14,11 @@ import java.util.stream.DoubleStream;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.result.DefaultScenarioResult;
-import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
-import com.opengamma.strata.calc.result.ValuesArray;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ValuesArray;
 
 /**
  * Static utility methods useful when writing calculation functions.
@@ -31,12 +30,12 @@ public final class FunctionUtils {
   }
 
   /**
-   * Returns a collector which can be used at the end of a stream of results to build a {@link ScenarioResult}.
+   * Returns a collector which can be used at the end of a stream of results to build a {@link ScenarioArray}.
    *
    * @param <T> the type of the results in the stream
    * @return a collector used to create a {@code CurrencyAmountList} from a stream of {@code CurrencyAmount}
    */
-  public static <T> Collector<T, List<T>, ScenarioResult<T>> toScenarioResult() {
+  public static <T> Collector<T, List<T>, ScenarioArray<T>> toScenarioArray() {
     // edited to compile in Eclipse
     return Collector.of(
         ArrayList<T>::new,
@@ -49,8 +48,8 @@ public final class FunctionUtils {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T, R> ScenarioResult<T> buildResult(List<T> results) {
-    return DefaultScenarioResult.of(results);
+  private static <T, R> ScenarioArray<T> buildResult(List<T> results) {
+    return ScenarioArray.of(results);
   }
 
   //-------------------------------------------------------------------------

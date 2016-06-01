@@ -11,21 +11,21 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.id.QuoteId;
@@ -106,9 +106,9 @@ public class IborFutureCalculationFunction
     FunctionRequirements ratesReqs = ratesLookup.requirements(currency, index);
     ImmutableSet<MarketDataId<?>> valueReqs = ImmutableSet.<MarketDataId<?>>builder()
         .add(quoteId)
-        .addAll(ratesReqs.getSingleValueRequirements())
+        .addAll(ratesReqs.getValueRequirements())
         .build();
-    return ratesReqs.toBuilder().singleValueRequirements(valueReqs).build();
+    return ratesReqs.toBuilder().valueRequirements(valueReqs).build();
   }
 
   //-------------------------------------------------------------------------
@@ -153,7 +153,7 @@ public class IborFutureCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioResult<?> calculate(
+    public abstract ScenarioArray<?> calculate(
         ResolvedIborFutureTrade trade,
         RatesScenarioMarketData marketData);
   }

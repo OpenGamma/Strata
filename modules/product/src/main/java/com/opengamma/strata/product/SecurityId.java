@@ -11,9 +11,9 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataId;
-import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataId;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**

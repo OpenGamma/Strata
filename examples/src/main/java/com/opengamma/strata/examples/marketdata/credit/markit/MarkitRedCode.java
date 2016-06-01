@@ -8,7 +8,7 @@ package com.opengamma.strata.examples.marketdata.credit.markit;
 import org.joda.convert.FromString;
 
 import com.google.common.base.Preconditions;
-import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
 

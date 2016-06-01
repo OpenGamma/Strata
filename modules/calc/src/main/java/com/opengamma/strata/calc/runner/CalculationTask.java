@@ -23,26 +23,28 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.ScenarioMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A single task that will be used to perform a calculation.
  * <p>
- * This presents a uniform interface to the engine so all functions can be treated equally during execution.
- * Without this class the engine would need to keep track of which functions to use for each input.
+ * This is a single unit of execution in the calculation runner.
+ * It consists of a {@link CalculationFunction} and the appropriate inputs,
+ * including a single {@link CalculationTarget}. When invoked, it will
+ * calculate a result for one or more columns in the grid of results.
  */
 @BeanDefinition(style = "light")
 public final class CalculationTask implements ImmutableBean {
@@ -148,7 +150,7 @@ public final class CalculationTask implements ImmutableBean {
     for (ObservableId id : functionRequirements.getTimeSeriesRequirements()) {
       requirementsBuilder.addTimeSeries(id.withObservableSource(obsSource));
     }
-    for (MarketDataId<?> id : functionRequirements.getSingleValueRequirements()) {
+    for (MarketDataId<?> id : functionRequirements.getValueRequirements()) {
       if (id instanceof ObservableId) {
         requirementsBuilder.addValues(((ObservableId) id).withObservableSource(obsSource));
       } else {
@@ -199,7 +201,7 @@ public final class CalculationTask implements ImmutableBean {
     Map<Measure, Result<?>> results = calculate(marketData, refData);
 
     // convert the results, using a normal loop for better stack traces
-    ScenarioFxRateProvider fxProvider = new DefaultScenarioFxRateProvider(marketData);
+    ScenarioFxRateProvider fxProvider = ScenarioFxRateProvider.of(marketData);
     ImmutableList.Builder<CalculationResult> resultBuilder = ImmutableList.builder();
     for (CalculationTaskCell cell : cells) {
       resultBuilder.add(cell.createResult(this, target, results, fxProvider, refData));

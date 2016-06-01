@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import com.opengamma.strata.basics.market.ObservableId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * Implementation of a time-series provider which always returns missing data failures.
@@ -22,7 +22,7 @@ class NoTimeSeriesProvider implements TimeSeriesProvider {
   static final NoTimeSeriesProvider INSTANCE = new NoTimeSeriesProvider();
 
   @Override
-  public Result<LocalDateDoubleTimeSeries> timeSeries(ObservableId id) {
+  public Result<LocalDateDoubleTimeSeries> provideTimeSeries(ObservableId id) {
     return Result.failure(FailureReason.MISSING_DATA, "No time-series provider configured", id);
   }
 

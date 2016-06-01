@@ -26,17 +26,17 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.calc.ImmutableScenarioMarketData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Failure;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Market data that has been built.

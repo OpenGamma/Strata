@@ -35,13 +35,13 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.ImmutableMarketData;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataNotFoundException;
-import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.calc.ScenarioMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
@@ -82,18 +82,18 @@ public class RatesMarketDataLookupTest {
 
     assertEquals(
         test.requirements(USD),
-        FunctionRequirements.builder().singleValueRequirements(CURVE_ID_DSC).outputCurrencies(USD).build());
+        FunctionRequirements.builder().valueRequirements(CURVE_ID_DSC).outputCurrencies(USD).build());
     assertEquals(
         test.requirements(USD, USD_LIBOR_3M),
         FunctionRequirements.builder()
-            .singleValueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
+            .valueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
             .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M))
             .outputCurrencies(USD)
             .build());
     assertEquals(
         test.requirements(ImmutableSet.of(USD), ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder()
-            .singleValueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
+            .valueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
             .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M))
             .outputCurrencies(USD)
             .build());

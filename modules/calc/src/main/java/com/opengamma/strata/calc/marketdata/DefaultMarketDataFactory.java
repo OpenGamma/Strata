@@ -10,78 +10,56 @@ import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
-import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
- * Co-ordinates building of market data.
+ * The default market data factory.
+ * <p>
+ * This uses two providers, one for observable data and one for time-series.
  */
-public final class DefaultMarketDataFactory implements MarketDataFactory {
-
-  /** Provides time series of observable market data values. */
-  private final TimeSeriesProvider timeSeriesProvider;
+final class DefaultMarketDataFactory implements MarketDataFactory {
 
   /** Builds observable market data. */
-  private final ObservableMarketDataFunction observablesBuilder;
+  private final ObservableDataProvider observableDataProvider;
+
+  /** Provides time-series of observable market data values. */
+  private final TimeSeriesProvider timeSeriesProvider;
 
   /** Market data functions, keyed by the type of the market data ID they can handle. */
   private final Map<Class<? extends MarketDataId<?>>, MarketDataFunction<?, ?>> functions;
 
-  /** For looking up IDs that are suitable for a particular market data source. */
-  private final ObservableIdMapping observableIdMapping;
-
+  //-------------------------------------------------------------------------
   /**
-   * Creates a new factory.
+   * Creates an instance of the factory based on providers of market data and time-series.
+   * <p>
+   * The market data functions are used to build the market data.
    *
-   * @param timeSeriesProvider  provides time series of observable market data values
-   * @param observablesBuilder  builder to create observable market data
-   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
-   * @param functions  functions that create the market data
-   */
-  public DefaultMarketDataFactory(
-      TimeSeriesProvider timeSeriesProvider,
-      ObservableMarketDataFunction observablesBuilder,
-      ObservableIdMapping observableIdMapping,
-      MarketDataFunction<?, ?>... functions) {
-
-    this(timeSeriesProvider, observablesBuilder, observableIdMapping, ImmutableList.copyOf(functions));
-  }
-
-  /**
-   * Creates a new factory.
-   *
-   * @param timeSeriesProvider  provides time series of observable market data values
-   * @param observablesBuilder  builder to create observable market data
-   * @param observableIdMapping  for looking up IDs that are suitable for a particular market data source
-   * @param functions  functions that create the market data
+   * @param observableDataProvider  the provider observable market data
+   * @param timeSeriesProvider  the provider time-series
+   * @param functions  the functions that create the market data
    */
   @SuppressWarnings("unchecked")
-  public DefaultMarketDataFactory(
+  DefaultMarketDataFactory(
+      ObservableDataProvider observableDataProvider,
       TimeSeriesProvider timeSeriesProvider,
-      ObservableMarketDataFunction observablesBuilder,
-      ObservableIdMapping observableIdMapping,
       List<MarketDataFunction<?, ?>> functions) {
 
-    this.observableIdMapping = observableIdMapping;
-    this.observablesBuilder = observablesBuilder;
+    this.observableDataProvider = observableDataProvider;
     this.timeSeriesProvider = timeSeriesProvider;
 
     // Use a HashMap instead of an ImmutableMap.Builder so values can be overwritten.
@@ -92,6 +70,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     this.functions = ImmutableMap.copyOf(builderMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public BuiltScenarioMarketData buildMarketData(
       MarketDataRequirements requirements,
@@ -152,7 +131,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
       leafRequirements.getTimeSeries().stream()
           .filter(id -> marketData.getTimeSeries(id).isEmpty())
           .filter(id -> suppliedData.getTimeSeries(id).isEmpty())
-          .forEach(id -> dataBuilder.addTimeSeriesResult(id, this.findTimeSeries(id)));
+          .forEach(id -> dataBuilder.addTimeSeriesResult(id, timeSeriesProvider.provideTimeSeries(id)));
 
       // Copy supplied time series to the scenario data
       leafRequirements.getTimeSeries().stream()
@@ -168,7 +147,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableSet());
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
-      Map<ObservableId, Result<Double>> observableResults = buildObservableData(observableIds);
+      Map<ObservableId, Result<Double>> observableResults = observableDataProvider.provideObservableData(observableIds);
       MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
@@ -205,6 +184,7 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     return builtData;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Builds items of non-observable market data using a market data function.
    *
@@ -335,63 +315,4 @@ public final class DefaultMarketDataFactory implements MarketDataFactory {
     }
   }
 
-  /**
-   * Builds items of observable market data.
-   *
-   * @param ids  IDs of the market data that should be built
-   */
-  private Map<ObservableId, Result<Double>> buildObservableData(Set<ObservableId> ids) {
-    // We need to convert between the input IDs from the requirements and the source IDs
-    // which are passed to the builder and used to request the data.
-    Map<ObservableId, ObservableId> observableIdToRequirementId = new HashMap<>();
-    // IDs that are in the requirements but have no mapping to an ID the data provider understands
-    Set<ObservableId> unmappedIds = new HashSet<>();
-
-    // TODO Mapping of IDs should probably go inside the ObservableMarketDataBuilder
-    for (ObservableId id : ids) {
-      Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
-
-      if (obsSourceId.isPresent()) {
-        observableIdToRequirementId.put(obsSourceId.get(), id);
-      } else {
-        unmappedIds.add(id);
-      }
-    }
-    Map<ObservableId, Result<Double>> builtValues = observablesBuilder.build(observableIdToRequirementId.keySet());
-    ImmutableMap.Builder<ObservableId, Result<Double>> builder = ImmutableMap.builder();
-    // Put the built data into the results, mapping the source ID to the ID that was passed in
-    builtValues.keySet().stream().forEach(id -> builder.put(observableIdToRequirementId.get(id), builtValues.get(id)));
-    // Add failures for IDs that don't have mappings to market data source IDs
-    unmappedIds.forEach(id -> builder.put(id, noMappingResult(id)));
-    return builder.build();
-  }
-
-  /**
-   * Returns a failure result for an observable ID that can't be mapped to an ID
-   * recognized by the market data source.
-   *
-   * @param id  an observable ID that can't be mapped to an ID recognized by the market data source
-   * @return a failure result for the ID
-   */
-  private <T> Result<T> noMappingResult(ObservableId id) {
-    return Result.failure(FailureReason.MISSING_DATA, "No source ID mapping found for ID {}", id);
-  }
-
-  /**
-   * Looks up a time series in the time series provider.
-   *
-   * @param id  the ID of the data in the time series
-   */
-  private Result<LocalDateDoubleTimeSeries> findTimeSeries(ObservableId id) {
-    // TODO Should this go in the time series provider?
-    // Need to convert between the input ID from the requirements and the source ID
-    // which is used to store and retrieve the data.
-    Optional<ObservableId> obsSourceId = observableIdMapping.lookupId(id);
-
-    if (obsSourceId.isPresent()) {
-      return timeSeriesProvider.timeSeries(obsSourceId.get());
-    } else {
-      return noMappingResult(id);
-    }
-  }
 }

@@ -8,10 +8,10 @@ package com.opengamma.strata.market.view;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.SwaptionSensitivity;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**

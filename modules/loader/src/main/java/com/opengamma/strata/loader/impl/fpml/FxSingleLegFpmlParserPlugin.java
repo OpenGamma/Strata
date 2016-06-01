@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
 
-import com.opengamma.strata.basics.PayReceive;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -26,6 +25,7 @@ import com.opengamma.strata.loader.fpml.FpmlParseException;
 import com.opengamma.strata.loader.fpml.FpmlParserPlugin;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxNdf;
 import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingle;

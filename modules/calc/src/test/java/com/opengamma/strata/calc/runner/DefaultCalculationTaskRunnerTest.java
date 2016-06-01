@@ -22,20 +22,19 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.TestObservableId;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
-import com.opengamma.strata.calc.result.ScenarioResult;
+import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.
@@ -50,10 +49,10 @@ public class DefaultCalculationTaskRunnerTest {
 
   //-------------------------------------------------------------------------
   /**
-   * Test that ScenarioResults containing a single value are unwrapped.
+   * Test that ScenarioArrays containing a single value are unwrapped.
    */
   public void unwrapScenarioResults() {
-    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
+    ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -76,10 +75,10 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   /**
-   * Test that ScenarioResults containing multiple values are an error.
+   * Test that ScenarioArrays containing multiple values are an error.
    */
   public void unwrapMultipleScenarioResults() {
-    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo", "bar");
+    ScenarioArray<String> scenarioResult = ScenarioArray.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PAR_RATE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PAR_RATE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -94,10 +93,10 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   /**
-   * Test that ScenarioResults containing a single value are unwrapped when calling calculateAsync().
+   * Test that ScenarioArrays containing a single value are unwrapped when calling calculateAsync().
    */
   public void unwrapScenarioResultsAsync() {
-    ScenarioResult<String> scenarioResult = ScenarioResult.of("foo");
+    ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
@@ -148,7 +147,7 @@ public class DefaultCalculationTaskRunnerTest {
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
-          .singleValueRequirements(
+          .valueRequirements(
               ImmutableSet.of(
                   TestId.of("1"),
                   TestObservableId.of("2")))
@@ -164,7 +163,7 @@ public class DefaultCalculationTaskRunnerTest {
         ScenarioMarketData marketData,
         ReferenceData refData) {
 
-      ScenarioResult<String> array = ScenarioResult.of("bar");
+      ScenarioArray<String> array = ScenarioArray.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
     }
   }
@@ -173,9 +172,9 @@ public class DefaultCalculationTaskRunnerTest {
   private static final class ScenarioResultFunction implements CalculationFunction<TestTarget> {
 
     private final Measure measure;
-    private final ScenarioResult<String> result;
+    private final ScenarioArray<String> result;
 
-    private ScenarioResultFunction(Measure measure, ScenarioResult<String> result) {
+    private ScenarioResultFunction(Measure measure, ScenarioArray<String> result) {
       this.measure = measure;
       this.result = result;
     }

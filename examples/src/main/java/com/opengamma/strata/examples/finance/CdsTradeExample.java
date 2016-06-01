@@ -6,7 +6,7 @@
 
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.credit.RestructuringClause.NO_RESTRUCTURING_2014;
 import static com.opengamma.strata.product.credit.SeniorityLevel.SENIOR_UNSECURED_FOREIGN;
 

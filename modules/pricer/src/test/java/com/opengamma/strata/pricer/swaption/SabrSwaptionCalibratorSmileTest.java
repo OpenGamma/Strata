@@ -17,9 +17,8 @@ import java.util.BitSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
@@ -27,6 +26,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Tests {@link SabrSwaptionCalibrator} with single smile.

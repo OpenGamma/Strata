@@ -15,15 +15,15 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 @Test
 public class MarketDataNodeTest {

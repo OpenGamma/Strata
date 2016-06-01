@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Locale;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -24,11 +25,8 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -38,8 +36,9 @@ import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.function.StandardComponents;
@@ -49,6 +48,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -136,8 +136,8 @@ public class CurveScenarioExample {
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 
     // The results are lists of currency amounts containing one value for each scenario
-    ScenarioResult<?> pvList = (ScenarioResult<?>) results.get(0, 0).getValue();
-    ScenarioResult<?> pv01List = (ScenarioResult<?>) results.get(0, 1).getValue();
+    ScenarioArray<?> pvList = (ScenarioArray<?>) results.get(0, 0).getValue();
+    ScenarioArray<?> pv01List = (ScenarioArray<?>) results.get(0, 1).getValue();
 
     double pvBase = ((CurrencyAmount) pvList.get(0)).getAmount();
     double pvShifted = ((CurrencyAmount) pvList.get(1)).getAmount();

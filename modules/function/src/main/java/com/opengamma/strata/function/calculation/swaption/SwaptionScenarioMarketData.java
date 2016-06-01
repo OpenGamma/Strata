@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.function.calculation.swaption;
 
-import com.opengamma.strata.calc.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * Market data for swaptions, used for calculation across multiple scenarios.

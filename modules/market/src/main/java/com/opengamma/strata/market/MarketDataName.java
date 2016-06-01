@@ -8,8 +8,8 @@ package com.opengamma.strata.market;
 import org.joda.convert.ToString;
 
 import com.google.common.collect.ComparisonChain;
-import com.opengamma.strata.basics.market.MarketDataId;
 import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.data.MarketDataId;
 
 /**
  * A name for an item of market data.

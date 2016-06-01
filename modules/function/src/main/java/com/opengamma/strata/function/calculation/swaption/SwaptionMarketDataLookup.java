@@ -11,13 +11,13 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.CalculationRules;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
 import com.opengamma.strata.market.view.SwaptionVolatilities;
 

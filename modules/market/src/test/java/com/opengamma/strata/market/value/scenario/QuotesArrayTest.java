@@ -17,12 +17,12 @@ public class QuotesArrayTest {
 
   private static final QuotesArray ARRAY = QuotesArray.of(DoubleArray.of(1d, 2d, 3d));
 
-  public void getValue() {
-    assertThat(ARRAY.getValue(0)).isEqualTo(1d);
-    assertThat(ARRAY.getValue(1)).isEqualTo(2d);
-    assertThat(ARRAY.getValue(2)).isEqualTo(3d);
-    assertThrows(() -> ARRAY.getValue(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> ARRAY.getValue(3), IndexOutOfBoundsException.class);
+  public void get() {
+    assertThat(ARRAY.get(0)).isEqualTo(1d);
+    assertThat(ARRAY.get(1)).isEqualTo(2d);
+    assertThat(ARRAY.get(2)).isEqualTo(3d);
+    assertThrows(() -> ARRAY.get(-1), IndexOutOfBoundsException.class);
+    assertThrows(() -> ARRAY.get(3), IndexOutOfBoundsException.class);
   }
 
   public void getValues() {

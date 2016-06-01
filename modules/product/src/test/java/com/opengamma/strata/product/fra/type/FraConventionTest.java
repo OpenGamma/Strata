@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.product.fra.type;
 
-import static com.opengamma.strata.basics.BuySell.BUY;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
@@ -25,6 +24,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
@@ -39,12 +39,12 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.ImmutableIborIndex;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraDiscountingMethod;
 import com.opengamma.strata.product.fra.FraTrade;

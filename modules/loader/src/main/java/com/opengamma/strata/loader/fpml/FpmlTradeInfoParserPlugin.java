@@ -8,7 +8,7 @@ package com.opengamma.strata.loader.fpml;
 import java.time.LocalDate;
 
 import com.google.common.collect.ListMultimap;
-import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
 

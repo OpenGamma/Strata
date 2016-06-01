@@ -19,7 +19,7 @@ import java.time.Period;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link PeriodAdjustment}.

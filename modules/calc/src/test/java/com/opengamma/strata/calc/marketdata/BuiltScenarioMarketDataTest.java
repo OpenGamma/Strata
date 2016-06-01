@@ -10,11 +10,10 @@ import static com.opengamma.strata.collect.TestHelper.date;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.MarketDataBox;
-import com.opengamma.strata.basics.market.TestObservableId;
 import com.opengamma.strata.collect.result.FailureException;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.MarketDataBox;
 
 @Test
 public class BuiltScenarioMarketDataTest {

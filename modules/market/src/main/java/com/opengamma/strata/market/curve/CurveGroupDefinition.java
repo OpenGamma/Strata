@@ -36,9 +36,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.product.ResolvedTrade;
 

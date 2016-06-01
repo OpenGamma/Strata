@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.product;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * A product that has been resolved for pricing.

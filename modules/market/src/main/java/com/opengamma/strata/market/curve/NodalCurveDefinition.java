@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 

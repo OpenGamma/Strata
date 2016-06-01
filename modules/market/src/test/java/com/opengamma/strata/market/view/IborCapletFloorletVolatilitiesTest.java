@@ -13,10 +13,10 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.IborCapletFloorletSensitivity;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Test {@link IborCapletFloorletVolatilities}.

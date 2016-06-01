@@ -18,9 +18,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measures;
@@ -29,6 +27,8 @@ import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestFunction;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
 
 /**
  * Test {@link CalculationTasks}.
@@ -93,11 +93,11 @@ public class CalculationTasksTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(TestId.of("1"));
 
-    MarketDataId<?> observableId = new TestObservableId("2", CalculationTaskTest.OBS_SOURCE);
+    MarketDataId<?> observableId = TestObservableId.of("2", CalculationTaskTest.OBS_SOURCE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
 
-    MarketDataId<?> timeSeriesId = new TestObservableId("3", CalculationTaskTest.OBS_SOURCE);
+    MarketDataId<?> timeSeriesId = TestObservableId.of("3", CalculationTaskTest.OBS_SOURCE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
   }

@@ -17,8 +17,8 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * The default market data for swaptions, used for calculation across multiple scenarios.

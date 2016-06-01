@@ -6,14 +6,14 @@
 package com.opengamma.strata.product.swap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataId;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.basics.market.ReferenceDataId;
-import com.opengamma.strata.basics.market.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.market.Resolvable;
+import com.opengamma.strata.product.common.PayReceive;
 
 /**
  * A single leg of a swap.

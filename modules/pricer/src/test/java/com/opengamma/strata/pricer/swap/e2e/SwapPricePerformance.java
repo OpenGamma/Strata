@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.swap.e2e;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
-import static com.opengamma.strata.basics.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
@@ -19,14 +17,15 @@ import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_1M;
 import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_3M;
 import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.USD_LIBOR_6M;
 import static com.opengamma.strata.pricer.swap.e2e.SwapEnd2EndTest.swapPricer;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.PayReceive;
+import com.opengamma.strata.basics.ImmutableReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.market.ImmutableReferenceData;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -34,6 +33,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;

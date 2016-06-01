@@ -9,11 +9,9 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.calc.CalculationRunner;
-import com.opengamma.strata.calc.marketdata.DefaultMarketDataFactory;
-import com.opengamma.strata.calc.marketdata.ObservableIdMapping;
 import com.opengamma.strata.calc.marketdata.MarketDataFactory;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
-import com.opengamma.strata.calc.marketdata.ObservableMarketDataFunction;
+import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.function.calculation.credit.CdsCalculationFunction;
@@ -100,7 +98,7 @@ public class StandardComponents {
    * @return a market data factory containing the standard set of market data functions
    */
   public static MarketDataFactory marketDataFactory() {
-    return marketDataFactory(ObservableMarketDataFunction.none());
+    return marketDataFactory(ObservableDataProvider.none());
   }
 
   /**
@@ -111,15 +109,11 @@ public class StandardComponents {
    * <p>
    * The set of functions are the ones provided by {@link #marketDataFunctions()}.
    *
-   * @param observableMarketData  the function providing observable data
+   * @param observableDataProvider  the provider of observable data
    * @return a market data factory containing the standard set of market data functions
    */
-  public static MarketDataFactory marketDataFactory(ObservableMarketDataFunction observableMarketData) {
-    return new DefaultMarketDataFactory(
-        TimeSeriesProvider.none(),
-        observableMarketData,
-        ObservableIdMapping.identity(),
-        marketDataFunctions());
+  public static MarketDataFactory marketDataFactory(ObservableDataProvider observableDataProvider) {
+    return MarketDataFactory.of(observableDataProvider, TimeSeriesProvider.none(), marketDataFunctions());
   }
 
   /**

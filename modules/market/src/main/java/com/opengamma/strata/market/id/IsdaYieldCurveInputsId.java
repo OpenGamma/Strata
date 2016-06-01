@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 
 /**

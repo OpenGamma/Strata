@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.PropertySet;
 import com.opengamma.strata.collect.io.ResourceConfig;

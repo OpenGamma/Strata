@@ -16,7 +16,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.PutCall;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Simple representation of a option data.

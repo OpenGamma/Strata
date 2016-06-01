@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.basics.market.MarketDataId;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.view.DiscountFactors;
 
 /**

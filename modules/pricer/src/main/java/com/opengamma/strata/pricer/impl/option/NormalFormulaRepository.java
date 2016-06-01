@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.impl.option;
 import java.util.function.Function;
 
 import com.google.common.math.DoubleMath;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -16,6 +15,7 @@ import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * The primary location for normal model formulas.
@@ -38,7 +38,7 @@ public final class NormalFormulaRepository {
    * The solution precision.
    */
   private static final double EPS = 1e-15;
-  
+
   /** Limit defining "close to ATM forward" to avoid the formula singularity in the impliedVolatilityFromBlackVolatility. **/
   private static final double ATM_LIMIT = 1.0E-3;
 
@@ -315,7 +315,7 @@ public final class NormalFormulaRepository {
     }
     return sigma;
   }
-  
+
   /**
    * Compute the implied volatility using an approximate explicit transformation formula.
    * <p>
@@ -344,6 +344,51 @@ public final class NormalFormulaRepository {
     double factor1 = (forward - strike) / lnFK;
     double factor2 = 1.0d / (1.0d + (1.0d - lnFK * lnFK / 120.0d) / 24.0d * s2t + s2t * s2t / 5670.0d);
     return blackVolatility * factor1 * factor2;
+  }
+  
+  /**
+   * Compute the implied volatility using an approximate explicit transformation formula and its derivative 
+   * with respect to the input Black volatility.
+   * <p>
+   * Reference: Hagan, P. S. Volatility conversion calculator. Technical report, Bloomberg.
+   * 
+   * @param forward  the forward rate/price
+   * @param strike  the option strike
+   * @param timeToExpiry  the option time to maturity
+   * @param blackVolatility  the Black implied volatility
+   * @return the implied volatility and its derivative
+   */
+  public static ValueDerivatives impliedVolatilityFromBlackApproximatedAdjoint(
+      double forward,
+      double strike,
+      double timeToExpiry,
+      double blackVolatility) {
+    ArgChecker.isTrue(strike > 0, "strike must be strictly positive");
+    ArgChecker.isTrue(forward > 0, "strike must be strictly positive");
+    double lnFK = Math.log(forward / strike);
+    double s2t = blackVolatility * blackVolatility * timeToExpiry;
+    if (Math.abs((forward - strike) / strike) < ATM_LIMIT) {
+      double factor1 = Math.sqrt(forward * strike);
+      double factor2 = (1.0d + lnFK * lnFK / 24.0d) / (1.0d + s2t / 24.0d + s2t * s2t / 5670.0d);
+      double normalVol = blackVolatility * factor1 * factor2;
+      // Backward sweep
+      double blackVolatilityBar = factor1 * factor2;
+      double factor2Bar = blackVolatility * factor1;
+      double s2tBar = -(1.0d + lnFK * lnFK / 24.0d) /
+          ((1.0d + s2t / 24.0d + s2t * s2t / 5670.0d) * (1.0d + s2t / 24.0d + s2t * s2t / 5670.0d)) *
+          (1.0d / 24.0d + s2t / 2835.0d) * factor2Bar;
+      blackVolatilityBar += 2.0d * blackVolatility * timeToExpiry * s2tBar;
+      return ValueDerivatives.of(normalVol, DoubleArray.of(blackVolatilityBar));
+    }
+    double factor1 = (forward - strike) / lnFK;
+    double factor2 = 1.0d / (1.0d + (1.0d - lnFK * lnFK / 120.0d) / 24.0d * s2t + s2t * s2t / 5670.0d);
+    double normalVol = blackVolatility * factor1 * factor2;
+    // Backward sweep
+    double blackVolatilityBar = factor1 * factor2;
+    double factor2Bar = blackVolatility * factor1;
+    double s2tBar = -factor2 * factor2 * ((1.0d - lnFK * lnFK / 120.0d) / 24.0d + s2t / 2835.0d) * factor2Bar;
+    blackVolatilityBar += 2.0d * blackVolatility * timeToExpiry * s2tBar;
+    return ValueDerivatives.of(normalVol, DoubleArray.of(blackVolatilityBar));
   }
 
 }

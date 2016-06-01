@@ -5,18 +5,18 @@
  */
 package com.opengamma.strata.product.index;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.product.common.PutCall.CALL;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZoneOffset;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.market.ReferenceData;
+import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link ResolvedIborFutureOption}. 

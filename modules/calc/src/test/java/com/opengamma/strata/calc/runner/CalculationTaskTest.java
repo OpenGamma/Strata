@@ -27,27 +27,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.market.FxRateId;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.ObservableSource;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ImmutableScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.ReportingCurrency;
-import com.opengamma.strata.calc.ScenarioMarketData;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
-import com.opengamma.strata.calc.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.ObservableId;
+import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
  * Test {@link CalculationTask}.
@@ -72,7 +71,7 @@ public class CalculationTaskTest {
     ImmutableSet<? extends ObservableId> observables = requirements.getObservables();
     ImmutableSet<ObservableId> timeSeries = requirements.getTimeSeries();
 
-    MarketDataId<?> timeSeriesId = new TestObservableId("3", OBS_SOURCE);
+    MarketDataId<?> timeSeriesId = TestObservableId.of("3", OBS_SOURCE);
     assertThat(timeSeries).hasSize(1);
     assertThat(timeSeries.iterator().next()).isEqualTo(timeSeriesId);
 
@@ -80,13 +79,13 @@ public class CalculationTaskTest {
     assertThat(nonObservables).hasSize(1);
     assertThat(nonObservables.iterator().next()).isEqualTo(nonObservableId);
 
-    MarketDataId<?> observableId = new TestObservableId("2", OBS_SOURCE);
+    MarketDataId<?> observableId = TestObservableId.of("2", OBS_SOURCE);
     assertThat(observables).hasSize(1);
     assertThat(observables.iterator().next()).isEqualTo(observableId);
   }
 
   /**
-   * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
+   * Test that the result is converted to the reporting currency if it implements ScenarioFxConvertible and
    * the FX rates are available in the market data.
    */
   public void convertResultCurrencyUsingReportingCurrency() {
@@ -134,7 +133,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test that the result is converted to the reporting currency if it implements CurrencyConvertible and
+   * Test that the result is converted to the reporting currency if it implements ScenarioFxConvertible and
    * the FX rates are available in the market data. The "natural" currency is taken from the function.
    */
   public void convertResultCurrencyUsingDefaultReportingCurrency() {
@@ -175,7 +174,7 @@ public class CalculationTaskTest {
   }
 
   /**
-   * Test the result is returned unchanged if it is not CurrencyConvertible.
+   * Test the result is returned unchanged if it is not ScenarioFxConvertible.
    */
   public void convertResultCurrencyNotConvertible() {
     TestFunction fn = new TestFunction();
@@ -185,7 +184,7 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasValue(ScenarioResult.of("bar"));
+    assertThat(result).hasValue(ScenarioArray.of("bar"));
   }
 
   /**
@@ -199,7 +198,7 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasValue(ScenarioResult.of("bar"));
+    assertThat(result).hasValue(ScenarioArray.of("bar"));
   }
 
   /**
@@ -230,7 +229,7 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasValue(ScenarioResult.of("foo"));
+    assertThat(result).hasValue(ScenarioArray.of("foo"));
   }
 
   /**
@@ -254,15 +253,15 @@ public class CalculationTaskTest {
    * Tests that executing a function that returns a success result returns the underlying result without wrapping it.
    */
   public void executeSuccessResultValue() {
-    SupplierFunction<Result<ScenarioResult<String>>> fn =
-        SupplierFunction.of(() -> Result.success(ScenarioResult.of("foo")));
+    SupplierFunction<Result<ScenarioArray<String>>> fn =
+        SupplierFunction.of(() -> Result.success(ScenarioArray.of("foo")));
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
     ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasValue(ScenarioResult.of("foo"));
+    assertThat(result).hasValue(ScenarioArray.of("foo"));
   }
 
   /**
@@ -349,7 +348,7 @@ public class CalculationTaskTest {
         ReferenceData refData) {
 
       return FunctionRequirements.builder()
-          .singleValueRequirements(
+          .valueRequirements(
               ImmutableSet.of(
                   TestId.of("1"),
                   TestObservableId.of("2")))
@@ -366,7 +365,7 @@ public class CalculationTaskTest {
         ScenarioMarketData marketData,
         ReferenceData refData) {
 
-      ScenarioResult<String> array = ScenarioResult.of("bar");
+      ScenarioArray<String> array = ScenarioArray.of("bar");
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
     }
   }
@@ -482,7 +481,7 @@ public class CalculationTaskTest {
       if (obj instanceof Result<?>) {
         return ImmutableMap.of(Measures.PRESENT_VALUE, (Result<?>) obj);
       }
-      ScenarioResult<Object> array = ScenarioResult.of(obj);
+      ScenarioArray<Object> array = ScenarioArray.of(obj);
       return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
     }
   }

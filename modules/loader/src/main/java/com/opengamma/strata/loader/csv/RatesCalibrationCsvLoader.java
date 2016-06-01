@@ -19,13 +19,13 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;

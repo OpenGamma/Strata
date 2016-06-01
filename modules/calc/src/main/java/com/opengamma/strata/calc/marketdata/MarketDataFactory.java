@@ -5,9 +5,12 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
  * A market data factory build market data. It can source observable data from a data provider
@@ -16,6 +19,44 @@ import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
  */
 public interface MarketDataFactory {
 
+  /**
+   * Obtains an instance of the factory based on providers of market data and time-series.
+   * <p>
+   * The market data functions are used to build the market data.
+   *
+   * @param observableDataProvider  the provider of observable market data
+   * @param timeSeriesProvider  the provider of time-series
+   * @param functions  the functions that create the market data
+   * @return the market data factory
+   */
+  public static MarketDataFactory of(
+      ObservableDataProvider observableDataProvider,
+      TimeSeriesProvider timeSeriesProvider,
+      MarketDataFunction<?, ?>... functions) {
+
+    return new DefaultMarketDataFactory(observableDataProvider, timeSeriesProvider, ImmutableList.copyOf(functions));
+  }
+
+  /**
+   * Obtains an instance of the factory based on providers of market data and time-series.
+   * <p>
+   * The market data functions are used to build the market data.
+   *
+   * @param observableDataProvider  the provider of observable market data
+   * @param timeSeriesProvider  the provider of time-series
+   * @param functions  the functions that create the market data
+   * @return the market data factory
+   */
+  @SuppressWarnings("unchecked")
+  public static DefaultMarketDataFactory of(
+      ObservableDataProvider observableDataProvider,
+      TimeSeriesProvider timeSeriesProvider,
+      List<MarketDataFunction<?, ?>> functions) {
+    
+    return new DefaultMarketDataFactory(observableDataProvider, timeSeriesProvider, functions);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Builds a set of market data.
    * <p>
@@ -45,7 +86,7 @@ public interface MarketDataFactory {
    * the data must be built by this method, not provided in {@code suppliedData}.
    * <p>
    * For example, if a perturbation is defined that shocks the par rates used to build a curve, the curve
-   * must not be provided in {@code suppliedData}. The engine will only build the curve using the par rates
+   * must not be provided in {@code suppliedData}. The factory will only build the curve using the par rates
    * if it is not found in {@code suppliedData}.
    *
    * @param requirements  the market data required for the calculations

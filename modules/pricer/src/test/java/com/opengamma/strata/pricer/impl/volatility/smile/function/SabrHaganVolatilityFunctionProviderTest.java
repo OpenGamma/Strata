@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile.function;
 
-import static com.opengamma.strata.basics.PutCall.CALL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.product.common.PutCall.CALL;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

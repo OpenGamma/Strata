@@ -12,19 +12,19 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.market.MarketDataId;
-import com.opengamma.strata.basics.market.ReferenceData;
-import com.opengamma.strata.calc.ScenarioMarketData;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Measures;
-import com.opengamma.strata.calc.marketdata.FunctionRequirements;
-import com.opengamma.strata.calc.result.ScenarioResult;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
+import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.calc.runner.FunctionUtils;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
 import com.opengamma.strata.market.id.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.market.id.IsdaSingleNameCreditCurveInputsId;
@@ -133,7 +133,7 @@ public class CdsCalculationFunction
           IsdaSingleNameCreditCurveInputsId.of(singleNameRefInfo),
           IsdaSingleNameRecoveryRateId.of(singleNameRefInfo));
       return FunctionRequirements.builder()
-          .singleValueRequirements(Sets.union(rateCurveIds, keys))
+          .valueRequirements(Sets.union(rateCurveIds, keys))
           .outputCurrencies(currencies)
           .build();
 
@@ -143,7 +143,7 @@ public class CdsCalculationFunction
           IsdaIndexCreditCurveInputsId.of(indexRefInfo),
           IsdaIndexRecoveryRateId.of(indexRefInfo));
       return FunctionRequirements.builder()
-          .singleValueRequirements(Sets.union(rateCurveIds, keys))
+          .valueRequirements(Sets.union(rateCurveIds, keys))
           .outputCurrencies(currencies)
           .build();
 
@@ -190,7 +190,7 @@ public class CdsCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioResult<?> calculate(
+    public abstract ScenarioArray<?> calculate(
         ResolvedCdsTrade trade,
         ScenarioMarketData marketData);
   }

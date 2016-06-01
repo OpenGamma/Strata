@@ -10,13 +10,13 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.ObservableId;
-import com.opengamma.strata.basics.market.StandardId;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.id.QuoteId;
 
 /**

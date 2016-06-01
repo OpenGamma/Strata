@@ -30,7 +30,7 @@ import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 
 /**
- * A set of rules that define how the calculation engine should perform calculations.
+ * A set of rules that define how the calculation runner should perform calculations.
  * <p>
  * {@link CalculationRunner} provides the ability to perform calculations on many targets,
  * such as trades and positions. It returns a grid of results, with the targets as rows.

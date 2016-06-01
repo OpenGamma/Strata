@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.function.calculation.index;
 
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.market.FieldName;
-import com.opengamma.strata.basics.market.StandardId;
-import com.opengamma.strata.calc.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.result.MultiCurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
-import com.opengamma.strata.calc.result.ValuesArray;
+import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
 import com.opengamma.strata.market.id.QuoteId;
@@ -109,11 +109,11 @@ final class IborFutureMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> bucketedPv01(
+  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateBucketedPv01(trade, marketData.scenario(i)));
   }

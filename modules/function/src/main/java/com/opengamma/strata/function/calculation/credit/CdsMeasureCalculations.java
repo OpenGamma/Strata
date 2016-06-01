@@ -6,11 +6,11 @@
 package com.opengamma.strata.function.calculation.credit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.market.MarketData;
-import com.opengamma.strata.calc.ScenarioMarketData;
-import com.opengamma.strata.calc.result.CurrencyValuesArray;
-import com.opengamma.strata.calc.result.ScenarioResult;
-import com.opengamma.strata.calc.result.ValuesArray;
+import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.scenario.CurrencyValuesArray;
+import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.curve.IsdaCreditCurveInputs;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.IsdaIndexCreditCurveInputsId;
@@ -131,11 +131,11 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed IR01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> ir01BucketedZero(
+  static ScenarioArray<CurrencyParameterSensitivities> ir01BucketedZero(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateIr01BucketedZero(trade, marketData.scenario(i)));
   }
@@ -189,11 +189,11 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed IR01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> ir01BucketedPar(
+  static ScenarioArray<CurrencyParameterSensitivities> ir01BucketedPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateIr01BucketedPar(trade, marketData.scenario(i)));
   }
@@ -247,11 +247,11 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed CS01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> cs01BucketedPar(
+  static ScenarioArray<CurrencyParameterSensitivities> cs01BucketedPar(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCs01BucketedPar(trade, marketData.scenario(i)));
   }
@@ -305,11 +305,11 @@ class CdsMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates bucketed CS01 for all scenarios
-  static ScenarioResult<CurrencyParameterSensitivities> cs01BucketedHazard(
+  static ScenarioArray<CurrencyParameterSensitivities> cs01BucketedHazard(
       ResolvedCdsTrade trade,
       ScenarioMarketData marketData) {
 
-    return ScenarioResult.of(
+    return ScenarioArray.of(
         marketData.getScenarioCount(),
         i -> calculateCs01BucketedHazard(trade, marketData.scenario(i)));
   }
