@@ -57,7 +57,9 @@ public class MarketQuoteSensitivityCalculator {
     CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
     for (CurrencyParameterSensitivity paramSens : paramSensitivities.getSensitivities()) {
       // find the matching calibration info
-      Curve curve = provider.findCurve((CurveName) paramSens.getMarketDataName())
+      Curve curve = provider.findData(paramSens.getMarketDataName())
+          .filter(v -> v instanceof Curve)
+          .map(v -> (Curve) v)
           .orElseThrow(() -> new IllegalArgumentException(
               "Market Quote sensitivity requires curve: " + paramSens.getMarketDataName()));
       JacobianCalibrationMatrix info = curve.getMetadata().findInfo(CurveInfoType.JACOBIAN)
@@ -74,7 +76,7 @@ public class MarketQuoteSensitivityCalculator {
       Map<CurveName, DoubleArray> split = info.splitValues(marketQuoteSens);
       for (Entry<CurveName, DoubleArray> entry : split.entrySet()) {
         CurveName curveName = entry.getKey();
-        CurrencyParameterSensitivity maketQuoteSens = provider.findCurve(curveName)
+        CurrencyParameterSensitivity maketQuoteSens = provider.findData(curveName)
             .map(c -> c.createParameterSensitivity(paramSens.getCurrency(), entry.getValue()))
             .orElse(CurrencyParameterSensitivity.of(curveName, paramSens.getCurrency(), entry.getValue()));
         result = result.combinedWith(maketQuoteSens);

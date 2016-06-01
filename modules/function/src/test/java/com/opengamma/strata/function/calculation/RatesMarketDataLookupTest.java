@@ -159,9 +159,9 @@ public class RatesMarketDataLookupTest {
     MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.of(CURVE_ID_DSC, dscCurve, CURVE_ID_FWD, fwdCurve));
     RatesProvider ratesProvider = test.ratesProvider(md);
     assertEquals(ratesProvider.getValuationDate(), valDate);
-    assertEquals(ratesProvider.findCurve(CURVE_ID_DSC.getCurveName()), Optional.of(dscCurve));
-    assertEquals(ratesProvider.findCurve(CURVE_ID_FWD.getCurveName()), Optional.of(fwdCurve));
-    assertEquals(ratesProvider.findCurve(CurveName.of("Rubbish")), Optional.empty());
+    assertEquals(ratesProvider.findData(CURVE_ID_DSC.getCurveName()), Optional.of(dscCurve));
+    assertEquals(ratesProvider.findData(CURVE_ID_FWD.getCurveName()), Optional.of(fwdCurve));
+    assertEquals(ratesProvider.findData(CurveName.of("Rubbish")), Optional.empty());
     // check discount factors
     SimpleDiscountFactors df = (SimpleDiscountFactors) ratesProvider.discountFactors(USD);
     assertEquals(df.getCurve().getName(), dscCurve.getName());

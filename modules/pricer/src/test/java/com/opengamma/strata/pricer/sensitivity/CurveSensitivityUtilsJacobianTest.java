@@ -167,7 +167,8 @@ public class CurveSensitivityUtilsJacobianTest {
     DoubleMatrix jiComputed = 
         CurveSensitivityUtils.jacobianFromMarketQuoteSensitivities(LIST_CURVE_NAMES_1, trades, sensitivityFunction);
     DoubleMatrix jiExpected =
-        MULTICURVE_EUR_SINGLE_CALIBRATED.findCurve(EUR_SINGLE_NAME).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix();
+        MULTICURVE_EUR_SINGLE_CALIBRATED.findData(EUR_SINGLE_NAME).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get()
+            .getJacobianMatrix();
     /* Comparison */
     assertEquals(jiComputed.rowCount() , jiExpected.rowCount());
     assertEquals(jiComputed.columnCount() , jiExpected.columnCount());
@@ -217,7 +218,7 @@ public class CurveSensitivityUtilsJacobianTest {
     DoubleMatrix jiComputed =
         CurveSensitivityUtils.jacobianFromMarketQuoteSensitivities(LIST_CURVE_NAMES_1, trades, sensitivityFunction);
     DoubleMatrix jiExpected = multicurveCmp
-        .findCurve(EUR_SINGLE_NAME).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix();
+        .findData(EUR_SINGLE_NAME).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix();
     assertEquals(jiComputed.rowCount(), jiExpected.rowCount());
     assertEquals(jiComputed.columnCount(), jiExpected.columnCount());
     for (int i = 0; i < jiComputed.rowCount(); i++) {
@@ -255,7 +256,7 @@ public class CurveSensitivityUtilsJacobianTest {
    */
   public void direct_two_curves() {
     JacobianCalibrationMatrix jiObject = 
-        MULTICURVE_EUR_2_CALIBRATED.findCurve(EUR_DSCON_OIS).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get();
+        MULTICURVE_EUR_2_CALIBRATED.findData(EUR_DSCON_OIS).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get();
     ImmutableList<CurveParameterSize> order = jiObject.getOrder(); // To obtain the order of the curves in the jacobian
 
     /* Create trades */
@@ -305,9 +306,11 @@ public class CurveSensitivityUtilsJacobianTest {
     DoubleMatrix jiComputed =
         CurveSensitivityUtils.jacobianFromMarketQuoteSensitivities(order, trades, sensitivityFunction);
     DoubleMatrix jiExpectedDsc =
-        MULTICURVE_EUR_2_CALIBRATED.findCurve(EUR_DSCON_OIS).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix();
+        MULTICURVE_EUR_2_CALIBRATED.findData(EUR_DSCON_OIS).get()
+            .getMetadata().getInfo(CurveInfoType.JACOBIAN).getJacobianMatrix();
     DoubleMatrix jiExpectedE3 =
-        MULTICURVE_EUR_2_CALIBRATED.findCurve(EUR_EURIBOR6M_IRS).get().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix();
+        MULTICURVE_EUR_2_CALIBRATED.findData(EUR_EURIBOR6M_IRS).get()
+            .getMetadata().getInfo(CurveInfoType.JACOBIAN).getJacobianMatrix();
     /* Comparison */
     assertEquals(jiComputed.rowCount(), jiExpectedDsc.rowCount() + jiExpectedE3.rowCount());
     assertEquals(jiComputed.columnCount(), jiExpectedDsc.columnCount());

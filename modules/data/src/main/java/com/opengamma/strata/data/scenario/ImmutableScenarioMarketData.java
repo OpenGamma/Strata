@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -32,7 +34,9 @@ import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
+import com.opengamma.strata.data.NamedMarketDataId;
 import com.opengamma.strata.data.ObservableId;
 
 /**
@@ -194,6 +198,17 @@ public final class ImmutableScenarioMarketData
     @SuppressWarnings("unchecked")
     MarketDataBox<T> value = (MarketDataBox<T>) values.get(id);
     return Optional.ofNullable(value);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    // no type check against id.getMarketDataType() as checked in factory
+    return values.keySet().stream()
+        .filter(id -> id instanceof NamedMarketDataId)
+        .filter(id -> ((NamedMarketDataId<?>) id).getMarketDataName().equals(name))
+        .map(id -> (MarketDataId<T>) id)
+        .collect(toImmutableSet());
   }
 
   @Override

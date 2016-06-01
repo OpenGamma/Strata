@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.data;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -140,6 +142,17 @@ public final class ImmutableMarketData
     @SuppressWarnings("unchecked")
     T value = (T) values.get(id);
     return Optional.ofNullable(value);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    // no type check against id.getMarketDataType() as checked in factory
+    return values.keySet().stream()
+        .filter(id -> id instanceof NamedMarketDataId)
+        .filter(id -> ((NamedMarketDataId<?>) id).getMarketDataName().equals(name))
+        .map(id -> (MarketDataId<T>) id)
+        .collect(toImmutableSet());
   }
 
   @Override

@@ -17,10 +17,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -30,12 +32,14 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 public class MarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final TestingObservableId ID1 = new TestingObservableId("1");
-  private static final TestingObservableId ID2 = new TestingObservableId("2");
-  private static final TestingObservableId ID3 = new TestingObservableId("3");
-  private static final Double VAL1 = 1d;
-  private static final Double VAL2 = 2d;
-  private static final Double VAL3 = 3d;
+  private static final TestingNamedId ID1 = new TestingNamedId("1");
+  private static final TestingNamedId ID2 = new TestingNamedId("2");
+  private static final TestingNamedId ID3 = new TestingNamedId("3");
+  private static final TestingObservableId ID4 = new TestingObservableId("4");
+  private static final TestingObservableId ID5 = new TestingObservableId("5");
+  private static final String VAL1 = "1";
+  private static final String VAL2 = "2";
+  private static final String VAL3 = "3";
   private static final LocalDateDoubleTimeSeries TIME_SERIES = LocalDateDoubleTimeSeries.builder()
       .put(date(2011, 3, 8), 1.1)
       .put(date(2011, 3, 10), 1.2)
@@ -58,13 +62,16 @@ public class MarketDataTest {
     assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
     assertEquals(test.findValue(ID3), Optional.empty());
 
-    assertEquals(test.getTimeSeries(ID1), LocalDateDoubleTimeSeries.empty());
-    assertEquals(test.getTimeSeries(ID2), LocalDateDoubleTimeSeries.empty());
+    assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
+    assertEquals(test.findIds(new TestingName("Foo")), ImmutableSet.of());
+
+    assertEquals(test.getTimeSeries(ID4), LocalDateDoubleTimeSeries.empty());
+    assertEquals(test.getTimeSeries(ID5), LocalDateDoubleTimeSeries.empty());
   }
 
   public void test_of_3arg() {
     Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
-    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID2, TIME_SERIES);
+    Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID5, TIME_SERIES);
     MarketData test = MarketData.of(VAL_DATE, dataMap, tsMap);
 
     assertEquals(test.containsValue(ID1), true);
@@ -75,32 +82,32 @@ public class MarketDataTest {
     assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
     assertEquals(test.findValue(ID2), Optional.empty());
 
-    assertEquals(test.getTimeSeries(ID1), LocalDateDoubleTimeSeries.empty());
-    assertEquals(test.getTimeSeries(ID2), TIME_SERIES);
+    assertEquals(test.getTimeSeries(ID4), LocalDateDoubleTimeSeries.empty());
+    assertEquals(test.getTimeSeries(ID5), TIME_SERIES);
   }
 
   public void empty() {
     MarketData test = MarketData.empty(VAL_DATE);
 
     assertEquals(test.containsValue(ID1), false);
-    assertEquals(test.getTimeSeries(ID1), LocalDateDoubleTimeSeries.empty());
+    assertEquals(test.getTimeSeries(ID4), LocalDateDoubleTimeSeries.empty());
   }
 
   //-------------------------------------------------------------------------
   public void test_builder() {
     ImmutableMarketData test = ImmutableMarketData.builder(VAL_DATE.plusDays(1))
         .valuationDate(VAL_DATE)
-        .addValue(ID1, 123d)
-        .addValues(ImmutableMap.of(ID3, 201d))
-        .addTimeSeries(ID2, TIME_SERIES)
+        .addValue(ID1, "123")
+        .addValues(ImmutableMap.of(ID3, "201"))
+        .addTimeSeries(ID4, TIME_SERIES)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getValues().get(ID1), 123d);
-    assertEquals(test.getTimeSeries().get(ID2), TIME_SERIES);
+    assertEquals(test.getValues().get(ID1), "123");
+    assertEquals(test.getTimeSeries().get(ID4), TIME_SERIES);
   }
 
   public void test_of_badType() {
-    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, "123");
+    Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 123d);
     assertThrows(() -> MarketData.of(VAL_DATE, dataMap), ClassCastException.class);
   }
 
@@ -128,6 +135,11 @@ public class MarketDataTest {
       @SuppressWarnings("unchecked")
       public <T> Optional<T> findValue(MarketDataId<T> id) {
         return id.equals(ID1) ? Optional.of((T) VAL1) : Optional.empty();
+      }
+
+      @Override
+      public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+        return ImmutableSet.of();
       }
     };
     assertEquals(test.getValuationDate(), VAL_DATE);

@@ -8,6 +8,7 @@ package com.opengamma.strata.data.scenario;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -15,6 +16,7 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 
@@ -172,6 +174,20 @@ public interface ScenarioMarketData {
    * @return the market data value box providing data for all scenarios, empty if not found
    */
   public abstract <T> Optional<MarketDataBox<T>> findValue(MarketDataId<T> id);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the market data identifiers associated with the specified name.
+   * <p>
+   * This returns the unique identifiers that refer to the specified name.
+   * There may be more than one identifier associated with a name as the name is not unique.
+   * If the implementation cannot support this operation it will return an empty set.
+   *
+   * @param <T>  the type of the market data value
+   * @param name  the name to find
+   * @return the set of market data identifiers, empty if name not found
+   */
+  public abstract <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name);
 
   //-------------------------------------------------------------------------
   /**

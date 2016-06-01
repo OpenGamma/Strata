@@ -10,7 +10,7 @@ import java.io.Serializable;
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.MarketDataName;
+import com.opengamma.strata.data.MarketDataName;
 
 /**
  * The name of a curve.

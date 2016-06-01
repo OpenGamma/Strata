@@ -19,6 +19,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -72,6 +73,15 @@ final class CombinedMarketData
   public <T> Optional<T> findValue(MarketDataId<T> id) {
     Optional<T> value1 = underlying1.findValue(id);
     return value1.isPresent() ? value1 : underlying2.findValue(id);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
+    return ImmutableSet.<MarketDataId<T>>builder()
+        .addAll(underlying1.findIds(name))
+        .addAll(underlying2.findIds(name))
+        .build();
   }
 
   @Override

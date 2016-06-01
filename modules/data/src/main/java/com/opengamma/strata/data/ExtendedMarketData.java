@@ -18,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -77,6 +78,15 @@ final class ExtendedMarketData<T>
 
   @Override
   @SuppressWarnings("unchecked")
+  public <R> R getValue(MarketDataId<R> id) {
+    if (this.id.equals(id)) {
+      return (R) value;
+    }
+    return underlying.getValue(id);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
   public <R> Optional<R> findValue(MarketDataId<R> id) {
     if (this.id.equals(id)) {
       return Optional.of((R) value);
@@ -86,11 +96,15 @@ final class ExtendedMarketData<T>
 
   @Override
   @SuppressWarnings("unchecked")
-  public <R> R getValue(MarketDataId<R> id) {
-    if (this.id.equals(id)) {
-      return (R) value;
+  public <R> Set<MarketDataId<R>> findIds(MarketDataName<R> name) {
+    Set<MarketDataId<R>> ids = underlying.findIds(name);
+    if (id instanceof NamedMarketDataId) {
+      NamedMarketDataId<?> named = (NamedMarketDataId<?>) id;
+      if (named.getMarketDataName().equals(name)) {
+        return ImmutableSet.<MarketDataId<R>>builder().addAll(ids).add((MarketDataId<R>) id).build();
+      }
     }
-    return underlying.getValue(id);
+    return ids;
   }
 
   @Override
