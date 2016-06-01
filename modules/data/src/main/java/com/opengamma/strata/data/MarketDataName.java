@@ -71,7 +71,7 @@ public abstract class MarketDataName<T>
   /**
    * Checks if this instance equals another.
    * <p>
-   * Instances are compared based on the name.
+   * Instances are compared based on the name and market data type.
    * 
    * @param obj  the object to compare to, null returns false
    * @return true if equal
