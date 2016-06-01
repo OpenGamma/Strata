@@ -76,7 +76,8 @@ public class EuropeanVanillaOptionFunctionTest {
 
   public void test_trinomialTree() {
     int nSteps = 135;
-    LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
+    LatticeSpecification[] lattices = new LatticeSpecification[]
+    {new CoxRossRubinsteinLatticeSpecification(), new TrigeorgisLatticeSpecification() };
     double tol = 5.0e-3;
     for (boolean isCall : new boolean[] {true, false }) {
       for (double strike : STRIKES) {
@@ -86,8 +87,10 @@ public class EuropeanVanillaOptionFunctionTest {
               OptionFunction function = EuropeanVanillaOptionFunction.of(strike, TIME, PutCall.ofPut(!isCall), nSteps);
               double exact =
                   BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
-              assertEquals(computed, exact, Math.max(exact, 1d) * tol);
+              for (LatticeSpecification lattice : lattices) {
+                double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
+                assertEquals(computed, exact, Math.max(exact, 1d) * tol);
+              }
             }
           }
         }

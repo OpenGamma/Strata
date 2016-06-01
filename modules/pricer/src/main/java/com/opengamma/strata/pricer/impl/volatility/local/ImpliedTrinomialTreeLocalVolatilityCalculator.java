@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.PutCall;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.DoublesPair;
@@ -29,12 +28,7 @@ import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackScholesFormulaRepository;
-import com.opengamma.strata.pricer.impl.tree.CoxRossRubinsteinLatticeSpecification;
-import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
-import com.opengamma.strata.pricer.impl.tree.LatticeSpecification;
-import com.opengamma.strata.pricer.impl.tree.OptionFunction;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
-import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
 
 /**
  * Local volatility calculation based on trinomila tree model. 
@@ -42,16 +36,6 @@ import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
  * Emanuel Derman, Iraj Kani and Neil Chriss, "Implied Trinomial Trees of the Volatility Smile" (1996).
  */
 public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolatilityCalculator {
-
-  /**
-   * Trinomial tree. 
-   */
-  private static final TrinomialTree TREE = new TrinomialTree();
-  
-  /**
-   * Lattice specification.
-   */
-  private static final LatticeSpecification CRR = new CoxRossRubinsteinLatticeSpecification();
 
   /**
    * Default interpolator and extrapolator for spot dimension. 
@@ -254,7 +238,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
     // uniform grid based on CoxRossRubinsteinLatticeSpecification
     double volatility = impliedVolatilitySurface.apply(DoublesPair.of(maxTime, spot));
     double dt = maxTime / nSteps;
-    double dx = volatility * Math.sqrt(2d * dt);
+    double dx = volatility * Math.sqrt(3d * dt);
     double upFactor = Math.exp(dx);
     double downFactor = Math.exp(-dx);
     double[] adSec = new double[2 * nSteps + 1];
@@ -278,9 +262,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
         for (int j = nNodes - 1; j > position - 1; --j) {
           assetPriceLocal[j] = assetTmp;
           double impliedVol = impliedVolatilitySurface.apply(DoublesPair.of(timePrim[i], assetPriceLocal[j]));
-          OptionFunction call = EuropeanVanillaOptionFunction.of(assetPriceLocal[j], timePrim[i], PutCall.CALL, i);
-          double price = TREE.optionPrice(call, CRR, spot, impliedVol, zeroRate, zeroDividendRate);
-          callOptionPrice[j] = price > 0d ? price : BlackScholesFormulaRepository.price(
+          callOptionPrice[j] = BlackScholesFormulaRepository.price(
               spot, assetPriceLocal[j], timePrim[i], impliedVol, zeroRate, zeroCostRate, true);
           assetTmp *= downFactor;
         }
@@ -289,9 +271,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
         for (int j = 0; j < position + 2; ++j) {
           assetPriceLocal[j] = assetTmp;
           double impliedVol = impliedVolatilitySurface.apply(DoublesPair.of(timePrim[i], assetPriceLocal[j]));
-          OptionFunction put = EuropeanVanillaOptionFunction.of(assetPriceLocal[j], timePrim[i], PutCall.PUT, i);
-          double price = TREE.optionPrice(put, CRR, spot, impliedVol, zeroRate, zeroDividendRate);
-          putOptionPrice[j] = price >= 0d ? price : BlackScholesFormulaRepository.price(
+          putOptionPrice[j] = BlackScholesFormulaRepository.price(
               spot, assetPriceLocal[j], timePrim[i], impliedVol, zeroRate, zeroCostRate, false);
           assetTmp *= upFactor;
         }

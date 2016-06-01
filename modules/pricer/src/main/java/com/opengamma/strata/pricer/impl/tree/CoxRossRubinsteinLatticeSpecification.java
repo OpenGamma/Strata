@@ -14,8 +14,7 @@ public final class CoxRossRubinsteinLatticeSpecification implements LatticeSpeci
 
   @Override
   public DoubleArray getParametersTrinomial(double volatility, double interestRate, double dt) {
-    double twoRootT = Math.sqrt(2d * dt);
-    double dx = volatility * twoRootT;
+    double dx = volatility * Math.sqrt(2d * dt);
     double upFactor = Math.exp(dx);
     double downFactor = Math.exp(-dx);
     double factor1 = Math.exp(0.5 * interestRate * dt);

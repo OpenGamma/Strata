@@ -61,7 +61,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
   private static final double SPOT = 1.40;
 
   public void flatVolTest() {
-    double tol = 2.0e-4;
+    double tol = 2.0e-2;
     double constantVol = 0.15;
     ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
     Function<Double, Double> zeroRate = new Function<Double, Double>() {
@@ -76,7 +76,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
         return 0.02d;
       }
     };
-    ImpliedTrinomialTreeLocalVolatilityCalculator calc = new ImpliedTrinomialTreeLocalVolatilityCalculator(15, 1d,
+    ImpliedTrinomialTreeLocalVolatilityCalculator calc = new ImpliedTrinomialTreeLocalVolatilityCalculator(45, 1d,
         new GridInterpolator2D(TIMESQ_FLAT, LINEAR_FLAT));
     InterpolatedNodalSurface localVolSurface =
         calc.localVolatilityFromImpliedVolatility(impliedVolSurface, 100d, zeroRate, zeroRate1);
@@ -112,7 +112,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
 
   public void comparisonDupireVolTest() {
     double tol = 1.0e-2;
-    ImpliedTrinomialTreeLocalVolatilityCalculator calc = new ImpliedTrinomialTreeLocalVolatilityCalculator(29, 1.45d,
+    ImpliedTrinomialTreeLocalVolatilityCalculator calc = new ImpliedTrinomialTreeLocalVolatilityCalculator(28, 1.45d,
         new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT));
     Function<Double, Double> interestRate = new Function<Double, Double>() {
       @Override
@@ -130,7 +130,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
     DeformedSurface resDup = (new DupireLocalVolatilityCalculator())
         .localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate);
     double[][] sampleStrikes = new double[][] {
-      {0.7 * SPOT, SPOT, 1.1 * SPOT, 1.65 * SPOT, }, {0.5 * SPOT, 0.9 * SPOT, SPOT, 1.3 * SPOT, 1.9 * SPOT } };
+      {0.7 * SPOT, SPOT, 1.1 * SPOT, 1.4 * SPOT, }, {0.5 * SPOT, 0.9 * SPOT, SPOT, 1.3 * SPOT, 1.9 * SPOT } };
     double[] sampleTimes = new double[] {0.8, 1.1 };
     for (int i = 0; i < sampleTimes.length; ++i) {
       double time = sampleTimes[i];
