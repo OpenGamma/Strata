@@ -150,13 +150,17 @@ public class RatesProviderDataSets {
   private static final LocalDateDoubleTimeSeries PRICE_INDEX_TS =
       LocalDateDoubleTimeSeries.of(VAL_DATE_END_OF_MONTH, 193.0);
 
-  public static final ImmutableRatesProvider SINGLE_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_USD)
-      .discountCurve(USD, USD_SINGLE_CURVE)
-      .overnightIndexCurve(USD_FED_FUND, USD_SINGLE_CURVE)
-      .iborIndexCurve(USD_LIBOR_3M, USD_SINGLE_CURVE)
-      .iborIndexCurve(USD_LIBOR_6M, USD_SINGLE_CURVE)
-      .build();
+  public static final ImmutableRatesProvider SINGLE_USD = singleUsd(VAL_DATE_2014_01_22);
+
+  public static final ImmutableRatesProvider singleUsd(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_USD)
+        .discountCurve(USD, USD_SINGLE_CURVE)
+        .overnightIndexCurve(USD_FED_FUND, USD_SINGLE_CURVE)
+        .iborIndexCurve(USD_LIBOR_3M, USD_SINGLE_CURVE)
+        .iborIndexCurve(USD_LIBOR_6M, USD_SINGLE_CURVE)
+        .build();
+  }
 
   //-------------------------------------------------------------------------
   private static final Curve USD_DSC =
@@ -176,21 +180,17 @@ public class RatesProviderDataSets {
   private static final PriceIndexValues USD_CPI =
       PriceIndexValues.of(PriceIndices.US_CPI_U, VAL_DATE_2014_01_22, PRICE_INDEX_CURVE, PRICE_INDEX_TS);
 
-  public static final ImmutableRatesProvider MULTI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_USD)
-      .discountCurve(USD, USD_DSC)
-      .overnightIndexCurve(USD_FED_FUND, USD_DSC)
-      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
-      .iborIndexCurve(USD_LIBOR_6M, USD_L6)
-      .build();
+  public static final ImmutableRatesProvider MULTI_USD = multiUsd(VAL_DATE_2014_01_22);
 
-  public static final ImmutableRatesProvider MULTI_USD_2015_08_07 = ImmutableRatesProvider.builder(LocalDate.of(2015, 8, 7))
-      .fxRateProvider(FX_MATRIX_USD)
-      .discountCurve(USD, USD_DSC)
-      .overnightIndexCurve(USD_FED_FUND, USD_DSC)
-      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
-      .iborIndexCurve(USD_LIBOR_6M, USD_L6)
-      .build();
+  public static final ImmutableRatesProvider multiUsd(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_USD)
+        .discountCurve(USD, USD_DSC)
+        .overnightIndexCurve(USD_FED_FUND, USD_DSC)
+        .iborIndexCurve(USD_LIBOR_3M, USD_L3)
+        .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+        .build();
+  }
 
   public static final ImmutableRatesProvider MULTI_CPI_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
       .fxRateProvider(FX_MATRIX_USD)
@@ -230,13 +230,17 @@ public class RatesProviderDataSets {
   private static final Curve GBP_L6_SIMPLE =
       InterpolatedNodalCurve.of(GBP_L6_METADATA_SIMPLE, TIMES_3, RATES_3_2_SIMPLE, INTERPOLATOR);
 
-  public static final ImmutableRatesProvider MULTI_GBP = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_GBP)
-      .discountCurve(GBP, GBP_DSC)
-      .overnightIndexCurve(GBP_SONIA, GBP_DSC)
-      .iborIndexCurve(GBP_LIBOR_3M, GBP_L3)
-      .iborIndexCurve(GBP_LIBOR_6M, GBP_L6)
-      .build();
+  public static final ImmutableRatesProvider MULTI_GBP = multiGbp(VAL_DATE_2014_01_22);
+
+  public static final ImmutableRatesProvider multiGbp(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_GBP)
+        .discountCurve(GBP, GBP_DSC)
+        .overnightIndexCurve(GBP_SONIA, GBP_DSC)
+        .iborIndexCurve(GBP_LIBOR_3M, GBP_L3)
+        .iborIndexCurve(GBP_LIBOR_6M, GBP_L6)
+        .build();
+  }
 
   //-------------------------------------------------------------------------
   //     =====     EUR     =====     
@@ -258,13 +262,17 @@ public class RatesProviderDataSets {
   private static final Curve EUR_L6 =
       InterpolatedNodalCurve.of(EUR_L6_METADATA, TIMES_3, RATES_3_2, INTERPOLATOR);
 
-  public static final ImmutableRatesProvider MULTI_EUR = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_EUR)
-      .discountCurve(EUR, EUR_DSC)
-      .overnightIndexCurve(EUR_EONIA, EUR_DSC)
-      .iborIndexCurve(EUR_EURIBOR_3M, EUR_L3)
-      .iborIndexCurve(EUR_EURIBOR_6M, EUR_L6)
-      .build();
+  public static final ImmutableRatesProvider MULTI_EUR = multiEur(VAL_DATE_2014_01_22);
+
+  public static final ImmutableRatesProvider multiEur(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_EUR)
+        .discountCurve(EUR, EUR_DSC)
+        .overnightIndexCurve(EUR_EONIA, EUR_DSC)
+        .iborIndexCurve(EUR_EURIBOR_3M, EUR_L3)
+        .iborIndexCurve(EUR_EURIBOR_6M, EUR_L6)
+        .build();
+  }
 
   //-------------------------------------------------------------------------
   //     =====     GBP + USD      =====        
@@ -273,28 +281,37 @@ public class RatesProviderDataSets {
       FxMatrix.builder().addRate(GBP, USD, 1.50).build();
 
   // zero rate curves
-  public static final ImmutableRatesProvider MULTI_GBP_USD = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_GBP_USD)
-      .discountCurve(GBP, GBP_DSC)
-      .discountCurve(USD, USD_DSC)
-      .overnightIndexCurve(GBP_SONIA, GBP_DSC)
-      .iborIndexCurve(GBP_LIBOR_3M, GBP_L3)
-      .iborIndexCurve(GBP_LIBOR_6M, GBP_L6)
-      .overnightIndexCurve(USD_FED_FUND, USD_DSC)
-      .iborIndexCurve(USD_LIBOR_3M, USD_L3)
-      .iborIndexCurve(USD_LIBOR_6M, USD_L6)
-      .build();
+  public static final ImmutableRatesProvider MULTI_GBP_USD = multiGbpUsd(VAL_DATE_2014_01_22);
+
+  public static final ImmutableRatesProvider multiGbpUsd(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_GBP_USD)
+        .discountCurve(GBP, GBP_DSC)
+        .discountCurve(USD, USD_DSC)
+        .overnightIndexCurve(GBP_SONIA, GBP_DSC)
+        .iborIndexCurve(GBP_LIBOR_3M, GBP_L3)
+        .iborIndexCurve(GBP_LIBOR_6M, GBP_L6)
+        .overnightIndexCurve(USD_FED_FUND, USD_DSC)
+        .iborIndexCurve(USD_LIBOR_3M, USD_L3)
+        .iborIndexCurve(USD_LIBOR_6M, USD_L6)
+        .build();
+  }
+
   // discount factor curves
-  public static final ImmutableRatesProvider MULTI_GBP_USD_SIMPLE = ImmutableRatesProvider.builder(VAL_DATE_2014_01_22)
-      .fxRateProvider(FX_MATRIX_GBP_USD)
-      .discountCurve(GBP, GBP_DSC_SIMPLE)
-      .discountCurve(USD, USD_DSC_SIMPLE)
-      .overnightIndexCurve(GBP_SONIA, GBP_DSC_SIMPLE)
-      .iborIndexCurve(GBP_LIBOR_3M, GBP_L3_SIMPLE)
-      .iborIndexCurve(GBP_LIBOR_6M, GBP_L6_SIMPLE)
-      .overnightIndexCurve(USD_FED_FUND, USD_DSC_SIMPLE)
-      .iborIndexCurve(USD_LIBOR_3M, USD_L3_SIMPLE)
-      .iborIndexCurve(USD_LIBOR_6M, USD_L6_SIMPLE)
-      .build();
+  public static final ImmutableRatesProvider MULTI_GBP_USD_SIMPLE = multiGbpUsdSimple(VAL_DATE_2014_01_22);
+
+  public static final ImmutableRatesProvider multiGbpUsdSimple(LocalDate valDate) {
+    return ImmutableRatesProvider.builder(valDate)
+        .fxRateProvider(FX_MATRIX_GBP_USD)
+        .discountCurve(GBP, GBP_DSC_SIMPLE)
+        .discountCurve(USD, USD_DSC_SIMPLE)
+        .overnightIndexCurve(GBP_SONIA, GBP_DSC_SIMPLE)
+        .iborIndexCurve(GBP_LIBOR_3M, GBP_L3_SIMPLE)
+        .iborIndexCurve(GBP_LIBOR_6M, GBP_L6_SIMPLE)
+        .overnightIndexCurve(USD_FED_FUND, USD_DSC_SIMPLE)
+        .iborIndexCurve(USD_LIBOR_3M, USD_L3_SIMPLE)
+        .iborIndexCurve(USD_LIBOR_6M, USD_L6_SIMPLE)
+        .build();
+  }
 
 }

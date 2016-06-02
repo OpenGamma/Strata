@@ -148,18 +148,6 @@ public final class ImmutableRatesProvider
    * @return the builder
    */
   public ImmutableRatesProviderBuilder toBuilder() {
-    return toBuilder(valuationDate);
-  }
-
-  /**
-   * Converts this instance to a builder allowing changes to be made.
-   * <p>
-   * This overload allows the valuation date to be altered.
-   * 
-   * @param valuationDate  the new valuation date
-   * @return the builder
-   */
-  public ImmutableRatesProviderBuilder toBuilder(LocalDate valuationDate) {
     return new ImmutableRatesProviderBuilder(valuationDate)
         .fxRateProvider(fxRateProvider)
         .discountCurves(discountCurves)

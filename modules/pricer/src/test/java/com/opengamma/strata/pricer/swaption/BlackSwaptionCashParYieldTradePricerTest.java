@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static org.testng.Assert.assertEquals;
@@ -45,7 +46,7 @@ import com.opengamma.strata.product.swaption.Swaption;
 public class BlackSwaptionCashParYieldTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate VAL_DATE = RatesProviderDataSets.MULTI_USD_2015_08_07.getValuationDate();
+  private static final LocalDate VAL_DATE = date(2015, 8, 7);
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);
   private static final LocalTime SWAPTION_EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId SWAPTION_EXPIRY_ZONE = ZoneId.of("America/New_York");
@@ -89,7 +90,7 @@ public class BlackSwaptionCashParYieldTradePricerTest {
       .premium(PREMIUM_PAST_PAY)
       .build();
 
-  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.MULTI_USD_2015_08_07;
+  private static final ImmutableRatesProvider RATE_PROVIDER = RatesProviderDataSets.multiUsd(VAL_DATE);
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
 

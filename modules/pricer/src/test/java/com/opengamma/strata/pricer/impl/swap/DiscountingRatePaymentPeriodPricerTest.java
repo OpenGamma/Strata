@@ -862,7 +862,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
   public void test_currencyExposure_fx() {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     LocalDate valuationDate = VAL_DATE.minusWeeks(1);
-    ImmutableRatesProvider provider = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate).build();
+    ImmutableRatesProvider provider = RatesProviderDataSets.multiGbpUsd(valuationDate);
     // USD
     MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider);
     PointSensitivities pointUSD = pricer.presentValueSensitivity(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).build();
@@ -878,7 +878,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.multiGbpUsd(valuationDate).toBuilder()
         .fxRateProvider(FX_MATRIX_BUMP)
         .build();
     double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
@@ -893,7 +893,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     DiscountingRatePaymentPeriodPricer pricer = DiscountingRatePaymentPeriodPricer.DEFAULT;
     LocalDate valuationDate = VAL_DATE.plusWeeks(1);
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 1, 22), 1.55);
-    ImmutableRatesProvider provider = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
+    ImmutableRatesProvider provider = RatesProviderDataSets.multiGbpUsd(valuationDate).toBuilder()
         .timeSeries(FxIndices.GBP_USD_WM, ts)
         .build();
     // USD
@@ -913,7 +913,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(USD)); // 0 USD
     // FD approximation
-    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(valuationDate)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.multiGbpUsd(valuationDate).toBuilder()
         .fxRateProvider(FX_MATRIX_BUMP)
         .timeSeries(FxIndices.GBP_USD_WM, ts)
         .build();
@@ -944,7 +944,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), TOLERANCE_PV);
     assertFalse(computedGBP.contains(GBP)); // 0 GBP
     // FD approximation
-    ImmutableRatesProvider provUp = RatesProviderDataSets.MULTI_GBP_USD.toBuilder(VAL_DATE)
+    ImmutableRatesProvider provUp = RatesProviderDataSets.multiGbpUsd(VAL_DATE).toBuilder()
         .fxRateProvider(FX_MATRIX_BUMP)
         .build();
     double expectedFdUSD = (pricer.presentValue(PAYMENT_PERIOD_FULL_GS_FX_USD, provUp) -
