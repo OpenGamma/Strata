@@ -93,14 +93,14 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   private static final ResolvedFxSingleBarrierOption CALL_UKI_C =
       ResolvedFxSingleBarrierOption.of(CALL, BARRIER_UKI, REBATE);
   // pricers and pre-calibration
-  private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_89 =
+  private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_39 =
       new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(39);
-  private static final RecombiningTrinomialTreeData DATA_89 =
-      PRICER_89.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER, VOL_PROVIDER);
-  private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_105 =
+  private static final RecombiningTrinomialTreeData DATA_39 =
+      PRICER_39.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER, VOL_PROVIDER);
+  private static final ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer PRICER_70 =
       new ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer(70);
-  private static final RecombiningTrinomialTreeData DATA_105_FLAT =
-      PRICER_105.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
+  private static final RecombiningTrinomialTreeData DATA_70_FLAT =
+      PRICER_70.getCalibrator().calibrateTrinomialTree(CALL, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
   private static final BlackFxSingleBarrierOptionProductPricer BLACK_PRICER = BlackFxSingleBarrierOptionProductPricer.DEFAULT;
   private static final BlackFxVanillaOptionProductPricer VANILLA_PRICER = BlackFxVanillaOptionProductPricer.DEFAULT;
 
@@ -114,13 +114,13 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDko = ResolvedFxSingleBarrierOption.of(CALL, dko);
       double priceDkoBlack = BLACK_PRICER.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceDko = PRICER_105.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceDko = PRICER_70.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceDko, priceDkoBlack, tol);
       SimpleConstantContinuousBarrier dki =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDki = ResolvedFxSingleBarrierOption.of(CALL, dki);
       double priceDkiBlack = BLACK_PRICER.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceDki = PRICER_105.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceDki = PRICER_70.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceDki, priceDkiBlack, tol);
       // down barrier
       double higherBarrier = 1.45 + 0.025 * i;
@@ -128,13 +128,13 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, higherBarrier);
       ResolvedFxSingleBarrierOption optionUko = ResolvedFxSingleBarrierOption.of(CALL, uko);
       double priceUkoBlack = BLACK_PRICER.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceUko = PRICER_105.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceUko = PRICER_70.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceUko, priceUkoBlack, tol);
       SimpleConstantContinuousBarrier uki =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, higherBarrier);
       ResolvedFxSingleBarrierOption optionUki = ResolvedFxSingleBarrierOption.of(CALL, uki);
       double priceUkiBlack = BLACK_PRICER.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceUki = PRICER_105.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceUki = PRICER_70.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceUki, priceUkiBlack, tol);
     }
   }
@@ -150,7 +150,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       ResolvedFxSingleBarrierOption optionDko = ResolvedFxSingleBarrierOption.of(CALL, dko, REBATE_BASE);
       MultiCurrencyAmount ceDkoBlack = BLACK_PRICER.currencyExposure(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
       MultiCurrencyAmount ceDko =
-          PRICER_105.currencyExposure(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+          PRICER_70.currencyExposure(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEquals(ceDko.getAmount(EUR).getAmount(), ceDkoBlack.getAmount(EUR).getAmount(), NOTIONAL * tol);
       assertEquals(ceDko.getAmount(USD).getAmount(), ceDkoBlack.getAmount(USD).getAmount(), NOTIONAL * tol);
       SimpleConstantContinuousBarrier dki =
@@ -158,7 +158,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       ResolvedFxSingleBarrierOption optionDki = ResolvedFxSingleBarrierOption.of(CALL, dki, REBATE);
       MultiCurrencyAmount ceDkiBlack = BLACK_PRICER.currencyExposure(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
       MultiCurrencyAmount ceDki =
-          PRICER_105.currencyExposure(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+          PRICER_70.currencyExposure(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEquals(ceDki.getAmount(EUR).getAmount(), ceDkiBlack.getAmount(EUR).getAmount(), NOTIONAL * tol);
       assertEquals(ceDki.getAmount(USD).getAmount(), ceDkiBlack.getAmount(USD).getAmount(), NOTIONAL * tol);
       // down barrier
@@ -168,7 +168,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       ResolvedFxSingleBarrierOption optionUko = ResolvedFxSingleBarrierOption.of(CALL, uko, REBATE);
       MultiCurrencyAmount ceUkoBlack = BLACK_PRICER.currencyExposure(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
       MultiCurrencyAmount ceUko =
-          PRICER_105.currencyExposure(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+          PRICER_70.currencyExposure(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEquals(ceUko.getAmount(EUR).getAmount(), ceUkoBlack.getAmount(EUR).getAmount(), NOTIONAL * tol);
       assertEquals(ceUko.getAmount(USD).getAmount(), ceUkoBlack.getAmount(USD).getAmount(), NOTIONAL * tol);
       SimpleConstantContinuousBarrier uki =
@@ -176,7 +176,7 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       ResolvedFxSingleBarrierOption optionUki = ResolvedFxSingleBarrierOption.of(CALL, uki, REBATE_BASE);
       MultiCurrencyAmount ceUkiBlack = BLACK_PRICER.currencyExposure(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
       MultiCurrencyAmount ceUki =
-          PRICER_105.currencyExposure(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+          PRICER_70.currencyExposure(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEquals(ceUki.getAmount(EUR).getAmount(), ceUkiBlack.getAmount(EUR).getAmount(), NOTIONAL * tol);
       assertEquals(ceUki.getAmount(USD).getAmount(), ceUkiBlack.getAmount(USD).getAmount(), NOTIONAL * tol);
     }
@@ -192,13 +192,13 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDko = ResolvedFxSingleBarrierOption.of(PUT, dko, REBATE_BASE);
       double priceDkoBlack = BLACK_PRICER.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceDko = PRICER_105.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceDko = PRICER_70.price(optionDko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceDko, priceDkoBlack, tol);
       SimpleConstantContinuousBarrier dki =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDki = ResolvedFxSingleBarrierOption.of(PUT, dki, REBATE_BASE);
       double priceDkiBlack = BLACK_PRICER.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceDki = PRICER_105.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceDki = PRICER_70.price(optionDki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceDki, priceDkiBlack, tol);
       // down barrier
       double higherBarrier = 1.45 + 0.025 * i;
@@ -206,13 +206,13 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, higherBarrier);
       ResolvedFxSingleBarrierOption optionUko = ResolvedFxSingleBarrierOption.of(PUT, uko, REBATE);
       double priceUkoBlack = BLACK_PRICER.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceUko = PRICER_105.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceUko = PRICER_70.price(optionUko, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceUko, priceUkoBlack, tol);
       SimpleConstantContinuousBarrier uki =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, higherBarrier);
       ResolvedFxSingleBarrierOption optionUki = ResolvedFxSingleBarrierOption.of(PUT, uki, REBATE);
       double priceUkiBlack = BLACK_PRICER.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT);
-      double priceUki = PRICER_105.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_105_FLAT);
+      double priceUki = PRICER_70.price(optionUki, RATE_PROVIDER_FLAT, VOL_PROVIDER_FLAT, DATA_70_FLAT);
       assertEqualsRelative(priceUki, priceUkiBlack, tol);
     }
   }
@@ -229,21 +229,21 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       SimpleConstantContinuousBarrier dko =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDko = ResolvedFxSingleBarrierOption.of(CALL, dko);
-      double priceDko = PRICER_89.price(optionDko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceDko = PRICER_39.price(optionDko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       SimpleConstantContinuousBarrier dki =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, lowerBarrier);
       ResolvedFxSingleBarrierOption optionDki = ResolvedFxSingleBarrierOption.of(CALL, dki);
-      double priceDki = PRICER_89.price(optionDki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceDki = PRICER_39.price(optionDki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       // down barrier
       double higherBarrier = 1.4 + 0.006 * (i + 1);
       SimpleConstantContinuousBarrier uko =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, higherBarrier);
       ResolvedFxSingleBarrierOption optionUko = ResolvedFxSingleBarrierOption.of(CALL, uko);
-      double priceUko = PRICER_89.price(optionUko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceUko = PRICER_39.price(optionUko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       SimpleConstantContinuousBarrier uki =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, higherBarrier);
       ResolvedFxSingleBarrierOption optionUki = ResolvedFxSingleBarrierOption.of(CALL, uki);
-      double priceUki = PRICER_89.price(optionUki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceUki = PRICER_39.price(optionUki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       assertTrue(priceDkoPrev > priceDko);
       assertTrue(priceDkiPrev < priceDki);
       assertTrue(priceUkoPrev < priceUko);
@@ -266,15 +266,15 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       SimpleConstantContinuousBarrier dko =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, lowerBarrier);
       ResolvedFxSingleBarrierOption callDko = ResolvedFxSingleBarrierOption.of(CALL, dko);
-      double priceCallDko = PRICER_89.price(callDko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceCallDko = PRICER_39.price(callDko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       ResolvedFxSingleBarrierOption putDko = ResolvedFxSingleBarrierOption.of(PUT, dko);
-      double pricePutDko = PRICER_89.price(putDko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double pricePutDko = PRICER_39.price(putDko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       SimpleConstantContinuousBarrier dki =
           SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, lowerBarrier);
       ResolvedFxSingleBarrierOption callDki = ResolvedFxSingleBarrierOption.of(CALL, dki);
-      double priceCallDki = PRICER_89.price(callDki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceCallDki = PRICER_39.price(callDki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       ResolvedFxSingleBarrierOption putDki = ResolvedFxSingleBarrierOption.of(PUT, dki);
-      double pricePutDki = PRICER_89.price(putDki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double pricePutDki = PRICER_39.price(putDki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       assertEqualsRelative(priceCallDko + priceCallDki, callPrice, tol);
       assertEqualsRelative(pricePutDko + pricePutDki, putPrice, tol);
       // down barrier
@@ -282,15 +282,15 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
       SimpleConstantContinuousBarrier uko =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, higherBarrier);
       ResolvedFxSingleBarrierOption callUko = ResolvedFxSingleBarrierOption.of(CALL, uko);
-      double priceCallUko = PRICER_89.price(callUko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceCallUko = PRICER_39.price(callUko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       ResolvedFxSingleBarrierOption putUko = ResolvedFxSingleBarrierOption.of(PUT, uko);
-      double pricePutUko = PRICER_89.price(putUko, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double pricePutUko = PRICER_39.price(putUko, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       SimpleConstantContinuousBarrier uki =
           SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, higherBarrier);
       ResolvedFxSingleBarrierOption callUki = ResolvedFxSingleBarrierOption.of(CALL, uki);
-      double priceCallUki = PRICER_89.price(callUki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double priceCallUki = PRICER_39.price(callUki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       ResolvedFxSingleBarrierOption putUki = ResolvedFxSingleBarrierOption.of(PUT, uki);
-      double pricePutUki = PRICER_89.price(putUki, RATE_PROVIDER, VOL_PROVIDER, DATA_89);
+      double pricePutUki = PRICER_39.price(putUki, RATE_PROVIDER, VOL_PROVIDER, DATA_39);
       assertEqualsRelative(priceCallUko + priceCallUki, callPrice, tol);
       assertEqualsRelative(pricePutUko + pricePutUki, putPrice, tol);
     }
@@ -326,17 +326,17 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   }
 
   public void test_expired_calibration() {
-    assertThrowsIllegalArg(() -> PRICER_89.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(),
+    assertThrowsIllegalArg(() -> PRICER_39.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(),
         RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
     // pricing also fails because trinomial data can not be obtained
-    assertThrowsIllegalArg(() -> PRICER_89.price(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
-    assertThrowsIllegalArg(() -> PRICER_89.presentValue(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
-    assertThrowsIllegalArg(() -> PRICER_89.currencyExposure(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
+    assertThrowsIllegalArg(() -> PRICER_39.price(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
+    assertThrowsIllegalArg(() -> PRICER_39.presentValue(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
+    assertThrowsIllegalArg(() -> PRICER_39.currencyExposure(CALL_DKO, RATE_PROVIDER_AFTER, VOL_PROVIDER_AFTER));
   }
 
   public void test_dataMismatch() {
-    assertThrowsIllegalArg(() -> PRICER_105.presentValueCurveParameterSensitivity(CALL_DKO, RATE_PROVIDER,
-        VOL_PROVIDER, DATA_89));
+    assertThrowsIllegalArg(() -> PRICER_70.presentValueCurveParameterSensitivity(CALL_DKO, RATE_PROVIDER,
+        VOL_PROVIDER, DATA_39));
   }
 
   //-------------------------------------------------------------------------
