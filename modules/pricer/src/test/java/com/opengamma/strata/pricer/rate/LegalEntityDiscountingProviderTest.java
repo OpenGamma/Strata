@@ -232,7 +232,8 @@ public class LegalEntityDiscountingProviderTest {
         .bondMap(ImmutableMap.<StandardId, BondGroup>of(ID_ISSUER, GROUP_REPO_ISSUER))
         .valuationDate(DATE)
         .build();
-    ZeroRateSensitivity sensi = ZeroRateSensitivity.of(USD, date(2018, 11, 24), 25d);
+    ZeroRateSensitivity sensi =
+        ZeroRateSensitivity.of(USD, DSC_FACTORS_ISSUER.relativeYearFraction(date(2018, 11, 24)), 25d);
     CurrencyParameterSensitivities computed = test.parameterSensitivity(sensi.build());
     assertEquals(computed, CurrencyParameterSensitivities.empty());
   }

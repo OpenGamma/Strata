@@ -354,13 +354,11 @@ public class DiscountingSwapLegPricerTest {
   public void test_presentValueSensitivity() {
     ResolvedSwapLeg expSwapLeg = IBOR_SWAP_LEG_REC_GBP;
     Currency ccy = GBP_LIBOR_3M.getCurrency();
-    LocalDate paymentDate = IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate();
 
     IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), 140.0);
-    ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, paymentDate, -162.0);
+    ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(ccy, 3d, -162.0);
     PointSensitivityBuilder sensiPeriod = fwdSense.combinedWith(dscSense);
-    LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
-    PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, paymentDateEvent, -134.0);
+    PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, 4d, -134.0);
     PointSensitivities expected = sensiPeriod.build().combinedWith(sensiEvent.build());
 
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);

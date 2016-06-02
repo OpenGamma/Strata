@@ -91,7 +91,7 @@ public class BondFutureOptionSensitivityTest {
         FUTURE_SECURITY_ID, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, 0.975, GBP, SENSITIVITY);
     BondFutureOptionSensitivity g = BondFutureOptionSensitivity.of(
         FUTURE_SECURITY_ID, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, USD, SENSITIVITY);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);

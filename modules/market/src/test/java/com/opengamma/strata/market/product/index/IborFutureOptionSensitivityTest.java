@@ -101,7 +101,7 @@ public class IborFutureOptionSensitivityTest {
         date(2015, 8, 28), 0.98, 1.00, GBP, 32d);
     IborFutureOptionSensitivity g = IborFutureOptionSensitivity.of(GBP_LIBOR_3M, dateUtc(2015, 8, 27),
         date(2015, 8, 28), 0.98, 0.99, USD, 32d);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

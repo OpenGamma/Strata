@@ -107,7 +107,7 @@ public class OvernightRateSensitivityTest {
     OvernightRateSensitivity c = OvernightRateSensitivity.ofPeriod(GBP_SONIA_OBSERVATION, date(2015, 10, 27), USD, 32d);
     OvernightRateSensitivity d = OvernightRateSensitivity.ofPeriod(GBP_SONIA_OBSERVATION2, date(2015, 10, 27), GBP, 32d);
     OvernightRateSensitivity e = OvernightRateSensitivity.ofPeriod(GBP_SONIA_OBSERVATION, date(2015, 11, 27), GBP, 32d);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, DATE2, 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

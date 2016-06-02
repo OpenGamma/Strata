@@ -88,7 +88,7 @@ public class FxIndexSensitivityTest {
     FxIndexSensitivity c = FxIndexSensitivity.of(GBP_USD_WM_OBS, USD, GBP, SENSITIVITY_VALUE);
     FxIndexSensitivity d = FxIndexSensitivity.of(GBP_USD_WM_OBS, USD, JPY, SENSITIVITY_VALUE);
     FxIndexSensitivity e = FxIndexSensitivity.of(GBP_USD_WM_OBS2, USD, SENSITIVITY_VALUE);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), SENSITIVITY_VALUE);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, SENSITIVITY_VALUE);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);

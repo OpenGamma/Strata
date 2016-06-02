@@ -12,7 +12,6 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
@@ -99,7 +98,7 @@ public class IborCapletFloorletSensitivityTest {
         IborCapletFloorletSensitivity.of(GBP_LIBOR_3M, EXPIRY_DATE, STRIKE, 0.005, GBP, SENSITIVITY);
     IborCapletFloorletSensitivity f =
         IborCapletFloorletSensitivity.of(GBP_LIBOR_3M, EXPIRY_DATE, STRIKE, FORWARD, USD, SENSITIVITY);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

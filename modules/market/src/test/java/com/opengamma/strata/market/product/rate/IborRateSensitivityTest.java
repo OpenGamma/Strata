@@ -85,7 +85,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity b = IborRateSensitivity.of(IborIndexObservation.of(USD_LIBOR_3M, DATE2, REF_DATA), 32d);
     IborRateSensitivity c = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION, USD, 32d);
     IborRateSensitivity d = IborRateSensitivity.of(GBP_LIBOR_3M_OBSERVATION2, 32d);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, DATE2, 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

@@ -123,7 +123,7 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
     assertEquals(actual.getCurrency(), GBP);
     assertEquals(actual.getCurveCurrency(), GBP);
-    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
     assertEquals(actual.getSensitivity(), expected, AMOUNT_1000 * TOLERANCE_PV);
   }
 

@@ -13,7 +13,6 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -80,7 +79,7 @@ public class InflationRateSensitivityTest {
     InflationRateSensitivity b = InflationRateSensitivity.of(CH_CPI_OBS, 32d);
     InflationRateSensitivity c = InflationRateSensitivity.of(GB_HICP_OBS, USD, 32d);
     InflationRateSensitivity d = InflationRateSensitivity.of(PriceIndexObservation.of(GB_HICP, YearMonth.of(2015, 10)), 32d);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);

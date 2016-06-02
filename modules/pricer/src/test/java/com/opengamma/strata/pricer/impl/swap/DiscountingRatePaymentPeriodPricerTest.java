@@ -402,8 +402,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
     when(mockDf.discountFactor(PAYMENT_PERIOD_FLOATING.getPaymentDate()))
         .thenReturn(DISCOUNT_FACTOR);
-    ZeroRateSensitivity builder = ZeroRateSensitivity.of(PAYMENT_PERIOD_FLOATING.getCurrency(),
-        PAYMENT_PERIOD_FLOATING.getPaymentDate(), -DISCOUNT_FACTOR * paymentTime); // this is implemented in mockProvironment
+    ZeroRateSensitivity builder = ZeroRateSensitivity.of(
+        PAYMENT_PERIOD_FLOATING.getCurrency(), paymentTime, -DISCOUNT_FACTOR * paymentTime);
     when(mockDf.zeroRatePointSensitivity(PAYMENT_PERIOD_FLOATING.getPaymentDate())).thenReturn(builder);
 
     DiscountingRatePaymentPeriodPricer pricer = new DiscountingRatePaymentPeriodPricer(obsFunc);
@@ -650,7 +650,7 @@ public class DiscountingRatePaymentPeriodPricerTest {
     double pvDw = pricerDw.presentValue(payment, provDw);
     double res = 0.5 * (pvUp - pvDw) / eps;
     List<ZeroRateSensitivity> zeroRateSensi = new ArrayList<>();
-    zeroRateSensi.add(ZeroRateSensitivity.of(currency, paymentDate, res));
+    zeroRateSensi.add(ZeroRateSensitivity.of(currency, paymentTime, res));
     return zeroRateSensi;
   }
 

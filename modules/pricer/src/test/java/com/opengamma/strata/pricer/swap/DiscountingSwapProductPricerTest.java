@@ -510,16 +510,13 @@ public class DiscountingSwapProductPricerTest {
   public void test_presentValueSensitivity() {
     // ibor leg
     IborRateSensitivity fwdSense = IborRateSensitivity.of(IBOR_RATE_COMP.getObservation(), GBP, 140.0);
-    ZeroRateSensitivity dscSense =
-        ZeroRateSensitivity.of(GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), -162.0);
+    ZeroRateSensitivity dscSense = ZeroRateSensitivity.of(GBP, 3d, -162.0);
     PointSensitivityBuilder sensiFloating = fwdSense.combinedWith(dscSense);
     // fixed leg
-    PointSensitivityBuilder sensiFixed =
-        ZeroRateSensitivity.of(GBP, IBOR_RATE_PAYMENT_PERIOD_REC_GBP.getPaymentDate(), 152.0);
+    PointSensitivityBuilder sensiFixed = ZeroRateSensitivity.of(GBP, 3d, 152.0);
     // events
     Currency ccy = IBOR_SWAP_LEG_REC_GBP.getCurrency();
-    LocalDate paymentDateEvent = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate();
-    PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, paymentDateEvent, -134.0);
+    PointSensitivityBuilder sensiEvent = ZeroRateSensitivity.of(ccy, 4d, -134.0);
     PointSensitivities expected = sensiFloating.build()
         .combinedWith(sensiEvent.build())
         .combinedWith(sensiFixed.build())
