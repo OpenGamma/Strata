@@ -9,7 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.function.calculation.RatesMarketData;
 import com.opengamma.strata.function.calculation.RatesScenarioMarketData;
-import com.opengamma.strata.market.view.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionCashParYieldProductPricer;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPricer;

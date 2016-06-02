@@ -18,9 +18,9 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
-import com.opengamma.strata.market.curve.IsdaYieldCurveUnderlyingType;
-import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
+import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputs;
+import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputsId;
+import com.opengamma.strata.market.product.credit.IsdaYieldCurveUnderlyingType;
 import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
 
 /**

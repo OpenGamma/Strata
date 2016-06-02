@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.view.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;

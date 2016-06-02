@@ -29,8 +29,8 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.function.marketdata.curve.TestMarketDataMap;
-import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
-import com.opengamma.strata.market.view.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesId;
 
 /**
  * Test {@link SwaptionMarketDataLookup}.

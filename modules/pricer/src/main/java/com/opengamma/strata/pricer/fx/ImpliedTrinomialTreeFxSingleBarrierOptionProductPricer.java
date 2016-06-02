@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.view.DiscountFactors;
+import com.opengamma.strata.market.product.DiscountFactors;
 import com.opengamma.strata.pricer.impl.tree.ConstantContinuousSingleBarrierKnockoutFunction;
 import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
 import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;

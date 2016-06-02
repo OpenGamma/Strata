@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
-import com.opengamma.strata.market.view.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 
 /**
  * Volatility for swaptions in SABR model. 

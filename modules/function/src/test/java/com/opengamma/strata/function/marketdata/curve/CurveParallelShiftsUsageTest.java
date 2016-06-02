@@ -26,8 +26,8 @@ import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Test usage of {@link CurveParallelShifts}.

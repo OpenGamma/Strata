@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.index;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.sensitivity.IborFutureOptionSensitivity;
+import com.opengamma.strata.market.product.index.IborFutureOptionSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.ResolvedIborFuture;

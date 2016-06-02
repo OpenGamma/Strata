@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
+import static com.opengamma.strata.market.product.CompoundedRateType.PERIODIC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.testng.Assert.assertEquals;
 
@@ -27,12 +27,12 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
+import com.opengamma.strata.market.product.DiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.bond.IssuerCurveDiscountFactors;
+import com.opengamma.strata.market.product.bond.IssuerCurveZeroRateSensitivity;
+import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
-import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 
 /**

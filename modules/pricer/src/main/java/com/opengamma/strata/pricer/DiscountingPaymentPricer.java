@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.product.CompoundedRateType;
+import com.opengamma.strata.market.product.DiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.value.CompoundedRateType;
-import com.opengamma.strata.market.view.DiscountFactors;
 
 /**
  * Pricer for simple payments.

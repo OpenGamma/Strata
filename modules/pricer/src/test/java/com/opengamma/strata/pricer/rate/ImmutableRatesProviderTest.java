@@ -36,10 +36,10 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.view.DiscountFxForwardRates;
-import com.opengamma.strata.market.view.SimplePriceIndexValues;
-import com.opengamma.strata.market.view.PriceIndexValues;
-import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.fx.DiscountFxForwardRates;
+import com.opengamma.strata.market.product.rate.PriceIndexValues;
+import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
 
 /**
  * Test {@link ImmutableRatesProvider}.

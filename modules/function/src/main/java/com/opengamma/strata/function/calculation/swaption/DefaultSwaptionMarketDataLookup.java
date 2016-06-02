@@ -28,8 +28,8 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.id.SwaptionVolatilitiesId;
-import com.opengamma.strata.market.view.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesId;
 
 /**
  * The swaption lookup, used to select volatilities for pricing.
