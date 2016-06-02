@@ -107,13 +107,13 @@ public final class ConstantSurface
 
   @Override
   public double getParameter(int parameterIndex) {
-    Preconditions.checkPositionIndex(parameterIndex, 1);
+    Preconditions.checkElementIndex(parameterIndex, 1);
     return zValue;
   }
 
   @Override
   public ConstantSurface withParameter(int parameterIndex, double newValue) {
-    Preconditions.checkPositionIndex(parameterIndex, 1);
+    Preconditions.checkElementIndex(parameterIndex, 1);
     return new ConstantSurface(metadata, newValue);
   }
 

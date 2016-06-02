@@ -109,13 +109,13 @@ public final class ConstantCurve
 
   @Override
   public double getParameter(int parameterIndex) {
-    Preconditions.checkPositionIndex(parameterIndex, 1);
+    Preconditions.checkElementIndex(parameterIndex, 1);
     return yValue;
   }
 
   @Override
   public ConstantCurve withParameter(int parameterIndex, double newValue) {
-    Preconditions.checkPositionIndex(parameterIndex, 1);
+    Preconditions.checkElementIndex(parameterIndex, 1);
     return new ConstantCurve(metadata, newValue);
   }
 
