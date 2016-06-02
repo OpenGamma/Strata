@@ -6,15 +6,21 @@
 package com.opengamma.strata.market.product.rate;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 import com.opengamma.strata.market.product.DiscountFactors;
@@ -95,6 +101,19 @@ public interface IborIndexRates
    */
   public abstract LocalDateDoubleTimeSeries getFixings();
 
+  /**
+   * Finds the market data structure underlying this instance with the specified name.
+   * <p>
+   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
+   * If the market data cannot be found, empty is returned.
+   * 
+   * @param <T>  the type of the market data value
+   * @param name  the name to find
+   * @return the market data value, empty if not found
+   */
+  public abstract <T> Optional<T> findData(MarketDataName<T> name);
+
+  //-------------------------------------------------------------------------
   @Override
   public abstract IborIndexRates withParameter(int parameterIndex, double newValue);
 
@@ -173,5 +192,22 @@ public interface IborIndexRates
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurrencyParameterSensitivities parameterSensitivity(IborRateSensitivity pointSensitivity);
+
+  /**
+   * Creates the parameter sensitivity when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #parameterSensitivity(IborRateSensitivity)} should be used and manipulated.
+   * However, it can be useful to create parameter sensitivity from pre-computed sensitivity values.
+   * <p>
+   * There will typically be one {@link CurrencyParameterSensitivity} for each underlying data
+   * structure, such as a curve. For example, if the rates are based on a single forward
+   * curve, then there will be one {@code CurrencyParameterSensitivity} in the result.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities);
 
 }

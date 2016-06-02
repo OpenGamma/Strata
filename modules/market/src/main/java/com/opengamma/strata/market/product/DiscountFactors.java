@@ -9,13 +9,18 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 
@@ -67,6 +72,19 @@ public interface DiscountFactors
    */
   public abstract Currency getCurrency();
 
+  /**
+   * Finds the market data structure underlying this instance with the specified name.
+   * <p>
+   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
+   * If the market data cannot be found, empty is returned.
+   * 
+   * @param <T>  the type of the market data value
+   * @param name  the name to find
+   * @return the market data value, empty if not found
+   */
+  public abstract <T> Optional<T> findData(MarketDataName<T> name);
+
+  //-------------------------------------------------------------------------
   @Override
   public abstract DiscountFactors withParameter(int parameterIndex, double newValue);
 
@@ -74,6 +92,18 @@ public interface DiscountFactors
   public abstract DiscountFactors withPerturbation(ParameterPerturbation perturbation);
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the relative time between the valuation date and the specified date.
+   * <p>
+   * The {@code double} value returned from this method is used as the input to other methods.
+   * It is typically calculated from a {@link DayCount}.
+   * 
+   * @param date  the date
+   * @return  the year fraction
+   * @throws RuntimeException if it is not possible to convert dates to relative times
+   */
+  public double relativeYearFraction(LocalDate date);
+
   /**
    * Gets the discount factor for the specified date.
    * <p>
@@ -86,7 +116,21 @@ public interface DiscountFactors
    * @return the discount factor
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double discountFactor(LocalDate date);
+  public default double discountFactor(LocalDate date) {
+    double yearFraction = relativeYearFraction(date);
+    return discountFactor(yearFraction);
+  }
+
+  /**
+   * Gets the discount factor for specified year fraction.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @return the discount factor
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double discountFactor(double yearFraction);
 
   /**
    * Gets the discount factor for the specified date with z-spread.
@@ -106,14 +150,44 @@ public interface DiscountFactors
    * @return the discount factor
    * @throws RuntimeException if the value cannot be obtained
    */
-  public abstract double discountFactorWithSpread(
+  public default double discountFactorWithSpread(
       LocalDate date,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    double yearFraction = relativeYearFraction(date);
+    return discountFactorWithSpread(yearFraction, zSpread, compoundedRateType, periodsPerYear);
+  }
+
+  /**
+   * Gets the discount factor for the specified year fraction with z-spread.
+   * <p>
+   * The discount factor represents the time value of money for the specified currency
+   * when comparing the valuation date to the specified date.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
+   * compounded rates of the discounting curve. 
+   * <p>
+   * If the valuation date is on or after the specified date, the discount factor is 1.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction 
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the discount factor
+   * @throws RuntimeException if the value cannot be obtained
+   */
+  public abstract double discountFactorWithSpread(
+      double yearFraction,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear);
 
   /**
-   * Gets the continuously compounded zero rate for specified date.
+   * Gets the continuously compounded zero rate for the specified date.
    * <p>
    * The continuously compounded zero rate is coherent to {@link #discountFactor(LocalDate)} along with 
    * year fraction which is computed internally in each implementation. 
@@ -138,32 +212,13 @@ public interface DiscountFactors
    */
   public abstract double zeroRate(double yearFraction);
 
-  /**
-   * Gets the discount factor for specified year fraction.
-   * <p>
-   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
-   * 
-   * @param yearFraction  the year fraction 
-   * @return the discount factor
-   * @throws RuntimeException if the value cannot be obtained
-   */
-  public abstract double discountFactor(double yearFraction);
-
-  /**
-   * Calculates the relative time between the valuation date and the specified date.
-   * 
-   * @param date  the date
-   * @return  the year fraction
-   */
-  public double relativeYearFraction(LocalDate date);
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the zero rate point sensitivity at the specified date.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the
    * points that were queried in the market data.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeYearFraction)}.
+   * The sensitivity typically has the value {@code (-discountFactor * yearFraction)}.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * 
    * @param date  the date to discount to
@@ -204,7 +259,7 @@ public interface DiscountFactors
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the
    * points that were queried in the market data.
-   * The sensitivity typically has the value {@code (-discountFactor * relativeYearFraction)}.
+   * The sensitivity typically has the value {@code (-discountFactor * yearFraction)}.
    * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * <p>
    * This method allows the currency of the sensitivity to differ from the currency of the market data.
@@ -256,5 +311,22 @@ public interface DiscountFactors
    * @throws RuntimeException if the result cannot be calculated
    */
   public abstract CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSensitivity);
+
+  /**
+   * Creates the parameter sensitivity when the sensitivity values are known.
+   * <p>
+   * In most cases, {@link #parameterSensitivity(ZeroRateSensitivity)} should be used and manipulated.
+   * However, it can be useful to create parameter sensitivity from pre-computed sensitivity values.
+   * <p>
+   * There will typically be one {@link CurrencyParameterSensitivity} for each underlying data
+   * structure, such as a curve. For example, if the discount factors are based on a single discount
+   * curve, then there will be one {@code CurrencyParameterSensitivity} in the result.
+   * 
+   * @param currency  the currency
+   * @param sensitivities  the sensitivity values, which must match the parameter count
+   * @return the parameter sensitivity
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities);
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.product.rate;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -15,6 +16,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
@@ -101,6 +103,8 @@ public class SimplePriceIndexValuesTest {
     assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
     assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
     assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
+    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
     assertEquals(test, test2);
@@ -187,6 +191,14 @@ public class SimplePriceIndexValuesTest {
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createParameterSensitivity() {
+    SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE, USCPI_TS);
+    DoubleArray sensitivities = DoubleArray.of(0.12, 0.15, 0.16, 0.17);
+    CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
+    assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------

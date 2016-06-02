@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -28,6 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
@@ -116,6 +119,14 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (curve.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(curve));
+    }
+    return Optional.empty();
+  }
+
+  @Override
   public int getParameterCount() {
     return curve.getParameterCount();
   }
@@ -142,23 +153,27 @@ public final class SimpleDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(LocalDate date) {
-    double relativeYearFraction = relativeYearFraction(date);
-    return discountFactor(relativeYearFraction);
+  public double relativeYearFraction(LocalDate date) {
+    return dayCount.relativeYearFraction(valuationDate, date);
+  }
+
+  @Override
+  public double discountFactor(double yearFraction) {
+    // read discount factor directly off curve
+    return curve.yValue(yearFraction);
   }
 
   @Override
   public double discountFactorWithSpread(
-      LocalDate date,
+      double yearFraction,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double yearFraction = relativeYearFraction(date);
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return 1d;
     }
-    double df = discountFactor(date);
+    double df = discountFactor(yearFraction);
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
       double ratePeriodicAnnualPlusOne =
@@ -170,34 +185,18 @@ public final class SimpleDiscountFactors
   }
 
   @Override
-  public double zeroRate(LocalDate date) {
-    return zeroRate(relativeYearFraction(date));
-  }
-
-  @Override
-  public double discountFactor(double relativeYearFraction) {
-    // read discount factor directly off curve
-    return curve.yValue(relativeYearFraction);
-  }
-
-  @Override
   public double zeroRate(double yearFraction) {
     double yearFractionMod = Math.max(EFFECTIVE_ZERO, yearFraction);
     double discountFactor = discountFactor(yearFractionMod);
     return -Math.log(discountFactor) / yearFractionMod;
   }
 
-  @Override
-  public double relativeYearFraction(LocalDate date) {
-    return dayCount.relativeYearFraction(valuationDate, date);
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    double relativeYearFraction = relativeYearFraction(date);
-    double discountFactor = discountFactor(relativeYearFraction);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+    double yearFraction = relativeYearFraction(date);
+    double discountFactor = discountFactor(yearFraction);
+    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
   @Override
@@ -231,13 +230,18 @@ public final class SimpleDiscountFactors
     if (date.equals(valuationDate)) {
       return CurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
     }
-    double relativeYearFraction = relativeYearFraction(date);
-    double discountFactor = discountFactor(relativeYearFraction);
-    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction);
+    double yearFraction = relativeYearFraction(date);
+    double discountFactor = discountFactor(yearFraction);
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
     CurrencyParameterSensitivity curSens = unitSens
-        .multipliedBy(-1d / (relativeYearFraction * discountFactor))
+        .multipliedBy(-1d / (yearFraction * discountFactor))
         .multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);
+  }
+
+  @Override
+  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
   }
 
   //-------------------------------------------------------------------------

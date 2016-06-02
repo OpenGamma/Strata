@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -26,11 +27,14 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -109,6 +113,11 @@ public final class DiscountOvernightIndexRates
   @Override
   public LocalDate getValuationDate() {
     return discountFactors.getValuationDate();
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    return discountFactors.findData(name);
   }
 
   @Override
@@ -232,6 +241,11 @@ public final class DiscountOvernightIndexRates
     CurrencyParameterSensitivities psStart = discountFactors.parameterSensitivity(zrsStart).multipliedBy(dfStartBar);
     CurrencyParameterSensitivities psEnd = discountFactors.parameterSensitivity(zrsEnd).multipliedBy(dfEndBar);
     return psStart.combinedWith(psEnd);
+  }
+
+  @Override
+  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return discountFactors.createParameterSensitivity(currency, sensitivities);
   }
 
   //-------------------------------------------------------------------------
