@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.data.MarketDataId;
-import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Test {@link CurveInputs}.

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.io.ResourceLocator;
-import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Test {@link QuotesCsvLoader}.

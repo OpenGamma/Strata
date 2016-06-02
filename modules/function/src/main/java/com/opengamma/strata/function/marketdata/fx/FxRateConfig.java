@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Configuration defining how to create {@link FxRate} instances from observable market data.

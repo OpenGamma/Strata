@@ -47,7 +47,7 @@ import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.id.CurveGroupId;
 import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
-import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.

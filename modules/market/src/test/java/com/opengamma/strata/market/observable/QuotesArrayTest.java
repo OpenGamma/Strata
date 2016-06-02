@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value.scenario;
+package com.opengamma.strata.market.observable;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,4 +32,5 @@ public class QuotesArrayTest {
   public void getScenarioCount() {
     assertThat(ARRAY.getScenarioCount()).isEqualTo(3);
   }
+
 }

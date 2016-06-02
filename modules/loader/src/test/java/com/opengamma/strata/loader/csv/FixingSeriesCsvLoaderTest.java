@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.market.id.IndexQuoteId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 
 /**
  * Test {@link FixingSeriesCsvLoader}.

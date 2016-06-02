@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.market.id.QuoteId;
+import com.opengamma.strata.market.observable.QuoteId;
 
 /**
  * Loads a set of quotes into memory from CSV resources.

@@ -22,7 +22,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.loader.LoaderUtils;
-import com.opengamma.strata.market.id.IndexQuoteId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 
 /**
  * Loads a set of historical fixing series into memory from CSV resources.
