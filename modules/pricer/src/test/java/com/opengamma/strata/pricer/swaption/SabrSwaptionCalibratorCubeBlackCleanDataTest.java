@@ -304,19 +304,4 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         msg);
   }
 
-//  private static List<RawOptionData> rawDataShift(double[][][] dataArray, int i, int j, int k, double shift) {
-//    List<RawOptionData> raw = new ArrayList<>();
-//    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-//      double[][] shiftedData = Arrays.stream(dataArray[looptenor])
-//          .map(row -> row.clone())
-//          .toArray(l -> new double[l][]); // deep copy of 2d array
-//      if (looptenor == i) {
-//        shiftedData[j][k] += shift;
-//      }
-//      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
-//          DoubleMatrix.ofUnsafe(shiftedData), ValueType.BLACK_VOLATILITY));
-//    }
-//    return raw;
-//  }
-
 }
