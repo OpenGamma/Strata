@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
@@ -133,7 +132,8 @@ public class SabrSwaptionCalibratorCubeBlackExtremeDataTest {
           {Double.NaN, 1.5092, 1.1069, 0.9209, 0.8095, 0.7348, 0.6416, 0.5518},
           {2.1248, 0.8566, 0.734, 0.6542, 0.5972, 0.5541, 0.4929, 0.4218}}
   };
-  private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_LOGNORMAL_SPARSE);
+  private static final List<RawOptionData> DATA_SPARSE = SabrSwaptionCalibratorSmileTestUtils
+      .rawData(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.BLACK_VOLATILITY, DATA_LOGNORMAL_SPARSE);
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
@@ -190,15 +190,6 @@ public class SabrSwaptionCalibratorCubeBlackExtremeDataTest {
         }
       }
     }
-  }
-
-  private static List<RawOptionData> rawData(double[][][] dataArray) {
-    List<RawOptionData> raw = new ArrayList<>();
-    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
-          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.BLACK_VOLATILITY));
-    }
-    return raw;
   }
 
 }

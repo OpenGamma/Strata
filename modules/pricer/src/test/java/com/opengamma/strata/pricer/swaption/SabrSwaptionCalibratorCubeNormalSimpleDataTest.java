@@ -33,10 +33,9 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.id.QuoteId;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
@@ -58,7 +57,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * Tests {@link SabrSwaptionCalibrator} for a cube. Realistic dimension and data.
  */
 @Test
-public class SabrSwaptionCalibratorCubeNormalTest {
+public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
@@ -109,16 +108,8 @@ public class SabrSwaptionCalibratorCubeNormalTest {
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        SwaptionVolatilitiesName.of("Calibrated-SABR"),
-        EUR_FIXED_1Y_EURIBOR_6M,
-        CALIBRATION_TIME,
-        ACT_365F,
-        TENORS,
-        DATA_SPARSE,
-        MULTICURVE,
-        betaSurface,
-        shiftSurface,
-        INTERPOLATOR_2D);
+        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_SPARSE,
+        MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
 
     for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
       double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
@@ -146,5 +137,14 @@ public class SabrSwaptionCalibratorCubeNormalTest {
       }
     }
   }
+
+//  private static List<RawOptionData> rawData(double[][][] dataArray) {
+//    List<RawOptionData> raw = new ArrayList<>();
+//    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
+//      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
+//          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.NORMAL_VOLATILITY));
+//    }
+//    return raw;
+//  }
 
 }

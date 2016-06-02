@@ -33,8 +33,6 @@ import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
@@ -353,11 +351,16 @@ public class SabrSwaptionCalibrator {
         SabrFormulaData.of(sabrCalibrationResult.getFirst().getModelParameters().toArrayUnsafe());
     DoubleMatrix parameterSensitivityToBlackShifted = 
         sabrCalibrationResult.getFirst().getModelParameterSensitivityToData();
-    
-    
-    DoubleMatrix parameterSensitivityToData = null;
-//        (DoubleMatrix) MATRIX_ALGEBRA.multiply(sabrCalibrationResult.getFirst().getModelParameterSensitivityToData(), 
-//        sabrCalibrationResult.getSecond());
+    DoubleArray blackVolSensitivitytoRawData = sabrCalibrationResult.getSecond();
+    // Multiply the sensitivity to the intermediary (shifted) log-normal vol by its sensitivity to the raw data
+    double[][] parameterSensitivityToDataArray = new double[4][blackVolSensitivitytoRawData.size()];
+    for (int loopsabr = 0; loopsabr < 4; loopsabr++) {
+      for (int loopdata = 0; loopdata < blackVolSensitivitytoRawData.size(); loopdata++) {
+        parameterSensitivityToDataArray[loopsabr][loopdata] = 
+            parameterSensitivityToBlackShifted.get(loopsabr, loopdata) * blackVolSensitivitytoRawData.get(loopdata);
+      }
+    }
+    DoubleMatrix parameterSensitivityToData = DoubleMatrix.ofUnsafe(parameterSensitivityToDataArray);
     return Pair.of(sabrParameters, parameterSensitivityToData);
   }
 
@@ -438,13 +441,18 @@ public class SabrSwaptionCalibrator {
       return Pair.of(blackVolatilities, DoubleArray.filled(blackVolatilities.size(), 1.0d)); 
       // No change required if shifts are the same
     }
-    DoubleArray vol = DoubleArray.of(strikes.size(), i -> {
-      double price = BlackFormulaRepository.price(
-          forward + shiftInput, strikes.get(i) + shiftInput, timeToExpiry, blackVolatilities.get(i), true);
-      return BlackFormulaRepository.impliedVolatility(
-          price, forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, true);
-    });
-    return Pair.of(vol, DoubleArray.filled(blackVolatilities.size(), 1.0d)); // FIXME: Correct derivatives
+    int nbStrikes = strikes.size();
+    double[] impliedVolatility = new double[nbStrikes];
+    double[] impliedVolatilityDerivatives = new double[nbStrikes];
+    for (int i = 0; i < nbStrikes; i++) {
+      ValueDerivatives price = BlackFormulaRepository.priceAdjoint(
+          forward + shiftInput, strikes.get(i) + shiftInput, timeToExpiry, blackVolatilities.get(i), true); // vega-[3]
+      ValueDerivatives iv = BlackFormulaRepository.impliedVolatilityAdjoint(
+          price.getValue(), forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, true);
+      impliedVolatility[i] = iv.getValue();
+      impliedVolatilityDerivatives[i] = iv.getDerivative(0) * price.getDerivative(3);
+    }
+    return Pair.of(DoubleArray.ofUnsafe(impliedVolatility), DoubleArray.ofUnsafe(impliedVolatilityDerivatives));
   }
 
   //-------------------------------------------------------------------------
@@ -488,12 +496,13 @@ public class SabrSwaptionCalibrator {
     double timeToExpiry = dayCount.relativeYearFraction(calibrationDate, exerciseDate);
     DoubleArray errors = DoubleArray.filled(nbStrikes, 1e-4);
     DoubleArray strikes = strikesShifted(forward, 0.0, strikesLike, strikeType);
-    DoubleArray blackVolatilitiesTransformed = blackVolatilitiesShiftedFromPrices(
+    Pair<DoubleArray, DoubleArray> volAndDerivatives = blackVolatilitiesShiftedFromPrices(
         forward, shiftOutput, timeToExpiry, strikes, prices);
+    DoubleArray blackVolatilitiesTransformed = volAndDerivatives.getFirst();
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
     SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
         blackVolatilitiesTransformed, errors, sabrFunctionProvider);
-    return Pair.of(fitter.solve(startParameters, fixedParameters), null);  // FIXME: derivatives
+    return Pair.of(fitter.solve(startParameters, fixedParameters), volAndDerivatives.getSecond());
   }
 
   //-------------------------------------------------------------------------
@@ -507,17 +516,23 @@ public class SabrSwaptionCalibrator {
    * @param prices  the option prices
    * @return the shifted black volatilities
    */
-  public DoubleArray blackVolatilitiesShiftedFromPrices(
+  public Pair<DoubleArray, DoubleArray> blackVolatilitiesShiftedFromPrices(
       double forward,
       double shiftOutput,
       double timeToExpiry,
       DoubleArray strikes,
       DoubleArray prices) {
 
-    return DoubleArray.of(strikes.size(), i -> {
-      return BlackFormulaRepository.impliedVolatility(
+    int nbStrikes = strikes.size();
+    double[] impliedVolatility = new double[nbStrikes];
+    double[] impliedVolatilityDerivatives = new double[nbStrikes];
+    for (int i = 0; i < nbStrikes; i++) {
+      ValueDerivatives iv = BlackFormulaRepository.impliedVolatilityAdjoint(
           prices.get(i), forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, true);
-    });
+      impliedVolatility[i] = iv.getValue();
+      impliedVolatilityDerivatives[i] = iv.getDerivative(0);
+    }
+    return Pair.of(DoubleArray.ofUnsafe(impliedVolatility), DoubleArray.ofUnsafe(impliedVolatilityDerivatives));
   }
 
   //-------------------------------------------------------------------------
@@ -591,23 +606,17 @@ public class SabrSwaptionCalibrator {
       double timeToExpiry,
       DoubleArray strikes,
       DoubleArray normalVolatilities) {
-    
+
     int nbStrikes = strikes.size();
     double[] impliedVolatility = new double[nbStrikes];
     double[] impliedVolatilityDerivatives = new double[nbStrikes];
-    
-    for(int i=0; i<nbStrikes; nbStrikes++) {
+    for (int i = 0; i < nbStrikes; i++) {
       ValueDerivatives iv = BlackFormulaRepository.impliedVolatilityFromNormalApproximatedAdjoint(
           forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, normalVolatilities.get(i));
       impliedVolatility[i] = iv.getValue();
       impliedVolatilityDerivatives[i] = iv.getDerivative(0);
     }
     return Pair.of(DoubleArray.ofUnsafe(impliedVolatility), DoubleArray.ofUnsafe(impliedVolatilityDerivatives));
-
-//    return DoubleArray.of(strikes.size(), i -> {
-//      return BlackFormulaRepository.impliedVolatilityFromNormalApproximated(
-//          forward + shiftOutput, strikes.get(i) + shiftOutput, timeToExpiry, normalVolatilities.get(i));
-//    });
   }
 
   //-------------------------------------------------------------------------

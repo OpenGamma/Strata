@@ -16,7 +16,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -110,7 +108,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     TENORS.add(Tenor.TENOR_2Y);
   }
 
-  private static final double[][][] DATA_LOGNORMAL_SPARSE = {
+  private static final double[][][] DATA_LOGNORMAL = {
       { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
       {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
       {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}},
@@ -118,7 +116,8 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
       {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
       {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}}
   };
-  private static final List<RawOptionData> DATA_SPARSE = rawData(DATA_LOGNORMAL_SPARSE);
+  private static final List<RawOptionData> DATA_SPARSE = SabrSwaptionCalibratorSmileTestUtils
+      .rawData(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.BLACK_VOLATILITY, DATA_LOGNORMAL);
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
@@ -163,13 +162,13 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
         double time = calibrated.relativeTime(expiryDateTime);
         for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
-          if (!Double.isNaN(DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney])) {
+          if (!Double.isNaN(DATA_LOGNORMAL[looptenor][loopexpiry][loopmoney])) {
             double strike = parRate + MONEYNESS.get(loopmoney);
             double volBlack = calibrated.volatility(expiryDateTime, tenor, strike, parRate);
             double priceComputed = BlackFormulaRepository.price(parRate + shift, parRate + MONEYNESS.get(loopmoney) + shift,
                 time, volBlack, true);
             double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
-                time, DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney], true);
+                time, DATA_LOGNORMAL[looptenor][loopexpiry][loopmoney], true);
             assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
           }
         }
@@ -255,13 +254,14 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
           DoubleArray nuSensitivityToData = nuJacobian.get(surfacePointIndex);
 
           for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
-            if (!Double.isNaN(DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney])) {
+            if (!Double.isNaN(DATA_LOGNORMAL[looptenor][loopexpiry][loopmoney])) {
               double[] alphaShifted = new double[2];
               double[] rhoShifted = new double[2];
               double[] nuShifted = new double[2];
               for (int loopsign = 0; loopsign < 2; loopsign++) {
-                List<RawOptionData> dataShifted =
-                    rawDataShift(DATA_LOGNORMAL_SPARSE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
+                List<RawOptionData> dataShifted = SabrSwaptionCalibratorSmileTestUtils
+                    .rawDataShift(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.BLACK_VOLATILITY, 
+                        DATA_LOGNORMAL, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
                 SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
                     SwaptionVolatilitiesName.of("Calibrated-SABR"),
                     EUR_FIXED_1Y_EURIBOR_6M,
@@ -304,28 +304,19 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         msg);
   }
 
-  private static List<RawOptionData> rawData(double[][][] dataArray) {
-    List<RawOptionData> raw = new ArrayList<>();
-    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
-          DoubleMatrix.ofUnsafe(dataArray[looptenor]), ValueType.BLACK_VOLATILITY));
-    }
-    return raw;
-  }
-
-  private static List<RawOptionData> rawDataShift(double[][][] dataArray, int i, int j, int k, double shift) {
-    List<RawOptionData> raw = new ArrayList<>();
-    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
-      double[][] shiftedData = Arrays.stream(dataArray[looptenor])
-          .map(row -> row.clone())
-          .toArray(l -> new double[l][]); // deep copy of 2d array
-      if (looptenor == i) {
-        shiftedData[j][k] += shift;
-      }
-      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
-          DoubleMatrix.ofUnsafe(shiftedData), ValueType.BLACK_VOLATILITY));
-    }
-    return raw;
-  }
+//  private static List<RawOptionData> rawDataShift(double[][][] dataArray, int i, int j, int k, double shift) {
+//    List<RawOptionData> raw = new ArrayList<>();
+//    for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
+//      double[][] shiftedData = Arrays.stream(dataArray[looptenor])
+//          .map(row -> row.clone())
+//          .toArray(l -> new double[l][]); // deep copy of 2d array
+//      if (looptenor == i) {
+//        shiftedData[j][k] += shift;
+//      }
+//      raw.add(RawOptionData.of(MONEYNESS, ValueType.SIMPLE_MONEYNESS, EXPIRIES,
+//          DoubleMatrix.ofUnsafe(shiftedData), ValueType.BLACK_VOLATILITY));
+//    }
+//    return raw;
+//  }
 
 }
