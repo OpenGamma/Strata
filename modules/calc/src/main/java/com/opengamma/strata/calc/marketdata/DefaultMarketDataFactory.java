@@ -147,8 +147,10 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
           .collect(toImmutableSet());
 
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
-      Map<ObservableId, Result<Double>> observableResults = observableDataProvider.provideObservableData(observableIds);
-      MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
+      if (!observableIds.isEmpty()) {
+        Map<ObservableId, Result<Double>> observableResults = observableDataProvider.provideObservableData(observableIds);
+        MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
+      }
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()

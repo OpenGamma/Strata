@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
@@ -841,6 +842,17 @@ public class DefaultMarketDataFactoryTest {
     MarketDataBox<Double> values = marketData.getValue(id);
     MarketDataBox<Double> expectedValues = MarketDataBox.ofScenarioValues(2.2, 2.4, 2.6);
     assertThat(values).isEqualTo(expectedValues);
+  }
+
+  /**
+   * Tests ObservableDataProvider.none(), which is never normally be invoked.
+   */
+  public void coverage_ObservableDataProvider_none() {
+    TestObservableId id = TestObservableId.of(StandardId.of("reqs", "a"));
+    ObservableDataProvider test = ObservableDataProvider.none();
+    Map<ObservableId, Result<Double>> result = test.provideObservableData(ImmutableSet.of(id));
+    assertThat(result).containsOnlyKeys(id);
+    assertThat(result.get(id).isFailure()).isTrue();
   }
 
   //-------------------------------------------------------------------------
