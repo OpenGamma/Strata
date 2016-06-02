@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.id;
+package com.opengamma.strata.market.observable;
 
 import java.io.Serializable;
 import java.util.Map;

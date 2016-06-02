@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.id.CurveId;
-import com.opengamma.strata.market.id.IndexQuoteId;
+import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;

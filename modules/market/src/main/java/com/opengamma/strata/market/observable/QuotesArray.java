@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.value.scenario;
+package com.opengamma.strata.market.observable;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
-import com.opengamma.strata.market.id.scenario.QuotesArrayId;
 
 /**
  * Container for values for an item of quoted market data in multiple scenarios.

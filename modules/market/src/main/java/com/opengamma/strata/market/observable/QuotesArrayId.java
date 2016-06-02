@@ -3,7 +3,7 @@
  * <p>
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.id.scenario;
+package com.opengamma.strata.market.observable;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -27,8 +27,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketDataId;
-import com.opengamma.strata.market.id.QuoteId;
-import com.opengamma.strata.market.value.scenario.QuotesArray;
 
 /**
  * An identifier identifying a {@link QuotesArray} containing values for a piece
