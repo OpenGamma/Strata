@@ -29,6 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
@@ -127,6 +129,14 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (curve.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(curve));
+    }
+    return Optional.empty();
+  }
+
+  @Override
   public int getParameterCount() {
     return curve.getParameterCount();
   }
@@ -153,23 +163,27 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(LocalDate date) {
-    double relativeYearFraction = relativeYearFraction(date);
-    return discountFactor(relativeYearFraction);
+  public double relativeYearFraction(LocalDate date) {
+    return dayCount.relativeYearFraction(valuationDate, date);
+  }
+
+  @Override
+  public double discountFactor(double relativeYearFraction) {
+    // convert zero rate periodically compounded to discount factor
+    return Math.pow(1d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
   }
 
   @Override
   public double discountFactorWithSpread(
-      LocalDate date,
+      double yearFraction,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double yearFraction = relativeYearFraction(date);
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return 1d;
     }
-    double df = discountFactor(date);
+    double df = discountFactor(yearFraction);
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       ArgChecker.notNegativeOrZero(periodPerYear, "periodPerYear");
       double ratePeriodicAnnualPlusOne =
@@ -186,23 +200,12 @@ public final class ZeroRatePeriodicDiscountFactors
     return frequency * Math.log(1d + ratePeriod / frequency);
   }
 
-  @Override
-  public double discountFactor(double relativeYearFraction) {
-    // convert zero rate periodically compounded to discount factor
-    return Math.pow(1d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
-  }
-
-  @Override
-  public double relativeYearFraction(LocalDate date) {
-    return dayCount.relativeYearFraction(valuationDate, date);
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    double relativeYearFraction = relativeYearFraction(date);
-    double discountFactor = discountFactor(relativeYearFraction);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+    double yearFraction = relativeYearFraction(date);
+    double discountFactor = discountFactor(yearFraction);
+    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
   @Override
@@ -213,32 +216,37 @@ public final class ZeroRatePeriodicDiscountFactors
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double relativeYearFraction = relativeYearFraction(date);
+    double yearFraction = relativeYearFraction(date);
 
-    if (Math.abs(relativeYearFraction) < EFFECTIVE_ZERO) {
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, 0);
     }
     if (compoundedRateType.equals(CompoundedRateType.CONTINUOUS)) {
       double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
-      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * relativeYearFraction);
+      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
     }
-    double df = discountFactor(relativeYearFraction);
-    double df2 = Math.pow(df, -1.0 / (relativeYearFraction * periodPerYear));
+    double df = discountFactor(yearFraction);
+    double df2 = Math.pow(df, -1.0 / (yearFraction * periodPerYear));
     double df3 = df2 + zSpread / periodPerYear;
-    double ddfSdz = -relativeYearFraction * Math.pow(df3, -relativeYearFraction * periodPerYear - 1) * df2;
+    double ddfSdz = -yearFraction * Math.pow(df3, -yearFraction * periodPerYear - 1) * df2;
     return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, ddfSdz);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
-    double relativeYearFraction = relativeYearFraction(pointSens.getDate());
-    double rp = curve.yValue(relativeYearFraction);
+    double yearFraction = relativeYearFraction(pointSens.getDate());
+    double rp = curve.yValue(yearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
-    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(relativeYearFraction).multipliedBy(rpBar);
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction).multipliedBy(rpBar);
     CurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);
+  }
+
+  @Override
+  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
   }
 
   //-------------------------------------------------------------------------

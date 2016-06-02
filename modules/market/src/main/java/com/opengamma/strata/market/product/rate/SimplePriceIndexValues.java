@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -29,11 +30,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -191,6 +194,14 @@ public final class SimplePriceIndexValues
 
   //-------------------------------------------------------------------------
   @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    if (curve.getName().equals(name)) {
+      return Optional.of(name.getMarketDataType().cast(curve));
+    }
+    return Optional.empty();
+  }
+
+  @Override
   public int getParameterCount() {
     return curve.getParameterCount();
   }
@@ -263,6 +274,11 @@ public final class SimplePriceIndexValues
     DoubleArray adjustedSensitivity = unadjustedSensitivity.subArray(1).multipliedBy(adjustment);
     return UnitParameterSensitivities.of(
         curve.yValueParameterSensitivity(nbMonth).withSensitivity(adjustedSensitivity));
+  }
+
+  @Override
+  public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
+    return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
   }
 
   //-------------------------------------------------------------------------

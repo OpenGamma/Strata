@@ -18,6 +18,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -77,6 +78,8 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
     assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
     assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
+    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
   }
 
   public void test_of_badCurve() {
@@ -320,6 +323,14 @@ public class ZeroRatePeriodicDiscountFactorsTest {
           .discountFactorWithSpread(DATE_AFTER, spread, PERIODIC, periodPerYear);
       assertEquals(sensi0.get(i), sensiValue * (dfP - dfM) / (2 * shift), TOLERANCE_DELTA_FD, "With spread - " + i);
     }    
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createParameterSensitivity() {
+    ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    DoubleArray sensitivities = DoubleArray.of(0.12, 0.15, 0.16);
+    CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
+    assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------

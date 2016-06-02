@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.product.rate;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -16,6 +17,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -30,6 +32,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -83,6 +86,8 @@ public class DiscountIborIndexRatesTest {
     assertEquals(test.getParameterMetadata(0), DFCURVE.getParameterMetadata(0));
     assertEquals(test.withParameter(0, 1d).getDiscountFactors(), DFCURVE.withParameter(0, 1d));
     assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getDiscountFactors(), DFCURVE.withPerturbation((i, v, m) -> v + 1d));
+    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     // check IborIndexRates
     IborIndexRates test2 = IborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE);
     assertEquals(test, test2);
@@ -187,6 +192,14 @@ public class DiscountIborIndexRatesTest {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
     IborRateSensitivity point = IborRateSensitivity.of(GBP_LIBOR_3M_AFTER, GBP, 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_createParameterSensitivity() {
+    DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES);
+    DoubleArray sensitivities = DoubleArray.of(0.12, 0.15);
+    CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
+    assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
