@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.id;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -13,9 +13,6 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.data.ObservableSource;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Test {@link CurveId}.

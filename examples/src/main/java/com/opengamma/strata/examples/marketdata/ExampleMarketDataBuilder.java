@@ -43,9 +43,9 @@ import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroup;
+import com.opengamma.strata.market.curve.CurveGroupId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.IsdaYieldCurveInputs;
-import com.opengamma.strata.market.id.CurveGroupId;
-import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.market.id.IsdaYieldCurveInputsId;
 import com.opengamma.strata.market.observable.QuoteId;
 

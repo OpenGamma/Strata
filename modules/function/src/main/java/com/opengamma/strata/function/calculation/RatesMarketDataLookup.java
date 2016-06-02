@@ -26,8 +26,8 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.CurveId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

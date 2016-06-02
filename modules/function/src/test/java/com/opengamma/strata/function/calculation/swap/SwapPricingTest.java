@@ -45,7 +45,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.id.CurveId;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 import com.opengamma.strata.pricer.swap.e2e.CalendarUSD;
 import com.opengamma.strata.product.TradeInfo;

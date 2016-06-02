@@ -14,8 +14,8 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.id.CurveId;
 
 /**
  * Test {@link CurveNameFilter}.
