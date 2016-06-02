@@ -75,6 +75,10 @@ public final class ValueType
    */
   public static final ValueType NORMAL_VOLATILITY = of("NormalVolatility");
   /**
+   * Type used when each value is a local volatility - 'LocalVolatility'.
+   */
+  public static final ValueType LOCAL_VOLATILITY = of("LocalVolatility");
+  /**
    * Type used when each value is a Price - 'Price'.
    */
   public static final ValueType PRICE = of("Price");
