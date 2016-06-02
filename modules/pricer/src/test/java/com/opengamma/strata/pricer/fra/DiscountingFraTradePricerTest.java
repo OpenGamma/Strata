@@ -81,7 +81,7 @@ public class DiscountingFraTradePricerTest {
         .product(FRA)
         .build()
         .resolve(REF_DATA);
-    ImmutableRatesProvider ratesProvider = RatesProviderDataSets.MULTI_GBP.toBuilder(paymentDate)
+    ImmutableRatesProvider ratesProvider = RatesProviderDataSets.multiGbp(paymentDate).toBuilder()
         .timeSeries(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(paymentDate, publishedRate))
         .build();
     assertEquals(PRICER_TRADE.currentCash(trade, ratesProvider), CurrencyAmount.of(FRA.getCurrency(),

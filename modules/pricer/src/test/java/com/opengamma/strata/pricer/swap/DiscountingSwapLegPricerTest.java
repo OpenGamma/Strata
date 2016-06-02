@@ -518,7 +518,8 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
   private static final double START_INDEX = 218.0;
   private static final double NOTIONAL = 1000d;
-  private static final LocalDate VAL_DATE_INFLATION = LocalDate.of(2014, 7, 8);
+  private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
+  private static final ImmutableRatesProvider RATES_GBP_INFLATION = RatesProviderDataSets.multiGbp(VAL_DATE_INFLATION);
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double CONSTANT_INDEX = 242.0;
@@ -550,7 +551,7 @@ public class DiscountingSwapLegPricerTest {
     ResolvedSwapLeg swapLeg = createInflationSwapLeg(false, PAY).resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
-    Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
+    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .timeSeries(GB_RPI, ts)
@@ -592,7 +593,7 @@ public class DiscountingSwapLegPricerTest {
     ResolvedSwapLeg swapLeg = createInflationSwapLeg(true, RECEIVE).resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
-    Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
+    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .timeSeries(GB_RPI, ts)
@@ -687,7 +688,7 @@ public class DiscountingSwapLegPricerTest {
         .build()
         .resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    Map<Currency, Curve> dscCurve = RATES_GBP.getDiscountCurves();
+    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .discountCurves(dscCurve)
         .build();
