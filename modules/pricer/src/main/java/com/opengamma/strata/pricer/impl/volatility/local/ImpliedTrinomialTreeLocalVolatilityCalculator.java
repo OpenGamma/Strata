@@ -164,12 +164,12 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
     double[] timeRes = new double[nTotal];
     double[] spotRes = new double[nTotal];
     double[] volRes = new double[nTotal];
-    // uniform grid based on CoxRossRubinsteinLatticeSpecification, using reference values
+    // uniform grid based on TrigeorgisLatticeSpecification, using reference values
     double refPrice = callPriceSurface.zValue(maxTime, spot) * Math.exp(interestRate.apply(maxTime) * maxTime);
     double refForward = spot * Math.exp((interestRate.apply(maxTime) - dividendRate.apply(maxTime)) * maxTime);
     double refVolatility = BlackFormulaRepository.impliedVolatility(refPrice, refForward, spot, maxTime, true);
     double dt = maxTime / nSteps;
-    double dx = refVolatility * Math.sqrt(2d * dt);
+    double dx = refVolatility * Math.sqrt(3d * dt);
     double upFactor = Math.exp(dx);
     double downFactor = Math.exp(-dx);
     double[] adSec = new double[2 * nSteps + 1];
@@ -235,7 +235,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
     double[] timeRes = new double[nTotal];
     double[] spotRes = new double[nTotal];
     double[] volRes = new double[nTotal];
-    // uniform grid based on CoxRossRubinsteinLatticeSpecification
+    // uniform grid based on TrigeorgisLatticeSpecification
     double volatility = impliedVolatilitySurface.apply(DoublesPair.of(maxTime, spot));
     double dt = maxTime / nSteps;
     double dx = volatility * Math.sqrt(3d * dt);
