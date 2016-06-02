@@ -43,15 +43,15 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.sensitivity.FxIndexSensitivity;
-import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
-import com.opengamma.strata.market.sensitivity.InflationRateSensitivity;
-import com.opengamma.strata.market.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.market.product.ZeroRateSensitivity;
+import com.opengamma.strata.market.product.fx.FxIndexSensitivity;
+import com.opengamma.strata.market.product.rate.IborRateSensitivity;
+import com.opengamma.strata.market.product.rate.InflationRateSensitivity;
+import com.opengamma.strata.market.product.rate.OvernightRateSensitivity;
+import com.opengamma.strata.market.product.rate.PriceIndexValues;
+import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.PriceIndexValues;
-import com.opengamma.strata.market.view.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
 
 /**

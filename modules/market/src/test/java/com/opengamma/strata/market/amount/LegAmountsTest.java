@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.market.product.swap.SwapLegAmount;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.SwapLegType;
 

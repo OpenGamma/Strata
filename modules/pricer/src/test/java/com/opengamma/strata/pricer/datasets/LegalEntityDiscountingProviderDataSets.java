@@ -22,11 +22,11 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.value.BondGroup;
-import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.SimpleDiscountFactors;
-import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.DiscountFactors;
+import com.opengamma.strata.market.product.SimpleDiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.bond.BondGroup;
+import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 
 /**

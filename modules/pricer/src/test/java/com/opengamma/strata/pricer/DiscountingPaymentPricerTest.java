@@ -6,8 +6,8 @@
 package com.opengamma.strata.pricer;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
-import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
+import static com.opengamma.strata.market.product.CompoundedRateType.CONTINUOUS;
+import static com.opengamma.strata.market.product.CompoundedRateType.PERIODIC;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -19,9 +19,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.product.SimpleDiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.view.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 

@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.market.sensitivity.IborRateSensitivity;
+import com.opengamma.strata.market.product.rate.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.product.index.ResolvedIborFuture;

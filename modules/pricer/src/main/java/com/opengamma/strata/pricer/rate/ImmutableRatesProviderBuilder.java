@@ -21,7 +21,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
-import com.opengamma.strata.market.view.PriceIndexValues;
+import com.opengamma.strata.market.product.rate.PriceIndexValues;
 
 /**
  * Builder for the immutable rates provider.

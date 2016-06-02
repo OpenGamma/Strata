@@ -31,16 +31,16 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.IssuerCurveZeroRateSensitivity;
+import com.opengamma.strata.market.product.DiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
+import com.opengamma.strata.market.product.ZeroRateSensitivity;
+import com.opengamma.strata.market.product.bond.BondGroup;
+import com.opengamma.strata.market.product.bond.IssuerCurveDiscountFactors;
+import com.opengamma.strata.market.product.bond.IssuerCurveZeroRateSensitivity;
+import com.opengamma.strata.market.product.bond.LegalEntityGroup;
+import com.opengamma.strata.market.product.bond.RepoCurveDiscountFactors;
+import com.opengamma.strata.market.product.bond.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.market.sensitivity.RepoCurveZeroRateSensitivity;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
-import com.opengamma.strata.market.value.BondGroup;
-import com.opengamma.strata.market.value.LegalEntityGroup;
-import com.opengamma.strata.market.view.DiscountFactors;
-import com.opengamma.strata.market.view.IssuerCurveDiscountFactors;
-import com.opengamma.strata.market.view.RepoCurveDiscountFactors;
-import com.opengamma.strata.market.view.ZeroRateDiscountFactors;
 import com.opengamma.strata.product.SecurityId;
 
 /**

@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.bond;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.sensitivity.BondFutureOptionSensitivity;
+import com.opengamma.strata.market.product.bond.BondFutureOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;

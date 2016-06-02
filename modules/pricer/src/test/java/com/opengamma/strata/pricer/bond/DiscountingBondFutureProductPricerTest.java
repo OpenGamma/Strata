@@ -6,8 +6,8 @@
 package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.market.value.CompoundedRateType.CONTINUOUS;
-import static com.opengamma.strata.market.value.CompoundedRateType.PERIODIC;
+import static com.opengamma.strata.market.product.CompoundedRateType.CONTINUOUS;
+import static com.opengamma.strata.market.product.CompoundedRateType.PERIODIC;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

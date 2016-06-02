@@ -50,9 +50,9 @@ import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.observable.IndexQuoteId;
-import com.opengamma.strata.market.view.DiscountIborIndexRates;
-import com.opengamma.strata.market.view.DiscountOvernightIndexRates;
-import com.opengamma.strata.market.view.SimpleDiscountFactors;
+import com.opengamma.strata.market.product.SimpleDiscountFactors;
+import com.opengamma.strata.market.product.rate.DiscountIborIndexRates;
+import com.opengamma.strata.market.product.rate.DiscountOvernightIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

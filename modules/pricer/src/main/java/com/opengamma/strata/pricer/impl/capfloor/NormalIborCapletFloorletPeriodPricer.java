@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.impl.capfloor;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.view.IborCapletFloorletVolatilities;
+import com.opengamma.strata.market.product.capfloor.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.NormalIborCapletFloorletVolatilities;
 
 /**

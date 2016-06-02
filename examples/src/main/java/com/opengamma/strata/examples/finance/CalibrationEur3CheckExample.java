@@ -40,8 +40,8 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.product.deposit.IborFixingDepositCurveNode;
 import com.opengamma.strata.product.Trade;
 
 /**
