@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import java.io.Serializable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -14,7 +15,11 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
 /**
  * A market data box that contains no data.
  */
-class EmptyMarketDataBox implements MarketDataBox<Void> {
+class EmptyMarketDataBox
+    implements MarketDataBox<Void>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /** The single shared instance of this class. */
   private static final EmptyMarketDataBox INSTANCE = new EmptyMarketDataBox();

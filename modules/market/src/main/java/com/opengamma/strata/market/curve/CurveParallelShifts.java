@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.curve;
+package com.opengamma.strata.market.curve;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -24,12 +24,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 import com.opengamma.strata.market.ShiftType;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.ParallelShiftedCurve;
 
 /**
  * Perturbation which applies a parallel shift to a curve.

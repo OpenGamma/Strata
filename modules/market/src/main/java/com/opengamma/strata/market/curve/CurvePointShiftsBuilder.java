@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.curve;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 

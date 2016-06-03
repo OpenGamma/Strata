@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * NamedMarketDataId implementation used in tests.
  */
-class TestingNamedId implements NamedMarketDataId<String>, Serializable {
+public class TestingNamedId implements NamedMarketDataId<String>, Serializable {
 
   private static final long serialVersionUID = 1L;
 

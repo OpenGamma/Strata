@@ -254,4 +254,53 @@ public interface ScenarioMarketData {
    */
   public abstract LocalDateDoubleTimeSeries getTimeSeries(ObservableId id);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this market data with the specified value.
+   * <p>
+   * When the result is queried for the specified identifier, the specified value will be returned.
+   * <p>
+   * The number of scenarios in the box must match this market data.
+   * <p>
+   * For example, this method could be used to replace a curve with a bumped curve.
+   *
+   * @param id  the identifier
+   * @param value  the value to associate with the identifier
+   * @return the derived market data with the specified identifier and value
+   * @throws IllegalArgumentException if the scenario count does not match
+   */
+  public default <T> ScenarioMarketData withValue(MarketDataId<T> id, MarketDataBox<T> value) {
+    return ExtendedScenarioMarketData.of(id, value, this);
+  }
+
+  /**
+   * Returns a copy of this market data with the specified value perturbed.
+   * <p>
+   * This finds the market data value using the identifier, throwing an exception if not found.
+   * It then perturbs the value and returns a new instance containing the value.
+   * <p>
+   * The number of scenarios of the perturbation must match this market data.
+   * <p>
+   * This method is intended for one off perturbations of calibrated market data, such as curves.
+   * See {@code MarketDataFactory} for the ability to apply multiple perturbations, including
+   * perturbations to calibration inputs, such as quotes.
+   * <p>
+   * This instance is immutable and unaffected by this method call.
+   * 
+   * @param id  the identifier to perturb
+   * @param perturbation  the perturbation to apply
+   * @return a parameterized data instance based on this with the specified perturbation applied
+   * @throws IllegalArgumentException if the scenario count does not match
+   * @throws MarketDataNotFoundException if the identifier is not found
+   * @throws RuntimeException if unable to perform the perturbation
+   */
+  public default <T> ScenarioMarketData withPerturbation(MarketDataId<T> id, ScenarioPerturbation<T> perturbation) {
+    if (perturbation.getScenarioCount() != 1 && perturbation.getScenarioCount() != getScenarioCount()) {
+      throw new IllegalArgumentException(Messages.format(
+          "Scenario count mismatch: perturbation has {} scenarios but this market data has {}",
+          perturbation.getScenarioCount(), getScenarioCount()));
+    }
+    return withValue(id, perturbation.applyTo(getValue(id)));
+  }
+
 }
