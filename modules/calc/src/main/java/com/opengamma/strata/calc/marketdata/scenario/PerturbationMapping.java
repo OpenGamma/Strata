@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
+import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
 /**
  * Contains a market data perturbation and a filter that decides what market data it applies to.

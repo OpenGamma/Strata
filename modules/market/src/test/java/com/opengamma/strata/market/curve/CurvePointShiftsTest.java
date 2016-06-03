@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.function.marketdata.curve;
+package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -20,10 +20,6 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.ShiftType;
-import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;

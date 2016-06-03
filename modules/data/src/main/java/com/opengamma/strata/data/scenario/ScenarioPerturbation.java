@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
-
-import com.opengamma.strata.data.scenario.MarketDataBox;
+package com.opengamma.strata.data.scenario;
 
 /**
- * Describes a perturbation applied to a market data box to create market data for use in one or more scenarios.
+ * A perturbation that can be applied to a market data box to create market data
+ * for use in one or more scenarios.
  * <p>
  * A perturbation is used to change market data in some way.
  * It applies to a single piece of data, such as a discount curve or volatility surface.
@@ -21,11 +20,11 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 public interface ScenarioPerturbation<T> {
 
   /**
-   * Returns a perturbation that returns its input unchanged.
+   * Returns an instance that does not perturb the input.
    * <p>
    * This is useful for creating base scenarios where none of the market data is perturbed.
    *
-    * @param <T>  the type of the market data handled by the perturbation
+   * @param <T>  the type of the market data handled by the perturbation
    * @return a perturbation that returns its input unchanged
    */
   @SuppressWarnings("unchecked")
@@ -43,6 +42,7 @@ public interface ScenarioPerturbation<T> {
    *
    * @param marketData  the market data to perturb
    * @return new market data derived by applying the perturbation to the input data
+   * @throws RuntimeException if unable to perform the perturbation
    */
   public abstract MarketDataBox<T> applyTo(MarketDataBox<T> marketData);
 
@@ -52,4 +52,5 @@ public interface ScenarioPerturbation<T> {
    * @return the number of scenarios for which this perturbation generates data
    */
   public abstract int getScenarioCount();
+
 }

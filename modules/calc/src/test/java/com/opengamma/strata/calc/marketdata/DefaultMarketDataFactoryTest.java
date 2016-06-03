@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.calc.marketdata.scenario.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
-import com.opengamma.strata.calc.marketdata.scenario.ScenarioPerturbation;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -34,6 +33,7 @@ import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
 @Test
 public class DefaultMarketDataFactoryTest {
