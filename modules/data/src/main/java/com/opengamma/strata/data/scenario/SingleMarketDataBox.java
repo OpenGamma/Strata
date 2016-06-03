@@ -7,6 +7,7 @@ package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -39,7 +40,8 @@ import com.opengamma.strata.collect.function.ObjIntFunction;
  * @param <T>  the type of data held in the box
  */
 @BeanDefinition
-public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBox<T> {
+public final class SingleMarketDataBox<T>
+    implements ImmutableBean, MarketDataBox<T>, Serializable {
 
   /**
    * The market data value used in all scenarios.
@@ -157,6 +159,11 @@ public final class SingleMarketDataBox<T> implements ImmutableBean, MarketDataBo
   static {
     JodaBeanUtils.registerMetaBean(SingleMarketDataBox.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

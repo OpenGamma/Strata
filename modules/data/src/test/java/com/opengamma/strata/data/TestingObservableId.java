@@ -13,7 +13,7 @@ import com.opengamma.strata.basics.StandardId;
 /**
  * MarketDataId implementation used in tests.
  */
-class TestingObservableId
+public class TestingObservableId
     implements ObservableId, Serializable {
 
   private static final long serialVersionUID = 1L;
