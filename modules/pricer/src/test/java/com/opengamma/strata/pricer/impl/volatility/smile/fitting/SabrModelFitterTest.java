@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.BitSet;
 
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
@@ -37,7 +39,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
   private static RandomEngine RANDOM = new MersenneTwister();
 
   SabrModelFitterTest() {
-    _chiSqEps = 1e-4;
+    _chiSqEps = 1e-10;
   }
 
   @Override
@@ -112,10 +114,10 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
   }
 
   public void testExactFitWithFixedBeta() {
-    double[] start = new double[] {0.1, 0.5, 0.0, 0.3};
+    DoubleArray start = DoubleArray.of(0.1, 0.5, 0.0, 0.3);
     BitSet fixed = new BitSet();
     fixed.set(1);
-    LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start), fixed);
+    LeastSquareResultsWithTransform results = _fitter.solve(start, fixed);
     double[] res = results.getModelParameters().toArray();
     double eps = 1e-6;
     assertEquals(ALPHA, res[0], eps);
@@ -123,6 +125,60 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
     assertEquals(RHO, res[2], eps);
     assertEquals(NU, res[3], eps);
     assertEquals(0.0, results.getChiSq(), eps);
+
+    // sensitivity to data
+    DoubleMatrix sensitivity = results.getModelParameterSensitivityToData();
+    double shiftFd = 1.0E-5;
+    for (int i = 0; i < _cleanVols.length; i++) {
+      double[] volBumpedP = _cleanVols.clone();
+      volBumpedP[i] += shiftFd;
+      SabrModelFitter fitterP = new SabrModelFitter(F, DoubleArray.copyOf(STRIKES), TIME_TO_EXPIRY,
+          DoubleArray.copyOf(volBumpedP), DoubleArray.copyOf(_errors), getModel());
+      LeastSquareResultsWithTransform resultsBumpedP = fitterP.solve(start, fixed);
+      DoubleArray parameterBumpedP = resultsBumpedP.getModelParameters();
+      double[] volBumpedM = _cleanVols.clone();
+      volBumpedM[i] -= shiftFd;
+      SabrModelFitter fitterM = new SabrModelFitter(F, DoubleArray.copyOf(STRIKES), TIME_TO_EXPIRY,
+          DoubleArray.copyOf(volBumpedM), DoubleArray.copyOf(_errors), getModel());
+      LeastSquareResultsWithTransform resultsBumpedM = fitterM.solve(start, fixed);
+      DoubleArray parameterBumpedM = resultsBumpedM.getModelParameters();
+      DoubleArray dif = parameterBumpedP.minus(parameterBumpedM).dividedBy(2 * shiftFd);
+      assertTrue(dif.equalWithTolerance(sensitivity.column(i), 1.0E-6));
+    }
+  }
+
+  public void testNoisyFitWithFixedBeta() {
+    DoubleArray start = DoubleArray.of(0.1, 0.5, 0.0, 0.3);
+    BitSet fixed = new BitSet();
+    fixed.set(1);
+    LeastSquareResultsWithTransform results = _nosiyFitter.solve(start, fixed);
+    double[] res = results.getModelParameters().toArray();
+    double eps = 1e-2; // <-
+    assertEquals(ALPHA, res[0], eps);
+    assertEquals(BETA, res[1], eps);
+    assertEquals(RHO, res[2], eps);
+    assertEquals(NU, res[3], eps);
+    assertEquals(0.0, results.getChiSq(), 10.0d);
+
+    // sensitivity to data
+    DoubleMatrix sensitivity = results.getModelParameterSensitivityToData();
+    double shiftFd = 1.0E-5;
+    for (int i = 0; i < _cleanVols.length; i++) {
+      double[] volBumpedP = _noisyVols.clone();
+      volBumpedP[i] += shiftFd;
+      SabrModelFitter fitterP = new SabrModelFitter(F, DoubleArray.copyOf(STRIKES), TIME_TO_EXPIRY,
+          DoubleArray.copyOf(volBumpedP), DoubleArray.copyOf(_errors), getModel());
+      LeastSquareResultsWithTransform resultsBumpedP = fitterP.solve(start, fixed);
+      DoubleArray parameterBumpedP = resultsBumpedP.getModelParameters();
+      double[] volBumpedM = _noisyVols.clone();
+      volBumpedM[i] -= shiftFd;
+      SabrModelFitter fitterM = new SabrModelFitter(F, DoubleArray.copyOf(STRIKES), TIME_TO_EXPIRY,
+          DoubleArray.copyOf(volBumpedM), DoubleArray.copyOf(_errors), getModel());
+      LeastSquareResultsWithTransform resultsBumpedM = fitterM.solve(start, fixed);
+      DoubleArray parameterBumpedM = resultsBumpedM.getModelParameters();
+      DoubleArray sensitivityColumnFd = parameterBumpedP.minus(parameterBumpedM).dividedBy(2 * shiftFd);
+      assertTrue(sensitivityColumnFd.equalWithTolerance(sensitivity.column(i), 1.0E-2));
+    }
   }
 
 }

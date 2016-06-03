@@ -43,9 +43,10 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
   }
 
   /**
-   * This a matrix where the i,jth element is the (infinitesimal) sensitivity of the ith fitting parameter to the jth data
-   * point (NOT the model point), when the fitting parameter are such that the chi-squared is minimised. So it is a type of (inverse)
-   * Jacobian, but should not be confused with the model jacobian (sensitivity of model data points, to parameters) or its inverse.
+   * This a matrix where the i,j-th element is the (infinitesimal) sensitivity of the i-th model parameter 
+   * to the j-th data point, when the fitting parameter are such that the chi-squared is minimised. 
+   * So it is a type of (inverse) Jacobian, but should not be confused with the model jacobian 
+   * (sensitivity of model parameters to internal parameters used in calibration procedure) or its inverse.
    * @return a matrix
    */
   public DoubleMatrix getModelParameterSensitivityToData() {

@@ -30,6 +30,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -72,6 +73,10 @@ public class SabrSwaptionCalibrator {
   public static final SabrSwaptionCalibrator DEFAULT =
       new SabrSwaptionCalibrator(
           SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
+  
+  public static final SurfaceName ALPHA_NAME = SurfaceName.of("Swaption-SABR-Alpha");
+  public static final SurfaceName RHO_NAME = SurfaceName.of("Swaption-SABR-Rho");
+  public static final SurfaceName NU_NAME = SurfaceName.of("Swaption-SABR-Nu");
 
   //-------------------------------------------------------------------------
   /**
@@ -268,15 +273,15 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        ALPHA_NAME, dayCount, convention, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityAlpha);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Rho", dayCount, convention, ValueType.SABR_RHO)
+        RHO_NAME, dayCount, convention, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityRho);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
-        name.getName() + "-Nu", dayCount, convention, ValueType.SABR_NU)
+        NU_NAME, dayCount, convention, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface

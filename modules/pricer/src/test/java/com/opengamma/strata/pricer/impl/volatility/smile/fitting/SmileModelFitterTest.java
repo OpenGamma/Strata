@@ -35,9 +35,10 @@ import cern.jet.random.engine.RandomEngine;
 @Test
 public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
-  private static double TIME_TO_EXPIRY = 7.0;
-  private static double F = 0.03;
+  protected static double TIME_TO_EXPIRY = 7.0;
+  protected static double F = 0.03;
   private static RandomEngine UNIFORM = new MersenneTwister();
+  protected static double[] STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1};
 
   protected double[] _cleanVols;
   protected double[] _noisyVols;
@@ -71,20 +72,20 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   public SmileModelFitterTest() {
     VolatilityFunctionProvider<T> model = getModel();
     T data = getModelData();
-    double[] strikes = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1};
-    int n = strikes.length;
+    int n = STRIKES.length;
     _noisyVols = new double[n];
     _errors = new double[n];
     _cleanVols = new double[n];
     Arrays.fill(_errors, 1e-4);
     for (int i = 0; i < n; i++) {
-      _cleanVols[i] = model.getVolatility(F, strikes[i], TIME_TO_EXPIRY, data);
+      _cleanVols[i] = model.getVolatility(F, STRIKES[i], TIME_TO_EXPIRY, data);
       _noisyVols[i] = _cleanVols[i] + UNIFORM.nextDouble() * _errors[i];
     }
-    _fitter = getFitter(F, strikes, TIME_TO_EXPIRY, _cleanVols, _errors, model);
-    _nosiyFitter = getFitter(F, strikes, TIME_TO_EXPIRY, _noisyVols, _errors, model);
+    _fitter = getFitter(F, STRIKES, TIME_TO_EXPIRY, _cleanVols, _errors, model);
+    _nosiyFitter = getFitter(F, STRIKES, TIME_TO_EXPIRY, _noisyVols, _errors, model);
   }
 
+  @SuppressWarnings("unused")
   public void testExactFit() {
     double[][] start = getStartValues();
     BitSet[] fixed = getFixedValues();
@@ -93,11 +94,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     for (int trys = 0; trys < nStartPoints; trys++) {
       LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
       DoubleArray res = results.getModelParameters();
-
-      //debug
-      T fittedModel = _fitter.toSmileModelData(res);
-      fittedModel.toString();
-
       assertEquals(0.0, results.getChiSq(), _chiSqEps);
       int n = res.size();
       T data = getModelData();
@@ -114,7 +110,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int nStartPoints = start.length;
     ArgChecker.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
-      LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
+      LeastSquareResultsWithTransform results = _nosiyFitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
       DoubleArray res = results.getModelParameters();
       double eps = 1e-2;
       assertTrue(results.getChiSq() < 7);

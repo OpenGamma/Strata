@@ -260,7 +260,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
               double[] nuShifted = new double[2];
               for (int loopsign = 0; loopsign < 2; loopsign++) {
                 List<RawOptionData> dataShifted = SabrSwaptionCalibratorSmileTestUtils
-                    .rawDataShift(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.BLACK_VOLATILITY, 
+                    .rawDataShiftPoint(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.BLACK_VOLATILITY, 
                         DATA_LOGNORMAL, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
                 SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
                     SwaptionVolatilitiesName.of("Calibrated-SABR"),

@@ -8748,13 +8748,13 @@ public class BlackFormulaRepositoryTest {
   private static final double[] SIGMA_NORMAL = new double[N];
   static {
     for (int i = 0; i < 10; i++) {
-      STRIKES[i] = FORWARD - 20 + 40 / N * i;
+      STRIKES[i] = FORWARD - 40.0d * (1.0d - 2.0d / N * i);
       STRIKES_ATM[i] = FORWARD + (-0.5d * N + i) / 100.0d;
       SIGMA_NORMAL[i] = 15.0 + i / 10.0d;
     }
   }
-  private static final double TOLERANCE_PRICE = 1.0E-4;
-  private static final double TOLERANCE_VOL_DELTA = 1.0E-6;
+  private static final double TOLERANCE_PRICE = 1.0E-6;
+  private static final double TOLERANCE_VOL_DELTA = 1.0E-8;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrong_strike() {
@@ -8806,9 +8806,9 @@ public class BlackFormulaRepositoryTest {
           .impliedVolatilityFromNormalApproximated(FORWARD, STRIKES[i], TIME_TO_EXPIRY, SIGMA_NORMAL[i] + shiftFd);
       double ivBlackComputedM = BlackFormulaRepository
           .impliedVolatilityFromNormalApproximated(FORWARD, STRIKES[i], TIME_TO_EXPIRY, SIGMA_NORMAL[i] - shiftFd);
-      double derivativeApproximated = (ivBlackComputedP - ivBlackComputedM) / (2*shiftFd);
-      assertEquals(derivativeApproximated, ivBlackAdj.getDerivative(0), TOLERANCE_VOL_DELTA);      
-    }    
+      double derivativeApproximated = (ivBlackComputedP - ivBlackComputedM) / (2 * shiftFd);
+      assertEquals(derivativeApproximated, ivBlackAdj.getDerivative(0), TOLERANCE_VOL_DELTA);
+    }
   }
     
   private static final double T = 4.5;

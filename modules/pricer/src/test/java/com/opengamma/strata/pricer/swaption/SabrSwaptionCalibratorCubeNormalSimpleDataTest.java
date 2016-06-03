@@ -226,7 +226,7 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
               double[] nuShifted = new double[2];
               for (int loopsign = 0; loopsign < 2; loopsign++) {
                 List<RawOptionData> dataShifted = SabrSwaptionCalibratorSmileTestUtils
-                    .rawDataShift(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES_SIMPLE, ValueType.NORMAL_VOLATILITY, 
+                    .rawDataShiftPoint(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES_SIMPLE, ValueType.NORMAL_VOLATILITY, 
                         DATA_NORMAL_SIMPLE, looptenor, loopexpiry, loopmoney, (2 * loopsign - 1) * fdShift);
                 SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
                     EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS_SIMPLE, dataShifted,
@@ -237,16 +237,19 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
               }
               double alphaSensitivityComputed = alphaSensitivityToData.get(availableDataIndex);
               double alphaSensitivityExpected = (alphaShifted[1] - alphaShifted[0]) / (2 * fdShift);
-              checkAcceptable(alphaSensitivityComputed, alphaSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
-                  "Alpha: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              SabrSwaptionCalibratorSmileTestUtils
+                  .checkAcceptable(alphaSensitivityComputed, alphaSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
+                      "Alpha: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
               double rhoSensitivityComputed = rhoSensitivityToData.get(availableDataIndex);
               double rhoSensitivityExpected = (rhoShifted[1] - rhoShifted[0]) / (2 * fdShift);
-              checkAcceptable(rhoSensitivityComputed, rhoSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
-                  "Rho: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              SabrSwaptionCalibratorSmileTestUtils
+                  .checkAcceptable(rhoSensitivityComputed, rhoSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY,
+                      "Rho: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
               double nuSensitivityComputed = nuSensitivityToData.get(availableDataIndex);
               double nuSensitivityExpected = (nuShifted[1] - nuShifted[0]) / (2 * fdShift);
-              checkAcceptable(nuSensitivityComputed, nuSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY_NU,
-                  "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
+              SabrSwaptionCalibratorSmileTestUtils
+                  .checkAcceptable(nuSensitivityComputed, nuSensitivityExpected, TOLERANCE_PARAM_SENSITIVITY_NU,
+                      "Nu: " + looptenor + " / " + loopexpiry + " / " + loopmoney);
               availableDataIndex++;
             }
           }
@@ -254,12 +257,6 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
         }
       }
     }
-  }
-
-  private static void checkAcceptable(double computed, double actual, double tolerance, String msg) {
-    assertTrue((Math.abs(computed - actual) < tolerance) ||
-        (Math.abs((computed - actual) / actual) < tolerance),
-        msg);
   }
 
 }
