@@ -75,6 +75,7 @@ public class SabrSwaptionCalibrator {
           SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
 
   public static final SurfaceName ALPHA_NAME = SurfaceName.of("Swaption-SABR-Alpha");
+  public static final SurfaceName BETA_NAME = SurfaceName.of("Swaption-SABR-Beta");
   public static final SurfaceName RHO_NAME = SurfaceName.of("Swaption-SABR-Rho");
   public static final SurfaceName NU_NAME = SurfaceName.of("Swaption-SABR-Nu");
 

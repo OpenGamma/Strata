@@ -80,19 +80,23 @@ public class SabrSwaptionRawDataSensitivityCalculator {
       ccy = s.getCurrency();
       MarketDataName<?> name = s.getMarketDataName();
       if (name instanceof SurfaceName) {
-        SurfaceName surfaceName = (SurfaceName) name;        
+        SurfaceName surfaceName = (SurfaceName) name;
         if (surfaceName.equals(SabrSwaptionCalibrator.ALPHA_NAME) && dataSensitivityInfoAvailable[0]) {
           updateSensitivity(s, sensitivityInfo.get(0), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
-        }        
+        }
+        if (surfaceName.equals(SabrSwaptionCalibrator.BETA_NAME) && dataSensitivityInfoAvailable[1]) {
+          updateSensitivity(s, sensitivityInfo.get(1), sensitivityRawArray);
+          metadataResult = s.getParameterMetadata();
+        }
         if (surfaceName.equals(SabrSwaptionCalibrator.RHO_NAME) && dataSensitivityInfoAvailable[2]) {
           updateSensitivity(s, sensitivityInfo.get(2), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
-        }        
+        }
         if (surfaceName.equals(SabrSwaptionCalibrator.NU_NAME) && dataSensitivityInfoAvailable[3]) {
           updateSensitivity(s, sensitivityInfo.get(3), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
-        }        
+        }
       }
     }
     DoubleArray sensitivityRaw = DoubleArray.ofUnsafe(sensitivityRawArray);
