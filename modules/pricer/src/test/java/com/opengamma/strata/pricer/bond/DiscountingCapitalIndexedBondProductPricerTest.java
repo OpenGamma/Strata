@@ -520,7 +520,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, realPrice);
     RateComputation obs = RATE_CALC.createRateComputation(refDate);
-    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
+    double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
     assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice),
@@ -532,7 +532,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double nominalPrice = PRICER.nominalPriceFromRealPrice(PRODUCT, RATES_PROVIDER, refDate, realPrice);
     RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
-    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER);
+    double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER);
     double expected = realPrice * (refRate + 1d);
     assertEquals(nominalPrice, expected, TOL);
     assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice), realPrice, TOL);
@@ -544,7 +544,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT, RATES_PROVIDER, refDate, dirtyNominalPrice);
     RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
-    double refRate = RateComputationFn.instance().rate(obs, null, null, RATES_PROVIDER);
+    double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER);
     double expected = dirtyNominalPrice - PRODUCT.accruedInterest(refDate) * (refRate + 1d) / NOTIONAL;
     assertEquals(cleanNominalPrice, expected, TOL);
     assertEquals(PRICER.dirtyNominalPriceFromCleanNominalPrice(PRODUCT, RATES_PROVIDER, refDate, cleanNominalPrice),

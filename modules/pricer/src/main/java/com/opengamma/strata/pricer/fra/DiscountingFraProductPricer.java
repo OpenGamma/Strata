@@ -37,7 +37,7 @@ public class DiscountingFraProductPricer {
    * Default implementation.
    */
   public static final DiscountingFraProductPricer DEFAULT = new DiscountingFraProductPricer(
-      RateComputationFn.instance());
+      RateComputationFn.standard());
 
   /**
    * Rate computation.

@@ -38,8 +38,8 @@ public class DiscountingSwapLegPricer {
    * Default implementation.
    */
   public static final DiscountingSwapLegPricer DEFAULT = new DiscountingSwapLegPricer(
-      PaymentPeriodPricer.instance(),
-      PaymentEventPricer.instance());
+      PaymentPeriodPricer.standard(),
+      PaymentEventPricer.standard());
 
   /**
    * Pricer for {@link PaymentPeriod}.

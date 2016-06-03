@@ -51,7 +51,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * Default implementation.
    */
   public static final HullWhiteSwaptionPhysicalProductPricer DEFAULT =
-      new HullWhiteSwaptionPhysicalProductPricer(PaymentEventPricer.instance());
+      new HullWhiteSwaptionPhysicalProductPricer(PaymentEventPricer.standard());
 
   /**
    * Pricer for {@link PaymentEvent}.

@@ -130,7 +130,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_getter() {
-    assertEquals(PRICER.getRateComputationFn(), RateComputationFn.instance());
+    assertEquals(PRICER.getRateComputationFn(), RateComputationFn.standard());
   }
 
   //-------------------------------------------------------------------------
