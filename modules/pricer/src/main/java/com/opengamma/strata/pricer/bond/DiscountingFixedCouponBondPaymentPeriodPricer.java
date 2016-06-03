@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.bond;
+package com.opengamma.strata.pricer.bond;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 

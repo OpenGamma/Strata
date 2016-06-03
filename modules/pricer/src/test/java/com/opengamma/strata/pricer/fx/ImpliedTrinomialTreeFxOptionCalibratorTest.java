@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.tree.EuropeanVanillaOptionFunction;
 import com.opengamma.strata.pricer.impl.tree.OptionFunction;
-import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.common.LongShort;

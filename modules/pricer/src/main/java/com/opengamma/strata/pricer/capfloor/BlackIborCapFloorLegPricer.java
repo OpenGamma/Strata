@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
-import com.opengamma.strata.pricer.impl.capfloor.BlackIborCapletFloorletPeriodPricer;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 
 /**

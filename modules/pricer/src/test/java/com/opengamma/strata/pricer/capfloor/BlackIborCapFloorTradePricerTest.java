@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.pricer.impl.capfloor.IborCapletFloorletDataSet;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;

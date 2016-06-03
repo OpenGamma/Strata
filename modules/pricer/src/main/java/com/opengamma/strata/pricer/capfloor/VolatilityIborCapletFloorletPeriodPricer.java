@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.capfloor;
+package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -11,7 +11,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.product.capfloor.IborCapletFloorletSensitivity;
 import com.opengamma.strata.market.product.capfloor.IborCapletFloorletVolatilities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.capfloor.VolatilityIborCapFloorLegPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.common.PutCall;

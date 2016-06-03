@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.rate.model;
+package com.opengamma.strata.pricer.index;
 
 import java.io.Serializable;
 import java.util.Set;

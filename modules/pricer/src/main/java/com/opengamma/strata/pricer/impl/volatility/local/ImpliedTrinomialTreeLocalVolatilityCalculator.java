@@ -26,9 +26,9 @@ import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.pricer.fx.RecombiningTrinomialTreeData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackScholesFormulaRepository;
-import com.opengamma.strata.pricer.impl.tree.RecombiningTrinomialTreeData;
 
 /**
  * Local volatility calculation based on trinomila tree model. 

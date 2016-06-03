@@ -44,7 +44,7 @@ import com.opengamma.strata.product.credit.type.IsdaYieldCurveConvention;
  * Par rate representations of the curves are calibrated and converted to ISDA calibrated curves.
  * Present value of the expanded CDS product (single name or index) is calculated here.
  */
-public class IsdaCdsHelper {
+class IsdaCdsHelper {
 
   // hard-coded reference data
   public static final ReferenceData REF_DATA = ReferenceData.standard();

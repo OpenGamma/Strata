@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.cms;
+package com.opengamma.strata.pricer.cms;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -24,7 +24,6 @@ import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.MathException;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
-import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsLegPricer;
 import com.opengamma.strata.pricer.impl.option.SabrExtrapolationRightFunction;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;

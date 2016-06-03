@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
+import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.

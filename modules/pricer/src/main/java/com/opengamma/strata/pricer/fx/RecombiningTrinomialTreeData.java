@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.tree;
+package com.opengamma.strata.pricer.fx;
 
 import java.io.Serializable;
 import java.util.List;
@@ -32,8 +32,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Recombining trinomial tree data. 
  * <p>
- * This involves state values and transition probabilities for all of the nodes, as well as discount factors and 
- * time (time from valuation date) for individual time steps.
+ * This includes state values and transition probabilities for all of the nodes,
+ * as well as discount factors and time (time from valuation date) for individual time steps.
  */
 @BeanDefinition(builderScope = "private")
 public final class RecombiningTrinomialTreeData implements ImmutableBean, Serializable {

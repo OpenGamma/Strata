@@ -25,7 +25,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantInterestRateModel}.

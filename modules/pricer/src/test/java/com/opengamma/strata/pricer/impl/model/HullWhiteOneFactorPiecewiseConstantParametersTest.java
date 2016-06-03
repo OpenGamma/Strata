@@ -14,7 +14,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantParameters}.
