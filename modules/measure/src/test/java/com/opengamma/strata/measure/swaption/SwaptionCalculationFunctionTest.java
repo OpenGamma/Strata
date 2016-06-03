@@ -49,13 +49,13 @@ import com.opengamma.strata.measure.calc.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.NormalSwaptionExpiryTenorVolatilities;
+import com.opengamma.strata.pricer.swaption.NormalSwaptionPhysicalTradePricer;
 import com.opengamma.strata.pricer.swaption.SwaptionNormalVolatilityDataSets;
-import com.opengamma.strata.pricer.swaption.VolatilitySwaptionPhysicalProductPricer;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
-import com.opengamma.strata.product.swaption.ResolvedSwaption;
+import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.Swaption;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
@@ -119,8 +119,8 @@ public class SwaptionCalculationFunctionTest {
     SwaptionCalculationFunction function = new SwaptionCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    VolatilitySwaptionPhysicalProductPricer pricer = VolatilitySwaptionPhysicalProductPricer.DEFAULT;
-    ResolvedSwaption resolved = TRADE.getProduct().resolve(REF_DATA);
+    NormalSwaptionPhysicalTradePricer pricer = NormalSwaptionPhysicalTradePricer.DEFAULT;
+    ResolvedSwaptionTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);

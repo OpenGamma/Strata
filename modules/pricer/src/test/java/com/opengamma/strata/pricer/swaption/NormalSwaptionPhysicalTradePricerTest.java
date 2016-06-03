@@ -87,10 +87,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
       .premium(PREMIUM_PAST_PAY)
       .build();
 
-  private static final NormalSwaptionPhysicalProductPricer PRICER_SWAPTION_NORMAL_PRODUCT =
-      NormalSwaptionPhysicalProductPricer.DEFAULT;
-  private static final NormalSwaptionPhysicalTradePricer PRICER_SWAPTION_NORMAL_TRADE =
-      NormalSwaptionPhysicalTradePricer.DEFAULT;
+  private static final VolatilitySwaptionTradePricer PRICER_COMMON = VolatilitySwaptionTradePricer.DEFAULT;
+  private static final NormalSwaptionPhysicalTradePricer PRICER_TRADE = NormalSwaptionPhysicalTradePricer.DEFAULT;
+  private static final NormalSwaptionPhysicalProductPricer PRICER_PRODUCT = NormalSwaptionPhysicalProductPricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
 
   private static final ImmutableRatesProvider MULTI_USD = RatesProviderDataSets.multiUsd(VAL_DATE);
@@ -104,60 +103,63 @@ public class NormalSwaptionPhysicalTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_premium_forward() {
     CurrencyAmount pvTrade =
-        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvProduct =
-        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_FWD_PAY, MULTI_USD);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
+    // test via VolatilitySwaptionTradePricer
+    CurrencyAmount pv = PRICER_COMMON.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    assertEquals(pv, pvTrade);
   }
 
   public void present_value_premium_valuedate() {
     CurrencyAmount pvTrade =
-        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvProduct =
-        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_TRA_PAY, MULTI_USD);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOLERANCE_PV);
   }
 
   public void present_value_premium_past() {
     CurrencyAmount pvTrade =
-        PRICER_SWAPTION_NORMAL_TRADE.presentValue(SWAPTION_PREPAST_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_TRADE.presentValue(SWAPTION_PREPAST_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyAmount pvProduct =
-        PRICER_SWAPTION_NORMAL_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+        PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount(), TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void currency_exposure_premium_forward() {
-    CurrencyAmount pv = PRICER_SWAPTION_NORMAL_TRADE
+    CurrencyAmount pv = PRICER_TRADE
         .presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    MultiCurrencyAmount ce = PRICER_SWAPTION_NORMAL_TRADE
+    MultiCurrencyAmount ce = PRICER_TRADE
         .currencyExposure(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(pv.getAmount(), ce.getAmount(USD).getAmount(), TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void current_cash_forward() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
+    CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, TOLERANCE_PV);
   }
 
   public void current_cash_vd() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
+    CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), -PREMIUM_AMOUNT, TOLERANCE_PV);
   }
 
   public void current_cash_past() {
-    CurrencyAmount ccTrade = PRICER_SWAPTION_NORMAL_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
+    CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
     assertEquals(ccTrade.getAmount(), 0, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
   public void present_value_sensitivity_premium_forward() {
-    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
         .presentValueSensitivityStickyStrike(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+    PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     PointSensitivityBuilder pvcsPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, MULTI_USD);
     CurrencyParameterSensitivities pvpsTrade =
@@ -168,9 +170,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
   }
 
   public void present_value_sensitivity_premium_valuedate() {
-    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
         .presentValueSensitivityStickyStrike(SWAPTION_PRETOD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+    PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade.build());
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
@@ -178,9 +180,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
   }
 
   public void present_value_sensitivity_premium_past() {
-    PointSensitivityBuilder pvcsTrade = PRICER_SWAPTION_NORMAL_TRADE
+    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
         .presentValueSensitivityStickyStrike(SWAPTION_PREPAST_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    PointSensitivityBuilder pvcsProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+    PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
         .presentValueSensitivityStickyStrike(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade.build());
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
@@ -189,9 +191,9 @@ public class NormalSwaptionPhysicalTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void present_value_normal_vol_sensitivity_premium_forward() {
-    SwaptionSensitivity vegaTrade = PRICER_SWAPTION_NORMAL_TRADE
+    SwaptionSensitivity vegaTrade = PRICER_TRADE
         .presentValueSensitivityVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
-    SwaptionSensitivity vegaProduct = PRICER_SWAPTION_NORMAL_PRODUCT
+    SwaptionSensitivity vegaProduct = PRICER_PRODUCT
         .presentValueSensitivityVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOL_SWAPTION_PROVIDER_USD);
     assertEquals(vegaTrade.getSensitivity(), vegaProduct.getSensitivity(), TOLERANCE_PV_VEGA);
   }
