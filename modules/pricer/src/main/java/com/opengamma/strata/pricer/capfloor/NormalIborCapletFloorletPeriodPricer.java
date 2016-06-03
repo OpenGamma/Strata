@@ -3,11 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.capfloor;
+package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.product.capfloor.IborCapletFloorletVolatilities;
-import com.opengamma.strata.pricer.capfloor.NormalIborCapletFloorletVolatilities;
 
 /**
  * Pricer for caplet/floorlet in a normal or Bachelier model. 
