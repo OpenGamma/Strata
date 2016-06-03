@@ -142,8 +142,8 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
           DoubleArray.copyOf(volBumpedM), DoubleArray.copyOf(_errors), getModel());
       LeastSquareResultsWithTransform resultsBumpedM = fitterM.solve(start, fixed);
       DoubleArray parameterBumpedM = resultsBumpedM.getModelParameters();
-      DoubleArray dif = parameterBumpedP.minus(parameterBumpedM).dividedBy(2 * shiftFd);
-      assertTrue(dif.equalWithTolerance(sensitivity.column(i), 1.0E-6));
+      DoubleArray sensitivityColumnFd = parameterBumpedP.minus(parameterBumpedM).dividedBy(2 * shiftFd);
+      assertTrue(sensitivityColumnFd.equalWithTolerance(sensitivity.column(i), 1.0E-6));
     }
   }
 

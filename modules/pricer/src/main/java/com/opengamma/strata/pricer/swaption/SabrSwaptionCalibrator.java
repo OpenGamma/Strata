@@ -73,7 +73,7 @@ public class SabrSwaptionCalibrator {
   public static final SabrSwaptionCalibrator DEFAULT =
       new SabrSwaptionCalibrator(
           SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
-  
+
   public static final SurfaceName ALPHA_NAME = SurfaceName.of("Swaption-SABR-Alpha");
   public static final SurfaceName RHO_NAME = SurfaceName.of("Swaption-SABR-Rho");
   public static final SurfaceName NU_NAME = SurfaceName.of("Swaption-SABR-Nu");
@@ -327,7 +327,7 @@ public class SabrSwaptionCalibrator {
     for (int i = 0; i < 4; i++) { // Try different starting points and take the best
       DoubleArray startParameters = DoubleArray.of(alphaStart[i], beta, rhoStart, nuStart[i]);
       Pair<LeastSquareResultsWithTransform, DoubleArray> r = null;
-      if (rawData.getDataType().equals(ValueType.NORMAL_VOLATILITY)) {            
+      if (rawData.getDataType().equals(ValueType.NORMAL_VOLATILITY)) {
         r = calibrateShiftedFromNormalVolatilities(bda, calibrationDateTime, dayCount,
             expiry, forward, strike, rawData.getStrikeType(),
             data, startParameters, fixed, shift);
@@ -338,7 +338,7 @@ public class SabrSwaptionCalibrator {
               data, startParameters, fixed, shift);
         } else {
           if (rawData.getDataType().equals(ValueType.BLACK_VOLATILITY)) {
-            r =  calibrateShiftedFromBlackVolatilities(bda, calibrationDateTime, dayCount,
+            r = calibrateShiftedFromBlackVolatilities(bda, calibrationDateTime, dayCount,
                 expiry, forward, strike, rawData.getStrikeType(),
                 data, rawData.getShift().orElse(0d), startParameters, fixed, shift);
           } else {
@@ -352,16 +352,16 @@ public class SabrSwaptionCalibrator {
       }
     }
     @SuppressWarnings("null")
-    SabrFormulaData sabrParameters = 
+    SabrFormulaData sabrParameters =
         SabrFormulaData.of(sabrCalibrationResult.getFirst().getModelParameters().toArrayUnsafe());
-    DoubleMatrix parameterSensitivityToBlackShifted = 
+    DoubleMatrix parameterSensitivityToBlackShifted =
         sabrCalibrationResult.getFirst().getModelParameterSensitivityToData();
     DoubleArray blackVolSensitivitytoRawData = sabrCalibrationResult.getSecond();
     // Multiply the sensitivity to the intermediary (shifted) log-normal vol by its sensitivity to the raw data
     double[][] parameterSensitivityToDataArray = new double[4][blackVolSensitivitytoRawData.size()];
     for (int loopsabr = 0; loopsabr < 4; loopsabr++) {
       for (int loopdata = 0; loopdata < blackVolSensitivitytoRawData.size(); loopdata++) {
-        parameterSensitivityToDataArray[loopsabr][loopdata] = 
+        parameterSensitivityToDataArray[loopsabr][loopdata] =
             parameterSensitivityToBlackShifted.get(loopsabr, loopdata) * blackVolSensitivitytoRawData.get(loopdata);
       }
     }
@@ -418,7 +418,7 @@ public class SabrSwaptionCalibrator {
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
     SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
         blackVolatilitiesTransformed, errors, sabrFunctionProvider);
-    LeastSquareResultsWithTransform result =  fitter.solve(startParameters, fixedParameters);
+    LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return Pair.of(result, volAndDerivatives.getSecond());
   }
 
@@ -443,7 +443,7 @@ public class SabrSwaptionCalibrator {
       double shiftInput) {
 
     if (shiftInput == shiftOutput) {
-      return Pair.of(blackVolatilities, DoubleArray.filled(blackVolatilities.size(), 1.0d)); 
+      return Pair.of(blackVolatilities, DoubleArray.filled(blackVolatilities.size(), 1.0d));
       // No change required if shifts are the same
     }
     int nbStrikes = strikes.size();
