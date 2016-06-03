@@ -24,13 +24,13 @@ import com.opengamma.strata.product.swap.PaymentEvent;
 public interface PaymentEventPricer<T extends PaymentEvent> {
 
   /**
-   * Returns a default instance of the function.
+   * Returns the standard instance of the function.
    * <p>
    * Use this method to avoid a direct dependency on the implementation.
    * 
    * @return the payment event pricer
    */
-  public static PaymentEventPricer<PaymentEvent> instance() {
+  public static PaymentEventPricer<PaymentEvent> standard() {
     return DispatchingPaymentEventPricer.DEFAULT;
   }
 

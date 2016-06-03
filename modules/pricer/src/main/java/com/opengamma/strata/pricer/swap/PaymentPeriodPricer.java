@@ -24,13 +24,13 @@ import com.opengamma.strata.product.swap.PaymentPeriod;
 public interface PaymentPeriodPricer<T extends PaymentPeriod> {
 
   /**
-   * Returns a default instance of the function.
+   * Returns the standard instance of the function.
    * <p>
    * Use this method to avoid a direct dependency on the implementation.
    * 
    * @return the payment period pricer
    */
-  public static PaymentPeriodPricer<PaymentPeriod> instance() {
+  public static PaymentPeriodPricer<PaymentPeriod> standard() {
     return DispatchingPaymentPeriodPricer.DEFAULT;
   }
 

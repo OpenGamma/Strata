@@ -25,13 +25,13 @@ import com.opengamma.strata.product.rate.RateComputation;
 public interface RateComputationFn<T extends RateComputation> {
 
   /**
-   * Returns a default instance of the function.
+   * Returns the standard instance of the function.
    * <p>
    * Use this method to avoid a direct dependency on the implementation.
    * 
    * @return the rate computation function
    */
-  public static RateComputationFn<RateComputation> instance() {
+  public static RateComputationFn<RateComputation> standard() {
     return DispatchingRateComputationFn.DEFAULT;
   }
 

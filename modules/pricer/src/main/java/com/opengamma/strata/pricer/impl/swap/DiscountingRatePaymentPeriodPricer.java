@@ -41,7 +41,7 @@ public class DiscountingRatePaymentPeriodPricer
    * Default implementation.
    */
   public static final DiscountingRatePaymentPeriodPricer DEFAULT = new DiscountingRatePaymentPeriodPricer(
-      RateComputationFn.instance());
+      RateComputationFn.standard());
 
   /**
    * Rate computation.

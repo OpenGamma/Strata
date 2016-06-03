@@ -776,7 +776,7 @@ public class DiscountingSwapLegPricerTest {
     PaymentEventPricer<PaymentEvent> mockEvent = mock(PaymentEventPricer.class);
     double expected = 1234d;
     when(mockEvent.currentCash(expSwapLeg.getPaymentEvents().get(0), prov)).thenReturn(expected);
-    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(PaymentPeriodPricer.instance(), mockEvent);
+    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(PaymentPeriodPricer.standard(), mockEvent);
     CurrencyAmount computed = pricer.currentCash(expSwapLeg, prov);
     assertEquals(computed, CurrencyAmount.of(expSwapLeg.getCurrency(), expected));
   }
@@ -788,7 +788,7 @@ public class DiscountingSwapLegPricerTest {
     PaymentPeriodPricer<PaymentPeriod> mockPeriod = mock(PaymentPeriodPricer.class);
     double expected = 1234d;
     when(mockPeriod.currentCash(expSwapLeg.getPaymentPeriods().get(0), prov)).thenReturn(expected);
-    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, PaymentEventPricer.instance());
+    DiscountingSwapLegPricer pricer = new DiscountingSwapLegPricer(mockPeriod, PaymentEventPricer.standard());
     CurrencyAmount computed = pricer.currentCash(expSwapLeg, prov);
     assertEquals(computed, CurrencyAmount.of(expSwapLeg.getCurrency(), expected));
   }  

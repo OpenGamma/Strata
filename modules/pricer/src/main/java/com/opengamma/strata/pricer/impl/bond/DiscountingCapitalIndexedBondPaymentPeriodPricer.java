@@ -35,7 +35,7 @@ public class DiscountingCapitalIndexedBondPaymentPeriodPricer {
    * Default implementation. 
    */
   public static final DiscountingCapitalIndexedBondPaymentPeriodPricer DEFAULT =
-      new DiscountingCapitalIndexedBondPaymentPeriodPricer(RateComputationFn.instance());
+      new DiscountingCapitalIndexedBondPaymentPeriodPricer(RateComputationFn.standard());
   /**
    * Rate observation.
    */
