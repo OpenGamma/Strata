@@ -59,7 +59,7 @@ public final class UnitParameterSensitivity
    * <p>
    * There is one entry for each parameter.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends ParameterMetadata>")
   private final List<ParameterMetadata> parameterMetadata;
   /**
    * The parameter sensitivity values.
@@ -84,7 +84,7 @@ public final class UnitParameterSensitivity
    */
   public static UnitParameterSensitivity of(
       MarketDataName<?> marketDataName,
-      List<ParameterMetadata> parameterMetadata,
+      List<? extends ParameterMetadata> parameterMetadata,
       DoubleArray sensitivity) {
 
     return new UnitParameterSensitivity(marketDataName, parameterMetadata, sensitivity);
@@ -228,7 +228,7 @@ public final class UnitParameterSensitivity
 
   private UnitParameterSensitivity(
       MarketDataName<?> marketDataName,
-      List<ParameterMetadata> parameterMetadata,
+      List<? extends ParameterMetadata> parameterMetadata,
       DoubleArray sensitivity) {
     JodaBeanUtils.notNull(marketDataName, "marketDataName");
     JodaBeanUtils.notNull(parameterMetadata, "parameterMetadata");
@@ -449,7 +449,7 @@ public final class UnitParameterSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<UnitParameterSensitivity> {
 
     private MarketDataName<?> marketDataName;
-    private List<ParameterMetadata> parameterMetadata = ImmutableList.of();
+    private List<? extends ParameterMetadata> parameterMetadata = ImmutableList.of();
     private DoubleArray sensitivity;
 
     /**
@@ -481,7 +481,7 @@ public final class UnitParameterSensitivity
           this.marketDataName = (MarketDataName<?>) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<ParameterMetadata>) newValue;
+          this.parameterMetadata = (List<? extends ParameterMetadata>) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (DoubleArray) newValue;

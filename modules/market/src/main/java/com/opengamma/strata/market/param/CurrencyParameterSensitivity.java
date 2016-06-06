@@ -62,7 +62,7 @@ public final class CurrencyParameterSensitivity
    * <p>
    * There is one entry for each parameter.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", builderType = "List<? extends ParameterMetadata>")
   private final List<ParameterMetadata> parameterMetadata;
   /**
    * The currency of the sensitivity.
@@ -93,7 +93,7 @@ public final class CurrencyParameterSensitivity
    */
   public static CurrencyParameterSensitivity of(
       MarketDataName<?> marketDataName,
-      List<ParameterMetadata> parameterMetadata,
+      List<? extends ParameterMetadata> parameterMetadata,
       Currency currency,
       DoubleArray sensitivity) {
 
@@ -268,7 +268,7 @@ public final class CurrencyParameterSensitivity
 
   private CurrencyParameterSensitivity(
       MarketDataName<?> marketDataName,
-      List<ParameterMetadata> parameterMetadata,
+      List<? extends ParameterMetadata> parameterMetadata,
       Currency currency,
       DoubleArray sensitivity) {
     JodaBeanUtils.notNull(marketDataName, "marketDataName");
@@ -522,7 +522,7 @@ public final class CurrencyParameterSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<CurrencyParameterSensitivity> {
 
     private MarketDataName<?> marketDataName;
-    private List<ParameterMetadata> parameterMetadata = ImmutableList.of();
+    private List<? extends ParameterMetadata> parameterMetadata = ImmutableList.of();
     private Currency currency;
     private DoubleArray sensitivity;
 
@@ -557,7 +557,7 @@ public final class CurrencyParameterSensitivity
           this.marketDataName = (MarketDataName<?>) newValue;
           break;
         case -1169106440:  // parameterMetadata
-          this.parameterMetadata = (List<ParameterMetadata>) newValue;
+          this.parameterMetadata = (List<? extends ParameterMetadata>) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
