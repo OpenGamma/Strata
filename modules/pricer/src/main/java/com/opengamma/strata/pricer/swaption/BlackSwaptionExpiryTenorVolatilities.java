@@ -34,6 +34,7 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
@@ -157,6 +158,11 @@ public final class BlackSwaptionExpiryTenorVolatilities
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public SwaptionVolatilitiesName getName() {
+    return SwaptionVolatilitiesName.of(surface.getName().getName());
+  }
+
   @Override
   public FixedIborSwapConvention getConvention() {
     return convention;

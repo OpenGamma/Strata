@@ -21,7 +21,13 @@ public class SwaptionVolatilitiesIdTest {
   //-------------------------------------------------------------------------
   public void test_of() {
     SwaptionVolatilitiesId test = SwaptionVolatilitiesId.of("Foo");
-    assertEquals(test.getName(), "Foo");
+    assertEquals(test.getName(), SwaptionVolatilitiesName.of("Foo"));
+    assertEquals(test.getMarketDataType(), SwaptionVolatilities.class);
+  }
+
+  public void test_of_object() {
+    SwaptionVolatilitiesId test = SwaptionVolatilitiesId.of(SwaptionVolatilitiesName.of("Foo"));
+    assertEquals(test.getName(), SwaptionVolatilitiesName.of("Foo"));
     assertEquals(test.getMarketDataType(), SwaptionVolatilities.class);
   }
 

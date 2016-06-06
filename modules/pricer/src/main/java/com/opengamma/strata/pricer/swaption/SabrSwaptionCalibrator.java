@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.product.swaption.SwaptionSurfaceExpiryTenorParameterMetadata;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
@@ -123,6 +124,7 @@ public class SabrSwaptionCalibrator {
    * The SABR parameters are calibrated with fixed beta and fixed shift surfaces.
    * The raw data can be (shifted) log-normal volatilities, normal volatilities or option prices
    * 
+   * @param name  the name
    * @param convention  the swaption underlying convention
    * @param calibrationDateTime  the data and time of the calibration
    * @param dayCount  the day-count used for expiry time computation
@@ -136,6 +138,7 @@ public class SabrSwaptionCalibrator {
    */
   @SuppressWarnings("null")
   public SabrParametersSwaptionVolatilities calibrateWithFixedBetaAndShift(
+      SwaptionVolatilitiesName name,
       FixedIborSwapConvention convention,
       ZonedDateTime calibrationDateTime,
       DayCount dayCount,
@@ -148,6 +151,7 @@ public class SabrSwaptionCalibrator {
 
     // If a MathException is thrown by a calibration for a specific expiry/tenor, an exception is thrown by the method
     return calibrateWithFixedBetaAndShift(
+        name,
         convention,
         calibrationDateTime,
         dayCount,
@@ -169,6 +173,7 @@ public class SabrSwaptionCalibrator {
    * This method offers the flexibility to skip the data sets that throw a MathException (stopOnMathException = false).
    * The option to skip those data sets should be use with care, as part of the input data may be unused in the output.
    * 
+   * @param name  the name
    * @param convention  the swaption underlying convention
    * @param calibrationDateTime  the data and time of the calibration
    * @param dayCount  the day-count used for expiry time computation
@@ -184,6 +189,7 @@ public class SabrSwaptionCalibrator {
    */
   @SuppressWarnings("null")
   public SabrParametersSwaptionVolatilities calibrateWithFixedBetaAndShift(
+      SwaptionVolatilitiesName name,
       FixedIborSwapConvention convention,
       ZonedDateTime calibrationDateTime,
       DayCount dayCount,
@@ -261,15 +267,15 @@ public class SabrSwaptionCalibrator {
       }
     }
     SurfaceMetadata metadataAlpha = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
+        name.getName() + "-Alpha", dayCount, convention, ValueType.SABR_ALPHA)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityAlpha);
     SurfaceMetadata metadataRho = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Rho", dayCount, convention, ValueType.SABR_RHO)
+        name.getName() + "-Rho", dayCount, convention, ValueType.SABR_RHO)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityRho);
     SurfaceMetadata metadataNu = Surfaces.swaptionSabrExpiryTenor(
-        "Swaption-SABR-Nu", dayCount, convention, ValueType.SABR_NU)
+        name.getName() + "-Nu", dayCount, convention, ValueType.SABR_NU)
         .withParameterMetadata(parameterMetadata)
         .withInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO, dataSensitivityNu);
     InterpolatedNodalSurface alphaSurface = InterpolatedNodalSurface
@@ -280,7 +286,7 @@ public class SabrSwaptionCalibrator {
         .of(metadataNu, timeToExpiryArray, timeTenorArray, nuArray, interpolator);
     SabrInterestRateParameters params = SabrInterestRateParameters.of(
         alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
-    return SabrParametersSwaptionVolatilities.of(params, calibrationDateTime);
+    return SabrParametersSwaptionVolatilities.of(name, params, calibrationDateTime);
   }
 
   // The main part of the calibration. The calibration is done 4 times with different starting points: low and high

@@ -35,6 +35,11 @@ public class SwaptionVolatilitiesTest {
   static class TestSwaptionVolatilities implements SwaptionVolatilities {
 
     @Override
+    public SwaptionVolatilitiesName getName() {
+      return SwaptionVolatilitiesName.of("Default");
+    }
+
+    @Override
     public FixedIborSwapConvention getConvention() {
       return GBP_FIXED_1Y_LIBOR_3M;
     }
