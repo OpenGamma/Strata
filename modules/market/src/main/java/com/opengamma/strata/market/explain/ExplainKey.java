@@ -204,7 +204,7 @@ public final class ExplainKey<T>
   /**
    * The convexity adjusted rate.
    */
-  public static final ExplainKey<Double> CONV_ADJ_RATE = of("ConvexityAdjustedRate");
+  public static final ExplainKey<Double> CONVEXITY_ADJUSTED_RATE = of("ConvexityAdjustedRate");
   /**
    * The forward rate.
    */

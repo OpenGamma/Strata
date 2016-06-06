@@ -243,8 +243,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    // Create the coupon equivalent to the cap or floor.
-    CmsPeriod coupon = cmsPeriod.toBuilder().floorlet(null).caplet(null).build();
+    CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
     Currency ccy = cmsPeriod.getCurrency();
     double dfPayment = provider.discountFactor(ccy, coupon.getPaymentDate());
     double pv = presentValue(coupon, provider, swaptionVolatilities).getAmount();
@@ -271,8 +270,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    // Create the coupon equivalent to the cap or floor.
-    CmsPeriod coupon = cmsPeriod.toBuilder().floorlet(null).caplet(null).build();
+    CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
     double adjustedForwardRate = adjustedForwardRate(coupon, provider, swaptionVolatilities);
     double forward = swapPricer.parRate(coupon.getUnderlyingSwap(), provider);
     return adjustedForwardRate - forward;
@@ -571,7 +569,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, period.getYearFraction());
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(period, ratesProvider, swaptionVolatilities));
     builder.put(ExplainKey.FORWARD_RATE, swapPricer.parRate(period.getUnderlyingSwap(), ratesProvider));
-    builder.put(ExplainKey.CONV_ADJ_RATE, adjustedForwardRate(period, ratesProvider, swaptionVolatilities));
+    builder.put(ExplainKey.CONVEXITY_ADJUSTED_RATE, adjustedForwardRate(period, ratesProvider, swaptionVolatilities));
   }
 
   //-------------------------------------------------------------------------

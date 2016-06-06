@@ -813,7 +813,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pv = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get(), pv);
     double adjustedForwardRate = PRICER.adjustedForwardRate(FLOORLET, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(explain.get(ExplainKey.CONV_ADJ_RATE).get(), adjustedForwardRate);
+    assertEquals(explain.get(ExplainKey.CONVEXITY_ADJUSTED_RATE).get(), adjustedForwardRate);
     
   }
   
