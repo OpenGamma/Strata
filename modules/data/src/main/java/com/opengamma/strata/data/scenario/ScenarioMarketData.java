@@ -181,7 +181,6 @@ public interface ScenarioMarketData {
    * <p>
    * This returns the unique identifiers that refer to the specified name.
    * There may be more than one identifier associated with a name as the name is not unique.
-   * If the implementation cannot support this operation it will return an empty set.
    *
    * @param <T>  the type of the market data value
    * @param name  the name to find
