@@ -153,7 +153,7 @@ public class SabrModelFitterTest extends SmileModelFitterTest<SabrFormulaData> {
     fixed.set(1);
     LeastSquareResultsWithTransform results = _nosiyFitter.solve(start, fixed);
     double[] res = results.getModelParameters().toArray();
-    double eps = 1e-2; // <-
+    double eps = 1e-2;
     assertEquals(ALPHA, res[0], eps);
     assertEquals(BETA, res[1], eps);
     assertEquals(RHO, res[2], eps);

@@ -421,7 +421,8 @@ public class SabrSwaptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an array of shifted Black volatilities from shifted Black volatilities with a different shift.
+   * Creates an array of shifted Black volatilities from shifted Black volatilities with a different shift and 
+   * the sensitivities of the Black volatilities outputs with respect to the normal volatilities inputs.
    * 
    * @param forward  the forward rate
    * @param shiftOutput  the shift required in the output
@@ -429,7 +430,7 @@ public class SabrSwaptionCalibrator {
    * @param strikes  the option strikes
    * @param blackVolatilities  the shifted implied Black volatilities
    * @param shiftInput  the shift used in the input Black implied volatilities
-   * @return the shifted black volatilities
+   * @return the shifted black volatilities and their derivatives
    */
   public Pair<DoubleArray, DoubleArray> blackVolatilitiesShiftedFromBlackVolatilitiesShifted(
       double forward,
@@ -509,14 +510,15 @@ public class SabrSwaptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an array of shifted Black volatilities from option prices.
+   * Creates an array of shifted Black volatilities from option prices and the sensitivities of the 
+   * Black volatilities with respect to the price inputs.
    * 
    * @param forward  the forward rate
    * @param shiftOutput  the shift required in the output
    * @param timeToExpiry  the time to expiration
    * @param strikes  the option strikes
    * @param prices  the option prices
-   * @return the shifted black volatilities
+   * @return the shifted black volatilities and their derivatives
    */
   public Pair<DoubleArray, DoubleArray> blackVolatilitiesShiftedFromPrices(
       double forward,
@@ -590,7 +592,8 @@ public class SabrSwaptionCalibrator {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an array of shifted Black volatilities from Normal volatilities.
+   * Creates an array of shifted Black volatilities from Normal volatilities and the sensitivities of the 
+   * Black volatilities with respect to the normal volatilities inputs.
    * <p>
    * The transformation between normal and Black volatility is done using 
    * {@link BlackFormulaRepository#impliedVolatilityFromNormalApproximated}.
@@ -600,7 +603,7 @@ public class SabrSwaptionCalibrator {
    * @param timeToExpiry  the time to expiration
    * @param strikes  the option strikes
    * @param normalVolatilities  the normal volatilities
-   * @return the shifted black volatilities
+   * @return the shifted black volatilities and their derivatives
    */
   public Pair<DoubleArray, DoubleArray> blackVolatilitiesShiftedFromNormalVolatilities(
       double forward,

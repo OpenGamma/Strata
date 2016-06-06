@@ -65,7 +65,12 @@ public class SabrSwaptionCalibratorSmileTestUtils {
       DoubleArray strikeLikeData,
       List<Period> expiries,
       ValueType dataType,
-      double[][][] dataArray, int i, int j, int k, double shift) {
+      double[][][] dataArray,
+      int i,
+      int j,
+      int k,
+      double shift) {
+
     List<RawOptionData> raw = new ArrayList<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
@@ -79,7 +84,6 @@ public class SabrSwaptionCalibratorSmileTestUtils {
     }
     return raw;
   }
-
 
   /**
    * Create a {@link RawOptionData} object for calibration from data and shift one smile.
@@ -99,7 +103,11 @@ public class SabrSwaptionCalibratorSmileTestUtils {
       DoubleArray strikeLikeData,
       List<Period> expiries,
       ValueType dataType,
-      double[][][] dataArray, int i, int j, double shift) {
+      double[][][] dataArray,
+      int i,
+      int j,
+      double shift) {
+
     List<RawOptionData> raw = new ArrayList<>();
     for (int looptenor = 0; looptenor < dataArray.length; looptenor++) {
       double[][] shiftedData = Arrays.stream(dataArray[looptenor])
@@ -115,7 +123,7 @@ public class SabrSwaptionCalibratorSmileTestUtils {
     }
     return raw;
   }
-  
+
   /**
    * Check that the results are acceptable by checking that the absolute difference or the relative difference
    * is below a given threshold.

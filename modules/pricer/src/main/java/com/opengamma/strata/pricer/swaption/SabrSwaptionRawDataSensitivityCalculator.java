@@ -49,23 +49,18 @@ public class SabrSwaptionRawDataSensitivityCalculator {
   public CurrencyParameterSensitivity parallelSensitivity(
       CurrencyParameterSensitivities paramSensitivities,
       SabrParametersSwaptionVolatilities volatilities) {
-    boolean[] dataSensitivityInfoAvailable = new boolean[4]; // parameters in Alpha, Beta, Rho, Nu order
+
     List<List<DoubleArray>> sensitivityToRawData = new ArrayList<>(4);
     Optional<ImmutableList<DoubleArray>> alphaInfo = volatilities.getDataSensitivityAlpha();
-    dataSensitivityInfoAvailable[0] = alphaInfo.isPresent();
-    sensitivityToRawData.add(alphaInfo.isPresent() ? alphaInfo.get() : null);
+    sensitivityToRawData.add(alphaInfo.orElse(null));
     Optional<ImmutableList<DoubleArray>> betaInfo = volatilities.getDataSensitivityBeta();
-    dataSensitivityInfoAvailable[1] = betaInfo.isPresent();
-    sensitivityToRawData.add(betaInfo.isPresent() ? betaInfo.get() : null);
+    sensitivityToRawData.add(betaInfo.orElse(null));
     Optional<ImmutableList<DoubleArray>> rhoInfo = volatilities.getDataSensitivityRho();
-    dataSensitivityInfoAvailable[2] = rhoInfo.isPresent();
-    sensitivityToRawData.add(rhoInfo.isPresent() ? rhoInfo.get() : null);
+    sensitivityToRawData.add(rhoInfo.orElse(null));
     Optional<ImmutableList<DoubleArray>> nuInfo = volatilities.getDataSensitivityNu();
-    dataSensitivityInfoAvailable[3] = nuInfo.isPresent();
-    sensitivityToRawData.add(nuInfo.isPresent() ? nuInfo.get() : null);
-    ArgChecker.isTrue(dataSensitivityInfoAvailable[0] || dataSensitivityInfoAvailable[1] 
-        || dataSensitivityInfoAvailable[2] || dataSensitivityInfoAvailable[3],
-        "at least one SurfaceInfoType#DATA_SENSITIVITY_INFO must be available");
+    sensitivityToRawData.add(nuInfo.orElse(null));
+    ArgChecker.isTrue(alphaInfo.isPresent() || betaInfo.isPresent() || rhoInfo.isPresent() || nuInfo.isPresent(),
+        "at least one sensitivity to raw data must be available");
     checkCurrency(paramSensitivities);
     int nbSurfaceNode = sensitivityToRawData.get(0).size();
     double[] sensitivityRawArray = new double[nbSurfaceNode];
@@ -75,20 +70,19 @@ public class SabrSwaptionRawDataSensitivityCalculator {
       ccy = s.getCurrency();
       MarketDataName<?> name = s.getMarketDataName();
       if (name instanceof SurfaceName) {
-        SurfaceName surfaceName = (SurfaceName) name;
-        if (volatilities.getParameters().getAlphaSurface().getName().equals(surfaceName) && dataSensitivityInfoAvailable[0]) {
+        if (volatilities.getParameters().getAlphaSurface().getName().equals(name) && alphaInfo.isPresent()) {
           updateSensitivity(s, sensitivityToRawData.get(0), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
         }
-        if (volatilities.getParameters().getBetaSurface().getName().equals(surfaceName) && dataSensitivityInfoAvailable[1]) {
+        if (volatilities.getParameters().getBetaSurface().getName().equals(name) && betaInfo.isPresent()) {
           updateSensitivity(s, sensitivityToRawData.get(1), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
         }
-        if (volatilities.getParameters().getRhoSurface().getName().equals(surfaceName) && dataSensitivityInfoAvailable[2]) {
+        if (volatilities.getParameters().getRhoSurface().getName().equals(name) && rhoInfo.isPresent()) {
           updateSensitivity(s, sensitivityToRawData.get(2), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
         }
-        if (volatilities.getParameters().getNuSurface().getName().equals(surfaceName) && dataSensitivityInfoAvailable[3]) {
+        if (volatilities.getParameters().getNuSurface().getName().equals(name) && nuInfo.isPresent()) {
           updateSensitivity(s, sensitivityToRawData.get(3), sensitivityRawArray);
           metadataResult = s.getParameterMetadata();
         }

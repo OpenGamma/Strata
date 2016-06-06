@@ -57,6 +57,8 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 @BeanDefinition
 public final class SabrParametersSwaptionVolatilities
     implements SabrSwaptionVolatilities, ImmutableBean {
+  // To represent the data sensitivities (dataSensitivityAlpha, ...), DoubleMatrix does not work as the
+  // number of raw data can be different for each element of the list.
 
   /**
    * The name.
