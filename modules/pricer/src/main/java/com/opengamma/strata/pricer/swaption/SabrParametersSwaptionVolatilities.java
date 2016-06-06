@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -29,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -39,10 +37,11 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
@@ -223,62 +222,42 @@ public final class SabrParametersSwaptionVolatilities
 
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
-    throw new UnsupportedOperationException("Sensitivity is based on SwaptionSabrSensitivities, not PointSensitivities");
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof SwaptionSabrSensitivity) {
+        SwaptionSabrSensitivity pt = (SwaptionSabrSensitivity) point;
+        sens = sens.combinedWith(parameterSensitivity(pt));
+      }
+    }
+    return sens;
   }
 
-  /**
-   * Calculates the surface parameter sensitivities from the point sensitivities.
-   * <p>
-   * This is used to convert a set of point sensitivities to surface parameter sensitivities.
-   * 
-   * @param pointSensitivities  the point sensitivities to convert
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the result cannot be calculated
-   */
-  public CurrencyParameterSensitivities parameterSensitivity(SwaptionSabrSensitivities pointSensitivities) {
-    List<CurrencyParameterSensitivity> sensitivitiesTotal =
-        pointSensitivities.getSensitivities()
-            .stream()
-            .map(pointSensitivity -> parameterSensitivity(pointSensitivity).getSensitivities())
-            .flatMap(list -> list.stream())
-            .collect(Collectors.toList());
-    return CurrencyParameterSensitivities.of(sensitivitiesTotal);
-  }
-
-  /**
-   * Calculates the surface parameter sensitivities from the point sensitivity.
-   * <p>
-   * This is used to convert a single point sensitivity to surface parameter sensitivities.
-   * 
-   * @param pointSensitivity  the point sensitivity to convert
-   * @return the parameter sensitivity
-   * @throws RuntimeException if the result cannot be calculated
-   */
-  public CurrencyParameterSensitivities parameterSensitivity(SwaptionSabrSensitivity pointSensitivity) {
-    ArgChecker.isTrue(pointSensitivity.getConvention().equals(getConvention()),
+  // convert a single point sensitivity
+  private CurrencyParameterSensitivity parameterSensitivity(SwaptionSabrSensitivity point) {
+    ArgChecker.isTrue(point.getConvention().equals(getConvention()),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
-    double expiry = relativeTime(pointSensitivity.getExpiry());
-    double tenor = pointSensitivity.getTenor();
-    CurrencyParameterSensitivity alphaSensi = parameterSensitivity(
-        parameters.getAlphaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getAlphaSensitivity(), expiry, tenor);
-    CurrencyParameterSensitivity betaSensi = parameterSensitivity(
-        parameters.getBetaSurface(), pointSensitivity.getCurrency(), pointSensitivity.getBetaSensitivity(), expiry, tenor);
-    CurrencyParameterSensitivity rhoSensi = parameterSensitivity(
-        parameters.getRhoSurface(), pointSensitivity.getCurrency(), pointSensitivity.getRhoSensitivity(), expiry, tenor);
-    CurrencyParameterSensitivity nuSensi = parameterSensitivity(
-        parameters.getNuSurface(), pointSensitivity.getCurrency(), pointSensitivity.getNuSensitivity(), expiry, tenor);
-    return CurrencyParameterSensitivities.of(alphaSensi, betaSensi, rhoSensi, nuSensi);
+    Surface surface = getSurface(point.getSensitivityType());
+    double expiry = relativeTime(point.getExpiry());
+    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, point.getTenor());
+    return unitSens.multipliedBy(point.getCurrency(), point.getSensitivity());
   }
 
-  private CurrencyParameterSensitivity parameterSensitivity(
-      Surface surface,
-      Currency currency,
-      double factor,
-      double expiry,
-      double tenor) {
-
-    UnitParameterSensitivity unitSens = surface.zValueParameterSensitivity(expiry, tenor);
-    return unitSens.multipliedBy(currency, factor);
+  // find surface
+  private Surface getSurface(SwaptionSabrSensitivityType sensitivityType) {
+    switch (sensitivityType) {
+      case ALPHA:
+        return parameters.getAlphaSurface();
+      case BETA:
+        return parameters.getBetaSurface();
+      case RHO:
+        return parameters.getRhoSurface();
+      case NU:
+        return parameters.getNuSurface();
+      case SHIFT:
+        return parameters.getShiftSurface();
+      default:
+        throw new IllegalStateException("Invalid enum value");
+    }
   }
 
   //-------------------------------------------------------------------------

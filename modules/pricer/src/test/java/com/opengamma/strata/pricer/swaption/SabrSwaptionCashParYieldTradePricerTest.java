@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -184,14 +184,11 @@ public class SabrSwaptionCashParYieldTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void present_value_vol_sensitivity_premium_forward() {
-    SwaptionSabrSensitivity vegaTrade = PRICER
-        .presentValueSensitivitySabrParameter(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
-    SwaptionSabrSensitivity vegaProduct = PRICER_PRODUCT
-        .presentValueSensitivitySabrParameter(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
-    assertEquals(vegaTrade.getAlphaSensitivity(), vegaProduct.getAlphaSensitivity(), NOTIONAL * TOL);
-    assertEquals(vegaTrade.getBetaSensitivity(), vegaProduct.getBetaSensitivity(), NOTIONAL * TOL);
-    assertEquals(vegaTrade.getRhoSensitivity(), vegaProduct.getRhoSensitivity(), NOTIONAL * TOL);
-    assertEquals(vegaTrade.getNuSensitivity(), vegaProduct.getNuSensitivity(), NOTIONAL * TOL);
+    PointSensitivities vegaTrade = PRICER
+        .presentValueSensitivitySabrParameter(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER).build();
+    PointSensitivities vegaProduct = PRICER_PRODUCT
+        .presentValueSensitivitySabrParameter(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER).build();
+    assertEquals(vegaTrade, vegaProduct);
   }
 
 }

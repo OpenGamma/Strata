@@ -48,8 +48,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
@@ -180,8 +180,8 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
   private void presentValueSensitivityRawDataParallelSensitivity(
       SabrParametersSwaptionVolatilities sabrCalibrated,
       List<RawOptionData> dataRaw) {
-    SwaptionSabrSensitivities points =
-        LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, MULTICURVE, sabrCalibrated);
+    PointSensitivities points =
+        LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, MULTICURVE, sabrCalibrated).build();
     CurrencyParameterSensitivities sabrParametersSurfaceSensitivities = sabrCalibrated.parameterSensitivity(points);    
     CurrencyParameterSensitivity parallelSensitivitiesSurface =
         RDSC.parallelSensitivity(sabrParametersSurfaceSensitivities, sabrCalibrated);        

@@ -10,13 +10,16 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
+import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.ALPHA;
+import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.BETA;
+import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.NU;
+import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.RHO;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
@@ -25,9 +28,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -113,8 +116,11 @@ public class SabrSwaptionVolatilitiesTest {
     SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
-      SwaptionSabrSensitivity point = SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], USD,
-          alphaSensi, betaSensi, rhoSensi, nuSensi);
+      PointSensitivities point = PointSensitivities.of(
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], ALPHA, USD, alphaSensi),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], BETA, USD, betaSensi),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], RHO, USD, rhoSensi),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], NU, USD, nuSensi));
       CurrencyParameterSensitivities sensiComputed = prov.parameterSensitivity(point);
       UnitParameterSensitivity alphaSensitivities = prov.getParameters().getAlphaSurface()
           .zValueParameterSensitivity(expiryTime, TEST_TENOR[i]);
@@ -161,13 +167,22 @@ public class SabrSwaptionVolatilitiesTest {
     double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18};
     SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
-      SwaptionSabrSensitivity sensi1 = SwaptionSabrSensitivity.of(
-          CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], USD, points1[0], points1[1], points1[2], points1[3]);
-      SwaptionSabrSensitivity sensi2 = SwaptionSabrSensitivity.of(
-          CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], USD, points2[0], points2[1], points2[2], points2[3]);
-      SwaptionSabrSensitivity sensi3 = SwaptionSabrSensitivity.of(
-          CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], USD, points3[0], points3[1], points3[2], points3[3]);
-      SwaptionSabrSensitivities sensis = SwaptionSabrSensitivities.of(Arrays.asList(sensi1, sensi2, sensi3)).normalize();
+      PointSensitivities sensi1 = PointSensitivities.of(
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], ALPHA, USD, points1[0]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], BETA, USD, points1[1]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], RHO, USD, points1[2]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], NU, USD, points1[3]));
+      PointSensitivities sensi2 = PointSensitivities.of(
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], ALPHA, USD, points2[0]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], BETA, USD, points2[1]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], RHO, USD, points2[2]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], NU, USD, points2[3]));
+      PointSensitivities sensi3 = PointSensitivities.of(
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], ALPHA, USD, points3[0]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], BETA, USD, points3[1]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], RHO, USD, points3[2]),
+          SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[3], TEST_TENOR[i], NU, USD, points3[3]));
+      PointSensitivities sensis = sensi1.combinedWith(sensi2).combinedWith(sensi3).normalized();
       CurrencyParameterSensitivities computed = prov.parameterSensitivity(sensis);
       CurrencyParameterSensitivities expected = prov.parameterSensitivity(sensi1)
           .combinedWith(prov.parameterSensitivity(sensi2))

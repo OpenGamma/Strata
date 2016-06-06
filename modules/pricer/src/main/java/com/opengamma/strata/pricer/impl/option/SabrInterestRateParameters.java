@@ -261,6 +261,7 @@ public final class SabrInterestRateParameters
     return dayCount;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int getParameterCount() {
     return paramCombiner.getParameterCount();

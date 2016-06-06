@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.cms;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
@@ -109,7 +108,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public SwaptionSabrSensitivities presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
       ResolvedCms cms,
       RatesProvider ratesProvider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
