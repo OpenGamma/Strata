@@ -49,6 +49,7 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
@@ -59,7 +60,7 @@ import com.opengamma.strata.pricer.calibration.CalibrationMeasures;
 import com.opengamma.strata.pricer.calibration.CurveCalibrator;
 import com.opengamma.strata.pricer.calibration.RawOptionData;
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsLegPricer;
-import com.opengamma.strata.pricer.impl.cms.SabrExtrapolationReplicationCmsPeriodPricer;
+import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.cms.CmsLeg;
 import com.opengamma.strata.product.cms.ResolvedCmsLeg;
@@ -118,10 +119,13 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
   private static final Surface SHIFT_SABR_SURFACE = ConstantSurface.of("Shift", SHIFT_SABR)
       .withMetadata(DefaultSurfaceMetadata.builder()
           .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
-  private static final SabrParametersSwaptionVolatilities SABR_CALIBRATED_FULL = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+  private static final SwaptionVolatilitiesName NAME_SABR = SwaptionVolatilitiesName.of("Calibrated-SABR");
+  private static final SabrParametersSwaptionVolatilities SABR_CALIBRATED_FULL = 
+      SABR_CALIBRATION.calibrateWithFixedBetaAndShift(NAME_SABR,
       EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_RAW_FULL,
       MULTICURVE, BETA_SURFACE, SHIFT_SABR_SURFACE, INTERPOLATOR_2D);
-  private static final SabrParametersSwaptionVolatilities SABR_CALIBRATED_SPARSE = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+  private static final SabrParametersSwaptionVolatilities SABR_CALIBRATED_SPARSE = 
+      SABR_CALIBRATION.calibrateWithFixedBetaAndShift(NAME_SABR,
       EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_RAW_SPARSE,
       MULTICURVE, BETA_SURFACE, SHIFT_SABR_SURFACE, INTERPOLATOR_2D);
   
@@ -194,6 +198,7 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
                 .rawDataShiftSmile(ValueType.SIMPLE_MONEYNESS, MONEYNESS, EXPIRIES, ValueType.NORMAL_VOLATILITY,
                     DATA_ARRAY_FULL, looptenor, loopexpiry, (2 * loopsign - 1) * fdShift);
             SabrParametersSwaptionVolatilities calibratedShifted = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+                SwaptionVolatilitiesName.of("Calibrated-SABR-Shifted"),
                 EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, dataShifted,
                 MULTICURVE, BETA_SURFACE, SHIFT_SABR_SURFACE, INTERPOLATOR_2D);
             pv[loopsign] = LEG_PRICER.presentValue(FLOOR_LEG, MULTICURVE, calibratedShifted).getAmount();
