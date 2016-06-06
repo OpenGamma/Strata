@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.pricer.cms;
 
-import static com.opengamma.strata.basics.PayReceive.PAY;
+
+import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static org.testng.Assert.assertEquals;
@@ -17,10 +18,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
@@ -29,7 +30,7 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.cms.DiscountingCmsPeriodPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -139,8 +140,8 @@ public class DiscountingCmsLegPricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected =
+    CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATES_PROVIDER, p -> LEG_PRICER.presentValue(COUPON_LEG, p));
     assertTrue(computed.equalWithTolerance(expected, TOLERANCE_DELTA));
   }
@@ -148,8 +149,8 @@ public class DiscountingCmsLegPricerTest {
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder point =
         LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD);
-    CurveCurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.curveParameterSensitivity(point.build());
-    CurveCurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+    CurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         RATES_PROVIDER_AFTER_PERIOD, p -> LEG_PRICER.presentValue(COUPON_LEG, p));
     assertTrue(computed.equalWithTolerance(expected, TOLERANCE_DELTA));
   }

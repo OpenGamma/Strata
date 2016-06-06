@@ -16,18 +16,18 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.BuySell;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.market.ReferenceData;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.curve.CurveCurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.product.ZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.market.sensitivity.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.cms.CmsPeriod;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -199,9 +199,9 @@ public class DiscountingCmsPeriodPricerTest {
   public void presentValueSensitivity_buySell() {
     PointSensitivityBuilder pvBuy = PRICER_CMS.presentValueSensitivity(COUPON, RATES_PROVIDER);
     PointSensitivityBuilder pvSell = PRICER_CMS.presentValueSensitivity(COUPON_SELL, RATES_PROVIDER);
-    CurveCurrencyParameterSensitivities ps = 
-        RATES_PROVIDER.curveParameterSensitivity(pvBuy.combinedWith(pvSell).build());
-    assertTrue(ps.equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    CurrencyParameterSensitivities ps = 
+        RATES_PROVIDER.parameterSensitivity(pvBuy.combinedWith(pvSell).build());
+    assertTrue(ps.equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
   }
 
   public void presentValueSensitivity_onFix_nots() {
@@ -251,16 +251,16 @@ public class DiscountingCmsPeriodPricerTest {
     PointSensitivities ptsCapletItm = PRICER_CMS.presentValueSensitivity(CAPLET_NEGATIVE, RATES_PROVIDER_ON_PAY).build();
     PointSensitivities ptsFloorletItm = PRICER_CMS.presentValueSensitivity(FLOORLET, RATES_PROVIDER_ON_PAY).build();
     PointSensitivities ptsFloorletOtm = PRICER_CMS.presentValueSensitivity(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY).build();
-    assertTrue(RATES_PROVIDER_ON_PAY.curveParameterSensitivity(ptsCpn)
-        .equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
-    assertTrue(RATES_PROVIDER_ON_PAY.curveParameterSensitivity(ptsCapletOtm)
-        .equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
-    assertTrue(RATES_PROVIDER_ON_PAY.curveParameterSensitivity(ptsCapletItm)
-        .equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
-    assertTrue(RATES_PROVIDER_ON_PAY.curveParameterSensitivity(ptsFloorletItm)
-        .equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
-    assertTrue(RATES_PROVIDER_ON_PAY.curveParameterSensitivity(ptsFloorletOtm)
-        .equalWithTolerance(CurveCurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    assertTrue(RATES_PROVIDER_ON_PAY.parameterSensitivity(ptsCpn)
+        .equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    assertTrue(RATES_PROVIDER_ON_PAY.parameterSensitivity(ptsCapletOtm)
+        .equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    assertTrue(RATES_PROVIDER_ON_PAY.parameterSensitivity(ptsCapletItm)
+        .equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    assertTrue(RATES_PROVIDER_ON_PAY.parameterSensitivity(ptsFloorletItm)
+        .equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
+    assertTrue(RATES_PROVIDER_ON_PAY.parameterSensitivity(ptsFloorletOtm)
+        .equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_DELTA));
   }
 
   public void presentValueSensitivity_afterPayment() {
