@@ -87,7 +87,7 @@ public class FxOptionSensitivityTest {
     FxOptionSensitivity d = FxOptionSensitivity.of(PAIR, EXPIRY_DATE_TIME, 0.96, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity e = FxOptionSensitivity.of(PAIR, EXPIRY_DATE_TIME, STRIKE, 0.81, GBP, SENSI_VALUE);
     FxOptionSensitivity f = FxOptionSensitivity.of(PAIR, EXPIRY_DATE_TIME, STRIKE, FORWARD, EUR, SENSI_VALUE);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, LocalDate.of(2015, 9, 27), 32d);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

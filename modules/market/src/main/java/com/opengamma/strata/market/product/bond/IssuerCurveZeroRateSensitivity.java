@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.product.bond;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -48,10 +47,10 @@ public final class IssuerCurveZeroRateSensitivity
   @PropertyDefinition(validate = "notNull")
   private final Currency curveCurrency;
   /**
-   * The date that was looked up on the curve.
+   * The time that was queried, expressed as a year fraction.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate date;
+  @PropertyDefinition
+  private final double yearFraction;
   /**
    * The currency of the sensitivity.
    */
@@ -77,17 +76,18 @@ public final class IssuerCurveZeroRateSensitivity
    * The currency representing the curve is used also for the sensitivity currency.
    * 
    * @param currency  the currency of the curve and sensitivity
-   * @param date  the date that was looked up on the curve
+   * @param yearFraction  the year fraction that was looked up on the curve
    * @param legalEntityGroup  the legal entity group
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
    */
   public static IssuerCurveZeroRateSensitivity of(
       Currency currency,
-      LocalDate date,
+      double yearFraction,
       LegalEntityGroup legalEntityGroup,
       double sensitivity) {
-    return of(currency, date, currency, legalEntityGroup, sensitivity);
+
+    return of(currency, yearFraction, currency, legalEntityGroup, sensitivity);
   }
 
   /**
@@ -100,9 +100,10 @@ public final class IssuerCurveZeroRateSensitivity
   public static IssuerCurveZeroRateSensitivity of(
       ZeroRateSensitivity zeroRateSensitivity,
       LegalEntityGroup legalEntityGroup) {
+
     return of(
         zeroRateSensitivity.getCurveCurrency(),
-        zeroRateSensitivity.getDate(),
+        zeroRateSensitivity.getYearFraction(),
         zeroRateSensitivity.getCurrency(),
         legalEntityGroup,
         zeroRateSensitivity.getSensitivity());
@@ -113,7 +114,7 @@ public final class IssuerCurveZeroRateSensitivity
    * legal entity group and value.
    * 
    * @param curveCurrency  the currency of the curve
-   * @param date  the date that was looked up on the curve
+   * @param yearFraction  the year fraction that was looked up on the curve
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param legalEntityGroup  the legal entity group
    * @param sensitivity  the value of the sensitivity
@@ -121,11 +122,12 @@ public final class IssuerCurveZeroRateSensitivity
    */
   public static IssuerCurveZeroRateSensitivity of(
       Currency curveCurrency,
-      LocalDate date,
+      double yearFraction,
       Currency sensitivityCurrency,
       LegalEntityGroup legalEntityGroup,
       double sensitivity) {
-    return new IssuerCurveZeroRateSensitivity(curveCurrency, date, sensitivityCurrency, legalEntityGroup, sensitivity);
+
+    return new IssuerCurveZeroRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, legalEntityGroup, sensitivity);
   }
 
   //-------------------------------------------------------------------------
@@ -134,12 +136,12 @@ public final class IssuerCurveZeroRateSensitivity
     if (this.currency.equals(currency)) {
       return this;
     }
-    return new IssuerCurveZeroRateSensitivity(curveCurrency, date, currency, legalEntityGroup, sensitivity);
+    return new IssuerCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, legalEntityGroup, sensitivity);
   }
 
   @Override
   public IssuerCurveZeroRateSensitivity withSensitivity(double sensitivity) {
-    return new IssuerCurveZeroRateSensitivity(curveCurrency, date, currency, legalEntityGroup, sensitivity);
+    return new IssuerCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, legalEntityGroup, sensitivity);
   }
 
   @Override
@@ -149,7 +151,7 @@ public final class IssuerCurveZeroRateSensitivity
       return ComparisonChain.start()
           .compare(curveCurrency, otherZero.curveCurrency)
           .compare(currency, otherZero.currency)
-          .compare(date, otherZero.date)
+          .compare(yearFraction, otherZero.yearFraction)
           .compare(legalEntityGroup, otherZero.legalEntityGroup)
           .result();
     }
@@ -164,13 +166,13 @@ public final class IssuerCurveZeroRateSensitivity
   //-------------------------------------------------------------------------
   @Override
   public IssuerCurveZeroRateSensitivity multipliedBy(double factor) {
-    return new IssuerCurveZeroRateSensitivity(curveCurrency, date, currency, legalEntityGroup, sensitivity * factor);
+    return new IssuerCurveZeroRateSensitivity(curveCurrency, yearFraction, currency, legalEntityGroup, sensitivity * factor);
   }
 
   @Override
   public IssuerCurveZeroRateSensitivity mapSensitivity(DoubleUnaryOperator operator) {
     return new IssuerCurveZeroRateSensitivity(
-        curveCurrency, date, currency, legalEntityGroup, operator.applyAsDouble(sensitivity));
+        curveCurrency, yearFraction, currency, legalEntityGroup, operator.applyAsDouble(sensitivity));
   }
 
   @Override
@@ -196,7 +198,7 @@ public final class IssuerCurveZeroRateSensitivity
    * @return the point sensitivity object
    */
   public ZeroRateSensitivity createZeroRateSensitivity() {
-    return ZeroRateSensitivity.of(curveCurrency, date, currency, sensitivity);
+    return ZeroRateSensitivity.of(curveCurrency, yearFraction, currency, sensitivity);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -220,16 +222,15 @@ public final class IssuerCurveZeroRateSensitivity
 
   private IssuerCurveZeroRateSensitivity(
       Currency curveCurrency,
-      LocalDate date,
+      double yearFraction,
       Currency currency,
       LegalEntityGroup legalEntityGroup,
       double sensitivity) {
     JodaBeanUtils.notNull(curveCurrency, "curveCurrency");
-    JodaBeanUtils.notNull(date, "date");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(legalEntityGroup, "legalEntityGroup");
     this.curveCurrency = curveCurrency;
-    this.date = date;
+    this.yearFraction = yearFraction;
     this.currency = currency;
     this.legalEntityGroup = legalEntityGroup;
     this.sensitivity = sensitivity;
@@ -261,11 +262,11 @@ public final class IssuerCurveZeroRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date that was looked up on the curve.
-   * @return the value of the property, not null
+   * Gets the time that was queried, expressed as a year fraction.
+   * @return the value of the property
    */
-  public LocalDate getDate() {
-    return date;
+  public double getYearFraction() {
+    return yearFraction;
   }
 
   //-----------------------------------------------------------------------
@@ -308,7 +309,7 @@ public final class IssuerCurveZeroRateSensitivity
     if (obj != null && obj.getClass() == this.getClass()) {
       IssuerCurveZeroRateSensitivity other = (IssuerCurveZeroRateSensitivity) obj;
       return JodaBeanUtils.equal(curveCurrency, other.curveCurrency) &&
-          JodaBeanUtils.equal(date, other.date) &&
+          JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(legalEntityGroup, other.legalEntityGroup) &&
           JodaBeanUtils.equal(sensitivity, other.sensitivity);
@@ -320,7 +321,7 @@ public final class IssuerCurveZeroRateSensitivity
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(curveCurrency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(date);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(legalEntityGroup);
     hash = hash * 31 + JodaBeanUtils.hashCode(sensitivity);
@@ -332,7 +333,7 @@ public final class IssuerCurveZeroRateSensitivity
     StringBuilder buf = new StringBuilder(192);
     buf.append("IssuerCurveZeroRateSensitivity{");
     buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("legalEntityGroup").append('=').append(legalEntityGroup).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
@@ -356,10 +357,10 @@ public final class IssuerCurveZeroRateSensitivity
     private final MetaProperty<Currency> curveCurrency = DirectMetaProperty.ofImmutable(
         this, "curveCurrency", IssuerCurveZeroRateSensitivity.class, Currency.class);
     /**
-     * The meta-property for the {@code date} property.
+     * The meta-property for the {@code yearFraction} property.
      */
-    private final MetaProperty<LocalDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", IssuerCurveZeroRateSensitivity.class, LocalDate.class);
+    private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
+        this, "yearFraction", IssuerCurveZeroRateSensitivity.class, Double.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -381,7 +382,7 @@ public final class IssuerCurveZeroRateSensitivity
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "curveCurrency",
-        "date",
+        "yearFraction",
         "currency",
         "legalEntityGroup",
         "sensitivity");
@@ -397,8 +398,8 @@ public final class IssuerCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return curveCurrency;
-        case 3076014:  // date
-          return date;
+        case -1731780257:  // yearFraction
+          return yearFraction;
         case 575402001:  // currency
           return currency;
         case -899047453:  // legalEntityGroup
@@ -434,11 +435,11 @@ public final class IssuerCurveZeroRateSensitivity
     }
 
     /**
-     * The meta-property for the {@code date} property.
+     * The meta-property for the {@code yearFraction} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> date() {
-      return date;
+    public MetaProperty<Double> yearFraction() {
+      return yearFraction;
     }
 
     /**
@@ -471,8 +472,8 @@ public final class IssuerCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return ((IssuerCurveZeroRateSensitivity) bean).getCurveCurrency();
-        case 3076014:  // date
-          return ((IssuerCurveZeroRateSensitivity) bean).getDate();
+        case -1731780257:  // yearFraction
+          return ((IssuerCurveZeroRateSensitivity) bean).getYearFraction();
         case 575402001:  // currency
           return ((IssuerCurveZeroRateSensitivity) bean).getCurrency();
         case -899047453:  // legalEntityGroup
@@ -501,7 +502,7 @@ public final class IssuerCurveZeroRateSensitivity
   private static final class Builder extends DirectFieldsBeanBuilder<IssuerCurveZeroRateSensitivity> {
 
     private Currency curveCurrency;
-    private LocalDate date;
+    private double yearFraction;
     private Currency currency;
     private LegalEntityGroup legalEntityGroup;
     private double sensitivity;
@@ -518,8 +519,8 @@ public final class IssuerCurveZeroRateSensitivity
       switch (propertyName.hashCode()) {
         case 1303639584:  // curveCurrency
           return curveCurrency;
-        case 3076014:  // date
-          return date;
+        case -1731780257:  // yearFraction
+          return yearFraction;
         case 575402001:  // currency
           return currency;
         case -899047453:  // legalEntityGroup
@@ -537,8 +538,8 @@ public final class IssuerCurveZeroRateSensitivity
         case 1303639584:  // curveCurrency
           this.curveCurrency = (Currency) newValue;
           break;
-        case 3076014:  // date
-          this.date = (LocalDate) newValue;
+        case -1731780257:  // yearFraction
+          this.yearFraction = (Double) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
@@ -583,7 +584,7 @@ public final class IssuerCurveZeroRateSensitivity
     public IssuerCurveZeroRateSensitivity build() {
       return new IssuerCurveZeroRateSensitivity(
           curveCurrency,
-          date,
+          yearFraction,
           currency,
           legalEntityGroup,
           sensitivity);
@@ -595,7 +596,7 @@ public final class IssuerCurveZeroRateSensitivity
       StringBuilder buf = new StringBuilder(192);
       buf.append("IssuerCurveZeroRateSensitivity.Builder{");
       buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
-      buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+      buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("legalEntityGroup").append('=').append(JodaBeanUtils.toString(legalEntityGroup)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));

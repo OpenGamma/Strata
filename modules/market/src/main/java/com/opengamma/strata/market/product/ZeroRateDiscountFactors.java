@@ -192,28 +192,26 @@ public final class ZeroRateDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    double yearFraction = relativeYearFraction(date);
+  public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
-      LocalDate date,
+      double yearFraction,
       Currency sensitivityCurrency,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double yearFraction = relativeYearFraction(date);
-    ZeroRateSensitivity sensi = zeroRatePointSensitivity(date, sensitivityCurrency);
+    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
       return sensi;
     }
     double factor;
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
-      double df = discountFactor(date);
+      double df = discountFactor(yearFraction);
       double dfRoot = Math.pow(df, -1d / periodPerYear / yearFraction);
       factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodPerYear, periodPerYear * yearFraction + 1d);
     } else {
@@ -224,7 +222,7 @@ public final class ZeroRateDiscountFactors
 
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
-    double yearFraction = relativeYearFraction(pointSens.getDate());
+    double yearFraction = pointSens.getYearFraction();
     UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
     CurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);

@@ -15,8 +15,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -36,39 +34,39 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 public class ZeroRateSensitivityTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate DATE = date(2015, 8, 27);
-  private static final LocalDate DATE2 = date(2015, 9, 27);
+  private static final double YEARFRAC = 2d;
+  private static final double YEARFRAC2 = 3d;
 
   public void test_of() {
-    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), 32d);
     assertEquals(test.getCurrency(), GBP);
   }
 
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     assertSame(base.withCurrency(GBP), base);
-    assertEquals(base.withCurrency(USD), ZeroRateSensitivity.of(GBP, DATE, USD, 32d));
+    assertEquals(base.withCurrency(USD), ZeroRateSensitivity.of(GBP, YEARFRAC, USD, 32d));
   }
 
   //-------------------------------------------------------------------------
   public void test_withSensitivity() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE, 20d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, YEARFRAC, 20d);
     ZeroRateSensitivity test = base.withSensitivity(20d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_compareKey() {
-    ZeroRateSensitivity a1 = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity a2 = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity b = ZeroRateSensitivity.of(USD, DATE, 32d);
-    ZeroRateSensitivity c = ZeroRateSensitivity.of(GBP, DATE2, 32d);
-    IborRateSensitivity other = IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, DATE, REF_DATA), 32d);
+    ZeroRateSensitivity a1 = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity a2 = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity b = ZeroRateSensitivity.of(USD, YEARFRAC, 32d);
+    ZeroRateSensitivity c = ZeroRateSensitivity.of(GBP, YEARFRAC2, 32d);
+    IborRateSensitivity other = IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);
@@ -80,13 +78,12 @@ public class ZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_convertedTo() {
-    LocalDate fixingDate = DATE;
     double sensi = 32d;
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, fixingDate, sensi);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, sensi);
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
     ZeroRateSensitivity test1 = (ZeroRateSensitivity) base.convertedTo(USD, matrix);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, fixingDate, USD, rate * sensi);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, YEARFRAC, USD, rate * sensi);
     assertEquals(test1, expected);
     ZeroRateSensitivity test2 = (ZeroRateSensitivity) base.convertedTo(GBP, matrix);
     assertEquals(test2, base);
@@ -94,31 +91,31 @@ public class ZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE, 32d * 3.5d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d * 3.5d);
     ZeroRateSensitivity test = base.multipliedBy(3.5d);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_mapSensitivity() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE, 1 / 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, YEARFRAC, 1 / 32d);
     ZeroRateSensitivity test = base.mapSensitivity(s -> 1 / s);
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_normalize() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     ZeroRateSensitivity test = base.normalize();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void test_combinedWith() {
-    ZeroRateSensitivity base1 = ZeroRateSensitivity.of(GBP, DATE, 32d);
-    ZeroRateSensitivity base2 = ZeroRateSensitivity.of(GBP, DATE2, 22d);
+    ZeroRateSensitivity base1 = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
+    ZeroRateSensitivity base2 = ZeroRateSensitivity.of(GBP, YEARFRAC2, 22d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base1).add(base2);
     PointSensitivityBuilder test = base1.combinedWith(base2);
@@ -126,7 +123,7 @@ public class ZeroRateSensitivityTest {
   }
 
   public void test_combinedWith_mutable() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base);
     PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
@@ -135,7 +132,7 @@ public class ZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_buildInto() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
@@ -144,28 +141,28 @@ public class ZeroRateSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_build() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     PointSensitivities test = base.build();
     assertEquals(test.getSensitivities(), ImmutableList.of(base));
   }
 
   //-------------------------------------------------------------------------
   public void test_cloned() {
-    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity base = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     ZeroRateSensitivity test = base.cloned();
     assertSame(test, base);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     coverImmutableBean(test);
-    ZeroRateSensitivity test2 = ZeroRateSensitivity.of(USD, date(2015, 7, 27), 16d);
+    ZeroRateSensitivity test2 = ZeroRateSensitivity.of(USD, YEARFRAC2, 16d);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, DATE, 32d);
+    ZeroRateSensitivity test = ZeroRateSensitivity.of(GBP, YEARFRAC, 32d);
     assertSerialization(test);
   }
 

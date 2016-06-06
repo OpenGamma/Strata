@@ -15,8 +15,6 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -36,8 +34,8 @@ import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 public class RepoCurveZeroRateSensitivityTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate DATE = date(2015, 8, 27);
-  private static final LocalDate DATE2 = date(2015, 9, 27);
+  private static final double YEARFRAC = 2d;
+  private static final double YEARFRAC2 = 3d;
   private static final double VALUE = 32d;
   private static final Currency CURRENCY = USD;
   private static final BondGroup GROUP = BondGroup.of("ISSUER1 BND 10Y");
@@ -45,65 +43,65 @@ public class RepoCurveZeroRateSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_of_withSensitivityCurrency() {
     Currency sensiCurrency = GBP;
-    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, sensiCurrency, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, sensiCurrency, GROUP, VALUE);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), sensiCurrency);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), VALUE);
   }
 
   public void test_of_withoutSensitivityCurrency() {
-    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), CURRENCY);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), VALUE);
   }
 
   public void test_of_zeroRateSensitivity() {
     Currency sensiCurrency = GBP;
-    ZeroRateSensitivity zeroSensi = ZeroRateSensitivity.of(CURRENCY, DATE, sensiCurrency, VALUE);
+    ZeroRateSensitivity zeroSensi = ZeroRateSensitivity.of(CURRENCY, YEARFRAC, sensiCurrency, VALUE);
     RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(zeroSensi, GROUP);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), sensiCurrency);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), VALUE);
   }
 
   //-------------------------------------------------------------------------
   public void test_withCurrency() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     RepoCurveZeroRateSensitivity test = base.withCurrency(GBP);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), VALUE);
   }
 
   public void test_withSensitivity() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     double newValue = 53d;
     RepoCurveZeroRateSensitivity test = base.withSensitivity(newValue);
     assertEquals(test.getBondGroup(), GROUP);
     assertEquals(test.getCurveCurrency(), CURRENCY);
     assertEquals(test.getCurrency(), CURRENCY);
-    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getYearFraction(), YEARFRAC);
     assertEquals(test.getSensitivity(), newValue);
   }
 
   public void test_compareKey() {
-    RepoCurveZeroRateSensitivity a1 = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity a2 = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity b = RepoCurveZeroRateSensitivity.of(GBP, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity c = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE2, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity a1 = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity a2 = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity b = RepoCurveZeroRateSensitivity.of(GBP, YEARFRAC, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity c = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC2, GROUP, VALUE);
     RepoCurveZeroRateSensitivity d =
-        RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, BondGroup.of("ISSUER1 BND 3Y"), VALUE);
+        RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, BondGroup.of("ISSUER1 BND 3Y"), VALUE);
     IborRateSensitivity other =
-        IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, DATE, REF_DATA), 32d);
+        IborRateSensitivity.of(IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA), 32d);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) > 0, true);
     assertEquals(b.compareKey(a1) < 0, true);
@@ -116,40 +114,40 @@ public class RepoCurveZeroRateSensitivityTest {
   }
 
   public void test_convertedTo() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
     RepoCurveZeroRateSensitivity test1 = base.convertedTo(USD, matrix);
     assertEquals(test1, base);
     RepoCurveZeroRateSensitivity test2 = base.convertedTo(GBP, matrix);
-    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GBP, GROUP, VALUE / rate);
+    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GBP, GROUP, VALUE / rate);
     assertEquals(test2, expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     double rate = 2.4d;
     RepoCurveZeroRateSensitivity test = base.multipliedBy(rate);
-    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE * rate);
+    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE * rate);
     assertEquals(test, expected);
   }
 
   public void test_mapSensitivity() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
-    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, 1d / VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity expected = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, 1d / VALUE);
     RepoCurveZeroRateSensitivity test = base.mapSensitivity(s -> 1d / s);
     assertEquals(test, expected);
   }
 
   public void test_normalize() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     RepoCurveZeroRateSensitivity test = base.normalize();
     assertEquals(test, base);
   }
 
   public void test_buildInto() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
     assertSame(test, combo);
@@ -157,29 +155,29 @@ public class RepoCurveZeroRateSensitivityTest {
   }
 
   public void test_cloned() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     RepoCurveZeroRateSensitivity test = base.cloned();
     assertEquals(test, base);
   }
 
   public void test_createZeroRateSensitivity() {
-    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GBP, GROUP, VALUE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(CURRENCY, DATE, GBP, VALUE);
+    RepoCurveZeroRateSensitivity base = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GBP, GROUP, VALUE);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(CURRENCY, YEARFRAC, GBP, VALUE);
     ZeroRateSensitivity test = base.createZeroRateSensitivity();
     assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    RepoCurveZeroRateSensitivity test1 = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity test1 = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     coverImmutableBean(test1);
     RepoCurveZeroRateSensitivity test2 =
-        RepoCurveZeroRateSensitivity.of(GBP, date(2014, 3, 24), BondGroup.of("ISSUER2 BND 5Y"), 12d);
+        RepoCurveZeroRateSensitivity.of(GBP, YEARFRAC2, BondGroup.of("ISSUER2 BND 5Y"), 12d);
     coverBeanEquals(test1, test2);
   }
 
   public void test_serialization() {
-    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, DATE, GROUP, VALUE);
+    RepoCurveZeroRateSensitivity test = RepoCurveZeroRateSensitivity.of(CURRENCY, YEARFRAC, GROUP, VALUE);
     assertSerialization(test);
   }
 

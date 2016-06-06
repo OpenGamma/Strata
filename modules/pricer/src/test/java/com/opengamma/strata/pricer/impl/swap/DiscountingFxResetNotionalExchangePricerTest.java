@@ -372,12 +372,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   // creates a simple provider
   private SimpleRatesProvider createProvider(FxResetNotionalExchange ne) {
     LocalDate paymentDate = ne.getPaymentDate();
-    double paymentTime = ACT_360.relativeYearFraction(VAL_DATE, ne.getPaymentDate());
+    double paymentTime = ACT_360.relativeYearFraction(VAL_DATE, paymentDate);
     Currency currency = ne.getCurrency();
 
     DiscountFactors mockDf = mock(DiscountFactors.class);
     when(mockDf.discountFactor(paymentDate)).thenReturn(DISCOUNT_FACTOR);
-    ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentDate, -DISCOUNT_FACTOR * paymentTime);
+    ZeroRateSensitivity sens = ZeroRateSensitivity.of(currency, paymentTime, -DISCOUNT_FACTOR * paymentTime);
     when(mockDf.zeroRatePointSensitivity(paymentDate)).thenReturn(sens);
     FxIndexRates mockFxRates = mock(FxIndexRates.class);
     when(mockFxRates.rate(ne.getObservation(), ne.getReferenceCurrency())).thenReturn(FX_RATE);

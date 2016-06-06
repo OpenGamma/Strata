@@ -272,8 +272,7 @@ public class DiscountingFraProductPricerTest {
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
-        .thenReturn(ZeroRateSensitivity.of(
-            fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
+        .thenReturn(ZeroRateSensitivity.of(fraExp.getCurrency(), paymentTime, -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
     when(mockObs.rate(fraExp.getFloatingRate(), FRA.getStartDate(), FRA.getEndDate(), simpleProv))
@@ -292,7 +291,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA.getCurrency());
-    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getYearFraction(), paymentTime);
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA.getNotional() * eps);
 
     // test via FraTrade
@@ -319,8 +318,7 @@ public class DiscountingFraProductPricerTest {
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
-        .thenReturn(ZeroRateSensitivity.of(
-            fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
+        .thenReturn(ZeroRateSensitivity.of(fraExp.getCurrency(), paymentTime, -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
     when(mockObs.rate(fraExp.getFloatingRate(), FRA_NONE.getStartDate(), FRA_NONE.getEndDate(), simpleProv))
@@ -339,7 +337,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA_NONE.getCurrency());
-    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getYearFraction(), paymentTime);
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_NONE.getNotional() * eps);
   }
 
@@ -362,8 +360,7 @@ public class DiscountingFraProductPricerTest {
     when(mockDf.discountFactor(fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockDf.zeroRatePointSensitivity(fraExp.getPaymentDate()))
-        .thenReturn(ZeroRateSensitivity.of(
-            fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
+        .thenReturn(ZeroRateSensitivity.of(fraExp.getCurrency(), paymentTime, -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate(), simpleProv))
         .thenReturn(sens);
     when(mockObs.rate(fraExp.getFloatingRate(), FRA_AFMA.getStartDate(), FRA_AFMA.getEndDate(), simpleProv))
@@ -382,7 +379,7 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
     assertEquals(sensitivity1.getCurrency(), FRA_AFMA.getCurrency());
-    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getYearFraction(), paymentTime);
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);
   }
 

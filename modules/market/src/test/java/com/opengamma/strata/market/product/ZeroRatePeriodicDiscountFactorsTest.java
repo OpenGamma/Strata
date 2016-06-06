@@ -166,7 +166,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactor(DATE_AFTER);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, -df * relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, -df * relativeYearFraction);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER), expected);
   }
 
@@ -174,7 +174,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactor(DATE_AFTER);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, USD, -df * relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, USD, -df * relativeYearFraction);
     assertEquals(test.zeroRatePointSensitivity(DATE_AFTER, USD), expected);
   }
 
@@ -183,7 +183,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactorWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, -df * relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, -df * relativeYearFraction);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA);
@@ -193,7 +193,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactorWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, USD, -df * relativeYearFraction);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, USD, -df * relativeYearFraction);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_AFTER, USD, SPREAD, CONTINUOUS, 0);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA);
@@ -217,7 +217,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
             -1.0 / (relativeYearFraction * periodPerYear)) + SPREAD / periodPerYear,
         -relativeYearFraction * periodPerYear);
     double ddfSdz = (dfSP - dfSM) / (2 * shift);    
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, ddfSdz);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, ddfSdz);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_AFTER, SPREAD, PERIODIC, periodPerYear);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA_FD);
@@ -241,7 +241,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
             -1.0 / (relativeYearFraction * periodPerYear)) + SPREAD / periodPerYear,
         -relativeYearFraction * periodPerYear);
     double ddfSdz = (dfSP - dfSM) / (2 * shift);    
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_AFTER, USD, ddfSdz);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, USD, ddfSdz);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_AFTER, USD, SPREAD, PERIODIC, periodPerYear);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA_FD);
@@ -249,7 +249,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
 
   public void test_zeroRatePointSensitivityWithSpread_smallYearFraction() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_VAL, 0.0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, 0.0d);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_VAL, SPREAD, CONTINUOUS, 0);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA_FD);
@@ -257,7 +257,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
 
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_smallYearFraction() {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, DATE_VAL, USD, 0.0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, 0.0d);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(DATE_VAL, USD, SPREAD, CONTINUOUS, 0);
     assertTrue(computed.compareKey(expected) == 0);
     assertEquals(computed.getSensitivity(), expected.getSensitivity(), TOLERANCE_DELTA_FD);

@@ -202,40 +202,37 @@ public final class ZeroRatePeriodicDiscountFactors
 
   //-------------------------------------------------------------------------
   @Override
-  public ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
-    double yearFraction = relativeYearFraction(date);
+  public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
-      LocalDate date,
+      double yearFraction,
       Currency sensitivityCurrency,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    double yearFraction = relativeYearFraction(date);
-
     if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, 0);
+      return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, 0);
     }
     if (compoundedRateType.equals(CompoundedRateType.CONTINUOUS)) {
-      double discountFactor = discountFactorWithSpread(date, zSpread, compoundedRateType, periodPerYear);
-      return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, -discountFactor * yearFraction);
+      double discountFactor = discountFactorWithSpread(yearFraction, zSpread, compoundedRateType, periodPerYear);
+      return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
     }
     double df = discountFactor(yearFraction);
     double df2 = Math.pow(df, -1.0 / (yearFraction * periodPerYear));
     double df3 = df2 + zSpread / periodPerYear;
     double ddfSdz = -yearFraction * Math.pow(df3, -yearFraction * periodPerYear - 1) * df2;
-    return ZeroRateSensitivity.of(currency, date, sensitivityCurrency, ddfSdz);
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, ddfSdz);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
-    double yearFraction = relativeYearFraction(pointSens.getDate());
+    double yearFraction = pointSens.getYearFraction();
     double rp = curve.yValue(yearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;

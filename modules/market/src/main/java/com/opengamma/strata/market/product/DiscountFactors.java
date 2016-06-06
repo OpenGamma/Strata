@@ -226,32 +226,26 @@ public interface DiscountFactors
    * @throws RuntimeException if the result cannot be calculated
    */
   public default ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date) {
-    return zeroRatePointSensitivity(date, getCurrency());
+    double yearFraction = relativeYearFraction(date);
+    return zeroRatePointSensitivity(yearFraction);
   }
 
   /**
-   * Calculates the zero rate point sensitivity with z-spread at the specified date.
+   * Calculates the zero rate point sensitivity at the specified year fraction.
    * <p>
    * This returns a sensitivity instance referring to the zero rate sensitivity of the
    * points that were queried in the market data.
-   * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
+   * The sensitivity typically has the value {@code (-discountFactor * yearFraction)}.
+   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
    * <p>
-   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
-   * compounded rates of the discounting curve. 
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
    * 
-   * @param date  the date to discount to
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodPerYear  the number of periods per year
+   * @param yearFraction  the year fraction
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
-      LocalDate date,
-      double zSpread,
-      CompoundedRateType compoundedRateType,
-      int periodPerYear) {
-    return zeroRatePointSensitivityWithSpread(date, getCurrency(), zSpread, compoundedRateType, periodPerYear);
+  public default ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction) {
+    return zeroRatePointSensitivity(yearFraction, getCurrency());
   }
 
   /**
@@ -269,7 +263,85 @@ public interface DiscountFactors
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency);
+  public default ZeroRateSensitivity zeroRatePointSensitivity(LocalDate date, Currency sensitivityCurrency) {
+    double yearFraction = relativeYearFraction(date);
+    return zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
+  }
+
+  /**
+   * Calculates the zero rate point sensitivity at the specified year fraction specifying the currency of the sensitivity.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity typically has the value {@code (-discountFactor * yearFraction)}.
+   * The sensitivity refers to the result of {@link #discountFactor(LocalDate)}.
+   * <p>
+   * This method allows the currency of the sensitivity to differ from the currency of the market data.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the zero rate point sensitivity with z-spread at the specified date.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
+   * compounded rates of the discounting curve. 
+   * 
+   * @param date  the date to discount to
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+      LocalDate date,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    double yearFraction = relativeYearFraction(date);
+    return zeroRatePointSensitivityWithSpread(yearFraction, zSpread, compoundedRateType, periodsPerYear);
+  }
+
+  /**
+   * Calculates the zero rate point sensitivity with z-spread at the specified year fraction.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
+   * compounded rates of the discounting curve. 
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+      double yearFraction,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    return zeroRatePointSensitivityWithSpread(yearFraction, getCurrency(), zSpread, compoundedRateType, periodsPerYear);
+  }
 
   /**
    * Calculates the zero rate point sensitivity with z-spread at the specified date specifying
@@ -292,8 +364,42 @@ public interface DiscountFactors
    * @return the point sensitivity of the zero rate
    * @throws RuntimeException if the result cannot be calculated
    */
-  public abstract ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+  public default ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
       LocalDate date,
+      Currency sensitivityCurrency,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    double yearFraction = relativeYearFraction(date);
+    return zeroRatePointSensitivityWithSpread(yearFraction, sensitivityCurrency, zSpread, compoundedRateType, periodsPerYear);
+  }
+
+  /**
+   * Calculates the zero rate point sensitivity with z-spread at the specified year fraction specifying
+   * the currency of the sensitivity.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the
+   * points that were queried in the market data.
+   * The sensitivity refers to the result of {@link #discountFactorWithSpread(LocalDate, double, CompoundedRateType, int)}.
+   * <p>
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic
+   * compounded rates of the discounting curve. 
+   * <p>
+   * This method allows the currency of the sensitivity to differ from the currency of the market data.
+   * <p>
+   * The year fraction must be based on {@code #relativeYearFraction(LocalDate)}.
+   * 
+   * @param yearFraction  the year fraction
+   * @param sensitivityCurrency  the currency of the sensitivity
+   * @param zSpread  the z-spread
+   * @param compoundedRateType  the compounded rate type
+   * @param periodsPerYear  the number of periods per year
+   * @return the point sensitivity of the zero rate
+   * @throws RuntimeException if the result cannot be calculated
+   */
+  public abstract ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+      double yearFraction,
       Currency sensitivityCurrency,
       double zSpread,
       CompoundedRateType compoundedRateType,

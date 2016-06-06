@@ -109,7 +109,7 @@ public class DiscountingPaymentPricerTest {
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
     assertEquals(actual.getCurrency(), USD);
     assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
     assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
   }
 
@@ -126,7 +126,7 @@ public class DiscountingPaymentPricerTest {
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
     assertEquals(actual.getCurrency(), USD);
     assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
     assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
   }
 
@@ -144,7 +144,7 @@ public class DiscountingPaymentPricerTest {
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
     assertEquals(actual.getCurrency(), USD);
     assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
     assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
   }
 
@@ -162,7 +162,7 @@ public class DiscountingPaymentPricerTest {
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
     assertEquals(actual.getCurrency(), USD);
     assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getDate(), PAYMENT_DATE);
+    assertEquals(actual.getYearFraction(), relativeYearFraction);
     assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * EPS);
   }
 

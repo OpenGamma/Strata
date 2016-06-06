@@ -102,7 +102,7 @@ public class FxForwardSensitivityTest {
     FxForwardSensitivity c = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, REFERENCE_DATE, GBP, SENSITIVITY);
     FxForwardSensitivity d = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, JPY, SENSITIVITY);
     FxForwardSensitivity e = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, date(2015, 9, 27), SENSITIVITY);
-    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, date(2015, 9, 27), SENSITIVITY);
+    ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, SENSITIVITY);
     assertEquals(a1.compareKey(a2), 0);
     assertEquals(a1.compareKey(b) < 0, true);
     assertEquals(b.compareKey(a1) > 0, true);

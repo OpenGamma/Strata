@@ -164,13 +164,17 @@ public class BlackFxSingleBarrierOptionProductPricer {
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     double signedNotional = signedNotional(underlyingOption);
+    double counterYearFraction =
+        ratesProvider.discountFactors(currencyPair.getCounter()).relativeYearFraction(underlyingFx.getPaymentDate());
     ZeroRateSensitivity counterSensi = ZeroRateSensitivity.of(
         currencyPair.getCounter(),
-        underlyingFx.getPaymentDate(),
+        counterYearFraction,
         signedNotional * (priceDerivatives.getDerivative(2) + priceDerivatives.getDerivative(3)));
+    double baseYearFraction =
+        ratesProvider.discountFactors(currencyPair.getBase()).relativeYearFraction(underlyingFx.getPaymentDate());
     ZeroRateSensitivity baseSensi = ZeroRateSensitivity.of(
         currencyPair.getBase(),
-        underlyingFx.getPaymentDate(),
+        baseYearFraction,
         currencyPair.getCounter(),
         -priceDerivatives.getDerivative(3) * signedNotional);
     return counterSensi.combinedWith(baseSensi);
