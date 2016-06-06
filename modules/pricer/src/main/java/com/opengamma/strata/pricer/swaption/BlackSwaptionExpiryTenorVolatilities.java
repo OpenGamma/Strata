@@ -31,10 +31,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
@@ -168,6 +173,31 @@ public final class BlackSwaptionExpiryTenorVolatilities
     return convention;
   }
 
+  @Override
+  public int getParameterCount() {
+    return surface.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return surface.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return surface.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public BlackSwaptionExpiryTenorVolatilities withParameter(int parameterIndex, double newValue) {
+    return new BlackSwaptionExpiryTenorVolatilities(surface.withParameter(parameterIndex, newValue), valuationDateTime);
+  }
+
+  @Override
+  public BlackSwaptionExpiryTenorVolatilities withPerturbation(ParameterPerturbation perturbation) {
+    return new BlackSwaptionExpiryTenorVolatilities(surface.withPerturbation(perturbation), valuationDateTime);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double volatility(double expiry, double tenor, double strike, double forwardRate) {
@@ -175,7 +205,18 @@ public final class BlackSwaptionExpiryTenorVolatilities
   }
 
   @Override
-  public CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
+  public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
+    CurrencyParameterSensitivities sens = CurrencyParameterSensitivities.empty();
+    for (PointSensitivity point : pointSensitivities.getSensitivities()) {
+      if (point instanceof SwaptionSensitivity) {
+        SwaptionSensitivity pt = (SwaptionSensitivity) point;
+        sens = sens.combinedWith(parameterSensitivity(pt));
+      }
+    }
+    return sens;
+  }
+
+  private CurrencyParameterSensitivity parameterSensitivity(SwaptionSensitivity point) {
     ArgChecker.isTrue(point.getConvention().equals(convention),
         "Swap convention of provider must be the same as swap convention of swaption sensitivity");
     double expiry = relativeTime(point.getExpiry());

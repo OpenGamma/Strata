@@ -12,7 +12,6 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,6 +29,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
@@ -132,7 +132,10 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSensitivity point = SwaptionSensitivity.of(
           CONVENTION, TEST_OPTION_EXPIRY[i], TENOR.get(i), TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
-      CurrencyParameterSensitivity sensi = PROVIDER.parameterSensitivity(point);
+      CurrencyParameterSensitivities sensActual = PROVIDER.parameterSensitivity(point);
+      CurrencyParameterSensitivity sensi = sensActual.getSensitivity(SURFACE.getName(), GBP);
+      DoubleArray computed = sensi.getSensitivity();
+
       Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
       for (int j = 0; j < nData; ++j) {
         DoubleArray volDataUp = VOL.subArray(0, nData).with(j, VOL.get(j) + eps);
@@ -148,16 +151,13 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
         double fd = 0.5 * (volUp - volDw) / eps;
         map.put(DoublesPair.of(TIME.get(j), TENOR.get(j)), fd);
       }
-      CurrencyParameterSensitivity sensiFromNoMetadata = PROVIDER.parameterSensitivity(point);
       List<ParameterMetadata> list = sensi.getParameterMetadata();
-      DoubleArray computed = sensi.getSensitivity();
       assertEquals(computed.size(), nData);
       for (int j = 0; j < list.size(); ++j) {
         SwaptionSurfaceExpiryTenorParameterMetadata metadata =
             (SwaptionSurfaceExpiryTenorParameterMetadata) list.get(i);
         double expected = map.get(DoublesPair.of(metadata.getYearFraction(), metadata.getTenor()));
         assertEquals(computed.get(i), expected, eps);
-        assertTrue(sensiFromNoMetadata.getParameterMetadata().contains(metadata));
       }
     }
   }

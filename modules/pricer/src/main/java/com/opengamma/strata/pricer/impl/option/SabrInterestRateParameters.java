@@ -19,14 +19,16 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.param.ParameterizedData;
+import com.opengamma.strata.market.param.ParameterizedDataCombiner;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.pricer.impl.volatility.VolatilityModel;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
 import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -42,7 +44,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
  */
 @BeanDefinition(style = "light")
 public final class SabrInterestRateParameters
-    implements VolatilityModel<DoubleArray>, ImmutableBean {
+    implements ParameterizedData, ImmutableBean {
 
   /**
    * A surface used to apply no shift.
@@ -100,6 +102,10 @@ public final class SabrInterestRateParameters
    * The day count convention of the surfaces.
    */
   private final DayCount dayCount;  // cached, not a property
+  /**
+   * The parameter combiner.
+   */
+  private final ParameterizedDataCombiner paramCombiner;  // cached, not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -211,6 +217,7 @@ public final class SabrInterestRateParameters
     this.sabrFunctionProvider = sabrFunctionProvider;
     this.convention = swapConvention;
     this.dayCount = dayCount;
+    this.paramCombiner = ParameterizedDataCombiner.of(alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface);
   }
 
   // basic value tpe checks
@@ -252,6 +259,43 @@ public final class SabrInterestRateParameters
    */
   public DayCount getDayCount() {
     return dayCount;
+  }
+
+  @Override
+  public int getParameterCount() {
+    return paramCombiner.getParameterCount();
+  }
+
+  @Override
+  public double getParameter(int parameterIndex) {
+    return paramCombiner.getParameter(parameterIndex);
+  }
+
+  @Override
+  public ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return paramCombiner.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public SabrInterestRateParameters withParameter(int parameterIndex, double newValue) {
+    return new SabrInterestRateParameters(
+        paramCombiner.underlyingWithParameter(0, Surface.class, parameterIndex, newValue),
+        paramCombiner.underlyingWithParameter(1, Surface.class, parameterIndex, newValue),
+        paramCombiner.underlyingWithParameter(2, Surface.class, parameterIndex, newValue),
+        paramCombiner.underlyingWithParameter(3, Surface.class, parameterIndex, newValue),
+        paramCombiner.underlyingWithParameter(4, Surface.class, parameterIndex, newValue),
+        sabrFunctionProvider);
+  }
+
+  @Override
+  public SabrInterestRateParameters withPerturbation(ParameterPerturbation perturbation) {
+    return new SabrInterestRateParameters(
+        paramCombiner.underlyingWithPerturbation(0, Surface.class, perturbation),
+        paramCombiner.underlyingWithPerturbation(1, Surface.class, perturbation),
+        paramCombiner.underlyingWithPerturbation(2, Surface.class, perturbation),
+        paramCombiner.underlyingWithPerturbation(3, Surface.class, perturbation),
+        paramCombiner.underlyingWithPerturbation(4, Surface.class, perturbation),
+        sabrFunctionProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -311,13 +355,6 @@ public final class SabrInterestRateParameters
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public double volatility(DoubleArray t) {
-    ArgChecker.notNull(t, "data");
-    ArgChecker.isTrue(t.size() == 4, "data should have four components (expiry time, tenor, strike and forward");
-    return volatility(t.get(0), t.get(1), t.get(2), t.get(3));
-  }
-
   /**
    * Calculates the volatility for given expiry, tenor, strike and forward rate.
    * 
