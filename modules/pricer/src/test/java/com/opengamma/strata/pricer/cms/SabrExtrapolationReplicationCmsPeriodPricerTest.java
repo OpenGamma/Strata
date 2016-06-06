@@ -433,14 +433,21 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertEquals(adjustmentComputed, adjustedForwardRateComputed - forward, TOL);
   }
   
+
+  public void test_adjusted_forward_rate_cap_floor() {
+    double adjustedForwardRateCoupon = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
+    double adjustedForwardRateFloor = PRICER.adjustedForwardRate(FLOORLET, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(adjustedForwardRateCoupon, adjustedForwardRateFloor, TOL);
+    double adjustedForwardRateCap = PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(adjustedForwardRateCoupon, adjustedForwardRateCap, TOL);
+  }
+  
   public void test_adjusted_forward_rate_afterFix() {
     double adjustedForward = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     assertEquals(adjustedForward, OBS_INDEX , TOL);    
   }
 
   public void test_adjusted_rate_error() {
-    assertThrowsIllegalArg(() -> PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER, VOLATILITIES));
-    assertThrowsIllegalArg(() -> PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
     assertThrowsIllegalArg(() -> PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
   }
 
@@ -789,7 +796,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   //---------------------------------------------------------------------
   public void test_explainPresentValue() {
     ExplainMapBuilder builder = ExplainMap.builder();
-    PRICER.explainPresentValue(FLOORLET, RATES_PROVIDER, builder);
+    PRICER.explainPresentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES, builder);
     ExplainMap explain = builder.build();
     //Test a CMS Floorlet Period.
     assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "CmsFloorletPeriod");
@@ -801,6 +808,13 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertEquals(explain.get(ExplainKey.END_DATE).get(), LocalDate.of(2021, 04, 28));
     assertEquals(explain.get(ExplainKey.FIXING_DATE).get(), LocalDate.of(2020, 04, 24));
     assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), 1.0138888888888888d);
+    double forwardSwapRate = PRICER_SWAP.parRate(FLOORLET.getUnderlyingSwap(), RATES_PROVIDER);
+    assertEquals(explain.get(ExplainKey.FORWARD_RATE).get(), forwardSwapRate);
+    CurrencyAmount pv = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get(), pv);
+    double adjustedForwardRate = PRICER.adjustedForwardRate(FLOORLET, RATES_PROVIDER, VOLATILITIES);
+    assertEquals(explain.get(ExplainKey.CONV_ADJ_RATE).get(), adjustedForwardRate);
+    
   }
   
   //-------------------------------------------------------------------------

@@ -37,6 +37,7 @@ import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.product.cms.CmsLeg;
@@ -145,6 +146,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
       new SabrExtrapolationReplicationCmsLegPricer(PERIOD_PRICER);
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
+  private static final DiscountingSwapProductPricer PRICER_SWAP =
+      DiscountingSwapProductPricer.DEFAULT;
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
@@ -315,6 +318,10 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
     assertEquals(cmsPeriod0.get(ExplainKey.END_DATE).get(), LocalDate.of(2016, 10, 21));
     assertEquals(cmsPeriod0.get(ExplainKey.FIXING_DATE).get(), LocalDate.of(2015, 10, 19));
     assertEquals(cmsPeriod0.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), 1.0166666666666666d);
+    double forwardSwapRate = PRICER_SWAP.parRate(CAP_LEG.getCmsPeriods().get(0).getUnderlyingSwap(), RATES_PROVIDER);
+    assertEquals(cmsPeriod0.get(ExplainKey.FORWARD_RATE).get(), forwardSwapRate);
+    CurrencyAmount pv = PERIOD_PRICER.presentValue(CAP_LEG.getCmsPeriods().get(0), RATES_PROVIDER, VOLATILITIES);
+    assertEquals(cmsPeriod0.get(ExplainKey.PRESENT_VALUE).get(), pv);
   }
 
 }
