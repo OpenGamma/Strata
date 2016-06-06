@@ -125,6 +125,24 @@ public class CmsPeriodTest {
     assertSerialization(sutCap());
   }
 
+  public void test_toCouponEquivalent() {
+    CmsPeriod caplet = sutCap();
+    CmsPeriod cpnEquivalent = caplet.toCouponEquivalent();
+
+    assertEquals(cpnEquivalent.getCmsPeriodType(), CmsPeriodType.COUPON);
+    assertEquals(caplet.getCurrency(), cpnEquivalent.getCurrency());
+    assertEquals(caplet.getStartDate(), cpnEquivalent.getStartDate());
+    assertEquals(caplet.getEndDate(), cpnEquivalent.getEndDate());
+    assertEquals(caplet.getUnadjustedStartDate(), cpnEquivalent.getUnadjustedStartDate());
+    assertEquals(caplet.getUnadjustedEndDate(), cpnEquivalent.getUnadjustedEndDate());
+    assertEquals(caplet.getFixingDate(), cpnEquivalent.getFixingDate());
+    assertEquals(caplet.getPaymentDate(), cpnEquivalent.getPaymentDate());
+    assertEquals(caplet.getIndex(), cpnEquivalent.getIndex());
+    assertEquals(caplet.getNotional(), cpnEquivalent.getNotional());
+    assertEquals(caplet.getYearFraction(), cpnEquivalent.getYearFraction());
+    assertEquals(caplet.getDayCount(), cpnEquivalent.getDayCount());
+  }
+
   //-------------------------------------------------------------------------
   static CmsPeriod sutCap() {
     FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();

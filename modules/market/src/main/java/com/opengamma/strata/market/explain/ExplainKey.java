@@ -201,6 +201,14 @@ public final class ExplainKey<T>
    * The strike value.
    */
   public static final ExplainKey<Double> STRIKE_VALUE = of("StrikeValue");
+  /**
+   * The convexity adjusted rate.
+   */
+  public static final ExplainKey<Double> CONVEXITY_ADJUSTED_RATE = of("ConvexityAdjustedRate");
+  /**
+   * The forward rate.
+   */
+  public static final ExplainKey<Double> FORWARD_RATE = of("ForwardRate");
 
   //-------------------------------------------------------------------------
   /**

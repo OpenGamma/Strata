@@ -229,6 +229,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * formula used for Ibor coupon pricing will provide the correct present value.
    * <p>
    * For period already fixed, this number will be equal to the swap index fixing.
+   * <p>
+   * For cap or floor the result is the adjusted forward rate for the coupon equivalent to the cap/floor, 
+   * i.e. the coupon with the same dates and index but with no cap or floor strike.
    * 
    * @param cmsPeriod  the CMS period, which should be of the type {@link CmsPeriodType#COUPON}
    * @param provider  the rates provider
@@ -240,13 +243,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    ArgChecker.isTrue(
-        cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON),
-        "Adjusted forward rate available only for CMS coupons");
+    CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
     Currency ccy = cmsPeriod.getCurrency();
-    double dfPayment = provider.discountFactor(ccy, cmsPeriod.getPaymentDate());
-    double pv = presentValue(cmsPeriod, provider, swaptionVolatilities).getAmount();
-    return pv / (cmsPeriod.getNotional() * cmsPeriod.getYearFraction() * dfPayment);
+    double dfPayment = provider.discountFactor(ccy, coupon.getPaymentDate());
+    double pv = presentValue(coupon, provider, swaptionVolatilities).getAmount();
+    return pv / (coupon.getNotional() * coupon.getYearFraction() * dfPayment);
   }
 
   /**
@@ -255,6 +256,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * The adjustment to the forward rate, is the quantity that need to be added to the forward rate to obtain the 
    * adjusted forward rate. The adjusted forward rate is the number which used in the same formula used for 
    * Ibor coupon pricing (forward * notional * accrual factor * discount factor) will provide the correct present value.
+   * <p>
+   * For cap or floor the result is the adjustment to the forward rate for the coupon equivalent to the cap/floor, 
+   * i.e. the coupon with the same dates and index but with no cap or floor strike.
    * 
    * @param cmsPeriod  the CMS period, which should be of the type {@link CmsPeriodType#COUPON}
    * @param provider  the rates provider
@@ -266,11 +270,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
 
-    ArgChecker.isTrue(
-        cmsPeriod.getFixingDate().isAfter(provider.getValuationDate()),
-        "Adjustment computed only for coupon with fixing (strictly) after the valuation date");
-    double adjustedForwardRate = adjustedForwardRate(cmsPeriod, provider, swaptionVolatilities);
-    double forward = swapPricer.parRate(cmsPeriod.getUnderlyingSwap(), provider);
+    CmsPeriod coupon = cmsPeriod.toCouponEquivalent();
+    double adjustedForwardRate = adjustedForwardRate(coupon, provider, swaptionVolatilities);
+    double forward = swapPricer.parRate(coupon.getUnderlyingSwap(), provider);
     return adjustedForwardRate - forward;
   }
 
@@ -547,7 +549,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
   }
 
   //explain PV for an Cms period
-  public void explainPresentValue(CmsPeriod period, RatesProvider ratesProvider, ExplainMapBuilder builder) {
+  public void explainPresentValue(
+      CmsPeriod period, 
+      RatesProvider ratesProvider, 
+      SabrParametersSwaptionVolatilities swaptionVolatilities,
+      ExplainMapBuilder builder) {
+    
     String type = period.getCmsPeriodType().toString();
     Currency ccy = period.getCurrency();
     LocalDate paymentDate = period.getPaymentDate();
@@ -560,6 +567,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     builder.put(ExplainKey.END_DATE, period.getEndDate());
     builder.put(ExplainKey.FIXING_DATE, period.getFixingDate());
     builder.put(ExplainKey.ACCRUAL_YEAR_FRACTION, period.getYearFraction());
+    builder.put(ExplainKey.PRESENT_VALUE, presentValue(period, ratesProvider, swaptionVolatilities));
+    builder.put(ExplainKey.FORWARD_RATE, swapPricer.parRate(period.getUnderlyingSwap(), ratesProvider));
+    builder.put(ExplainKey.CONVEXITY_ADJUSTED_RATE, adjustedForwardRate(period, ratesProvider, swaptionVolatilities));
   }
 
   //-------------------------------------------------------------------------

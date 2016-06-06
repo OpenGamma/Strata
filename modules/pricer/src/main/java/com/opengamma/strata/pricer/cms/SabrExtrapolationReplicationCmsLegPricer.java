@@ -188,7 +188,7 @@ public class SabrExtrapolationReplicationCmsLegPricer {
     builder.put(ExplainKey.INDEX, cmsLeg.getIndex());
     for (CmsPeriod period : cmsLeg.getCmsPeriods()) {
       builder.addListEntry(
-          ExplainKey.PAYMENT_PERIODS, child -> cmsPeriodPricer.explainPresentValue(period, provider, child));
+          ExplainKey.PAYMENT_PERIODS, child -> cmsPeriodPricer.explainPresentValue(period, provider, volatilities, child));
     }
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(cmsLeg, provider, volatilities));
     return builder.build();
