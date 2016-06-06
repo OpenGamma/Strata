@@ -30,6 +30,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.product.swaption.SwaptionSurfaceExpiryTenorParameterMetadata;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -97,8 +98,9 @@ public class SwaptionSabrRateVolatilityDataSet {
       -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.0, 0.0, 0.0, 0.0};
   private static final double[] NU_NODE_USD = new double[] {
       0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.3, 0.3, 0.3, 0.3};
+  static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test-SABR");
   static final SurfaceMetadata META_ALPHA =
-      Surfaces.swaptionSabrExpiryTenor("Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_ALPHA);
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_ALPHA);
   private static final InterpolatedNodalSurface SURFACE_ALPHA_USD = InterpolatedNodalSurface.of(
       META_ALPHA,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -115,7 +117,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   static final SurfaceMetadata META_BETA_USD =
-      Surfaces.swaptionSabrExpiryTenor("Beta", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_BETA)
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_BETA)
           .withParameterMetadata(PARAMETER_META_LIST_USD);
   private static final InterpolatedNodalSurface SURFACE_BETA_USD = InterpolatedNodalSurface.of(
       META_BETA_USD,
@@ -124,7 +126,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(BETA_NODE_USD),
       INTERPOLATOR_2D);
   static final SurfaceMetadata META_RHO =
-      Surfaces.swaptionSabrExpiryTenor("Rho", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_RHO);
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_RHO);
   private static final InterpolatedNodalSurface SURFACE_RHO_USD = InterpolatedNodalSurface.of(
       META_RHO,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -132,7 +134,7 @@ public class SwaptionSabrRateVolatilityDataSet {
       DoubleArray.copyOf(RHO_NODE_USD),
       INTERPOLATOR_2D);
   static final SurfaceMetadata META_NU =
-      Surfaces.swaptionSabrExpiryTenor("Nu", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_NU);
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, SWAP_CONVENTION_USD, ValueType.SABR_NU);
   private static final InterpolatedNodalSurface SURFACE_NU_USD = InterpolatedNodalSurface.of(
       META_NU,
       DoubleArray.copyOf(EXPIRY_NODE_USD),
@@ -143,10 +145,15 @@ public class SwaptionSabrRateVolatilityDataSet {
       SURFACE_ALPHA_USD, SURFACE_BETA_USD, SURFACE_RHO_USD, SURFACE_NU_USD, SabrHaganVolatilityFunctionProvider.DEFAULT);
 
   static final double SHIFT = 0.025;
-  private static final DefaultSurfaceMetadata META_SHIFT = DefaultSurfaceMetadata.of("Shift");
+  private static final DefaultSurfaceMetadata META_SHIFT = DefaultSurfaceMetadata.of("Test-SABR-Shift");
   private static final ConstantSurface SURFACE_SHIFT_USD = ConstantSurface.of(META_SHIFT, SHIFT);
-  static final SabrInterestRateParameters SABR_PARAM_SHIFT_USD = SabrInterestRateParameters.of(SURFACE_ALPHA_USD,
-      SURFACE_BETA_USD, SURFACE_RHO_USD, SURFACE_NU_USD, SURFACE_SHIFT_USD, SabrHaganVolatilityFunctionProvider.DEFAULT);
+  static final SabrInterestRateParameters SABR_PARAM_SHIFT_USD = SabrInterestRateParameters.of(
+      SURFACE_ALPHA_USD,
+      SURFACE_BETA_USD,
+      SURFACE_RHO_USD,
+      SURFACE_NU_USD,
+      SURFACE_SHIFT_USD,
+      SabrHaganVolatilityFunctionProvider.DEFAULT);
 
   /**
    * Obtains {@code ImmutableRatesProvider} for specified valuation date. 
@@ -170,8 +177,8 @@ public class SwaptionSabrRateVolatilityDataSet {
    */
   public static SabrParametersSwaptionVolatilities getVolatilitiesUsd(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
-    return shift ? SabrParametersSwaptionVolatilities.of(SABR_PARAM_SHIFT_USD, dateTime)
-        : SabrParametersSwaptionVolatilities.of(SABR_PARAM_USD, dateTime);
+    return shift ? SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_SHIFT_USD, dateTime)
+        : SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_USD, dateTime);
   }
 
   /*
@@ -196,7 +203,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   private static final double[] BETA_TENOR_NODE_EUR = new double[]
   {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100, 100};
   private static final InterpolatedNodalSurface SURFACE_ALPHA_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_ALPHA),
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Alpha", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_ALPHA),
       DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5,
           1, 2, 5, 10}),
       DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100,
@@ -215,7 +222,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   }
 
   static final SurfaceMetadata META_BETA_EUR =
-      Surfaces.swaptionSabrExpiryTenor("Beta", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_BETA)
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Beta", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_BETA)
           .withParameterMetadata(PARAMETER_META_LIST_EUR);
   private static final InterpolatedNodalSurface SURFACE_BETA_EUR = InterpolatedNodalSurface.of(
       META_BETA_EUR,
@@ -225,7 +232,7 @@ public class SwaptionSabrRateVolatilityDataSet {
           0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}),
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_RHO_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Rho", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_RHO),
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Rho", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_RHO),
       DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10,
           100, 0.0, 0.5, 1, 2, 5, 10, 100}),
       DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100,
@@ -234,7 +241,7 @@ public class SwaptionSabrRateVolatilityDataSet {
           -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00}),
       INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface SURFACE_NU_EUR = InterpolatedNodalSurface.of(
-      Surfaces.swaptionSabrExpiryTenor("Nu", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_NU),
+      Surfaces.swaptionSabrExpiryTenor("Test-SABR-Nu", ACT_ACT_ISDA, SWAP_CONVENTION_EUR, ValueType.SABR_NU),
       DoubleArray.copyOf(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10,
           100, 0.0, 0.5, 1, 2, 5, 10, 100}),
       DoubleArray.copyOf(new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100,
@@ -287,7 +294,7 @@ public class SwaptionSabrRateVolatilityDataSet {
    */
   public static SabrParametersSwaptionVolatilities getVolatilitiesEur(LocalDate valuationDate, boolean shift) {
     ZonedDateTime dateTime = valuationDate.atStartOfDay(ZoneOffset.UTC);
-    return shift ? SabrParametersSwaptionVolatilities.of(SABR_PARAM_SHIFT_EUR, dateTime)
-        : SabrParametersSwaptionVolatilities.of(SABR_PARAM_EUR, dateTime);
+    return shift ? SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_SHIFT_EUR, dateTime)
+        : SabrParametersSwaptionVolatilities.of(NAME, SABR_PARAM_EUR, dateTime);
   }
 }

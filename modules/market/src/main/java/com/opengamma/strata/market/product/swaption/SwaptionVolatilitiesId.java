@@ -38,7 +38,7 @@ public final class SwaptionVolatilitiesId
    * The name of the volatilities.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String name;
+  private final SwaptionVolatilitiesName name;
 
   //-------------------------------------------------------------------------
   /**
@@ -48,6 +48,16 @@ public final class SwaptionVolatilitiesId
    * @return an identifier for the volatilities
    */
   public static SwaptionVolatilitiesId of(String name) {
+    return new SwaptionVolatilitiesId(SwaptionVolatilitiesName.of(name));
+  }
+
+  /**
+   * Obtains an identifier used to find swaption volatilities.
+   *
+   * @param name  the name
+   * @return an identifier for the volatilities
+   */
+  public static SwaptionVolatilitiesId of(SwaptionVolatilitiesName name) {
     return new SwaptionVolatilitiesId(name);
   }
 
@@ -77,7 +87,7 @@ public final class SwaptionVolatilitiesId
   private static final long serialVersionUID = 1L;
 
   private SwaptionVolatilitiesId(
-      String name) {
+      SwaptionVolatilitiesName name) {
     JodaBeanUtils.notNull(name, "name");
     this.name = name;
   }
@@ -102,7 +112,7 @@ public final class SwaptionVolatilitiesId
    * Gets the name of the volatilities.
    * @return the value of the property, not null
    */
-  public String getName() {
+  public SwaptionVolatilitiesName getName() {
     return name;
   }
 
@@ -148,8 +158,8 @@ public final class SwaptionVolatilitiesId
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", SwaptionVolatilitiesId.class, String.class);
+    private final MetaProperty<SwaptionVolatilitiesName> name = DirectMetaProperty.ofImmutable(
+        this, "name", SwaptionVolatilitiesId.class, SwaptionVolatilitiesName.class);
     /**
      * The meta-properties.
      */
@@ -192,7 +202,7 @@ public final class SwaptionVolatilitiesId
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> name() {
+    public MetaProperty<SwaptionVolatilitiesName> name() {
       return name;
     }
 
@@ -223,7 +233,7 @@ public final class SwaptionVolatilitiesId
    */
   private static final class Builder extends DirectFieldsBeanBuilder<SwaptionVolatilitiesId> {
 
-    private String name;
+    private SwaptionVolatilitiesName name;
 
     /**
      * Restricted constructor.
@@ -246,7 +256,7 @@ public final class SwaptionVolatilitiesId
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          this.name = (String) newValue;
+          this.name = (SwaptionVolatilitiesName) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);

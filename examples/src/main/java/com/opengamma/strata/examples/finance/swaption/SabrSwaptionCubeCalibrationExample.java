@@ -36,6 +36,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -116,8 +117,16 @@ public class SabrSwaptionCubeCalibrationExample {
     double shift = 0.0300;
     Surface shiftSurface = ConstantSurface.of("Shift", shift);
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, data,
-        MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
+        SwaptionVolatilitiesName.of("Calibrated-SABR"),
+        EUR_FIXED_1Y_EURIBOR_6M,
+        CALIBRATION_TIME,
+        ACT_365F,
+        TENORS,
+        data,
+        MULTICURVE,
+        betaSurface,
+        shiftSurface,
+        INTERPOLATOR_2D);
     /* Graph calibration */
     int nbStrikesGraph = 50;
     double moneyMin = -0.0250;

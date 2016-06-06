@@ -27,6 +27,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -50,11 +51,13 @@ public class SabrSwaptionVolatilitiesTest {
   private static final double TEST_FORWARD = 0.025;
   private static final double[] TEST_STRIKE = new double[] {0.02, 0.025, 0.03};
   private static final int NB_STRIKE = TEST_STRIKE.length;
+  static final SwaptionVolatilitiesName NAME = SwaptionVolatilitiesName.of("Test-SABR");
+  static final SwaptionVolatilitiesName NAME2 = SwaptionVolatilitiesName.of("Test-SABR2");
 
   private static final double TOLERANCE_VOL = 1.0E-10;
 
   public void test_of() {
-    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     assertEquals(test.getConvention(), CONV);
     assertEquals(test.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test.getParameters(), PARAM);
@@ -62,17 +65,17 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_of_dateTimeZone() {
-    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(PARAM, DATE, TIME, ZONE);
+    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE, TIME, ZONE);
     assertEquals(test1.getConvention(), CONV);
     assertEquals(test1.getDayCount(), ACT_ACT_ISDA);
     assertEquals(test1.getParameters(), PARAM);
     assertEquals(test1.getValuationDateTime(), DATE.atTime(TIME).atZone(ZONE));
-    SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     assertEquals(test1, test2);
   }
 
   public void test_tenor() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     double test1 = prov.tenor(DATE, DATE);
     assertEquals(test1, 0d);
     double test2 = prov.tenor(DATE, DATE.plusYears(2));
@@ -85,7 +88,7 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_relativeTime() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     double test1 = prov.relativeTime(DATE_TIME);
     assertEquals(test1, 0d);
     double test2 = prov.relativeTime(DATE_TIME.plusYears(2));
@@ -94,7 +97,7 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void test_volatility() {
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
         double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
@@ -107,7 +110,7 @@ public class SabrSwaptionVolatilitiesTest {
 
   public void test_parameterSensitivity() {
     double alphaSensi = 2.24, betaSensi = 3.45, rhoSensi = -2.12, nuSensi = -0.56;
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
       SwaptionSabrSensitivity point = SwaptionSabrSensitivity.of(CONV, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], USD,
@@ -156,7 +159,7 @@ public class SabrSwaptionVolatilitiesTest {
     double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56};
     double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0};
     double[] points3 = new double[] {1.3, -4.32, 2.1, -7.18};
-    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities prov = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSabrSensitivity sensi1 = SwaptionSabrSensitivity.of(
           CONV, TEST_OPTION_EXPIRY[0], TEST_TENOR[i], USD, points1[0], points1[1], points1[2], points1[3]);
@@ -189,10 +192,10 @@ public class SabrSwaptionVolatilitiesTest {
   }
 
   public void coverage() {
-    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(PARAM, DATE_TIME);
+    SabrParametersSwaptionVolatilities test1 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     coverImmutableBean(test1);
     SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(
-        SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD, DATE_TIME.plusDays(1));
+        NAME2, SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD, DATE_TIME.plusDays(1));
     coverBeanEquals(test1, test2);
   }
 }

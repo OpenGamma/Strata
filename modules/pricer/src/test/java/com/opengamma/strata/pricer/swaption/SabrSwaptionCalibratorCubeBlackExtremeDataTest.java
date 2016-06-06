@@ -37,6 +37,7 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
@@ -151,8 +152,16 @@ public class SabrSwaptionCalibratorCubeBlackExtremeDataTest {
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, ACT_365F, TENORS, DATA_SPARSE,
-        MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
+        SwaptionVolatilitiesName.of("Calibrated-SABR"),
+        EUR_FIXED_1Y_EURIBOR_6M,
+        CALIBRATION_TIME,
+        ACT_365F,
+        TENORS,
+        DATA_SPARSE,
+        MULTICURVE,
+        betaSurface,
+        shiftSurface,
+        INTERPOLATOR_2D);
 
     for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
       double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);

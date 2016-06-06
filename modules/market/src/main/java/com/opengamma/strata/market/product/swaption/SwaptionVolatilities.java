@@ -23,6 +23,13 @@ public interface SwaptionVolatilities
     extends MarketDataView {
 
   /**
+   * Gets the name of these volatilities.
+   * 
+   * @return the name
+   */
+  public abstract SwaptionVolatilitiesName getName();
+
+  /**
    * Gets the convention of the swap for which the data is valid.
    * 
    * @return the convention

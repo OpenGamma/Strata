@@ -29,6 +29,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.product.ZeroRateSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
+import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
@@ -645,7 +646,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private SabrParametersSwaptionVolatilities replaceSabrParameters(
       SabrInterestRateParameters sabrParams,
       SabrParametersSwaptionVolatilities orgVols) {
-    return SabrParametersSwaptionVolatilities.of(sabrParams, orgVols.getValuationDateTime());
+    return SabrParametersSwaptionVolatilities.of(
+        SwaptionVolatilitiesName.of("Test-SABR"), sabrParams, orgVols.getValuationDateTime());
   }
 
   private void testSensitivityValue(
