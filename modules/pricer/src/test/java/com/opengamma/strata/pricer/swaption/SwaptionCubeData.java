@@ -80,5 +80,27 @@ public class SwaptionCubeData {
           {0.005106, 0.005107, 0.005145, 0.005224, 0.005351, 0.005527, 0.005745, 0.006278, 0.007537},
           {0.00657, 0.006702, 0.006825, 0.006911, 0.007016, 0.00714, 0.007281, Double.NaN, 0.008408}}
   };
+  
+
+  /** Normal volatility for EUR - Simplified data for testing purposes*/
+  public static final List<Period> EXPIRIES_SIMPLE = new ArrayList<>();
+  public static final List<Tenor> TENORS_SIMPLE = new ArrayList<>();
+
+  static {
+    EXPIRIES_SIMPLE.add(Period.ofMonths(1));
+    EXPIRIES_SIMPLE.add(Period.ofMonths(6));
+    EXPIRIES_SIMPLE.add(Period.ofYears(1));
+    TENORS_SIMPLE.add(Tenor.TENOR_1Y);
+    TENORS_SIMPLE.add(Tenor.TENOR_2Y);
+  }
+
+  public static final double[][][] DATA_NORMAL_SIMPLE = {
+      {{0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565},
+          {0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565},
+          {0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565}},
+      {{0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565},
+          {0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565},
+          {0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565}}
+  };
 
 }

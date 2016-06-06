@@ -5,13 +5,11 @@
  */
 package com.opengamma.strata.market.surface;
 
-import java.util.List;
 
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.TypedString;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -41,10 +39,6 @@ public final class SurfaceInfoType<T>
    * Key used to access information about the swaption convention.
    */
   public static final SurfaceInfoType<FixedIborSwapConvention> SWAP_CONVENTION = SurfaceInfoType.of("SwapConvention");
-  /**
-   * Key used to access sensitivity of the surface parameters to the raw data used in the calibration.
-   */
-  public static final SurfaceInfoType<List<DoubleArray>> DATA_SENSITIVITY_INFO = SurfaceInfoType.of("DataSensitivity");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
