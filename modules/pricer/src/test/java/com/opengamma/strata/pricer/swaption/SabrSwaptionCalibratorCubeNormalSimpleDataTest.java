@@ -47,7 +47,6 @@ import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.Surface;
-import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -178,17 +177,17 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
     Optional<List<ParameterMetadata>> alphaParameterMetadataOption = alphaMetadata.getParameterMetadata();
     assertTrue(alphaParameterMetadataOption.isPresent());
     List<ParameterMetadata> alphaParameterMetadata = alphaParameterMetadataOption.get();
-    List<DoubleArray> alphaJacobian = alphaMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+    List<DoubleArray> alphaJacobian = calibrated.getDataSensitivityAlpha().get();
     SurfaceMetadata rhoMetadata = calibrated.getParameters().getRhoSurface().getMetadata();
     Optional<List<ParameterMetadata>> rhoParameterMetadataOption = rhoMetadata.getParameterMetadata();
     assertTrue(rhoParameterMetadataOption.isPresent());
     List<ParameterMetadata> rhoParameterMetadata = rhoParameterMetadataOption.get();
-    List<DoubleArray> rhoJacobian = rhoMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+    List<DoubleArray> rhoJacobian = calibrated.getDataSensitivityRho().get();
     SurfaceMetadata nuMetadata = calibrated.getParameters().getNuSurface().getMetadata();
     Optional<List<ParameterMetadata>> nuParameterMetadataOption = nuMetadata.getParameterMetadata();
     assertTrue(nuParameterMetadataOption.isPresent());
     List<ParameterMetadata> nuParameterMetadata = nuParameterMetadataOption.get();
-    List<DoubleArray> nuJacobian = nuMetadata.getInfo(SurfaceInfoType.DATA_SENSITIVITY_INFO);
+    List<DoubleArray> nuJacobian = calibrated.getDataSensitivityNu().get();
 
     int surfacePointIndex = 0;
     for (int looptenor = 0; looptenor < TENORS_SIMPLE.size(); looptenor++) {
