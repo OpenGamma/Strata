@@ -20,6 +20,7 @@
 <listEntry value="com.opengamma.strata.market.curve"/>
 <listEntry value="com.opengamma.strata.market.explain"/>
 <listEntry value="com.opengamma.strata.market.interpolator"/>
+<listEntry value="com.opengamma.strata.market.model"/>
 <listEntry value="com.opengamma.strata.market.observable"/>
 <listEntry value="com.opengamma.strata.market.option"/>
 <listEntry value="com.opengamma.strata.market.param"/>

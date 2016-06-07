@@ -5,6 +5,11 @@
  */
 package com.opengamma.strata.pricer.cms;
 
+import static com.opengamma.strata.market.model.SabrParameterType.ALPHA;
+import static com.opengamma.strata.market.model.SabrParameterType.BETA;
+import static com.opengamma.strata.market.model.SabrParameterType.NU;
+import static com.opengamma.strata.market.model.SabrParameterType.RHO;
+
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.OptionalDouble;
@@ -39,6 +44,7 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  *  Computes the price of a CMS coupon/caplet/floorlet by swaption replication on a shifted SABR formula with extrapolation.
@@ -362,7 +368,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
    * @param swaptionVolatilities  the swaption volatilities
    * @return the present value sensitivity
    */
-  public SwaptionSabrSensitivity presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
       CmsPeriod cmsPeriod,
       RatesProvider provider,
       SabrParametersSwaptionVolatilities swaptionVolatilities) {
@@ -376,14 +382,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
     ZonedDateTime expiryDate = fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone());
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
     if (provider.getValuationDate().isAfter(cmsPeriod.getPaymentDate())) {
-      return SwaptionSabrSensitivity.of(
-          cmsPeriod.getIndex().getTemplate().getConvention(), expiryDate, tenor, ccy, 0d, 0d, 0d, 0d);
+      return PointSensitivityBuilder.none();
     }
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
       OptionalDouble fixedRate = provider.timeSeries(cmsPeriod.getIndex()).get(fixingDate);
       if (fixedRate.isPresent()) {
-        return SwaptionSabrSensitivity.of(
-            cmsPeriod.getIndex().getTemplate().getConvention(), expiryDate, tenor, ccy, 0d, 0d, 0d, 0d);
+        return PointSensitivityBuilder.none();
       } else if (fixingDate.isBefore(valuationDate.toLocalDate())) {
         throw new IllegalArgumentException(Messages.format(
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
@@ -420,8 +424,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricer {
       totalSensi[loopparameter] =
           (strikePartPrice[loopparameter] + integralPart) * cmsPeriod.getNotional() * cmsPeriod.getYearFraction();
     }
-    return SwaptionSabrSensitivity.of(cmsPeriod.getIndex().getTemplate().getConvention(),
-        expiryDate, tenor, ccy, totalSensi[0], totalSensi[1], totalSensi[2], totalSensi[3]);
+    FixedIborSwapConvention conv = cmsPeriod.getIndex().getTemplate().getConvention();
+    return PointSensitivityBuilder.of(
+        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, ALPHA, ccy, totalSensi[0]),
+        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, BETA, ccy, totalSensi[1]),
+        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, RHO, ccy, totalSensi[2]),
+        SwaptionSabrSensitivity.of(conv, expiryDate, tenor, NU, ccy, totalSensi[3]));
   }
 
   /**

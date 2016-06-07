@@ -29,7 +29,7 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -149,14 +149,14 @@ public class SabrExtrapolationReplicationCmsTradePricerTest {
   }
 
   public void test_presentValueSensitivitySabrParameter() {
-    SwaptionSabrSensitivities pt1 =
-        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
-    SwaptionSabrSensitivities pt2 =
-        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
-    SwaptionSabrSensitivities ptProd1 =
-        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
-    SwaptionSabrSensitivities ptProd2 =
-        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivities pt1 =
+        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES).build();
+    PointSensitivities pt2 =
+        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE, RATES_PROVIDER, VOLATILITIES).build();
+    PointSensitivities ptProd1 =
+        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES).build();
+    PointSensitivities ptProd2 =
+        PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES).build();
     assertEquals(pt1, ptProd1);
     assertEquals(pt2, ptProd2);
   }

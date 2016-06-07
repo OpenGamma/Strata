@@ -13,7 +13,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.function.Function;
 
 import org.testng.annotations.Test;
@@ -28,8 +27,8 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.product.ZeroRateSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.math.impl.integration.RungeKuttaIntegrator1D;
@@ -62,8 +61,6 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION = LocalDate.of(2010, 8, 18);
   private static final LocalDate FIXING = LocalDate.of(2020, 4, 24);
-  private static final ZonedDateTime FIXING_TIME = 
-      FIXING.atTime(EUR_EURIBOR_1100_5Y.getFixingTime()).atZone(EUR_EURIBOR_1100_5Y.getFixingZone());
   private static final LocalDate START = LocalDate.of(2020, 4, 28);
   private static final LocalDate END = LocalDate.of(2021, 4, 28);
   private static final LocalDate AFTER_FIXING = LocalDate.of(2020, 8, 11);
@@ -363,37 +360,33 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivitySabrParameter_afterFix() {
-    SwaptionSabrSensitivity pvCouponPoint =
+    PointSensitivityBuilder pvCouponPoint =
         PRICER.presentValueSensitivitySabrParameter(COUPON_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
-    SwaptionSabrSensitivity pvCapPoint =
+    PointSensitivityBuilder pvCapPoint =
         PRICER.presentValueSensitivitySabrParameter(CAPLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
-    SwaptionSabrSensitivity pvFloorPoint =
+    PointSensitivityBuilder pvFloorPoint =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
-    SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
-    assertEquals(pvCouponPoint, expected);
-    assertEquals(pvCapPoint, expected);
-    assertEquals(pvFloorPoint, expected);
+    assertEquals(pvCouponPoint, PointSensitivityBuilder.none());
+    assertEquals(pvCapPoint, PointSensitivityBuilder.none());
+    assertEquals(pvFloorPoint, PointSensitivityBuilder.none());
   }
 
   public void test_presentValueSensitivitySabrParameter_onPayment() {
-    SwaptionSabrSensitivity pvSensi = PRICER
+    PointSensitivityBuilder pvSensi = PRICER
         .presentValueSensitivitySabrParameter(COUPON, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    SwaptionSabrSensitivity pvSensiCapletOtm =
+    PointSensitivityBuilder pvSensiCapletOtm =
         PRICER.presentValueSensitivitySabrParameter(CAPLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_AFTER_FIX);
-    SwaptionSabrSensitivity pvSensiCapletItm =
+    PointSensitivityBuilder pvSensiCapletItm =
         PRICER.presentValueSensitivitySabrParameter(CAPLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    SwaptionSabrSensitivity pvSensiFloorletItm =
+    PointSensitivityBuilder pvSensiFloorletItm =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    SwaptionSabrSensitivity pvSensiFloorletOtm =
+    PointSensitivityBuilder pvSensiFloorletOtm =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    SwaptionSabrSensitivity expected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
-    assertEquals(pvSensi, expected);
-    assertEquals(pvSensiCapletOtm, expected);
-    assertEquals(pvSensiCapletItm, expected);
-    assertEquals(pvSensiFloorletItm, expected);
-    assertEquals(pvSensiFloorletOtm, expected);
+    assertEquals(pvSensi, PointSensitivityBuilder.none());
+    assertEquals(pvSensiCapletOtm, PointSensitivityBuilder.none());
+    assertEquals(pvSensiCapletItm, PointSensitivityBuilder.none());
+    assertEquals(pvSensiFloorletItm, PointSensitivityBuilder.none());
+    assertEquals(pvSensiFloorletOtm, PointSensitivityBuilder.none());
   }
 
   public void test_presentValueSensitivitySabrParameter_afterFix_noTimeSeries() {
@@ -406,17 +399,15 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivitySabrParameter_afterPayment() {
-    SwaptionSabrSensitivity sensi =
+    PointSensitivityBuilder sensi =
         PRICER.presentValueSensitivitySabrParameter(COUPON, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    SwaptionSabrSensitivity sensiCap =
+    PointSensitivityBuilder sensiCap =
         PRICER.presentValueSensitivitySabrParameter(CAPLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    SwaptionSabrSensitivity sensiFloor =
+    PointSensitivityBuilder sensiFloor =
         PRICER.presentValueSensitivitySabrParameter(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    SwaptionSabrSensitivity sensiExpected = SwaptionSabrSensitivity.of(
-        EUR_EURIBOR_1100_5Y.getTemplate().getConvention(), FIXING_TIME, 5d, EUR, 0d, 0d, 0d, 0d);
-    assertEquals(sensi, sensiExpected);
-    assertEquals(sensiCap, sensiExpected);
-    assertEquals(sensiFloor, sensiExpected);
+    assertEquals(sensi, PointSensitivityBuilder.none());
+    assertEquals(sensiCap, PointSensitivityBuilder.none());
+    assertEquals(sensiFloor, PointSensitivityBuilder.none());
   }
   
   public void test_adjusted_forward_rate() {
@@ -556,16 +547,16 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   //-------------------------------------------------------------------------
   private void testPresentValueSensitivitySabrParameter(CmsPeriod coupon, CmsPeriod caplet, CmsPeriod foorlet,
       RatesProvider ratesProvider, SabrParametersSwaptionVolatilities volatilities) {
-    SwaptionSabrSensitivity pvPointCoupon =
-        PRICER.presentValueSensitivitySabrParameter(coupon, ratesProvider, volatilities);
+    PointSensitivities pvPointCoupon =
+        PRICER.presentValueSensitivitySabrParameter(coupon, ratesProvider, volatilities).build();
     CurrencyParameterSensitivities computedCoupon =
         volatilities.parameterSensitivity(pvPointCoupon);
-    SwaptionSabrSensitivity pvCapPoint =
-        PRICER.presentValueSensitivitySabrParameter(caplet, ratesProvider, volatilities);
+    PointSensitivities pvCapPoint =
+        PRICER.presentValueSensitivitySabrParameter(caplet, ratesProvider, volatilities).build();
     CurrencyParameterSensitivities computedCap =
         volatilities.parameterSensitivity(pvCapPoint);
-    SwaptionSabrSensitivity pvFloorPoint =
-        PRICER.presentValueSensitivitySabrParameter(foorlet, ratesProvider, volatilities);
+    PointSensitivities pvFloorPoint =
+        PRICER.presentValueSensitivitySabrParameter(foorlet, ratesProvider, volatilities).build();
     CurrencyParameterSensitivities computedFloor =
         volatilities.parameterSensitivity(pvFloorPoint);
 

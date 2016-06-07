@@ -33,7 +33,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -205,42 +205,35 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivitySabrParameter() {
-    SwaptionSabrSensitivities computed =
+    PointSensitivityBuilder computed =
         LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, RATES_PROVIDER, VOLATILITIES);
-    SwaptionSabrSensitivities expected = SwaptionSabrSensitivities.empty();
+    PointSensitivityBuilder expected = PointSensitivityBuilder.none();
     List<CmsPeriod> cms = FLOOR_LEG.getCmsPeriods();
     int size = cms.size();
     for (int i = 0; i < size; ++i) {
-      expected = expected.add(
+      expected = expected.combinedWith(
           PERIOD_PRICER.presentValueSensitivitySabrParameter(cms.get(i), RATES_PROVIDER, VOLATILITIES));
     }
     assertEquals(computed, expected);
   }
 
   public void test_presentValueSensitivitySabrParameter_afterPay() {
-    SwaptionSabrSensitivities computed =
+    PointSensitivityBuilder computed =
         LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD);
-    SwaptionSabrSensitivities expected = SwaptionSabrSensitivities.empty();
+    PointSensitivityBuilder expected = PointSensitivityBuilder.none();
     List<CmsPeriod> cms = FLOOR_LEG.getCmsPeriods();
     int size = cms.size();
     for (int i = 0; i < size; ++i) {
-      expected = expected.add(PERIOD_PRICER.presentValueSensitivitySabrParameter(
+      expected = expected.combinedWith(PERIOD_PRICER.presentValueSensitivitySabrParameter(
           cms.get(i), RATES_PROVIDER_AFTER_PERIOD, VOLATILITIES_AFTER_PERIOD));
     }
     assertEquals(computed, expected);
   }
 
   public void test_presentValueSensitivitySabrParameter_ended() {
-    SwaptionSabrSensitivities computed =
-        LEG_PRICER.presentValueSensitivitySabrParameter(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED);
-    List<CmsPeriod> cms = CAP_LEG.getCmsPeriods();
-    int size = cms.size();
-    for (int i = 0; i < size; ++i) {
-      assertEquals(computed.getSensitivities().get(i).getAlphaSensitivity(), 0d);
-      assertEquals(computed.getSensitivities().get(i).getBetaSensitivity(), 0d);
-      assertEquals(computed.getSensitivities().get(i).getRhoSensitivity(), 0d);
-      assertEquals(computed.getSensitivities().get(i).getNuSensitivity(), 0d);
-    }
+    PointSensitivities computed =
+        LEG_PRICER.presentValueSensitivitySabrParameter(CAP_LEG, RATES_PROVIDER_ENDED, VOLATILITIES_ENDED).build();
+    assertEquals(computed, PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
