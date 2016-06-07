@@ -26,9 +26,9 @@ import com.opengamma.strata.collect.result.Result;
 @Test
 public class ResultsTest {
 
-  private static final ColumnHeader HEADER1 = ColumnHeader.of(ColumnName.of("A"), Measures.PRESENT_VALUE);
-  private static final ColumnHeader HEADER2 = ColumnHeader.of(ColumnName.of("B"), Measures.PRESENT_VALUE);
-  private static final ColumnHeader HEADER3 = ColumnHeader.of(ColumnName.of("C"), Measures.PRESENT_VALUE);
+  private static final ColumnHeader HEADER1 = ColumnHeader.of(ColumnName.of("A"), TestingMeasures.PRESENT_VALUE);
+  private static final ColumnHeader HEADER2 = ColumnHeader.of(ColumnName.of("B"), TestingMeasures.PRESENT_VALUE);
+  private static final ColumnHeader HEADER3 = ColumnHeader.of(ColumnName.of("C"), TestingMeasures.PRESENT_VALUE);
 
   public void test_empty() {
     Results test = Results.of(ImmutableList.of(), ImmutableList.of());

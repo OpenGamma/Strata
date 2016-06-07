@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.Measures;
+import com.opengamma.strata.measure.Measures;
 
 /**
  * Test {@link ReportRequirements}.

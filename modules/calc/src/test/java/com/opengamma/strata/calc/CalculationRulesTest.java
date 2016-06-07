@@ -27,14 +27,21 @@ public class CalculationRulesTest {
   private static final CalculationParameter PARAM = new TestParameter();
 
   //-------------------------------------------------------------------------
-  public void test_of_FunctionsParameters() {
+  public void test_of_FunctionsParametersArray() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, PARAM);
     assertEquals(test.getFunctions(), FUNCTIONS);
     assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
     assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
   }
 
-  public void test_of_FunctionsCurrencyParameters() {
+  public void test_of_FunctionsParametersObject() {
+    CalculationRules test = CalculationRules.of(FUNCTIONS, CalculationParameters.of(PARAM));
+    assertEquals(test.getFunctions(), FUNCTIONS);
+    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
+    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
+  }
+
+  public void test_of_FunctionsCurrencyParametersArray() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, USD, PARAM);
     assertEquals(test.getFunctions(), FUNCTIONS);
     assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));

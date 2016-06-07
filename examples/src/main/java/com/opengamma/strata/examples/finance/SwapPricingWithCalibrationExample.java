@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.finance;
 
-import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
@@ -19,7 +19,6 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -36,7 +35,8 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.Measures;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;

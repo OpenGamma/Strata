@@ -21,24 +21,24 @@ import org.testng.annotations.Test;
 public class ColumnHeaderTest {
 
   public void test_of_NameMeasure() {
-    ColumnHeader test = ColumnHeader.of(ColumnName.of("ParRate"), Measures.PAR_RATE);
+    ColumnHeader test = ColumnHeader.of(ColumnName.of("ParRate"), TestingMeasures.PAR_RATE);
     assertEquals(test.getName(), ColumnName.of("ParRate"));
-    assertEquals(test.getMeasure(), Measures.PAR_RATE);
+    assertEquals(test.getMeasure(), TestingMeasures.PAR_RATE);
     assertEquals(test.getCurrency(), Optional.empty());
   }
 
   public void test_of_NameMeasureCurrency() {
-    ColumnHeader test = ColumnHeader.of(ColumnName.of("NPV"), Measures.PRESENT_VALUE, USD);
+    ColumnHeader test = ColumnHeader.of(ColumnName.of("NPV"), TestingMeasures.PRESENT_VALUE, USD);
     assertEquals(test.getName(), ColumnName.of("NPV"));
-    assertEquals(test.getMeasure(), Measures.PRESENT_VALUE);
+    assertEquals(test.getMeasure(), TestingMeasures.PRESENT_VALUE);
     assertEquals(test.getCurrency(), Optional.of(USD));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ColumnHeader test = ColumnHeader.of(ColumnName.of("NPV"), Measures.PRESENT_VALUE, USD);
+    ColumnHeader test = ColumnHeader.of(ColumnName.of("NPV"), TestingMeasures.PRESENT_VALUE, USD);
     coverImmutableBean(test);
-    ColumnHeader test2 = ColumnHeader.of(ColumnName.of("ParRate"), Measures.PAR_RATE);
+    ColumnHeader test2 = ColumnHeader.of(ColumnName.of("ParRate"), TestingMeasures.PAR_RATE);
     coverBeanEquals(test, test2);
   }
 

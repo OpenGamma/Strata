@@ -16,8 +16,6 @@ import com.opengamma.strata.collect.named.Named;
  * <p>
  * A measure identifies the calculation result that is required.
  * For example present value, par rate or spread.
- * The standard set of measures which can be calculated by Strata is available
- * in {@link Measures}.
  * <p>
  * Some measures represent aspects of the calculation target rather than a calculation.
  * For example, the target identifier, counterparty and trade date.
@@ -39,8 +37,7 @@ public interface Measure extends Named {
     return extendedEnum().lookup(uniqueName);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Flag indicating whether measure values should be automatically converted to the reporting currency.
    *
@@ -48,8 +45,7 @@ public interface Measure extends Named {
    */
   public abstract boolean isCurrencyConvertible();
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the extended enum helper.
    * <p>
@@ -59,6 +55,7 @@ public interface Measure extends Named {
    * @return the extended enum helper
    */
   static ExtendedEnum<Measure> extendedEnum() {
-    return Measures.ENUM_LOOKUP;
+    return MeasureHelper.ENUM_LOOKUP;
   }
+
 }

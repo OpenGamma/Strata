@@ -26,7 +26,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.Measures;
+import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
@@ -45,7 +45,7 @@ public class DefaultCalculationTaskRunnerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final TestTarget TARGET = new TestTarget();
   private static final LocalDate VAL_DATE = date(2011, 3, 8);
-  private static final Set<Measure> MEASURES = ImmutableSet.of(Measures.PRESENT_VALUE);
+  private static final Set<Measure> MEASURES = ImmutableSet.of(TestingMeasures.PRESENT_VALUE);
 
   //-------------------------------------------------------------------------
   /**
@@ -53,10 +53,10 @@ public class DefaultCalculationTaskRunnerTest {
    */
   public void unwrapScenarioResults() {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
-    ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
-    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    Column column = Column.of(Measures.PRESENT_VALUE);
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
     // using the direct executor means there is no need to close/shutdown the runner
@@ -79,10 +79,10 @@ public class DefaultCalculationTaskRunnerTest {
    */
   public void unwrapMultipleScenarioResults() {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo", "bar");
-    ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PAR_RATE, scenarioResult);
-    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PAR_RATE, NATURAL);
+    ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PAR_RATE, scenarioResult);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PAR_RATE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    Column column = Column.of(Measures.PAR_RATE);
+    Column column = Column.of(TestingMeasures.PAR_RATE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
     // using the direct executor means there is no need to close/shutdown the runner
@@ -97,10 +97,10 @@ public class DefaultCalculationTaskRunnerTest {
    */
   public void unwrapScenarioResultsAsync() {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
-    ScenarioResultFunction fn = new ScenarioResultFunction(Measures.PRESENT_VALUE, scenarioResult);
-    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, Measures.PRESENT_VALUE, NATURAL);
+    ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
     CalculationTask task = CalculationTask.of(TARGET, fn, cell);
-    Column column = Column.of(Measures.PRESENT_VALUE);
+    Column column = Column.of(TestingMeasures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(task), ImmutableList.of(column));
 
     // using the direct executor means there is no need to close/shutdown the runner
@@ -164,7 +164,7 @@ public class DefaultCalculationTaskRunnerTest {
         ReferenceData refData) {
 
       ScenarioArray<String> array = ScenarioArray.of("bar");
-      return ImmutableMap.of(Measures.PRESENT_VALUE, Result.success(array));
+      return ImmutableMap.of(TestingMeasures.PRESENT_VALUE, Result.success(array));
     }
   }
 

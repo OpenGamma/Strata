@@ -6,7 +6,7 @@
 package com.opengamma.strata.examples.regression;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.Column;
-import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -37,7 +36,8 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
-import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.Measures;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;

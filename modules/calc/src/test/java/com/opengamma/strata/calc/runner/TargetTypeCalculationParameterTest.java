@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.Measures;
+import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 
 /**
@@ -41,9 +41,9 @@ public class TargetTypeCalculationParameterTest {
     assertEquals(test.getParameters().size(), 2);
     assertEquals(test.getDefaultParameter(), PARAM3);
     assertEquals(test.queryType(), TestParameter.class);
-    assertEquals(test.filter(TARGET1, Measures.PRESENT_VALUE), Optional.of(PARAM1));
-    assertEquals(test.filter(TARGET2, Measures.PRESENT_VALUE), Optional.of(PARAM2));
-    assertEquals(test.filter(TARGET3, Measures.PRESENT_VALUE), Optional.of(PARAM3));
+    assertEquals(test.filter(TARGET1, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM1));
+    assertEquals(test.filter(TARGET2, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM2));
+    assertEquals(test.filter(TARGET3, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM3));
   }
 
   public void of_empty() {

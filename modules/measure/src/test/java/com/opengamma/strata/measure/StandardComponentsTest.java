@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.calc;
+package com.opengamma.strata.measure;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.deposit.TermDepositCalculationFunctionTest;
 import com.opengamma.strata.measure.fra.FraCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxNdfCalculationFunctionTest;
