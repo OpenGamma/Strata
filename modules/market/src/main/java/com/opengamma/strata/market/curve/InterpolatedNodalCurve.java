@@ -250,8 +250,8 @@ public final class InterpolatedNodalCurve
    * @return the updated curve
    */
   public InterpolatedNodalCurve withNode(int index, double x, double y) {
-    DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
-    DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
+    DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
+    DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));
     CurveMetadata metadata = getMetadata().withParameterMetadata(null);
     return new InterpolatedNodalCurve(metadata, xExtended, yExtended, extrapolatorLeft, interpolator, extrapolatorRight);
   }
@@ -269,8 +269,8 @@ public final class InterpolatedNodalCurve
    * @return the updated curve
    */
   public InterpolatedNodalCurve withNode(int index, ParameterMetadata paramMetadata, double x, double y) {
-    DoubleArray xExtended = xValues.subArray(0, index).concat(new double[] {x}).concat(xValues.subArray(index));
-    DoubleArray yExtended = yValues.subArray(0, index).concat(new double[] {y}).concat(yValues.subArray(index));
+    DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
+    DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));
     // add to existing metadata, or do nothing if no existing metadata
     CurveMetadata md = metadata.getParameterMetadata()
         .map(params -> {

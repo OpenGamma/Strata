@@ -250,11 +250,11 @@ public class SabrSwaptionCalibrator {
           }
         }
         if (!error) {
-          timeToExpiryArray = timeToExpiryArray.concat(new double[] {timeToExpiry});
-          timeTenorArray = timeTenorArray.concat(new double[] {timeTenor});
-          alphaArray = alphaArray.concat(new double[] {sabrPoint.getAlpha()});
-          rhoArray = rhoArray.concat(new double[] {sabrPoint.getRho()});
-          nuArray = nuArray.concat(new double[] {sabrPoint.getNu()});
+          timeToExpiryArray = timeToExpiryArray.concat(timeToExpiry);
+          timeTenorArray = timeTenorArray.concat(timeTenor);
+          alphaArray = alphaArray.concat(sabrPoint.getAlpha());
+          rhoArray = rhoArray.concat(sabrPoint.getRho());
+          nuArray = nuArray.concat(sabrPoint.getNu());
           parameterMetadata.add(
               SwaptionSurfaceExpiryTenorParameterMetadata.of(
                   timeToExpiry,
