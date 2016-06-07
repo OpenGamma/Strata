@@ -56,7 +56,7 @@
     <module>math</module>
     <module>pricer</module>
     <module>calc</module>
-    <module>function</module>
+    <module>measure</module>
     <module>report</module>
   </modules>
 
@@ -248,7 +248,7 @@
       </dependency>
       <dependency>
         <groupId>com.opengamma.strata</groupId>
-        <artifactId>strata-function</artifactId>
+        <artifactId>strata-measure</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Third party -->

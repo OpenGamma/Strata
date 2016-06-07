@@ -55,7 +55,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
-      <artifactId>strata-function</artifactId>
+      <artifactId>strata-measure</artifactId>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>

@@ -22,7 +22,7 @@ import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.measure.calc.StandardComponents;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
