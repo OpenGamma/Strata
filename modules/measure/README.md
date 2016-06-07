@@ -1,12 +1,14 @@
-Strata-Function
----------------
-This directory contains the `strata-function` module.
+Strata-Measure
+--------------
+This directory contains the `strata-measure` module.
 
 ### Overview
 
-This module contains functions that implement the extension points provided
-by strata-calc. These include the calculation of measures, using strata-pricer,
-and the building of market data, such as curve calibration.
+This module provides the main API for the calculation of pricing measures.
+It provides the ability to calculate measures, such as present value or par rate,
+on one scenario or many scenarios. It also provides the functions that integrate
+with the `CalculationRunner` of `strata-calc`, allowing measure calculations to
+be performed across a mixed portfolio.
 
 
 ### Source code
