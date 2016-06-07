@@ -26,20 +26,47 @@ import com.opengamma.strata.collect.Unchecked;
  * A standard approach to configuration is provided by this class.
  * Any configuration information provided by this library can be overridden or added to by applications.
  * <p>
- * By default, there are two recognized configuration directories:
+ * By default, there are three groups of recognized configuration directories:
  * <ul>
- * <li>{@code com/opengamma/strata/config/base}
- * <li>{@code com/opengamma/strata/config/application}
+ * <li>base
+ * <li>library
+ * <li>application
  * </ul>
  * <p>
- * Any configuration file in the 'application' directory will override the same file in the 'base' directory.
- * The set of configuration directories can be extended using the system property
+ * Each group consists of ten directories using a numeric suffix:
+ * <ul>
+ * <li>{@code com/opengamma/strata/config/base}
+ * <li>{@code com/opengamma/strata/config/base1}
+ * <li>{@code com/opengamma/strata/config/base2}
+ * <li>...
+ * <li>{@code com/opengamma/strata/config/base9}
+ * <li>{@code com/opengamma/strata/config/library}
+ * <li>{@code com/opengamma/strata/config/library1}
+ * <li>...
+ * <li>{@code com/opengamma/strata/config/library9}
+ * <li>{@code com/opengamma/strata/config/application}
+ * <li>{@code com/opengamma/strata/config/application1}
+ * <li>...
+ * <li>{@code com/opengamma/strata/config/application9}
+ * </ul>
+ * These form a complete set of thirty directories that are searched for configuration.
+ * <p>
+ * The search strategy looks for the same file name in each of the thirty directories.
+ * All the files that are found are then merged, with directories lower down the list taking priorty.
+ * Thus, any configuration file in the 'application9' directory will override the same file
+ * in the 'appication1' directory, which will override the same file in the 'library' group,
+ * which will further override the same file in the 'base' group.
+ * <p>
+ * The 'base' group is reserved for Strata.
+ * The 'library' group is reserved for libraries built directly on Strata.
+ * <p>
+ * The set of configuration directories can be changed using the system property
  * 'com.opengamma.strata.config.directories'.
- * This must be a comma separated list, such as 'base,override,application'.
+ * This must be a comma separated list, such as 'base,base1,base2,override,application'.
  * <p>
  * In general, the configuration managed by this class will be in INI format.
  * The {@link #combinedIniFile(String)} method is the main entry point, returning a single
- * INI file form merged from all available configuration files.
+ * INI file merged from all available configuration files.
  */
 public final class ResourceConfig {
 
@@ -54,7 +81,37 @@ public final class ResourceConfig {
   /**
    * The default set of directories to query configuration files in.
    */
-  private static final ImmutableList<String> DEFAULT_DIRS = ImmutableList.of("base", "application");
+  private static final ImmutableList<String> DEFAULT_DIRS = ImmutableList.of(
+      "base",
+      "base1",
+      "base2",
+      "base3",
+      "base4",
+      "base5",
+      "base6",
+      "base7",
+      "base8",
+      "base9",
+      "library",
+      "library1",
+      "library2",
+      "library3",
+      "library4",
+      "library5",
+      "library6",
+      "library7",
+      "library8",
+      "library9",
+      "application",
+      "application1",
+      "application2",
+      "application3",
+      "application4",
+      "application5",
+      "application6",
+      "application7",
+      "application8",
+      "application9");
   /**
    * The system property defining the comma separated list of groups.
    */

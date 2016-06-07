@@ -83,7 +83,7 @@ public class ResourceConfigTest {
   public void test_ofChained_chainRemoveSections() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain5.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "a");
-    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
+    Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n", "o", "z");
     assertEquals(
         test.asMap(),
         ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
