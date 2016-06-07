@@ -184,17 +184,9 @@ public final class PointSensitivities
     if (sensitivities.isEmpty()) {
       return this;
     }
-    List<PointSensitivity> mutable = new ArrayList<>(sensitivities);
-    mutable.sort(PointSensitivity::compareKey);
-    PointSensitivity last = mutable.get(0);
-    for (int i = 1; i < mutable.size(); i++) {
-      PointSensitivity current = mutable.get(i);
-      if (current.compareKey(last) == 0) {
-        mutable.set(i - 1, last.withSensitivity(last.getSensitivity() + current.getSensitivity()));
-        mutable.remove(i);
-        i--;
-      }
-      last = current;
+    List<PointSensitivity> mutable = new ArrayList<>();
+    for (PointSensitivity sensi : sensitivities) {
+      insert(mutable, sensi);
     }
     return new PointSensitivities(mutable);
   }
@@ -251,14 +243,13 @@ public final class PointSensitivities
     for (PointSensitivity sensi : sensitivities) {
       insert(mutable, sensi.convertedTo(resultCurrency, rateProvider));
     }
-    return new PointSensitivities(ImmutableList.copyOf(mutable));
+    return new PointSensitivities(mutable);
   }
 
   // inserts a sensitivity into the mutable list in the right location
   // merges the entry with an existing entry if the key matches
   private static void insert(List<PointSensitivity> mutable, PointSensitivity addition) {
-    int index = Collections.binarySearch(
-        mutable, addition, PointSensitivity::compareKey);
+    int index = Collections.binarySearch(mutable, addition, PointSensitivity::compareKey);
     if (index >= 0) {
       PointSensitivity base = mutable.get(index);
       double combined = base.getSensitivity() + addition.getSensitivity();
