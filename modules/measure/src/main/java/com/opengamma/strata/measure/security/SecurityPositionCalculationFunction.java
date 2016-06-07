@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.Measures;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
@@ -24,6 +23,7 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityPosition;
 

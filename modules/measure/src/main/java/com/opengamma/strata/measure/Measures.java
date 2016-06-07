@@ -3,9 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc;
+package com.opengamma.strata.measure;
 
-import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.calc.Measure;
 
 /**
  * The standard set of measures which can be calculated by Strata.
@@ -16,13 +16,6 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * Note that not all measures will be available for all targets.
  */
 public final class Measures {
-
-  /**
-   * The extended enum lookup from name to instance.
-   */
-  static final ExtendedEnum<Measure> ENUM_LOOKUP = ExtendedEnum.of(Measure.class);
-
-  //--------------------------------------------------------------------------------------------------
 
   /**
    * Measure representing the accrued interest of the calculation target.
@@ -129,7 +122,7 @@ public final class Measures {
   public static final Measure JUMP_TO_DEFAULT = Measure.of(StandardMeasures.JUMP_TO_DEFAULT.getName());
 
   //-------------------------------------------------------------------------
-
   private Measures() {
   }
+
 }

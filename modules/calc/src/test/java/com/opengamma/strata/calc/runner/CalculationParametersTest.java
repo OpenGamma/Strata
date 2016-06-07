@@ -16,7 +16,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.Measures;
+import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 
 /**
@@ -98,7 +98,7 @@ public class CalculationParametersTest {
     CalculationParameters test = CalculationParameters.of(PARAM);
     TestTarget target = new TestTarget();
 
-    CalculationParameters filtered1 = test.filter(target, Measures.PRESENT_VALUE);
+    CalculationParameters filtered1 = test.filter(target, TestingMeasures.PRESENT_VALUE);
     assertEquals(filtered1.getParameters().size(), 1);
     assertEquals(filtered1.getParameters().get(TestParameter.class), PARAM);
   }

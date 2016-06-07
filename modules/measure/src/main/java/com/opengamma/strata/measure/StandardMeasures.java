@@ -3,12 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc;
+package com.opengamma.strata.measure;
+
+import com.opengamma.strata.calc.ImmutableMeasure;
+import com.opengamma.strata.calc.Measure;
 
 /**
  * The standard set of measures which can be calculated by Strata.
  */
 final class StandardMeasures {
+
   /**
    * Measure representing the accrued interest of the calculation target.
    */
@@ -118,4 +122,5 @@ final class StandardMeasures {
    * Measure representing the the risk of default as opposed to the the risk of change in credit spreads.
    */
   public static final Measure JUMP_TO_DEFAULT = ImmutableMeasure.of("JumpToDefault");
+
 }

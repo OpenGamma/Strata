@@ -35,8 +35,8 @@ public class DefaultCalculationRunnerTest {
   //-------------------------------------------------------------------------
   public void calculate() {
     ImmutableList<CalculationTarget> targets = ImmutableList.of(TARGET);
-    Column column1 = Column.of(Measures.PRESENT_VALUE);
-    Column column2 = Column.of(Measures.BUCKETED_PV01);
+    Column column1 = Column.of(TestingMeasures.PRESENT_VALUE);
+    Column column2 = Column.of(TestingMeasures.BUCKETED_PV01);
     ImmutableList<Column> columns = ImmutableList.of(column1, column2);
     CalculationRules rules = CalculationRules.of(CalculationFunctions.empty());
     ScenarioMarketData marketData = ScenarioMarketData.empty();

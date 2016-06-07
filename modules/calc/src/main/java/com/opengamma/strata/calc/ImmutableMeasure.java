@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableValidator;
@@ -27,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * The default, immutable implementation of {@link Measure}.
  */
-@BeanDefinition(constructorScope = "private")
+@BeanDefinition(builderScope = "private")
 public final class ImmutableMeasure
     implements Measure, ImmutableBean, Serializable {
 
@@ -110,14 +111,6 @@ public final class ImmutableMeasure
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   * @return the builder, not null
-   */
-  public static ImmutableMeasure.Builder builder() {
-    return new ImmutableMeasure.Builder();
-  }
-
   private ImmutableMeasure(
       String name,
       boolean currencyConvertible) {
@@ -165,14 +158,6 @@ public final class ImmutableMeasure
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -240,7 +225,7 @@ public final class ImmutableMeasure
     }
 
     @Override
-    public ImmutableMeasure.Builder builder() {
+    public BeanBuilder<? extends ImmutableMeasure> builder() {
       return new ImmutableMeasure.Builder();
     }
 
@@ -298,7 +283,7 @@ public final class ImmutableMeasure
   /**
    * The bean-builder for {@code ImmutableMeasure}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ImmutableMeasure> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ImmutableMeasure> {
 
     private String name;
     private boolean currencyConvertible;
@@ -307,15 +292,6 @@ public final class ImmutableMeasure
      * Restricted constructor.
      */
     private Builder() {
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ImmutableMeasure beanToCopy) {
-      this.name = beanToCopy.getName();
-      this.currencyConvertible = beanToCopy.isCurrencyConvertible();
     }
 
     //-----------------------------------------------------------------------
@@ -375,30 +351,6 @@ public final class ImmutableMeasure
       return new ImmutableMeasure(
           name,
           currencyConvertible);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the measure name.
-     * <p>
-     * Measure names must only contains the characters A-Z, a-z, 0-9 and -.
-     * @param name  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
-      this.name = name;
-      return this;
-    }
-
-    /**
-     * Sets flag indicating whether measure values should be automatically converted to the reporting currency.
-     * @param currencyConvertible  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder currencyConvertible(boolean currencyConvertible) {
-      this.currencyConvertible = currencyConvertible;
-      return this;
     }
 
     //-----------------------------------------------------------------------
