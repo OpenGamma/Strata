@@ -922,7 +922,7 @@ public final class DoubleArray
    * @return a copy of this array with the specified array added at the end
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public DoubleArray concat(double[] arrayToConcat) {
+  public DoubleArray concat(double... arrayToConcat) {
     if (array.length == 0) {
       return copyOf(arrayToConcat);
     }
