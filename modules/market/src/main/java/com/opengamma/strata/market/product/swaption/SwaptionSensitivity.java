@@ -105,12 +105,15 @@ public final class SwaptionSensitivity
 
   //-------------------------------------------------------------------------
   @Override
-  public SwaptionSensitivity withCurrency(Currency ccy) {
-    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, ccy, sensitivity);
+  public SwaptionSensitivity withCurrency(Currency currency) {
+    if (this.currency.equals(currency)) {
+      return this;
+    }
+    return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, sensitivity);
   }
 
   @Override
-  public PointSensitivity withSensitivity(double value) {
+  public SwaptionSensitivity withSensitivity(double value) {
     return new SwaptionSensitivity(convention, expiry, tenor, strike, forward, currency, value);
   }
 

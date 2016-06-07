@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.sensitivity;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -30,6 +32,48 @@ public interface PointSensitivityBuilder {
    */
   public static PointSensitivityBuilder none() {
     return NoPointSensitivity.INSTANCE;
+  }
+
+  /**
+   * Returns a builder with the specified sensitivities.
+   * 
+   * @param sensitivities  the list of sensitivities, which is copied
+   * @return the builder
+   */
+  public static PointSensitivityBuilder of(PointSensitivity... sensitivities) {
+    switch (sensitivities.length) {
+      case 0:
+        return PointSensitivityBuilder.none();
+      case 1:
+        PointSensitivity sens = sensitivities[0];
+        if (sens instanceof PointSensitivityBuilder) {
+          return (PointSensitivityBuilder) sens;
+        }
+        return new MutablePointSensitivities(sens);
+      default:
+        return new MutablePointSensitivities(Arrays.asList(sensitivities));
+    }
+  }
+
+  /**
+   * Returns a builder with the specified sensitivities.
+   * 
+   * @param sensitivities  the list of sensitivities, which is copied
+   * @return the builder
+   */
+  public static PointSensitivityBuilder of(List<? extends PointSensitivity> sensitivities) {
+    switch (sensitivities.size()) {
+      case 0:
+        return PointSensitivityBuilder.none();
+      case 1:
+        PointSensitivity sens = sensitivities.get(0);
+        if (sens instanceof PointSensitivityBuilder) {
+          return (PointSensitivityBuilder) sens;
+        }
+        return new MutablePointSensitivities(sens);
+      default:
+        return new MutablePointSensitivities(sensitivities);
+    }
   }
 
   //-------------------------------------------------------------------------

@@ -30,12 +30,13 @@ public class SwaptionVolatilitiesTest {
 
   //-------------------------------------------------------------------------
   public void test_defaultMethods() {
-    SwaptionVolatilities test = new TestSwaptionVolatilities();
+    SwaptionVolatilities test = new TestingSwaptionVolatilities();
     assertEquals(test.getValuationDate(), DATE_TIME.toLocalDate());
     assertEquals(test.volatility(DATE_TIME, 1, 2, 3), 6d);
+    assertEquals(test.parameterSensitivity(), CurrencyParameterSensitivities.empty());
   }
 
-  static class TestSwaptionVolatilities implements SwaptionVolatilities {
+  static class TestingSwaptionVolatilities implements SwaptionVolatilities {
 
     @Override
     public SwaptionVolatilitiesName getName() {
@@ -84,7 +85,7 @@ public class SwaptionVolatilitiesTest {
 
     @Override
     public CurrencyParameterSensitivities parameterSensitivity(PointSensitivities pointSensitivities) {
-      throw new UnsupportedOperationException();
+      return CurrencyParameterSensitivities.empty();
     }
 
     @Override
