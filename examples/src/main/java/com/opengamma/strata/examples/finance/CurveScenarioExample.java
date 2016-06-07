@@ -6,7 +6,7 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -43,7 +43,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveParallelShifts;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.calc.curve.AnyCurveFilter;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;

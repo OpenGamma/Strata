@@ -7,7 +7,7 @@ package com.opengamma.strata.measure.calc.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.fixedIborSwapNode;
 import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.fraNode;
 import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.id;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.calc;
+package com.opengamma.strata.measure;
 
 import java.util.List;
 
