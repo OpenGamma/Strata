@@ -16,7 +16,7 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.function.StandardComponents;
+import com.opengamma.strata.measure.calc.StandardComponents;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.Product;

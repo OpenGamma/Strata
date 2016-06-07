@@ -38,7 +38,6 @@ import com.opengamma.strata.data.scenario.ImmutableScenarioMarketDataBuilder;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitIndexCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitSingleNameCreditCurveDataParser;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitYieldCurveDataParser;
-import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
@@ -48,6 +47,7 @@ import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputs;
 import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputsId;
+import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.

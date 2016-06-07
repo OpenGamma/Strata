@@ -25,8 +25,8 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
-import com.opengamma.strata.function.StandardComponents;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.measure.calc.StandardComponents;
 import com.opengamma.strata.product.Trade;
 
 public class TestCalculator implements Calculator {

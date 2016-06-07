@@ -7,7 +7,7 @@ package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -44,8 +44,6 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
-import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.function.marketdata.scenario.curve.CurveNameFilter;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
@@ -53,6 +51,8 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurvePointShifts;
 import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.calc.curve.CurveNameFilter;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;

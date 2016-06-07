@@ -6,7 +6,7 @@
 package com.opengamma.strata.examples.report;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -30,8 +30,8 @@ import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
-import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
+import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.report.Report;
 import com.opengamma.strata.report.ReportCalculationResults;

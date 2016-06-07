@@ -6,7 +6,7 @@
 package com.opengamma.strata.examples.finance;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.function.StandardComponents.marketDataFactory;
+import static com.opengamma.strata.measure.calc.StandardComponents.marketDataFactory;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
@@ -34,14 +34,14 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.function.StandardComponents;
-import com.opengamma.strata.function.calculation.RatesMarketDataLookup;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.product.deposit.IborFixingDepositCurveNode;
+import com.opengamma.strata.measure.calc.StandardComponents;
+import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 
 /**
