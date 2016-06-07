@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.ALPHA;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.BETA;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.NU;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.RHO;
+import static com.opengamma.strata.market.model.SabrParameterType.ALPHA;
+import static com.opengamma.strata.market.model.SabrParameterType.BETA;
+import static com.opengamma.strata.market.model.SabrParameterType.NU;
+import static com.opengamma.strata.market.model.SabrParameterType.RHO;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;

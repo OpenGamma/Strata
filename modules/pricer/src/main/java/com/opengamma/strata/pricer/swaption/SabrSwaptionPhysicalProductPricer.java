@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.ALPHA;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.BETA;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.NU;
-import static com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType.RHO;
+import static com.opengamma.strata.market.model.SabrParameterType.ALPHA;
+import static com.opengamma.strata.market.model.SabrParameterType.BETA;
+import static com.opengamma.strata.market.model.SabrParameterType.NU;
+import static com.opengamma.strata.market.model.SabrParameterType.RHO;
 
 import java.time.ZonedDateTime;
 

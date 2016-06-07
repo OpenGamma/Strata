@@ -32,13 +32,13 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -243,8 +243,8 @@ public final class SabrParametersSwaptionVolatilities
   }
 
   // find surface
-  private Surface getSurface(SwaptionSabrSensitivityType sensitivityType) {
-    switch (sensitivityType) {
+  private Surface getSurface(SabrParameterType type) {
+    switch (type) {
       case ALPHA:
         return parameters.getAlphaSurface();
       case BETA:

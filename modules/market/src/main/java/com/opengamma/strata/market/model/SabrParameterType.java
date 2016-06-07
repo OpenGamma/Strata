@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swaption;
+package com.opengamma.strata.market.model;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -12,9 +12,9 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Type of SABR sensitivity - Alpha, Beta, Rho or Nu..
+ * The type of the SABR parameter - Alpha, Beta, Rho, Nu or shift.
  */
-public enum SwaptionSabrSensitivityType {
+public enum SabrParameterType {
 
   /**
    * SABR alpha.
@@ -46,7 +46,7 @@ public enum SwaptionSabrSensitivityType {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static SwaptionSabrSensitivityType of(String uniqueName) {
+  public static SabrParameterType of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

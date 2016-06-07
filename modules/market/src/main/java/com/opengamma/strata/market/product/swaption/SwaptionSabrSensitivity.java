@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ComparisonChain;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -61,7 +62,7 @@ public final class SwaptionSabrSensitivity
    * The type of the sensitivity.
    */
   @PropertyDefinition
-  private final SwaptionSabrSensitivityType sensitivityType;
+  private final SabrParameterType sensitivityType;
   /**
   * The currency of the sensitivity.
   */
@@ -89,7 +90,7 @@ public final class SwaptionSabrSensitivity
       FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
-      SwaptionSabrSensitivityType sensitivityType,
+      SabrParameterType sensitivityType,
       Currency sensitivityCurrency,
       double sensitivity) {
 
@@ -186,7 +187,7 @@ public final class SwaptionSabrSensitivity
       FixedIborSwapConvention convention,
       ZonedDateTime expiry,
       double tenor,
-      SwaptionSabrSensitivityType sensitivityType,
+      SabrParameterType sensitivityType,
       Currency currency,
       double sensitivity) {
     JodaBeanUtils.notNull(convention, "convention");
@@ -246,7 +247,7 @@ public final class SwaptionSabrSensitivity
    * Gets the type of the sensitivity.
    * @return the value of the property
    */
-  public SwaptionSabrSensitivityType getSensitivityType() {
+  public SabrParameterType getSensitivityType() {
     return sensitivityType;
   }
 
@@ -342,8 +343,8 @@ public final class SwaptionSabrSensitivity
     /**
      * The meta-property for the {@code sensitivityType} property.
      */
-    private final MetaProperty<SwaptionSabrSensitivityType> sensitivityType = DirectMetaProperty.ofImmutable(
-        this, "sensitivityType", SwaptionSabrSensitivity.class, SwaptionSabrSensitivityType.class);
+    private final MetaProperty<SabrParameterType> sensitivityType = DirectMetaProperty.ofImmutable(
+        this, "sensitivityType", SwaptionSabrSensitivity.class, SabrParameterType.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -435,7 +436,7 @@ public final class SwaptionSabrSensitivity
      * The meta-property for the {@code sensitivityType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SwaptionSabrSensitivityType> sensitivityType() {
+    public MetaProperty<SabrParameterType> sensitivityType() {
       return sensitivityType;
     }
 
@@ -495,7 +496,7 @@ public final class SwaptionSabrSensitivity
     private FixedIborSwapConvention convention;
     private ZonedDateTime expiry;
     private double tenor;
-    private SwaptionSabrSensitivityType sensitivityType;
+    private SabrParameterType sensitivityType;
     private Currency currency;
     private double sensitivity;
 
@@ -539,7 +540,7 @@ public final class SwaptionSabrSensitivity
           this.tenor = (Double) newValue;
           break;
         case 1598929529:  // sensitivityType
-          this.sensitivityType = (SwaptionSabrSensitivityType) newValue;
+          this.sensitivityType = (SabrParameterType) newValue;
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;

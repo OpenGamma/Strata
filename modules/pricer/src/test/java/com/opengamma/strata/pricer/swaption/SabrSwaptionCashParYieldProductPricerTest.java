@@ -43,11 +43,11 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivityType;
 import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
 import com.opengamma.strata.market.product.swaption.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
@@ -584,17 +584,17 @@ public class SabrSwaptionCashParYieldProductPricerTest {
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility);
     double vegaPay = -df * annuityCash * BlackFormulaRepository.vega(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.ALPHA, vegaRec * volSensi[2]);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.BETA, vegaRec * volSensi[3]);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.RHO, vegaRec * volSensi[4]);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.NU, vegaRec * volSensi[5]);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.ALPHA, vegaPay * volSensi[2]);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.BETA, vegaPay * volSensi[3]);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.RHO, vegaPay * volSensi[4]);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.NU, vegaPay * volSensi[5]);
+    assertSensitivity(sensiRec, SabrParameterType.ALPHA, vegaRec * volSensi[2]);
+    assertSensitivity(sensiRec, SabrParameterType.BETA, vegaRec * volSensi[3]);
+    assertSensitivity(sensiRec, SabrParameterType.RHO, vegaRec * volSensi[4]);
+    assertSensitivity(sensiRec, SabrParameterType.NU, vegaRec * volSensi[5]);
+    assertSensitivity(sensiPay, SabrParameterType.ALPHA, vegaPay * volSensi[2]);
+    assertSensitivity(sensiPay, SabrParameterType.BETA, vegaPay * volSensi[3]);
+    assertSensitivity(sensiPay, SabrParameterType.RHO, vegaPay * volSensi[4]);
+    assertSensitivity(sensiPay, SabrParameterType.NU, vegaPay * volSensi[5]);
   }
 
-  private void assertSensitivity(PointSensitivities points, SwaptionSabrSensitivityType type, double expected) {
+  private void assertSensitivity(PointSensitivities points, SabrParameterType type, double expected) {
     for (PointSensitivity point : points.getSensitivities()) {
       SwaptionSabrSensitivity sens = (SwaptionSabrSensitivity) point;
       assertEquals(sens.getCurrency(), EUR);
@@ -612,16 +612,16 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   public void test_presentValueSensitivitySabrParameter_atMaturity() {
     PointSensitivities sensiRec = PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_REC_LONG, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY).build();
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.ALPHA, 0);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.BETA, 0);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.RHO, 0);
-    assertSensitivity(sensiRec, SwaptionSabrSensitivityType.NU, 0);
+    assertSensitivity(sensiRec, SabrParameterType.ALPHA, 0);
+    assertSensitivity(sensiRec, SabrParameterType.BETA, 0);
+    assertSensitivity(sensiRec, SabrParameterType.RHO, 0);
+    assertSensitivity(sensiRec, SabrParameterType.NU, 0);
     PointSensitivities sensiPay = PRICER.presentValueSensitivitySabrParameter(
         SWAPTION_PAY_SHORT, RATE_PROVIDER_AT_MATURITY, VOL_PROVIDER_AT_MATURITY).build();
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.ALPHA, 0);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.BETA, 0);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.RHO, 0);
-    assertSensitivity(sensiPay, SwaptionSabrSensitivityType.NU, 0);
+    assertSensitivity(sensiPay, SabrParameterType.ALPHA, 0);
+    assertSensitivity(sensiPay, SabrParameterType.BETA, 0);
+    assertSensitivity(sensiPay, SabrParameterType.RHO, 0);
+    assertSensitivity(sensiPay, SabrParameterType.NU, 0);
   }
 
   public void test_presentValueSensitivitySabrParameter_afterMaturity() {
@@ -643,31 +643,31 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     PointSensitivities pvSensiPayShort =
         PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOL_PROVIDER).build();
 
-    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SwaptionSabrSensitivityType.ALPHA, -1);
-    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SwaptionSabrSensitivityType.ALPHA, -1);
-    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SwaptionSabrSensitivityType.ALPHA, 1);
-    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SwaptionSabrSensitivityType.ALPHA, 1);
+    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SabrParameterType.ALPHA, -1);
+    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SabrParameterType.ALPHA, -1);
+    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SabrParameterType.ALPHA, 1);
+    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SabrParameterType.ALPHA, 1);
 
-    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SwaptionSabrSensitivityType.BETA, -1);
-    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SwaptionSabrSensitivityType.BETA, -1);
-    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SwaptionSabrSensitivityType.BETA, 1);
-    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SwaptionSabrSensitivityType.BETA, 1);
+    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SabrParameterType.BETA, -1);
+    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SabrParameterType.BETA, -1);
+    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SabrParameterType.BETA, 1);
+    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SabrParameterType.BETA, 1);
 
-    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SwaptionSabrSensitivityType.RHO, -1);
-    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SwaptionSabrSensitivityType.RHO, -1);
-    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SwaptionSabrSensitivityType.RHO, 1);
-    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SwaptionSabrSensitivityType.RHO, 1);
+    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SabrParameterType.RHO, -1);
+    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SabrParameterType.RHO, -1);
+    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SabrParameterType.RHO, 1);
+    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SabrParameterType.RHO, 1);
 
-    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SwaptionSabrSensitivityType.NU, -1);
-    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SwaptionSabrSensitivityType.NU, -1);
-    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SwaptionSabrSensitivityType.NU, 1);
-    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SwaptionSabrSensitivityType.NU, 1);
+    assertSensitivity(pvSensiRecLong, pvSensiRecShort, SabrParameterType.NU, -1);
+    assertSensitivity(pvSensiPayLong, pvSensiPayShort, SabrParameterType.NU, -1);
+    assertSensitivity(pvSensiRecLong, pvSensiPayLong, SabrParameterType.NU, 1);
+    assertSensitivity(pvSensiPayShort, pvSensiPayShort, SabrParameterType.NU, 1);
   }
 
   private void assertSensitivity(
       PointSensitivities points1,
       PointSensitivities points2,
-      SwaptionSabrSensitivityType type,
+      SabrParameterType type,
       int factor) {
 
     // use ordinal() as a hack to find correct type
@@ -705,10 +705,10 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   public void regressionSurfaceSensitivity() {
     PointSensitivities pointComputed =
         PRICER.presentValueSensitivitySabrParameter(SWAPTION_PAY_LONG, RATE_PROVIDER, VOL_PROVIDER_REG).build();
-    assertSensitivity(pointComputed, SwaptionSabrSensitivityType.ALPHA, 4.862767907309804E7);
-    assertSensitivity(pointComputed, SwaptionSabrSensitivityType.BETA, -1.1095143998998241E7);
-    assertSensitivity(pointComputed, SwaptionSabrSensitivityType.RHO, 575158.6667143379);
-    assertSensitivity(pointComputed, SwaptionSabrSensitivityType.NU, 790627.3506603877);
+    assertSensitivity(pointComputed, SabrParameterType.ALPHA, 4.862767907309804E7);
+    assertSensitivity(pointComputed, SabrParameterType.BETA, -1.1095143998998241E7);
+    assertSensitivity(pointComputed, SabrParameterType.RHO, 575158.6667143379);
+    assertSensitivity(pointComputed, SabrParameterType.NU, 790627.3506603877);
 
     CurrencyParameterSensitivities sensiComputed =
         VOL_PROVIDER_REG.parameterSensitivity(pointComputed);
