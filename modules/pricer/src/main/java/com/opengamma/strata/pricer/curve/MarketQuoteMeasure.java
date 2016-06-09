@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.calibration;
+package com.opengamma.strata.pricer.curve;
 
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;

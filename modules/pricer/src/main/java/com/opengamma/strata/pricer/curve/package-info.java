@@ -7,7 +7,7 @@
 /**
  * Provides the ability to calibrate curves.
  * <p>
- * The main class is {@link com.opengamma.strata.pricer.calibration.CurveCalibrator}.
+ * The main class is {@link com.opengamma.strata.pricer.curve.CurveCalibrator}.
  */
-package com.opengamma.strata.pricer.calibration;
+package com.opengamma.strata.pricer.curve;
 

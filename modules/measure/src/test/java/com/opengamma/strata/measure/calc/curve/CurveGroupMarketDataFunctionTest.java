@@ -60,7 +60,7 @@ import com.opengamma.strata.market.product.fra.FraCurveNode;
 import com.opengamma.strata.market.product.fx.FxSwapCurveNode;
 import com.opengamma.strata.market.product.swap.FixedIborSwapCurveNode;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.calibration.CurveCalibrator;
+import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
