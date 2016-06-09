@@ -38,7 +38,7 @@ public final class SsviVolatilityFunction
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
+  public double volatility(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
     ArgChecker.isTrue(timeToExpiry > MIN_TIME_TO_EXPIRY, "time to expiry must not be zero to be able to compute volatility");
     double volatilityAtm = data.getSigma();
     double rho = data.getRho();
@@ -70,7 +70,7 @@ public final class SsviVolatilityFunction
    * @return the volatility and associated derivatives
    */
   @Override
-  public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
+  public ValueDerivatives volatilityAdjoint(double forward, double strike, double timeToExpiry, SsviFormulaData data) {
     ArgChecker.isTrue(timeToExpiry > MIN_TIME_TO_EXPIRY, "time to expiry must not be zero to be able to compute volatility");
     double volatilityAtm = data.getSigma();
     double rho = data.getRho();
@@ -106,7 +106,7 @@ public final class SsviVolatilityFunction
   }
 
   @Override
-  public double getVolatilityAdjoint2(double forward, double strike, double timeToExpiry,
+  public double volatilityAdjoint2(double forward, double strike, double timeToExpiry,
       SsviFormulaData data, double[] volatilityD, double[][] volatilityD2) {
     throw new UnsupportedOperationException("Not implemented");
   }

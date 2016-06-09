@@ -113,7 +113,7 @@ public class ImpliedTrinomialTreeFxOptionCalibrator {
         double dfBase = baseDiscountFactors.discountFactor(tk.getFirst());
         double dfCounter = counterDiscountFactors.discountFactor(tk.getFirst());
         double forward = todayFx * dfBase / dfCounter;
-        return volatilityProvider.getVolatility(currencyPair, tk.getFirst(), tk.getSecond(), forward);
+        return volatilityProvider.volatility(currencyPair, tk.getFirst(), tk.getSecond(), forward);
       }
     };
     ImpliedTrinomialTreeLocalVolatilityCalculator localVol =

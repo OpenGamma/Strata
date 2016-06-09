@@ -86,7 +86,7 @@ public final class BlackVolatilitySurfaceFxProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
+  public double volatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
     if (currencyPair.isInverse(this.currencyPair)) {
       return surface.zValue(expiryTime, 1d / strike);
     }

@@ -51,7 +51,7 @@ public class SsviVolatilityFunctionTest {
       double k = Math.log(STRIKES[i] / FORWARD);
       double w = 0.5 * theta * (1.0d + RHO * phi * k + Math.sqrt(Math.pow(phi * k + RHO, 2) + (1.0d - RHO * RHO)));
       double sigmaExpected = Math.sqrt(w / TIME_EXP);
-      double sigmaComputed = SSVI_FUNCTION.getVolatility(FORWARD, STRIKES[i], TIME_EXP, DATA);
+      double sigmaComputed = SSVI_FUNCTION.volatility(FORWARD, STRIKES[i], TIME_EXP, DATA);
       assertEquals(sigmaExpected, sigmaComputed, TOLERANCE_VOL);
     }
   }
@@ -65,13 +65,13 @@ public class SsviVolatilityFunctionTest {
         @Override
         public Double apply(DoubleArray x) {
           SsviFormulaData data = SsviFormulaData.of(x.get(3), x.get(4), x.get(5));
-          return SSVI_FUNCTION.getVolatility(x.get(0), x.get(1), x.get(2), data);
+          return SSVI_FUNCTION.volatility(x.get(0), x.get(1), x.get(2), data);
         }
       };
       Function<DoubleArray, DoubleArray> d = differentiator.differentiate(function);
       DoubleArray fd = d.apply(DoubleArray.of(FORWARD, STRIKES[i], TIME_EXP, VOL_ATM, RHO, ETA));
       ValueDerivatives ad = 
-          SSVI_FUNCTION.getVolatilityAdjoint(FORWARD, STRIKES[i], TIME_EXP, DATA);
+          SSVI_FUNCTION.volatilityAdjoint(FORWARD, STRIKES[i], TIME_EXP, DATA);
       for (int j = 0; j < 6; j++) {
         assertEquals(fd.get(j), ad.getDerivatives().get(j), TOLERANCE_AD);
       }
@@ -80,7 +80,7 @@ public class SsviVolatilityFunctionTest {
 
   @Test
   public void test_small_time() {
-    assertThrowsIllegalArg(() -> SSVI_FUNCTION.getVolatility(FORWARD, STRIKES[0], 0.0, DATA));
+    assertThrowsIllegalArg(() -> SSVI_FUNCTION.volatility(FORWARD, STRIKES[0], 0.0, DATA));
   }
 
   public void coverage() {

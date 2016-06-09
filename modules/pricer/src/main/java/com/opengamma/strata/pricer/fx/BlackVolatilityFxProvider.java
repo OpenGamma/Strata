@@ -57,13 +57,14 @@ public interface BlackVolatilityFxProvider {
    * @param forward  the underling forward
    * @return the volatility
    */
-  public default double getVolatility(
+  public default double volatility(
       CurrencyPair currencyPair,
       ZonedDateTime expiryDateTime,
       double strike,
       double forward) {
+
     double expiryTime = relativeTime(expiryDateTime);
-    return getVolatility(currencyPair, expiryTime, strike, forward);
+    return volatility(currencyPair, expiryTime, strike, forward);
   }
 
   /**
@@ -75,7 +76,7 @@ public interface BlackVolatilityFxProvider {
    * @param forward  the underling forward
    * @return the volatility
    */
-  public abstract double getVolatility(
+  public abstract double volatility(
       CurrencyPair currencyPair,
       double expiryTime,
       double strike,

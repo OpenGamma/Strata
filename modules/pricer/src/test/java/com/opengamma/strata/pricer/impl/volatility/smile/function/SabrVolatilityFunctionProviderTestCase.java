@@ -31,30 +31,30 @@ public abstract class SabrVolatilityFunctionProviderTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    getFunction().getVolatility(FORWARD, K, T, null);
+    getFunction().volatility(FORWARD, K, T, null);
   }
 
   @Test
   public void testLogNormalEquivalent() {
-    assertEquals(getFunction().getVolatility(FORWARD, K, T, LOG_NORMAL_EQUIVALENT),
+    assertEquals(getFunction().volatility(FORWARD, K, T, LOG_NORMAL_EQUIVALENT),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 0);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent1() {
-    assertEquals(getFunction().getVolatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT1),
+    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT1),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent2() {
-    assertEquals(getFunction().getVolatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT2),
+    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT2),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 
   @Test
   public void testApproachingLogNormalEquivalent3() {
-    assertEquals(getFunction().getVolatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT3),
+    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT3),
         LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
   }
 

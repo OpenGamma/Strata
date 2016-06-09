@@ -87,7 +87,7 @@ public final class BlackVolatilityExpLogMoneynessBondFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double volatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice) {
     ArgChecker.notNegativeOrZero(strikePrice, "strikePrice");
     ArgChecker.notNegativeOrZero(futurePrice, "futurePrice");
     double logMoneyness = Math.log(strikePrice / futurePrice);

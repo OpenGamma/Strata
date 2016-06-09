@@ -84,7 +84,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         final T data = toSmileModelData(x);
         double[] res = new double[n];
         for (int i = 0; i < n; ++i) {
-          res[i] = _model.getVolatility(forward, strikes.get(i), timeToExpiry, data);
+          res[i] = _model.volatility(forward, strikes.get(i), timeToExpiry, data);
         }
         return DoubleArray.copyOf(res);
       }
@@ -95,7 +95,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         final T data = toSmileModelData(x);
         double[][] resAdj = new double[n][];
         for (int i = 0; i < n; ++i) {
-          DoubleArray deriv = _model.getVolatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
+          DoubleArray deriv = _model.volatilityAdjoint(forward, strikes.get(i), timeToExpiry, data).getDerivatives();
           resAdj[i] = deriv.subArray(2).toArrayUnsafe();
         }
         return DoubleMatrix.copyOf(resAdj);

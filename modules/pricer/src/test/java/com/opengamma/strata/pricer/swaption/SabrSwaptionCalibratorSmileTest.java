@@ -150,7 +150,7 @@ public class SabrSwaptionCalibratorSmileTest {
     SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
-          .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
+          .volatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
       double priceNormal = NormalFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
@@ -172,7 +172,7 @@ public class SabrSwaptionCalibratorSmileTest {
     SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
-          .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
+          .volatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
       double priceBlack = BlackFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
@@ -201,7 +201,7 @@ public class SabrSwaptionCalibratorSmileTest {
     SabrFormulaData sabrComputed = SabrFormulaData.of(rComputed.getFirst().getModelParameters().toArrayUnsafe());
     for (int i = 0; i < moneyness.size(); i++) {
       double ivComputed = SABR_FORMULA
-          .getVolatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
+          .volatility(FORWARD + shift, FORWARD + moneyness.get(i) + shift, TIME_EXPIRY, sabrComputed);
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
       assertEquals(priceComputed, prices[i], tolerance);

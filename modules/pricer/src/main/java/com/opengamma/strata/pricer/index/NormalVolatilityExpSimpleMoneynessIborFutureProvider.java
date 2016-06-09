@@ -93,7 +93,7 @@ public final class NormalVolatilityExpSimpleMoneynessIborFutureProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice) {
+  public double volatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice) {
     double simpleMoneyness = isMoneynessOnPrice ? strikePrice - futurePrice : futurePrice - strikePrice;
     double expiryTime = relativeTime(expiry);
     return parameters.zValue(expiryTime, simpleMoneyness);

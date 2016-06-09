@@ -21,7 +21,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
   private static final double EPS = 1.0e-6;
 
   /**
-   * Computes the volatility. 
+   * Calculates the volatility. 
    * 
    * @param forward  the forward value of the underlying
    * @param strike  the strike value of the option
@@ -29,10 +29,10 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param data  the model data
    * @return the volatility
    */
-  public abstract double getVolatility(double forward, double strike, double timeToExpiry, T data);
+  public abstract double volatility(double forward, double strike, double timeToExpiry, T data);
 
   /**
-   * Computes volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
+   * Calculates volatility and the adjoint (volatility sensitivity to forward, strike and model parameters). 
    * <p>
    * By default the derivatives are computed by central finite difference approximation. 
    * This should be overridden in each subclass. 
@@ -43,11 +43,11 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param data  the model data
    * @return the volatility and associated derivatives
    */
-  public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, T data) {
+  public ValueDerivatives volatilityAdjoint(double forward, double strike, double timeToExpiry, T data) {
     ArgChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
 
     double[] res = new double[2 + data.getNumberOfParameters()]; // fwd, strike, the model parameters
-    double volatility = getVolatility(forward, strike, timeToExpiry, data);
+    double volatility = volatility(forward, strike, timeToExpiry, data);
     res[0] = forwardBar(forward, strike, timeToExpiry, data);
     res[1] = strikeBar(forward, strike, timeToExpiry, data);
     Function<T, Double> func = getVolatilityFunction(forward, strike, timeToExpiry);
@@ -77,7 +77,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
    * @param volatilityD2  the array of array used to return the second order derivative
    * @return the volatility
    */
-  public abstract double getVolatilityAdjoint2(
+  public abstract double volatilityAdjoint2(
       double forward,
       double strike,
       double timeToExpiry,
@@ -87,14 +87,14 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
 
   //-------------------------------------------------------------------------
   private double forwardBar(double forward, double strike, double timeToExpiry, T data) {
-    double volUp = getVolatility(forward + EPS, strike, timeToExpiry, data);
-    double volDown = getVolatility(forward - EPS, strike, timeToExpiry, data);
+    double volUp = volatility(forward + EPS, strike, timeToExpiry, data);
+    double volDown = volatility(forward - EPS, strike, timeToExpiry, data);
     return 0.5 * (volUp - volDown) / EPS;
   }
 
   private double strikeBar(double forward, double strike, double timeToExpiry, T data) {
-    double volUp = getVolatility(forward, strike + EPS, timeToExpiry, data);
-    double volDown = getVolatility(forward, strike - EPS, timeToExpiry, data);
+    double volUp = volatility(forward, strike + EPS, timeToExpiry, data);
+    double volDown = volatility(forward, strike - EPS, timeToExpiry, data);
     return 0.5 * (volUp - volDown) / EPS;
   }
 
@@ -103,7 +103,7 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
       @Override
       public Double apply(T data) {
         ArgChecker.notNull(data, "data");
-        return getVolatility(forward, strike, timeToExpiry, data);
+        return volatility(forward, strike, timeToExpiry, data);
       }
     };
   }

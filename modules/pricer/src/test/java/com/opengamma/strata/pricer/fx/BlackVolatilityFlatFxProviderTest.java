@@ -89,7 +89,7 @@ public class BlackVolatilityFlatFxProviderTest {
       double expiryTime = PROVIDER.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = CURVE.yValue(expiryTime);
-        double volComputed = PROVIDER.getVolatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
+        double volComputed = PROVIDER.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
     }
@@ -101,7 +101,7 @@ public class BlackVolatilityFlatFxProviderTest {
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = CURVE.yValue(expiryTime);
         double volComputed = PROVIDER
-            .getVolatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+            .volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
         assertEquals(volComputed, volExpected, TOLERANCE);
       }
     }
@@ -183,8 +183,8 @@ public class BlackVolatilityFlatFxProviderTest {
         BlackVolatilityFlatFxProvider.of(curveUp, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
     BlackVolatilityFlatFxProvider provDw =
         BlackVolatilityFlatFxProvider.of(curveDw, CURRENCY_PAIR, ACT_365F, VAL_DATE_TIME);
-    double volUp = provUp.getVolatility(pair, expiry, strike, forward);
-    double volDw = provDw.getVolatility(pair, expiry, strike, forward);
+    double volUp = provUp.volatility(pair, expiry, strike, forward);
+    double volDw = provDw.volatility(pair, expiry, strike, forward);
     return 0.5 * (volUp - volDw) / EPS;
   }
 

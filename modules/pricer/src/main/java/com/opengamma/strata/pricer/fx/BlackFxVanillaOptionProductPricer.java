@@ -122,7 +122,7 @@ public class BlackFxVanillaOptionProductPricer {
     if (timeToExpiry == 0d) {
       return isCall ? Math.max(forwardRate - strikeRate, 0d) : Math.max(0d, strikeRate - forwardRate);
     }
-    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
+    double volatility = volatilityProvider.volatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
     return BlackFormulaRepository.price(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
   }
 
@@ -222,7 +222,7 @@ public class BlackFxVanillaOptionProductPricer {
     if (timeToExpiry == 0d) {
       return isCall ? (forwardRate > strikeRate ? 1d : 0d) : (strikeRate > forwardRate ? -1d : 0d);
     }
-    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
+    double volatility = volatilityProvider.volatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
     return BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
   }
 
@@ -251,7 +251,7 @@ public class BlackFxVanillaOptionProductPricer {
     CurrencyPair strikePair = underlying.getCurrencyPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = option.getStrike();
-    double volatility = volatilityProvider.getVolatility(
+    double volatility = volatilityProvider.volatility(
         strikePair, option.getExpiry(), strikeRate, forwardRate);
     double forwardGamma = BlackFormulaRepository.gamma(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
@@ -304,7 +304,7 @@ public class BlackFxVanillaOptionProductPricer {
     CurrencyPair strikePair = underlying.getCurrencyPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = option.getStrike();
-    double volatility = volatilityProvider.getVolatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
+    double volatility = volatilityProvider.volatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
     double fwdVega = BlackFormulaRepository.vega(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
     return discountFactor * fwdVega;
@@ -381,7 +381,7 @@ public class BlackFxVanillaOptionProductPricer {
     CurrencyPair strikePair = underlying.getCurrencyPair();
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = option.getStrike();
-    double volatility = volatilityProvider.getVolatility(
+    double volatility = volatilityProvider.volatility(
         strikePair, option.getExpiry(), strikeRate, forwardRate);
     double fwdTheta = BlackFormulaRepository.driftlessTheta(forwardRate, strikeRate, timeToExpiry, volatility);
     double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
@@ -429,7 +429,7 @@ public class BlackFxVanillaOptionProductPricer {
     }
     FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
     CurrencyPair strikePair = option.getUnderlying().getCurrencyPair();
-    return volatilityProvider.getVolatility(
+    return volatilityProvider.volatility(
         strikePair, option.getExpiry(), option.getStrike(), forward.fxRate(strikePair));
   }
 
