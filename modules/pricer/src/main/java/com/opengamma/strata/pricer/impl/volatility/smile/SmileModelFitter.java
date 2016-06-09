@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
+package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import java.util.BitSet;
 import java.util.function.Function;
@@ -19,8 +19,6 @@ import com.opengamma.strata.math.impl.minimization.NonLinearTransformFunction;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquare;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SmileModelData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Smile model fitter.

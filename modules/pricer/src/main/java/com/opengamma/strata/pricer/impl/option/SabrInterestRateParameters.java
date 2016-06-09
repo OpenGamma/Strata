@@ -29,8 +29,8 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**

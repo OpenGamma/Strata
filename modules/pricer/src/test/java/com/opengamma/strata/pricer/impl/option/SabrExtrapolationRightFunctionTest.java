@@ -11,9 +11,9 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganVolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
 import com.opengamma.strata.product.common.PutCall;
 
 /**

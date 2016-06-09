@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile.fitting;
+package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import java.util.BitSet;
 
@@ -14,8 +14,6 @@ import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.strata.math.impl.minimization.SingleRangeLimitTransform;
 import com.opengamma.strata.math.impl.minimization.UncoupledParameterTransforms;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * SABR model fitter.

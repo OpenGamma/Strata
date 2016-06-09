@@ -17,9 +17,9 @@ import com.opengamma.strata.math.impl.linearalgebra.DecompositionResult;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.RidderSingleRootFinder;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.SabrHaganVolatilityFunctionProvider;
-import com.opengamma.strata.pricer.impl.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganVolatilityFunctionProvider;
+import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
 import com.opengamma.strata.product.common.PutCall;
 
 /**

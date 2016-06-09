@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile.function;
+package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -21,24 +21,24 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
- * The data bundle for SSVI smile formula. 
+ * The data bundle for SABR formula. 
  * <p>
- * The bundle contains the SSVI model parameters, ATM volatility, rho and eta. 
+ * The bundle contains the SABR model parameters, alpha, beta, rho and nu, as an array. 
  */
 @BeanDefinition(style = "light")
-public final class SsviFormulaData
+public final class SabrFormulaData
     implements SmileModelData, ImmutableBean, Serializable {
 
   /**
    * The number of model parameters. 
    */
-  private static final int NUM_PARAMETERS = 3;
+  private static final int NUM_PARAMETERS = 4;
 
   /**
    * The model parameters. 
    * <p>
-   * This must be an array of length 3.
-   * The parameters in the array are in the order of sigma (ATM volatility), rho and eta.
+   * This must be an array of length 4.
+   * The parameters in the array are in the order of alpha, beta, rho and nu.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    */
   @PropertyDefinition(validate = "notNull")
@@ -46,29 +46,30 @@ public final class SsviFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance of the SSVI formula data. 
+   * Obtains an instance of the SABR formula data. 
    * 
-   * @param sigma  the sigma parameter, ATM volatility
+   * @param alpha  the alpha parameter
+   * @param beta  the beta parameter
    * @param rho  the rho parameter
-   * @param eta  the eta parameter
+   * @param nu  the nu parameter
    * @return the instance
    */
-  public static SsviFormulaData of(double sigma, double rho, double eta) {
-    return new SsviFormulaData(DoubleArray.of(sigma, rho, eta));
+  public static SabrFormulaData of(double alpha, double beta, double rho, double nu) {
+    return new SabrFormulaData(DoubleArray.of(alpha, beta, rho, nu));
   }
 
   /**
-   * Obtains an instance of the SSVI formula data. 
+   * Obtains an instance of the SABR formula data. 
    * <p>
-   * The parameters in the input array should be in the order of sigma (ATM volatility), rho and eta.  
+   * The parameters in the input array should be in the order of alpha, beta, rho and nu.  
    * 
    * @param parameters  the parameters
    * @return the instance
    */
-  public static SsviFormulaData of(double[] parameters) {
+  public static SabrFormulaData of(double[] parameters) {
     ArgChecker.notNull(parameters, "parameters");
-    ArgChecker.isTrue(parameters.length == NUM_PARAMETERS, "the number of parameters should be 3");
-    return new SsviFormulaData(DoubleArray.copyOf(parameters));
+    ArgChecker.isTrue(parameters.length == NUM_PARAMETERS, "the number of parameters should be 4");
+    return new SabrFormulaData(DoubleArray.copyOf(parameters));
   }
 
   @ImmutableValidator
@@ -80,12 +81,21 @@ public final class SsviFormulaData
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the sigma parameter. 
+   * Gets the alpha parameter. 
    * 
-   * @return the sigma parameter
+   * @return the alpha parameter
    */
-  public double getSigma() {
+  public double getAlpha() {
     return parameters.get(0);
+  }
+
+  /**
+   * Gets the beta parameter. 
+   * 
+   * @return the beta parameter
+   */
+  public double getBeta() {
+    return parameters.get(1);
   }
 
   /**
@@ -94,27 +104,37 @@ public final class SsviFormulaData
    * @return the rho parameter
    */
   public double getRho() {
-    return parameters.get(1);
+    return parameters.get(2);
   }
 
   /**
-   * Gets the eta parameters.
+   * Obtains the nu parameters.
    * 
-   * @return the eta parameter
+   * @return the nu parameter
    */
-  public double getEta() {
-    return parameters.get(2);
+  public double getNu() {
+    return parameters.get(3);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a copy of this instance with sigma replaced.
+   * Returns a copy of this instance with alpha replaced.
    * 
-   * @param sigma  the new sigma
+   * @param alpha  the new alpha
    * @return the new data instance
    */
-  public SsviFormulaData withSigma(double sigma) {
-    return of(sigma, getRho(), getEta());
+  public SabrFormulaData withAlpha(double alpha) {
+    return of(alpha, getBeta(), getRho(), getNu());
+  }
+
+  /**
+   * Returns a copy of this instance with beta replaced.
+   * 
+   * @param beta  the new beta
+   * @return the new data instance
+   */
+  public SabrFormulaData withBeta(double beta) {
+    return of(getAlpha(), beta, getRho(), getNu());
   }
 
   /**
@@ -123,18 +143,18 @@ public final class SsviFormulaData
    * @param rho  the new rho
    * @return the new data instance
    */
-  public SsviFormulaData withRho(double rho) {
-    return of(getSigma(), rho, getEta());
+  public SabrFormulaData withRho(double rho) {
+    return of(getAlpha(), getBeta(), rho, getNu());
   }
 
   /**
-   * Returns a copy of this instance with eta replaced.
+   * Returns a copy of this instance with nu replaced.
    * 
-   * @param eta  the new eta
+   * @param nu  the new nu
    * @return the new data instance
    */
-  public SsviFormulaData withEta(double eta) {
-    return of(getSigma(), getRho(), eta);
+  public SabrFormulaData withNu(double nu) {
+    return of(getAlpha(), getBeta(), getRho(), nu);
   }
 
   //-------------------------------------------------------------------------
@@ -153,18 +173,18 @@ public final class SsviFormulaData
   public boolean isAllowed(int index, double value) {
     switch (index) {
       case 0:
-        return value > 0;
       case 1:
-        return value >= -1 && value <= 1;
+      case 3:
+        return value >= 0;
       case 2:
-        return value > 0;
+        return value >= -1 && value <= 1;
       default:
         throw new IllegalArgumentException("index " + index + " outside range");
     }
   }
 
   @Override
-  public SsviFormulaData with(int index, double value) {
+  public SabrFormulaData with(int index, double value) {
     ArgChecker.inRange(index, 0, NUM_PARAMETERS, "index");
     double[] paramsCp = parameters.toArray();
     paramsCp[index] = value;
@@ -174,12 +194,12 @@ public final class SsviFormulaData
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SsviFormulaData}.
+   * The meta-bean for {@code SabrFormulaData}.
    */
-  private static MetaBean META_BEAN = LightMetaBean.of(SsviFormulaData.class);
+  private static MetaBean META_BEAN = LightMetaBean.of(SabrFormulaData.class);
 
   /**
-   * The meta-bean for {@code SsviFormulaData}.
+   * The meta-bean for {@code SabrFormulaData}.
    * @return the meta-bean, not null
    */
   public static MetaBean meta() {
@@ -195,7 +215,7 @@ public final class SsviFormulaData
    */
   private static final long serialVersionUID = 1L;
 
-  private SsviFormulaData(
+  private SabrFormulaData(
       DoubleArray parameters) {
     JodaBeanUtils.notNull(parameters, "parameters");
     this.parameters = parameters;
@@ -221,8 +241,8 @@ public final class SsviFormulaData
   /**
    * Gets the model parameters.
    * <p>
-   * This must be an array of length 3.
-   * The parameters in the array are in the order of sigma (ATM volatility), rho and eta.
+   * This must be an array of length 4.
+   * The parameters in the array are in the order of alpha, beta, rho and nu.
    * The constraints for the parameters are defined in {@link #isAllowed(int, double)}.
    * @return the value of the property, not null
    */
@@ -237,7 +257,7 @@ public final class SsviFormulaData
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SsviFormulaData other = (SsviFormulaData) obj;
+      SabrFormulaData other = (SabrFormulaData) obj;
       return JodaBeanUtils.equal(parameters, other.parameters);
     }
     return false;
@@ -253,7 +273,7 @@ public final class SsviFormulaData
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("SsviFormulaData{");
+    buf.append("SabrFormulaData{");
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();
