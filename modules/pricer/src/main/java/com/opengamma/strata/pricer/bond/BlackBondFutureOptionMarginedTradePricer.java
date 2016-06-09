@@ -117,7 +117,7 @@ public final class BlackBondFutureOptionMarginedTradePricer extends BondFutureOp
     BondFutureOptionSensitivity priceSensitivity =
         futureOptionPricer.priceSensitivityBlackVolatility(product, ratesProvider, volatilityProvider, futurePrice);
     double factor = futureOptionPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();
-    return priceSensitivity.withSensitivity(priceSensitivity.getSensitivity() * factor);
+    return priceSensitivity.multipliedBy(factor);
   }
 
 }

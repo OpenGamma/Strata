@@ -119,7 +119,7 @@ public final class NormalIborFutureOptionMarginedTradePricer extends IborFutureO
     IborFutureOptionSensitivity priceSensitivity =
         futureOptionPricer.priceSensitivityNormalVolatility(product, ratesProvider, volatilityProvider, futurePrice);
     double factor = futureOptionPricer.marginIndex(product, 1) * futureOptionTrade.getQuantity();
-    return priceSensitivity.withSensitivity(priceSensitivity.getSensitivity() * factor);
+    return priceSensitivity.multipliedBy(factor);
   }
 
 }
