@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility.smile.function;
+package com.opengamma.strata.pricer.impl.volatility.smile;
 
 /**
  * A data bundle of a volatility model. 
