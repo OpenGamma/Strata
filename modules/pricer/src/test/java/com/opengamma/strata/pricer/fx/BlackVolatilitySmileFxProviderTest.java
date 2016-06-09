@@ -31,8 +31,6 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.product.fx.FxOptionSensitivity;
-import com.opengamma.strata.market.product.fx.FxVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 

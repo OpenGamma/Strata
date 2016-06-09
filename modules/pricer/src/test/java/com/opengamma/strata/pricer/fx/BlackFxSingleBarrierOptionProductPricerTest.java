@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.product.fx.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.option.BlackBarrierPriceFormulaRepository;

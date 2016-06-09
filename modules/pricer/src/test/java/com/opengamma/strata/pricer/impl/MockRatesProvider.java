@@ -18,12 +18,12 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
-import com.opengamma.strata.market.product.DiscountFactors;
-import com.opengamma.strata.market.product.fx.FxForwardRates;
-import com.opengamma.strata.market.product.fx.FxIndexRates;
-import com.opengamma.strata.market.product.rate.IborIndexRates;
-import com.opengamma.strata.market.product.rate.OvernightIndexRates;
-import com.opengamma.strata.market.product.rate.PriceIndexValues;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.fx.FxForwardRates;
+import com.opengamma.strata.pricer.fx.FxIndexRates;
+import com.opengamma.strata.pricer.rate.IborIndexRates;
+import com.opengamma.strata.pricer.rate.OvernightIndexRates;
+import com.opengamma.strata.pricer.rate.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

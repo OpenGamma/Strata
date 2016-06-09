@@ -29,8 +29,6 @@ import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.product.bond.BondFutureOptionSensitivity;
-import com.opengamma.strata.market.product.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
@@ -38,6 +36,7 @@ import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
+import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.product.SecurityId;
 
 /**

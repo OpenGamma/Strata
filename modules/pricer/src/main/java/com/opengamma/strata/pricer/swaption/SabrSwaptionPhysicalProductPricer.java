@@ -15,7 +15,6 @@ import java.time.ZonedDateTime;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.product.swaption.SwaptionSabrSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;

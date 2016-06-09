@@ -6,7 +6,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.product.fx.FxOptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;

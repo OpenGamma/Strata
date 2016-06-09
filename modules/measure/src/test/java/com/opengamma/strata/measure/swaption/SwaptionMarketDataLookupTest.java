@@ -28,9 +28,9 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesId;
 import com.opengamma.strata.measure.calc.curve.TestMarketDataMap;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 
 /**
  * Test {@link SwaptionMarketDataLookup}.

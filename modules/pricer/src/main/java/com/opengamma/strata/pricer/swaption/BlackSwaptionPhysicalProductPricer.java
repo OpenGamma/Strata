@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.swaption;
 
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.swap.Swap;
 

@@ -19,21 +19,15 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.DiscountFactors;
-import com.opengamma.strata.market.product.ZeroRateSensitivity;
-import com.opengamma.strata.market.product.fx.FxForwardRates;
-import com.opengamma.strata.market.product.fx.FxForwardSensitivity;
-import com.opengamma.strata.market.product.fx.FxIndexRates;
-import com.opengamma.strata.market.product.fx.FxIndexSensitivity;
-import com.opengamma.strata.market.product.rate.IborIndexRates;
-import com.opengamma.strata.market.product.rate.IborRateSensitivity;
-import com.opengamma.strata.market.product.rate.InflationRateSensitivity;
-import com.opengamma.strata.market.product.rate.OvernightIndexRates;
-import com.opengamma.strata.market.product.rate.OvernightRateSensitivity;
-import com.opengamma.strata.market.product.rate.PriceIndexValues;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.pricer.BaseProvider;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.fx.FxForwardRates;
+import com.opengamma.strata.pricer.fx.FxForwardSensitivity;
+import com.opengamma.strata.pricer.fx.FxIndexRates;
+import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
 
 /**
  * A provider of rates, such as Ibor and Overnight, used for pricing financial instruments.

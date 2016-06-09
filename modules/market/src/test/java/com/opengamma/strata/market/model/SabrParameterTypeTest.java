@@ -10,8 +10,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.model.SabrParameterType;
-
 /**
  * Test {@link SabrParameterType}.
  */

@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;

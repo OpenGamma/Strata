@@ -27,8 +27,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.swaption.SwaptionSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionSurfaceExpiryTenorParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;

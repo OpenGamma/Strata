@@ -25,7 +25,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 

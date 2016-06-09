@@ -24,8 +24,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.product.swaption.SwaptionSurfaceExpiryTenorParameterMetadata;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;

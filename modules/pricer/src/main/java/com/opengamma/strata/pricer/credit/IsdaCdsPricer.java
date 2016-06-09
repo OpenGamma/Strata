@@ -15,8 +15,6 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.product.credit.IsdaCreditCurveInputs;
-import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputs;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCurve;
 import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;

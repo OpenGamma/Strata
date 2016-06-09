@@ -48,7 +48,6 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;

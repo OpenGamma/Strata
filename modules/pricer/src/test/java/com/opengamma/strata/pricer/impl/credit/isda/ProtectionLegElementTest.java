@@ -14,15 +14,6 @@ import java.time.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.pricer.impl.credit.isda.AccrualOnDefaultFormulae;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalytic;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsAnalyticFactory;
-import com.opengamma.strata.pricer.impl.credit.isda.CdsCoupon;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantCreditCurve;
-import com.opengamma.strata.pricer.impl.credit.isda.IsdaCompliantYieldCurve;
-import com.opengamma.strata.pricer.impl.credit.isda.PremiumLegElement;
-import com.opengamma.strata.pricer.impl.credit.isda.ProtectionLegElement;
-
 /**
  * Test.
  */

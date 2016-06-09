@@ -33,8 +33,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.market.product.fx.FxOptionSensitivity;
-import com.opengamma.strata.market.product.fx.FxVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.market.surface.SurfaceName;
 
 /**

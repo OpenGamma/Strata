@@ -43,16 +43,11 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.product.ZeroRateSensitivity;
-import com.opengamma.strata.market.product.fx.FxIndexSensitivity;
-import com.opengamma.strata.market.product.rate.IborRateSensitivity;
-import com.opengamma.strata.market.product.rate.InflationRateSensitivity;
-import com.opengamma.strata.market.product.rate.OvernightRateSensitivity;
-import com.opengamma.strata.market.product.rate.PriceIndexValues;
-import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.datasets.StandardDataSets;
+import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
 
 /**
  * Tests related to {@link ImmutableRatesProvider} for the computation of curve parameters sensitivities.

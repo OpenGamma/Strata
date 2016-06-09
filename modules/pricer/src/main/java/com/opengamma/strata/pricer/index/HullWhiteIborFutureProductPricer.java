@@ -9,8 +9,8 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.product.rate.IborRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.rate.IborRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.ResolvedIborFuture;

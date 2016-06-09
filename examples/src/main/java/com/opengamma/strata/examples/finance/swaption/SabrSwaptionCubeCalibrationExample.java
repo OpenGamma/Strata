@@ -36,7 +36,6 @@ import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
@@ -50,6 +49,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionCalibrator;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesName;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 

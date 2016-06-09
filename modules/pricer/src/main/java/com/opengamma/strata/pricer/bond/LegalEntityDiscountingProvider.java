@@ -31,15 +31,9 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.product.DiscountFactors;
-import com.opengamma.strata.market.product.bond.BondGroup;
-import com.opengamma.strata.market.product.bond.IssuerCurveDiscountFactors;
-import com.opengamma.strata.market.product.bond.IssuerCurveZeroRateSensitivity;
-import com.opengamma.strata.market.product.bond.LegalEntityGroup;
-import com.opengamma.strata.market.product.bond.RepoCurveDiscountFactors;
-import com.opengamma.strata.market.product.bond.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
 
