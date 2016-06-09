@@ -77,12 +77,12 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
       OptionFunction func = EuropeanVanillaOptionFunction.of(strike, timeToExpiry, PutCall.CALL, nSteps);
       double price = TREE.optionPrice(func, TREE_DATA);
       double impliedVol = BlackFormulaRepository.impliedVolatility(price / dfDom, forward, strike, timeToExpiry, true);
-      double orgVol = VOL_PROVIDER.getVolatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
+      double orgVol = VOL_PROVIDER.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
       assertEquals(impliedVol, orgVol, orgVol * 0.1); // large tol
       double priceMrkt = TREE.optionPrice(func, TREE_DATA_MRKT);
       double impliedVolMrkt =
           BlackFormulaRepository.impliedVolatility(priceMrkt / dfDom, forward, strike, timeToExpiry, true);
-      double orgVolMrkt = VOL_PROVIDER_MRKT.getVolatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
+      double orgVolMrkt = VOL_PROVIDER_MRKT.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
       assertEquals(impliedVolMrkt, orgVolMrkt, orgVolMrkt * 0.1); // large tol
     }
   }

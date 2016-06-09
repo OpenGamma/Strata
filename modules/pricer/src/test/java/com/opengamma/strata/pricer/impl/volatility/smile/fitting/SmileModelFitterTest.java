@@ -78,7 +78,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     _cleanVols = new double[n];
     Arrays.fill(_errors, 1e-4);
     for (int i = 0; i < n; i++) {
-      _cleanVols[i] = model.getVolatility(F, STRIKES[i], TIME_TO_EXPIRY, data);
+      _cleanVols[i] = model.volatility(F, STRIKES[i], TIME_TO_EXPIRY, data);
       _noisyVols[i] = _cleanVols[i] + UNIFORM.nextDouble() * _errors[i];
     }
     _fitter = getFitter(F, STRIKES, TIME_TO_EXPIRY, _cleanVols, _errors, model);

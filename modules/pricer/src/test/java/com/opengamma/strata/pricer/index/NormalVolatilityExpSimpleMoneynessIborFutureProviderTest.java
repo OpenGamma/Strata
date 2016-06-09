@@ -92,7 +92,7 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
       double volExpected = PARAMETERS_PRICE.zValue(expiryTime, TEST_STRIKE_PRICE[i] - TEST_FUTURE_PRICE[i]);
-      double volComputed = VOL_SIMPLE_MONEY_PRICE.getVolatility(
+      double volComputed = VOL_SIMPLE_MONEY_PRICE.volatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
@@ -102,7 +102,7 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = VOL_SIMPLE_MONEY_RATE.relativeTime(TEST_EXPIRY[i]);
       double volExpected = PARAMETERS_RATE.zValue(expiryTime, TEST_FUTURE_PRICE[i] - TEST_STRIKE_PRICE[i]);
-      double volComputed = VOL_SIMPLE_MONEY_RATE.getVolatility(
+      double volComputed = VOL_SIMPLE_MONEY_RATE.volatility(
           TEST_EXPIRY[i], TEST_FIXING[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
@@ -119,14 +119,14 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
         IborFutureOptionSensitivity.of(EUR_EURIBOR_3M, expiry, fixing, strikePrice, futurePrice, sensitivity);
     UnitParameterSensitivity ps = VOL_SIMPLE_MONEY_RATE.nodeSensitivity(point);
     double shift = 1.0E-6;
-    double v0 = VOL_SIMPLE_MONEY_RATE.getVolatility(expiry, fixing, strikePrice, futurePrice);
+    double v0 = VOL_SIMPLE_MONEY_RATE.volatility(expiry, fixing, strikePrice, futurePrice);
     for (int i = 0; i < NORMAL_VOL.size(); i++) {
       DoubleArray v = NORMAL_VOL.with(i, NORMAL_VOL.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
           DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, v, INTERPOLATOR_2D);
       NormalVolatilityExpSimpleMoneynessIborFutureProvider vol = NormalVolatilityExpSimpleMoneynessIborFutureProvider
           .of(param, false, EUR_EURIBOR_3M, ACT_365F, VAL_DATE_TIME);
-      double vP = vol.getVolatility(expiry, fixing, strikePrice, futurePrice);
+      double vP = vol.volatility(expiry, fixing, strikePrice, futurePrice);
       double s = ps.getSensitivity().get(i);
       assertEquals(s, (vP - v0) / shift * sensitivity, TOLERANCE_DELTA);
     }

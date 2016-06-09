@@ -123,7 +123,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
     double forward = todayFx * dfBase / dfCounter;
-    double volatility = volatilityProvider.getVolatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
+    double volatility = volatilityProvider.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
     double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
     double price = BARRIER_PRICER.price(
         todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
@@ -418,7 +418,7 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
     double forward = todayFx * dfBase / dfCounter;
-    double volatility = volatilityProvider.getVolatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
+    double volatility = volatilityProvider.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
     double timeToExpiry = volatilityProvider.relativeTime(underlyingOption.getExpiry());
     ValueDerivatives valueDerivatives = BARRIER_PRICER.priceAdjoint(
         todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);

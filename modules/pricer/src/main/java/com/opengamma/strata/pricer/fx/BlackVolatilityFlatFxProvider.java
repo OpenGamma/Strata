@@ -92,7 +92,7 @@ public final class BlackVolatilityFlatFxProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
+  public double volatility(CurrencyPair currencyPair, double expiryTime, double strike, double forward) {
     return curve.yValue(expiryTime);
   }
 

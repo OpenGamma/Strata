@@ -183,7 +183,7 @@ public class SabrExtrapolationRightFunction {
   public double price(double strike, PutCall putCall) {
     // Uses Hagan et al SABR function.
     if (strike <= cutOffStrike) {
-      double volatility = sabrFunction.getVolatility(forward, strike, timeToExpiry, sabrData);
+      double volatility = sabrFunction.volatility(forward, strike, timeToExpiry, sabrData);
       return BlackFormulaRepository.price(forward, strike, timeToExpiry, volatility, putCall.isCall());
     }
     // Uses extrapolation for call.
@@ -206,7 +206,7 @@ public class SabrExtrapolationRightFunction {
   public double priceDerivativeStrike(double strike, PutCall putCall) {
     // Uses Hagan et al SABR function.
     if (strike <= cutOffStrike) {
-      ValueDerivatives volatilityAdjoint = sabrFunction.getVolatilityAdjoint(forward, strike, timeToExpiry, sabrData);
+      ValueDerivatives volatilityAdjoint = sabrFunction.volatilityAdjoint(forward, strike, timeToExpiry, sabrData);
       ValueDerivatives bsAdjoint = BlackFormulaRepository.priceAdjoint(
           forward, strike, timeToExpiry, volatilityAdjoint.getValue(), putCall.equals(PutCall.CALL));
       return bsAdjoint.getDerivative(1) + bsAdjoint.getDerivative(3) * volatilityAdjoint.getDerivative(1);
@@ -231,7 +231,7 @@ public class SabrExtrapolationRightFunction {
   public double priceDerivativeForward(double strike, PutCall putCall) {
     // Uses Hagan et al SABR function.
     if (strike <= cutOffStrike) {
-      ValueDerivatives volatilityA = sabrFunction.getVolatilityAdjoint(forward, strike, timeToExpiry, sabrData);
+      ValueDerivatives volatilityA = sabrFunction.volatilityAdjoint(forward, strike, timeToExpiry, sabrData);
       ValueDerivatives pA = BlackFormulaRepository.priceAdjoint(
           forward, strike, timeToExpiry, volatilityA.getValue(), putCall == PutCall.CALL);
       return pA.getDerivative(0) + pA.getDerivative(3) * volatilityA.getDerivative(0);
@@ -266,7 +266,7 @@ public class SabrExtrapolationRightFunction {
     double[] priceDerivativeSabr = new double[4];
     double price;
     if (strike <= cutOffStrike) { // Uses Hagan et al SABR function.
-      ValueDerivatives volatilityA = sabrFunction.getVolatilityAdjoint(forward, strike, timeToExpiry, sabrData);
+      ValueDerivatives volatilityA = sabrFunction.volatilityAdjoint(forward, strike, timeToExpiry, sabrData);
       ValueDerivatives pA = BlackFormulaRepository.priceAdjoint(
           forward, strike, timeToExpiry, volatilityA.getValue(), putCall == PutCall.CALL);
       price = pA.getValue();
@@ -369,7 +369,7 @@ public class SabrExtrapolationRightFunction {
     // Computes derivatives at cut-off.
     double[] vD = new double[6];
     double[][] vD2 = new double[2][2];
-    volatilityK = sabrFunction.getVolatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
+    volatilityK = sabrFunction.volatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
     Pair<ValueDerivatives, double[][]> pa2 = BlackFormulaRepository.priceAdjoint2(forward, cutOffStrike, timeToExpiry, volatilityK, true);
     double[] bsD = pa2.getFirst().getDerivatives().toArrayUnsafe();
     double[][] bsD2 = pa2.getSecond();
@@ -410,7 +410,7 @@ public class SabrExtrapolationRightFunction {
     double shift = 0.00001;
     double[] vD = new double[6];
     double[][] vD2 = new double[2][2];
-    sabrFunction.getVolatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
+    sabrFunction.volatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
     Pair<ValueDerivatives, double[][]> pa2 = BlackFormulaRepository.priceAdjoint2(forward, cutOffStrike, timeToExpiry, volatilityK, true);
     double[] bsD = pa2.getFirst().getDerivatives().toArrayUnsafe();
     double[][] bsD2 = pa2.getSecond();
@@ -428,7 +428,7 @@ public class SabrExtrapolationRightFunction {
     double bsD3ssK = (bsD2VP[2][1] - bsD2[2][1]) / (volatilityK * shift);
     double[] vDKP = new double[6];
     double[][] vD2KP = new double[2][2];
-    sabrFunction.getVolatilityAdjoint2(forward, cutOffStrike * (1 + shift), timeToExpiry, sabrData, vDKP, vD2KP);
+    sabrFunction.volatilityAdjoint2(forward, cutOffStrike * (1 + shift), timeToExpiry, sabrData, vDKP, vD2KP);
     double vD3KKF = (vD2KP[1][0] - vD2[1][0]) / (cutOffStrike * shift);
     pDF[2] = bsD3FKK + bsD3sFK * vD[1] + (bsD3sFK + bsD3sFs * vD[1]) * vD[1] + bsD2[2][0] * vD2[1][1] +
         (bsD3sKK + bsD3ssK * vD[1] + (bsD3ssK + bsD3sss * vD[1]) * vD[1] + bsD2[2][2] * vD2[1][1])
@@ -474,7 +474,7 @@ public class SabrExtrapolationRightFunction {
     double shift = 1.0E-5;
     double[] vD = new double[6];
     double[][] vD2 = new double[2][2];
-    sabrFunction.getVolatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
+    sabrFunction.volatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrData, vD, vD2);
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       int paramIndex = 2 + loopparam;
       Pair<ValueDerivatives, double[][]> pa2 = BlackFormulaRepository.priceAdjoint2(forward, cutOffStrike, timeToExpiry, volatilityK, true);
@@ -508,7 +508,7 @@ public class SabrExtrapolationRightFunction {
           sabrDatapP = sabrData.withNu(param + paramShift);
           break;
       }
-      sabrFunction.getVolatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrDatapP, vDpP, vD2pP);
+      sabrFunction.volatilityAdjoint2(forward, cutOffStrike, timeToExpiry, sabrDatapP, vDpP, vD2pP);
       double vD2Kp = (vDpP[1] - vD[1]) / paramShift;
       double vD3KKa = (vD2pP[1][1] - vD2[1][1]) / paramShift;
       pdSabr[loopparam][1] = (bsD2[1][2] + bsD2[2][2] * vD[1]) * vD[paramIndex] + bsD[3] * vD2Kp;

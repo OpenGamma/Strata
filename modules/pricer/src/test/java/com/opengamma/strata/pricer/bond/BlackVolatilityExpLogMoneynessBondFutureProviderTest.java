@@ -108,7 +108,7 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
       double expiryTime = PROVIDER.relativeTime(TEST_OPTION_EXPIRY[i]);
       double volExpected = SURFACE.zValue(expiryTime, Math.log(TEST_STRIKE_PRICE[i]
           / TEST_FUTURE_PRICE[i]));
-      double volComputed = PROVIDER.getVolatility(
+      double volComputed = PROVIDER.volatility(
           TEST_OPTION_EXPIRY[i], TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
       assertEquals(volComputed, volExpected, TOLERANCE_VOL);
     }
@@ -133,9 +133,9 @@ public class BlackVolatilityExpLogMoneynessBondFutureProviderTest {
             paramUp, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
         BlackVolatilityExpLogMoneynessBondFutureProvider provDw = BlackVolatilityExpLogMoneynessBondFutureProvider.of(
             paramDw, FUTURE_SECURITY_ID, ACT_365F, VAL_DATE_TIME);
-        double volUp = provUp.getVolatility(
+        double volUp = provUp.volatility(
             TEST_OPTION_EXPIRY[i], TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
-        double volDw = provDw.getVolatility(
+        double volDw = provDw.volatility(
             TEST_OPTION_EXPIRY[i], TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
         double fd = 0.5 * (volUp - volDw) / eps;
         assertEquals(computed[j], fd, eps);

@@ -24,7 +24,15 @@ public interface NormalVolatilityIborFutureProvider
   public abstract ZonedDateTime getValuationDateTime();
 
   /**
-   * Returns the normal volatility.
+   * Gets the index on which the underlying future is based.
+   * 
+   * @return the index
+   */
+  public abstract IborIndex getFutureIndex();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the normal volatility at the specified expiry.
    * 
    * @param expiry  the expiry date-time of the option
    * @param fixingDate  the underlying future fixing date
@@ -32,13 +40,7 @@ public interface NormalVolatilityIborFutureProvider
    * @param futurePrice  the price of the underlying future
    * @return the volatility
    */
-  public abstract double getVolatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice);
-
-  /**
-   * Returns the index on which the underlying future is based.
-   * @return the index
-   */
-  public abstract IborIndex getFutureIndex();
+  public abstract double volatility(ZonedDateTime expiry, LocalDate fixingDate, double strikePrice, double futurePrice);
 
   /**
    * Converts a date to a relative {@code double} time.

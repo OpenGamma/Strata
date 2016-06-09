@@ -23,7 +23,15 @@ public interface BlackVolatilityBondFutureProvider extends BondFutureProvider {
   public abstract ZonedDateTime getValuationDateTime();
 
   /**
-   * Returns the normal volatility.
+   * Gets the ID on which the underlying future is based.
+   * 
+   * @return the ID
+   */
+  public abstract SecurityId getFutureSecurityId();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the volatility at the specified expiry.
    * 
    * @param expiry  the expiry date-time of the option
    * @param fixingDate  the underlying future fixing date
@@ -31,18 +39,11 @@ public interface BlackVolatilityBondFutureProvider extends BondFutureProvider {
    * @param futurePrice  the price of the underlying future
    * @return the volatility
    */
-  public abstract double getVolatility(
+  public abstract double volatility(
       ZonedDateTime expiry,
       LocalDate fixingDate,
       double strikePrice,
       double futurePrice);
-
-  /**
-   * Returns the ID on which the underlying future is based.
-   * 
-   * @return the ID
-   */
-  public abstract SecurityId getFutureSecurityId();
 
   /**
    * Converts a date to a relative {@code double} time.
@@ -51,4 +52,5 @@ public interface BlackVolatilityBondFutureProvider extends BondFutureProvider {
    * @return the relative time
    */
   public abstract double relativeTime(ZonedDateTime zonedDateTime);
+
 }

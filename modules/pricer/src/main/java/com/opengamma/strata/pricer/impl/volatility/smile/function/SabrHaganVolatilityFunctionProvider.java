@@ -55,7 +55,7 @@ public final class SabrHaganVolatilityFunctionProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public double getVolatility(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
+  public double volatility(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike >= 0.0, "strike must be greater than zero");
     ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
@@ -136,7 +136,7 @@ public final class SabrHaganVolatilityFunctionProvider
    * @return the volatility and associated derivatives
    */
   @Override
-  public ValueDerivatives getVolatilityAdjoint(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
+  public ValueDerivatives volatilityAdjoint(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike >= 0.0, "strike must be greater than zero");
     ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
@@ -302,7 +302,7 @@ public final class SabrHaganVolatilityFunctionProvider
    * @return the Black implied volatility
    */
   @Override
-  public double getVolatilityAdjoint2(
+  public double volatilityAdjoint2(
       double forward,
       double strike,
       double timeToExpiry,

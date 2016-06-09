@@ -161,7 +161,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double rateCounter = RATE_PROVIDER.discountFactors(USD).zeroRate(PAY_DATE);
     double costOfCarry = rateCounter - rateBase;
     double forward = RATE_PROVIDER.fxForwardRates(CURRENCY_PAIR).rate(EUR, PAY_DATE);
-    double volatility = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATETIME);
     double rebateRate = REBATE_AMOUNT / NOTIONAL;
     double expectedCash =
@@ -375,7 +375,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double rateCounter = RATE_PROVIDER.discountFactors(USD).zeroRate(PAY_DATE);
     double costOfCarry = rateCounter - rateBase;
     double forward = RATE_PROVIDER.fxForwardRates(CURRENCY_PAIR).rate(EUR, PAY_DATE);
-    double volatility = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATETIME);
     double rebateRate = REBATE_AMOUNT / NOTIONAL;
     double expectedCash = CASH_REBATE_PRICER
@@ -474,7 +474,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double rateCounter = RATE_PROVIDER.discountFactors(USD).zeroRate(PAY_DATE);
     double costOfCarry = rateCounter - rateBase;
     double forward = RATE_PROVIDER.fxForwardRates(CURRENCY_PAIR).rate(EUR, PAY_DATE);
-    double volatility = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATETIME);
     double rebateRate = REBATE_AMOUNT / NOTIONAL;
     double expectedCash = CASH_REBATE_PRICER
@@ -526,7 +526,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double rateCounter = RATE_PROVIDER.discountFactors(USD).zeroRate(PAY_DATE);
     double costOfCarry = rateCounter - rateBase;
     double forward = RATE_PROVIDER.fxForwardRates(CURRENCY_PAIR).rate(EUR, PAY_DATE);
-    double volatility = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATETIME);
     double rebateRate = REBATE_AMOUNT / NOTIONAL;
     double expectedCash = CASH_REBATE_PRICER
@@ -577,7 +577,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double rateCounter = RATE_PROVIDER.discountFactors(USD).zeroRate(PAY_DATE);
     double costOfCarry = rateCounter - rateBase;
     double forward = RATE_PROVIDER.fxForwardRates(CURRENCY_PAIR).rate(EUR, PAY_DATE);
-    double volatility = VOL_PROVIDER.getVolatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
+    double volatility = VOL_PROVIDER.volatility(CURRENCY_PAIR, EXPIRY_DATETIME, STRIKE_RATE, forward);
     double timeToExpiry = VOL_PROVIDER.relativeTime(EXPIRY_DATETIME);
     double rebateRate = REBATE_AMOUNT / NOTIONAL;
     double expectedCash = CASH_REBATE_PRICER
