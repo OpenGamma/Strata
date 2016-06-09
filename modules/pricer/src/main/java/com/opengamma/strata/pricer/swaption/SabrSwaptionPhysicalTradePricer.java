@@ -130,14 +130,14 @@ public class SabrSwaptionPhysicalTradePricer {
    * @param swaptionVolatilities  the volatilities
    * @return the present value curve sensitivity of the swap trade
    */
-  public PointSensitivityBuilder presentValueSensitivityModel(
+  public PointSensitivityBuilder presentValueSensitivityStickyModel(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
     ResolvedSwaption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
-        productPricer.presentValueSensitivityModel(product, ratesProvider, swaptionVolatilities);
+        productPricer.presentValueSensitivityStickyModel(product, ratesProvider, swaptionVolatilities);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = paymentPricer.presentValueSensitivity(premium, ratesProvider);
     return pvcsProduct.combinedWith(pvcsPremium);
