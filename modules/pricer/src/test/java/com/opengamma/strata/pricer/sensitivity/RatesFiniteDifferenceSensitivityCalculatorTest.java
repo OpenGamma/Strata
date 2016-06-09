@@ -30,10 +30,10 @@ import com.opengamma.strata.market.product.bond.BondGroup;
 import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.market.product.rate.PriceIndexValues;
 import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 
 /**
  * Tests {@link RatesFiniteDifferenceSensitivityCalculator}.

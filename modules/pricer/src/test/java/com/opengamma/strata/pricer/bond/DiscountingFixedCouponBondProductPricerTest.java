@@ -51,7 +51,6 @@ import com.opengamma.strata.market.product.bond.IssuerCurveDiscountFactors;
 import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.FixedCouponBond;
