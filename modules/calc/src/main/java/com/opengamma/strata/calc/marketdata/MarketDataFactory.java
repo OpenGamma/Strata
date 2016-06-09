@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**

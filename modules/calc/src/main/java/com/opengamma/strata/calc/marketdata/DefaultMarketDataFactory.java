@@ -17,8 +17,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.calc.marketdata.scenario.PerturbationMapping;
-import com.opengamma.strata.calc.marketdata.scenario.ScenarioDefinition;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;

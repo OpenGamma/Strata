@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.calc.marketdata;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
