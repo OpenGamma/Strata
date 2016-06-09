@@ -22,7 +22,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.market.amount.LegAmounts;
-import com.opengamma.strata.market.product.swap.SwapLegAmount;
+import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.swap.SwapLegType;

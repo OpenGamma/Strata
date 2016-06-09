@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swap;
+package com.opengamma.strata.market.amount;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRateProvider;
-import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;

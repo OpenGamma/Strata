@@ -3,11 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swap;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,7 +27,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -37,43 +41,37 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.rate.IborRateComputation;
-import com.opengamma.strata.product.swap.PaymentPeriod;
-import com.opengamma.strata.product.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.swap.RatePaymentPeriod;
-import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.ResolvedSwapTrade;
-import com.opengamma.strata.product.swap.SwapLeg;
-import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
+import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 
 /**
- * A curve node whose instrument is a three leg basis swap.
+ * A curve node whose instrument is an FX Swap.
  */
 @BeanDefinition
-public final class ThreeLegBasisSwapCurveNode
+public final class FxSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the swap associated with this node.
+   * The template for the FX Swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ThreeLegBasisSwapTemplate template;
+  private final FxSwapTemplate template;
   /**
-   * The identifier of the market data value that provides the rate.
+   * The identifier used to obtain the FX rate market value, defaulted from the template.
+   * This only needs to be specified if using multiple market data sources.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableId rateId;
+  private final FxRateId fxRateId;
   /**
-   * The additional spread added to the market quote.
+   * The identifier of the market data value which provides the FX forward points.
    */
-  @PropertyDefinition
-  private final double additionalSpread;
+  @PropertyDefinition(validate = "notNull")
+  private final ObservableId farForwardPointsId;
   /**
    * The label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the tenor if not specified.
+   * When building, this will default based on the far period if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -85,57 +83,35 @@ public final class ThreeLegBasisSwapCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a three leg basis swap using the
-   * specified instrument template and rate.
+   * Returns a curve node for an FX Swap using the specified instrument template and keys.
    * <p>
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateId  the identifier of the market rate used when building the instrument for the node
+   * @param farForwardPointsId  the identifier of the FX points at the far date
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static ThreeLegBasisSwapCurveNode of(ThreeLegBasisSwapTemplate template, ObservableId rateId) {
-    return of(template, rateId, 0d);
-  }
-
-  /**
-   * Returns a curve node for a three leg basis swap using the specified instrument template, rate key and spread.
-   * <p>
-   * A suitable default label will be created.
-   *
-   * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the market quote
-   * @return a node whose instrument is built from the template using a market rate
-   */
-  public static ThreeLegBasisSwapCurveNode of(
-      ThreeLegBasisSwapTemplate template,
-      ObservableId rateId,
-      double additionalSpread) {
-
+  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableId farForwardPointsId) {
     return builder()
         .template(template)
-        .rateId(rateId)
-        .additionalSpread(additionalSpread)
+        .farForwardPointsId(farForwardPointsId)
         .build();
   }
 
   /**
-   * Returns a curve node for a three leg basis swap using the specified instrument template, rate key, spread and label.
+   * Returns a curve node for an FX Swap using the specified instrument template and keys and label.
    *
-   * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the market quote
-   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @param template  the template used for building the instrument for the node
+   * @param farForwardPointsId  the identifier of the FX points at the far date
+   * @param label  the label to use for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static ThreeLegBasisSwapCurveNode of(
-      ThreeLegBasisSwapTemplate template,
-      ObservableId rateId,
-      double additionalSpread,
-      String label) {
-
-    return new ThreeLegBasisSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableId farForwardPointsId, String label) {
+    return builder()
+        .template(template)
+        .farForwardPointsId(farForwardPointsId)
+        .label(label)
+        .build();
   }
 
   @ImmutableDefaults
@@ -145,15 +121,27 @@ public final class ThreeLegBasisSwapCurveNode
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.label == null && builder.template != null) {
-      builder.label = builder.template.getTenor().toString();
+    if (builder.template != null) {
+      if (builder.label == null) {
+        builder.label = Tenor.of(builder.template.getPeriodToFar()).toString();
+      }
+      if (builder.fxRateId == null) {
+        builder.fxRateId = FxRateId.of(builder.template.getCurrencyPair());
+      } else {
+        ArgChecker.isTrue(
+            builder.fxRateId.getPair().toConventional().equals(builder.template.getCurrencyPair().toConventional()),
+            "FxRateId currency pair '{}' must match that of the template '{}'",
+            builder.fxRateId.getPair(),
+            builder.template.getCurrencyPair());
+      }
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableId> requirements() {
-    return ImmutableSet.of(rateId);
+  public Set<? extends MarketDataId<?>> requirements() {
+    // TODO: extra identifier for near forward points
+    return ImmutableSet.of(fxRateId, farForwardPointsId);
   }
 
   @Override
@@ -164,38 +152,31 @@ public final class ThreeLegBasisSwapCurveNode
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    return TenorDateParameterMetadata.of(nodeDate, template.getTenor(), label);
+    Tenor tenor = Tenor.of(template.getPeriodToFar());
+    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
-    return trade.getProduct().getEndDate().adjusted(refData);
+    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
+    return trade.getProduct().getFarLeg().resolve(refData).getPaymentDate();
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
-    SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
-    // Select the 'second' Ibor leg, i.e. the flat floating leg
-    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
-    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
-    int nbPeriods = periods.size();
-    RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
-    List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
-    int nbAccruals = accruals.size();
-    IborRateComputation ibor = (IborRateComputation) accruals.get(nbAccruals - 1).getRateComputation();
-    return ibor.getFixingDate();
+    throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double marketQuote = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote, refData);
+  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    FxRate fxRate = marketData.getValue(fxRateId);
+    double rate = fxRate.fxRate(template.getCurrencyPair());
+    double fxPts = marketData.getValue(farForwardPointsId);
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
   }
 
   @Override
-  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
@@ -214,22 +195,22 @@ public final class ThreeLegBasisSwapCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public ThreeLegBasisSwapCurveNode withDate(CurveNodeDate date) {
-    return new ThreeLegBasisSwapCurveNode(template, rateId, additionalSpread, label, date);
+  public FxSwapCurveNode withDate(CurveNodeDate date) {
+    return new FxSwapCurveNode(template, fxRateId, farForwardPointsId, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ThreeLegBasisSwapCurveNode}.
+   * The meta-bean for {@code FxSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static ThreeLegBasisSwapCurveNode.Meta meta() {
-    return ThreeLegBasisSwapCurveNode.Meta.INSTANCE;
+  public static FxSwapCurveNode.Meta meta() {
+    return FxSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ThreeLegBasisSwapCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FxSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -241,29 +222,30 @@ public final class ThreeLegBasisSwapCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static ThreeLegBasisSwapCurveNode.Builder builder() {
-    return new ThreeLegBasisSwapCurveNode.Builder();
+  public static FxSwapCurveNode.Builder builder() {
+    return new FxSwapCurveNode.Builder();
   }
 
-  private ThreeLegBasisSwapCurveNode(
-      ThreeLegBasisSwapTemplate template,
-      ObservableId rateId,
-      double additionalSpread,
+  private FxSwapCurveNode(
+      FxSwapTemplate template,
+      FxRateId fxRateId,
+      ObservableId farForwardPointsId,
       String label,
       CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateId, "rateId");
+    JodaBeanUtils.notNull(fxRateId, "fxRateId");
+    JodaBeanUtils.notNull(farForwardPointsId, "farForwardPointsId");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
-    this.rateId = rateId;
-    this.additionalSpread = additionalSpread;
+    this.fxRateId = fxRateId;
+    this.farForwardPointsId = farForwardPointsId;
     this.label = label;
     this.date = date;
   }
 
   @Override
-  public ThreeLegBasisSwapCurveNode.Meta metaBean() {
-    return ThreeLegBasisSwapCurveNode.Meta.INSTANCE;
+  public FxSwapCurveNode.Meta metaBean() {
+    return FxSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -278,36 +260,37 @@ public final class ThreeLegBasisSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the swap associated with this node.
+   * Gets the template for the FX Swap associated with this node.
    * @return the value of the property, not null
    */
-  public ThreeLegBasisSwapTemplate getTemplate() {
+  public FxSwapTemplate getTemplate() {
     return template;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the market data value that provides the rate.
+   * Gets the identifier used to obtain the FX rate market value, defaulted from the template.
+   * This only needs to be specified if using multiple market data sources.
    * @return the value of the property, not null
    */
-  public ObservableId getRateId() {
-    return rateId;
+  public FxRateId getFxRateId() {
+    return fxRateId;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional spread added to the market quote.
-   * @return the value of the property
+   * Gets the identifier of the market data value which provides the FX forward points.
+   * @return the value of the property, not null
    */
-  public double getAdditionalSpread() {
-    return additionalSpread;
+  public ObservableId getFarForwardPointsId() {
+    return farForwardPointsId;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the tenor if not specified.
+   * When building, this will default based on the far period if not specified.
    * @return the value of the property, not empty
    */
   @Override
@@ -339,10 +322,10 @@ public final class ThreeLegBasisSwapCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ThreeLegBasisSwapCurveNode other = (ThreeLegBasisSwapCurveNode) obj;
+      FxSwapCurveNode other = (FxSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(rateId, other.rateId) &&
-          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
+          JodaBeanUtils.equal(fxRateId, other.fxRateId) &&
+          JodaBeanUtils.equal(farForwardPointsId, other.farForwardPointsId) &&
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(date, other.date);
     }
@@ -353,8 +336,8 @@ public final class ThreeLegBasisSwapCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(farForwardPointsId);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
@@ -363,10 +346,10 @@ public final class ThreeLegBasisSwapCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("ThreeLegBasisSwapCurveNode{");
+    buf.append("FxSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
+    buf.append("fxRateId").append('=').append(fxRateId).append(',').append(' ');
+    buf.append("farForwardPointsId").append('=').append(farForwardPointsId).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
@@ -375,7 +358,7 @@ public final class ThreeLegBasisSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code ThreeLegBasisSwapCurveNode}.
+   * The meta-bean for {@code FxSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -386,36 +369,36 @@ public final class ThreeLegBasisSwapCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<ThreeLegBasisSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", ThreeLegBasisSwapCurveNode.class, ThreeLegBasisSwapTemplate.class);
+    private final MetaProperty<FxSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", FxSwapCurveNode.class, FxSwapTemplate.class);
     /**
-     * The meta-property for the {@code rateId} property.
+     * The meta-property for the {@code fxRateId} property.
      */
-    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", ThreeLegBasisSwapCurveNode.class, ObservableId.class);
+    private final MetaProperty<FxRateId> fxRateId = DirectMetaProperty.ofImmutable(
+        this, "fxRateId", FxSwapCurveNode.class, FxRateId.class);
     /**
-     * The meta-property for the {@code additionalSpread} property.
+     * The meta-property for the {@code farForwardPointsId} property.
      */
-    private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", ThreeLegBasisSwapCurveNode.class, Double.TYPE);
+    private final MetaProperty<ObservableId> farForwardPointsId = DirectMetaProperty.ofImmutable(
+        this, "farForwardPointsId", FxSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", ThreeLegBasisSwapCurveNode.class, String.class);
+        this, "label", FxSwapCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", ThreeLegBasisSwapCurveNode.class, CurveNodeDate.class);
+        this, "date", FxSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateId",
-        "additionalSpread",
+        "fxRateId",
+        "farForwardPointsId",
         "label",
         "date");
 
@@ -430,10 +413,10 @@ public final class ThreeLegBasisSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -938107365:  // rateId
-          return rateId;
-        case 291232890:  // additionalSpread
-          return additionalSpread;
+        case -1054985843:  // fxRateId
+          return fxRateId;
+        case -566044884:  // farForwardPointsId
+          return farForwardPointsId;
         case 102727412:  // label
           return label;
         case 3076014:  // date
@@ -443,13 +426,13 @@ public final class ThreeLegBasisSwapCurveNode
     }
 
     @Override
-    public ThreeLegBasisSwapCurveNode.Builder builder() {
-      return new ThreeLegBasisSwapCurveNode.Builder();
+    public FxSwapCurveNode.Builder builder() {
+      return new FxSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends ThreeLegBasisSwapCurveNode> beanType() {
-      return ThreeLegBasisSwapCurveNode.class;
+    public Class<? extends FxSwapCurveNode> beanType() {
+      return FxSwapCurveNode.class;
     }
 
     @Override
@@ -462,24 +445,24 @@ public final class ThreeLegBasisSwapCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ThreeLegBasisSwapTemplate> template() {
+    public MetaProperty<FxSwapTemplate> template() {
       return template;
     }
 
     /**
-     * The meta-property for the {@code rateId} property.
+     * The meta-property for the {@code fxRateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableId> rateId() {
-      return rateId;
+    public MetaProperty<FxRateId> fxRateId() {
+      return fxRateId;
     }
 
     /**
-     * The meta-property for the {@code additionalSpread} property.
+     * The meta-property for the {@code farForwardPointsId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> additionalSpread() {
-      return additionalSpread;
+    public MetaProperty<ObservableId> farForwardPointsId() {
+      return farForwardPointsId;
     }
 
     /**
@@ -503,15 +486,15 @@ public final class ThreeLegBasisSwapCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((ThreeLegBasisSwapCurveNode) bean).getTemplate();
-        case -938107365:  // rateId
-          return ((ThreeLegBasisSwapCurveNode) bean).getRateId();
-        case 291232890:  // additionalSpread
-          return ((ThreeLegBasisSwapCurveNode) bean).getAdditionalSpread();
+          return ((FxSwapCurveNode) bean).getTemplate();
+        case -1054985843:  // fxRateId
+          return ((FxSwapCurveNode) bean).getFxRateId();
+        case -566044884:  // farForwardPointsId
+          return ((FxSwapCurveNode) bean).getFarForwardPointsId();
         case 102727412:  // label
-          return ((ThreeLegBasisSwapCurveNode) bean).getLabel();
+          return ((FxSwapCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((ThreeLegBasisSwapCurveNode) bean).getDate();
+          return ((FxSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -529,13 +512,13 @@ public final class ThreeLegBasisSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code ThreeLegBasisSwapCurveNode}.
+   * The bean-builder for {@code FxSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<ThreeLegBasisSwapCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FxSwapCurveNode> {
 
-    private ThreeLegBasisSwapTemplate template;
-    private ObservableId rateId;
-    private double additionalSpread;
+    private FxSwapTemplate template;
+    private FxRateId fxRateId;
+    private ObservableId farForwardPointsId;
     private String label;
     private CurveNodeDate date;
 
@@ -550,10 +533,10 @@ public final class ThreeLegBasisSwapCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(ThreeLegBasisSwapCurveNode beanToCopy) {
+    private Builder(FxSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateId = beanToCopy.getRateId();
-      this.additionalSpread = beanToCopy.getAdditionalSpread();
+      this.fxRateId = beanToCopy.getFxRateId();
+      this.farForwardPointsId = beanToCopy.getFarForwardPointsId();
       this.label = beanToCopy.getLabel();
       this.date = beanToCopy.getDate();
     }
@@ -564,10 +547,10 @@ public final class ThreeLegBasisSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -938107365:  // rateId
-          return rateId;
-        case 291232890:  // additionalSpread
-          return additionalSpread;
+        case -1054985843:  // fxRateId
+          return fxRateId;
+        case -566044884:  // farForwardPointsId
+          return farForwardPointsId;
         case 102727412:  // label
           return label;
         case 3076014:  // date
@@ -581,13 +564,13 @@ public final class ThreeLegBasisSwapCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (ThreeLegBasisSwapTemplate) newValue;
+          this.template = (FxSwapTemplate) newValue;
           break;
-        case -938107365:  // rateId
-          this.rateId = (ObservableId) newValue;
+        case -1054985843:  // fxRateId
+          this.fxRateId = (FxRateId) newValue;
           break;
-        case 291232890:  // additionalSpread
-          this.additionalSpread = (Double) newValue;
+        case -566044884:  // farForwardPointsId
+          this.farForwardPointsId = (ObservableId) newValue;
           break;
         case 102727412:  // label
           this.label = (String) newValue;
@@ -626,53 +609,55 @@ public final class ThreeLegBasisSwapCurveNode
     }
 
     @Override
-    public ThreeLegBasisSwapCurveNode build() {
+    public FxSwapCurveNode build() {
       preBuild(this);
-      return new ThreeLegBasisSwapCurveNode(
+      return new FxSwapCurveNode(
           template,
-          rateId,
-          additionalSpread,
+          fxRateId,
+          farForwardPointsId,
           label,
           date);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the swap associated with this node.
+     * Sets the template for the FX Swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(ThreeLegBasisSwapTemplate template) {
+    public Builder template(FxSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
     }
 
     /**
-     * Sets the identifier of the market data value that provides the rate.
-     * @param rateId  the new value, not null
+     * Sets the identifier used to obtain the FX rate market value, defaulted from the template.
+     * This only needs to be specified if using multiple market data sources.
+     * @param fxRateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateId(ObservableId rateId) {
-      JodaBeanUtils.notNull(rateId, "rateId");
-      this.rateId = rateId;
+    public Builder fxRateId(FxRateId fxRateId) {
+      JodaBeanUtils.notNull(fxRateId, "fxRateId");
+      this.fxRateId = fxRateId;
       return this;
     }
 
     /**
-     * Sets the additional spread added to the market quote.
-     * @param additionalSpread  the new value
+     * Sets the identifier of the market data value which provides the FX forward points.
+     * @param farForwardPointsId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder additionalSpread(double additionalSpread) {
-      this.additionalSpread = additionalSpread;
+    public Builder farForwardPointsId(ObservableId farForwardPointsId) {
+      JodaBeanUtils.notNull(farForwardPointsId, "farForwardPointsId");
+      this.farForwardPointsId = farForwardPointsId;
       return this;
     }
 
     /**
      * Sets the label to use for the node, defaulted.
      * <p>
-     * When building, this will default based on the tenor if not specified.
+     * When building, this will default based on the far period if not specified.
      * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -696,10 +681,10 @@ public final class ThreeLegBasisSwapCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("ThreeLegBasisSwapCurveNode.Builder{");
+      buf.append("FxSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
-      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+      buf.append("fxRateId").append('=').append(JodaBeanUtils.toString(fxRateId)).append(',').append(' ');
+      buf.append("farForwardPointsId").append('=').append(JodaBeanUtils.toString(farForwardPointsId)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("date").append('=').append(JodaBeanUtils.toString(date));
       buf.append('}');

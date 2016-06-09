@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.fx;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -27,12 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -41,37 +37,37 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.fx.FxSwapTrade;
-import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
-import com.opengamma.strata.product.fx.type.FxSwapTemplate;
+import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
+import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 
 /**
- * A curve node whose instrument is an FX Swap.
+ * A curve node whose instrument is an Ibor fixing deposit.
  */
 @BeanDefinition
-public final class FxSwapCurveNode
+public final class IborFixingDepositCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the FX Swap associated with this node.
+   * The template for the Ibor fixing deposit associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxSwapTemplate template;
+  private final IborFixingDepositTemplate template;
   /**
-   * The identifier used to obtain the FX rate market value, defaulted from the template.
-   * This only needs to be specified if using multiple market data sources.
+   * The identifier of the market data value that provides the rate.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FxRateId fxRateId;
+  private final ObservableId rateId;
   /**
-   * The identifier of the market data value which provides the FX forward points.
+   * The additional spread added to the rate.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final ObservableId farForwardPointsId;
+  @PropertyDefinition
+  private final double additionalSpread;
   /**
    * The label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the far period if not specified.
+   * When building, this will default based on the deposit period if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -83,35 +79,56 @@ public final class FxSwapCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for an FX Swap using the specified instrument template and keys.
+   * Returns a curve node for an Ibor deposit using the specified template and rate key.
    * <p>
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param farForwardPointsId  the identifier of the FX points at the far date
+   * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableId farForwardPointsId) {
+  public static IborFixingDepositCurveNode of(IborFixingDepositTemplate template, ObservableId rateId) {
+    return of(template, rateId, 0d);
+  }
+
+  /**
+   * Returns a curve node for an Ibor deposit using the specified template, rate key and spread.
+   * <p>
+   * A suitable default label will be created.
+   *
+   * @param template  the template defining the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param additionalSpread  the additional spread amount added to the rate
+   * @return a node whose instrument is built from the template using a market rate
+   */
+  public static IborFixingDepositCurveNode of(
+      IborFixingDepositTemplate template,
+      ObservableId rateId,
+      double additionalSpread) {
+
     return builder()
         .template(template)
-        .farForwardPointsId(farForwardPointsId)
+        .rateId(rateId)
+        .additionalSpread(additionalSpread)
         .build();
   }
 
   /**
-   * Returns a curve node for an FX Swap using the specified instrument template and keys and label.
+   * Returns a curve node for an Ibor deposit using the specified template, rate key, spread and label.
    *
-   * @param template  the template used for building the instrument for the node
-   * @param farForwardPointsId  the identifier of the FX points at the far date
-   * @param label  the label to use for the node
+   * @param template  the template defining the node instrument
+   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param additionalSpread  the additional spread amount added to the rate
+   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FxSwapCurveNode of(FxSwapTemplate template, ObservableId farForwardPointsId, String label) {
-    return builder()
-        .template(template)
-        .farForwardPointsId(farForwardPointsId)
-        .label(label)
-        .build();
+  public static IborFixingDepositCurveNode of(
+      IborFixingDepositTemplate template,
+      ObservableId rateId,
+      double additionalSpread,
+      String label) {
+
+    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -121,27 +138,15 @@ public final class FxSwapCurveNode
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.template != null) {
-      if (builder.label == null) {
-        builder.label = Tenor.of(builder.template.getPeriodToFar()).toString();
-      }
-      if (builder.fxRateId == null) {
-        builder.fxRateId = FxRateId.of(builder.template.getCurrencyPair());
-      } else {
-        ArgChecker.isTrue(
-            builder.fxRateId.getPair().toConventional().equals(builder.template.getCurrencyPair().toConventional()),
-            "FxRateId currency pair '{}' must match that of the template '{}'",
-            builder.fxRateId.getPair(),
-            builder.template.getCurrencyPair());
-      }
+    if (builder.label == null && builder.template != null) {
+      builder.label = Tenor.of(builder.template.getDepositPeriod()).toString();
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<? extends MarketDataId<?>> requirements() {
-    // TODO: extra identifier for near forward points
-    return ImmutableSet.of(fxRateId, farForwardPointsId);
+  public Set<ObservableId> requirements() {
+    return ImmutableSet.of(rateId);
   }
 
   @Override
@@ -152,38 +157,43 @@ public final class FxSwapCurveNode
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    Tenor tenor = Tenor.of(template.getPeriodToFar());
+    Tenor tenor = Tenor.of(template.getDepositPeriod());
     return TenorDateParameterMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
-    return trade.getProduct().getFarLeg().resolve(refData).getPaymentDate();
+    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
+    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
+    return deposit.getEndDate();
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
+    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
+    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
+    return deposit.getFloatingRate().getFixingDate();
   }
 
   @Override
-  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    FxRate fxRate = marketData.getValue(fxRateId);
-    double rate = fxRate.fxRate(template.getCurrencyPair());
-    double fxPts = marketData.getValue(farForwardPointsId);
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
+  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    double fixedRate = marketData.getValue(rateId) + additionalSpread;
+    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
   }
 
   @Override
-  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
+    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
+      return marketData.getValue(rateId);
+    }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      return 1d;
+      double approximateMaturity = template.getDepositPeriod().toTotalMonths() / 12.0d;
+      return Math.exp(-approximateMaturity * marketData.getValue(rateId));
     }
     return 0d;
   }
@@ -195,22 +205,22 @@ public final class FxSwapCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public FxSwapCurveNode withDate(CurveNodeDate date) {
-    return new FxSwapCurveNode(template, fxRateId, farForwardPointsId, label, date);
+  public IborFixingDepositCurveNode withDate(CurveNodeDate date) {
+    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FxSwapCurveNode}.
+   * The meta-bean for {@code IborFixingDepositCurveNode}.
    * @return the meta-bean, not null
    */
-  public static FxSwapCurveNode.Meta meta() {
-    return FxSwapCurveNode.Meta.INSTANCE;
+  public static IborFixingDepositCurveNode.Meta meta() {
+    return IborFixingDepositCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FxSwapCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborFixingDepositCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -222,30 +232,29 @@ public final class FxSwapCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FxSwapCurveNode.Builder builder() {
-    return new FxSwapCurveNode.Builder();
+  public static IborFixingDepositCurveNode.Builder builder() {
+    return new IborFixingDepositCurveNode.Builder();
   }
 
-  private FxSwapCurveNode(
-      FxSwapTemplate template,
-      FxRateId fxRateId,
-      ObservableId farForwardPointsId,
+  private IborFixingDepositCurveNode(
+      IborFixingDepositTemplate template,
+      ObservableId rateId,
+      double additionalSpread,
       String label,
       CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(fxRateId, "fxRateId");
-    JodaBeanUtils.notNull(farForwardPointsId, "farForwardPointsId");
+    JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
-    this.fxRateId = fxRateId;
-    this.farForwardPointsId = farForwardPointsId;
+    this.rateId = rateId;
+    this.additionalSpread = additionalSpread;
     this.label = label;
     this.date = date;
   }
 
   @Override
-  public FxSwapCurveNode.Meta metaBean() {
-    return FxSwapCurveNode.Meta.INSTANCE;
+  public IborFixingDepositCurveNode.Meta metaBean() {
+    return IborFixingDepositCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -260,37 +269,36 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the FX Swap associated with this node.
+   * Gets the template for the Ibor fixing deposit associated with this node.
    * @return the value of the property, not null
    */
-  public FxSwapTemplate getTemplate() {
+  public IborFixingDepositTemplate getTemplate() {
     return template;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier used to obtain the FX rate market value, defaulted from the template.
-   * This only needs to be specified if using multiple market data sources.
+   * Gets the identifier of the market data value that provides the rate.
    * @return the value of the property, not null
    */
-  public FxRateId getFxRateId() {
-    return fxRateId;
+  public ObservableId getRateId() {
+    return rateId;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the market data value which provides the FX forward points.
-   * @return the value of the property, not null
+   * Gets the additional spread added to the rate.
+   * @return the value of the property
    */
-  public ObservableId getFarForwardPointsId() {
-    return farForwardPointsId;
+  public double getAdditionalSpread() {
+    return additionalSpread;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the far period if not specified.
+   * When building, this will default based on the deposit period if not specified.
    * @return the value of the property, not empty
    */
   @Override
@@ -322,10 +330,10 @@ public final class FxSwapCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FxSwapCurveNode other = (FxSwapCurveNode) obj;
+      IborFixingDepositCurveNode other = (IborFixingDepositCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(fxRateId, other.fxRateId) &&
-          JodaBeanUtils.equal(farForwardPointsId, other.farForwardPointsId) &&
+          JodaBeanUtils.equal(rateId, other.rateId) &&
+          JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(date, other.date);
     }
@@ -336,8 +344,8 @@ public final class FxSwapCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateId);
-    hash = hash * 31 + JodaBeanUtils.hashCode(farForwardPointsId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
     return hash;
@@ -346,10 +354,10 @@ public final class FxSwapCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("FxSwapCurveNode{");
+    buf.append("IborFixingDepositCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("fxRateId").append('=').append(fxRateId).append(',').append(' ');
-    buf.append("farForwardPointsId").append('=').append(farForwardPointsId).append(',').append(' ');
+    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
+    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
@@ -358,7 +366,7 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FxSwapCurveNode}.
+   * The meta-bean for {@code IborFixingDepositCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -369,36 +377,36 @@ public final class FxSwapCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FxSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", FxSwapCurveNode.class, FxSwapTemplate.class);
+    private final MetaProperty<IborFixingDepositTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", IborFixingDepositCurveNode.class, IborFixingDepositTemplate.class);
     /**
-     * The meta-property for the {@code fxRateId} property.
+     * The meta-property for the {@code rateId} property.
      */
-    private final MetaProperty<FxRateId> fxRateId = DirectMetaProperty.ofImmutable(
-        this, "fxRateId", FxSwapCurveNode.class, FxRateId.class);
+    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
+        this, "rateId", IborFixingDepositCurveNode.class, ObservableId.class);
     /**
-     * The meta-property for the {@code farForwardPointsId} property.
+     * The meta-property for the {@code additionalSpread} property.
      */
-    private final MetaProperty<ObservableId> farForwardPointsId = DirectMetaProperty.ofImmutable(
-        this, "farForwardPointsId", FxSwapCurveNode.class, ObservableId.class);
+    private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
+        this, "additionalSpread", IborFixingDepositCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", FxSwapCurveNode.class, String.class);
+        this, "label", IborFixingDepositCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", FxSwapCurveNode.class, CurveNodeDate.class);
+        this, "date", IborFixingDepositCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "fxRateId",
-        "farForwardPointsId",
+        "rateId",
+        "additionalSpread",
         "label",
         "date");
 
@@ -413,10 +421,10 @@ public final class FxSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -1054985843:  // fxRateId
-          return fxRateId;
-        case -566044884:  // farForwardPointsId
-          return farForwardPointsId;
+        case -938107365:  // rateId
+          return rateId;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
         case 102727412:  // label
           return label;
         case 3076014:  // date
@@ -426,13 +434,13 @@ public final class FxSwapCurveNode
     }
 
     @Override
-    public FxSwapCurveNode.Builder builder() {
-      return new FxSwapCurveNode.Builder();
+    public IborFixingDepositCurveNode.Builder builder() {
+      return new IborFixingDepositCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends FxSwapCurveNode> beanType() {
-      return FxSwapCurveNode.class;
+    public Class<? extends IborFixingDepositCurveNode> beanType() {
+      return IborFixingDepositCurveNode.class;
     }
 
     @Override
@@ -445,24 +453,24 @@ public final class FxSwapCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxSwapTemplate> template() {
+    public MetaProperty<IborFixingDepositTemplate> template() {
       return template;
     }
 
     /**
-     * The meta-property for the {@code fxRateId} property.
+     * The meta-property for the {@code rateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FxRateId> fxRateId() {
-      return fxRateId;
+    public MetaProperty<ObservableId> rateId() {
+      return rateId;
     }
 
     /**
-     * The meta-property for the {@code farForwardPointsId} property.
+     * The meta-property for the {@code additionalSpread} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableId> farForwardPointsId() {
-      return farForwardPointsId;
+    public MetaProperty<Double> additionalSpread() {
+      return additionalSpread;
     }
 
     /**
@@ -486,15 +494,15 @@ public final class FxSwapCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((FxSwapCurveNode) bean).getTemplate();
-        case -1054985843:  // fxRateId
-          return ((FxSwapCurveNode) bean).getFxRateId();
-        case -566044884:  // farForwardPointsId
-          return ((FxSwapCurveNode) bean).getFarForwardPointsId();
+          return ((IborFixingDepositCurveNode) bean).getTemplate();
+        case -938107365:  // rateId
+          return ((IborFixingDepositCurveNode) bean).getRateId();
+        case 291232890:  // additionalSpread
+          return ((IborFixingDepositCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((FxSwapCurveNode) bean).getLabel();
+          return ((IborFixingDepositCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((FxSwapCurveNode) bean).getDate();
+          return ((IborFixingDepositCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -512,13 +520,13 @@ public final class FxSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FxSwapCurveNode}.
+   * The bean-builder for {@code IborFixingDepositCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FxSwapCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDepositCurveNode> {
 
-    private FxSwapTemplate template;
-    private FxRateId fxRateId;
-    private ObservableId farForwardPointsId;
+    private IborFixingDepositTemplate template;
+    private ObservableId rateId;
+    private double additionalSpread;
     private String label;
     private CurveNodeDate date;
 
@@ -533,10 +541,10 @@ public final class FxSwapCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FxSwapCurveNode beanToCopy) {
+    private Builder(IborFixingDepositCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.fxRateId = beanToCopy.getFxRateId();
-      this.farForwardPointsId = beanToCopy.getFarForwardPointsId();
+      this.rateId = beanToCopy.getRateId();
+      this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
       this.date = beanToCopy.getDate();
     }
@@ -547,10 +555,10 @@ public final class FxSwapCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -1054985843:  // fxRateId
-          return fxRateId;
-        case -566044884:  // farForwardPointsId
-          return farForwardPointsId;
+        case -938107365:  // rateId
+          return rateId;
+        case 291232890:  // additionalSpread
+          return additionalSpread;
         case 102727412:  // label
           return label;
         case 3076014:  // date
@@ -564,13 +572,13 @@ public final class FxSwapCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (FxSwapTemplate) newValue;
+          this.template = (IborFixingDepositTemplate) newValue;
           break;
-        case -1054985843:  // fxRateId
-          this.fxRateId = (FxRateId) newValue;
+        case -938107365:  // rateId
+          this.rateId = (ObservableId) newValue;
           break;
-        case -566044884:  // farForwardPointsId
-          this.farForwardPointsId = (ObservableId) newValue;
+        case 291232890:  // additionalSpread
+          this.additionalSpread = (Double) newValue;
           break;
         case 102727412:  // label
           this.label = (String) newValue;
@@ -609,55 +617,53 @@ public final class FxSwapCurveNode
     }
 
     @Override
-    public FxSwapCurveNode build() {
+    public IborFixingDepositCurveNode build() {
       preBuild(this);
-      return new FxSwapCurveNode(
+      return new IborFixingDepositCurveNode(
           template,
-          fxRateId,
-          farForwardPointsId,
+          rateId,
+          additionalSpread,
           label,
           date);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the FX Swap associated with this node.
+     * Sets the template for the Ibor fixing deposit associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FxSwapTemplate template) {
+    public Builder template(IborFixingDepositTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
     }
 
     /**
-     * Sets the identifier used to obtain the FX rate market value, defaulted from the template.
-     * This only needs to be specified if using multiple market data sources.
-     * @param fxRateId  the new value, not null
+     * Sets the identifier of the market data value that provides the rate.
+     * @param rateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fxRateId(FxRateId fxRateId) {
-      JodaBeanUtils.notNull(fxRateId, "fxRateId");
-      this.fxRateId = fxRateId;
+    public Builder rateId(ObservableId rateId) {
+      JodaBeanUtils.notNull(rateId, "rateId");
+      this.rateId = rateId;
       return this;
     }
 
     /**
-     * Sets the identifier of the market data value which provides the FX forward points.
-     * @param farForwardPointsId  the new value, not null
+     * Sets the additional spread added to the rate.
+     * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
-    public Builder farForwardPointsId(ObservableId farForwardPointsId) {
-      JodaBeanUtils.notNull(farForwardPointsId, "farForwardPointsId");
-      this.farForwardPointsId = farForwardPointsId;
+    public Builder additionalSpread(double additionalSpread) {
+      this.additionalSpread = additionalSpread;
       return this;
     }
 
     /**
      * Sets the label to use for the node, defaulted.
      * <p>
-     * When building, this will default based on the far period if not specified.
+     * When building, this will default based on the deposit period if not specified.
      * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -681,10 +687,10 @@ public final class FxSwapCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("FxSwapCurveNode.Builder{");
+      buf.append("IborFixingDepositCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("fxRateId").append('=').append(JodaBeanUtils.toString(fxRateId)).append(',').append(' ');
-      buf.append("farForwardPointsId").append('=').append(JodaBeanUtils.toString(farForwardPointsId)).append(',').append(' ');
+      buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
+      buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("date").append('=').append(JodaBeanUtils.toString(date));
       buf.append('}');

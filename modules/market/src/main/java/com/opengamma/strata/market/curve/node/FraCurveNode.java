@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.deposit;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -37,23 +37,24 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
-import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
-import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
+import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
+import com.opengamma.strata.product.fra.type.FraTemplate;
+import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
- * A curve node whose instrument is a term deposit.
+ * A curve node whose instrument is a Forward Rate Agreement (FRA).
  */
 @BeanDefinition
-public final class TermDepositCurveNode
+public final class FraCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the term deposit associated with this node.
+   * The template for the FRA associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final TermDepositTemplate template;
+  private final FraTemplate template;
   /**
    * The identifier of the market data value that provides the rate.
    */
@@ -67,7 +68,7 @@ public final class TermDepositCurveNode
   /**
    * The label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the deposit period if not specified.
+   * When building, this will default based on the period to end if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -79,7 +80,7 @@ public final class TermDepositCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a term deposit using the specified instrument template and rate key.
+   * Returns a curve node for a FRA using the specified instrument template and rate key.
    * <p>
    * A suitable default label will be created.
    *
@@ -87,12 +88,12 @@ public final class TermDepositCurveNode
    * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static TermDepositCurveNode of(TermDepositTemplate template, ObservableId rateId) {
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId) {
     return of(template, rateId, 0d);
   }
 
   /**
-   * Returns a curve node for a term deposit using the specified instrument template, rate key and spread.
+   * Returns a curve node for a FRA using the specified instrument template, rate key and spread.
    * <p>
    * A suitable default label will be created.
    *
@@ -101,7 +102,7 @@ public final class TermDepositCurveNode
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static TermDepositCurveNode of(TermDepositTemplate template, ObservableId rateId, double additionalSpread) {
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread) {
     return builder()
         .template(template)
         .rateId(rateId)
@@ -110,21 +111,16 @@ public final class TermDepositCurveNode
   }
 
   /**
-   * Returns a curve node for a term deposit using the specified instrument template, rate key, spread and label.
+   * Returns a curve node for a FRA using the specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
    * @param rateId  the identifier of the market data providing the rate for the node instrument
    * @param additionalSpread  the additional spread amount added to the rate
-   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
+   * @param label  the label to use for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static TermDepositCurveNode of(
-      TermDepositTemplate template,
-      ObservableId rateId,
-      double additionalSpread,
-      String label) {
-
-    return new TermDepositCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread, String label) {
+    return new FraCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -135,7 +131,7 @@ public final class TermDepositCurveNode
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.label == null && builder.template != null) {
-      builder.label = Tenor.of(builder.template.getDepositPeriod()).toString();
+      builder.label = Tenor.of(builder.template.getPeriodToEnd()).toString();
     }
   }
 
@@ -149,34 +145,36 @@ public final class TermDepositCurveNode
   public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    Tenor tenor = Tenor.of(template.getDepositPeriod());
+    Tenor tenor = Tenor.of(template.getPeriodToEnd());
     return TenorDateParameterMetadata.of(nodeDate, tenor, label);
   }
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    TermDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
-    ResolvedTermDeposit deposit = trade.getProduct().resolve(refData);
-    return deposit.getEndDate();
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return resolvedFra.getEndDate();
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for TermDeposit");
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
+    return ((IborRateComputation) resolvedFra.getFloatingRate()).getFixingDate();
   }
 
   @Override
-  public TermDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public FraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
     return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
   }
 
   @Override
-  public ResolvedTermDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
@@ -186,7 +184,7 @@ public final class TermDepositCurveNode
       return marketData.getValue(rateId);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getDepositPeriod().toTotalMonths() / 12.0d;
+      double approximateMaturity = template.getPeriodToEnd().toTotalMonths() / 12.0d;
       return Math.exp(-approximateMaturity * marketData.getValue(rateId));
     }
     return 0d;
@@ -199,22 +197,22 @@ public final class TermDepositCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public TermDepositCurveNode withDate(CurveNodeDate date) {
-    return new TermDepositCurveNode(template, rateId, additionalSpread, label, date);
+  public FraCurveNode withDate(CurveNodeDate date) {
+    return new FraCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code TermDepositCurveNode}.
+   * The meta-bean for {@code FraCurveNode}.
    * @return the meta-bean, not null
    */
-  public static TermDepositCurveNode.Meta meta() {
-    return TermDepositCurveNode.Meta.INSTANCE;
+  public static FraCurveNode.Meta meta() {
+    return FraCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(TermDepositCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FraCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -226,12 +224,12 @@ public final class TermDepositCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static TermDepositCurveNode.Builder builder() {
-    return new TermDepositCurveNode.Builder();
+  public static FraCurveNode.Builder builder() {
+    return new FraCurveNode.Builder();
   }
 
-  private TermDepositCurveNode(
-      TermDepositTemplate template,
+  private FraCurveNode(
+      FraTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label,
@@ -247,8 +245,8 @@ public final class TermDepositCurveNode
   }
 
   @Override
-  public TermDepositCurveNode.Meta metaBean() {
-    return TermDepositCurveNode.Meta.INSTANCE;
+  public FraCurveNode.Meta metaBean() {
+    return FraCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -263,10 +261,10 @@ public final class TermDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the term deposit associated with this node.
+   * Gets the template for the FRA associated with this node.
    * @return the value of the property, not null
    */
-  public TermDepositTemplate getTemplate() {
+  public FraTemplate getTemplate() {
     return template;
   }
 
@@ -292,7 +290,7 @@ public final class TermDepositCurveNode
   /**
    * Gets the label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the deposit period if not specified.
+   * When building, this will default based on the period to end if not specified.
    * @return the value of the property, not empty
    */
   @Override
@@ -324,7 +322,7 @@ public final class TermDepositCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      TermDepositCurveNode other = (TermDepositCurveNode) obj;
+      FraCurveNode other = (FraCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
@@ -348,7 +346,7 @@ public final class TermDepositCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("TermDepositCurveNode{");
+    buf.append("FraCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
@@ -360,7 +358,7 @@ public final class TermDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code TermDepositCurveNode}.
+   * The meta-bean for {@code FraCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -371,28 +369,28 @@ public final class TermDepositCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<TermDepositTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", TermDepositCurveNode.class, TermDepositTemplate.class);
+    private final MetaProperty<FraTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", FraCurveNode.class, FraTemplate.class);
     /**
      * The meta-property for the {@code rateId} property.
      */
     private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", TermDepositCurveNode.class, ObservableId.class);
+        this, "rateId", FraCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", TermDepositCurveNode.class, Double.TYPE);
+        this, "additionalSpread", FraCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", TermDepositCurveNode.class, String.class);
+        this, "label", FraCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", TermDepositCurveNode.class, CurveNodeDate.class);
+        this, "date", FraCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -428,13 +426,13 @@ public final class TermDepositCurveNode
     }
 
     @Override
-    public TermDepositCurveNode.Builder builder() {
-      return new TermDepositCurveNode.Builder();
+    public FraCurveNode.Builder builder() {
+      return new FraCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends TermDepositCurveNode> beanType() {
-      return TermDepositCurveNode.class;
+    public Class<? extends FraCurveNode> beanType() {
+      return FraCurveNode.class;
     }
 
     @Override
@@ -447,7 +445,7 @@ public final class TermDepositCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TermDepositTemplate> template() {
+    public MetaProperty<FraTemplate> template() {
       return template;
     }
 
@@ -488,15 +486,15 @@ public final class TermDepositCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((TermDepositCurveNode) bean).getTemplate();
+          return ((FraCurveNode) bean).getTemplate();
         case -938107365:  // rateId
-          return ((TermDepositCurveNode) bean).getRateId();
+          return ((FraCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
-          return ((TermDepositCurveNode) bean).getAdditionalSpread();
+          return ((FraCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((TermDepositCurveNode) bean).getLabel();
+          return ((FraCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((TermDepositCurveNode) bean).getDate();
+          return ((FraCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -514,11 +512,11 @@ public final class TermDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code TermDepositCurveNode}.
+   * The bean-builder for {@code FraCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<TermDepositCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FraCurveNode> {
 
-    private TermDepositTemplate template;
+    private FraTemplate template;
     private ObservableId rateId;
     private double additionalSpread;
     private String label;
@@ -535,7 +533,7 @@ public final class TermDepositCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(TermDepositCurveNode beanToCopy) {
+    private Builder(FraCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
@@ -566,7 +564,7 @@ public final class TermDepositCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (TermDepositTemplate) newValue;
+          this.template = (FraTemplate) newValue;
           break;
         case -938107365:  // rateId
           this.rateId = (ObservableId) newValue;
@@ -611,9 +609,9 @@ public final class TermDepositCurveNode
     }
 
     @Override
-    public TermDepositCurveNode build() {
+    public FraCurveNode build() {
       preBuild(this);
-      return new TermDepositCurveNode(
+      return new FraCurveNode(
           template,
           rateId,
           additionalSpread,
@@ -623,11 +621,11 @@ public final class TermDepositCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the term deposit associated with this node.
+     * Sets the template for the FRA associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(TermDepositTemplate template) {
+    public Builder template(FraTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
@@ -657,7 +655,7 @@ public final class TermDepositCurveNode
     /**
      * Sets the label to use for the node, defaulted.
      * <p>
-     * When building, this will default based on the deposit period if not specified.
+     * When building, this will default based on the period to end if not specified.
      * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -681,7 +679,7 @@ public final class TermDepositCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("TermDepositCurveNode.Builder{");
+      buf.append("FraCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');

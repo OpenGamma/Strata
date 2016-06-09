@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.fra;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -27,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
@@ -37,38 +37,45 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.fra.ResolvedFra;
-import com.opengamma.strata.product.fra.ResolvedFraTrade;
-import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 
 /**
- * A curve node whose instrument is a Forward Rate Agreement (FRA).
+ * A curve node whose instrument is a Ibor-Ibor interest rate swap.
+ * <p>
+ * The spread or market quote is on the first Ibor leg.
  */
 @BeanDefinition
-public final class FraCurveNode
+public final class IborIborSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the FRA associated with this node.
+   * The template for the swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FraTemplate template;
+  private final IborIborSwapTemplate template;
   /**
    * The identifier of the market data value that provides the rate.
    */
   @PropertyDefinition(validate = "notNull")
   private final ObservableId rateId;
   /**
-   * The additional spread added to the rate.
+   * The additional spread added to the market quote.
    */
   @PropertyDefinition
   private final double additionalSpread;
   /**
    * The label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the period to end if not specified.
+   * When building, this will default based on the tenor if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -80,7 +87,8 @@ public final class FraCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a FRA using the specified instrument template and rate key.
+   * Returns a curve node for an Ibor-Ibor interest rate swap using the
+   * specified instrument template and rate.
    * <p>
    * A suitable default label will be created.
    *
@@ -88,21 +96,22 @@ public final class FraCurveNode
    * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableId rateId) {
+  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableId rateId) {
     return of(template, rateId, 0d);
   }
 
   /**
-   * Returns a curve node for a FRA using the specified instrument template, rate key and spread.
+   * Returns a curve node for an Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key and spread.
    * <p>
    * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
    * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the rate
+   * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread) {
+  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableId rateId, double additionalSpread) {
     return builder()
         .template(template)
         .rateId(rateId)
@@ -111,16 +120,22 @@ public final class FraCurveNode
   }
 
   /**
-   * Returns a curve node for a FRA using the specified instrument template, rate key, spread and label.
+   * Returns a curve node for a Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
    * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the rate
-   * @param label  the label to use for the node
+   * @param additionalSpread  the additional spread amount added to the market quote
+   * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FraCurveNode of(FraTemplate template, ObservableId rateId, double additionalSpread, String label) {
-    return new FraCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+  public static IborIborSwapCurveNode of(
+      IborIborSwapTemplate template,
+      ObservableId rateId,
+      double additionalSpread,
+      String label) {
+
+    return new IborIborSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -131,7 +146,7 @@ public final class FraCurveNode
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.label == null && builder.template != null) {
-      builder.label = Tenor.of(builder.template.getPeriodToEnd()).toString();
+      builder.label = builder.template.getTenor().toString();
     }
   }
 
@@ -149,45 +164,47 @@ public final class FraCurveNode
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    Tenor tenor = Tenor.of(template.getPeriodToEnd());
-    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
+    return TenorDateParameterMetadata.of(nodeDate, template.getTenor(), label);
   }
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
-    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
-    return resolvedFra.getEndDate();
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    FraTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
-    ResolvedFra resolvedFra = trade.getProduct().resolve(refData);
-    return ((IborRateComputation) resolvedFra.getFloatingRate()).getFixingDate();
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
+    // Select the 'second' leg, i.e. the flat leg
+    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
+    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+    int nbPeriods = periods.size();
+    RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
+    List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
+    int nbAccruals = accruals.size();
+    IborRateComputation ibor = (IborRateComputation) accruals.get(nbAccruals - 1).getRateComputation();
+    return ibor.getFixingDate();
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    double marketQuote = marketData.getValue(rateId) + additionalSpread;
+    return template.createTrade(valuationDate, BuySell.BUY, 1, marketQuote, refData);
   }
 
   @Override
-  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return marketData.getValue(rateId);
-    }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getPeriodToEnd().toTotalMonths() / 12.0d;
-      return Math.exp(-approximateMaturity * marketData.getValue(rateId));
+      return 1.0d;
     }
-    return 0d;
+    return 0.0d;
   }
 
   //-------------------------------------------------------------------------
@@ -197,22 +214,22 @@ public final class FraCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public FraCurveNode withDate(CurveNodeDate date) {
-    return new FraCurveNode(template, rateId, additionalSpread, label, date);
+  public IborIborSwapCurveNode withDate(CurveNodeDate date) {
+    return new IborIborSwapCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code IborIborSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static FraCurveNode.Meta meta() {
-    return FraCurveNode.Meta.INSTANCE;
+  public static IborIborSwapCurveNode.Meta meta() {
+    return IborIborSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FraCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborIborSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -224,12 +241,12 @@ public final class FraCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FraCurveNode.Builder builder() {
-    return new FraCurveNode.Builder();
+  public static IborIborSwapCurveNode.Builder builder() {
+    return new IborIborSwapCurveNode.Builder();
   }
 
-  private FraCurveNode(
-      FraTemplate template,
+  private IborIborSwapCurveNode(
+      IborIborSwapTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label,
@@ -245,8 +262,8 @@ public final class FraCurveNode
   }
 
   @Override
-  public FraCurveNode.Meta metaBean() {
-    return FraCurveNode.Meta.INSTANCE;
+  public IborIborSwapCurveNode.Meta metaBean() {
+    return IborIborSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -261,10 +278,10 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the FRA associated with this node.
+   * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
-  public FraTemplate getTemplate() {
+  public IborIborSwapTemplate getTemplate() {
     return template;
   }
 
@@ -279,7 +296,7 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional spread added to the rate.
+   * Gets the additional spread added to the market quote.
    * @return the value of the property
    */
   public double getAdditionalSpread() {
@@ -290,7 +307,7 @@ public final class FraCurveNode
   /**
    * Gets the label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the period to end if not specified.
+   * When building, this will default based on the tenor if not specified.
    * @return the value of the property, not empty
    */
   @Override
@@ -322,7 +339,7 @@ public final class FraCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FraCurveNode other = (FraCurveNode) obj;
+      IborIborSwapCurveNode other = (IborIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
@@ -346,7 +363,7 @@ public final class FraCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("FraCurveNode{");
+    buf.append("IborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
@@ -358,7 +375,7 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FraCurveNode}.
+   * The meta-bean for {@code IborIborSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -369,28 +386,28 @@ public final class FraCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FraTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", FraCurveNode.class, FraTemplate.class);
+    private final MetaProperty<IborIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", IborIborSwapCurveNode.class, IborIborSwapTemplate.class);
     /**
      * The meta-property for the {@code rateId} property.
      */
     private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", FraCurveNode.class, ObservableId.class);
+        this, "rateId", IborIborSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", FraCurveNode.class, Double.TYPE);
+        this, "additionalSpread", IborIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", FraCurveNode.class, String.class);
+        this, "label", IborIborSwapCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", FraCurveNode.class, CurveNodeDate.class);
+        this, "date", IborIborSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -426,13 +443,13 @@ public final class FraCurveNode
     }
 
     @Override
-    public FraCurveNode.Builder builder() {
-      return new FraCurveNode.Builder();
+    public IborIborSwapCurveNode.Builder builder() {
+      return new IborIborSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends FraCurveNode> beanType() {
-      return FraCurveNode.class;
+    public Class<? extends IborIborSwapCurveNode> beanType() {
+      return IborIborSwapCurveNode.class;
     }
 
     @Override
@@ -445,7 +462,7 @@ public final class FraCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FraTemplate> template() {
+    public MetaProperty<IborIborSwapTemplate> template() {
       return template;
     }
 
@@ -486,15 +503,15 @@ public final class FraCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((FraCurveNode) bean).getTemplate();
+          return ((IborIborSwapCurveNode) bean).getTemplate();
         case -938107365:  // rateId
-          return ((FraCurveNode) bean).getRateId();
+          return ((IborIborSwapCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
-          return ((FraCurveNode) bean).getAdditionalSpread();
+          return ((IborIborSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((FraCurveNode) bean).getLabel();
+          return ((IborIborSwapCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((FraCurveNode) bean).getDate();
+          return ((IborIborSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -512,11 +529,11 @@ public final class FraCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FraCurveNode}.
+   * The bean-builder for {@code IborIborSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FraCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborIborSwapCurveNode> {
 
-    private FraTemplate template;
+    private IborIborSwapTemplate template;
     private ObservableId rateId;
     private double additionalSpread;
     private String label;
@@ -533,7 +550,7 @@ public final class FraCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FraCurveNode beanToCopy) {
+    private Builder(IborIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
@@ -564,7 +581,7 @@ public final class FraCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (FraTemplate) newValue;
+          this.template = (IborIborSwapTemplate) newValue;
           break;
         case -938107365:  // rateId
           this.rateId = (ObservableId) newValue;
@@ -609,9 +626,9 @@ public final class FraCurveNode
     }
 
     @Override
-    public FraCurveNode build() {
+    public IborIborSwapCurveNode build() {
       preBuild(this);
-      return new FraCurveNode(
+      return new IborIborSwapCurveNode(
           template,
           rateId,
           additionalSpread,
@@ -621,11 +638,11 @@ public final class FraCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the FRA associated with this node.
+     * Sets the template for the swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FraTemplate template) {
+    public Builder template(IborIborSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
@@ -643,7 +660,7 @@ public final class FraCurveNode
     }
 
     /**
-     * Sets the additional spread added to the rate.
+     * Sets the additional spread added to the market quote.
      * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
@@ -655,7 +672,7 @@ public final class FraCurveNode
     /**
      * Sets the label to use for the node, defaulted.
      * <p>
-     * When building, this will default based on the period to end if not specified.
+     * When building, this will default based on the tenor if not specified.
      * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -679,7 +696,7 @@ public final class FraCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("FraCurveNode.Builder{");
+      buf.append("IborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');

@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
-import com.opengamma.strata.market.product.swap.SwapLegAmount;
+import com.opengamma.strata.market.amount.SwapLegAmount;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;

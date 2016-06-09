@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swap;
+package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -16,7 +16,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -36,29 +36,29 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
-import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
+import com.opengamma.strata.product.swap.type.OvernightIborSwapConventions;
+import com.opengamma.strata.product.swap.type.OvernightIborSwapTemplate;
 
 /**
- * Test {@link ThreeLegBasisSwapCurveNode}.
+ * Test {@link FixedIborSwapCurveNode}.
  */
 @Test
-public class ThreeLegBasisSwapCurveNodeTest {
+public class OvernightIborSwapCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final ThreeLegBasisSwapTemplate TEMPLATE = ThreeLegBasisSwapTemplate.of(
-      Period.ZERO, TENOR_10Y, ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M);
-  private static final ThreeLegBasisSwapTemplate TEMPLATE2 = ThreeLegBasisSwapTemplate.of(
-      Period.ofMonths(1), TENOR_10Y, ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M);
-  private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "EUR-BS36-10Y"));
-  private static final QuoteId QUOTE_ID2 = QuoteId.of(StandardId.of("OG-Ticker", "Test"));
+
+  private static final OvernightIborSwapTemplate TEMPLATE =
+      OvernightIborSwapTemplate.of(TENOR_10Y, OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M);
+  private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "Deposit1"));
   private static final double SPREAD = 0.0015;
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "10Y";
 
+  private static final double TOLERANCE_DF = 1.0E-10;
+
   public void test_builder() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.builder()
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.builder()
         .label(LABEL)
         .template(TEMPLATE)
         .rateId(QUOTE_ID)
@@ -72,7 +72,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
   }
 
   public void test_of_noSpread() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID);
     assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), 0.0d);
@@ -80,7 +80,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
   }
 
   public void test_of_withSpread() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertEquals(test.getLabel(), LABEL_AUTO);
     assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD);
@@ -88,7 +88,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
   }
 
   public void test_of_withSpreadAndLabel() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
     assertEquals(test.getLabel(), LABEL);
     assertEquals(test.getRateId(), QUOTE_ID);
     assertEquals(test.getAdditionalSpread(), SPREAD);
@@ -96,7 +96,7 @@ public class ThreeLegBasisSwapCurveNodeTest {
   }
 
   public void test_requirements() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     Set<ObservableId> set = test.requirements();
     Iterator<ObservableId> itr = set.iterator();
     assertEquals(itr.next(), QUOTE_ID);
@@ -104,53 +104,57 @@ public class ThreeLegBasisSwapCurveNodeTest {
   }
 
   public void test_trade() {
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode node = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
+    MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_ID, rate).build();
     SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
     SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
   public void test_trade_noMarketData() {
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode node = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
     assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode node = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), 0d);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), 1.0d);
+    MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, rate).build();
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
+    double df = Math.exp(-TENOR_10Y.get(ChronoUnit.YEARS) * rate);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), df, TOLERANCE_DF);
+    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);
   }
 
   public void test_metadata_end() {
-    ThreeLegBasisSwapCurveNode node = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode node = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
     assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
     assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
   }
 
   public void test_metadata_fixed() {
-    LocalDate nodeDate = VAL_DATE.plusMonths(1);
-    ThreeLegBasisSwapCurveNode node =
-        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.of(nodeDate));
-    DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
+    OvernightIborSwapCurveNode node =
+        OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.of(VAL_DATE));
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    assertEquals(metadata.getDate(), VAL_DATE);
     assertEquals(metadata.getLabel(), node.getLabel());
   }
 
   public void test_metadata_last_fixing() {
-    ThreeLegBasisSwapCurveNode node =
-        ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
+    OvernightIborSwapCurveNode node =
+        OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    LocalDate fixingExpected = LocalDate.of(2024, 7, 24);
+    LocalDate fixingExpected = LocalDate.of(2024, 10, 24);
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     assertEquals(metadata.getDate(), fixingExpected);
     assertEquals(metadata.getLabel(), node.getLabel());
@@ -158,14 +162,16 @@ public class ThreeLegBasisSwapCurveNodeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
-    ThreeLegBasisSwapCurveNode test2 = ThreeLegBasisSwapCurveNode.of(TEMPLATE2, QUOTE_ID2, 0.1);
+    OvernightIborSwapCurveNode test2 = OvernightIborSwapCurveNode.of(
+        OvernightIborSwapTemplate.of(TENOR_10Y, OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M),
+        QuoteId.of(StandardId.of("OG-Ticker", "Deposit2")));
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ThreeLegBasisSwapCurveNode test = ThreeLegBasisSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    OvernightIborSwapCurveNode test = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertSerialization(test);
   }
 

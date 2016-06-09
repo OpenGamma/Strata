@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swap;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -36,22 +37,29 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
 /**
- * A curve node whose instrument is a Fixed-Overnight interest rate swap.
+ * A curve node whose instrument is a Fixed-Ibor interest rate swap.
  */
 @BeanDefinition
-public final class FixedOvernightSwapCurveNode
+public final class FixedIborSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
    * The template for the swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FixedOvernightSwapTemplate template;
+  private final FixedIborSwapTemplate template;
   /**
    * The identifier of the market data value that provides the rate.
    */
@@ -77,7 +85,7 @@ public final class FixedOvernightSwapCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for a Fixed-Overnight interest rate swap using the
+   * Returns a curve node for a Fixed-Ibor interest rate swap using the
    * specified instrument template and rate.
    * <p>
    * A suitable default label will be created.
@@ -86,12 +94,12 @@ public final class FixedOvernightSwapCurveNode
    * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FixedOvernightSwapCurveNode of(FixedOvernightSwapTemplate template, ObservableId rateId) {
+  public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableId rateId) {
     return of(template, rateId, 0d);
   }
 
   /**
-   * Returns a curve node for a Fixed-Overnight interest rate swap using the
+   * Returns a curve node for a Fixed-Ibor interest rate swap using the
    * specified instrument template, rate key and spread.
    * <p>
    * A suitable default label will be created.
@@ -101,11 +109,7 @@ public final class FixedOvernightSwapCurveNode
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FixedOvernightSwapCurveNode of(
-      FixedOvernightSwapTemplate template,
-      ObservableId rateId,
-      double additionalSpread) {
-
+  public static FixedIborSwapCurveNode of(FixedIborSwapTemplate template, ObservableId rateId, double additionalSpread) {
     return builder()
         .template(template)
         .rateId(rateId)
@@ -114,7 +118,7 @@ public final class FixedOvernightSwapCurveNode
   }
 
   /**
-   * Returns a curve node for a Fixed-Overnight interest rate swap using the
+   * Returns a curve node for a Fixed-Ibor interest rate swap using the
    * specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
@@ -123,13 +127,13 @@ public final class FixedOvernightSwapCurveNode
    * @param label  the label to use for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static FixedOvernightSwapCurveNode of(
-      FixedOvernightSwapTemplate template,
+  public static FixedIborSwapCurveNode of(
+      FixedIborSwapTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label) {
 
-    return new FixedOvernightSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+    return new FixedIborSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -154,7 +158,7 @@ public final class FixedOvernightSwapCurveNode
   public DatedParameterMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
     LocalDate nodeDate = date.calculate(
         () -> calculateEnd(valuationDate, refData),
-        () -> calculateLastFixingDate(valuationDate));
+        () -> calculateLastFixingDate(valuationDate, refData));
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
@@ -168,8 +172,17 @@ public final class FixedOvernightSwapCurveNode
   }
 
   // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate) {
-    throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FixedOvernightSwap");
+  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
+    SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(0);
+    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
+    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+    int nbPeriods = periods.size();
+    RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
+    List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
+    int nbAccruals = accruals.size();
+    IborRateComputation ibor = (IborRateComputation) accruals.get(nbAccruals - 1).getRateComputation();
+    return ibor.getFixingDate();
   }
 
   @Override
@@ -202,22 +215,22 @@ public final class FixedOvernightSwapCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public FixedOvernightSwapCurveNode withDate(CurveNodeDate date) {
-    return new FixedOvernightSwapCurveNode(template, rateId, additionalSpread, label, date);
+  public FixedIborSwapCurveNode withDate(CurveNodeDate date) {
+    return new FixedIborSwapCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FixedOvernightSwapCurveNode}.
+   * The meta-bean for {@code FixedIborSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static FixedOvernightSwapCurveNode.Meta meta() {
-    return FixedOvernightSwapCurveNode.Meta.INSTANCE;
+  public static FixedIborSwapCurveNode.Meta meta() {
+    return FixedIborSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FixedOvernightSwapCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FixedIborSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -229,12 +242,12 @@ public final class FixedOvernightSwapCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FixedOvernightSwapCurveNode.Builder builder() {
-    return new FixedOvernightSwapCurveNode.Builder();
+  public static FixedIborSwapCurveNode.Builder builder() {
+    return new FixedIborSwapCurveNode.Builder();
   }
 
-  private FixedOvernightSwapCurveNode(
-      FixedOvernightSwapTemplate template,
+  private FixedIborSwapCurveNode(
+      FixedIborSwapTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label,
@@ -250,8 +263,8 @@ public final class FixedOvernightSwapCurveNode
   }
 
   @Override
-  public FixedOvernightSwapCurveNode.Meta metaBean() {
-    return FixedOvernightSwapCurveNode.Meta.INSTANCE;
+  public FixedIborSwapCurveNode.Meta metaBean() {
+    return FixedIborSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -269,7 +282,7 @@ public final class FixedOvernightSwapCurveNode
    * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
-  public FixedOvernightSwapTemplate getTemplate() {
+  public FixedIborSwapTemplate getTemplate() {
     return template;
   }
 
@@ -327,7 +340,7 @@ public final class FixedOvernightSwapCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FixedOvernightSwapCurveNode other = (FixedOvernightSwapCurveNode) obj;
+      FixedIborSwapCurveNode other = (FixedIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
@@ -351,7 +364,7 @@ public final class FixedOvernightSwapCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("FixedOvernightSwapCurveNode{");
+    buf.append("FixedIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
@@ -363,7 +376,7 @@ public final class FixedOvernightSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FixedOvernightSwapCurveNode}.
+   * The meta-bean for {@code FixedIborSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -374,28 +387,28 @@ public final class FixedOvernightSwapCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FixedOvernightSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", FixedOvernightSwapCurveNode.class, FixedOvernightSwapTemplate.class);
+    private final MetaProperty<FixedIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", FixedIborSwapCurveNode.class, FixedIborSwapTemplate.class);
     /**
      * The meta-property for the {@code rateId} property.
      */
     private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", FixedOvernightSwapCurveNode.class, ObservableId.class);
+        this, "rateId", FixedIborSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", FixedOvernightSwapCurveNode.class, Double.TYPE);
+        this, "additionalSpread", FixedIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", FixedOvernightSwapCurveNode.class, String.class);
+        this, "label", FixedIborSwapCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", FixedOvernightSwapCurveNode.class, CurveNodeDate.class);
+        this, "date", FixedIborSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -431,13 +444,13 @@ public final class FixedOvernightSwapCurveNode
     }
 
     @Override
-    public FixedOvernightSwapCurveNode.Builder builder() {
-      return new FixedOvernightSwapCurveNode.Builder();
+    public FixedIborSwapCurveNode.Builder builder() {
+      return new FixedIborSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends FixedOvernightSwapCurveNode> beanType() {
-      return FixedOvernightSwapCurveNode.class;
+    public Class<? extends FixedIborSwapCurveNode> beanType() {
+      return FixedIborSwapCurveNode.class;
     }
 
     @Override
@@ -450,7 +463,7 @@ public final class FixedOvernightSwapCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedOvernightSwapTemplate> template() {
+    public MetaProperty<FixedIborSwapTemplate> template() {
       return template;
     }
 
@@ -491,15 +504,15 @@ public final class FixedOvernightSwapCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((FixedOvernightSwapCurveNode) bean).getTemplate();
+          return ((FixedIborSwapCurveNode) bean).getTemplate();
         case -938107365:  // rateId
-          return ((FixedOvernightSwapCurveNode) bean).getRateId();
+          return ((FixedIborSwapCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
-          return ((FixedOvernightSwapCurveNode) bean).getAdditionalSpread();
+          return ((FixedIborSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((FixedOvernightSwapCurveNode) bean).getLabel();
+          return ((FixedIborSwapCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((FixedOvernightSwapCurveNode) bean).getDate();
+          return ((FixedIborSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -517,11 +530,11 @@ public final class FixedOvernightSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FixedOvernightSwapCurveNode}.
+   * The bean-builder for {@code FixedIborSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FixedOvernightSwapCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FixedIborSwapCurveNode> {
 
-    private FixedOvernightSwapTemplate template;
+    private FixedIborSwapTemplate template;
     private ObservableId rateId;
     private double additionalSpread;
     private String label;
@@ -538,7 +551,7 @@ public final class FixedOvernightSwapCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FixedOvernightSwapCurveNode beanToCopy) {
+    private Builder(FixedIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
@@ -569,7 +582,7 @@ public final class FixedOvernightSwapCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (FixedOvernightSwapTemplate) newValue;
+          this.template = (FixedIborSwapTemplate) newValue;
           break;
         case -938107365:  // rateId
           this.rateId = (ObservableId) newValue;
@@ -614,9 +627,9 @@ public final class FixedOvernightSwapCurveNode
     }
 
     @Override
-    public FixedOvernightSwapCurveNode build() {
+    public FixedIborSwapCurveNode build() {
       preBuild(this);
-      return new FixedOvernightSwapCurveNode(
+      return new FixedIborSwapCurveNode(
           template,
           rateId,
           additionalSpread,
@@ -630,7 +643,7 @@ public final class FixedOvernightSwapCurveNode
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FixedOvernightSwapTemplate template) {
+    public Builder template(FixedIborSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
@@ -684,7 +697,7 @@ public final class FixedOvernightSwapCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("FixedOvernightSwapCurveNode.Builder{");
+      buf.append("FixedIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
