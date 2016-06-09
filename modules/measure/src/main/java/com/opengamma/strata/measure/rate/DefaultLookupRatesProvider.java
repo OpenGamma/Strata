@@ -37,14 +37,14 @@ import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.observable.IndexQuoteId;
-import com.opengamma.strata.market.product.DiscountFactors;
-import com.opengamma.strata.market.product.fx.DiscountFxForwardRates;
-import com.opengamma.strata.market.product.fx.DiscountFxIndexRates;
-import com.opengamma.strata.market.product.fx.FxForwardRates;
-import com.opengamma.strata.market.product.fx.FxIndexRates;
-import com.opengamma.strata.market.product.rate.IborIndexRates;
-import com.opengamma.strata.market.product.rate.OvernightIndexRates;
-import com.opengamma.strata.market.product.rate.PriceIndexValues;
+import com.opengamma.strata.pricer.DiscountFactors;
+import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
+import com.opengamma.strata.pricer.fx.DiscountFxIndexRates;
+import com.opengamma.strata.pricer.fx.FxForwardRates;
+import com.opengamma.strata.pricer.fx.FxIndexRates;
+import com.opengamma.strata.pricer.rate.IborIndexRates;
+import com.opengamma.strata.pricer.rate.OvernightIndexRates;
+import com.opengamma.strata.pricer.rate.PriceIndexValues;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**

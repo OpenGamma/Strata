@@ -13,11 +13,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
-import com.opengamma.strata.market.product.CompoundedRateType;
-import com.opengamma.strata.market.product.ZeroRateSensitivity;
-import com.opengamma.strata.market.product.bond.IssuerCurveDiscountFactors;
-import com.opengamma.strata.market.product.bond.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.CompoundedRateType;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 
 /**

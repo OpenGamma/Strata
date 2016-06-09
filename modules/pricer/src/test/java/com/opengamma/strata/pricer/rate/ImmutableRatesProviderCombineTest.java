@@ -29,11 +29,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.product.DiscountFactors;
-import com.opengamma.strata.market.product.rate.IborIndexRates;
-import com.opengamma.strata.market.product.rate.OvernightIndexRates;
-import com.opengamma.strata.market.product.rate.PriceIndexValues;
-import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
+import com.opengamma.strata.pricer.DiscountFactors;
 
 /**
  * Tests {@link ImmutableRatesProvider}.

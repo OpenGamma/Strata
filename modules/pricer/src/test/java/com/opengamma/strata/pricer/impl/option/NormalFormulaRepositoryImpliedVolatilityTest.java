@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.product.common.PutCall;
 
 /**
  * Test {@link NormalFormulaRepository} implied volatility.

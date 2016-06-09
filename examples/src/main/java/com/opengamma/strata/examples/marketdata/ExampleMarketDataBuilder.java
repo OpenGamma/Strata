@@ -45,9 +45,9 @@ import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputs;
-import com.opengamma.strata.market.product.credit.IsdaYieldCurveInputsId;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
+import com.opengamma.strata.pricer.credit.IsdaYieldCurveInputs;
+import com.opengamma.strata.pricer.credit.IsdaYieldCurveInputsId;
 
 /**
  * Builds a market data snapshot from user-editable files in a prescribed directory structure.

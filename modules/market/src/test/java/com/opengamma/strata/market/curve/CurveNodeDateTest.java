@@ -18,9 +18,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.market.curve.CurveNodeDate;
-import com.opengamma.strata.market.curve.CurveNodeDateType;
-
 /**
  * Test {@link CurveNodeDate}.
  */

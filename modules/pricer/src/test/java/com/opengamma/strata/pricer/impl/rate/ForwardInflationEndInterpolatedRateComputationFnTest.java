@@ -28,10 +28,10 @@ import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
-import com.opengamma.strata.market.product.rate.InflationRateSensitivity;
-import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.pricer.rate.InflationRateSensitivity;
+import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
 
 /**

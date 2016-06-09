@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 
 /**
  * Market data for swaptions.

@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
-import com.opengamma.strata.market.product.index.IborFutureOptionSensitivity;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 
 /**

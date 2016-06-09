@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.market.product.capfloor.IborCapletFloorletVolatilities;
 
 /**
  * Pricer for caplet/floorlet in a normal or Bachelier model. 

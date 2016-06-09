@@ -23,10 +23,10 @@ import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.data.scenario.ImmutableScenarioMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.product.credit.CdsRecoveryRate;
-import com.opengamma.strata.market.product.credit.IsdaCreditCurveInputs;
-import com.opengamma.strata.market.product.credit.IsdaIndexCreditCurveInputsId;
-import com.opengamma.strata.market.product.credit.IsdaIndexRecoveryRateId;
+import com.opengamma.strata.pricer.credit.CdsRecoveryRate;
+import com.opengamma.strata.pricer.credit.IsdaCreditCurveInputs;
+import com.opengamma.strata.pricer.credit.IsdaIndexCreditCurveInputsId;
+import com.opengamma.strata.pricer.credit.IsdaIndexRecoveryRateId;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 

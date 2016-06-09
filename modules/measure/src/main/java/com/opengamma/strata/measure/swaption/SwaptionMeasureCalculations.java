@@ -7,10 +7,10 @@ package com.opengamma.strata.measure.swaption;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
-import com.opengamma.strata.market.product.swaption.SwaptionVolatilities;
 import com.opengamma.strata.measure.rate.RatesMarketData;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionTradePricer;
 import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 
