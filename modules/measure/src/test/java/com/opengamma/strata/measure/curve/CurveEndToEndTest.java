@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.calc.curve;
+package com.opengamma.strata.measure.curve;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
-import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.fixedIborSwapNode;
-import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.fraNode;
-import static com.opengamma.strata.measure.calc.curve.CurveTestUtils.id;
+import static com.opengamma.strata.measure.curve.CurveTestUtils.fixedIborSwapNode;
+import static com.opengamma.strata.measure.curve.CurveTestUtils.fraNode;
+import static com.opengamma.strata.measure.curve.CurveTestUtils.id;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 

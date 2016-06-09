@@ -52,7 +52,7 @@ import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.measure.calc.curve.CurveNameFilter;
+import com.opengamma.strata.measure.curve.CurveNameFilter;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;

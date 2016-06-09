@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.calc.fx;
+package com.opengamma.strata.measure.fx;
 
 import java.util.Optional;
 

@@ -29,7 +29,7 @@ import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.measure.calc.curve.TestMarketDataMap;
+import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
