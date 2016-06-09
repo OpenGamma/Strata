@@ -75,7 +75,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @return the present value of the swaption product
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaption swaption,
@@ -114,7 +114,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @return the currency exposure of the swaption product
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaption swaption,
@@ -134,7 +134,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * @param swaption  the product
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @return the present value curve sensitivity of the swaption product
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivity(
       ResolvedSwaption swaption,

@@ -70,7 +70,7 @@ public class NormalSwaptionPhysicalTradePricer {
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swap product
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaptionTrade trade,
@@ -86,12 +86,12 @@ public class NormalSwaptionPhysicalTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure of the swaption trade
+   * Computes the currency exposure of the swaption trade.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption product
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaptionTrade trade,
@@ -102,7 +102,7 @@ public class NormalSwaptionPhysicalTradePricer {
   }
 
   /**
-   * Calculates the current of the swaption trade.
+   * Calculates the current cash of the swaption trade.
    * <p>
    * Only the premium is contributing to the current cash for non-cash settle swaptions.
    * 
@@ -129,7 +129,7 @@ public class NormalSwaptionPhysicalTradePricer {
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value curve sensitivity of the swap trade
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedSwaptionTrade trade,

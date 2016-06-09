@@ -69,7 +69,7 @@ public class SabrSwaptionCashParYieldProductPricer
    * @param swaption  the swaption product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value curve sensitivity of the swap product
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityStickyModel(
       ResolvedSwaption swaption,
