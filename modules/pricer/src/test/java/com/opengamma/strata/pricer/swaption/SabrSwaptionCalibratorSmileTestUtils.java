@@ -15,7 +15,7 @@ import java.util.List;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.pricer.calibration.RawOptionData;
+import com.opengamma.strata.pricer.curve.RawOptionData;
 
 /**
  * Utilities for the different tests related to {@link SabrSwaptionCalibrator}
