@@ -5,7 +5,7 @@
  */
 
 /**
- * Integration code that allows strata-calc to use and calibrate FX market data.
+ * Integration code that allows strata-calc to use and calibrate curves.
  */
-package com.opengamma.strata.measure.calc.fx;
+package com.opengamma.strata.measure.curve;
 

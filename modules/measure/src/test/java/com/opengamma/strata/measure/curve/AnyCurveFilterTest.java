@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.calc.curve;
+package com.opengamma.strata.measure.curve;
 
-import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,35 +14,25 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
- * Test {@link CurveNameFilter}.
+ * Test {@link AnyCurveFilter}.
  */
 @Test
-public class CurveNameFilterTest {
+public class AnyCurveFilterTest {
 
   public void match() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("name"));
+    AnyCurveFilter test = AnyCurveFilter.INSTANCE;
     assertThat(test.getMarketDataIdType()).isEqualTo(CurveId.class);
     CurveId id = CurveId.of("group", "name");
     Curve curve = ConstantCurve.of("name", 1);
     assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isTrue();
   }
 
-  public void noMatch() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("name"));
-    CurveId id = CurveId.of("group", "name");
-    Curve curve = ConstantCurve.of("notCurveName", 1);
-    assertThat(test.matches(id, MarketDataBox.ofSingleValue(curve))).isFalse();
-  }
-
   //-------------------------------------------------------------------------
   public void coverage() {
-    CurveNameFilter test = CurveNameFilter.of(CurveName.of("curveName1"));
+    AnyCurveFilter test = AnyCurveFilter.INSTANCE;
     coverImmutableBean(test);
-    CurveNameFilter test2 = CurveNameFilter.of(CurveName.of("curveName2"));
-    coverBeanEquals(test, test2);
   }
 
 }

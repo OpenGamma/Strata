@@ -40,7 +40,7 @@ import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.measure.calc.curve.TestMarketDataMap;
+import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
