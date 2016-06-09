@@ -262,10 +262,11 @@ public class VolatilitySwaptionCashParYieldProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption.
+   * Calculates the present value sensitivity of the swaption to the rate curves.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value sensitivity is computed in a "sticky strike" style, i.e. the sensitivity to the 
+   * curve nodes with the volatility at the swaption strike unchanged. This sensitivity does not include a potential 
+   * change of volatility due to the implicit change of forward rate or moneyness.
    * 
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider

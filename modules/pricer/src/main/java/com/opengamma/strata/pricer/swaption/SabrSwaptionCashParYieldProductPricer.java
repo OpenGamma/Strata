@@ -60,17 +60,18 @@ public class SabrSwaptionCashParYieldProductPricer
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption product.
+   * Calculates the present value sensitivity of the swaption product to the rate curves.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value sensitivity is computed in a "sticky model parameter" style, i.e. the sensitivity to the 
+   * curve nodes with the SABR model parameters unchanged. This sensitivity does not include a potential 
+   * re-calibration of the model parameters to the raw market data.
    * 
    * @param swaption  the swaption product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the present value curve sensitivity of the swap product
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityStickyModel(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {

@@ -119,24 +119,25 @@ public class SabrSwaptionPhysicalTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption product.
+   * Calculates the present value sensitivity of the swaption trade to the rate curves.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value sensitivity is computed in a "sticky model parameter" style, i.e. the sensitivity to the 
+   * curve nodes with the SABR model parameters unchanged. This sensitivity does not include a potential 
+   * re-calibration of the model parameters to the raw market data.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
    * @return the present value curve sensitivity of the swap trade
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityStickyModel(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
 
     ResolvedSwaption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
-        productPricer.presentValueSensitivity(product, ratesProvider, swaptionVolatilities);
+        productPricer.presentValueSensitivityStickyModel(product, ratesProvider, swaptionVolatilities);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = paymentPricer.presentValueSensitivity(premium, ratesProvider);
     return pvcsProduct.combinedWith(pvcsPremium);
