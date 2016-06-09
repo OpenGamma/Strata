@@ -94,8 +94,9 @@ public class BlackSwaptionCashParYieldTradePricerTest {
   private static final BlackSwaptionExpiryTenorVolatilities VOL_PROVIDER =
       SwaptionBlackVolatilityDataSets.BLACK_VOL_CST_SWAPTION_PROVIDER_USD;
 
-  private static final BlackSwaptionCashParYieldProductPricer PRICER_PRODUCT = BlackSwaptionCashParYieldProductPricer.DEFAULT;
+  private static final VolatilitySwaptionTradePricer PRICER_COMMON = VolatilitySwaptionTradePricer.DEFAULT;
   private static final BlackSwaptionCashParYieldTradePricer PRICER_TRADE = BlackSwaptionCashParYieldTradePricer.DEFAULT;
+  private static final BlackSwaptionCashParYieldProductPricer PRICER_PRODUCT = BlackSwaptionCashParYieldProductPricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
 
   private static final double TOL = 1.0e-12;
@@ -106,6 +107,9 @@ public class BlackSwaptionCashParYieldTradePricerTest {
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_FWD_PAY, RATE_PROVIDER);
     assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), NOTIONAL * TOL);
+    // test via VolatilitySwaptionTradePricer
+    CurrencyAmount pv = PRICER_COMMON.presentValue(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    assertEquals(pv, pvTrade);
   }
 
   public void present_value_premium_valuedate() {
