@@ -70,7 +70,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaption swaption,
@@ -93,7 +93,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaption swaption,
@@ -114,7 +114,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the implied volatility associated with the swaption
+   * @return the implied volatility
    */
   public double impliedVolatility(
       ResolvedSwaption swaption,
@@ -145,7 +145,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value delta of the swaption
+   * @return the present value delta
    */
   public CurrencyAmount presentValueDelta(
       ResolvedSwaption swaption,
@@ -171,7 +171,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value gamma of the swaption
+   * @return the present value gamma
    */
   public CurrencyAmount presentValueGamma(
       ResolvedSwaption swaption,
@@ -197,7 +197,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value theta of the swaption
+   * @return the present value theta
    */
   public CurrencyAmount presentValueTheta(
       ResolvedSwaption swaption,
@@ -213,15 +213,16 @@ public class VolatilitySwaptionProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption.
+   * Calculates the present value sensitivity of the swaption to the rate curves.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value sensitivity is computed in a "sticky strike" style, i.e. the sensitivity to the 
+   * curve nodes with the volatility at the swaption strike unchanged. This sensitivity does not include a potential 
+   * change of volatility due to the implicit change of forward rate or moneyness.
    * 
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value curve sensitivity of the swap product
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedSwaption swaption,
@@ -244,7 +245,7 @@ public class VolatilitySwaptionProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the point sensitivity to the volatility
+   * @return the point sensitivity to the implied volatility
    */
   public SwaptionSensitivity presentValueSensitivityVolatility(
       ResolvedSwaption swaption,

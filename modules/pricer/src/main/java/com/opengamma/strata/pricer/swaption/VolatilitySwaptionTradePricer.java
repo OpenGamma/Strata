@@ -70,7 +70,7 @@ public class VolatilitySwaptionTradePricer {
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swap product
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaptionTrade trade,
@@ -86,12 +86,12 @@ public class VolatilitySwaptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure of the swaption trade
+   * Computes the currency exposure of the swaption trade.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption product
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaptionTrade trade,
@@ -102,7 +102,7 @@ public class VolatilitySwaptionTradePricer {
   }
 
   /**
-   * Calculates the current of the swaption trade.
+   * Calculates the current cash of the swaption trade.
    * <p>
    * Only the premium is contributing to the current cash for non-cash settle swaptions.
    * 
@@ -120,15 +120,16 @@ public class VolatilitySwaptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value sensitivity of the swaption trade.
+   * Calculates the present value sensitivity of the swaption to the rate curves.
    * <p>
-   * The present value sensitivity of the product is the sensitivity of the present value to
-   * the underlying curves.
+   * The present value sensitivity is computed in a "sticky strike" style, i.e. the sensitivity to the 
+   * curve nodes with the volatility at the swaption strike unchanged. This sensitivity does not include a potential 
+   * change of volatility due to the implicit change of forward rate or moneyness.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value curve sensitivity of the swap trade
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedSwaptionTrade trade,
@@ -147,12 +148,12 @@ public class VolatilitySwaptionTradePricer {
   /**
    * Calculates the present value sensitivity to the implied volatility of the swaption trade.
    * <p>
-   * The sensitivity to the implied normal volatility is also called normal vega.
+   * The sensitivity to the implied volatility is also called vega.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the point sensitivity to the normal volatility
+   * @return the point sensitivity to the implied volatility
    */
   public SwaptionSensitivity presentValueSensitivityVolatility(
       ResolvedSwaptionTrade trade,
