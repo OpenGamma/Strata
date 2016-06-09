@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.swap;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -46,22 +46,20 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
 
 /**
- * A curve node whose instrument is a Ibor-Ibor interest rate swap.
- * <p>
- * The spread or market quote is on the first Ibor leg.
+ * A curve node whose instrument is a three leg basis swap.
  */
 @BeanDefinition
-public final class IborIborSwapCurveNode
+public final class ThreeLegBasisSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
    * The template for the swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborIborSwapTemplate template;
+  private final ThreeLegBasisSwapTemplate template;
   /**
    * The identifier of the market data value that provides the rate.
    */
@@ -87,7 +85,7 @@ public final class IborIborSwapCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for an Ibor-Ibor interest rate swap using the
+   * Returns a curve node for a three leg basis swap using the
    * specified instrument template and rate.
    * <p>
    * A suitable default label will be created.
@@ -96,13 +94,12 @@ public final class IborIborSwapCurveNode
    * @param rateId  the identifier of the market rate used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableId rateId) {
+  public static ThreeLegBasisSwapCurveNode of(ThreeLegBasisSwapTemplate template, ObservableId rateId) {
     return of(template, rateId, 0d);
   }
 
   /**
-   * Returns a curve node for an Ibor-Ibor interest rate swap using the
-   * specified instrument template, rate key and spread.
+   * Returns a curve node for a three leg basis swap using the specified instrument template, rate key and spread.
    * <p>
    * A suitable default label will be created.
    *
@@ -111,7 +108,11 @@ public final class IborIborSwapCurveNode
    * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborIborSwapCurveNode of(IborIborSwapTemplate template, ObservableId rateId, double additionalSpread) {
+  public static ThreeLegBasisSwapCurveNode of(
+      ThreeLegBasisSwapTemplate template,
+      ObservableId rateId,
+      double additionalSpread) {
+
     return builder()
         .template(template)
         .rateId(rateId)
@@ -120,8 +121,7 @@ public final class IborIborSwapCurveNode
   }
 
   /**
-   * Returns a curve node for a Ibor-Ibor interest rate swap using the
-   * specified instrument template, rate key, spread and label.
+   * Returns a curve node for a three leg basis swap using the specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
    * @param rateId  the identifier of the market data providing the rate for the node instrument
@@ -129,13 +129,13 @@ public final class IborIborSwapCurveNode
    * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborIborSwapCurveNode of(
-      IborIborSwapTemplate template,
+  public static ThreeLegBasisSwapCurveNode of(
+      ThreeLegBasisSwapTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label) {
 
-    return new IborIborSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+    return new ThreeLegBasisSwapCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -177,7 +177,7 @@ public final class IborIborSwapCurveNode
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, refData);
     SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
-    // Select the 'second' leg, i.e. the flat leg
+    // Select the 'second' Ibor leg, i.e. the flat floating leg
     ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
     List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
     int nbPeriods = periods.size();
@@ -202,9 +202,9 @@ public final class IborIborSwapCurveNode
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      return 1.0d;
+      return 1d;
     }
-    return 0.0d;
+    return 0d;
   }
 
   //-------------------------------------------------------------------------
@@ -214,22 +214,22 @@ public final class IborIborSwapCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public IborIborSwapCurveNode withDate(CurveNodeDate date) {
-    return new IborIborSwapCurveNode(template, rateId, additionalSpread, label, date);
+  public ThreeLegBasisSwapCurveNode withDate(CurveNodeDate date) {
+    return new ThreeLegBasisSwapCurveNode(template, rateId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code IborIborSwapCurveNode}.
+   * The meta-bean for {@code ThreeLegBasisSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static IborIborSwapCurveNode.Meta meta() {
-    return IborIborSwapCurveNode.Meta.INSTANCE;
+  public static ThreeLegBasisSwapCurveNode.Meta meta() {
+    return ThreeLegBasisSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(IborIborSwapCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ThreeLegBasisSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -241,12 +241,12 @@ public final class IborIborSwapCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static IborIborSwapCurveNode.Builder builder() {
-    return new IborIborSwapCurveNode.Builder();
+  public static ThreeLegBasisSwapCurveNode.Builder builder() {
+    return new ThreeLegBasisSwapCurveNode.Builder();
   }
 
-  private IborIborSwapCurveNode(
-      IborIborSwapTemplate template,
+  private ThreeLegBasisSwapCurveNode(
+      ThreeLegBasisSwapTemplate template,
       ObservableId rateId,
       double additionalSpread,
       String label,
@@ -262,8 +262,8 @@ public final class IborIborSwapCurveNode
   }
 
   @Override
-  public IborIborSwapCurveNode.Meta metaBean() {
-    return IborIborSwapCurveNode.Meta.INSTANCE;
+  public ThreeLegBasisSwapCurveNode.Meta metaBean() {
+    return ThreeLegBasisSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -281,7 +281,7 @@ public final class IborIborSwapCurveNode
    * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
-  public IborIborSwapTemplate getTemplate() {
+  public ThreeLegBasisSwapTemplate getTemplate() {
     return template;
   }
 
@@ -339,7 +339,7 @@ public final class IborIborSwapCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IborIborSwapCurveNode other = (IborIborSwapCurveNode) obj;
+      ThreeLegBasisSwapCurveNode other = (ThreeLegBasisSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
           JodaBeanUtils.equal(rateId, other.rateId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
@@ -363,7 +363,7 @@ public final class IborIborSwapCurveNode
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
-    buf.append("IborIborSwapCurveNode{");
+    buf.append("ThreeLegBasisSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
     buf.append("rateId").append('=').append(rateId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
@@ -375,7 +375,7 @@ public final class IborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IborIborSwapCurveNode}.
+   * The meta-bean for {@code ThreeLegBasisSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -386,28 +386,28 @@ public final class IborIborSwapCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<IborIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", IborIborSwapCurveNode.class, IborIborSwapTemplate.class);
+    private final MetaProperty<ThreeLegBasisSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", ThreeLegBasisSwapCurveNode.class, ThreeLegBasisSwapTemplate.class);
     /**
      * The meta-property for the {@code rateId} property.
      */
     private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", IborIborSwapCurveNode.class, ObservableId.class);
+        this, "rateId", ThreeLegBasisSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", IborIborSwapCurveNode.class, Double.TYPE);
+        this, "additionalSpread", ThreeLegBasisSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", IborIborSwapCurveNode.class, String.class);
+        this, "label", ThreeLegBasisSwapCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", IborIborSwapCurveNode.class, CurveNodeDate.class);
+        this, "date", ThreeLegBasisSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
@@ -443,13 +443,13 @@ public final class IborIborSwapCurveNode
     }
 
     @Override
-    public IborIborSwapCurveNode.Builder builder() {
-      return new IborIborSwapCurveNode.Builder();
+    public ThreeLegBasisSwapCurveNode.Builder builder() {
+      return new ThreeLegBasisSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends IborIborSwapCurveNode> beanType() {
-      return IborIborSwapCurveNode.class;
+    public Class<? extends ThreeLegBasisSwapCurveNode> beanType() {
+      return ThreeLegBasisSwapCurveNode.class;
     }
 
     @Override
@@ -462,7 +462,7 @@ public final class IborIborSwapCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIborSwapTemplate> template() {
+    public MetaProperty<ThreeLegBasisSwapTemplate> template() {
       return template;
     }
 
@@ -503,15 +503,15 @@ public final class IborIborSwapCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((IborIborSwapCurveNode) bean).getTemplate();
+          return ((ThreeLegBasisSwapCurveNode) bean).getTemplate();
         case -938107365:  // rateId
-          return ((IborIborSwapCurveNode) bean).getRateId();
+          return ((ThreeLegBasisSwapCurveNode) bean).getRateId();
         case 291232890:  // additionalSpread
-          return ((IborIborSwapCurveNode) bean).getAdditionalSpread();
+          return ((ThreeLegBasisSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((IborIborSwapCurveNode) bean).getLabel();
+          return ((ThreeLegBasisSwapCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((IborIborSwapCurveNode) bean).getDate();
+          return ((ThreeLegBasisSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -529,11 +529,11 @@ public final class IborIborSwapCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IborIborSwapCurveNode}.
+   * The bean-builder for {@code ThreeLegBasisSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborIborSwapCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ThreeLegBasisSwapCurveNode> {
 
-    private IborIborSwapTemplate template;
+    private ThreeLegBasisSwapTemplate template;
     private ObservableId rateId;
     private double additionalSpread;
     private String label;
@@ -550,7 +550,7 @@ public final class IborIborSwapCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(IborIborSwapCurveNode beanToCopy) {
+    private Builder(ThreeLegBasisSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
       this.rateId = beanToCopy.getRateId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
@@ -581,7 +581,7 @@ public final class IborIborSwapCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (IborIborSwapTemplate) newValue;
+          this.template = (ThreeLegBasisSwapTemplate) newValue;
           break;
         case -938107365:  // rateId
           this.rateId = (ObservableId) newValue;
@@ -626,9 +626,9 @@ public final class IborIborSwapCurveNode
     }
 
     @Override
-    public IborIborSwapCurveNode build() {
+    public ThreeLegBasisSwapCurveNode build() {
       preBuild(this);
-      return new IborIborSwapCurveNode(
+      return new ThreeLegBasisSwapCurveNode(
           template,
           rateId,
           additionalSpread,
@@ -642,7 +642,7 @@ public final class IborIborSwapCurveNode
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(IborIborSwapTemplate template) {
+    public Builder template(ThreeLegBasisSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
@@ -696,7 +696,7 @@ public final class IborIborSwapCurveNode
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("IborIborSwapCurveNode.Builder{");
+      buf.append("ThreeLegBasisSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
       buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');

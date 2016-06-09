@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.product.deposit;
+package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -27,8 +28,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
@@ -37,37 +41,51 @@ import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
-import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
+import com.opengamma.strata.product.rate.IborRateComputation;
+import com.opengamma.strata.product.swap.PaymentPeriod;
+import com.opengamma.strata.product.swap.RateAccrualPeriod;
+import com.opengamma.strata.product.swap.RatePaymentPeriod;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 
 /**
- * A curve node whose instrument is an Ibor fixing deposit.
+ * A curve node whose instrument is a cross-currency Ibor-Ibor interest rate swap.
+ * <p>
+ * Two market quotes are required, one for the spread and one for the FX rate.
  */
 @BeanDefinition
-public final class IborFixingDepositCurveNode
+public final class XCcyIborIborSwapCurveNode
     implements CurveNode, ImmutableBean, Serializable {
 
   /**
-   * The template for the Ibor fixing deposit associated with this node.
+   * The template for the swap associated with this node.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborFixingDepositTemplate template;
+  private final XCcyIborIborSwapTemplate template;
   /**
-   * The identifier of the market data value that provides the rate.
+   * The identifier used to obtain the FX rate market value, defaulted from the template.
+   * This only needs to be specified if using multiple market data sources.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableId rateId;
+  private final FxRateId fxRateId;
   /**
-   * The additional spread added to the rate.
+   * The identifier of the market data value which provides the spread.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ObservableId spreadId;
+  /**
+   * The additional spread added to the market quote.
    */
   @PropertyDefinition
   private final double additionalSpread;
   /**
    * The label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the deposit period if not specified.
+   * When building, this will default based on the tenor if not specified.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String label;
@@ -79,56 +97,60 @@ public final class IborFixingDepositCurveNode
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a curve node for an Ibor deposit using the specified template and rate key.
+   * Returns a curve node for a cross-currency Ibor-Ibor interest rate swap using the
+   * specified instrument template and rate.
    * <p>
    * A suitable default label will be created.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateId  the identifier of the market rate used when building the instrument for the node
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFixingDepositCurveNode of(IborFixingDepositTemplate template, ObservableId rateId) {
-    return of(template, rateId, 0d);
+  public static XCcyIborIborSwapCurveNode of(XCcyIborIborSwapTemplate template, ObservableId spreadId) {
+    return of(template, spreadId, 0d);
   }
 
   /**
-   * Returns a curve node for an Ibor deposit using the specified template, rate key and spread.
+   * Returns a curve node for a cross-currency Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key and spread.
    * <p>
    * A suitable default label will be created.
    *
    * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the rate
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
+   * @param additionalSpread  the additional spread amount added to the market quote
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFixingDepositCurveNode of(
-      IborFixingDepositTemplate template,
-      ObservableId rateId,
+  public static XCcyIborIborSwapCurveNode of(
+      XCcyIborIborSwapTemplate template,
+      ObservableId spreadId,
       double additionalSpread) {
 
     return builder()
         .template(template)
-        .rateId(rateId)
+        .spreadId(spreadId)
         .additionalSpread(additionalSpread)
         .build();
   }
 
   /**
-   * Returns a curve node for an Ibor deposit using the specified template, rate key, spread and label.
+   * Returns a curve node for a cross-currency Ibor-Ibor interest rate swap using the
+   * specified instrument template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
-   * @param additionalSpread  the additional spread amount added to the rate
+   * @param spreadId  the identifier of the market spread used when building the instrument for the node
+   * @param additionalSpread  the additional spread amount added to the market quote
    * @param label  the label to use for the node, if null or empty an appropriate default label will be used
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFixingDepositCurveNode of(
-      IborFixingDepositTemplate template,
-      ObservableId rateId,
+  public static XCcyIborIborSwapCurveNode of(
+      XCcyIborIborSwapTemplate template,
+      ObservableId spreadId,
       double additionalSpread,
       String label) {
 
-    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, CurveNodeDate.END);
+    FxRateId fxRateId = FxRateId.of(template.getCurrencyPair());
+    return new XCcyIborIborSwapCurveNode(template, fxRateId, spreadId, additionalSpread, label, CurveNodeDate.END);
   }
 
   @ImmutableDefaults
@@ -138,15 +160,26 @@ public final class IborFixingDepositCurveNode
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.label == null && builder.template != null) {
-      builder.label = Tenor.of(builder.template.getDepositPeriod()).toString();
+    if (builder.template != null) {
+      if (builder.label == null) {
+        builder.label = builder.template.getTenor().toString();
+      }
+      if (builder.fxRateId == null) {
+        builder.fxRateId = FxRateId.of(builder.template.getCurrencyPair());
+      } else {
+        ArgChecker.isTrue(
+            builder.fxRateId.getPair().toConventional().equals(builder.template.getCurrencyPair().toConventional()),
+            "FxRateId currency pair '{}' must match that of the template '{}'",
+            builder.fxRateId.getPair(),
+            builder.template.getCurrencyPair());
+      }
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<ObservableId> requirements() {
-    return ImmutableSet.of(rateId);
+  public Set<? extends MarketDataId<?>> requirements() {
+    return ImmutableSet.of(fxRateId, spreadId);
   }
 
   @Override
@@ -157,45 +190,49 @@ public final class IborFixingDepositCurveNode
     if (date.isFixed()) {
       return LabelDateParameterMetadata.of(nodeDate, label);
     }
-    Tenor tenor = Tenor.of(template.getDepositPeriod());
-    return TenorDateParameterMetadata.of(nodeDate, tenor, label);
+    return TenorDateParameterMetadata.of(nodeDate, template.getTenor(), label);
   }
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate valuationDate, ReferenceData refData) {
-    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
-    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
-    return deposit.getEndDate();
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
+    return trade.getProduct().getEndDate().adjusted(refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 0d, 0d, refData);
-    ResolvedIborFixingDeposit deposit = trade.getProduct().resolve(refData);
-    return deposit.getFloatingRate().getFixingDate();
+    SwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1, 1, 0, refData);
+    SwapLeg iborLeg = trade.getProduct().getLegs(SwapLegType.IBOR).get(1);
+    // Select the 'second' Ibor leg, i.e. the flat leg
+    ResolvedSwapLeg iborLegExpanded = iborLeg.resolve(refData);
+    List<PaymentPeriod> periods = iborLegExpanded.getPaymentPeriods();
+    int nbPeriods = periods.size();
+    RatePaymentPeriod lastPeriod = (RatePaymentPeriod) periods.get(nbPeriods - 1);
+    List<RateAccrualPeriod> accruals = lastPeriod.getAccrualPeriods();
+    int nbAccruals = accruals.size();
+    IborRateComputation ibor = (IborRateComputation) accruals.get(nbAccruals - 1).getRateComputation();
+    return ibor.getFixingDate();
   }
 
   @Override
-  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    double marketQuote = marketData.getValue(spreadId) + additionalSpread;
+    FxRate fxRate = marketData.getValue(fxRateId);
+    double rate = fxRate.fxRate(template.getCurrencyPair());
+    return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote, refData);
   }
 
   @Override
-  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
     return trade(valuationDate, marketData, refData).resolve(refData);
   }
 
   @Override
   public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
-    if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return marketData.getValue(rateId);
-    }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getDepositPeriod().toTotalMonths() / 12.0d;
-      return Math.exp(-approximateMaturity * marketData.getValue(rateId));
+      return 1.0d;
     }
-    return 0d;
+    return 0.0d;
   }
 
   //-------------------------------------------------------------------------
@@ -205,22 +242,22 @@ public final class IborFixingDepositCurveNode
    * @param date  the date to use
    * @return the node based on this node with the specified date
    */
-  public IborFixingDepositCurveNode withDate(CurveNodeDate date) {
-    return new IborFixingDepositCurveNode(template, rateId, additionalSpread, label, date);
+  public XCcyIborIborSwapCurveNode withDate(CurveNodeDate date) {
+    return new XCcyIborIborSwapCurveNode(template, fxRateId, spreadId, additionalSpread, label, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code IborFixingDepositCurveNode}.
+   * The meta-bean for {@code XCcyIborIborSwapCurveNode}.
    * @return the meta-bean, not null
    */
-  public static IborFixingDepositCurveNode.Meta meta() {
-    return IborFixingDepositCurveNode.Meta.INSTANCE;
+  public static XCcyIborIborSwapCurveNode.Meta meta() {
+    return XCcyIborIborSwapCurveNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(IborFixingDepositCurveNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(XCcyIborIborSwapCurveNode.Meta.INSTANCE);
   }
 
   /**
@@ -232,29 +269,32 @@ public final class IborFixingDepositCurveNode
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static IborFixingDepositCurveNode.Builder builder() {
-    return new IborFixingDepositCurveNode.Builder();
+  public static XCcyIborIborSwapCurveNode.Builder builder() {
+    return new XCcyIborIborSwapCurveNode.Builder();
   }
 
-  private IborFixingDepositCurveNode(
-      IborFixingDepositTemplate template,
-      ObservableId rateId,
+  private XCcyIborIborSwapCurveNode(
+      XCcyIborIborSwapTemplate template,
+      FxRateId fxRateId,
+      ObservableId spreadId,
       double additionalSpread,
       String label,
       CurveNodeDate date) {
     JodaBeanUtils.notNull(template, "template");
-    JodaBeanUtils.notNull(rateId, "rateId");
+    JodaBeanUtils.notNull(fxRateId, "fxRateId");
+    JodaBeanUtils.notNull(spreadId, "spreadId");
     JodaBeanUtils.notEmpty(label, "label");
     this.template = template;
-    this.rateId = rateId;
+    this.fxRateId = fxRateId;
+    this.spreadId = spreadId;
     this.additionalSpread = additionalSpread;
     this.label = label;
     this.date = date;
   }
 
   @Override
-  public IborFixingDepositCurveNode.Meta metaBean() {
-    return IborFixingDepositCurveNode.Meta.INSTANCE;
+  public XCcyIborIborSwapCurveNode.Meta metaBean() {
+    return XCcyIborIborSwapCurveNode.Meta.INSTANCE;
   }
 
   @Override
@@ -269,25 +309,35 @@ public final class IborFixingDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for the Ibor fixing deposit associated with this node.
+   * Gets the template for the swap associated with this node.
    * @return the value of the property, not null
    */
-  public IborFixingDepositTemplate getTemplate() {
+  public XCcyIborIborSwapTemplate getTemplate() {
     return template;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the market data value that provides the rate.
+   * Gets the identifier used to obtain the FX rate market value, defaulted from the template.
+   * This only needs to be specified if using multiple market data sources.
    * @return the value of the property, not null
    */
-  public ObservableId getRateId() {
-    return rateId;
+  public FxRateId getFxRateId() {
+    return fxRateId;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional spread added to the rate.
+   * Gets the identifier of the market data value which provides the spread.
+   * @return the value of the property, not null
+   */
+  public ObservableId getSpreadId() {
+    return spreadId;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the additional spread added to the market quote.
    * @return the value of the property
    */
   public double getAdditionalSpread() {
@@ -298,7 +348,7 @@ public final class IborFixingDepositCurveNode
   /**
    * Gets the label to use for the node, defaulted.
    * <p>
-   * When building, this will default based on the deposit period if not specified.
+   * When building, this will default based on the tenor if not specified.
    * @return the value of the property, not empty
    */
   @Override
@@ -330,9 +380,10 @@ public final class IborFixingDepositCurveNode
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IborFixingDepositCurveNode other = (IborFixingDepositCurveNode) obj;
+      XCcyIborIborSwapCurveNode other = (XCcyIborIborSwapCurveNode) obj;
       return JodaBeanUtils.equal(template, other.template) &&
-          JodaBeanUtils.equal(rateId, other.rateId) &&
+          JodaBeanUtils.equal(fxRateId, other.fxRateId) &&
+          JodaBeanUtils.equal(spreadId, other.spreadId) &&
           JodaBeanUtils.equal(additionalSpread, other.additionalSpread) &&
           JodaBeanUtils.equal(label, other.label) &&
           JodaBeanUtils.equal(date, other.date);
@@ -344,7 +395,8 @@ public final class IborFixingDepositCurveNode
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(template);
-    hash = hash * 31 + JodaBeanUtils.hashCode(rateId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(fxRateId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(spreadId);
     hash = hash * 31 + JodaBeanUtils.hashCode(additionalSpread);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     hash = hash * 31 + JodaBeanUtils.hashCode(date);
@@ -353,10 +405,11 @@ public final class IborFixingDepositCurveNode
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("IborFixingDepositCurveNode{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("XCcyIborIborSwapCurveNode{");
     buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
+    buf.append("fxRateId").append('=').append(fxRateId).append(',').append(' ');
+    buf.append("spreadId").append('=').append(spreadId).append(',').append(' ');
     buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
     buf.append("label").append('=').append(label).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
@@ -366,7 +419,7 @@ public final class IborFixingDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IborFixingDepositCurveNode}.
+   * The meta-bean for {@code XCcyIborIborSwapCurveNode}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -377,35 +430,41 @@ public final class IborFixingDepositCurveNode
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<IborFixingDepositTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", IborFixingDepositCurveNode.class, IborFixingDepositTemplate.class);
+    private final MetaProperty<XCcyIborIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", XCcyIborIborSwapCurveNode.class, XCcyIborIborSwapTemplate.class);
     /**
-     * The meta-property for the {@code rateId} property.
+     * The meta-property for the {@code fxRateId} property.
      */
-    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", IborFixingDepositCurveNode.class, ObservableId.class);
+    private final MetaProperty<FxRateId> fxRateId = DirectMetaProperty.ofImmutable(
+        this, "fxRateId", XCcyIborIborSwapCurveNode.class, FxRateId.class);
+    /**
+     * The meta-property for the {@code spreadId} property.
+     */
+    private final MetaProperty<ObservableId> spreadId = DirectMetaProperty.ofImmutable(
+        this, "spreadId", XCcyIborIborSwapCurveNode.class, ObservableId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
     private final MetaProperty<Double> additionalSpread = DirectMetaProperty.ofImmutable(
-        this, "additionalSpread", IborFixingDepositCurveNode.class, Double.TYPE);
+        this, "additionalSpread", XCcyIborIborSwapCurveNode.class, Double.TYPE);
     /**
      * The meta-property for the {@code label} property.
      */
     private final MetaProperty<String> label = DirectMetaProperty.ofImmutable(
-        this, "label", IborFixingDepositCurveNode.class, String.class);
+        this, "label", XCcyIborIborSwapCurveNode.class, String.class);
     /**
      * The meta-property for the {@code date} property.
      */
     private final MetaProperty<CurveNodeDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", IborFixingDepositCurveNode.class, CurveNodeDate.class);
+        this, "date", XCcyIborIborSwapCurveNode.class, CurveNodeDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "template",
-        "rateId",
+        "fxRateId",
+        "spreadId",
         "additionalSpread",
         "label",
         "date");
@@ -421,8 +480,10 @@ public final class IborFixingDepositCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -938107365:  // rateId
-          return rateId;
+        case -1054985843:  // fxRateId
+          return fxRateId;
+        case -1759090194:  // spreadId
+          return spreadId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -434,13 +495,13 @@ public final class IborFixingDepositCurveNode
     }
 
     @Override
-    public IborFixingDepositCurveNode.Builder builder() {
-      return new IborFixingDepositCurveNode.Builder();
+    public XCcyIborIborSwapCurveNode.Builder builder() {
+      return new XCcyIborIborSwapCurveNode.Builder();
     }
 
     @Override
-    public Class<? extends IborFixingDepositCurveNode> beanType() {
-      return IborFixingDepositCurveNode.class;
+    public Class<? extends XCcyIborIborSwapCurveNode> beanType() {
+      return XCcyIborIborSwapCurveNode.class;
     }
 
     @Override
@@ -453,16 +514,24 @@ public final class IborFixingDepositCurveNode
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborFixingDepositTemplate> template() {
+    public MetaProperty<XCcyIborIborSwapTemplate> template() {
       return template;
     }
 
     /**
-     * The meta-property for the {@code rateId} property.
+     * The meta-property for the {@code fxRateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableId> rateId() {
-      return rateId;
+    public MetaProperty<FxRateId> fxRateId() {
+      return fxRateId;
+    }
+
+    /**
+     * The meta-property for the {@code spreadId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ObservableId> spreadId() {
+      return spreadId;
     }
 
     /**
@@ -494,15 +563,17 @@ public final class IborFixingDepositCurveNode
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          return ((IborFixingDepositCurveNode) bean).getTemplate();
-        case -938107365:  // rateId
-          return ((IborFixingDepositCurveNode) bean).getRateId();
+          return ((XCcyIborIborSwapCurveNode) bean).getTemplate();
+        case -1054985843:  // fxRateId
+          return ((XCcyIborIborSwapCurveNode) bean).getFxRateId();
+        case -1759090194:  // spreadId
+          return ((XCcyIborIborSwapCurveNode) bean).getSpreadId();
         case 291232890:  // additionalSpread
-          return ((IborFixingDepositCurveNode) bean).getAdditionalSpread();
+          return ((XCcyIborIborSwapCurveNode) bean).getAdditionalSpread();
         case 102727412:  // label
-          return ((IborFixingDepositCurveNode) bean).getLabel();
+          return ((XCcyIborIborSwapCurveNode) bean).getLabel();
         case 3076014:  // date
-          return ((IborFixingDepositCurveNode) bean).getDate();
+          return ((XCcyIborIborSwapCurveNode) bean).getDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -520,12 +591,13 @@ public final class IborFixingDepositCurveNode
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IborFixingDepositCurveNode}.
+   * The bean-builder for {@code XCcyIborIborSwapCurveNode}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborFixingDepositCurveNode> {
+  public static final class Builder extends DirectFieldsBeanBuilder<XCcyIborIborSwapCurveNode> {
 
-    private IborFixingDepositTemplate template;
-    private ObservableId rateId;
+    private XCcyIborIborSwapTemplate template;
+    private FxRateId fxRateId;
+    private ObservableId spreadId;
     private double additionalSpread;
     private String label;
     private CurveNodeDate date;
@@ -541,9 +613,10 @@ public final class IborFixingDepositCurveNode
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(IborFixingDepositCurveNode beanToCopy) {
+    private Builder(XCcyIborIborSwapCurveNode beanToCopy) {
       this.template = beanToCopy.getTemplate();
-      this.rateId = beanToCopy.getRateId();
+      this.fxRateId = beanToCopy.getFxRateId();
+      this.spreadId = beanToCopy.getSpreadId();
       this.additionalSpread = beanToCopy.getAdditionalSpread();
       this.label = beanToCopy.getLabel();
       this.date = beanToCopy.getDate();
@@ -555,8 +628,10 @@ public final class IborFixingDepositCurveNode
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
           return template;
-        case -938107365:  // rateId
-          return rateId;
+        case -1054985843:  // fxRateId
+          return fxRateId;
+        case -1759090194:  // spreadId
+          return spreadId;
         case 291232890:  // additionalSpread
           return additionalSpread;
         case 102727412:  // label
@@ -572,10 +647,13 @@ public final class IborFixingDepositCurveNode
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1321546630:  // template
-          this.template = (IborFixingDepositTemplate) newValue;
+          this.template = (XCcyIborIborSwapTemplate) newValue;
           break;
-        case -938107365:  // rateId
-          this.rateId = (ObservableId) newValue;
+        case -1054985843:  // fxRateId
+          this.fxRateId = (FxRateId) newValue;
+          break;
+        case -1759090194:  // spreadId
+          this.spreadId = (ObservableId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -617,11 +695,12 @@ public final class IborFixingDepositCurveNode
     }
 
     @Override
-    public IborFixingDepositCurveNode build() {
+    public XCcyIborIborSwapCurveNode build() {
       preBuild(this);
-      return new IborFixingDepositCurveNode(
+      return new XCcyIborIborSwapCurveNode(
           template,
-          rateId,
+          fxRateId,
+          spreadId,
           additionalSpread,
           label,
           date);
@@ -629,29 +708,41 @@ public final class IborFixingDepositCurveNode
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the template for the Ibor fixing deposit associated with this node.
+     * Sets the template for the swap associated with this node.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(IborFixingDepositTemplate template) {
+    public Builder template(XCcyIborIborSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
     }
 
     /**
-     * Sets the identifier of the market data value that provides the rate.
-     * @param rateId  the new value, not null
+     * Sets the identifier used to obtain the FX rate market value, defaulted from the template.
+     * This only needs to be specified if using multiple market data sources.
+     * @param fxRateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateId(ObservableId rateId) {
-      JodaBeanUtils.notNull(rateId, "rateId");
-      this.rateId = rateId;
+    public Builder fxRateId(FxRateId fxRateId) {
+      JodaBeanUtils.notNull(fxRateId, "fxRateId");
+      this.fxRateId = fxRateId;
       return this;
     }
 
     /**
-     * Sets the additional spread added to the rate.
+     * Sets the identifier of the market data value which provides the spread.
+     * @param spreadId  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder spreadId(ObservableId spreadId) {
+      JodaBeanUtils.notNull(spreadId, "spreadId");
+      this.spreadId = spreadId;
+      return this;
+    }
+
+    /**
+     * Sets the additional spread added to the market quote.
      * @param additionalSpread  the new value
      * @return this, for chaining, not null
      */
@@ -663,7 +754,7 @@ public final class IborFixingDepositCurveNode
     /**
      * Sets the label to use for the node, defaulted.
      * <p>
-     * When building, this will default based on the deposit period if not specified.
+     * When building, this will default based on the tenor if not specified.
      * @param label  the new value, not empty
      * @return this, for chaining, not null
      */
@@ -686,10 +777,11 @@ public final class IborFixingDepositCurveNode
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("IborFixingDepositCurveNode.Builder{");
+      StringBuilder buf = new StringBuilder(224);
+      buf.append("XCcyIborIborSwapCurveNode.Builder{");
       buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
-      buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
+      buf.append("fxRateId").append('=').append(JodaBeanUtils.toString(fxRateId)).append(',').append(' ');
+      buf.append("spreadId").append('=').append(JodaBeanUtils.toString(spreadId)).append(',').append(' ');
       buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
       buf.append("date").append('=').append(JodaBeanUtils.toString(date));
