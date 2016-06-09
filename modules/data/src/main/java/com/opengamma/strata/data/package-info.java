@@ -5,7 +5,7 @@
  */
 
 /**
- * Basic types for modelling market data.
+ * Basic types to model market data.
  * <p>
  * Market data is used to capture the current market, such as quotes, FX rates,
  * discount curves, forward curves and volatilities.

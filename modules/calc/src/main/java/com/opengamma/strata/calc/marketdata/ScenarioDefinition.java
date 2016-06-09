@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static java.util.stream.Collectors.groupingBy;

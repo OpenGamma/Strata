@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.calc.marketdata.scenario;
+package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,6 +15,9 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.calc.marketdata.MarketDataFilter;
+import com.opengamma.strata.calc.marketdata.PerturbationMapping;
+import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
