@@ -30,7 +30,6 @@ import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;

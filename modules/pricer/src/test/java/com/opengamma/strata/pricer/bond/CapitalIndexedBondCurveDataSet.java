@@ -38,7 +38,6 @@ import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.market.product.rate.PriceIndexValues;
 import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 
 /**
  * The data set for testing capital indexed bonds. 

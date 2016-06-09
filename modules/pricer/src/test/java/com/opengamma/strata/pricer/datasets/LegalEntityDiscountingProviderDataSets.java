@@ -27,7 +27,7 @@ import com.opengamma.strata.market.product.SimpleDiscountFactors;
 import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.product.bond.BondGroup;
 import com.opengamma.strata.market.product.bond.LegalEntityGroup;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 
 /**
  * LegalEntityDiscountingProvider data sets for testing.

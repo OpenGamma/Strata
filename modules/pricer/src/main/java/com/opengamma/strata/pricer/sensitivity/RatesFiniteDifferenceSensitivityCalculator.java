@@ -27,8 +27,8 @@ import com.opengamma.strata.market.product.SimpleDiscountFactors;
 import com.opengamma.strata.market.product.ZeroRateDiscountFactors;
 import com.opengamma.strata.market.product.rate.PriceIndexValues;
 import com.opengamma.strata.market.product.rate.SimplePriceIndexValues;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
 
 /**
  * Computes the curve parameter sensitivity by finite difference.

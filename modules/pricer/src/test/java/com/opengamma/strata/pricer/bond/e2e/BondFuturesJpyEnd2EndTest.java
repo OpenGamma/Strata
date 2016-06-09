@@ -47,7 +47,7 @@ import com.opengamma.strata.market.product.bond.LegalEntityGroup;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureProductPricer;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureTradePricer;
-import com.opengamma.strata.pricer.rate.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.BondFuture;

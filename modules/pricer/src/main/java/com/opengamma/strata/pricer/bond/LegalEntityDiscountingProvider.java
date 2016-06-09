@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.rate;
+package com.opengamma.strata.pricer.bond;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -40,6 +40,7 @@ import com.opengamma.strata.market.product.bond.RepoCurveDiscountFactors;
 import com.opengamma.strata.market.product.bond.RepoCurveZeroRateSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.SecurityId;
 
 /**
