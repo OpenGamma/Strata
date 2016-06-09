@@ -48,7 +48,7 @@ public class HullWhiteSwaptionPhysicalTradePricer {
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter trade
-   * @return the present value of the swaption trade
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaptionTrade trade,
@@ -64,12 +64,12 @@ public class HullWhiteSwaptionPhysicalTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure of the swaption trade
+   * Computes the currency exposure of the swaption trade.
    * 
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @return the currency exposure of the swaption trade
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaptionTrade trade,
@@ -80,7 +80,7 @@ public class HullWhiteSwaptionPhysicalTradePricer {
   }
 
   /**
-   * Calculates the current of the swaption trade.
+   * Calculates the current cash of the swaption trade.
    * <p>
    * Only the premium is contributing to the current cash for non-cash settle swaptions.
    * 
@@ -106,7 +106,7 @@ public class HullWhiteSwaptionPhysicalTradePricer {
    * @param trade  the swaption trade
    * @param ratesProvider  the rates provider
    * @param hwProvider  the Hull-White model parameter provider
-   * @return the present value curve sensitivity of the swaption trade
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivity(
       ResolvedSwaptionTrade trade,

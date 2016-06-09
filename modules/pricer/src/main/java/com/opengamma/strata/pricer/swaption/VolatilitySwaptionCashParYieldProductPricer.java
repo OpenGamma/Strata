@@ -84,7 +84,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption
+   * @return the present value
    */
   public CurrencyAmount presentValue(
       ResolvedSwaption swaption,
@@ -117,7 +117,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value of the swaption
+   * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(
       ResolvedSwaption swaption,
@@ -271,7 +271,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the present value curve sensitivity of the swap product
+   * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityStickyStrike(
       ResolvedSwaption swaption,

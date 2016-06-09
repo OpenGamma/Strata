@@ -60,7 +60,7 @@ public class NormalSwaptionCashParYieldProductPricer
    * @param ratesProvider  the rates provider
    * @param dayCount  the day-count used to estimate the time between valuation date and swaption expiry
    * @param presentValue  the present value of the swaption product
-   * @return the implied volatility associated to the present value
+   * @return the implied volatility associated with the present value
    */
   public double impliedVolatilityFromPresentValue(
       ResolvedSwaption swaption,
