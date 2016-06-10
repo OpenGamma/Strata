@@ -201,7 +201,7 @@ public final class ImmutableScenarioMarketDataBuilder {
    * @param values  the items of market data, keyed by identifier
    * @return this builder
    */
-  public <T> ImmutableScenarioMarketDataBuilder addBoxMap(
+  public ImmutableScenarioMarketDataBuilder addBoxMap(
       Map<? extends MarketDataId<?>, ? extends MarketDataBox<?>> values) {
 
     ArgChecker.notNull(values, "values");

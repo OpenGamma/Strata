@@ -110,7 +110,7 @@ public final class ParameterizedDataCombiner {
    * If the parameter index applies to the underlying, it is updated.
    * If the parameter index does not apply to the underlying, no error occurs.
    * 
-   * 
+   * @param <R>  the type of the underlying
    * @param underlyingIndex  the index of the underlying instance
    * @param underlyingType  the type of the parameterized data at the specified index
    * @param parameterIndex  the zero-based index of the parameter to get
@@ -139,6 +139,7 @@ public final class ParameterizedDataCombiner {
    * It is intended to be used to pass the result of each invocation to the
    * constructor of the combined instance.
    * 
+   * @param <R>  the type of the underlying
    * @param underlyingIndex  the index of the underlying instance
    * @param underlyingType  the type of the parameterized data at the specified index
    * @param perturbation  the perturbation to apply

@@ -263,6 +263,7 @@ public interface ScenarioMarketData {
    * <p>
    * For example, this method could be used to replace a curve with a bumped curve.
    *
+   * @param <T>  the type of the market data value
    * @param id  the identifier
    * @param value  the value to associate with the identifier
    * @return the derived market data with the specified identifier and value
@@ -286,6 +287,7 @@ public interface ScenarioMarketData {
    * <p>
    * This instance is immutable and unaffected by this method call.
    * 
+   * @param <T>  the type of the market data value
    * @param id  the identifier to perturb
    * @param perturbation  the perturbation to apply
    * @return a parameterized data instance based on this with the specified perturbation applied

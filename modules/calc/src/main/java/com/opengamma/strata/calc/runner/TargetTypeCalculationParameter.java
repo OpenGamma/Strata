@@ -62,7 +62,7 @@ public final class TargetTypeCalculationParameter
    * @param defaultParameter  the default parameter
    * @return the target aware parameter
    */
-  public static <T extends CalculationParameter> TargetTypeCalculationParameter of(
+  public static TargetTypeCalculationParameter of(
       Map<Class<?>, CalculationParameter> parameters,
       CalculationParameter defaultParameter) {
 

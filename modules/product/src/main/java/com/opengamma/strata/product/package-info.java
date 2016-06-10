@@ -13,7 +13,6 @@
  * a transaction between two organizations, known as counterparties.
  * Most trades represented in the system will be contracts that have been agreed on a date in the past.
  * The trade model also allows trades with a date in the future, or without any date.
- * This supports "what if" trades and aggregated trades, also known as <i>positions</i>.
  * <p>
  * A {@link com.opengamma.strata.product.Security Security} is a standard contract that is traded,
  * such as an equity share or futures contract. Securities are typically created once and shared

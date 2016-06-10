@@ -164,6 +164,7 @@ public interface MarketData {
    * <p>
    * For example, this method could be used to replace a curve with a bumped curve.
    *
+   * @param <T>  the type of the market data value
    * @param id  the identifier to find
    * @param value  the value to associate with the identifier
    * @return the derived market data with the specified identifier and value
