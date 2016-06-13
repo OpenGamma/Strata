@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.FixedRateComputation;
@@ -48,13 +49,13 @@ import com.opengamma.strata.product.rate.RateComputation;
  * </ul>
  */
 @BeanDefinition
-public final class StubCalculation
+public final class IborRateStubCalculation
     implements ImmutableBean, Serializable {
 
   /**
    * An instance that has no special rate handling.
    */
-  public static final StubCalculation NONE = new StubCalculation(null, null, null);
+  public static final IborRateStubCalculation NONE = new IborRateStubCalculation(null, null, null, null);
 
   /**
    * The fixed rate to use in the stub.
@@ -64,16 +65,25 @@ public final class StubCalculation
    * It is used in place of an observed fixing.
    * Other calculation elements, such as gearing or spread, still apply.
    * <p>
-   * If the fixed rate is present, then {@code index} and {@code indexInterpolated} must not be present.
+   * If the fixed rate is present, then {@code knownAmount}, {@code index} and
+   * {@code indexInterpolated} must not be present.
    */
   @PropertyDefinition(get = "optional")
   private final Double fixedRate;
+  /**
+   * The known amount to pay/receive for the stub.
+   * <p>
+   * If the known amount is present, then {@code fixedRate}, {@code index} and
+   * {@code indexInterpolated} must not be present.
+   */
+  @PropertyDefinition(get = "optional")
+  private final CurrencyAmount knownAmount;
   /**
    * The Ibor index to be used for the stub.
    * <p>
    * This will be used throughout the stub unless {@code indexInterpolated} is present.
    * <p>
-   * If the index is present, then {@code rate} must not be present.
+   * If the index is present, then {@code fixedRate} and {@code knownAmount} must not be present.
    */
   @PropertyDefinition(get = "optional")
   private final IborIndex index;
@@ -83,8 +93,8 @@ public final class StubCalculation
    * This will be used with {@code index} to linearly interpolate the rate.
    * This index may be shorter or longer than {@code index}, but not the same.
    * <p>
-   * If the interpolated index is present, then {@code index} must also be present
-   * and {@code rate} must not be present.
+   * If the interpolated index is present, then {@code index} must also be present,
+   * and {@code fixedRate} and {@code knownAmount} must not be present.
    */
   @PropertyDefinition(get = "optional")
   private final IborIndex indexInterpolated;
@@ -96,8 +106,19 @@ public final class StubCalculation
    * @param fixedRate  the fixed rate for the stub
    * @return the stub
    */
-  public static StubCalculation ofFixedRate(double fixedRate) {
-    return new StubCalculation(fixedRate, null, null);
+  public static IborRateStubCalculation ofFixedRate(double fixedRate) {
+    return new IborRateStubCalculation(fixedRate, null, null, null);
+  }
+
+  /**
+   * Obtains an instance with a known amount of interest.
+   * 
+   * @param knownAmount  the known amount of interest
+   * @return the stub
+   */
+  public static IborRateStubCalculation ofKnownAmount(CurrencyAmount knownAmount) {
+    ArgChecker.notNull(knownAmount, "knownAmount");
+    return new IborRateStubCalculation(null, knownAmount, null, null);
   }
 
   /**
@@ -107,9 +128,9 @@ public final class StubCalculation
    * @return the stub
    * @throws IllegalArgumentException if the index is null
    */
-  public static StubCalculation ofIborRate(IborIndex index) {
+  public static IborRateStubCalculation ofIborRate(IborIndex index) {
     ArgChecker.notNull(index, "index");
-    return new StubCalculation(null, index, null);
+    return new IborRateStubCalculation(null, null, index, null);
   }
 
   /**
@@ -123,10 +144,10 @@ public final class StubCalculation
    * @return the stub
    * @throws IllegalArgumentException if the two indices are the same or either is null
    */
-  public static StubCalculation ofIborInterpolatedRate(IborIndex index1, IborIndex index2) {
+  public static IborRateStubCalculation ofIborInterpolatedRate(IborIndex index1, IborIndex index2) {
     ArgChecker.notNull(index1, "index1");
     ArgChecker.notNull(index2, "index2");
-    return new StubCalculation(null, index1, index2);
+    return new IborRateStubCalculation(null, null, index1, index2);
   }
 
   //-------------------------------------------------------------------------
@@ -161,6 +182,8 @@ public final class StubCalculation
       return IborRateComputation.of(index, fixingDate, refData);
     } else if (isFixedRate()) {
       return FixedRateComputation.of(fixedRate);
+    } else if (isKnownAmount()) {
+      return KnownAmountRateComputation.of(knownAmount);
     } else {
       return IborRateComputation.of(defaultIndex, fixingDate, refData);
     }
@@ -174,6 +197,15 @@ public final class StubCalculation
    */
   public boolean isFixedRate() {
     return fixedRate != null;
+  }
+
+  /**
+   * Checks if the stub has a known amount.
+   * 
+   * @return true if the stub has a known amount
+   */
+  public boolean isKnownAmount() {
+    return knownAmount != null;
   }
 
   /**
@@ -199,15 +231,15 @@ public final class StubCalculation
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code StubCalculation}.
+   * The meta-bean for {@code IborRateStubCalculation}.
    * @return the meta-bean, not null
    */
-  public static StubCalculation.Meta meta() {
-    return StubCalculation.Meta.INSTANCE;
+  public static IborRateStubCalculation.Meta meta() {
+    return IborRateStubCalculation.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(StubCalculation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborRateStubCalculation.Meta.INSTANCE);
   }
 
   /**
@@ -219,23 +251,25 @@ public final class StubCalculation
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static StubCalculation.Builder builder() {
-    return new StubCalculation.Builder();
+  public static IborRateStubCalculation.Builder builder() {
+    return new IborRateStubCalculation.Builder();
   }
 
-  private StubCalculation(
+  private IborRateStubCalculation(
       Double fixedRate,
+      CurrencyAmount knownAmount,
       IborIndex index,
       IborIndex indexInterpolated) {
     this.fixedRate = fixedRate;
+    this.knownAmount = knownAmount;
     this.index = index;
     this.indexInterpolated = indexInterpolated;
     validate();
   }
 
   @Override
-  public StubCalculation.Meta metaBean() {
-    return StubCalculation.Meta.INSTANCE;
+  public IborRateStubCalculation.Meta metaBean() {
+    return IborRateStubCalculation.Meta.INSTANCE;
   }
 
   @Override
@@ -257,7 +291,8 @@ public final class StubCalculation
    * It is used in place of an observed fixing.
    * Other calculation elements, such as gearing or spread, still apply.
    * <p>
-   * If the fixed rate is present, then {@code index} and {@code indexInterpolated} must not be present.
+   * If the fixed rate is present, then {@code knownAmount}, {@code index} and
+   * {@code indexInterpolated} must not be present.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getFixedRate() {
@@ -266,11 +301,23 @@ public final class StubCalculation
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the known amount to pay/receive for the stub.
+   * <p>
+   * If the known amount is present, then {@code fixedRate}, {@code index} and
+   * {@code indexInterpolated} must not be present.
+   * @return the optional value of the property, not null
+   */
+  public Optional<CurrencyAmount> getKnownAmount() {
+    return Optional.ofNullable(knownAmount);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the Ibor index to be used for the stub.
    * <p>
    * This will be used throughout the stub unless {@code indexInterpolated} is present.
    * <p>
-   * If the index is present, then {@code rate} must not be present.
+   * If the index is present, then {@code fixedRate} and {@code knownAmount} must not be present.
    * @return the optional value of the property, not null
    */
   public Optional<IborIndex> getIndex() {
@@ -284,8 +331,8 @@ public final class StubCalculation
    * This will be used with {@code index} to linearly interpolate the rate.
    * This index may be shorter or longer than {@code index}, but not the same.
    * <p>
-   * If the interpolated index is present, then {@code index} must also be present
-   * and {@code rate} must not be present.
+   * If the interpolated index is present, then {@code index} must also be present,
+   * and {@code fixedRate} and {@code knownAmount} must not be present.
    * @return the optional value of the property, not null
    */
   public Optional<IborIndex> getIndexInterpolated() {
@@ -307,8 +354,9 @@ public final class StubCalculation
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      StubCalculation other = (StubCalculation) obj;
+      IborRateStubCalculation other = (IborRateStubCalculation) obj;
       return JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
+          JodaBeanUtils.equal(knownAmount, other.knownAmount) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(indexInterpolated, other.indexInterpolated);
     }
@@ -319,6 +367,7 @@ public final class StubCalculation
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(knownAmount);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(indexInterpolated);
     return hash;
@@ -326,9 +375,10 @@ public final class StubCalculation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
-    buf.append("StubCalculation{");
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("IborRateStubCalculation{");
     buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("knownAmount").append('=').append(knownAmount).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
     buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated));
     buf.append('}');
@@ -337,7 +387,7 @@ public final class StubCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code StubCalculation}.
+   * The meta-bean for {@code IborRateStubCalculation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -349,23 +399,29 @@ public final class StubCalculation
      * The meta-property for the {@code fixedRate} property.
      */
     private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
-        this, "fixedRate", StubCalculation.class, Double.class);
+        this, "fixedRate", IborRateStubCalculation.class, Double.class);
+    /**
+     * The meta-property for the {@code knownAmount} property.
+     */
+    private final MetaProperty<CurrencyAmount> knownAmount = DirectMetaProperty.ofImmutable(
+        this, "knownAmount", IborRateStubCalculation.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code index} property.
      */
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", StubCalculation.class, IborIndex.class);
+        this, "index", IborRateStubCalculation.class, IborIndex.class);
     /**
      * The meta-property for the {@code indexInterpolated} property.
      */
     private final MetaProperty<IborIndex> indexInterpolated = DirectMetaProperty.ofImmutable(
-        this, "indexInterpolated", StubCalculation.class, IborIndex.class);
+        this, "indexInterpolated", IborRateStubCalculation.class, IborIndex.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "fixedRate",
+        "knownAmount",
         "index",
         "indexInterpolated");
 
@@ -380,6 +436,8 @@ public final class StubCalculation
       switch (propertyName.hashCode()) {
         case 747425396:  // fixedRate
           return fixedRate;
+        case -158727813:  // knownAmount
+          return knownAmount;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
@@ -389,13 +447,13 @@ public final class StubCalculation
     }
 
     @Override
-    public StubCalculation.Builder builder() {
-      return new StubCalculation.Builder();
+    public IborRateStubCalculation.Builder builder() {
+      return new IborRateStubCalculation.Builder();
     }
 
     @Override
-    public Class<? extends StubCalculation> beanType() {
-      return StubCalculation.class;
+    public Class<? extends IborRateStubCalculation> beanType() {
+      return IborRateStubCalculation.class;
     }
 
     @Override
@@ -410,6 +468,14 @@ public final class StubCalculation
      */
     public MetaProperty<Double> fixedRate() {
       return fixedRate;
+    }
+
+    /**
+     * The meta-property for the {@code knownAmount} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<CurrencyAmount> knownAmount() {
+      return knownAmount;
     }
 
     /**
@@ -433,11 +499,13 @@ public final class StubCalculation
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 747425396:  // fixedRate
-          return ((StubCalculation) bean).fixedRate;
+          return ((IborRateStubCalculation) bean).fixedRate;
+        case -158727813:  // knownAmount
+          return ((IborRateStubCalculation) bean).knownAmount;
         case 100346066:  // index
-          return ((StubCalculation) bean).index;
+          return ((IborRateStubCalculation) bean).index;
         case -1934091915:  // indexInterpolated
-          return ((StubCalculation) bean).indexInterpolated;
+          return ((IborRateStubCalculation) bean).indexInterpolated;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -455,11 +523,12 @@ public final class StubCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code StubCalculation}.
+   * The bean-builder for {@code IborRateStubCalculation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<StubCalculation> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborRateStubCalculation> {
 
     private Double fixedRate;
+    private CurrencyAmount knownAmount;
     private IborIndex index;
     private IborIndex indexInterpolated;
 
@@ -473,8 +542,9 @@ public final class StubCalculation
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(StubCalculation beanToCopy) {
+    private Builder(IborRateStubCalculation beanToCopy) {
       this.fixedRate = beanToCopy.fixedRate;
+      this.knownAmount = beanToCopy.knownAmount;
       this.index = beanToCopy.index;
       this.indexInterpolated = beanToCopy.indexInterpolated;
     }
@@ -485,6 +555,8 @@ public final class StubCalculation
       switch (propertyName.hashCode()) {
         case 747425396:  // fixedRate
           return fixedRate;
+        case -158727813:  // knownAmount
+          return knownAmount;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
@@ -499,6 +571,9 @@ public final class StubCalculation
       switch (propertyName.hashCode()) {
         case 747425396:  // fixedRate
           this.fixedRate = (Double) newValue;
+          break;
+        case -158727813:  // knownAmount
+          this.knownAmount = (CurrencyAmount) newValue;
           break;
         case 100346066:  // index
           this.index = (IborIndex) newValue;
@@ -537,9 +612,10 @@ public final class StubCalculation
     }
 
     @Override
-    public StubCalculation build() {
-      return new StubCalculation(
+    public IborRateStubCalculation build() {
+      return new IborRateStubCalculation(
           fixedRate,
+          knownAmount,
           index,
           indexInterpolated);
     }
@@ -553,7 +629,8 @@ public final class StubCalculation
      * It is used in place of an observed fixing.
      * Other calculation elements, such as gearing or spread, still apply.
      * <p>
-     * If the fixed rate is present, then {@code index} and {@code indexInterpolated} must not be present.
+     * If the fixed rate is present, then {@code knownAmount}, {@code index} and
+     * {@code indexInterpolated} must not be present.
      * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
@@ -563,11 +640,24 @@ public final class StubCalculation
     }
 
     /**
+     * Sets the known amount to pay/receive for the stub.
+     * <p>
+     * If the known amount is present, then {@code fixedRate}, {@code index} and
+     * {@code indexInterpolated} must not be present.
+     * @param knownAmount  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder knownAmount(CurrencyAmount knownAmount) {
+      this.knownAmount = knownAmount;
+      return this;
+    }
+
+    /**
      * Sets the Ibor index to be used for the stub.
      * <p>
      * This will be used throughout the stub unless {@code indexInterpolated} is present.
      * <p>
-     * If the index is present, then {@code rate} must not be present.
+     * If the index is present, then {@code fixedRate} and {@code knownAmount} must not be present.
      * @param index  the new value
      * @return this, for chaining, not null
      */
@@ -582,8 +672,8 @@ public final class StubCalculation
      * This will be used with {@code index} to linearly interpolate the rate.
      * This index may be shorter or longer than {@code index}, but not the same.
      * <p>
-     * If the interpolated index is present, then {@code index} must also be present
-     * and {@code rate} must not be present.
+     * If the interpolated index is present, then {@code index} must also be present,
+     * and {@code fixedRate} and {@code knownAmount} must not be present.
      * @param indexInterpolated  the new value
      * @return this, for chaining, not null
      */
@@ -595,9 +685,10 @@ public final class StubCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("StubCalculation.Builder{");
+      StringBuilder buf = new StringBuilder(160);
+      buf.append("IborRateStubCalculation.Builder{");
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+      buf.append("knownAmount").append('=').append(JodaBeanUtils.toString(knownAmount)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated));
       buf.append('}');

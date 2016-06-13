@@ -39,22 +39,19 @@ public class FxResetNotionalExchangeTest {
   public void test_builder() {
     FxResetNotionalExchange test = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(USD)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA))
         .build();
     assertEquals(test.getPaymentDate(), DATE_2014_06_30);
     assertEquals(test.getReferenceCurrency(), USD);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), 1000d);
     assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, 1000d));
+    assertEquals(test.getNotional(), 1000d, 0d);
   }
 
   public void test_invalidCurrency() {
     assertThrowsIllegalArg(() -> FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(GBP)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(GBP, 1000d))
         .observation(FxIndexObservation.of(EUR_USD_ECB, DATE_2014_03_28, REF_DATA))
         .build());
   }
@@ -63,14 +60,12 @@ public class FxResetNotionalExchangeTest {
   public void test_adjustPaymentDate() {
     FxResetNotionalExchange test = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(USD)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA))
         .build();
     FxResetNotionalExchange expected = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30.plusDays(2))
-        .referenceCurrency(USD)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA))
         .build();
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
@@ -81,15 +76,13 @@ public class FxResetNotionalExchangeTest {
   public void coverage() {
     FxResetNotionalExchange test = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(USD)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA))
         .build();
     coverImmutableBean(test);
     FxResetNotionalExchange test2 = FxResetNotionalExchange.builder()
         .paymentDate(date(2014, 9, 30))
-        .referenceCurrency(EUR)
-        .notional(2000d)
+        .notionalAmount(CurrencyAmount.of(EUR, 2000d))
         .observation(FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA))
         .build();
     coverBeanEquals(test, test2);
@@ -98,8 +91,7 @@ public class FxResetNotionalExchangeTest {
   public void test_serialization() {
     FxResetNotionalExchange test = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(USD)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA))
         .build();
     assertSerialization(test);

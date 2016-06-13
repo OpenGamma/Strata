@@ -48,7 +48,7 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.StubCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -411,7 +411,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.builder()
             .index(IborIndices.USD_LIBOR_6M)
-            .initialStub(StubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
             .build())
         .build();
 
@@ -463,7 +463,7 @@ public class SwapPricingExample {
         .notionalSchedule(notional)
         .calculation(IborRateCalculation.builder()
             .index(IborIndices.USD_LIBOR_6M)
-            .initialStub(StubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(IborIndices.USD_LIBOR_3M, IborIndices.USD_LIBOR_6M))
             .build())
         .build();
 

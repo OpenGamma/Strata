@@ -165,7 +165,7 @@ public final class IborRateCalculation
    * If this property is present and there is no initial stub, it is ignored.
    */
   @PropertyDefinition(get = "optional")
-  private final StubCalculation initialStub;
+  private final IborRateStubCalculation initialStub;
   /**
    * The rate to be used in final stub, optional.
    * <p>
@@ -178,7 +178,7 @@ public final class IborRateCalculation
    * If this property is present and there is no final stub, it is ignored.
    */
   @PropertyDefinition(get = "optional")
-  private final StubCalculation finalStub;
+  private final IborRateStubCalculation finalStub;
   /**
    * The gearing multiplier, optional.
    * <p>
@@ -279,8 +279,8 @@ public final class IborRateCalculation
     if ((scheduleInitialStub.isPresent() && initialStub == null) ||
         (scheduleFinalStub.isPresent() && finalStub == null)) {
       return toBuilder()
-          .initialStub(firstNonNull(initialStub, StubCalculation.NONE))
-          .finalStub(firstNonNull(finalStub, StubCalculation.NONE))
+          .initialStub(firstNonNull(initialStub, IborRateStubCalculation.NONE))
+          .finalStub(firstNonNull(finalStub, IborRateStubCalculation.NONE))
           .build()
           .createAccrualPeriods(accrualSchedule, paymentSchedule, refData);
     }
@@ -408,8 +408,8 @@ public final class IborRateCalculation
       DaysAdjustment fixingDateOffset,
       NegativeRateMethod negativeRateMethod,
       Double firstRegularRate,
-      StubCalculation initialStub,
-      StubCalculation finalStub,
+      IborRateStubCalculation initialStub,
+      IborRateStubCalculation finalStub,
       ValueSchedule gearing,
       ValueSchedule spread) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
@@ -566,7 +566,7 @@ public final class IborRateCalculation
    * If this property is present and there is no initial stub, it is ignored.
    * @return the optional value of the property, not null
    */
-  public Optional<StubCalculation> getInitialStub() {
+  public Optional<IborRateStubCalculation> getInitialStub() {
     return Optional.ofNullable(initialStub);
   }
 
@@ -583,7 +583,7 @@ public final class IborRateCalculation
    * If this property is present and there is no final stub, it is ignored.
    * @return the optional value of the property, not null
    */
-  public Optional<StubCalculation> getFinalStub() {
+  public Optional<IborRateStubCalculation> getFinalStub() {
     return Optional.ofNullable(finalStub);
   }
 
@@ -743,13 +743,13 @@ public final class IborRateCalculation
     /**
      * The meta-property for the {@code initialStub} property.
      */
-    private final MetaProperty<StubCalculation> initialStub = DirectMetaProperty.ofImmutable(
-        this, "initialStub", IborRateCalculation.class, StubCalculation.class);
+    private final MetaProperty<IborRateStubCalculation> initialStub = DirectMetaProperty.ofImmutable(
+        this, "initialStub", IborRateCalculation.class, IborRateStubCalculation.class);
     /**
      * The meta-property for the {@code finalStub} property.
      */
-    private final MetaProperty<StubCalculation> finalStub = DirectMetaProperty.ofImmutable(
-        this, "finalStub", IborRateCalculation.class, StubCalculation.class);
+    private final MetaProperty<IborRateStubCalculation> finalStub = DirectMetaProperty.ofImmutable(
+        this, "finalStub", IborRateCalculation.class, IborRateStubCalculation.class);
     /**
      * The meta-property for the {@code gearing} property.
      */
@@ -888,7 +888,7 @@ public final class IborRateCalculation
      * The meta-property for the {@code initialStub} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StubCalculation> initialStub() {
+    public MetaProperty<IborRateStubCalculation> initialStub() {
       return initialStub;
     }
 
@@ -896,7 +896,7 @@ public final class IborRateCalculation
      * The meta-property for the {@code finalStub} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StubCalculation> finalStub() {
+    public MetaProperty<IborRateStubCalculation> finalStub() {
       return finalStub;
     }
 
@@ -970,8 +970,8 @@ public final class IborRateCalculation
     private DaysAdjustment fixingDateOffset;
     private NegativeRateMethod negativeRateMethod;
     private Double firstRegularRate;
-    private StubCalculation initialStub;
-    private StubCalculation finalStub;
+    private IborRateStubCalculation initialStub;
+    private IborRateStubCalculation finalStub;
     private ValueSchedule gearing;
     private ValueSchedule spread;
 
@@ -1056,10 +1056,10 @@ public final class IborRateCalculation
           this.firstRegularRate = (Double) newValue;
           break;
         case 1233359378:  // initialStub
-          this.initialStub = (StubCalculation) newValue;
+          this.initialStub = (IborRateStubCalculation) newValue;
           break;
         case 355242820:  // finalStub
-          this.finalStub = (StubCalculation) newValue;
+          this.finalStub = (IborRateStubCalculation) newValue;
           break;
         case -91774989:  // gearing
           this.gearing = (ValueSchedule) newValue;
@@ -1247,7 +1247,7 @@ public final class IborRateCalculation
      * @param initialStub  the new value
      * @return this, for chaining, not null
      */
-    public Builder initialStub(StubCalculation initialStub) {
+    public Builder initialStub(IborRateStubCalculation initialStub) {
       this.initialStub = initialStub;
       return this;
     }
@@ -1265,7 +1265,7 @@ public final class IborRateCalculation
      * @param finalStub  the new value
      * @return this, for chaining, not null
      */
-    public Builder finalStub(StubCalculation finalStub) {
+    public Builder finalStub(IborRateStubCalculation finalStub) {
       this.finalStub = finalStub;
       return this;
     }

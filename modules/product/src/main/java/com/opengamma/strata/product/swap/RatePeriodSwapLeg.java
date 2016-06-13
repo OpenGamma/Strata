@@ -231,7 +231,7 @@ public final class RatePeriodSwapLeg
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
     DateAdjuster paymentDateAdjuster = paymentBusinessDayAdjustment.resolve(refData);
-    ImmutableList<RatePaymentPeriod> adjusted = paymentPeriods.stream()
+    ImmutableList<NotionalPaymentPeriod> adjusted = paymentPeriods.stream()
         .map(pp -> pp.adjustPaymentDate(paymentDateAdjuster))
         .collect(toImmutableList());
     return ResolvedSwapLeg.builder()
@@ -244,7 +244,7 @@ public final class RatePeriodSwapLeg
 
   // notional exchange events
   private ImmutableList<PaymentEvent> createEvents(
-      List<RatePaymentPeriod> adjPaymentPeriods,
+      List<NotionalPaymentPeriod> adjPaymentPeriods,
       DateAdjuster paymentDateAdjuster,
       ReferenceData refData) {
 

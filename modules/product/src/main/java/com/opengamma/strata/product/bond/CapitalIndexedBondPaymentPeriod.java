@@ -29,13 +29,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
-import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
+import com.opengamma.strata.product.swap.PaymentPeriod;
 
 /**
  * A coupon or nominal payment of capital indexed bonds.
@@ -46,7 +45,7 @@ import com.opengamma.strata.product.swap.NotionalPaymentPeriod;
  */
 @BeanDefinition
 public final class CapitalIndexedBondPaymentPeriod
-    implements NotionalPaymentPeriod, ImmutableBean, Serializable {
+    implements PaymentPeriod, ImmutableBean, Serializable {
 
   /**
    * The primary currency of the payment period.
@@ -194,11 +193,6 @@ public final class CapitalIndexedBondPaymentPeriod
   @Override
   public LocalDate getPaymentDate() {
     return getEndDate();
-  }
-
-  @Override
-  public CurrencyAmount getNotionalAmount() {
-    return CurrencyAmount.of(currency, notional);
   }
 
   /**

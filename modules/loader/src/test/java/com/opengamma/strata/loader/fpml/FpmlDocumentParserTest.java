@@ -113,7 +113,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.StubCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
@@ -517,7 +517,7 @@ public class FpmlDocumentParserTest {
             .index(EUR_LIBOR_6M)
             .dayCount(ACT_360)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
-            .initialStub(StubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
             .build())
         .build();
     RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
@@ -578,7 +578,7 @@ public class FpmlDocumentParserTest {
             .index(EUR_LIBOR_6M)
             .dayCount(ACT_360)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, SAT_SUN))
-            .initialStub(StubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
             .build())
         .build();
     RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
@@ -793,8 +793,8 @@ public class FpmlDocumentParserTest {
             .index(EUR_EURIBOR_6M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, EUTA))
             .spread(ValueSchedule.of(0.001))
-            .initialStub(StubCalculation.ofFixedRate(0.05125))
-            .finalStub(StubCalculation.ofIborRate(EUR_EURIBOR_3M))
+            .initialStub(IborRateStubCalculation.ofFixedRate(0.05125))
+            .finalStub(IborRateStubCalculation.ofIborRate(EUR_EURIBOR_3M))
             .build())
         .build();
     RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()

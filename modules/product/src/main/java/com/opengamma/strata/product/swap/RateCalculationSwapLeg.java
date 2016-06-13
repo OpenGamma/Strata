@@ -148,7 +148,7 @@ public final class RateCalculationSwapLeg
     Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
-    List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
+    List<NotionalPaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive, refData);
     LocalDate startDate = accrualPeriods.get(0).getStartDate();
     return ResolvedSwapLeg.builder()
