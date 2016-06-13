@@ -323,7 +323,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     CurveNode[] dscNodes = CURVES_NODES.get(0).get(0);
     List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.length; i++) {
-      dscTrades.add(dscNodes[i].resolvedTrade(valDate, ALL_QUOTES_BD, REF_DATA));
+      dscTrades.add(dscNodes[i].resolvedTrade(valDate, 1.0d, ALL_QUOTES_BD, REF_DATA));
     }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
@@ -335,7 +335,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(valDate, ALL_QUOTES_BD, REF_DATA));
+      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(valDate, 1.0d, ALL_QUOTES_BD, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing = FIXING_PRICER.presentValue(

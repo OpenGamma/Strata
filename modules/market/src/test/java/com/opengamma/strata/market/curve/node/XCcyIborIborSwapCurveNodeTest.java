@@ -135,21 +135,22 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertTrue(set.equals(setExpected));
   }
 
-  public void test_trade() {
+  public void test_trade_quantity() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
-    SwapTrade trade = node.trade(tradeDate, OV, REF_DATA);
+    double quantity = -1234.56;
+    SwapTrade trade = node.trade(tradeDate, quantity, OV, REF_DATA);
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, -quantity, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
     assertEquals(trade, expected);
-    assertEquals(node.resolvedTrade(tradeDate, OV, REF_DATA), trade.resolve(REF_DATA));
+    assertEquals(node.resolvedTrade(tradeDate, quantity, OV, REF_DATA), trade.resolve(REF_DATA));
   }
 
   public void test_trade_noMarketData() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1.0, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

@@ -125,7 +125,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      dscTrades.add(dscNodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     // OIS
     for (int i = 0; i < DSC_MARKET_QUOTES.length; i++) {
@@ -137,7 +137,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      fwd3Trades.add(fwd3Nodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     // FRA
     for (int i = 0; i < FWD3_FRA_QUOTES.length; i++) {
@@ -155,7 +155,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<ResolvedTrade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      fwd6Trades.add(fwd6Nodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     // IRS
     for (int i = 0; i < FWD6_IRS_QUOTES.length; i++) {
@@ -201,7 +201,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> dscNodes = definitions.get(0).getNodes();
     List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.size(); i++) {
-      dscTrades.add(dscNodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      dscTrades.add(dscNodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     // OIS
     for (int loopnode = 0; loopnode < DSC_MARKET_QUOTES.length; loopnode++) {
@@ -223,7 +223,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.size(); i++) {
-      fwd3Trades.add(fwd3Nodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      fwd3Trades.add(fwd3Nodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     for (int loopnode = 0; loopnode < fwd3MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;
@@ -259,7 +259,7 @@ public class CalibrationDiscountingSimpleEur3Test {
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
     List<ResolvedTrade> fwd6Trades = new ArrayList<>();
     for (int i = 0; i < fwd6Nodes.size(); i++) {
-      fwd6Trades.add(fwd6Nodes.get(i).resolvedTrade(VAL_DATE, allQuotes, REF_DATA));
+      fwd6Trades.add(fwd6Nodes.get(i).resolvedTrade(VAL_DATE, 1.0d, allQuotes, REF_DATA));
     }
     for (int loopnode = 0; loopnode < fwd6MarketQuotes.length; loopnode++) {
       PointSensitivities pts = null;

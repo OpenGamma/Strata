@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
@@ -49,6 +50,8 @@ import com.opengamma.strata.product.ResolvedTrade;
  * <p>
  * Once calibrated, the curves are then available for use.
  * Each node in the curve definition becomes a parameter in the matching output curve.
+ * <p>
+ * 
  */
 public final class CurveCalibrator {
 
@@ -70,6 +73,15 @@ public final class CurveCalibrator {
    * This is used to compute the function for which the root is found.
    */
   private final CalibrationMeasures measures;
+  
+
+  private static final CalibrationMeasures PV_MEASURES = CalibrationMeasures.of(
+      "PresentValue",
+      PresentValueCalibrationMeasure.FRA_PV,
+      PresentValueCalibrationMeasure.IBOR_FIXING_DEPOSIT_PV,
+      PresentValueCalibrationMeasure.IBOR_FUTURE_PV,
+      PresentValueCalibrationMeasure.SWAP_PV,
+      PresentValueCalibrationMeasure.TERM_DEPOSIT_PV);
 
   //-------------------------------------------------------------------------
   /**
@@ -152,6 +164,8 @@ public final class CurveCalibrator {
    * <p>
    * The calibration is defined using {@link CurveGroupDefinition}.
    * Observable market data, time-series and FX are also needed to complete the calibration.
+   * <p>
+   * The Jacobian matrices are computed and stored in curve metadata.
    *
    * @param curveGroupDefn  the curve group definition
    * @param valuationDate  the validation date
@@ -186,6 +200,7 @@ public final class CurveCalibrator {
    * @param knownData  the starting data for the calibration
    * @param marketData  the market data required to build a trade for the instrument
    * @param refData  the reference data, used to resolve the trades
+   * should be computed and stored in metadata or not
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
@@ -214,12 +229,19 @@ public final class CurveCalibrator {
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
       // use calibration to build Jacobian matrices
-      jacobians = updateJacobiansForGroup(
-          calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
+      if (groupDefn.isComputeJacobian()) {
+        jacobians = updateJacobiansForGroup(
+            calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
+      }
+      ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuote = ImmutableMap.of();
+      if (groupDefn.isComputePvSensitivityToMarketQuote()) {
+        ImmutableRatesProvider providerWithJacobian = providerGenerator.generate(calibratedGroupParams, jacobians);
+        sensitivityToMarketQuote = sensitivityToMarketQuoteForGroup(providerWithJacobian, trades, orderGroup);
+      }
       orderPrev = orderPrevAndGroup;
 
       // use Jacobians to build output curves
-      providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians);
+      providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians, sensitivityToMarketQuote);
     }
     // return the calibrated provider
     return providerCombined;
@@ -296,6 +318,26 @@ public final class CurveCalibrator {
       startIndex += paramCount;
     }
     return jacobianBuilder.build();
+  }
+  
+  private ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuoteForGroup(
+      ImmutableRatesProvider provider,
+      ImmutableList<ResolvedTrade> trades,
+      ImmutableList<CurveParameterSize> orderGroup){    
+
+    Builder<CurveName, DoubleArray> mqsGroup = new Builder<>();
+    int nodeIndex = 0;
+    for (CurveParameterSize cps : orderGroup) {
+      int nbParameters = cps.getParameterCount();
+      double[] mqsCurve = new double[nbParameters];
+      for (int looptrade = 0; looptrade < nbParameters; looptrade++) {
+        DoubleArray mqsNode = PV_MEASURES.derivative(trades.get(nodeIndex), provider, orderGroup);
+        mqsCurve[looptrade] = mqsNode.get(nodeIndex);
+        nodeIndex++;
+      }
+      mqsGroup.put(cps.getName(), DoubleArray.ofUnsafe(mqsCurve));
+    }    
+    return mqsGroup.build();    
   }
 
   // calculate the derivatives

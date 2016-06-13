@@ -168,14 +168,15 @@ public final class FraCurveNode
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public FraTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+    return template.createTrade(valuationDate, (quantity > 0) ? BuySell.SELL : BuySell.BUY, Math.abs(quantity), fixedRate,
+        refData);
   }
 
   @Override
-  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override

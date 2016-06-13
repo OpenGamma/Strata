@@ -390,7 +390,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV USD;
     List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (CurveNode USD_DSC_NODE : USD_DSC_NODES) {
-      usdTrades.add(USD_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      usdTrades.add(USD_DSC_NODE.resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < 2; i++) {
@@ -407,7 +407,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV USD Fwd3
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < USD_FWD3_NB_NODES; i++) {
-      fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing = FIXING_PRICER.presentValue(
@@ -428,7 +428,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test DSC EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (CurveNode EUR_DSC_NODE : EUR_DSC_NODES) {
-      eurTrades.add(EUR_DSC_NODE.resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      eurTrades.add(EUR_DSC_NODE.resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
     }
     // FX
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
@@ -445,7 +445,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV EUR Fwd3
     List<ResolvedTrade> eurFwd3Trades = new ArrayList<>();
     for (int i = 0; i < EUR_FWD3_NB_NODES; i++) {
-      eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
+      eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount eurPvFixing = FIXING_PRICER.presentValue(

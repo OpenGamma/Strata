@@ -214,17 +214,31 @@ public final class XCcyIborIborSwapCurveNode
     return ibor.getFixingDate();
   }
 
+//  @Override
+//  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+//    double marketQuote = marketData.getValue(spreadId) + additionalSpread;
+//    FxRate fxRate = marketData.getValue(fxRateId);
+//    double rate = fxRate.fxRate(template.getCurrencyPair());
+//    return template.createTrade(valuationDate, BuySell.SELL, 1, rate, marketQuote, refData);
+//  }
+
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public SwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(spreadId) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
-    return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote, refData);
+    return template.createTrade(valuationDate, (quantity > 0) ? BuySell.SELL : BuySell.BUY, Math.abs(quantity), 
+        rate, marketQuote, refData);
   }
 
+//  @Override
+//  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+//    return trade(valuationDate, marketData, refData).resolve(refData);
+//  }
+
   @Override
-  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override
