@@ -37,15 +37,17 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PAR_RATE Par rate}
- *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
+ *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 PV01 semi-parallel gamma bucketed}
+ *   <li>{@linkplain Measures#PAR_RATE Par rate}
+ *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
- *   <li>{@linkplain Measures#PV01 PV01}
- *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
- *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 Bucketed Gamma PV01}
+ *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  * </ul>
  */
 public class FraCalculationFunction
@@ -56,14 +58,16 @@ public class FraCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
+          .put(Measures.PRESENT_VALUE, FraMeasureCalculations::presentValue)
+          .put(Measures.PV01, FraMeasureCalculations::pv01CalibratedSum)
+          .put(Measures.BUCKETED_PV01, FraMeasureCalculations::pv01CalibratedBucketed)
+          .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations::pv01SemiParallelGammaBucketed)
           .put(Measures.PAR_RATE, FraMeasureCalculations::parRate)
           .put(Measures.PAR_SPREAD, FraMeasureCalculations::parSpread)
-          .put(Measures.PRESENT_VALUE, FraMeasureCalculations::presentValue)
-          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations::explainPresentValue)
           .put(Measures.CASH_FLOWS, FraMeasureCalculations::cashFlows)
-          .put(Measures.PV01, FraMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, FraMeasureCalculations::bucketedPv01)
-          .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations::bucketedGammaPv01)
+          .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations::currencyExposure)
+          .put(Measures.CURRENT_CASH, FraMeasureCalculations::currentCash)
+          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations::explainPresentValue)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
