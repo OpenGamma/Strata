@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
-import com.opengamma.strata.examples.report.TradePortfolio;
+import com.opengamma.strata.examples.report.TradeList;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.IndexReferenceInformation;
@@ -45,28 +45,28 @@ public class CdsTradeExample {
    */
   public static void main(String[] args) {
 
-    String xmlString = serializePretty(portfolio);
-    System.out.println("Successfully serialized " + portfolio.toString());
+    String xmlString = serializePretty(tradeList);
+    System.out.println("Successfully serialized " + tradeList.toString());
     System.out.println("Serialized XML is:\n" + xmlString);
 
-    TradePortfolio deserializedPortfolioFromString = deserialize(xmlString);
+    TradeList deserializedPortfolioFromString = deserialize(xmlString);
     System.out.println("Successfully deserialized from string " + deserializedPortfolioFromString.toString());
 
-    TradePortfolio deserializedPortfolioFromFile = deserialize(loadExamplePortfolio());
+    TradeList deserializedPortfolioFromFile = deserialize(loadExamplePortfolio());
     System.out.println("Successfully deserialized from file " + deserializedPortfolioFromFile.toString());
 
   }
 
-  public static String serializeCompact(TradePortfolio portfolio) {
-    return JodaBeanSer.COMPACT.xmlWriter().write(portfolio);
+  public static String serializeCompact(TradeList tradeList) {
+    return JodaBeanSer.COMPACT.xmlWriter().write(tradeList);
   }
 
-  public static String serializePretty(TradePortfolio portfolio) {
-    return JodaBeanSer.PRETTY.xmlWriter().write(portfolio);
+  public static String serializePretty(TradeList tradeList) {
+    return JodaBeanSer.PRETTY.xmlWriter().write(tradeList);
   }
 
-  public static TradePortfolio deserialize(String xmlString) {
-    return JodaBeanSer.COMPACT.xmlReader().read(xmlString, TradePortfolio.class);
+  public static TradeList deserialize(String xmlString) {
+    return JodaBeanSer.COMPACT.xmlReader().read(xmlString, TradeList.class);
   }
 
   public static String loadExamplePortfolio() {
@@ -122,6 +122,6 @@ public class CdsTradeExample {
       comp02,
       index0001);
 
-  public static TradePortfolio portfolio = TradePortfolio.of(trades);
+  public static TradeList tradeList = TradeList.of(trades);
 
 }
