@@ -71,8 +71,8 @@ public class ReportRunnerTool implements AutoCloseable {
       names = {"-p", "--portfolio"},
       description = "Portfolio input file",
       required = true,
-      converter = PortfolioParameterConverter.class)
-  private TradePortfolio portfolio;
+      converter = TradeListParameterConverter.class)
+  private TradeList tradeList;
 
   @Parameter(
       names = {"-d", "--date"},
@@ -179,9 +179,9 @@ public class ReportRunnerTool implements AutoCloseable {
     List<Trade> trades;
 
     if (Strings.nullToEmpty(idSearch).trim().isEmpty()) {
-      trades = portfolio.getTrades();
+      trades = tradeList.getTrades();
     } else {
-      trades = portfolio.getTrades().stream()
+      trades = tradeList.getTrades().stream()
           .filter(t -> t.getInfo().getId().isPresent())
           .filter(t -> t.getInfo().getId().get().getValue().equals(idSearch))
           .collect(toImmutableList());
