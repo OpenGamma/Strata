@@ -19,7 +19,9 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 
 /**
- * 
+ * Calculator to obtain the notional equivalent.
+ * <p>
+ * This needs the {@link DoubleArray} with present value sensitivity to market quotes to obtained during curve calibration.
  */
 public class NotionalEquivalentCalculator {
 
