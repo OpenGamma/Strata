@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
@@ -168,6 +169,32 @@ public class DiscountingPaymentPricer {
     }
     DiscountFactors discountFactors = provider.discountFactors(payment.getCurrency());
     return discountFactors.zeroRatePointSensitivity(payment.getDate()).multipliedBy(payment.getAmount());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(Payment payment, BaseProvider provider) {
+    return MultiCurrencyAmount.of(presentValue(payment, provider));
+  }
+
+  /**
+   * Calculates the current cash.
+   * 
+   * @param payment  the payment
+   * @param provider  the rates provider
+   * @return the current cash
+   */
+  public CurrencyAmount currentCash(Payment payment, BaseProvider provider) {
+    if (payment.getDate().isEqual(provider.getValuationDate())) {
+      return payment.getValue();
+    }
+    return CurrencyAmount.zero(payment.getCurrency());
   }
 
 }

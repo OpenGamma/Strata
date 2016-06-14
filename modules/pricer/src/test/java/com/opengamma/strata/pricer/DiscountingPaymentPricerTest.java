@@ -16,6 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curves;
@@ -168,6 +169,22 @@ public class DiscountingPaymentPricerTest {
     PointSensitivities computed =
         PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, 3).build();
     assertEquals(computed, PointSensitivities.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_currencyExposure() {
+    assertEquals(
+        PRICER.currencyExposure(PAYMENT, PROVIDER),
+        MultiCurrencyAmount.of(PRICER.presentValue(PAYMENT, PROVIDER)));
+  }
+
+  public void test_currentCash_onDate() {
+    SimpleRatesProvider prov = new SimpleRatesProvider(PAYMENT.getDate(), DISCOUNT_FACTORS);
+    assertEquals(PRICER.currentCash(PAYMENT, prov), PAYMENT.getValue());
+  }
+
+  public void test_currentCash_past() {
+    assertEquals(PRICER.currentCash(PAYMENT_PAST, PROVIDER), CurrencyAmount.zero(USD));
   }
 
 }
