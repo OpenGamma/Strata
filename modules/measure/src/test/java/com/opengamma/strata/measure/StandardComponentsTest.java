@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.deposit.TermDepositCalculationFunctionTest;
-import com.opengamma.strata.measure.fra.FraCalculationFunctionTest;
+import com.opengamma.strata.measure.fra.FraTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxNdfCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxSingleCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxSwapCalculationFunctionTest;
@@ -27,7 +27,7 @@ public class StandardComponentsTest {
 
   public void test_standard() {
     CalculationFunctions test = StandardComponents.calculationFunctions();
-    assertEquals(test.findFunction(FraCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(FraTradeCalculationFunctionTest.TRADE).isPresent(), true);
     assertEquals(test.findFunction(FxSingleCalculationFunctionTest.TRADE).isPresent(), true);
     assertEquals(test.findFunction(FxNdfCalculationFunctionTest.TRADE).isPresent(), true);
     assertEquals(test.findFunction(FxSwapCalculationFunctionTest.TRADE).isPresent(), true);

@@ -6,7 +6,6 @@
 package com.opengamma.strata.measure.fra;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -44,16 +43,18 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.fra.FraDummyData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 
 /**
- * Test {@link FraCalculationFunction}.
+ * Test {@link FraTradeCalculationFunction}.
  */
 @Test
-public class FraCalculationFunctionTest {
+public class FraTradeCalculationFunctionTest {
 
   public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
 
@@ -70,7 +71,7 @@ public class FraCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    FraCalculationFunction function = new FraCalculationFunction();
+    FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -81,19 +82,27 @@ public class FraCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    FraCalculationFunction function = new FraCalculationFunction();
+    FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
-    DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
-    ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
+    DiscountingFraTradePricer pricer = DiscountingFraTradePricer.DEFAULT;
+    ResolvedFraTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
     double expectedParRate = pricer.parRate(resolved, provider);
     double expectedParSpread = pricer.parSpread(resolved, provider);
     ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
+    MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(resolved, provider);
+    CurrencyAmount expectedCurrentCash = pricer.currentCash(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
-        Measures.PRESENT_VALUE, Measures.PAR_RATE, Measures.PAR_SPREAD, Measures.EXPLAIN_PRESENT_VALUE, Measures.CASH_FLOWS);
+        Measures.PRESENT_VALUE,
+        Measures.PAR_RATE,
+        Measures.PAR_SPREAD,
+        Measures.CASH_FLOWS,
+        Measures.CURRENCY_EXPOSURE,
+        Measures.CURRENT_CASH,
+        Measures.EXPLAIN_PRESENT_VALUE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
@@ -104,28 +113,32 @@ public class FraCalculationFunctionTest {
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(
-            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
+            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))))
         .containsEntry(
-            Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))));
+            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure))))
+        .containsEntry(
+            Measures.CURRENT_CASH, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash))))
+        .containsEntry(
+            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))));
   }
 
   public void test_pv01() {
-    FraCalculationFunction function = new FraCalculationFunction();
+    FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
-    MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
-    CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
+    MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
+    CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
+            Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
   //-------------------------------------------------------------------------
@@ -135,11 +148,6 @@ public class FraCalculationFunctionTest {
         VAL_DATE,
         ImmutableMap.of(DISCOUNT_CURVE_ID, curve, FORWARD_CURVE_ID, curve),
         ImmutableMap.of());
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(FraMeasureCalculations.class);
   }
 
 }

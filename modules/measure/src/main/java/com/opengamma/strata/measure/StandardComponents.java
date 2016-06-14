@@ -20,7 +20,7 @@ import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveMarketDataFunction;
 import com.opengamma.strata.measure.deposit.TermDepositCalculationFunction;
 import com.opengamma.strata.measure.dsf.DsfCalculationFunction;
-import com.opengamma.strata.measure.fra.FraCalculationFunction;
+import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxNdfCalculationFunction;
 import com.opengamma.strata.measure.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.measure.fx.FxSingleCalculationFunction;
@@ -68,7 +68,7 @@ public class StandardComponents {
       new BulletPaymentCalculationFunction(),
       new CdsCalculationFunction(),
       new DsfCalculationFunction(),
-      new FraCalculationFunction(),
+      new FraTradeCalculationFunction(),
       new FxNdfCalculationFunction(),
       new FxSingleCalculationFunction(),
       new FxSwapCalculationFunction(),
