@@ -153,8 +153,14 @@ public final class IborRateStubCalculation
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
+    if (fixedRate != null && knownAmount != null) {
+      throw new IllegalArgumentException("Either rate or amount may be specified, not both");
+    }
     if (fixedRate != null && index != null) {
       throw new IllegalArgumentException("Either rate or index may be specified, not both");
+    }
+    if (index != null && knownAmount != null) {
+      throw new IllegalArgumentException("Either index or amount may be specified, not both");
     }
     if (indexInterpolated != null) {
       if (index == null) {

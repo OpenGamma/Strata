@@ -192,7 +192,7 @@ public final class KnownAmountNotionalPaymentPeriod
       }
       if (!fxResetObservation.getIndex().getCurrencyPair().contains(notionalCcy)) {
         throw new IllegalArgumentException(Messages.format(
-            "Notional currency {} must be one of those in the FxReset index {}", payCcy, fxResetObservation.getIndex()));
+            "Notional currency {} must be one of those in the FxReset index {}", notionalCcy, fxResetObservation.getIndex()));
       }
     } else {
       if (!notionalCcy.equals(payCcy)) {

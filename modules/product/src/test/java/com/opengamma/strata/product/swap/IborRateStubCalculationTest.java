@@ -101,6 +101,20 @@ public class IborRateStubCalculationTest {
         .build());
   }
 
+  public void test_builder_invalid_fixedAndKnown() {
+    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+        .fixedRate(0.025d)
+        .knownAmount(GBP_P1000)
+        .build());
+  }
+
+  public void test_builder_invalid_knownAndIbor() {
+    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+        .knownAmount(GBP_P1000)
+        .index(GBP_LIBOR_3M)
+        .build());
+  }
+
   public void test_builder_invalid_interpolatedWithoutBase() {
     assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
         .indexInterpolated(GBP_LIBOR_3M)
