@@ -19,7 +19,7 @@ import com.opengamma.strata.product.fx.ResolvedFxSwap;
 /**
  * Pricer for foreign exchange swap transaction products.
  * <p>
- * This function provides the ability to price an {@link ResolvedFxSwap}.
+ * This provides the ability to price an {@link ResolvedFxSwap}.
  */
 public class DiscountingFxSwapProductPricer {
 
@@ -78,20 +78,7 @@ public class DiscountingFxSwapProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the currency exposure of the FX swap product.
-   * <p>
-   * This discounts each payment on each leg in its own currency.
-   * 
-   * @param product  the product
-   * @param provider  the rates provider
-   * @return the currency exposure
-   */
-  public MultiCurrencyAmount currencyExposure(ResolvedFxSwap product, RatesProvider provider) {
-    return presentValue(product, provider);
-  }
-
-  /**
-   * Calculates the par spread. 
+   * Calculates the par spread.
    * <p>
    * The par spread is the spread that should be added to the FX forward points to have a zero value.
    * 
@@ -136,6 +123,20 @@ public class DiscountingFxSwapProductPricer {
     return result.combinedWith(dpvdrConverted.multipliedBy(pvCounterCcyBar));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure of the FX swap product.
+   * <p>
+   * This discounts each payment on each leg in its own currency.
+   * 
+   * @param product  the product
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(ResolvedFxSwap product, RatesProvider provider) {
+    return presentValue(product, provider);
+  }
+
   /**
    * Calculates the current cash of the FX swap product.
    * 
@@ -148,4 +149,5 @@ public class DiscountingFxSwapProductPricer {
     MultiCurrencyAmount nearPv = fxPricer.currentCash(swap.getNearLeg(), valuationDate);
     return nearPv.plus(farPv);
   }
+
 }

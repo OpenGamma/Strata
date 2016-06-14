@@ -17,7 +17,7 @@ import com.opengamma.strata.product.fx.ResolvedFxNdf;
 /**
  * Pricer for FX non-deliverable forward (NDF) products.
  * <p>
- * This function provides the ability to price an {@link ResolvedFxNdf}.
+ * This provides the ability to price an {@link ResolvedFxNdf}.
  * The product is priced using forward curves for the currency pair.
  */
 public class DiscountingFxNdfProductPricer {
@@ -89,7 +89,7 @@ public class DiscountingFxNdfProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure by discounting each payment in its own currency.
+   * Calculates the currency exposure by discounting each payment in its own currency.
    * 
    * @param ndf  the product
    * @param provider  the rates provider

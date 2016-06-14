@@ -185,7 +185,7 @@ public class DiscountingFxNdfProductPricerTest {
   private static final DiscountingFxSingleProductPricer PRICER_FX = DiscountingFxSingleProductPricer.DEFAULT;
 
   // Checks that the NDF present value is coherent with the standard FX forward present value.
-  public void presentValueVsForex() {
+  public void test_presentValueVsForex() {
     CurrencyAmount pvNDF = PRICER.presentValue(NDF, PROVIDER);
     MultiCurrencyAmount pvFX = PRICER_FX.presentValue(FOREX, PROVIDER);
     assertEquals(
@@ -195,7 +195,7 @@ public class DiscountingFxNdfProductPricerTest {
   }
 
   // Checks that the NDF currency exposure is coherent with the standard FX forward present value.
-  public void currencyExposureVsForex() {
+  public void test_currencyExposureVsForex() {
     MultiCurrencyAmount pvNDF = PRICER.currencyExposure(NDF, PROVIDER);
     MultiCurrencyAmount pvFX = PRICER_FX.currencyExposure(FOREX, PROVIDER);
     assertEquals(pvNDF.getAmount(USD).getAmount(), pvFX.getAmount(USD).getAmount(), NOMINAL_USD * TOL);
@@ -204,14 +204,14 @@ public class DiscountingFxNdfProductPricerTest {
   }
 
   // Checks that the NDF forward rate is coherent with the standard FX forward present value.
-  public void forwardRateVsForex() {
+  public void test_forwardRateVsForex() {
     FxRate fwdNDF = PRICER.forwardFxRate(NDF, PROVIDER);
     FxRate fwdFX = PRICER_FX.forwardFxRate(FOREX, PROVIDER);
     assertEquals(fwdNDF.fxRate(fwdNDF.getPair()), fwdFX.fxRate(fwdFX.getPair()), 1e-10);
   }
 
   // Checks that the NDF present value sensitivity is coherent with the standard FX forward present value.
-  public void presentValueCurveSensitivityVsForex() {
+  public void test_presentValueCurveSensitivityVsForex() {
     PointSensitivities pvcsNDF = PRICER.presentValueSensitivity(NDF, PROVIDER).normalized();
     CurrencyParameterSensitivities sensiNDF = PROVIDER.parameterSensitivity(pvcsNDF);
     PointSensitivities pvcsFX = PRICER_FX.presentValueSensitivity(FOREX, PROVIDER).normalized();

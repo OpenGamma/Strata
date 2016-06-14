@@ -21,7 +21,7 @@ import com.opengamma.strata.product.fx.ResolvedFxSingle;
 /**
  * Pricer for foreign exchange transaction products.
  * <p>
- * This function provides the ability to price an {@link ResolvedFxSingle}.
+ * This provides the ability to price an {@link ResolvedFxSingle}.
  */
 public class DiscountingFxSingleProductPricer {
 
@@ -48,7 +48,7 @@ public class DiscountingFxSingleProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the present value of the FX product by discounting each payment in its own currency.
+   * Calculates the present value of the FX product by discounting each payment in its own currency.
    * 
    * @param fx  the product
    * @param provider  the rates provider
@@ -64,7 +64,7 @@ public class DiscountingFxSingleProductPricer {
   }
 
   /**
-   * Compute the present value curve sensitivity of the FX product.
+   * Calculates the present value curve sensitivity of the FX product.
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
@@ -84,18 +84,9 @@ public class DiscountingFxSingleProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the currency exposure by discounting each payment in its own currency.
-   * 
-   * @param product  the product
-   * @param provider  the rates provider
-   * @return the currency exposure
-   */
-  public MultiCurrencyAmount currencyExposure(ResolvedFxSingle product, RatesProvider provider) {
-    return presentValue(product, provider);
-  }
-
-  /**
-   * The par spread is the spread that should be added to the FX points to have a zero value.
+   * Calculates the par spread.
+   * <p>
+   * This is the spread that should be added to the FX points to have a zero value.
    * 
    * @param fx  the product
    * @param provider  the rates provider
@@ -111,8 +102,20 @@ public class DiscountingFxSingleProductPricer {
     return pvCounterCcy / (notionalBaseCcy * dfEnd);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Computes the current cash.
+   * Calculates the currency exposure by discounting each payment in its own currency.
+   * 
+   * @param product  the product
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(ResolvedFxSingle product, RatesProvider provider) {
+    return presentValue(product, provider);
+  }
+
+  /**
+   * Calculates the current cash.
    * 
    * @param fx  the product
    * @param valuationDate  the valuation date
@@ -127,7 +130,7 @@ public class DiscountingFxSingleProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Computes the forward exchange rate.
+   * Calculates the forward exchange rate.
    * 
    * @param fx  the product
    * @param provider  the rates provider
@@ -142,7 +145,7 @@ public class DiscountingFxSingleProductPricer {
   }
 
   /**
-   * Computes the forward exchange rate point sensitivity.
+   * Calculates the forward exchange rate point sensitivity.
    * <p>
    * The returned value is based on the direction of the FX product.
    * 
@@ -158,7 +161,7 @@ public class DiscountingFxSingleProductPricer {
   }
 
   /**
-   * Computes the sensitivity of the forward exchange rate to the spot rate.
+   * Calculates the sensitivity of the forward exchange rate to the spot rate.
    * <p>
    * The returned value is based on the direction of the FX product.
    * 
