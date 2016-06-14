@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -26,17 +25,16 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
-import com.opengamma.strata.product.fx.FxSingle;
-import com.opengamma.strata.product.fx.FxSingleTrade;
-import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
+import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
 
 /**
- * Perform calculations on a single {@code FxSingleTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code FxNdfTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01 PV01}
@@ -46,23 +44,22 @@ import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
  * </ul>
  * <p>
- * The "natural" currency is the base currency of the market convention pair of the two trade currencies.
+ * The "natural" currency is the settlement currency of the trade.
  */
-public class FxSingleCalculationFunction
-    implements CalculationFunction<FxSingleTrade> {
+public class FxNdfTradeCalculationFunction
+    implements CalculationFunction<FxNdfTrade> {
 
   /**
    * The calculations by measure.
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PAR_SPREAD, FxSingleMeasureCalculations::parSpread)
-          .put(Measures.PRESENT_VALUE, FxSingleMeasureCalculations::presentValue)
-          .put(Measures.PV01, FxSingleMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, FxSingleMeasureCalculations::bucketedPv01)
-          .put(Measures.CURRENCY_EXPOSURE, FxSingleMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, FxSingleMeasureCalculations::currentCash)
-          .put(Measures.FORWARD_FX_RATE, FxSingleMeasureCalculations::forwardFxRate)
+          .put(Measures.PRESENT_VALUE, FxNdfMeasureCalculations::presentValue)
+          .put(Measures.PV01, FxNdfMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, FxNdfMeasureCalculations::bucketedPv01)
+          .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations::currencyExposure)
+          .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations::currentCash)
+          .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations::forwardFxRate)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
@@ -73,13 +70,13 @@ public class FxSingleCalculationFunction
   /**
    * Creates an instance.
    */
-  public FxSingleCalculationFunction() {
+  public FxNdfTradeCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<FxSingleTrade> targetType() {
-    return FxSingleTrade.class;
+  public Class<FxNdfTrade> targetType() {
+    return FxNdfTrade.class;
   }
 
   @Override
@@ -88,26 +85,23 @@ public class FxSingleCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(FxSingleTrade trade, ReferenceData refData) {
-    Currency base = trade.getProduct().getBaseCurrencyAmount().getCurrency();
-    Currency counter = trade.getProduct().getCounterCurrencyAmount().getCurrency();
-    CurrencyPair marketConventionPair = CurrencyPair.of(base, counter).toConventional();
-    return marketConventionPair.getBase();
+  public Currency naturalCurrency(FxNdfTrade trade, ReferenceData refData) {
+    return trade.getProduct().getSettlementCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(
-      FxSingleTrade trade,
+      FxNdfTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ReferenceData refData) {
 
     // extract data from product
-    FxSingle fx = trade.getProduct();
-    Currency baseCurrency = fx.getBaseCurrencyAmount().getCurrency();
-    Currency counterCurrency = fx.getCounterCurrencyAmount().getCurrency();
-    ImmutableSet<Currency> currencies = ImmutableSet.of(baseCurrency, counterCurrency);
+    FxNdf fx = trade.getProduct();
+    Currency settleCurrency = fx.getSettlementCurrency();
+    Currency otherCurrency = fx.getNonDeliverableCurrency();
+    ImmutableSet<Currency> currencies = ImmutableSet.of(settleCurrency, otherCurrency);
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
@@ -117,14 +111,14 @@ public class FxSingleCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      FxSingleTrade trade,
+      FxNdfTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedFxSingleTrade resolved = trade.resolve(refData);
+    ResolvedFxNdfTrade resolved = trade.resolve(refData);
 
     // use lookup to query market data
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
@@ -143,7 +137,7 @@ public class FxSingleCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedFxSingleTrade trade,
+      ResolvedFxNdfTrade trade,
       RatesScenarioMarketData marketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -157,7 +151,7 @@ public class FxSingleCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioArray<?> calculate(
-        ResolvedFxSingleTrade trade,
+        ResolvedFxNdfTrade trade,
         RatesScenarioMarketData marketData);
   }
 

@@ -42,34 +42,43 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxSwapProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxSingle;
-import com.opengamma.strata.product.fx.FxSingleTrade;
-import com.opengamma.strata.product.fx.ResolvedFxSingle;
+import com.opengamma.strata.product.fx.FxSwap;
+import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwap;
 
 /**
- * Test {@link FxSingleCalculationFunction}.
+ * Test {@link FxSwapTradeCalculationFunction}.
  */
 @Test
-public class FxSingleCalculationFunctionTest {
+public class FxSwapTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
-  private static final FxSingle PRODUCT = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
-  public static final FxSingleTrade TRADE = FxSingleTrade.builder().product(PRODUCT).build();
+  private static final FxSingle LEG1 = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
+  private static final FxSingle LEG2 = FxSingle.of(GBP_P1000.negated(), USD_M1600.negated(), date(2015, 9, 30));
+  private static final FxSwap PRODUCT = FxSwap.of(LEG1, LEG2);
+  public static final FxSwapTrade TRADE = FxSwapTrade.builder()
+      .info(TradeInfo.builder()
+          .tradeDate(date(2015, 6, 1))
+          .build())
+      .product(PRODUCT)
+      .build();
   private static final CurveId DISCOUNT_CURVE_GBP_ID = CurveId.of("Default", "Discount-GBP");
   private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_ID, USD, DISCOUNT_CURVE_USD_ID),
       ImmutableMap.of());
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
-  private static final LocalDate VAL_DATE = TRADE.getProduct().getPaymentDate().minusDays(7);
+  private static final LocalDate VAL_DATE = TRADE.getProduct().getNearLeg().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    FxSingleCalculationFunction function = new FxSingleCalculationFunction();
+    FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsExactly(GBP, USD);
@@ -80,16 +89,15 @@ public class FxSingleCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    FxSingleCalculationFunction function = new FxSingleCalculationFunction();
+    FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
+    DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
+    ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
     double expectedParSpread = pricer.parSpread(resolved, provider);
     MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(resolved, provider);
     MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider.getValuationDate());
-    FxRate expectedForwardFx = pricer.forwardFxRate(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -108,17 +116,15 @@ public class FxSingleCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExp))))
         .containsEntry(
-            Measures.CURRENT_CASH, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCash))))
-        .containsEntry(
-            Measures.FORWARD_FX_RATE, Result.success(ScenarioArray.of(ImmutableList.of(expectedForwardFx))));
+            Measures.CURRENT_CASH, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCash))));
   }
 
   public void test_pv01() {
-    FxSingleCalculationFunction function = new FxSingleCalculationFunction();
+    FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
+    DiscountingFxSwapProductPricer pricer = DiscountingFxSwapProductPricer.DEFAULT;
+    ResolvedFxSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
@@ -148,7 +154,7 @@ public class FxSingleCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FxSingleMeasureCalculations.class);
+    coverPrivateConstructor(FxSwapMeasureCalculations.class);
   }
 
 }

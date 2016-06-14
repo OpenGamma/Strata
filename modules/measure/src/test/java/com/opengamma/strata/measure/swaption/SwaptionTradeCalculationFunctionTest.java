@@ -61,10 +61,10 @@ import com.opengamma.strata.product.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
- * Test {@link SwaptionCalculationFunction}.
+ * Test {@link SwaptionTradeCalculationFunction}.
  */
 @Test
-public class SwaptionCalculationFunctionTest {
+public class SwaptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double FIXED_RATE = 0.015;
@@ -105,7 +105,7 @@ public class SwaptionCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    SwaptionCalculationFunction function = new SwaptionCalculationFunction();
+    SwaptionTradeCalculationFunction function = new SwaptionTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -116,7 +116,7 @@ public class SwaptionCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    SwaptionCalculationFunction function = new SwaptionCalculationFunction();
+    SwaptionTradeCalculationFunction function = new SwaptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     NormalSwaptionPhysicalTradePricer pricer = NormalSwaptionPhysicalTradePricer.DEFAULT;

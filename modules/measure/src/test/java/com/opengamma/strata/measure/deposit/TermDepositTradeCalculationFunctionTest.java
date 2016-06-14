@@ -50,10 +50,10 @@ import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 
 /**
- * Test {@link TermDepositCalculationFunction}.
+ * Test {@link TermDepositTradeCalculationFunction}.
  */
 @Test
-public class TermDepositCalculationFunctionTest {
+public class TermDepositTradeCalculationFunctionTest {
 
   public static final TermDepositTrade TRADE = TermDepositTrade.builder()
       .info(TradeInfo.builder()
@@ -81,7 +81,7 @@ public class TermDepositCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    TermDepositCalculationFunction function = new TermDepositCalculationFunction();
+    TermDepositTradeCalculationFunction function = new TermDepositTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -91,7 +91,7 @@ public class TermDepositCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    TermDepositCalculationFunction function = new TermDepositCalculationFunction();
+    TermDepositTradeCalculationFunction function = new TermDepositTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;
@@ -117,7 +117,7 @@ public class TermDepositCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    TermDepositCalculationFunction function = new TermDepositCalculationFunction();
+    TermDepositTradeCalculationFunction function = new TermDepositTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingTermDepositProductPricer pricer = DiscountingTermDepositProductPricer.DEFAULT;

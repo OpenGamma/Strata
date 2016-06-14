@@ -42,7 +42,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  * <p>
  * The "natural" currency is determined from the first swap leg.
  */
-public class SwaptionCalculationFunction
+public class SwaptionTradeCalculationFunction
     implements CalculationFunction<SwaptionTrade> {
 
   /**
@@ -61,7 +61,7 @@ public class SwaptionCalculationFunction
   /**
    * Creates an instance.
    */
-  public SwaptionCalculationFunction() {
+  public SwaptionTradeCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------

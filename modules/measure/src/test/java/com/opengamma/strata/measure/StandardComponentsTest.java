@@ -12,12 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.measure.deposit.TermDepositCalculationFunctionTest;
+import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunctionTest;
-import com.opengamma.strata.measure.fx.FxNdfCalculationFunctionTest;
-import com.opengamma.strata.measure.fx.FxSingleCalculationFunctionTest;
-import com.opengamma.strata.measure.fx.FxSwapCalculationFunctionTest;
-import com.opengamma.strata.measure.swap.SwapCalculationFunctionTest;
+import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunctionTest;
+import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunctionTest;
+import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunctionTest;
+import com.opengamma.strata.measure.swap.SwapTradeCalculationFunctionTest;
 
 /**
  * Test {@link StandardComponents}.
@@ -28,11 +28,11 @@ public class StandardComponentsTest {
   public void test_standard() {
     CalculationFunctions test = StandardComponents.calculationFunctions();
     assertEquals(test.findFunction(FraTradeCalculationFunctionTest.TRADE).isPresent(), true);
-    assertEquals(test.findFunction(FxSingleCalculationFunctionTest.TRADE).isPresent(), true);
-    assertEquals(test.findFunction(FxNdfCalculationFunctionTest.TRADE).isPresent(), true);
-    assertEquals(test.findFunction(FxSwapCalculationFunctionTest.TRADE).isPresent(), true);
-    assertEquals(test.findFunction(SwapCalculationFunctionTest.TRADE).isPresent(), true);
-    assertEquals(test.findFunction(TermDepositCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(FxSingleTradeCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(FxNdfTradeCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(FxSwapTradeCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(SwapTradeCalculationFunctionTest.TRADE).isPresent(), true);
+    assertEquals(test.findFunction(TermDepositTradeCalculationFunctionTest.TRADE).isPresent(), true);
   }
 
   public void coverage() {

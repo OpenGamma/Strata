@@ -14,24 +14,24 @@ import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.measure.credit.CdsCalculationFunction;
+import com.opengamma.strata.measure.credit.CdsTradeCalculationFunction;
 import com.opengamma.strata.measure.curve.CurveGroupMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveInputsMarketDataFunction;
 import com.opengamma.strata.measure.curve.CurveMarketDataFunction;
-import com.opengamma.strata.measure.deposit.TermDepositCalculationFunction;
-import com.opengamma.strata.measure.dsf.DsfCalculationFunction;
+import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunction;
+import com.opengamma.strata.measure.dsf.DsfTradeCalculationFunction;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
-import com.opengamma.strata.measure.fx.FxNdfCalculationFunction;
+import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxRateMarketDataFunction;
-import com.opengamma.strata.measure.fx.FxSingleCalculationFunction;
-import com.opengamma.strata.measure.fx.FxSwapCalculationFunction;
-import com.opengamma.strata.measure.index.IborFutureCalculationFunction;
-import com.opengamma.strata.measure.payment.BulletPaymentCalculationFunction;
+import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunction;
+import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunction;
+import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
+import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
 import com.opengamma.strata.measure.security.GenericSecurityTradeCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityPositionCalculationFunction;
 import com.opengamma.strata.measure.security.SecurityTradeCalculationFunction;
-import com.opengamma.strata.measure.swap.SwapCalculationFunction;
-import com.opengamma.strata.measure.swaption.SwaptionCalculationFunction;
+import com.opengamma.strata.measure.swap.SwapTradeCalculationFunction;
+import com.opengamma.strata.measure.swaption.SwaptionTradeCalculationFunction;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityTrade;
@@ -65,20 +65,20 @@ public class StandardComponents {
    * The standard calculation functions.
    */
   private static final CalculationFunctions STANDARD = CalculationFunctions.of(
-      new BulletPaymentCalculationFunction(),
-      new CdsCalculationFunction(),
-      new DsfCalculationFunction(),
+      new BulletPaymentTradeCalculationFunction(),
+      new CdsTradeCalculationFunction(),
+      new DsfTradeCalculationFunction(),
       new FraTradeCalculationFunction(),
-      new FxNdfCalculationFunction(),
-      new FxSingleCalculationFunction(),
-      new FxSwapCalculationFunction(),
+      new FxNdfTradeCalculationFunction(),
+      new FxSingleTradeCalculationFunction(),
+      new FxSwapTradeCalculationFunction(),
       new GenericSecurityTradeCalculationFunction(),
-      new IborFutureCalculationFunction(),
+      new IborFutureTradeCalculationFunction(),
       new SecurityPositionCalculationFunction(),
       new SecurityTradeCalculationFunction(),
-      new SwapCalculationFunction(),
-      new SwaptionCalculationFunction(),
-      new TermDepositCalculationFunction());
+      new SwapTradeCalculationFunction(),
+      new SwaptionTradeCalculationFunction(),
+      new TermDepositTradeCalculationFunction());
 
   /**
    * Restricted constructor.
