@@ -50,7 +50,7 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  * </ul>
  */
-public class FraCalculationFunction
+public class FraTradeCalculationFunction
     implements CalculationFunction<FraTrade> {
 
   /**
@@ -78,7 +78,7 @@ public class FraCalculationFunction
   /**
    * Creates an instance.
    */
-  public FraCalculationFunction() {
+  public FraTradeCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------

@@ -30,10 +30,10 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  * {@link FraTrade#resolve(com.opengamma.strata.basics.ReferenceData) FraTrade::resolve(ReferenceData)}
  * to convert {@code FraTrade} to {@code ResolvedFraTrade}.
  */
-public final class FraCalculations {
+public final class FraTradeCalculations {
 
   // restricted constructor
-  private FraCalculations() {
+  private FraTradeCalculations() {
   }
 
   //-------------------------------------------------------------------------

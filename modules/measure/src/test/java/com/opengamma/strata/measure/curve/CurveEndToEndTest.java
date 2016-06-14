@@ -55,7 +55,7 @@ import com.opengamma.strata.market.curve.node.FraCurveNode;
 import com.opengamma.strata.market.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.measure.fra.FraCalculationFunction;
+import com.opengamma.strata.measure.fra.FraTradeCalculationFunction;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.swap.SwapCalculationFunction;
 import com.opengamma.strata.product.Trade;
@@ -173,7 +173,7 @@ public class CurveEndToEndTest {
   private static CalculationFunctions functions() {
     return CalculationFunctions.of(ImmutableMap.of(
         SwapTrade.class, new SwapCalculationFunction(),
-        FraTrade.class, new FraCalculationFunction()));
+        FraTrade.class, new FraTradeCalculationFunction()));
   }
 
 }
