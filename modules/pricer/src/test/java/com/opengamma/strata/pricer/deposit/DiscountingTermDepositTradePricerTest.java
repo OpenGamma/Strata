@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.deposit;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
-import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -29,60 +29,57 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.deposit.IborFixingDeposit;
-import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
-import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
-import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
+import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
+import com.opengamma.strata.product.deposit.TermDeposit;
+import com.opengamma.strata.product.deposit.TermDepositTrade;
 
 /**
- * Tests {@link DiscountingIborFixingDepositTradePricer}.
+ * Tests {@link DiscountingTermDepositTradePricer}.
  */
 @Test
-public class DiscountingIborFixingDepositTradePricerTest {
+public class DiscountingTermDepositTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final LocalDate VAL_DATE = LocalDate.of(2014, 1, 16);
+  private static final LocalDate VAL_DATE = date(2014, 1, 22);
 
-  private static final LocalDate START_DATE = LocalDate.of(2014, 1, 24);
-  private static final LocalDate END_DATE = LocalDate.of(2014, 7, 24);
-  private static final double NOTIONAL = 100_000_000d;
-  private static final double RATE = 0.0150;
+  private static final LocalDate START_DATE = date(2014, 1, 24);
+  private static final LocalDate END_DATE = date(2014, 7, 24);
+  private static final double NOTIONAL = 100000000d;
+  private static final double RATE = 0.0750;
   private static final BusinessDayAdjustment BD_ADJ = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
-  private static final IborFixingDeposit DEPOSIT_PRODUCT = IborFixingDeposit.builder()
+  private static final TermDeposit DEPOSIT_PRODUCT = TermDeposit.builder()
       .buySell(BuySell.BUY)
-      .notional(NOTIONAL)
       .startDate(START_DATE)
       .endDate(END_DATE)
       .businessDayAdjustment(BD_ADJ)
-      .index(EUR_EURIBOR_6M)
-      .fixedRate(RATE)
+      .dayCount(ACT_360)
+      .notional(NOTIONAL)
+      .currency(EUR)
+      .rate(RATE)
       .build();
-  private static final ResolvedIborFixingDeposit RDEPOSIT_PRODUCT = DEPOSIT_PRODUCT.resolve(REF_DATA);
-  private static final IborFixingDepositTrade DEPOSIT_TRADE =
-      IborFixingDepositTrade.builder().product(DEPOSIT_PRODUCT).info(TradeInfo.empty()).build();
-  private static final ResolvedIborFixingDepositTrade RDEPOSIT_TRADE = DEPOSIT_TRADE.resolve(REF_DATA);
+  private static final ResolvedTermDeposit RDEPOSIT_PRODUCT = DEPOSIT_PRODUCT.resolve(REF_DATA);
+  private static final TermDepositTrade DEPOSIT_TRADE =
+      TermDepositTrade.builder().product(DEPOSIT_PRODUCT).info(TradeInfo.empty()).build();
+  private static final ResolvedTermDepositTrade RDEPOSIT_TRADE = DEPOSIT_TRADE.resolve(REF_DATA);
 
   private static final ImmutableRatesProvider IMM_PROV;
   static {
     CurveInterpolator interp = CurveInterpolators.DOUBLE_QUADRATIC;
-    DoubleArray time_eur = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
-    DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014);
+    DoubleArray time_eur = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     InterpolatedNodalCurve dscCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_ACT_ISDA), time_eur, rate_eur, interp);
-    DoubleArray time_index = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
-    DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
-    InterpolatedNodalCurve indexCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_ACT_ISDA), time_index, rate_index, interp);
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), time_eur, rate_eur, interp);
     IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(EUR, dscCurve)
-        .iborIndexCurve(EUR_EURIBOR_6M, indexCurve)
         .build();
   }
+  double DF_END = 0.94;
   
-  private static final DiscountingIborFixingDepositProductPricer PRICER_PRODUCT =
-      DiscountingIborFixingDepositProductPricer.DEFAULT;
-  private static final DiscountingIborFixingDepositTradePricer PRICER_TRADE =
-      DiscountingIborFixingDepositTradePricer.DEFAULT;
+  private static final DiscountingTermDepositProductPricer PRICER_PRODUCT =
+      DiscountingTermDepositProductPricer.DEFAULT;
+  private static final DiscountingTermDepositTradePricer PRICER_TRADE =
+      DiscountingTermDepositTradePricer.DEFAULT;
 
 
   private static final double TOLERANCE_PV = 1E-2;

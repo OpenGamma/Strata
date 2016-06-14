@@ -16,7 +16,7 @@ import com.opengamma.strata.product.deposit.ResolvedTermDeposit;
 /**
  * The methods associated to the pricing of term deposit by discounting.
  * <p>
- * This function provides the ability to price {@link ResolvedTermDeposit}.
+ * This provides the ability to price {@link ResolvedTermDeposit}.
  */
 public class DiscountingTermDepositProductPricer {
 

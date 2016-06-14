@@ -17,7 +17,7 @@ import com.opengamma.strata.product.deposit.ResolvedIborFixingDeposit;
 /**
  * The methods associated to the pricing of Ibor fixing deposit by discounting.
  * <p>
- * This function provides the ability to price {@link ResolvedIborFixingDeposit}. Those products are synthetic deposits
+ * This provides the ability to price {@link ResolvedIborFixingDeposit}. Those products are synthetic deposits
  * which are used for curve calibration purposes; they should not be used as actual trades.
  */
 public class DiscountingIborFixingDepositProductPricer {
@@ -90,7 +90,6 @@ public class DiscountingIborFixingDepositProductPricer {
     return forwardRate(deposit, provider);
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Calculates the deposit fair rate sensitivity to the curves.
    * 
