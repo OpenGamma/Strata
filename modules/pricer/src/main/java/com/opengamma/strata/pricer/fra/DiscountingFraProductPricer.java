@@ -28,7 +28,7 @@ import com.opengamma.strata.product.rate.RateComputation;
 /**
  * Pricer for for forward rate agreement (FRA) products.
  * <p>
- * This function provides the ability to price {@link ResolvedFra}.
+ * This provides the ability to price {@link ResolvedFra}.
  * The product is priced using a forward curve for the index.
  */
 public class DiscountingFraProductPricer {

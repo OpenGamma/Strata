@@ -397,6 +397,10 @@ public class DiscountingFraProductPricerTest {
     ResolvedFra fra = createNewFra(FRA, parRate);
     CurrencyAmount pv = test.presentValue(fra, prov);
     assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+
+    // test via FraTrade
+    DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
+    assertEquals(testTrade.parRate(RFRA_TRADE, prov), test.parRate(RFRA, prov));
   }
 
   /**
@@ -441,6 +445,10 @@ public class DiscountingFraProductPricerTest {
     ResolvedFra fra = createNewFra(FRA, FRA.getFixedRate() + parSpread);
     CurrencyAmount pv = test.presentValue(fra, prov);
     assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+
+    // test via FraTrade
+    DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
+    assertEquals(testTrade.parSpread(RFRA_TRADE, prov), test.parSpread(RFRA, prov));
   }
 
   /**
@@ -473,6 +481,7 @@ public class DiscountingFraProductPricerTest {
 
   private static final double EPS_FD = 1E-7;
   private static final DiscountingFraProductPricer DEFAULT_PRICER = DiscountingFraProductPricer.DEFAULT;
+  private static final DiscountingFraTradePricer DEFAULT_TRADE_PRICER = DiscountingFraTradePricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
   private static final ImmutableRatesProvider IMM_PROV;
@@ -503,6 +512,14 @@ public class DiscountingFraProductPricerTest {
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV);
     assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
+
+    // test via FraTrade
+    assertEquals(
+        DEFAULT_TRADE_PRICER.parRateSensitivity(RFRA_TRADE, IMM_PROV),
+        DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV));
+    assertEquals(
+        DEFAULT_TRADE_PRICER.parSpreadSensitivity(RFRA_TRADE, IMM_PROV),
+        DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV));
   }
 
   /**
@@ -610,6 +627,10 @@ public class DiscountingFraProductPricerTest {
     assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
     assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOLERANCE);
+
+    // test via FraTrade
+    DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
+    assertEquals(testTrade.explainPresentValue(RFRA_TRADE, prov), test.explainPresentValue(RFRA, prov));
   }
 
   //-------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fra.ResolvedFra;
@@ -17,7 +18,7 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 /**
  * Pricer for for forward rate agreement (FRA) trades.
  * <p>
- * This function provides the ability to price {@link ResolvedFraTrade}.
+ * This provides the ability to price {@link ResolvedFraTrade}.
  * The trade is priced by pricing the underlying product using a forward curve for the index.
  */
 public class DiscountingFraTradePricer {
@@ -102,6 +103,61 @@ public class DiscountingFraTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the par rate of the FRA trade.
+   * <p>
+   * The par rate is the rate for which the FRA present value is 0.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parRate(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.parRate(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the par rate curve sensitivity of the FRA trade.
+   * <p>
+   * The par rate curve sensitivity of the product is the sensitivity of the par rate to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par rate sensitivity
+   */
+  public PointSensitivities parRateSensitivity(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.parRateSensitivity(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the par spread of the FRA trade.
+   * <p>
+   * This is spread to be added to the fixed rate to have a present value of 0.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par spread
+   */
+  public double parSpread(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.parSpread(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the par spread curve sensitivity of the FRA trade.
+   * <p>
+   * The par spread curve sensitivity of the product is the sensitivity of the par spread to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par spread sensitivity
+   */
+  public PointSensitivities parSpreadSensitivity(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.parSpreadSensitivity(trade.getProduct(), provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the future cash flow of the FRA trade.
    * <p>
    * There is only one cash flow on the payment date for the FRA trade.
@@ -139,6 +195,20 @@ public class DiscountingFraTradePricer {
       return productPricer.presentValue(fra, provider);
     }
     return CurrencyAmount.zero(fra.getCurrency());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the FRA product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.explainPresentValue(trade.getProduct(), provider);
   }
 
 }
