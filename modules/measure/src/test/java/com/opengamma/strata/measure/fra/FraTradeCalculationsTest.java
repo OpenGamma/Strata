@@ -6,7 +6,6 @@
 package com.opengamma.strata.measure.fra;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -74,25 +73,25 @@ public class FraTradeCalculationsTest {
     ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
 
     assertEquals(
-        FraTradeCalculations.presentValue(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.presentValue(resolved, RATES_MODEL, md),
         CurrencyValuesArray.of(ImmutableList.of(expectedPv)));
     assertEquals(
-        FraTradeCalculations.parRate(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.parRate(resolved, RATES_MODEL, md),
         ValuesArray.of(ImmutableList.of(expectedParRate)));
     assertEquals(
-        FraTradeCalculations.parSpread(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.parSpread(resolved, RATES_MODEL, md),
         ValuesArray.of(ImmutableList.of(expectedParSpread)));
     assertEquals(
-        FraTradeCalculations.cashFlows(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.cashFlows(resolved, RATES_MODEL, md),
         ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
     assertEquals(
-        FraTradeCalculations.currencyExposure(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.currencyExposure(resolved, RATES_MODEL, md),
         MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertEquals(
-        FraTradeCalculations.currentCash(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.currentCash(resolved, RATES_MODEL, md),
         CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
     assertEquals(
-        FraTradeCalculations.explainPresentValue(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.explainPresentValue(resolved, RATES_MODEL, md),
         ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
   }
 
@@ -107,17 +106,11 @@ public class FraTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
     assertEquals(
-        FraTradeCalculations.pv01CalibratedSum(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.pv01CalibratedSum(resolved, RATES_MODEL, md),
         MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal)));
     assertEquals(
-        FraTradeCalculations.pv01CalibratedBucketed(resolved, RATES_MODEL, md),
+        FraTradeCalculations.DEFAULT.pv01CalibratedBucketed(resolved, RATES_MODEL, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(FraMeasureCalculations.class);
-    coverPrivateConstructor(FraTradeCalculations.class);
   }
 
   //-------------------------------------------------------------------------

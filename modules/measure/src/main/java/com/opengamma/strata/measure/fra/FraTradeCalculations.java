@@ -16,6 +16,7 @@ import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
+import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -30,10 +31,27 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  * {@link FraTrade#resolve(com.opengamma.strata.basics.ReferenceData) FraTrade::resolve(ReferenceData)}
  * to convert {@code FraTrade} to {@code ResolvedFraTrade}.
  */
-public final class FraTradeCalculations {
+public class FraTradeCalculations {
 
-  // restricted constructor
-  private FraTradeCalculations() {
+  /**
+   * Default implementation.
+   */
+  public static final FraTradeCalculations DEFAULT = new FraTradeCalculations(
+      DiscountingFraTradePricer.DEFAULT);
+
+  /**
+   * Pricer for {@link ResolvedFraTrade}.
+   */
+  private final FraMeasureCalculations calc;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedFraTrade}
+   */
+  public FraTradeCalculations(
+      DiscountingFraTradePricer tradePricer) {
+    this.calc = new FraMeasureCalculations(tradePricer);
   }
 
   //-------------------------------------------------------------------------
@@ -45,12 +63,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value, one entry per scenario
    */
-  public static CurrencyValuesArray presentValue(
+  public CurrencyValuesArray presentValue(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.presentValue(trade, lookup.marketDataView(marketData));
+    return calc.presentValue(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -60,11 +78,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value
    */
-  public static CurrencyAmount presentValue(
+  public CurrencyAmount presentValue(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.presentValue(trade, ratesProvider);
+    return calc.presentValue(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -81,12 +99,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public static MultiCurrencyValuesArray pv01CalibratedSum(
+  public MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.pv01CalibratedSum(trade, lookup.marketDataView(marketData));
+    return calc.pv01CalibratedSum(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -101,11 +119,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value sensitivity
    */
-  public static MultiCurrencyAmount pv01CalibratedSum(
+  public MultiCurrencyAmount pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.pv01CalibratedSum(trade, ratesProvider);
+    return calc.pv01CalibratedSum(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -122,12 +140,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public static ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
+  public ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.pv01CalibratedBucketed(trade, lookup.marketDataView(marketData));
+    return calc.pv01CalibratedBucketed(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -142,11 +160,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value sensitivity
    */
-  public static CurrencyParameterSensitivities pv01CalibratedBucketed(
+  public CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.pv01CalibratedBucketed(trade, ratesProvider);
+    return calc.pv01CalibratedBucketed(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -163,12 +181,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public static MultiCurrencyValuesArray pv01MarketQuoteSum(
+  public MultiCurrencyValuesArray pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.pv01MarketQuoteSum(trade, lookup.marketDataView(marketData));
+    return calc.pv01MarketQuoteSum(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -183,11 +201,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value sensitivity
    */
-  public static MultiCurrencyAmount pv01MarketQuoteSum(
+  public MultiCurrencyAmount pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.pv01MarketQuoteSum(trade, ratesProvider);
+    return calc.pv01MarketQuoteSum(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -204,12 +222,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value sensitivity, one entry per scenario
    */
-  public static ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+  public ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.pv01MarketQuoteBucketed(trade, lookup.marketDataView(marketData));
+    return calc.pv01MarketQuoteBucketed(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -224,11 +242,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value sensitivity
    */
-  public static CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+  public CurrencyParameterSensitivities pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.pv01MarketQuoteBucketed(trade, ratesProvider);
+    return calc.pv01MarketQuoteBucketed(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -240,12 +258,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the par rate, one entry per scenario
    */
-  public static ValuesArray parRate(
+  public ValuesArray parRate(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.parRate(trade, lookup.marketDataView(marketData));
+    return calc.parRate(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -255,11 +273,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the par rate
    */
-  public static double parRate(
+  public double parRate(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.parRate(trade, ratesProvider);
+    return calc.parRate(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -271,12 +289,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the par spread, one entry per scenario
    */
-  public static ValuesArray parSpread(
+  public ValuesArray parSpread(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.parSpread(trade, lookup.marketDataView(marketData));
+    return calc.parSpread(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -286,11 +304,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the par spread
    */
-  public static double parSpread(
+  public double parSpread(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.parSpread(trade, ratesProvider);
+    return calc.parSpread(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -304,12 +322,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the cash flows, one entry per scenario
    */
-  public static ScenarioArray<CashFlows> cashFlows(
+  public ScenarioArray<CashFlows> cashFlows(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.cashFlows(trade, lookup.marketDataView(marketData));
+    return calc.cashFlows(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -321,11 +339,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the cash flows
    */
-  public static CashFlows cashFlows(
+  public CashFlows cashFlows(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.cashFlows(trade, ratesProvider);
+    return calc.cashFlows(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -339,12 +357,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the currency exposure, one entry per scenario
    */
-  public static MultiCurrencyValuesArray currencyExposure(
+  public MultiCurrencyValuesArray currencyExposure(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.currencyExposure(trade, lookup.marketDataView(marketData));
+    return calc.currencyExposure(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -356,11 +374,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the currency exposure
    */
-  public static MultiCurrencyAmount currencyExposure(
+  public MultiCurrencyAmount currencyExposure(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.currencyExposure(trade, ratesProvider);
+    return calc.currencyExposure(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -374,12 +392,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the current cash, one entry per scenario
    */
-  public static CurrencyValuesArray currentCash(
+  public CurrencyValuesArray currentCash(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.currentCash(trade, lookup.marketDataView(marketData));
+    return calc.currentCash(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -391,11 +409,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the current cash
    */
-  public static CurrencyAmount currentCash(
+  public CurrencyAmount currentCash(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.currentCash(trade, ratesProvider);
+    return calc.currentCash(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -411,12 +429,12 @@ public final class FraTradeCalculations {
    * @param marketData  the market data
    * @return the present value explanation, one entry per scenario
    */
-  public static ScenarioArray<ExplainMap> explainPresentValue(
+  public ScenarioArray<ExplainMap> explainPresentValue(
       ResolvedFraTrade trade,
       RatesMarketDataLookup lookup,
       ScenarioMarketData marketData) {
 
-    return FraMeasureCalculations.explainPresentValue(trade, lookup.marketDataView(marketData));
+    return calc.explainPresentValue(trade, lookup.marketDataView(marketData));
   }
 
   /**
@@ -430,11 +448,11 @@ public final class FraTradeCalculations {
    * @param ratesProvider  the market data
    * @return the present value explanation
    */
-  public static ExplainMap explainPresentValue(
+  public ExplainMap explainPresentValue(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return FraMeasureCalculations.explainPresentValue(trade, ratesProvider);
+    return calc.explainPresentValue(trade, ratesProvider);
   }
 
 }

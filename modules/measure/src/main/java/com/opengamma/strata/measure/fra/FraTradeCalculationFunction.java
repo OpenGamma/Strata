@@ -58,16 +58,16 @@ public class FraTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, FraMeasureCalculations::presentValue)
-          .put(Measures.PV01, FraMeasureCalculations::pv01CalibratedSum)
-          .put(Measures.BUCKETED_PV01, FraMeasureCalculations::pv01CalibratedBucketed)
-          .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations::pv01SemiParallelGammaBucketed)
-          .put(Measures.PAR_RATE, FraMeasureCalculations::parRate)
-          .put(Measures.PAR_SPREAD, FraMeasureCalculations::parSpread)
-          .put(Measures.CASH_FLOWS, FraMeasureCalculations::cashFlows)
-          .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, FraMeasureCalculations::currentCash)
-          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations::explainPresentValue)
+          .put(Measures.PRESENT_VALUE, FraMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.BUCKETED_PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
+          .put(Measures.PAR_RATE, FraMeasureCalculations.DEFAULT::parRate)
+          .put(Measures.PAR_SPREAD, FraMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
+          .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations.DEFAULT::explainPresentValue)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

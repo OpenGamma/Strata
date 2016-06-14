@@ -16,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
@@ -46,26 +47,38 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 final class FraMeasureCalculations {
 
   /**
-   * The pricer to use.
+   * Default implementation.
    */
-  private static final DiscountingFraTradePricer PRICER = DiscountingFraTradePricer.DEFAULT;
+  public static final FraMeasureCalculations DEFAULT = new FraMeasureCalculations(
+      DiscountingFraTradePricer.DEFAULT);
   /**
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
 
   /**
+   * Pricer for {@link ResolvedFraTrade}.
+   */
+  private final DiscountingFraTradePricer tradePricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedFraTrade}
+   */
+  FraMeasureCalculations(
+      DiscountingFraTradePricer tradePricer) {
+    this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
+  }
+
+  /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
-  // restricted constructor
-  private FraMeasureCalculations() {
-  }
-
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  CurrencyValuesArray presentValue(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -75,16 +88,16 @@ final class FraMeasureCalculations {
   }
 
   // present value for one scenario
-  static CurrencyAmount presentValue(
+  CurrencyAmount presentValue(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.presentValue(trade, ratesProvider);
+    return tradePricer.presentValue(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01CalibratedSum(
+  MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -94,17 +107,17 @@ final class FraMeasureCalculations {
   }
 
   // PV01 for one scenario
-  static MultiCurrencyAmount pv01CalibratedSum(
+  MultiCurrencyAmount pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, ratesProvider);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     return ratesProvider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
+  ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -114,17 +127,17 @@ final class FraMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  static CurrencyParameterSensitivities pv01CalibratedBucketed(
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, ratesProvider);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     return ratesProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01MarketQuoteSum(
+  MultiCurrencyValuesArray pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -134,18 +147,18 @@ final class FraMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  static MultiCurrencyAmount pv01MarketQuoteSum(
+  MultiCurrencyAmount pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, ratesProvider);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
     return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates bucketed PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -155,18 +168,18 @@ final class FraMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  static CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, ratesProvider);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
     CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
     return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates semi-parallel gamma PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> pv01SemiParallelGammaBucketed(
+  ScenarioArray<CurrencyParameterSensitivities> pv01SemiParallelGammaBucketed(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -176,7 +189,7 @@ final class FraMeasureCalculations {
   }
 
   // semi-parallel gamma PV01 for one scenario
-  private static CurrencyParameterSensitivities pv01SemiParallelGammaBucketed(
+  private CurrencyParameterSensitivities pv01SemiParallelGammaBucketed(
       ResolvedFraTrade trade,
       RatesMarketData marketData) {
 
@@ -208,7 +221,7 @@ final class FraMeasureCalculations {
   }
 
   // calculates the sensitivity
-  private static CurrencyParameterSensitivity calculateCurveSensitivity(
+  private CurrencyParameterSensitivity calculateCurveSensitivity(
       ResolvedFraTrade trade,
       RatesMarketData marketData,
       CurveId curveId,
@@ -216,14 +229,14 @@ final class FraMeasureCalculations {
 
     MarketData bumpedMarketData = marketData.getMarketData().withValue(curveId, bumpedCurve);
     RatesProvider bumpedRatesProvider = marketData.withMarketData(bumpedMarketData).ratesProvider();
-    PointSensitivities pointSensitivities = PRICER.presentValueSensitivity(trade, bumpedRatesProvider);
+    PointSensitivities pointSensitivities = tradePricer.presentValueSensitivity(trade, bumpedRatesProvider);
     CurrencyParameterSensitivities paramSensitivities = bumpedRatesProvider.parameterSensitivity(pointSensitivities);
     return Iterables.getOnlyElement(paramSensitivities.getSensitivities());
   }
 
   //-------------------------------------------------------------------------
   // calculates par rate for all scenarios
-  static ValuesArray parRate(
+  ValuesArray parRate(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -233,16 +246,16 @@ final class FraMeasureCalculations {
   }
 
   // par rate for one scenario
-  static double parRate(
+  double parRate(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.parRate(trade, ratesProvider);
+    return tradePricer.parRate(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  static ValuesArray parSpread(
+  ValuesArray parSpread(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -252,16 +265,16 @@ final class FraMeasureCalculations {
   }
 
   // par spread for one scenario
-  static double parSpread(
+  double parSpread(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.parSpread(trade, ratesProvider);
+    return tradePricer.parSpread(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates cash flows for all scenarios
-  static ScenarioArray<CashFlows> cashFlows(
+  ScenarioArray<CashFlows> cashFlows(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -271,16 +284,16 @@ final class FraMeasureCalculations {
   }
 
   // cash flows for one scenario
-  static CashFlows cashFlows(
+  CashFlows cashFlows(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.cashFlows(trade, ratesProvider);
+    return tradePricer.cashFlows(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
-  static MultiCurrencyValuesArray currencyExposure(
+  MultiCurrencyValuesArray currencyExposure(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -290,16 +303,16 @@ final class FraMeasureCalculations {
   }
 
   // currency exposure for one scenario
-  static MultiCurrencyAmount currencyExposure(
+  MultiCurrencyAmount currencyExposure(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.currencyExposure(trade, ratesProvider);
+    return tradePricer.currencyExposure(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates current cash for all scenarios
-  static CurrencyValuesArray currentCash(
+  CurrencyValuesArray currentCash(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -309,16 +322,16 @@ final class FraMeasureCalculations {
   }
 
   // current cash for one scenario
-  static CurrencyAmount currentCash(
+  CurrencyAmount currentCash(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.currentCash(trade, ratesProvider);
+    return tradePricer.currentCash(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
   // calculates explain present value for all scenarios
-  static ScenarioArray<ExplainMap> explainPresentValue(
+  ScenarioArray<ExplainMap> explainPresentValue(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
 
@@ -328,11 +341,11 @@ final class FraMeasureCalculations {
   }
 
   // explain present value for one scenario
-  static ExplainMap explainPresentValue(
+  ExplainMap explainPresentValue(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
 
-    return PRICER.explainPresentValue(trade, ratesProvider);
+    return tradePricer.explainPresentValue(trade, ratesProvider);
   }
 
 }
