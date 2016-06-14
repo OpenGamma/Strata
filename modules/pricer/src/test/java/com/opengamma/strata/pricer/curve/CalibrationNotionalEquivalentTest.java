@@ -33,11 +33,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ImmutableMarketData;
-import com.opengamma.strata.product.ResolvedTrade;
-import com.opengamma.strata.product.Trade;
-import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.swap.ResolvedSwapTrade;
-import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
@@ -50,14 +45,19 @@ import com.opengamma.strata.market.curve.NodalCurveDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.curve.CalibrationMeasures;
-import com.opengamma.strata.pricer.curve.CurveCalibrator;
-import com.opengamma.strata.pricer.curve.PresentValueCalibrationMeasure;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.sensitivity.NotionalEquivalentCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
+import com.opengamma.strata.product.ResolvedTrade;
+import com.opengamma.strata.product.Trade;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
+/**
+ * Test.
+ */
 public class CalibrationNotionalEquivalentTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -134,7 +134,7 @@ public class CalibrationNotionalEquivalentTest {
       List<Trade> tradesCurve = new ArrayList<>();
       List<ResolvedTrade> resolvedTradesCurve = new ArrayList<>();
       for (CurveNode node : nodes) {
-        tradesCurve.add(node.trade(VALUATION_DATE, 1.0d, MARKET_QUOTES, REF_DATA));
+        tradesCurve.add(node.trade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
         resolvedTradesCurve.add(node.resolvedTrade(VALUATION_DATE, 1.0d, MARKET_QUOTES, REF_DATA));
       }
       trades.put(entry.getName(), tradesCurve);

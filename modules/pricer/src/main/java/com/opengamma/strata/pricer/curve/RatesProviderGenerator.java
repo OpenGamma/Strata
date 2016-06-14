@@ -55,11 +55,12 @@ public interface RatesProviderGenerator {
    * 
    * @param parameters  the parameters describing the provider
    * @param jacobians  the curve calibration info
+   * @param sensitivitiesMarketQuote  the PV sensitivities
    * @return the provider
    */
   public abstract ImmutableRatesProvider generate(
       DoubleArray parameters,
       Map<CurveName, JacobianCalibrationMatrix> jacobians,
       Map<CurveName, DoubleArray> sensitivitiesMarketQuote);
-  
+
 }

@@ -135,7 +135,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     assertTrue(set.equals(setExpected));
   }
 
-  public void test_trade_quantity() {
+  public void test_trade() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double quantity = -1234.56;
@@ -150,7 +150,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1.0, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

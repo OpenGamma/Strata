@@ -35,8 +35,8 @@ public final class CurveGroupDefinitionBuilder {
    */
   private final Map<CurveName, NodalCurveDefinition> curveDefinitions;
   /**
-   * Flag indicating if the Jacobian matrices should be computed and stored in metadata or not. The default value is 
-   * 'true'.
+   * Flag indicating if the Jacobian matrices should be computed and stored in metadata or not.
+   * The default value is 'true'.
    */
   private boolean computeJacobian = true;
   /**
@@ -44,18 +44,18 @@ public final class CurveGroupDefinitionBuilder {
    * The default value is 'false'.
    */
   private boolean computePvSensitivityToMarketQuote = false;
-  
-  CurveGroupDefinitionBuilder(){
+
+  CurveGroupDefinitionBuilder() {
     this.entries = new LinkedHashMap<>();
     this.curveDefinitions = new LinkedHashMap<>();
   }
-  
+
   CurveGroupDefinitionBuilder(
-      CurveGroupName name, 
-      Map<CurveName, CurveGroupEntry> entries, 
+      CurveGroupName name,
+      Map<CurveName, CurveGroupEntry> entries,
       Map<CurveName, NodalCurveDefinition> curveDefinitions,
       boolean computeJacobian,
-      boolean computePvSensitivityToMarketQuote){
+      boolean computePvSensitivityToMarketQuote) {
     this.name = name;
     this.entries = entries;
     this.curveDefinitions = curveDefinitions;
@@ -74,23 +74,26 @@ public final class CurveGroupDefinitionBuilder {
     this.name = ArgChecker.notNull(name, "name");
     return this;
   }
-  
+
   /**
-   * Sets the 'compute PV sensitivity to market quote' flag of the curve group definition.
+   * Sets the 'compute Jacobian' flag of the curve group definition.
    *
-   * @param computeJacobian  the flag indicating if present value sensitivity to market quotes should be 
-   * computed and stored in metadata or not
+   * @param computeJacobian  the flag indicating if the Jacobian matrices should be
+   *   computed and stored in metadata or not
    * @return this builder
    */
   public CurveGroupDefinitionBuilder computeJacobian(boolean computeJacobian) {
     this.computeJacobian = computeJacobian;
     return this;
   }
-  
+
   /**
-   * Sets the 'compute Jacobian' flag of the curve group definition.
+   * Sets the 'compute PV sensitivity to market quote' flag of the curve group definition.
+   * <p>
+   * If set, the Jacobian matrices will also be calculated, even if not requested.
    *
-   * @param computePvSensitivityToMarketQuote  the flag indicating if the Jacobian matrices should be computed and stored in metadata or not
+   * @param computePvSensitivityToMarketQuote  the flag indicating if present value sensitivity
+   *   to market quotes should be computed and stored in metadata or not
    * @return this builder
    */
   public CurveGroupDefinitionBuilder computePvSensitivityToMarketQuote(boolean computePvSensitivityToMarketQuote) {
@@ -273,8 +276,13 @@ public final class CurveGroupDefinitionBuilder {
    * @return the definition of the curve group built from the data in this object
    */
   public CurveGroupDefinition build() {
-    return new CurveGroupDefinition(name, entries.values(), curveDefinitions.values(), 
-        computeJacobian, computePvSensitivityToMarketQuote);
+    // note that this defaults the jacobian flag based on the market quote flag
+    return new CurveGroupDefinition(
+        name,
+        entries.values(),
+        curveDefinitions.values(),
+        computeJacobian || computePvSensitivityToMarketQuote,
+        computePvSensitivityToMarketQuote);
   }
 
 }

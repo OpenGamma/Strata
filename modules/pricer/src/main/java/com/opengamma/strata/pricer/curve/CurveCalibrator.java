@@ -50,8 +50,6 @@ import com.opengamma.strata.product.ResolvedTrade;
  * <p>
  * Once calibrated, the curves are then available for use.
  * Each node in the curve definition becomes a parameter in the matching output curve.
- * <p>
- * 
  */
 public final class CurveCalibrator {
 
@@ -73,7 +71,6 @@ public final class CurveCalibrator {
    * This is used to compute the function for which the root is found.
    */
   private final CalibrationMeasures measures;
-  
 
   private static final CalibrationMeasures PV_MEASURES = CalibrationMeasures.of(
       "PresentValue",
@@ -200,7 +197,6 @@ public final class CurveCalibrator {
    * @param knownData  the starting data for the calibration
    * @param marketData  the market data required to build a trade for the instrument
    * @param refData  the reference data, used to resolve the trades
-   * should be computed and stored in metadata or not
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
@@ -319,11 +315,11 @@ public final class CurveCalibrator {
     }
     return jacobianBuilder.build();
   }
-  
+
   private ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuoteForGroup(
       ImmutableRatesProvider provider,
       ImmutableList<ResolvedTrade> trades,
-      ImmutableList<CurveParameterSize> orderGroup){    
+      ImmutableList<CurveParameterSize> orderGroup) {
 
     Builder<CurveName, DoubleArray> mqsGroup = new Builder<>();
     int nodeIndex = 0;
@@ -336,8 +332,8 @@ public final class CurveCalibrator {
         nodeIndex++;
       }
       mqsGroup.put(cps.getName(), DoubleArray.ofUnsafe(mqsCurve));
-    }    
-    return mqsGroup.build();    
+    }
+    return mqsGroup.build();
   }
 
   // calculate the derivatives

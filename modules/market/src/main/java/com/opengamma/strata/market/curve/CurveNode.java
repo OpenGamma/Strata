@@ -50,8 +50,8 @@ public interface CurveNode {
    * This uses the observed market data to build the trade that the node represents.
    * The reference data is typically used to find the start date of the trade from the valuation date.
    * The resulting trade is not resolved.
-   * The notional of the trade is taken from the 'quantity' variable. The quantity is signed. The side of the
-   * trade dependents on the quantity is specified in each node type. 
+   * The notional of the trade is taken from the 'quantity' variable.
+   * The quantity is signed and will affect whether the trade is Buy or Sell.
    *
    * @param valuationDate  the valuation date used when calibrating the curve
    * @param quantity  the quantity or notional of the trade
@@ -80,8 +80,12 @@ public interface CurveNode {
    * @return a trade representing the instrument at the node
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws RuntimeException if unable to resolve due to an invalid definition
-   */  
-  public abstract ResolvedTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData);
+   */
+  public abstract ResolvedTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData);
 
   /**
    * Gets the initial guess used for calibrating the node.

@@ -175,26 +175,20 @@ public final class IborFixingDepositCurveNode
     return deposit.getFloatingRate().getFixingDate();
   }
 
-//  @Override
-//  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-//    double fixedRate = marketData.getValue(rateId) + additionalSpread;
-//    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
-//  }
-
   @Override
   public IborFixingDepositTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, (quantity > 0) ? BuySell.BUY : BuySell.SELL, Math.abs(quantity), 
-        fixedRate, refData);
+    BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), fixedRate, refData);
   }
 
-//  @Override
-//  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-//    return trade(valuationDate, marketData, refData).resolve(refData);
-//  }
-
   @Override
-  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public ResolvedIborFixingDepositTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
     return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 

@@ -137,7 +137,7 @@ public class FxSwapCurveNodeTest {
   public void test_trade() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    FxSwapTrade trade = node.trade(valuationDate, 1.0d, OV, REF_DATA);
+    FxSwapTrade trade = node.trade(valuationDate, 1d, OV, REF_DATA);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
     FxSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1.0, rate, FX_RATE_PTS, REF_DATA);
     assertEquals(trade, expected);
@@ -148,7 +148,7 @@ public class FxSwapCurveNodeTest {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1.0d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

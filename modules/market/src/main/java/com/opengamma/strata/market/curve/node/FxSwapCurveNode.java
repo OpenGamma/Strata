@@ -167,30 +167,22 @@ public final class FxSwapCurveNode
     throw new UnsupportedOperationException("Node date of 'LastFixing' is not supported for FxSwap");
   }
 
-//  @Override
-//  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-//    FxRate fxRate = marketData.getValue(fxRateId);
-//    double rate = fxRate.fxRate(template.getCurrencyPair());
-//    double fxPts = marketData.getValue(farForwardPointsId);
-//    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
-//  }
-
   @Override
   public FxSwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsId);
-    return template.createTrade(valuationDate, (quantity > 0) ? BuySell.BUY : BuySell.SELL, 
-        Math.abs(quantity), rate, fxPts, refData);
+    BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), rate, fxPts, refData);
   }
 
-//  @Override
-//  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-//    return trade(valuationDate, marketData, refData).resolve(refData);
-//  }
-
   @Override
-  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public ResolvedFxSwapTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
     return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 

@@ -21,7 +21,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 /**
  * Calculator to obtain the notional equivalent.
  * <p>
- * This needs the {@link DoubleArray} with present value sensitivity to market quotes to obtained during curve calibration.
+ * This needs the {@link DoubleArray} with present value sensitivity to
+ * market quotes obtained during curve calibration to be available.
  */
 public class NotionalEquivalentCalculator {
 
@@ -29,7 +30,7 @@ public class NotionalEquivalentCalculator {
    * The default instance.
    */
   public static final NotionalEquivalentCalculator DEFAULT = new NotionalEquivalentCalculator();
-  
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the notional equivalent from the present value market quote sensitivities. 
@@ -50,13 +51,13 @@ public class NotionalEquivalentCalculator {
       ArgChecker.isTrue(s.getMarketDataName() instanceof CurveName, "curve name");
       CurveName name = (CurveName) s.getMarketDataName();
       Optional<Curve> curveOpt = provider.findData(name);
-      ArgChecker.isTrue(curveOpt.isPresent(), "curve {} in the sensitiivty is not present in the provider", name);
+      ArgChecker.isTrue(curveOpt.isPresent(), "Curve {} in the sensitiivty is not present in the provider", name);
       Curve curve = curveOpt.get();
       Optional<DoubleArray> pvSensiOpt = curve.getMetadata().findInfo(CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE);
-      ArgChecker.isTrue(pvSensiOpt.isPresent(), "present value sensitivity curve info is required");
+      ArgChecker.isTrue(pvSensiOpt.isPresent(), "Present value sensitivity curve info is required");
       DoubleArray pvSensi = pvSensiOpt.get();
       double[] notionalArray = new double[pvSensi.size()];
-      for(int i=0; i<pvSensi.size(); i++) {
+      for (int i = 0; i < pvSensi.size(); i++) {
         notionalArray[i] = s.getSensitivity().get(i) / pvSensi.get(i);
       }
       DoubleArray notional = DoubleArray.ofUnsafe(notionalArray);

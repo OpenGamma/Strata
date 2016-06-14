@@ -175,12 +175,17 @@ public final class FixedOvernightSwapCurveNode
   @Override
   public SwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, (quantity > 0) ? BuySell.SELL : BuySell.BUY, Math.abs(quantity), 
-        fixedRate, refData);
+    BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), fixedRate, refData);
   }
 
   @Override
-  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public ResolvedSwapTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
     return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 

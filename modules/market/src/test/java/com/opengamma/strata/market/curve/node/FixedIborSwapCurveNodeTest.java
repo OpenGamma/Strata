@@ -103,7 +103,7 @@ public class FixedIborSwapCurveNodeTest {
     assertFalse(itr.hasNext());
   }
 
-  public void test_trade_quantity() {
+  public void test_trade() {
     FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
@@ -118,7 +118,7 @@ public class FixedIborSwapCurveNodeTest {
     FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1.0, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

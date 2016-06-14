@@ -9,6 +9,15 @@ import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
+import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
+import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
+import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
+import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
@@ -20,15 +29,6 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
-import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
-import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
-import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
-import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
-import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 
 /**
  * Provides calibration measures for a single type of trade based on functions.
@@ -42,7 +42,7 @@ import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
  */
 public class PresentValueCalibrationMeasure<T extends ResolvedTrade>
     implements CalibrationMeasure<T> {
-  
+
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   /**

@@ -46,7 +46,7 @@ public final class CurveInfoType<T>
    * Key used to access information about the present value sensitivity to market quote, 
    * represented by a {@link DoubleArray}.
    */
-  public static final CurveInfoType<DoubleArray> PV_SENSITIVITY_TO_MARKET_QUOTE = 
+  public static final CurveInfoType<DoubleArray> PV_SENSITIVITY_TO_MARKET_QUOTE =
       CurveInfoType.of("PVSensitivityToMarketQuote");
 
   /** Serialization version. */
