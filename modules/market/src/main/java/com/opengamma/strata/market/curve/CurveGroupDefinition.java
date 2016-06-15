@@ -235,7 +235,7 @@ public final class CurveGroupDefinition
 
     return curveDefinitionsByName.values().stream()
         .flatMap(curveDef -> curveDef.getNodes().stream())
-        .map(node -> node.resolvedTrade(valuationDate, 1d, marketData, refData))
+        .map(node -> node.resolvedTrade(valuationDate, marketData, refData))
         .collect(toImmutableList());
   }
 

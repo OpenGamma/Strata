@@ -40,6 +40,9 @@ import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
  * A curve node whose instrument is an Ibor Future.
+ * <p>
+ * The trade created is a long for a positive quantity and a short for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class IborFutureCurveNode

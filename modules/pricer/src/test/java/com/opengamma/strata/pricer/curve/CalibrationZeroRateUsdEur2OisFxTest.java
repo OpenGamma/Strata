@@ -229,7 +229,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // Test PV USD;
     List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (int i = 0; i < USD_DSC_NODES.length; i++) {
-      usdTrades.add(USD_DSC_NODES[i].resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
+      usdTrades.add(USD_DSC_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < USD_DSC_NB_DEPO_NODES; i++) {
@@ -246,7 +246,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // Test PV EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (int i = 0; i < EUR_DSC_NODES.length; i++) {
-      eurTrades.add(EUR_DSC_NODES[i].resolvedTrade(VAL_DATE, 1.0d, ALL_QUOTES, REF_DATA));
+      eurTrades.add(EUR_DSC_NODES[i].resolvedTrade(VAL_DATE, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {

@@ -134,7 +134,7 @@ public class IborFixingDepositCurveNodeTest {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
@@ -170,7 +170,7 @@ public class IborFixingDepositCurveNodeTest {
         IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, 0.0d).build();
-    IborFixingDepositTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
+    IborFixingDepositTrade trade = (IborFixingDepositTrade) node.trade(valuationDate, marketData, REF_DATA);
     ResolvedIborFixingDeposit product = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateComputation) product.getFloatingRate()).getFixingDate();
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);

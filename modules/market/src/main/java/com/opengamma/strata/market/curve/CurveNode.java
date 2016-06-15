@@ -64,6 +64,25 @@ public interface CurveNode {
   public abstract Trade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData);
 
   /**
+   * Creates a trade representing the instrument at the node.
+   * <p>
+   * This uses the observed market data to build the trade that the node represents.
+   * The reference data is typically used to find the start date of the trade from the valuation date.
+   * The resulting trade is not resolved.
+   * The notional of the trade is 1.0.
+   *
+   * @param valuationDate  the valuation date used when calibrating the curve
+   * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return a trade representing the instrument at the node
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
+   */
+  public default Trade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, 1.0d, marketData, refData);
+  }
+
+  /**
    * Creates a resolved trade representing the instrument at the node.
    * <p>
    * This uses the observed market data to build the trade that the node represents.
@@ -86,6 +105,33 @@ public interface CurveNode {
       double quantity,
       MarketData marketData,
       ReferenceData refData);
+
+  /**
+   * Creates a resolved trade representing the instrument at the node.
+   * <p>
+   * This uses the observed market data to build the trade that the node represents.
+   * The trade is then resolved using the specified reference data if necessary.
+   * <p>
+   * Resolved objects may be bound to data that changes over time, such as holiday calendars.
+   * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+   * Care must be taken when placing the resolved form in a cache or persistence layer.
+   * <p>
+   * The notional of the trade is 1.0.
+   *
+   * @param valuationDate  the valuation date used when calibrating the curve
+   * @param marketData  the market data required to build a trade for the instrument
+   * @param refData  the reference data, used to resolve the trade
+   * @return a trade representing the instrument at the node
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
+   */
+  public default ResolvedTrade resolvedTrade(
+      LocalDate valuationDate,
+      MarketData marketData,
+      ReferenceData refData) {
+    
+    return resolvedTrade(valuationDate, 1.0d, marketData, refData);
+  }
 
   /**
    * Gets the initial guess used for calibrating the node.

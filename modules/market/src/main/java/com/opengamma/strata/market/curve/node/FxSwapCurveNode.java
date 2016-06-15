@@ -47,6 +47,11 @@ import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 
 /**
  * A curve node whose instrument is an FX Swap.
+ * <p>
+ * The trade created is a pay near and receive far in the second currency (BUY) for a positive quantity and a 
+ * receive near and pay far (SELL) for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit,
+ * here the long deposit-like is in the second currency.
  */
 @BeanDefinition
 public final class FxSwapCurveNode

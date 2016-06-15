@@ -50,6 +50,9 @@ import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
 
 /**
  * A curve node whose instrument is a three leg basis swap.
+ * <p>
+ * The trade created is a spread receiver (SELL) for a positive quantity and a payer (BUY) for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class ThreeLegBasisSwapCurveNode

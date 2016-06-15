@@ -56,7 +56,8 @@ public final class CurveCalibrator {
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD = CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD);
+  private static final CurveCalibrator STANDARD = 
+      CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.
    */
@@ -71,14 +72,11 @@ public final class CurveCalibrator {
    * This is used to compute the function for which the root is found.
    */
   private final CalibrationMeasures measures;
-
-  private static final CalibrationMeasures PV_MEASURES = CalibrationMeasures.of(
-      "PresentValue",
-      PresentValueCalibrationMeasure.FRA_PV,
-      PresentValueCalibrationMeasure.IBOR_FIXING_DEPOSIT_PV,
-      PresentValueCalibrationMeasure.IBOR_FUTURE_PV,
-      PresentValueCalibrationMeasure.SWAP_PV,
-      PresentValueCalibrationMeasure.TERM_DEPOSIT_PV);
+  /**
+   * The present value measures.
+   * This is used to compute the present value sensitivity to market quotes stored in the metadata.
+   */
+  private final CalibrationMeasures pvMeasures;
 
   //-------------------------------------------------------------------------
   /**
@@ -108,7 +106,7 @@ public final class CurveCalibrator {
       double toleranceRel,
       int stepMaximum) {
 
-    return of(toleranceAbs, toleranceRel, stepMaximum, CalibrationMeasures.PAR_SPREAD);
+    return of(toleranceAbs, toleranceRel, stepMaximum, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   }
 
   /**
@@ -126,7 +124,28 @@ public final class CurveCalibrator {
       int stepMaximum,
       CalibrationMeasures measures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures);
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, CalibrationMeasures.PRESENT_VALUE);
+  }
+
+  /**
+   * Obtains an instance specifying tolerances and measures to use.
+   *
+   * @param toleranceAbs  the absolute tolerance
+   * @param toleranceRel  the relative tolerance
+   * @param stepMaximum  the maximum steps
+   * @param measures  the calibration measures, used to compute the function for which the root is found
+   * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes 
+   * stored in the metadata.
+   * @return the curve calibrator
+   */
+  public static CurveCalibrator of(
+      double toleranceAbs,
+      double toleranceRel,
+      int stepMaximum,
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
+
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, pvMeasures);
   }
 
   //-------------------------------------------------------------------------
@@ -135,7 +154,8 @@ public final class CurveCalibrator {
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum,
-      CalibrationMeasures measures) {
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
 
     this.rootFinder = new BroydenVectorRootFinder(
         toleranceAbs,
@@ -143,6 +163,7 @@ public final class CurveCalibrator {
         stepMaximum,
         DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     this.measures = measures;
+    this.pvMeasures = pvMeasures;
   }
 
   //-------------------------------------------------------------------------
@@ -327,7 +348,7 @@ public final class CurveCalibrator {
       int nbParameters = cps.getParameterCount();
       double[] mqsCurve = new double[nbParameters];
       for (int looptrade = 0; looptrade < nbParameters; looptrade++) {
-        DoubleArray mqsNode = PV_MEASURES.derivative(trades.get(nodeIndex), provider, orderGroup);
+        DoubleArray mqsNode = pvMeasures.derivative(trades.get(nodeIndex), provider, orderGroup);
         mqsCurve[looptrade] = mqsNode.get(nodeIndex);
         nodeIndex++;
       }
