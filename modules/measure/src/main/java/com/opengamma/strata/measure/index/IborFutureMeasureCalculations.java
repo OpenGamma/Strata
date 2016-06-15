@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.index;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
@@ -16,10 +17,10 @@ import com.opengamma.strata.data.scenario.ValuesArray;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.measure.rate.RatesMarketData;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 
 /**
@@ -30,110 +31,163 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 final class IborFutureMeasureCalculations {
 
   /**
-   * The pricer to use.
+   * Default implementation.
    */
-  private static final DiscountingIborFutureTradePricer PRICER = DiscountingIborFutureTradePricer.DEFAULT;
-
+  public static final IborFutureMeasureCalculations DEFAULT = new IborFutureMeasureCalculations(
+      DiscountingIborFutureTradePricer.DEFAULT);
+  /**
+   * The market quote sensitivity calculator.
+   */
+  private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
-  // restricted constructor
-  private IborFutureMeasureCalculations() {
+  /**
+   * Pricer for {@link ResolvedIborFutureTrade}.
+   */
+  private final DiscountingIborFutureTradePricer tradePricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedIborFutureTrade}
+   */
+  IborFutureMeasureCalculations(
+      DiscountingIborFutureTradePricer tradePricer) {
+    this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  CurrencyValuesArray presentValue(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePresentValue(trade, marketData.scenario(i)));
+        i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(
+  CurrencyAmount presentValue(
       ResolvedIborFutureTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
     // mark to model
-    RatesProvider provider = marketData.ratesProvider();
-    double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.presentValue(trade, provider, settlementPrice);
+    double settlementPrice = settlementPrice(trade, ratesProvider);
+    return tradePricer.presentValue(trade, ratesProvider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
-  // calculates PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01(
+  // calculates calibrated sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePv01(trade, marketData.scenario(i)));
+        i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
+  // calibrated sum PV01 for one scenario
+  MultiCurrencyAmount pv01CalibratedSum(
       ResolvedIborFutureTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    return ratesProvider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
+  // calculates calibrated bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
     return ScenarioArray.of(
         marketData.getScenarioCount(),
-        i -> calculateBucketedPv01(trade, marketData.scenario(i)));
+        i -> pv01CalibratedBucketed(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
-  private static CurrencyParameterSensitivities calculateBucketedPv01(
+  // calibrated bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedIborFutureTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    return ratesProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01MarketQuoteSum(
+      ResolvedIborFutureTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote sum PV01 for one scenario
+  MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedIborFutureTrade trade,
+      RatesProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).total().multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedIborFutureTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteBucketed(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedIborFutureTrade trade,
+      RatesProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
   // calculates par spread for all scenarios
-  static ValuesArray parSpread(
+  ValuesArray parSpread(
       ResolvedIborFutureTrade trade,
       RatesScenarioMarketData marketData) {
 
     return ValuesArray.of(
         marketData.getScenarioCount(),
-        index -> calculateParSpread(trade, marketData.scenario(index)));
+        i -> parSpread(trade, marketData.scenario(i).ratesProvider()));
   }
 
   // par spread for one scenario
-  private static double calculateParSpread(
+  double parSpread(
       ResolvedIborFutureTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.parSpread(trade, provider, settlementPrice);
+    double settlementPrice = settlementPrice(trade, ratesProvider);
+    return tradePricer.parSpread(trade, ratesProvider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
   // gets the settlement price
-  private static double settlementPrice(ResolvedIborFutureTrade trade, RatesMarketData marketData) {
+  private double settlementPrice(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
     StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
     QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
-    return marketData.getMarketData().getValue(id) / 100;  // convert market quote to value needed
+    return ratesProvider.data(id) / 100;  // convert market quote to value needed
   }
 
 }

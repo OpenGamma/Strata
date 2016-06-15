@@ -43,6 +43,8 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
  */
@@ -54,10 +56,12 @@ public class IborFutureTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, IborFutureMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureMeasureCalculations::bucketedPv01)
-          .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
+          .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations.DEFAULT::parSpread)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
