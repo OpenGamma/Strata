@@ -38,7 +38,7 @@ public class SwapMeasureCalculationsTest {
         SwapLegAmount.of(firstLeg, CurrencyAmount.of(ccy, notional)),
         SwapLegAmount.of(secondLeg, CurrencyAmount.of(ccy, notional)));
 
-    assertEquals(SwapMeasureCalculations.calculateLegInitialNotional(SWAP_TRADE), expected);
+    assertEquals(SwapMeasureCalculations.DEFAULT.legInitialNotional(SWAP_TRADE), expected);
   }
 
   public void test_legInitialNotionalWithoutNotional() {
@@ -46,7 +46,7 @@ public class SwapMeasureCalculationsTest {
         .product(ResolvedSwap.of(KNOWN_AMOUNT_SWAP_LEG, KNOWN_AMOUNT_SWAP_LEG))
         .build();
 
-    assertThrowsIllegalArg(() -> SwapMeasureCalculations.calculateLegInitialNotional(trade));
+    assertThrowsIllegalArg(() -> SwapMeasureCalculations.DEFAULT.legInitialNotional(trade));
   }
 
 }

@@ -133,6 +133,12 @@ public class DiscountingSwapLegPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(FD_SHIFT);
 
   //-------------------------------------------------------------------------
+  public void test_getters() {
+    assertEquals(DiscountingSwapLegPricer.DEFAULT.getPeriodPricer(), PaymentPeriodPricer.standard());
+    assertEquals(DiscountingSwapLegPricer.DEFAULT.getEventPricer(), PaymentEventPricer.standard());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_couponEquivalent_twoPeriods() {
     ResolvedSwapLeg leg = ResolvedSwapLeg.builder()
         .type(FIXED)
