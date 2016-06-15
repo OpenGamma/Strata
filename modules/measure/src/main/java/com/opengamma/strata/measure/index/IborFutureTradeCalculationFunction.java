@@ -41,8 +41,8 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
  */
@@ -55,8 +55,8 @@ public class IborFutureTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations::presentValue)
-          .put(Measures.PV01, IborFutureMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, IborFutureMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, IborFutureMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureMeasureCalculations::bucketedPv01)
           .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
           .build();
 

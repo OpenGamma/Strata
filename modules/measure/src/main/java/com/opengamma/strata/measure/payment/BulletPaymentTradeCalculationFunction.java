@@ -37,8 +37,8 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  * </ul>
  */
 public class BulletPaymentTradeCalculationFunction
@@ -50,8 +50,8 @@ public class BulletPaymentTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, BulletPaymentMeasureCalculations::presentValue)
-          .put(Measures.PV01, BulletPaymentMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, BulletPaymentMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, BulletPaymentMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, BulletPaymentMeasureCalculations::bucketedPv01)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

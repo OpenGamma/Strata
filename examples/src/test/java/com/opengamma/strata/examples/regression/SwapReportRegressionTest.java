@@ -71,7 +71,7 @@ public class SwapReportRegressionTest {
         Column.of(Measures.LEG_INITIAL_NOTIONAL),
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.LEG_PRESENT_VALUE),
-        Column.of(Measures.PV01),
+        Column.of(Measures.PV01_CALIBRATED_SUM),
         Column.of(Measures.ACCRUED_INTEREST));
 
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

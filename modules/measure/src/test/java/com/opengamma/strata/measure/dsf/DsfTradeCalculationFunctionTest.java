@@ -127,7 +127,9 @@ public class DsfTradeCalculationFunctionTest {
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PRESENT_VALUE,
+        Measures.PRESENT_VALUE_MULTI_CCY);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
@@ -145,12 +147,14 @@ public class DsfTradeCalculationFunctionTest {
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PV01_CALIBRATED_SUM,
+        Measures.PV01_CALIBRATED_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
+            Measures.PV01_CALIBRATED_SUM, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
+            Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedBucketedPv01))));
   }
 
   //-------------------------------------------------------------------------

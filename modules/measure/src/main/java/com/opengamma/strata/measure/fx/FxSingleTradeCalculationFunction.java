@@ -38,8 +38,8 @@ import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
@@ -57,8 +57,8 @@ public class FxSingleTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, FxSingleMeasureCalculations::presentValue)
-          .put(Measures.PV01, FxSingleMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, FxSingleMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, FxSingleMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FxSingleMeasureCalculations::bucketedPv01)
           .put(Measures.PAR_SPREAD, FxSingleMeasureCalculations::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, FxSingleMeasureCalculations::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSingleMeasureCalculations::currentCash)

@@ -41,8 +41,8 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the swap leg that is received.
@@ -56,8 +56,8 @@ public class DsfTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, DsfMeasureCalculations::presentValue)
-          .put(Measures.PV01, DsfMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, DsfMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, DsfMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, DsfMeasureCalculations::bucketedPv01)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

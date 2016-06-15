@@ -67,8 +67,8 @@ public class DsfPricingExample {
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE),
-        Column.of(Measures.PV01),
-        Column.of(Measures.BUCKETED_PV01));
+        Column.of(Measures.PV01_CALIBRATED_SUM),
+        Column.of(Measures.PV01_CALIBRATED_BUCKETED));
 
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
