@@ -56,17 +56,18 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 @Test
 public class FraTradeCalculationFunctionTest {
 
-  public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
-
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
+  public static final ResolvedFraTrade RTRADE = TRADE.resolve(REF_DATA);
+
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final RatesMarketDataLookup RATES_MODEL = RatesMarketDataLookup.of(
+  public static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
-  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_MODEL);
+  private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
 
   //-------------------------------------------------------------------------
@@ -84,16 +85,15 @@ public class FraTradeCalculationFunctionTest {
   public void test_simpleMeasures() {
     FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();
-    RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
+    RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraTradePricer pricer = DiscountingFraTradePricer.DEFAULT;
-    ResolvedFraTrade resolved = TRADE.resolve(REF_DATA);
-    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
-    double expectedParRate = pricer.parRate(resolved, provider);
-    double expectedParSpread = pricer.parSpread(resolved, provider);
-    CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
-    MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(resolved, provider);
-    CurrencyAmount expectedCurrentCash = pricer.currentCash(resolved, provider);
+    CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(RTRADE, provider);
+    double expectedParRate = pricer.parRate(RTRADE, provider);
+    double expectedParSpread = pricer.parSpread(RTRADE, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(RTRADE, provider);
+    MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider);
+    CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -125,7 +125,7 @@ public class FraTradeCalculationFunctionTest {
   public void test_pv01() {
     FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();
-    RatesProvider provider = RATES_MODEL.marketDataView(md.scenario(0)).ratesProvider();
+    RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
     DiscountingFraProductPricer pricer = DiscountingFraProductPricer.DEFAULT;
     ResolvedFra resolved = TRADE.getProduct().resolve(REF_DATA);
     PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
@@ -144,7 +144,7 @@ public class FraTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     return new TestMarketDataMap(
         VAL_DATE,

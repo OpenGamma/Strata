@@ -46,6 +46,8 @@ public class FraTradeCalculations {
 
   /**
    * Creates an instance.
+   * <p>
+   * In most cases, applications should use the {@link #DEFAULT} instance.
    * 
    * @param tradePricer  the pricer for {@link ResolvedFraTrade}
    */
