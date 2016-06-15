@@ -8,7 +8,6 @@ package com.opengamma.strata.measure.dsf;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -88,20 +87,20 @@ public class DsfTradeCalculationFunctionTest {
       .underlyingSwap(SWAP)
       .build();
   private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
+  public static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final double MARKET_PRICE = REF_PRICE * 100;
   private static final long QUANTITY = 1234L;
-  private static final DsfTrade TRADE = DsfTrade.builder()
+  public static final DsfTrade TRADE = DsfTrade.builder()
       .product(FUTURE)
       .quantity(QUANTITY)
       .price(TRADE_PRICE)
       .build();
-  private static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
+  public static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
-  private static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
+  public static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  public static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -126,15 +125,19 @@ public class DsfTradeCalculationFunctionTest {
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
+    MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, REF_PRICE);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
-        Measures.PRESENT_VALUE_MULTI_CCY);
+        Measures.PRESENT_VALUE_MULTI_CCY,
+        Measures.CURRENCY_EXPOSURE);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
-            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))));
+            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure))));
   }
 
   public void test_pv01() {
@@ -158,7 +161,7 @@ public class DsfTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
@@ -168,11 +171,6 @@ public class DsfTradeCalculationFunctionTest {
             QUOTE_KEY, MARKET_PRICE),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(DsfMeasureCalculations.class);
   }
 
 }

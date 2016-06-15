@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.dsf;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
@@ -15,10 +16,10 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.measure.rate.RatesMarketData;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 
 /**
@@ -29,88 +30,162 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
 class DsfMeasureCalculations {
 
   /**
-   * The pricer to use.
+   * Default implementation.
    */
-  private static final DiscountingDsfTradePricer PRICER =
-      DiscountingDsfTradePricer.DEFAULT;
+  public static final DsfMeasureCalculations DEFAULT = new DsfMeasureCalculations(
+      DiscountingDsfTradePricer.DEFAULT);
+  /**
+   * The market quote sensitivity calculator.
+   */
+  private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
-  // restricted constructor
-  private DsfMeasureCalculations() {
+  /**
+   * Pricer for {@link ResolvedDsfTrade}.
+   */
+  private final DiscountingDsfTradePricer tradePricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param tradePricer  the pricer for {@link ResolvedDsfTrade}
+   */
+  DsfMeasureCalculations(
+      DiscountingDsfTradePricer tradePricer) {
+    this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  CurrencyValuesArray presentValue(
       ResolvedDsfTrade trade,
       RatesScenarioMarketData marketData) {
 
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePresentValue(trade, marketData.scenario(i)));
+        i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(
+  CurrencyAmount presentValue(
       ResolvedDsfTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.presentValue(trade, provider, settlementPrice);
+    double settlementPrice = settlementPrice(trade, ratesProvider);
+    return tradePricer.presentValue(trade, ratesProvider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
-  // calculates PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01(
+  // calculates calibrated sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedDsfTrade trade,
       RatesScenarioMarketData marketData) {
 
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePv01(trade, marketData.scenario(i)));
+        i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
+  // calibrated sum PV01 for one scenario
+  MultiCurrencyAmount pv01CalibratedSum(
       ResolvedDsfTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    return ratesProvider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
+  // calculates calibrated bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedDsfTrade trade,
       RatesScenarioMarketData marketData) {
 
     return ScenarioArray.of(
         marketData.getScenarioCount(),
-        i -> calculateBucketedPv01(trade, marketData.scenario(i)));
+        i -> pv01CalibratedBucketed(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
-  private static CurrencyParameterSensitivities calculateBucketedPv01(
+  // calibrated bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedDsfTrade trade,
-      RatesMarketData marketData) {
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
-    return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    return ratesProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01MarketQuoteSum(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote sum PV01 for one scenario
+  MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).total().multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteBucketed(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates currency exposure for all scenarios
+  MultiCurrencyValuesArray currencyExposure(
+      ResolvedDsfTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // currency exposure for one scenario
+  MultiCurrencyAmount currencyExposure(
+      ResolvedDsfTrade trade,
+      RatesProvider ratesProvider) {
+
+    double settlementPrice = settlementPrice(trade, ratesProvider);
+    return tradePricer.currencyExposure(trade, ratesProvider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------
   // gets the settlement price
-  private static double settlementPrice(ResolvedDsfTrade trade, RatesMarketData marketData) {
+  private double settlementPrice(ResolvedDsfTrade trade, RatesProvider ratesProvider) {
     StandardId standardId = trade.getProduct().getSecurityId().getStandardId();
     QuoteId id = QuoteId.of(standardId, FieldName.SETTLEMENT_PRICE);
-    return marketData.getMarketData().getValue(id) / 100;  // convert market quote to value needed
+    return ratesProvider.data(id) / 100;  // convert market quote to value needed
   }
 
 }
