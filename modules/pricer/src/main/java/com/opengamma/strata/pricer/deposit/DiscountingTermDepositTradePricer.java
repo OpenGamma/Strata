@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.deposit;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -125,6 +126,36 @@ public class DiscountingTermDepositTradePricer {
    */
   public PointSensitivities parSpreadSensitivity(ResolvedTermDepositTrade trade, RatesProvider provider) {
     return productPricer.parSpreadSensitivity(trade.getProduct(), provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the currency exposure.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount currencyExposure(ResolvedTermDepositTrade trade, RatesProvider provider) {
+    return MultiCurrencyAmount.of(presentValue(trade, provider));
+  }
+
+  /**
+   * Calculates the current cash.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the current cash
+   */
+  public CurrencyAmount currentCash(ResolvedTermDepositTrade trade, RatesProvider provider) {
+    ResolvedTermDeposit product = trade.getProduct();
+    if (product.getStartDate().isEqual(provider.getValuationDate())) {
+      return CurrencyAmount.of(product.getCurrency(), -product.getNotional());
+    }
+    if (product.getEndDate().isEqual(provider.getValuationDate())) {
+      return CurrencyAmount.of(product.getCurrency(), product.getNotional() + product.getInterest());
+    }
+    return CurrencyAmount.zero(product.getCurrency());
   }
 
 }
