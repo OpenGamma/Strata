@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.pricer.cms;
 
-import static com.opengamma.strata.product.common.PayReceive.PAY;
-import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -50,7 +50,7 @@ import com.opengamma.strata.product.swap.SwapIndices;
  * Test {@link SabrExtrapolationReplicationCmsTradePricer}.
  */
 @Test
-public class DisountingCmsTradePricerTest {
+public class DiscountingCmsTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 

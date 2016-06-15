@@ -12,6 +12,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.impl.cms.DiscountingCmsPeriodPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.cms.CmsLeg;
 import com.opengamma.strata.product.cms.ResolvedCms;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -29,7 +30,7 @@ public class DiscountingCmsProductPricer {
    */
   public static final DiscountingCmsProductPricer DEFAULT = new DiscountingCmsProductPricer(
       DiscountingSwapProductPricer.DEFAULT);
-  
+
   /** The pricer for {@link SwapLeg}. */
   private final DiscountingSwapProductPricer swapPricer;
   /** The pricer for {@link CmsLeg}. */
@@ -83,7 +84,7 @@ public class DiscountingCmsProductPricer {
     if (!cms.getPayLeg().isPresent()) {
       return pvSensiCmsLeg;
     }
-    PointSensitivityBuilder pvSensiPayLeg = 
+    PointSensitivityBuilder pvSensiPayLeg =
         swapPricer.getLegPricer().presentValueSensitivity(cms.getPayLeg().get(), ratesProvider);
     return pvSensiCmsLeg.combinedWith(pvSensiPayLeg);
   }

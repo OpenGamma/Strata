@@ -23,7 +23,7 @@ import com.opengamma.strata.product.swap.Swap;
  *  This is an overly simplistic approach to CMS coupon pricer. It is provided only for testing and comparison 
  *  purposes. It is not recommended to use this for valuation or risk management purposes.
  */
-public class DiscountingCmsTradePricer {  
+public class DiscountingCmsTradePricer {
 
   /**
    * Default implementation.
@@ -44,6 +44,7 @@ public class DiscountingCmsTradePricer {
    * Creates an instance.
    * 
    * @param swapPricer  the pricer for {@link Swap}
+   * @param paymentPricer  the pricer for {@link Payment}
    */
   public DiscountingCmsTradePricer(DiscountingSwapProductPricer swapPricer, DiscountingPaymentPricer paymentPricer) {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
@@ -92,7 +93,6 @@ public class DiscountingCmsTradePricer {
     return pvSensiCms.combinedWith(pvSensiPremium);
   }
 
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the trade.
@@ -134,6 +134,5 @@ public class DiscountingCmsTradePricer {
     }
     return ccCms;
   }
-  
 
 }

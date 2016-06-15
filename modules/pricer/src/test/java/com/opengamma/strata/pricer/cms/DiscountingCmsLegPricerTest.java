@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.pricer.cms;
 
-
-import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -170,5 +169,5 @@ public class DiscountingCmsLegPricerTest {
     CurrencyAmount computed = LEG_PRICER.currentCash(COUPON_LEG, RATES_PROVIDER_ON_PAY);
     assertEquals(computed.getAmount(), -NOTIONAL_VALUE_1 * OBS_INDEX * 367d / 360d, TOLERANCE_PV);
   }
-  
+
 }

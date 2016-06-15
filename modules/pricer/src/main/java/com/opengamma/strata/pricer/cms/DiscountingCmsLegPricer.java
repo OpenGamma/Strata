@@ -24,11 +24,11 @@ import com.opengamma.strata.product.cms.ResolvedCmsLeg;
  * One must apply {@code resolved()} in order to price {@link CmsLeg}. 
  */
 public class DiscountingCmsLegPricer {
-  
+
   /**
    * The pricer for {@link CmsPeriod}.
    */
-  private final DiscountingCmsPeriodPricer  cmsPeriodPricer;
+  private final DiscountingCmsPeriodPricer cmsPeriodPricer;
 
   /**
    * Creates an instance.
