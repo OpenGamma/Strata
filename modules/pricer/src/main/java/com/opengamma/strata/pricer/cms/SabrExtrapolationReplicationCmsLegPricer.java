@@ -20,10 +20,10 @@ import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.cms.ResolvedCmsLeg;
 
 /**
- * Pricer for for CMS legs by swaption replication on a SABR formula with extrapolation.
+ * Pricer for CMS legs by swaption replication on a SABR formula with extrapolation.
  * <p>
  * This function provides the ability to price {@link ResolvedCmsLeg}. 
- * One must apply {@code expand()} in order to price {@link CmsLeg}. 
+ * One must apply {@code resolved()} in order to price {@link CmsLeg}. 
  */
 public class SabrExtrapolationReplicationCmsLegPricer {
 
