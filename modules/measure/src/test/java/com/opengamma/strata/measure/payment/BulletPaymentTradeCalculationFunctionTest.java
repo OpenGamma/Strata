@@ -7,7 +7,6 @@ package com.opengamma.strata.measure.payment;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +47,7 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
  * Test {@link BulletPaymentTradeCalculationFunction}.
@@ -55,6 +55,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
 @Test
 public class BulletPaymentTradeCalculationFunctionTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
   private static final BulletPayment PRODUCT = BulletPayment.builder()
       .payReceive(PayReceive.PAY)
@@ -67,11 +68,11 @@ public class BulletPaymentTradeCalculationFunctionTest {
           .build())
       .product(PRODUCT)
       .build();
+  public static final ResolvedBulletPaymentTrade RTRADE = TRADE.resolve(REF_DATA);
 
-  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of());
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -93,8 +94,8 @@ public class BulletPaymentTradeCalculationFunctionTest {
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
-    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
-    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    Payment payment = RTRADE.getProduct().getPayment();
+    CurrencyAmount expectedPv = pricer.presentValue(payment, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -111,8 +112,8 @@ public class BulletPaymentTradeCalculationFunctionTest {
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
-    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
+    Payment payment = RTRADE.getProduct().getPayment();
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(payment, provider).build();
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -128,18 +129,13 @@ public class BulletPaymentTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(DISCOUNT_CURVE_ID, curve),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(BulletPaymentMeasureCalculations.class);
   }
 
 }

@@ -8,15 +8,16 @@ package com.opengamma.strata.measure.payment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.measure.rate.RatesMarketData;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
@@ -27,81 +28,178 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 class BulletPaymentMeasureCalculations {
 
   /**
-   * The pricer to use.
+   * Default implementation.
    */
-  private static final DiscountingPaymentPricer PRICER = DiscountingPaymentPricer.DEFAULT;
+  public static final BulletPaymentMeasureCalculations DEFAULT = new BulletPaymentMeasureCalculations(
+      DiscountingPaymentPricer.DEFAULT);
+  /**
+   * The market quote sensitivity calculator.
+   */
+  private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
   private static final double ONE_BASIS_POINT = 1e-4;
 
-  // restricted constructor
-  private BulletPaymentMeasureCalculations() {
+  /**
+   * Pricer for {@link Payment}.
+   */
+  private final DiscountingPaymentPricer paymentPricer;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param paymentPricer  the pricer for {@link Payment}
+   */
+  BulletPaymentMeasureCalculations(
+      DiscountingPaymentPricer paymentPricer) {
+    this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
-  static CurrencyValuesArray presentValue(
+  CurrencyValuesArray presentValue(
       ResolvedBulletPaymentTrade trade,
       RatesScenarioMarketData marketData) {
 
-    Payment payment = trade.getProduct().getPayment();
     return CurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePresentValue(payment, marketData.scenario(i)));
+        i -> presentValue(trade, marketData.scenario(i).ratesProvider()));
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(
-      Payment payment,
-      RatesMarketData marketData) {
+  CurrencyAmount presentValue(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    return PRICER.presentValue(payment, provider);
+    Payment payment = trade.getProduct().getPayment();
+    return paymentPricer.presentValue(payment, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
-  // calculates PV01 for all scenarios
-  static MultiCurrencyValuesArray pv01(
+  // calculates calibrated sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedBulletPaymentTrade trade,
       RatesScenarioMarketData marketData) {
 
-    Payment payment = trade.getProduct().getPayment();
     return MultiCurrencyValuesArray.of(
         marketData.getScenarioCount(),
-        i -> calculatePv01(payment, marketData.scenario(i)));
+        i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(
-      Payment payment,
-      RatesMarketData marketData) {
+  // calibrated sum PV01 for one scenario
+  MultiCurrencyAmount pv01CalibratedSum(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
-    return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
+    Payment payment = trade.getProduct().getPayment();
+    PointSensitivities pointSensitivity = paymentPricer.presentValueSensitivity(payment, ratesProvider).build();
+    return ratesProvider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
-  static ScenarioArray<CurrencyParameterSensitivities> bucketedPv01(
+  // calculates calibrated bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedBulletPaymentTrade trade,
       RatesScenarioMarketData marketData) {
 
-    Payment payment = trade.getProduct().getPayment();
     return ScenarioArray.of(
         marketData.getScenarioCount(),
-        i -> calculateBucketedPv01(payment, marketData.scenario(i)));
+        i -> pv01CalibratedBucketed(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
-  private static CurrencyParameterSensitivities calculateBucketedPv01(
-      Payment payment,
-      RatesMarketData marketData) {
+  // calibrated bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01CalibratedBucketed(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
 
-    RatesProvider provider = marketData.ratesProvider();
-    PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
-    return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+    Payment payment = trade.getProduct().getPayment();
+    PointSensitivities pointSensitivity = paymentPricer.presentValueSensitivity(payment, ratesProvider).build();
+    return ratesProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote sum PV01 for all scenarios
+  MultiCurrencyValuesArray pv01MarketQuoteSum(
+      ResolvedBulletPaymentTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote sum PV01 for one scenario
+  MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    Payment payment = trade.getProduct().getPayment();
+    PointSensitivities pointSensitivity = paymentPricer.presentValueSensitivity(payment, ratesProvider).build();
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).total().multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedBulletPaymentTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteBucketed(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // market quote bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    Payment payment = trade.getProduct().getPayment();
+    PointSensitivities pointSensitivity = paymentPricer.presentValueSensitivity(payment, ratesProvider).build();
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates currency exposure for all scenarios
+  MultiCurrencyValuesArray currencyExposure(
+      ResolvedBulletPaymentTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return MultiCurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> currencyExposure(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // currency exposure for one scenario
+  MultiCurrencyAmount currencyExposure(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    Payment payment = trade.getProduct().getPayment();
+    return paymentPricer.currencyExposure(payment, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates current cash for all scenarios
+  CurrencyValuesArray currentCash(
+      ResolvedBulletPaymentTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return CurrencyValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> currentCash(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // current cash for one scenario
+  CurrencyAmount currentCash(
+      ResolvedBulletPaymentTrade trade,
+      RatesProvider ratesProvider) {
+
+    Payment payment = trade.getProduct().getPayment();
+    return paymentPricer.currentCash(payment, ratesProvider);
   }
 
 }
