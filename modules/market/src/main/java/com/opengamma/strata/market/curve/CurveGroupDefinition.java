@@ -222,6 +222,7 @@ public final class CurveGroupDefinition
    * <p>
    * This uses the observed market data to build the trade that each node represents.
    * The result combines the list of trades from each curve in order.
+   * Each trade is created with a quantity of 1.
    *
    * @param valuationDate  the valuation date used when calibrating the curve
    * @param marketData  the market data required to build a trade for the instrument
@@ -235,7 +236,7 @@ public final class CurveGroupDefinition
 
     return curveDefinitionsByName.values().stream()
         .flatMap(curveDef -> curveDef.getNodes().stream())
-        .map(node -> node.resolvedTrade(valuationDate, marketData, refData))
+        .map(node -> node.resolvedTrade(valuationDate, 1d, marketData, refData))
         .collect(toImmutableList());
   }
 

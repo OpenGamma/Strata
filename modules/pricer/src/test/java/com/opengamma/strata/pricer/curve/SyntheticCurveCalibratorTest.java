@@ -109,10 +109,10 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : group.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade tradeTsEmpty = node.resolvedTrade(VALUATION_DATE, madTsEmpty, REF_DATA);
+        ResolvedTrade tradeTsEmpty = node.resolvedTrade(VALUATION_DATE, 1d, madTsEmpty, REF_DATA);
         double mqTsEmpty = MQ_MEASURES.value(tradeTsEmpty, MULTICURVE_INPUT_TSEMPTY);
         assertEquals(mqTsEmpty, (Double) madTsEmpty.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
-        ResolvedTrade tradeTsLarge = node.resolvedTrade(VALUATION_DATE, madTsLarge, REF_DATA);
+        ResolvedTrade tradeTsLarge = node.resolvedTrade(VALUATION_DATE, 1d, madTsLarge, REF_DATA);
         double mqTsLarge = MQ_MEASURES.value(tradeTsLarge, multicurveTsLarge);
         assertEquals(mqTsLarge, (Double) madTsLarge.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
         // Market Quote for Fixed v ibor swaps should have changed with the fixing
@@ -131,7 +131,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, 1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSEMPTY);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);
@@ -148,7 +148,7 @@ public class SyntheticCurveCalibratorTest {
     for (NodalCurveDefinition entry : GROUPS_SYN.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, mad, REF_DATA);
+        ResolvedTrade trade = node.resolvedTrade(VALUATION_DATE, 1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_TSLARGE);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
         assertEquals(mqIn, mqSy, TOLERANCE_MQ);

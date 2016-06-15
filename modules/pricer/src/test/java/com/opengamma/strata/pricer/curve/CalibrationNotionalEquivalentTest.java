@@ -110,7 +110,7 @@ public class CalibrationNotionalEquivalentTest {
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        trades.add(node.resolvedTrade(VALUATION_DATE, MARKET_QUOTES, REF_DATA));
+        trades.add(node.resolvedTrade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
       }
     }
     // Check PV = 0
@@ -134,8 +134,8 @@ public class CalibrationNotionalEquivalentTest {
       List<Trade> tradesCurve = new ArrayList<>();
       List<ResolvedTrade> resolvedTradesCurve = new ArrayList<>();
       for (CurveNode node : nodes) {
-        tradesCurve.add(node.trade(VALUATION_DATE, MARKET_QUOTES, REF_DATA));
-        resolvedTradesCurve.add(node.resolvedTrade(VALUATION_DATE, MARKET_QUOTES, REF_DATA));
+        tradesCurve.add(node.trade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
+        resolvedTradesCurve.add(node.resolvedTrade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
       }
       trades.put(entry.getName(), tradesCurve);
       resolvedTrades.put(entry.getName(), resolvedTradesCurve);

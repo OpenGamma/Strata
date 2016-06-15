@@ -45,7 +45,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 /**
  * A curve node whose instrument is a term deposit.
  * <p>
- * The trade created is a BUY for a positive quantity and a SELL for a negative quantity. 
+ * The trade produced by the node will be a BUY for a positive quantity and a SELL for a negative quantity. 
  * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
