@@ -44,34 +44,6 @@ class CdsMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates par rate for all scenarios
-  static ValuesArray parRate(
-      ResolvedCdsTrade trade,
-      ScenarioMarketData marketData) {
-
-    return ValuesArray.of(
-        marketData.getScenarioCount(),
-        index -> calculateParRate(trade, marketData.scenario(index)));
-  }
-
-  // par rate for one scenario
-  private static double calculateParRate(
-      ResolvedCdsTrade trade,
-      MarketData marketData) {
-
-    ResolvedCds product = trade.getProduct();
-    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
-    IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
-    double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
-    return PRICER.parRate(
-        product,
-        yieldCurveInputs,
-        creditCurveInputs,
-        marketData.getValuationDate(),
-        recoveryRate);
-  }
-
-  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedCdsTrade trade,
@@ -417,6 +389,34 @@ class CdsMeasureCalculations {
     } else {
       throw new IllegalStateException("Unknown reference information type: " + refInfo.getType());
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates par rate for all scenarios
+  static ValuesArray parRate(
+      ResolvedCdsTrade trade,
+      ScenarioMarketData marketData) {
+
+    return ValuesArray.of(
+        marketData.getScenarioCount(),
+        index -> calculateParRate(trade, marketData.scenario(index)));
+  }
+
+  // par rate for one scenario
+  private static double calculateParRate(
+      ResolvedCdsTrade trade,
+      MarketData marketData) {
+
+    ResolvedCds product = trade.getProduct();
+    IsdaYieldCurveInputs yieldCurveInputs = marketData.getValue(IsdaYieldCurveInputsId.of(product.getCurrency()));
+    IsdaCreditCurveInputs creditCurveInputs = creditCurveInputs(trade, marketData);
+    double recoveryRate = cdsRecoveryRate(trade, marketData).getRecoveryRate();
+    return PRICER.parRate(
+        product,
+        yieldCurveInputs,
+        creditCurveInputs,
+        marketData.getValuationDate(),
+        recoveryRate);
   }
 
 }

@@ -65,16 +65,19 @@ public class FraTradeCalculationsTest {
     DiscountingFraTradePricer pricer = DiscountingFraTradePricer.DEFAULT;
     ResolvedFraTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     double expectedParRate = pricer.parRate(resolved, provider);
     double expectedParSpread = pricer.parSpread(resolved, provider);
     CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(resolved, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(resolved, provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
 
     assertEquals(
         FraTradeCalculations.DEFAULT.presentValue(resolved, RATES_MODEL, md),
         CurrencyValuesArray.of(ImmutableList.of(expectedPv)));
+    assertEquals(
+        FraTradeCalculations.DEFAULT.explainPresentValue(resolved, RATES_MODEL, md),
+        ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
     assertEquals(
         FraTradeCalculations.DEFAULT.parRate(resolved, RATES_MODEL, md),
         ValuesArray.of(ImmutableList.of(expectedParRate)));
@@ -90,9 +93,6 @@ public class FraTradeCalculationsTest {
     assertEquals(
         FraTradeCalculations.DEFAULT.currentCash(resolved, RATES_MODEL, md),
         CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.explainPresentValue(resolved, RATES_MODEL, md),
-        ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
   }
 
   public void test_pv01() {

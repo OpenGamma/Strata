@@ -44,27 +44,6 @@ final class IborFutureMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates par spread for all scenarios
-  static ValuesArray parSpread(
-      ResolvedIborFutureTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    return ValuesArray.of(
-        marketData.getScenarioCount(),
-        index -> calculateParSpread(trade, marketData.scenario(index)));
-  }
-
-  // par spread for one scenario
-  private static double calculateParSpread(
-      ResolvedIborFutureTrade trade,
-      RatesMarketData marketData) {
-
-    RatesProvider provider = marketData.ratesProvider();
-    double settlementPrice = settlementPrice(trade, marketData);
-    return PRICER.parSpread(trade, provider, settlementPrice);
-  }
-
-  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedIborFutureTrade trade,
@@ -126,6 +105,27 @@ final class IborFutureMeasureCalculations {
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(trade, provider);
     return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates par spread for all scenarios
+  static ValuesArray parSpread(
+      ResolvedIborFutureTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ValuesArray.of(
+        marketData.getScenarioCount(),
+        index -> calculateParSpread(trade, marketData.scenario(index)));
+  }
+
+  // par spread for one scenario
+  private static double calculateParSpread(
+      ResolvedIborFutureTrade trade,
+      RatesMarketData marketData) {
+
+    RatesProvider provider = marketData.ratesProvider();
+    double settlementPrice = settlementPrice(trade, marketData);
+    return PRICER.parSpread(trade, provider, settlementPrice);
   }
 
   //-------------------------------------------------------------------------

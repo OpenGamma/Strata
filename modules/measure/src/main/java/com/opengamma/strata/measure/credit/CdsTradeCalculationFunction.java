@@ -44,7 +44,6 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#IR01_PARALLEL_ZERO Scalar IR01, based on zero rates}
  *   <li>{@linkplain Measures#IR01_BUCKETED_ZERO Vector curve node IR01, based on zero rates}
  *   <li>{@linkplain Measures#IR01_PARALLEL_PAR Scalar IR01, based on par interest rates}
@@ -55,6 +54,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  *   <li>{@linkplain Measures#CS01_BUCKETED_HAZARD Vector curve node CS01, based on hazard rates}
  *   <li>{@linkplain Measures#RECOVERY01 Recovery01}
  *   <li>{@linkplain Measures#JUMP_TO_DEFAULT Jump to Default}
+ *   <li>{@linkplain Measures#PAR_RATE Par rate}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the fee leg.
@@ -67,7 +67,6 @@ public class CdsTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
           .put(Measures.PRESENT_VALUE, CdsMeasureCalculations::presentValue)
           .put(Measures.IR01_PARALLEL_ZERO, CdsMeasureCalculations::ir01ParallelZero)
           .put(Measures.IR01_BUCKETED_ZERO, CdsMeasureCalculations::ir01BucketedZero)
@@ -79,6 +78,7 @@ public class CdsTradeCalculationFunction
           .put(Measures.CS01_BUCKETED_HAZARD, CdsMeasureCalculations::cs01BucketedHazard)
           .put(Measures.RECOVERY01, CdsMeasureCalculations::recovery01)
           .put(Measures.JUMP_TO_DEFAULT, CdsMeasureCalculations::jumpToDefault)
+          .put(Measures.PAR_RATE, CdsMeasureCalculations::parRate)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

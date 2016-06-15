@@ -41,8 +41,8 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01}
- *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the swap leg that is received.

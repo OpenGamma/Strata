@@ -40,24 +40,6 @@ final class FxSwapMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates par spread for all scenarios
-  static ValuesArray parSpread(
-      ResolvedFxSwapTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    ResolvedFxSwap product = trade.getProduct();
-    return ValuesArray.of(
-        marketData.getScenarioCount(),
-        i -> calculateParSpread(product, marketData.scenario(i)));
-  }
-
-  // par spread for one scenario
-  private static double calculateParSpread(ResolvedFxSwap product, RatesMarketData marketData) {
-    RatesProvider provider = marketData.ratesProvider();
-    return PRICER.parSpread(product, provider);
-  }
-
-  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static MultiCurrencyValuesArray presentValue(
       ResolvedFxSwapTrade trade,
@@ -70,7 +52,10 @@ final class FxSwapMeasureCalculations {
   }
 
   // present value for one scenario
-  private static MultiCurrencyAmount calculatePresentValue(ResolvedFxSwap product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculatePresentValue(
+      ResolvedFxSwap product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(product, provider);
   }
@@ -88,7 +73,10 @@ final class FxSwapMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedFxSwap product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculatePv01(
+      ResolvedFxSwap product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
@@ -117,6 +105,27 @@ final class FxSwapMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates par spread for all scenarios
+  static ValuesArray parSpread(
+      ResolvedFxSwapTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    ResolvedFxSwap product = trade.getProduct();
+    return ValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateParSpread(product, marketData.scenario(i)));
+  }
+
+  // par spread for one scenario
+  private static double calculateParSpread(
+      ResolvedFxSwap product,
+      RatesMarketData marketData) {
+
+    RatesProvider provider = marketData.ratesProvider();
+    return PRICER.parSpread(product, provider);
+  }
+
+  //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
   static MultiCurrencyValuesArray currencyExposure(
       ResolvedFxSwapTrade trade,
@@ -129,7 +138,10 @@ final class FxSwapMeasureCalculations {
   }
 
   // currency exposure for one scenario
-  private static MultiCurrencyAmount calculateCurrencyExposure(ResolvedFxSwap product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculateCurrencyExposure(
+      ResolvedFxSwap product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.currencyExposure(product, provider);
   }
@@ -147,7 +159,10 @@ final class FxSwapMeasureCalculations {
   }
 
   // current cash for one scenario
-  private static MultiCurrencyAmount calculateCurrentCash(ResolvedFxSwap product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculateCurrentCash(
+      ResolvedFxSwap product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.currentCash(product, provider.getValuationDate());
   }

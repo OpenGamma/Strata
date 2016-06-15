@@ -87,6 +87,45 @@ public class FraTradeCalculations {
 
   //-------------------------------------------------------------------------
   /**
+   * Explains the present value calculation across one or more scenarios.
+   * <p>
+   * This provides a breakdown of how
+   * {@linkplain #presentValue(ResolvedFraTrade, RatesMarketDataLookup, ScenarioMarketData) present value}
+   * was calculated, typically used for debugging and validation.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value explanation, one entry per scenario
+   */
+  public ScenarioArray<ExplainMap> explainPresentValue(
+      ResolvedFraTrade trade,
+      RatesMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.explainPresentValue(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Explains the present value calculation for a single set of market data.
+   * <p>
+   * This provides a breakdown of how
+   * {@linkplain #presentValue(ResolvedFraTrade, RatesMarketDataLookup, ScenarioMarketData) present value}
+   * was calculated, typically used for debugging and validation.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value explanation
+   */
+  public ExplainMap explainPresentValue(
+      ResolvedFraTrade trade,
+      RatesProvider ratesProvider) {
+
+    return calc.explainPresentValue(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates present value sensitivity across one or more scenarios.
    * <p>
    * This is the sensitivity of
@@ -414,45 +453,6 @@ public class FraTradeCalculations {
       RatesProvider ratesProvider) {
 
     return calc.currentCash(trade, ratesProvider);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Explains the present value calculation across one or more scenarios.
-   * <p>
-   * This provides a breakdown of how
-   * {@linkplain #presentValue(ResolvedFraTrade, RatesMarketDataLookup, ScenarioMarketData) present value}
-   * was calculated, typically used for debugging and validation.
-   * 
-   * @param trade  the trade
-   * @param lookup  the lookup used to query the market data
-   * @param marketData  the market data
-   * @return the present value explanation, one entry per scenario
-   */
-  public ScenarioArray<ExplainMap> explainPresentValue(
-      ResolvedFraTrade trade,
-      RatesMarketDataLookup lookup,
-      ScenarioMarketData marketData) {
-
-    return calc.explainPresentValue(trade, lookup.marketDataView(marketData));
-  }
-
-  /**
-   * Explains the present value calculation for a single set of market data.
-   * <p>
-   * This provides a breakdown of how
-   * {@linkplain #presentValue(ResolvedFraTrade, RatesMarketDataLookup, ScenarioMarketData) present value}
-   * was calculated, typically used for debugging and validation.
-   * 
-   * @param trade  the trade
-   * @param ratesProvider  the market data
-   * @return the present value explanation
-   */
-  public ExplainMap explainPresentValue(
-      ResolvedFraTrade trade,
-      RatesProvider ratesProvider) {
-
-    return calc.explainPresentValue(trade, ratesProvider);
   }
 
 }

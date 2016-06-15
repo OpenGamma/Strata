@@ -41,42 +41,6 @@ class TermDepositMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates par rate for all scenarios
-  static ValuesArray parRate(
-      ResolvedTermDepositTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    ResolvedTermDeposit product = trade.getProduct();
-    return ValuesArray.of(
-        marketData.getScenarioCount(),
-        i -> calculateParRate(product, marketData.scenario(i)));
-  }
-
-  // par rate for one scenario
-  private static double calculateParRate(ResolvedTermDeposit product, RatesMarketData marketData) {
-    RatesProvider provider = marketData.ratesProvider();
-    return PRICER.parRate(product, provider);
-  }
-
-  //-------------------------------------------------------------------------
-  // calculates par spread for all scenarios
-  static ValuesArray parSpread(
-      ResolvedTermDepositTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    ResolvedTermDeposit product = trade.getProduct();
-    return ValuesArray.of(
-        marketData.getScenarioCount(),
-        i -> calculateParSpread(product, marketData.scenario(i)));
-  }
-
-  // par spread for one scenario
-  private static double calculateParSpread(ResolvedTermDeposit product, RatesMarketData marketData) {
-    RatesProvider provider = marketData.ratesProvider();
-    return PRICER.parSpread(product, provider);
-  }
-
-  //-------------------------------------------------------------------------
   // calculates present value for all scenarios
   static CurrencyValuesArray presentValue(
       ResolvedTermDepositTrade trade,
@@ -89,7 +53,10 @@ class TermDepositMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(ResolvedTermDeposit product, RatesMarketData marketData) {
+  private static CurrencyAmount calculatePresentValue(
+      ResolvedTermDeposit product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(product, provider);
   }
@@ -107,7 +74,10 @@ class TermDepositMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedTermDeposit product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculatePv01(
+      ResolvedTermDeposit product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
@@ -133,6 +103,48 @@ class TermDepositMeasureCalculations {
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates par rate for all scenarios
+  static ValuesArray parRate(
+      ResolvedTermDepositTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    ResolvedTermDeposit product = trade.getProduct();
+    return ValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateParRate(product, marketData.scenario(i)));
+  }
+
+  // par rate for one scenario
+  private static double calculateParRate(
+      ResolvedTermDeposit product,
+      RatesMarketData marketData) {
+
+    RatesProvider provider = marketData.ratesProvider();
+    return PRICER.parRate(product, provider);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates par spread for all scenarios
+  static ValuesArray parSpread(
+      ResolvedTermDepositTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    ResolvedTermDeposit product = trade.getProduct();
+    return ValuesArray.of(
+        marketData.getScenarioCount(),
+        i -> calculateParSpread(product, marketData.scenario(i)));
+  }
+
+  // par spread for one scenario
+  private static double calculateParSpread(
+      ResolvedTermDeposit product,
+      RatesMarketData marketData) {
+
+    RatesProvider provider = marketData.ratesProvider();
+    return PRICER.parSpread(product, provider);
   }
 
 }

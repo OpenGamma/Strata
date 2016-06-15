@@ -39,6 +39,7 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
+ *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
  *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 PV01 semi-parallel gamma bucketed}
@@ -47,7 +48,6 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
- *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  * </ul>
  */
 public class FraTradeCalculationFunction
@@ -59,6 +59,7 @@ public class FraTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, FraMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations.DEFAULT::explainPresentValue)
           .put(Measures.PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.BUCKETED_PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
@@ -67,7 +68,6 @@ public class FraTradeCalculationFunction
           .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
-          .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations.DEFAULT::explainPresentValue)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

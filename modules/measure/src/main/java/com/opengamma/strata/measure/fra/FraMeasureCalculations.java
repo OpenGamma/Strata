@@ -55,6 +55,10 @@ final class FraMeasureCalculations {
    * The market quote sensitivity calculator.
    */
   private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
+  /**
+   * One basis point, expressed as a {@code double}.
+   */
+  private static final double ONE_BASIS_POINT = 1e-4;
 
   /**
    * Pricer for {@link ResolvedFraTrade}.
@@ -70,11 +74,6 @@ final class FraMeasureCalculations {
       DiscountingFraTradePricer tradePricer) {
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
   }
-
-  /**
-   * One basis point, expressed as a {@code double}.
-   */
-  private static final double ONE_BASIS_POINT = 1e-4;
 
   //-------------------------------------------------------------------------
   // calculates present value for all scenarios
@@ -93,6 +92,25 @@ final class FraMeasureCalculations {
       RatesProvider ratesProvider) {
 
     return tradePricer.presentValue(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates explain present value for all scenarios
+  ScenarioArray<ExplainMap> explainPresentValue(
+      ResolvedFraTrade trade,
+      RatesScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> explainPresentValue(trade, marketData.scenario(i).ratesProvider()));
+  }
+
+  // explain present value for one scenario
+  ExplainMap explainPresentValue(
+      ResolvedFraTrade trade,
+      RatesProvider ratesProvider) {
+
+    return tradePricer.explainPresentValue(trade, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -327,25 +345,6 @@ final class FraMeasureCalculations {
       RatesProvider ratesProvider) {
 
     return tradePricer.currentCash(trade, ratesProvider);
-  }
-
-  //-------------------------------------------------------------------------
-  // calculates explain present value for all scenarios
-  ScenarioArray<ExplainMap> explainPresentValue(
-      ResolvedFraTrade trade,
-      RatesScenarioMarketData marketData) {
-
-    return ScenarioArray.of(
-        marketData.getScenarioCount(),
-        i -> explainPresentValue(trade, marketData.scenario(i).ratesProvider()));
-  }
-
-  // explain present value for one scenario
-  ExplainMap explainPresentValue(
-      ResolvedFraTrade trade,
-      RatesProvider ratesProvider) {
-
-    return tradePricer.explainPresentValue(trade, ratesProvider);
   }
 
 }
