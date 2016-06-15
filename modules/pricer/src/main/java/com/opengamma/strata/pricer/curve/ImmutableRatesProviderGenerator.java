@@ -124,7 +124,8 @@ public class ImmutableRatesProviderGenerator
   @Override
   public ImmutableRatesProvider generate(
       DoubleArray parameters,
-      Map<CurveName, JacobianCalibrationMatrix> jacobians) {
+      Map<CurveName, JacobianCalibrationMatrix> jacobians,
+      Map<CurveName, DoubleArray> sensitivitiesMarketQuote) {
 
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
@@ -143,7 +144,7 @@ public class ImmutableRatesProviderGenerator
       DoubleArray curveParams = parameters.subArray(startIndex, startIndex + paramCount);
       startIndex += paramCount;
       // create the child curve
-      CurveMetadata childMetadata = childMetadata(metadata, curveDefn, jacobians);
+      CurveMetadata childMetadata = childMetadata(metadata, curveDefn, jacobians, sensitivitiesMarketQuote);
       Curve curve = curveDefn.curve(knownProvider.getValuationDate(), childMetadata, curveParams);
       // put child curve into maps
       Set<Currency> currencies = discountCurveNames.get(name);
@@ -167,13 +168,19 @@ public class ImmutableRatesProviderGenerator
   private CurveMetadata childMetadata(
       CurveMetadata metadata,
       NodalCurveDefinition curveDefn,
-      Map<CurveName, JacobianCalibrationMatrix> jacobians) {
+      Map<CurveName, JacobianCalibrationMatrix> jacobians,
+      Map<CurveName, DoubleArray> sensitivitiesMarketQuote) {
 
     JacobianCalibrationMatrix jacobian = jacobians.get(curveDefn.getName());
-    if (jacobian == null) {
-      return metadata;
+    CurveMetadata metadataResult = metadata;
+    if (jacobian != null) {
+      metadataResult = metadata.withInfo(CurveInfoType.JACOBIAN, jacobian);
     }
-    return metadata.withInfo(CurveInfoType.JACOBIAN, jacobian);
+    DoubleArray sensitivity = sensitivitiesMarketQuote.get(curveDefn.getName());
+    if (sensitivity != null) {
+      metadataResult = metadataResult.withInfo(CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE, sensitivity);
+    }
+    return metadataResult;
   }
 
 }

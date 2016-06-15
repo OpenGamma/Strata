@@ -56,6 +56,20 @@ public final class CalibrationMeasures {
       MarketQuoteMeasure.IBOR_FUTURE_MQ,
       MarketQuoteMeasure.SWAP_MQ,
       MarketQuoteMeasure.TERM_DEPOSIT_MQ);
+  /**
+   * The present value instance, which is the default used in present value sensitivity to market quote stored during 
+   * curve calibration.
+   * <p>
+   * This computes present value for Term Deposits, IborFixingDeposit, FRA and Swap by discounting,
+   * and price Ibor Futures by discounting; the derivative is the derivative with respect to the market quotes.
+   */
+  public static final CalibrationMeasures PRESENT_VALUE = CalibrationMeasures.of(
+      "PresentValue",
+      PresentValueCalibrationMeasure.FRA_PV,
+      PresentValueCalibrationMeasure.IBOR_FIXING_DEPOSIT_PV,
+      PresentValueCalibrationMeasure.IBOR_FUTURE_PV,
+      PresentValueCalibrationMeasure.SWAP_PV,
+      PresentValueCalibrationMeasure.TERM_DEPOSIT_PV);
 
   /**
    * The name of the set of measures.

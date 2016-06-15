@@ -107,9 +107,10 @@ public class FixedIborSwapCurveNodeTest {
     FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate tradeDate = LocalDate.of(2015, 1, 22);
     double rate = 0.125;
+    double quantity = -1234.56;
     MarketData marketData = ImmutableMarketData.builder(tradeDate).addValue(QUOTE_ID, rate).build();
-    SwapTrade trade = node.trade(tradeDate, marketData, REF_DATA);
-    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, 1, rate + SPREAD, REF_DATA);
+    SwapTrade trade = node.trade(tradeDate, quantity, marketData, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(tradeDate, BUY, -quantity, rate + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
@@ -117,7 +118,7 @@ public class FixedIborSwapCurveNodeTest {
     FixedIborSwapCurveNode node = FixedIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

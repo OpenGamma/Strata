@@ -361,7 +361,7 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    ResolvedFraTrade trade = node.resolvedTrade(valuationDate, marketDataMap, REF_DATA);
+    ResolvedFraTrade trade = node.resolvedTrade(valuationDate, 1d, marketDataMap, REF_DATA);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue(trade, ratesProvider);
     double pv = currencyAmount.getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
@@ -373,7 +373,7 @@ public class CurveGroupMarketDataFunctionTest {
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    ResolvedSwapTrade trade = node.resolvedTrade(valuationDate, marketDataMap, REF_DATA);
+    ResolvedSwapTrade trade = node.resolvedTrade(valuationDate, 1d, marketDataMap, REF_DATA);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue(trade, ratesProvider);
     double pv = amount.getAmount(Currency.USD).getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));

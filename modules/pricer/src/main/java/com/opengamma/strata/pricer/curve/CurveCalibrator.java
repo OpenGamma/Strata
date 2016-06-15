@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
@@ -55,7 +56,8 @@ public final class CurveCalibrator {
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD = CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD);
+  private static final CurveCalibrator STANDARD = 
+      CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.
    */
@@ -70,6 +72,11 @@ public final class CurveCalibrator {
    * This is used to compute the function for which the root is found.
    */
   private final CalibrationMeasures measures;
+  /**
+   * The present value measures.
+   * This is used to compute the present value sensitivity to market quotes stored in the metadata.
+   */
+  private final CalibrationMeasures pvMeasures;
 
   //-------------------------------------------------------------------------
   /**
@@ -99,7 +106,7 @@ public final class CurveCalibrator {
       double toleranceRel,
       int stepMaximum) {
 
-    return of(toleranceAbs, toleranceRel, stepMaximum, CalibrationMeasures.PAR_SPREAD);
+    return of(toleranceAbs, toleranceRel, stepMaximum, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   }
 
   /**
@@ -117,7 +124,28 @@ public final class CurveCalibrator {
       int stepMaximum,
       CalibrationMeasures measures) {
 
-    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures);
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, CalibrationMeasures.PRESENT_VALUE);
+  }
+
+  /**
+   * Obtains an instance specifying tolerances and measures to use.
+   *
+   * @param toleranceAbs  the absolute tolerance
+   * @param toleranceRel  the relative tolerance
+   * @param stepMaximum  the maximum steps
+   * @param measures  the calibration measures, used to compute the function for which the root is found
+   * @param pvMeasures  the present value measures, used to compute the present value sensitivity to market quotes 
+   * stored in the metadata.
+   * @return the curve calibrator
+   */
+  public static CurveCalibrator of(
+      double toleranceAbs,
+      double toleranceRel,
+      int stepMaximum,
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
+
+    return new CurveCalibrator(toleranceAbs, toleranceRel, stepMaximum, measures, pvMeasures);
   }
 
   //-------------------------------------------------------------------------
@@ -126,7 +154,8 @@ public final class CurveCalibrator {
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum,
-      CalibrationMeasures measures) {
+      CalibrationMeasures measures,
+      CalibrationMeasures pvMeasures) {
 
     this.rootFinder = new BroydenVectorRootFinder(
         toleranceAbs,
@@ -134,6 +163,7 @@ public final class CurveCalibrator {
         stepMaximum,
         DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
     this.measures = measures;
+    this.pvMeasures = pvMeasures;
   }
 
   //-------------------------------------------------------------------------
@@ -152,6 +182,8 @@ public final class CurveCalibrator {
    * <p>
    * The calibration is defined using {@link CurveGroupDefinition}.
    * Observable market data, time-series and FX are also needed to complete the calibration.
+   * <p>
+   * The Jacobian matrices are computed and stored in curve metadata.
    *
    * @param curveGroupDefn  the curve group definition
    * @param valuationDate  the validation date
@@ -214,12 +246,19 @@ public final class CurveCalibrator {
       ImmutableRatesProvider calibratedProvider = providerGenerator.generate(calibratedGroupParams);
 
       // use calibration to build Jacobian matrices
-      jacobians = updateJacobiansForGroup(
-          calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
+      if (groupDefn.isComputeJacobian()) {
+        jacobians = updateJacobiansForGroup(
+            calibratedProvider, trades, orderGroup, orderPrev, orderPrevAndGroup, jacobians);
+      }
+      ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuote = ImmutableMap.of();
+      if (groupDefn.isComputePvSensitivityToMarketQuote()) {
+        ImmutableRatesProvider providerWithJacobian = providerGenerator.generate(calibratedGroupParams, jacobians);
+        sensitivityToMarketQuote = sensitivityToMarketQuoteForGroup(providerWithJacobian, trades, orderGroup);
+      }
       orderPrev = orderPrevAndGroup;
 
       // use Jacobians to build output curves
-      providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians);
+      providerCombined = providerGenerator.generate(calibratedGroupParams, jacobians, sensitivityToMarketQuote);
     }
     // return the calibrated provider
     return providerCombined;
@@ -296,6 +335,26 @@ public final class CurveCalibrator {
       startIndex += paramCount;
     }
     return jacobianBuilder.build();
+  }
+
+  private ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuoteForGroup(
+      ImmutableRatesProvider provider,
+      ImmutableList<ResolvedTrade> trades,
+      ImmutableList<CurveParameterSize> orderGroup) {
+
+    Builder<CurveName, DoubleArray> mqsGroup = new Builder<>();
+    int nodeIndex = 0;
+    for (CurveParameterSize cps : orderGroup) {
+      int nbParameters = cps.getParameterCount();
+      double[] mqsCurve = new double[nbParameters];
+      for (int looptrade = 0; looptrade < nbParameters; looptrade++) {
+        DoubleArray mqsNode = pvMeasures.derivative(trades.get(nodeIndex), provider, orderGroup);
+        mqsCurve[looptrade] = mqsNode.get(nodeIndex);
+        nodeIndex++;
+      }
+      mqsGroup.put(cps.getName(), DoubleArray.ofUnsafe(mqsCurve));
+    }
+    return mqsGroup.build();
   }
 
   // calculate the derivatives

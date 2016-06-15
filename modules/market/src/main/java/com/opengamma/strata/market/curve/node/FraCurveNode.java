@@ -45,6 +45,10 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * A curve node whose instrument is a Forward Rate Agreement (FRA).
+ * <p>
+ * The trade produced by the node will be a fixed rate receiver (SELL) for a positive quantity
+ * and a payer (BUY) for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class FraCurveNode
@@ -168,14 +172,20 @@ public final class FraCurveNode
   }
 
   @Override
-  public FraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public FraTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+    BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), fixedRate, refData);
   }
 
   @Override
-  public ResolvedFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedFraTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override

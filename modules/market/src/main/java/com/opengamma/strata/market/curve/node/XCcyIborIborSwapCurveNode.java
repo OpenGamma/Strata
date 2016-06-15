@@ -56,6 +56,12 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
  * A curve node whose instrument is a cross-currency Ibor-Ibor interest rate swap.
  * <p>
  * Two market quotes are required, one for the spread and one for the FX rate.
+ * <p>
+ * The spread or market quote is on the first Ibor leg.
+ * <p>
+ * The trade produced by the node will be a spread receiver (SELL) for a positive quantity
+ * and a payer (BUY) for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class XCcyIborIborSwapCurveNode
@@ -215,16 +221,22 @@ public final class XCcyIborIborSwapCurveNode
   }
 
   @Override
-  public SwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public SwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double marketQuote = marketData.getValue(spreadId) + additionalSpread;
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
-    return template.createTrade(valuationDate, BuySell.BUY, 1, rate, marketQuote, refData);
+    BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), rate, marketQuote, refData);
   }
 
   @Override
-  public ResolvedSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedSwapTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override

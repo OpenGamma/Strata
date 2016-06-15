@@ -9,6 +9,7 @@ import org.joda.convert.FromString;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * The type that provides meaning to additional curve information.
@@ -41,6 +42,12 @@ public final class CurveInfoType<T>
    * Key used to access information about the number of compounding per year, as an {@link Integer}.
    */
   public static final CurveInfoType<Integer> COMPOUNDING_PER_YEAR = CurveInfoType.of("CompoundingPerYear");
+  /**
+   * Key used to access information about the present value sensitivity to market quote, 
+   * represented by a {@link DoubleArray}.
+   */
+  public static final CurveInfoType<DoubleArray> PV_SENSITIVITY_TO_MARKET_QUOTE =
+      CurveInfoType.of("PVSensitivityToMarketQuote");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

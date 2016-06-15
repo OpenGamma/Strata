@@ -47,6 +47,11 @@ import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 
 /**
  * A curve node whose instrument is an FX Swap.
+ * <p>
+ * The trade produced by the node will pay near and receive far in the second currency (BUY)
+ * for a positive quantity and a receive near and pay far (SELL) for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit,
+ * here the long deposit-like is in the second currency.
  */
 @BeanDefinition
 public final class FxSwapCurveNode
@@ -168,16 +173,22 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public FxSwapTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public FxSwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsId);
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, rate, fxPts, refData);
+    BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), rate, fxPts, refData);
   }
 
   @Override
-  public ResolvedFxSwapTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedFxSwapTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override

@@ -69,14 +69,14 @@ public final class DummyFraCurveNode
   }
 
   @Override
-  public DummyFraTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public DummyFraTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + spread;
     return DummyFraTrade.of(valuationDate, fixedRate);
   }
 
   @Override
-  public DummyFraTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData);
+  public DummyFraTrade resolvedTrade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(valuationDate, quantity, marketData, refData);
   }
 
   @Override

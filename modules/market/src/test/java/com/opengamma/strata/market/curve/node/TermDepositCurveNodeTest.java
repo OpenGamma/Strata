@@ -132,7 +132,7 @@ public class TermDepositCurveNodeTest {
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    TermDepositTrade trade = node.trade(valuationDate, marketData, REF_DATA);
+    TermDepositTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
     LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate, REF_DATA);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
@@ -156,7 +156,7 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {

@@ -44,6 +44,9 @@ import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
 
 /**
  * A curve node whose instrument is an Ibor fixing deposit.
+ * <p>
+ * The trade produced by the node will be BUY for a positive quantity and a SELL for a negative quantity. 
+ * This convention is line with other nodes where a positive quantity is similar to long a bond or deposit.
  */
 @BeanDefinition
 public final class IborFixingDepositCurveNode
@@ -176,14 +179,20 @@ public final class IborFixingDepositCurveNode
   }
 
   @Override
-  public IborFixingDepositTrade trade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
+  public IborFixingDepositTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
     double fixedRate = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, BuySell.BUY, 1d, fixedRate, refData);
+    BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
+    return template.createTrade(valuationDate, buySell, Math.abs(quantity), fixedRate, refData);
   }
 
   @Override
-  public ResolvedIborFixingDepositTrade resolvedTrade(LocalDate valuationDate, MarketData marketData, ReferenceData refData) {
-    return trade(valuationDate, marketData, refData).resolve(refData);
+  public ResolvedIborFixingDepositTrade resolvedTrade(
+      LocalDate valuationDate,
+      double quantity,
+      MarketData marketData,
+      ReferenceData refData) {
+
+    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
   }
 
   @Override
