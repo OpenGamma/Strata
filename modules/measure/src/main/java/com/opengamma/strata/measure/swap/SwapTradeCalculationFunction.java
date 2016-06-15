@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
@@ -38,9 +39,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
- *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 PV01 semi-parallel gamma bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
@@ -49,6 +49,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  *   <li>{@linkplain Measures#LEG_PRESENT_VALUE Leg present value}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain AdvancedMeasures#PV01_SEMI_PARALLEL_GAMMA_BUCKETED PV01 semi-parallel gamma bucketed}
  * </ul>
  * <p>
  * The "natural" currency is the currency of the swaption, which is limited to be single-currency.
@@ -63,9 +64,8 @@ public class SwapTradeCalculationFunction
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, SwapMeasureCalculations::presentValue)
           .put(Measures.EXPLAIN_PRESENT_VALUE, SwapMeasureCalculations::explainPresentValue)
-          .put(Measures.PV01, SwapMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, SwapMeasureCalculations::bucketedPv01)
-          .put(Measures.BUCKETED_GAMMA_PV01, SwapMeasureCalculations::bucketedGammaPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, SwapMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, SwapMeasureCalculations::bucketedPv01)
           .put(Measures.PAR_RATE, SwapMeasureCalculations::parRate)
           .put(Measures.PAR_SPREAD, SwapMeasureCalculations::parSpread)
           .put(Measures.CASH_FLOWS, SwapMeasureCalculations::cashFlows)
@@ -74,6 +74,7 @@ public class SwapTradeCalculationFunction
           .put(Measures.LEG_PRESENT_VALUE, SwapMeasureCalculations::legPresentValue)
           .put(Measures.CURRENCY_EXPOSURE, SwapMeasureCalculations::currencyExposure)
           .put(Measures.CURRENT_CASH, SwapMeasureCalculations::currentCash)
+          .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, SwapMeasureCalculations::bucketedGammaPv01)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

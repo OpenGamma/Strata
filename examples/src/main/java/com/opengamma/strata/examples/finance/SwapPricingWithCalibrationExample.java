@@ -35,6 +35,7 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -116,11 +117,11 @@ public class SwapPricingWithCalibrationExample {
         Column.of(Measures.LEG_INITIAL_NOTIONAL),
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.LEG_PRESENT_VALUE),
-        Column.of(Measures.PV01),
+        Column.of(Measures.PV01_CALIBRATED_SUM),
         Column.of(Measures.PAR_RATE),
         Column.of(Measures.ACCRUED_INTEREST),
-        Column.of(Measures.BUCKETED_PV01),
-        Column.of(Measures.BUCKETED_GAMMA_PV01));
+        Column.of(Measures.PV01_CALIBRATED_BUCKETED),
+        Column.of(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED));
 
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);

@@ -96,7 +96,7 @@ public class CurveScenarioExample {
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE),
-        Column.of(Measures.PV01));
+        Column.of(Measures.PV01_CALIBRATED_SUM));
 
     // use the built-in example market data
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();

@@ -37,8 +37,8 @@ import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
@@ -55,8 +55,8 @@ public class FxNdfTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, FxNdfMeasureCalculations::presentValue)
-          .put(Measures.PV01, FxNdfMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, FxNdfMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, FxNdfMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FxNdfMeasureCalculations::bucketedPv01)
           .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations::currencyExposure)
           .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations::currentCash)
           .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations::forwardFxRate)

@@ -133,12 +133,14 @@ public class FraTradeCalculationFunctionTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PV01, Measures.BUCKETED_PV01);
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PV01_CALIBRATED_SUM,
+        Measures.PV01_CALIBRATED_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
-            Measures.PV01, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal))))
+            Measures.PV01_CALIBRATED_SUM, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv01Cal))))
         .containsEntry(
-            Measures.BUCKETED_PV01, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
+            Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
   //-------------------------------------------------------------------------

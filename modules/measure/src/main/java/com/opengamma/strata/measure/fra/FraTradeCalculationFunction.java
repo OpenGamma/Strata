@@ -24,6 +24,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
@@ -40,14 +41,14 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
- *   <li>{@linkplain Measures#BUCKETED_GAMMA_PV01 PV01 semi-parallel gamma bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain AdvancedMeasures#PV01_SEMI_PARALLEL_GAMMA_BUCKETED PV01 semi-parallel gamma bucketed}
  * </ul>
  */
 public class FraTradeCalculationFunction
@@ -60,14 +61,14 @@ public class FraTradeCalculationFunction
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, FraMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations.DEFAULT::explainPresentValue)
-          .put(Measures.PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedSum)
-          .put(Measures.BUCKETED_PV01, FraMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
-          .put(Measures.BUCKETED_GAMMA_PV01, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
+          .put(Measures.PV01_CALIBRATED_SUM, FraMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FraMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PAR_RATE, FraMeasureCalculations.DEFAULT::parRate)
           .put(Measures.PAR_SPREAD, FraMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.CURRENCY_EXPOSURE, FraMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FraMeasureCalculations.DEFAULT::currentCash)
+          .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, FraMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

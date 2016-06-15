@@ -37,8 +37,8 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
- *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
@@ -52,8 +52,8 @@ public class TermDepositTradeCalculationFunction
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
           .put(Measures.PRESENT_VALUE, TermDepositMeasureCalculations::presentValue)
-          .put(Measures.PV01, TermDepositMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, TermDepositMeasureCalculations::bucketedPv01)
+          .put(Measures.PV01_CALIBRATED_SUM, TermDepositMeasureCalculations::pv01)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, TermDepositMeasureCalculations::bucketedPv01)
           .put(Measures.PAR_RATE, TermDepositMeasureCalculations::parRate)
           .put(Measures.PAR_SPREAD, TermDepositMeasureCalculations::parSpread)
           .build();

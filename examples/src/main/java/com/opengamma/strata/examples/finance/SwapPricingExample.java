@@ -33,6 +33,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
+import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.Trade;
@@ -43,12 +44,12 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -88,11 +89,11 @@ public class SwapPricingExample {
         Column.of(Measures.LEG_INITIAL_NOTIONAL),
         Column.of(Measures.PRESENT_VALUE),
         Column.of(Measures.LEG_PRESENT_VALUE),
-        Column.of(Measures.PV01),
+        Column.of(Measures.PV01_CALIBRATED_SUM),
         Column.of(Measures.PAR_RATE),
         Column.of(Measures.ACCRUED_INTEREST),
-        Column.of(Measures.BUCKETED_PV01),
-        Column.of(Measures.BUCKETED_GAMMA_PV01));
+        Column.of(Measures.PV01_CALIBRATED_BUCKETED),
+        Column.of(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED));
 
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
