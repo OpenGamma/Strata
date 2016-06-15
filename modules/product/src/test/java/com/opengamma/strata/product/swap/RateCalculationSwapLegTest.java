@@ -42,6 +42,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -50,6 +51,7 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
@@ -251,6 +253,73 @@ public class RateCalculationSwapLegTest {
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2, rpp3)
+        .build());
+  }
+
+  public void test_resolve_knownAmountStub() {
+    // test case
+    CurrencyAmount knownAmount = CurrencyAmount.of(GBP, 150d);
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_02_03)
+            .endDate(DATE_04_03)
+            .firstRegularStartDate(DATE_02_05)
+            .lastRegularEndDate(DATE_03_05)
+            .frequency(P1M)
+            .stubConvention(StubConvention.BOTH)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .initialStub(FixedRateStubCalculation.ofKnownAmount(knownAmount))
+            .finalStub(FixedRateStubCalculation.ofFixedRate(0.1d))
+            .build())
+        .build();
+    // expected
+    KnownAmountNotionalPaymentPeriod pp1 = KnownAmountNotionalPaymentPeriod.builder()
+        .payment(Payment.of(knownAmount, DATE_02_07))
+        .startDate(DATE_02_03)
+        .endDate(DATE_02_05)
+        .unadjustedStartDate(DATE_02_03)
+        .notionalAmount(CurrencyAmount.of(GBP, -1000d))
+        .build();
+    RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_03_07)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_02_05)
+            .endDate(DATE_03_05)
+            .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    RatePaymentPeriod rpp3 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_04_07)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_03_05)
+            .endDate(DATE_04_03)
+            .unadjustedEndDate(DATE_04_03)
+            .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_03))
+            .rateComputation(FixedRateComputation.of(0.1d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(pp1, rpp2, rpp3)
         .build());
   }
 
@@ -485,38 +554,32 @@ public class RateCalculationSwapLegTest {
         .build();
     FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_01_06)
-        .referenceCurrency(EUR)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA))
         .build();
     FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_02_07)
-        .referenceCurrency(EUR)
-        .notional(-1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_01_02, REF_DATA))
         .build();
     FxResetNotionalExchange ne2a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_02_07)
-        .referenceCurrency(EUR)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA))
         .build();
     FxResetNotionalExchange ne2b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_03_07)
-        .referenceCurrency(EUR)
-        .notional(-1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_02_03, REF_DATA))
         .build();
     FxResetNotionalExchange ne3a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_03_07)
-        .referenceCurrency(EUR)
-        .notional(1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA))
         .build();
     FxResetNotionalExchange ne3b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_04_09)
-        .referenceCurrency(EUR)
-        .notional(-1000d)
+        .notionalAmount(CurrencyAmount.of(EUR, -1000d))
         .observation(FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA))
         .build();
     // assertion

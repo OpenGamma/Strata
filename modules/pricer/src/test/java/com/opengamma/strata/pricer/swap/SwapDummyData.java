@@ -88,15 +88,13 @@ public final class SwapDummyData {
    */
   public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_REC_USD = FxResetNotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
-      .referenceCurrency(Currency.USD)
-      .notional(NOTIONAL)
+      .notionalAmount(CurrencyAmount.of(Currency.USD, NOTIONAL))
       .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
       .build();
 
   public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP = FxResetNotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
-      .referenceCurrency(Currency.GBP)
-      .notional(-NOTIONAL)
+      .notionalAmount(CurrencyAmount.of(Currency.GBP, -NOTIONAL))
       .observation(FxIndexObservation.of(FxIndices.GBP_USD_WM, date(2014, 7, 1), REF_DATA))
       .build();
 

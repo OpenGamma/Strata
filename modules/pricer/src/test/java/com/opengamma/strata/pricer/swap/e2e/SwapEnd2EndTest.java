@@ -58,7 +58,7 @@ import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
-import com.opengamma.strata.product.swap.StubCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -402,7 +402,7 @@ public class SwapEnd2EndTest {
         .calculation(IborRateCalculation.builder()
             .index(USD_LIBOR_6M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(StubCalculation.ofIborInterpolatedRate(USD_LIBOR_3M, USD_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(USD_LIBOR_3M, USD_LIBOR_6M))
             .build())
         .build();
 
@@ -439,7 +439,7 @@ public class SwapEnd2EndTest {
         .calculation(IborRateCalculation.builder()
             .index(USD_LIBOR_6M)
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(StubCalculation.ofIborInterpolatedRate(USD_LIBOR_3M, USD_LIBOR_6M))
+            .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(USD_LIBOR_3M, USD_LIBOR_6M))
             .build())
         .build();
 

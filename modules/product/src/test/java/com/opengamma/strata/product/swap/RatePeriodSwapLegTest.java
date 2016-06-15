@@ -212,14 +212,12 @@ public class RatePeriodSwapLegTest {
         .build();
     FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_06_30)
-        .referenceCurrency(USD)
-        .notional(-8000d)
+        .notionalAmount(CurrencyAmount.of(USD, -8000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA))
         .build();
     FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
         .paymentDate(DATE_2014_10_01)
-        .referenceCurrency(USD)
-        .notional(8000d)
+        .notionalAmount(CurrencyAmount.of(USD, 8000d))
         .observation(FxIndexObservation.of(GBP_USD_WM, DATE_2014_06_28, REF_DATA))
         .build();
     NotionalExchange ne2a = NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, -6000d));

@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.Messages;
 
@@ -126,15 +127,14 @@ public final class RatePaymentPeriod
   @ImmutableValidator
   private void validate() {
     if (fxReset != null) {
+      Currency notionalCcy = fxReset.getReferenceCurrency();
       if (fxReset.getReferenceCurrency().equals(currency)) {
-        throw new IllegalArgumentException(
-            Messages.format("Currency {} must not equal FxReset reference currency {}",
-                currency, fxReset.getReferenceCurrency()));
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must not equal notional currency {} when FX reset applies", currency, notionalCcy));
       }
       if (!fxReset.getIndex().getCurrencyPair().contains(currency)) {
-        throw new IllegalArgumentException(
-            Messages.format("Currency {} must be one of those in the FxReset index {}",
-                currency, fxReset.getIndex()));
+        throw new IllegalArgumentException(Messages.format(
+            "Payment currency {} must be one of those in the FxReset index {}", currency, fxReset.getIndex()));
       }
     }
   }
@@ -181,6 +181,11 @@ public final class RatePaymentPeriod
       return CurrencyAmount.of(fxReset.getReferenceCurrency(), notional);
     }
     return CurrencyAmount.of(currency, notional);
+  }
+
+  @Override
+  public Optional<FxIndexObservation> getFxResetObservation() {
+    return getFxReset().map(fxr -> fxr.getObservation());
   }
 
   /**

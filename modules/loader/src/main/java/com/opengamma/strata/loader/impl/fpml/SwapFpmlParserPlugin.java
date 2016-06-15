@@ -36,9 +36,11 @@ import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateStubCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.NegativeRateMethod;
@@ -51,7 +53,6 @@ import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateCalculation;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResetSchedule;
-import com.opengamma.strata.product.swap.StubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -67,7 +68,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * <li>first payment date
  * <li>last regular payment date
  * <li>weekly reset frequency
- * <li>known amount in a stub
  * <li>spread/gearing in a stub
  * <li>overnight leg first rate is known
  * <li>overnight leg stubs
@@ -351,15 +351,25 @@ final class SwapFpmlParserPlugin
     // supported elements:
     //  'calculationPeriodAmount/calculation/fixedRateSchedule'
     //  'calculationPeriodAmount/calculation/dayCountFraction'
+    //  'stubCalculationPeriodAmount'
     // rejected elements:
     //  'resetDates'
-    //  'stubCalculationPeriodAmount'
+    //  'stubCalculationPeriodAmount/initialStub/floatingRate'
+    //  'stubCalculationPeriodAmount/finalStub/floatingRate'
     document.validateNotPresent(legEl, "resetDates");
-    document.validateNotPresent(legEl, "stubCalculationPeriodAmount");  // TODO: parse fixed stub rate
-    return FixedRateCalculation.builder()
-        .rate(parseSchedule(fixedEl, document))
-        .dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")))
-        .build();
+    FixedRateCalculation.Builder fixedRateBuilder = FixedRateCalculation.builder();
+    fixedRateBuilder.rate(parseSchedule(fixedEl, document));
+    fixedRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
+    // stub
+    legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
+      stubsEl.findChild("initialStub").ifPresent(el -> {
+        fixedRateBuilder.initialStub(parseStubCalculationForFixed(el, document));
+      });
+      stubsEl.findChild("finalStub").ifPresent(el -> {
+        fixedRateBuilder.finalStub(parseStubCalculationForFixed(el, document));
+      });
+    });
+    return fixedRateBuilder.build();
   }
 
   // Converts an FpML 'FloatingRateCalculation' to a {@code RateCalculation}.
@@ -396,8 +406,6 @@ final class SwapFpmlParserPlugin
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/capRateSchedule?'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/floorRateSchedule?'
     //  'resetDates/initialFixingDate'
-    //  'stubCalculationPeriodAmount/initalStub/stubAmount'
-    //  'stubCalculationPeriodAmount/finalStub/stubAmount'
     document.validateNotPresent(floatingEl, "rateTreatment");
     document.validateNotPresent(floatingEl, "capRateSchedule");
     document.validateNotPresent(floatingEl, "floorRateSchedule");
@@ -570,12 +578,28 @@ final class SwapFpmlParserPlugin
   }
 
   //-------------------------------------------------------------------------
-  // Converts an FpML 'StubValue' to a {@code StubCalculation}.
-  private StubCalculation parseStubCalculation(XmlElement baseEl, FpmlDocument document) {
-    document.validateNotPresent(baseEl, "stubAmount");
+  // Converts an FpML 'StubValue' to a {@code FixedRateStubCalculation}.
+  private FixedRateStubCalculation parseStubCalculationForFixed(XmlElement baseEl, FpmlDocument document) {
     Optional<XmlElement> rateOptEl = baseEl.findChild("stubRate");
     if (rateOptEl.isPresent()) {
-      return StubCalculation.ofFixedRate(document.parseDecimal(rateOptEl.get()));
+      return FixedRateStubCalculation.ofFixedRate(document.parseDecimal(rateOptEl.get()));
+    }
+    Optional<XmlElement> amountOptEl = baseEl.findChild("stubAmount");
+    if (amountOptEl.isPresent()) {
+      return FixedRateStubCalculation.ofKnownAmount(document.parseCurrencyAmount(amountOptEl.get()));
+    }
+    throw new FpmlParseException("Invalid stub, fixed rate leg cannot have a floating rate stub");
+  }
+
+  // Converts an FpML 'StubValue' to a {@code IborRateStubCalculation}.
+  private IborRateStubCalculation parseStubCalculation(XmlElement baseEl, FpmlDocument document) {
+    Optional<XmlElement> rateOptEl = baseEl.findChild("stubRate");
+    if (rateOptEl.isPresent()) {
+      return IborRateStubCalculation.ofFixedRate(document.parseDecimal(rateOptEl.get()));
+    }
+    Optional<XmlElement> amountOptEl = baseEl.findChild("stubAmount");
+    if (amountOptEl.isPresent()) {
+      return IborRateStubCalculation.ofKnownAmount(document.parseCurrencyAmount(amountOptEl.get()));
     }
     List<XmlElement> indicesEls = baseEl.getChildren("floatingRate");
     if (indicesEls.size() == 1) {
@@ -585,7 +609,7 @@ final class SwapFpmlParserPlugin
       document.validateNotPresent(indexEl, "rateTreatment");
       document.validateNotPresent(indexEl, "capRateSchedule");
       document.validateNotPresent(indexEl, "floorRateSchedule");
-      return StubCalculation.ofIborRate((IborIndex) document.parseIndex(indexEl));
+      return IborRateStubCalculation.ofIborRate((IborIndex) document.parseIndex(indexEl));
     } else if (indicesEls.size() == 2) {
       XmlElement index1El = indicesEls.get(0);
       document.validateNotPresent(index1El, "floatingRateMultiplierSchedule");
@@ -599,7 +623,7 @@ final class SwapFpmlParserPlugin
       document.validateNotPresent(index2El, "rateTreatment");
       document.validateNotPresent(index2El, "capRateSchedule");
       document.validateNotPresent(index2El, "floorRateSchedule");
-      return StubCalculation.ofIborInterpolatedRate(
+      return IborRateStubCalculation.ofIborInterpolatedRate(
           (IborIndex) document.parseIndex(index1El),
           (IborIndex) document.parseIndex(index2El));
     }

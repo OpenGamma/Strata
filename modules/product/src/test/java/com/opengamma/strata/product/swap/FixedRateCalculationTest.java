@@ -13,6 +13,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -41,15 +43,21 @@ public class FixedRateCalculationTest {
     assertEquals(test.getType(), SwapLegType.FIXED);
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getInitialStub(), Optional.empty());
+    assertEquals(test.getFinalStub(), Optional.empty());
   }
 
   public void test_builder() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
         .rate(ValueSchedule.of(0.025d))
+        .initialStub(FixedRateStubCalculation.ofFixedRate(0.1d))
+        .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
+    assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
   }
 
   //-------------------------------------------------------------------------

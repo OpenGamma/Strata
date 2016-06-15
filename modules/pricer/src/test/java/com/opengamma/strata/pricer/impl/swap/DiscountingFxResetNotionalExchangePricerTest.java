@@ -241,14 +241,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     LocalDate fixingDate = date(2014, 6, 27);
     FxResetNotionalExchange resetNotionalUSD = FxResetNotionalExchange.builder()
         .paymentDate(paymentDate)
-        .referenceCurrency(USD)
-        .notional(NOTIONAL)
+        .notionalAmount(CurrencyAmount.of(USD, NOTIONAL))
         .observation(FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA))
         .build();
     FxResetNotionalExchange resetNotionalGBP = FxResetNotionalExchange.builder()
         .paymentDate(paymentDate)
-        .referenceCurrency(GBP)
-        .notional(-NOTIONAL)
+        .notionalAmount(CurrencyAmount.of(GBP, -NOTIONAL))
         .observation(FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA))
         .build();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 6, 27), 1.65);
@@ -296,14 +294,12 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     LocalDate fixingDate = date(2014, 6, 27);
     FxResetNotionalExchange resetNotionalUSD = FxResetNotionalExchange.builder()
         .paymentDate(paymentDate)
-        .referenceCurrency(USD)
-        .notional(NOTIONAL)
+        .notionalAmount(CurrencyAmount.of(USD, NOTIONAL))
         .observation(FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA))
         .build();
     FxResetNotionalExchange resetNotionalGBP = FxResetNotionalExchange.builder()
         .paymentDate(paymentDate)
-        .referenceCurrency(GBP)
-        .notional(-NOTIONAL)
+        .notionalAmount(CurrencyAmount.of(GBP, -NOTIONAL))
         .observation(FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA))
         .build();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate)

@@ -66,25 +66,14 @@ public final class FxResetNotionalExchange
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate paymentDate;
   /**
-   * The currency of the notional amount defined in the contract.
-   * <p>
-   * This is the currency of notional amount as defined in the contract.
-   * The notional will be converted from this currency to the payment currency using the specified index.
-   * ISDA refers to this as the <i>constant currency</i>.
-   * <p>
-   * The reference currency must be one of the two currencies of the index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Currency referenceCurrency;
-  /**
    * The notional amount, positive if receiving, negative if paying.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code referenceCurrency} but will
    * be paid after FX conversion using the index.
    */
-  @PropertyDefinition
-  private final double notional;
+  @PropertyDefinition(validate = "notNull")
+  private final CurrencyAmount notionalAmount;
   /**
    * The FX index observation.
    * <p>
@@ -101,10 +90,10 @@ public final class FxResetNotionalExchange
   @ImmutableValidator
   private void validate() {
     FxIndex index = observation.getIndex();
-    if (!index.getCurrencyPair().contains(referenceCurrency)) {
+    if (!index.getCurrencyPair().contains(notionalAmount.getCurrency())) {
       throw new IllegalArgumentException(
           Messages.format(
-              "Reference currency {} must be one of those in the FxIndex {}", referenceCurrency, index));
+              "Reference currency {} must be one of those in the FxIndex {}", notionalAmount.getCurrency(), index));
     }
   }
 
@@ -122,18 +111,33 @@ public final class FxResetNotionalExchange
     FxIndex index = observation.getIndex();
     Currency indexBase = index.getCurrencyPair().getBase();
     Currency indexCounter = index.getCurrencyPair().getCounter();
-    return (referenceCurrency.equals(indexBase) ? indexCounter : indexBase);
+    return (getReferenceCurrency().equals(indexBase) ? indexCounter : indexBase);
   }
 
   /**
-   * Gets the notional as a {@code CurrencyAmount}.
+   * Gets the reference currency, as defined in the contract.
    * <p>
-   * The notional is expressed in the reference currency, prior to FX conversion.
+   * This is the currency of notional amount as defined in the contract.
+   * The notional will be converted from this currency to the payment currency using the specified index.
+   * ISDA refers to this as the <i>constant currency</i>.
+   * <p>
+   * The reference currency must be one of the two currencies of the index.
    * 
-   * @return the notional as a  {@code CurrencyAmount}
+   * @return the reference currency, as defined in the contract
    */
-  public CurrencyAmount getNotionalAmount() {
-    return CurrencyAmount.of(referenceCurrency, notional);
+  public Currency getReferenceCurrency() {
+    return notionalAmount.getCurrency();
+  }
+
+  /**
+   * Gets the amount of the notional.
+   * <p>
+   * See {@link #getNotionalAmount()}.
+   * 
+   * @return the amount of the notional
+   */
+  public double getNotional() {
+    return getNotionalAmount().getAmount();
   }
 
   //-------------------------------------------------------------------------
@@ -172,15 +176,13 @@ public final class FxResetNotionalExchange
 
   private FxResetNotionalExchange(
       LocalDate paymentDate,
-      Currency referenceCurrency,
-      double notional,
+      CurrencyAmount notionalAmount,
       FxIndexObservation observation) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
-    JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
+    JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
     JodaBeanUtils.notNull(observation, "observation");
     this.paymentDate = paymentDate;
-    this.referenceCurrency = referenceCurrency;
-    this.notional = notional;
+    this.notionalAmount = notionalAmount;
     this.observation = observation;
     validate();
   }
@@ -215,30 +217,15 @@ public final class FxResetNotionalExchange
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the notional amount defined in the contract.
-   * <p>
-   * This is the currency of notional amount as defined in the contract.
-   * The notional will be converted from this currency to the payment currency using the specified index.
-   * ISDA refers to this as the <i>constant currency</i>.
-   * <p>
-   * The reference currency must be one of the two currencies of the index.
-   * @return the value of the property, not null
-   */
-  public Currency getReferenceCurrency() {
-    return referenceCurrency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the notional amount, positive if receiving, negative if paying.
    * <p>
    * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code referenceCurrency} but will
    * be paid after FX conversion using the index.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
-  public double getNotional() {
-    return notional;
+  public CurrencyAmount getNotionalAmount() {
+    return notionalAmount;
   }
 
   //-----------------------------------------------------------------------
@@ -273,8 +260,7 @@ public final class FxResetNotionalExchange
     if (obj != null && obj.getClass() == this.getClass()) {
       FxResetNotionalExchange other = (FxResetNotionalExchange) obj;
       return JodaBeanUtils.equal(paymentDate, other.paymentDate) &&
-          JodaBeanUtils.equal(referenceCurrency, other.referenceCurrency) &&
-          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(notionalAmount, other.notionalAmount) &&
           JodaBeanUtils.equal(observation, other.observation);
     }
     return false;
@@ -284,19 +270,17 @@ public final class FxResetNotionalExchange
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(referenceCurrency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notionalAmount);
     hash = hash * 31 + JodaBeanUtils.hashCode(observation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("FxResetNotionalExchange{");
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("notionalAmount").append('=').append(notionalAmount).append(',').append(' ');
     buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
     buf.append('}');
     return buf.toString();
@@ -318,15 +302,10 @@ public final class FxResetNotionalExchange
     private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
         this, "paymentDate", FxResetNotionalExchange.class, LocalDate.class);
     /**
-     * The meta-property for the {@code referenceCurrency} property.
+     * The meta-property for the {@code notionalAmount} property.
      */
-    private final MetaProperty<Currency> referenceCurrency = DirectMetaProperty.ofImmutable(
-        this, "referenceCurrency", FxResetNotionalExchange.class, Currency.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", FxResetNotionalExchange.class, Double.TYPE);
+    private final MetaProperty<CurrencyAmount> notionalAmount = DirectMetaProperty.ofImmutable(
+        this, "notionalAmount", FxResetNotionalExchange.class, CurrencyAmount.class);
     /**
      * The meta-property for the {@code observation} property.
      */
@@ -338,8 +317,7 @@ public final class FxResetNotionalExchange
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "paymentDate",
-        "referenceCurrency",
-        "notional",
+        "notionalAmount",
         "observation");
 
     /**
@@ -353,10 +331,8 @@ public final class FxResetNotionalExchange
       switch (propertyName.hashCode()) {
         case -1540873516:  // paymentDate
           return paymentDate;
-        case 727652476:  // referenceCurrency
-          return referenceCurrency;
-        case 1585636160:  // notional
-          return notional;
+        case -902123592:  // notionalAmount
+          return notionalAmount;
         case 122345516:  // observation
           return observation;
       }
@@ -388,19 +364,11 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * The meta-property for the {@code referenceCurrency} property.
+     * The meta-property for the {@code notionalAmount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> referenceCurrency() {
-      return referenceCurrency;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> notional() {
-      return notional;
+    public MetaProperty<CurrencyAmount> notionalAmount() {
+      return notionalAmount;
     }
 
     /**
@@ -417,10 +385,8 @@ public final class FxResetNotionalExchange
       switch (propertyName.hashCode()) {
         case -1540873516:  // paymentDate
           return ((FxResetNotionalExchange) bean).getPaymentDate();
-        case 727652476:  // referenceCurrency
-          return ((FxResetNotionalExchange) bean).getReferenceCurrency();
-        case 1585636160:  // notional
-          return ((FxResetNotionalExchange) bean).getNotional();
+        case -902123592:  // notionalAmount
+          return ((FxResetNotionalExchange) bean).getNotionalAmount();
         case 122345516:  // observation
           return ((FxResetNotionalExchange) bean).getObservation();
       }
@@ -445,8 +411,7 @@ public final class FxResetNotionalExchange
   public static final class Builder extends DirectFieldsBeanBuilder<FxResetNotionalExchange> {
 
     private LocalDate paymentDate;
-    private Currency referenceCurrency;
-    private double notional;
+    private CurrencyAmount notionalAmount;
     private FxIndexObservation observation;
 
     /**
@@ -461,8 +426,7 @@ public final class FxResetNotionalExchange
      */
     private Builder(FxResetNotionalExchange beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
-      this.referenceCurrency = beanToCopy.getReferenceCurrency();
-      this.notional = beanToCopy.getNotional();
+      this.notionalAmount = beanToCopy.getNotionalAmount();
       this.observation = beanToCopy.getObservation();
     }
 
@@ -472,10 +436,8 @@ public final class FxResetNotionalExchange
       switch (propertyName.hashCode()) {
         case -1540873516:  // paymentDate
           return paymentDate;
-        case 727652476:  // referenceCurrency
-          return referenceCurrency;
-        case 1585636160:  // notional
-          return notional;
+        case -902123592:  // notionalAmount
+          return notionalAmount;
         case 122345516:  // observation
           return observation;
         default:
@@ -489,11 +451,8 @@ public final class FxResetNotionalExchange
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
           break;
-        case 727652476:  // referenceCurrency
-          this.referenceCurrency = (Currency) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
+        case -902123592:  // notionalAmount
+          this.notionalAmount = (CurrencyAmount) newValue;
           break;
         case 122345516:  // observation
           this.observation = (FxIndexObservation) newValue;
@@ -532,8 +491,7 @@ public final class FxResetNotionalExchange
     public FxResetNotionalExchange build() {
       return new FxResetNotionalExchange(
           paymentDate,
-          referenceCurrency,
-          notional,
+          notionalAmount,
           observation);
     }
 
@@ -553,33 +511,17 @@ public final class FxResetNotionalExchange
     }
 
     /**
-     * Sets the currency of the notional amount defined in the contract.
-     * <p>
-     * This is the currency of notional amount as defined in the contract.
-     * The notional will be converted from this currency to the payment currency using the specified index.
-     * ISDA refers to this as the <i>constant currency</i>.
-     * <p>
-     * The reference currency must be one of the two currencies of the index.
-     * @param referenceCurrency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder referenceCurrency(Currency referenceCurrency) {
-      JodaBeanUtils.notNull(referenceCurrency, "referenceCurrency");
-      this.referenceCurrency = referenceCurrency;
-      return this;
-    }
-
-    /**
      * Sets the notional amount, positive if receiving, negative if paying.
      * <p>
      * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code referenceCurrency} but will
      * be paid after FX conversion using the index.
-     * @param notional  the new value
+     * @param notionalAmount  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder notional(double notional) {
-      this.notional = notional;
+    public Builder notionalAmount(CurrencyAmount notionalAmount) {
+      JodaBeanUtils.notNull(notionalAmount, "notionalAmount");
+      this.notionalAmount = notionalAmount;
       return this;
     }
 
@@ -603,11 +545,10 @@ public final class FxResetNotionalExchange
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("FxResetNotionalExchange.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
-      buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(notionalAmount)).append(',').append(' ');
       buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
       buf.append('}');
       return buf.toString();

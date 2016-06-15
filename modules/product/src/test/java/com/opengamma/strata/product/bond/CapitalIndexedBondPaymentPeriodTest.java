@@ -22,7 +22,6 @@ import java.time.temporal.TemporalAdjusters;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
@@ -143,7 +142,6 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .rateComputation(COMPUTE_INTERP)
         .realCoupon(REAL_COUPON)
         .build();
-    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, NOTIONAL));
     assertEquals(test.getPaymentDate(), END);
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), test);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
