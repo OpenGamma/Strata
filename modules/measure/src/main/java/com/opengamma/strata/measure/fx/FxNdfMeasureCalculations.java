@@ -54,7 +54,10 @@ final class FxNdfMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(ResolvedFxNdf product, RatesMarketData marketData) {
+  private static CurrencyAmount calculatePresentValue(
+      ResolvedFxNdf product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(product, provider);
   }
@@ -72,7 +75,10 @@ final class FxNdfMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(ResolvedFxNdf product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculatePv01(
+      ResolvedFxNdf product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(product, provider);
     return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
@@ -113,7 +119,10 @@ final class FxNdfMeasureCalculations {
   }
 
   // currency exposure for one scenario
-  private static MultiCurrencyAmount calculateCurrencyExposure(ResolvedFxNdf product, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculateCurrencyExposure(
+      ResolvedFxNdf product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.currencyExposure(product, provider);
   }
@@ -131,7 +140,10 @@ final class FxNdfMeasureCalculations {
   }
 
   // current cash for one scenario
-  private static CurrencyAmount calculateCurrentCash(ResolvedFxNdf product, RatesMarketData marketData) {
+  private static CurrencyAmount calculateCurrentCash(
+      ResolvedFxNdf product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.currentCash(product, provider);
   }
@@ -149,7 +161,10 @@ final class FxNdfMeasureCalculations {
   }
 
   // current cash for one scenario
-  private static FxRate calculateForwardFxRate(ResolvedFxNdf product, RatesMarketData marketData) {
+  private static FxRate calculateForwardFxRate(
+      ResolvedFxNdf product,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.forwardFxRate(product, provider);
   }

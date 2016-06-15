@@ -36,11 +36,11 @@ import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01}
- *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
@@ -56,10 +56,10 @@ public class FxSwapTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations::parSpread)
           .put(Measures.PRESENT_VALUE, FxSwapMeasureCalculations::presentValue)
           .put(Measures.PV01, FxSwapMeasureCalculations::pv01)
           .put(Measures.BUCKETED_PV01, FxSwapMeasureCalculations::bucketedPv01)
+          .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, FxSwapMeasureCalculations::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSwapMeasureCalculations::currentCash)
           .build();

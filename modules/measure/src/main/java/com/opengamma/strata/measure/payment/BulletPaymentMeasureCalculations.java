@@ -52,7 +52,10 @@ class BulletPaymentMeasureCalculations {
   }
 
   // present value for one scenario
-  private static CurrencyAmount calculatePresentValue(Payment payment, RatesMarketData marketData) {
+  private static CurrencyAmount calculatePresentValue(
+      Payment payment,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     return PRICER.presentValue(payment, provider);
   }
@@ -70,7 +73,10 @@ class BulletPaymentMeasureCalculations {
   }
 
   // PV01 for one scenario
-  private static MultiCurrencyAmount calculatePv01(Payment payment, RatesMarketData marketData) {
+  private static MultiCurrencyAmount calculatePv01(
+      Payment payment,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.parameterSensitivity(pointSensitivity).total().multipliedBy(ONE_BASIS_POINT);
@@ -89,7 +95,10 @@ class BulletPaymentMeasureCalculations {
   }
 
   // bucketed PV01 for one scenario
-  private static CurrencyParameterSensitivities calculateBucketedPv01(Payment payment, RatesMarketData marketData) {
+  private static CurrencyParameterSensitivities calculateBucketedPv01(
+      Payment payment,
+      RatesMarketData marketData) {
+
     RatesProvider provider = marketData.ratesProvider();
     PointSensitivities pointSensitivity = PRICER.presentValueSensitivity(payment, provider).build();
     return provider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);

@@ -88,26 +88,28 @@ public class FraTradeCalculationFunctionTest {
     DiscountingFraTradePricer pricer = DiscountingFraTradePricer.DEFAULT;
     ResolvedFraTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     double expectedParRate = pricer.parRate(resolved, provider);
     double expectedParSpread = pricer.parSpread(resolved, provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(resolved, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
+        Measures.EXPLAIN_PRESENT_VALUE,
         Measures.PAR_RATE,
         Measures.PAR_SPREAD,
         Measures.CASH_FLOWS,
         Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH,
-        Measures.EXPLAIN_PRESENT_VALUE);
+        Measures.CURRENT_CASH);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.PRESENT_VALUE_MULTI_CCY, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedPv))))
+        .containsEntry(
+            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
             Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
         .containsEntry(
@@ -117,9 +119,7 @@ public class FraTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedCurrencyExposure))))
         .containsEntry(
-            Measures.CURRENT_CASH, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash))))
-        .containsEntry(
-            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))));
+            Measures.CURRENT_CASH, Result.success(CurrencyValuesArray.of(ImmutableList.of(expectedCurrentCash))));
   }
 
   public void test_pv01() {

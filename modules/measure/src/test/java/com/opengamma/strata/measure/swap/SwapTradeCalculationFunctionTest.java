@@ -89,18 +89,19 @@ public class SwapTradeCalculationFunctionTest {
     DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
     ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
     MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     double expectedParRate = pricer.parRate(resolved, provider);
     double expectedParSpread = pricer.parSpread(resolved, provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
     CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
     MultiCurrencyAmount expectedExposure = pricer.currencyExposure(resolved, provider);
     MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider);
 
-    Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE,
+    Set<Measure> measures = ImmutableSet.of(
+        Measures.PRESENT_VALUE,
         Measures.PRESENT_VALUE_MULTI_CCY,
+        Measures.EXPLAIN_PRESENT_VALUE,
         Measures.PAR_RATE,
         Measures.PAR_SPREAD,
-        Measures.EXPLAIN_PRESENT_VALUE,
         Measures.CASH_FLOWS, Measures.CURRENCY_EXPOSURE, Measures.CURRENT_CASH);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
@@ -108,11 +109,11 @@ public class SwapTradeCalculationFunctionTest {
         .containsEntry(
             Measures.PRESENT_VALUE_MULTI_CCY, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
+            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
+        .containsEntry(
             Measures.PAR_RATE, Result.success(ValuesArray.of(ImmutableList.of(expectedParRate))))
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
-        .containsEntry(
-            Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(
             Measures.CASH_FLOWS, Result.success(ScenarioArray.of(ImmutableList.of(expectedCashFlows))))
         .containsEntry(

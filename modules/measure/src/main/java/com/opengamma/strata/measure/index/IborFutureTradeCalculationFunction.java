@@ -39,11 +39,11 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
  * <ul>
- *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
- *   <li>{@linkplain Measures#PV01 PV01}
- *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
+ *   <li>{@linkplain Measures#PV01 PV01 calibrated sum}
+ *   <li>{@linkplain Measures#BUCKETED_PV01 PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  * </ul>
  */
 public class IborFutureTradeCalculationFunction
@@ -54,10 +54,10 @@ public class IborFutureTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
           .put(Measures.PRESENT_VALUE, IborFutureMeasureCalculations::presentValue)
           .put(Measures.PV01, IborFutureMeasureCalculations::pv01)
           .put(Measures.BUCKETED_PV01, IborFutureMeasureCalculations::bucketedPv01)
+          .put(Measures.PAR_SPREAD, IborFutureMeasureCalculations::parSpread)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
