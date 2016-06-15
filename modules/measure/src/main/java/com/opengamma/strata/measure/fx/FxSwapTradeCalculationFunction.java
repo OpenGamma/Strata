@@ -40,6 +40,8 @@ import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
@@ -56,12 +58,14 @@ public class FxSwapTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, FxSwapMeasureCalculations::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, FxSwapMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, FxSwapMeasureCalculations::bucketedPv01)
-          .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations::parSpread)
-          .put(Measures.CURRENCY_EXPOSURE, FxSwapMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, FxSwapMeasureCalculations::currentCash)
+          .put(Measures.PRESENT_VALUE, FxSwapMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, FxSwapMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FxSwapMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, FxSwapMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FxSwapMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.PAR_SPREAD, FxSwapMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.CURRENCY_EXPOSURE, FxSwapMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, FxSwapMeasureCalculations.DEFAULT::currentCash)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

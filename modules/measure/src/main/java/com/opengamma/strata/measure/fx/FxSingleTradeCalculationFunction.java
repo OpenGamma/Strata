@@ -40,6 +40,8 @@ import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
@@ -56,13 +58,15 @@ public class FxSingleTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, FxSingleMeasureCalculations::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, FxSingleMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, FxSingleMeasureCalculations::bucketedPv01)
-          .put(Measures.PAR_SPREAD, FxSingleMeasureCalculations::parSpread)
-          .put(Measures.CURRENCY_EXPOSURE, FxSingleMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, FxSingleMeasureCalculations::currentCash)
-          .put(Measures.FORWARD_FX_RATE, FxSingleMeasureCalculations::forwardFxRate)
+          .put(Measures.PRESENT_VALUE, FxSingleMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, FxSingleMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FxSingleMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, FxSingleMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FxSingleMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.PAR_SPREAD, FxSingleMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.CURRENCY_EXPOSURE, FxSingleMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, FxSingleMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.FORWARD_FX_RATE, FxSingleMeasureCalculations.DEFAULT::forwardFxRate)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

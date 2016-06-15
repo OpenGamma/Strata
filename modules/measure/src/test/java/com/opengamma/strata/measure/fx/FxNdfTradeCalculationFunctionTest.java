@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,12 +42,12 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.fx.DiscountingFxNdfProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxNdfTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.FxNdf;
 import com.opengamma.strata.product.fx.FxNdfTrade;
-import com.opengamma.strata.product.fx.ResolvedFxNdf;
+import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
 
 /**
  * Test {@link FxNdfTradeCalculationFunction}.
@@ -71,9 +70,11 @@ public class FxNdfTradeCalculationFunctionTest {
           .build())
       .product(PRODUCT)
       .build();
+  public static final ResolvedFxNdfTrade RTRADE = TRADE.resolve(REF_DATA);
+
   private static final CurveId DISCOUNT_CURVE_GBP_ID = CurveId.of("Default", "Discount-GBP");
   private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_ID, USD, DISCOUNT_CURVE_USD_ID),
       ImmutableMap.of());
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -95,12 +96,11 @@ public class FxNdfTradeCalculationFunctionTest {
     FxNdfTradeCalculationFunction function = new FxNdfTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxNdfProductPricer pricer = DiscountingFxNdfProductPricer.DEFAULT;
-    ResolvedFxNdf resolved = TRADE.getProduct().resolve(REF_DATA);
-    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
-    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(resolved, provider);
-    CurrencyAmount expectedCash = pricer.currentCash(resolved, provider);
-    FxRate expectedForwardFx = pricer.forwardFxRate(resolved, provider);
+    DiscountingFxNdfTradePricer pricer = DiscountingFxNdfTradePricer.DEFAULT;
+    CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider);
+    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(RTRADE, provider);
+    CurrencyAmount expectedCash = pricer.currentCash(RTRADE, provider);
+    FxRate expectedForwardFx = pricer.forwardFxRate(RTRADE, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -125,9 +125,8 @@ public class FxNdfTradeCalculationFunctionTest {
     FxNdfTradeCalculationFunction function = new FxNdfTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxNdfProductPricer pricer = DiscountingFxNdfProductPricer.DEFAULT;
-    ResolvedFxNdf resolved = TRADE.getProduct().resolve(REF_DATA);
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
+    DiscountingFxNdfTradePricer pricer = DiscountingFxNdfTradePricer.DEFAULT;
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -143,7 +142,7 @@ public class FxNdfTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve1 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
     Curve curve2 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
     TestMarketDataMap md = new TestMarketDataMap(
@@ -154,11 +153,6 @@ public class FxNdfTradeCalculationFunctionTest {
             FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(FxNdfMeasureCalculations.class);
   }
 
 }

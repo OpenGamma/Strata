@@ -8,7 +8,6 @@ package com.opengamma.strata.measure.fx;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,11 +41,11 @@ import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.fx.DiscountingFxSingleProductPricer;
+import com.opengamma.strata.pricer.fx.DiscountingFxSingleTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
-import com.opengamma.strata.product.fx.ResolvedFxSingle;
+import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
 
 /**
  * Test {@link FxSingleTradeCalculationFunction}.
@@ -59,9 +58,10 @@ public class FxSingleTradeCalculationFunctionTest {
   private static final CurrencyAmount USD_M1600 = CurrencyAmount.of(USD, -1_600);
   private static final FxSingle PRODUCT = FxSingle.of(GBP_P1000, USD_M1600, date(2015, 6, 30));
   public static final FxSingleTrade TRADE = FxSingleTrade.builder().product(PRODUCT).build();
+  public static final ResolvedFxSingleTrade RTRADE = TRADE.resolve(REF_DATA);
   private static final CurveId DISCOUNT_CURVE_GBP_ID = CurveId.of("Default", "Discount-GBP");
   private static final CurveId DISCOUNT_CURVE_USD_ID = CurveId.of("Default", "Discount-USD");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(GBP, DISCOUNT_CURVE_GBP_ID, USD, DISCOUNT_CURVE_USD_ID),
       ImmutableMap.of());
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -83,13 +83,12 @@ public class FxSingleTradeCalculationFunctionTest {
     FxSingleTradeCalculationFunction function = new FxSingleTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
-    MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
-    double expectedParSpread = pricer.parSpread(resolved, provider);
-    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(resolved, provider);
-    MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider.getValuationDate());
-    FxRate expectedForwardFx = pricer.forwardFxRate(resolved, provider);
+    DiscountingFxSingleTradePricer pricer = DiscountingFxSingleTradePricer.DEFAULT;
+    MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider);
+    double expectedParSpread = pricer.parSpread(RTRADE, provider);
+    MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(RTRADE, provider);
+    MultiCurrencyAmount expectedCash = pricer.currentCash(RTRADE, provider);
+    FxRate expectedForwardFx = pricer.forwardFxRate(RTRADE, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -117,9 +116,8 @@ public class FxSingleTradeCalculationFunctionTest {
     FxSingleTradeCalculationFunction function = new FxSingleTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingFxSingleProductPricer pricer = DiscountingFxSingleProductPricer.DEFAULT;
-    ResolvedFxSingle resolved = TRADE.getProduct().resolve(REF_DATA);
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider);
+    DiscountingFxSingleTradePricer pricer = DiscountingFxSingleTradePricer.DEFAULT;
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -135,7 +133,7 @@ public class FxSingleTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve1 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.992);
     Curve curve2 = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.991);
     TestMarketDataMap md = new TestMarketDataMap(
@@ -146,11 +144,6 @@ public class FxSingleTradeCalculationFunctionTest {
             FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.62)),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(FxSingleMeasureCalculations.class);
   }
 
 }

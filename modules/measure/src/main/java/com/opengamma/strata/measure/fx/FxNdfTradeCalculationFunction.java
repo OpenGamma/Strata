@@ -39,6 +39,8 @@ import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#FORWARD_FX_RATE Forward FX rate}
@@ -54,12 +56,14 @@ public class FxNdfTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, FxNdfMeasureCalculations::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, FxNdfMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, FxNdfMeasureCalculations::bucketedPv01)
-          .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations::currentCash)
-          .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations::forwardFxRate)
+          .put(Measures.PRESENT_VALUE, FxNdfMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, FxNdfMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, FxNdfMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, FxNdfMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FxNdfMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.CURRENCY_EXPOSURE, FxNdfMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, FxNdfMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.FORWARD_FX_RATE, FxNdfMeasureCalculations.DEFAULT::forwardFxRate)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
