@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.deposit;
+package com.opengamma.strata.measure.payment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +25,12 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
-import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
-import com.opengamma.strata.product.deposit.TermDeposit;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
+import com.opengamma.strata.product.payment.BulletPayment;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
+import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
- * Perform calculations on a single {@code TermDepositTrade} for each of a set of scenarios.
+ * Perform calculations on a single {@code BulletPaymentTrade} for each of a set of scenarios.
  * <p>
  * This uses the standard discounting calculation method.
  * The supported built-in measures are:
@@ -43,19 +43,17 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
  *   <li>{@linkplain Measures#BUCKETED_PV01 Bucketed PV01}
  * </ul>
  */
-public class TermDepositCalculationFunction
-    implements CalculationFunction<TermDepositTrade> {
+public class BulletPaymentTradeCalculationFunction
+    implements CalculationFunction<BulletPaymentTrade> {
 
   /**
    * The calculations by measure.
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PAR_RATE, TermDepositMeasureCalculations::parRate)
-          .put(Measures.PAR_SPREAD, TermDepositMeasureCalculations::parSpread)
-          .put(Measures.PRESENT_VALUE, TermDepositMeasureCalculations::presentValue)
-          .put(Measures.PV01, TermDepositMeasureCalculations::pv01)
-          .put(Measures.BUCKETED_PV01, TermDepositMeasureCalculations::bucketedPv01)
+          .put(Measures.PRESENT_VALUE, BulletPaymentMeasureCalculations::presentValue)
+          .put(Measures.PV01, BulletPaymentMeasureCalculations::pv01)
+          .put(Measures.BUCKETED_PV01, BulletPaymentMeasureCalculations::bucketedPv01)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
@@ -66,13 +64,13 @@ public class TermDepositCalculationFunction
   /**
    * Creates an instance.
    */
-  public TermDepositCalculationFunction() {
+  public BulletPaymentTradeCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<TermDepositTrade> targetType() {
-    return TermDepositTrade.class;
+  public Class<BulletPaymentTrade> targetType() {
+    return BulletPaymentTrade.class;
   }
 
   @Override
@@ -81,20 +79,20 @@ public class TermDepositCalculationFunction
   }
 
   @Override
-  public Currency naturalCurrency(TermDepositTrade trade, ReferenceData refData) {
+  public Currency naturalCurrency(BulletPaymentTrade trade, ReferenceData refData) {
     return trade.getProduct().getCurrency();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(
-      TermDepositTrade trade,
+      BulletPaymentTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ReferenceData refData) {
 
     // extract data from product
-    TermDeposit product = trade.getProduct();
+    BulletPayment product = trade.getProduct();
     Currency currency = product.getCurrency();
 
     // use lookup to build requirements
@@ -105,14 +103,14 @@ public class TermDepositCalculationFunction
   //-------------------------------------------------------------------------
   @Override
   public Map<Measure, Result<?>> calculate(
-      TermDepositTrade trade,
+      BulletPaymentTrade trade,
       Set<Measure> measures,
       CalculationParameters parameters,
       ScenarioMarketData scenarioMarketData,
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedTermDepositTrade resolved = trade.resolve(refData);
+    ResolvedBulletPaymentTrade resolved = trade.resolve(refData);
 
     // use lookup to query market data
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
@@ -131,7 +129,7 @@ public class TermDepositCalculationFunction
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedTermDepositTrade trade,
+      ResolvedBulletPaymentTrade trade,
       RatesScenarioMarketData marketData) {
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
@@ -145,7 +143,7 @@ public class TermDepositCalculationFunction
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract ScenarioArray<?> calculate(
-        ResolvedTermDepositTrade trade,
+        ResolvedBulletPaymentTrade trade,
         RatesScenarioMarketData marketData);
   }
 

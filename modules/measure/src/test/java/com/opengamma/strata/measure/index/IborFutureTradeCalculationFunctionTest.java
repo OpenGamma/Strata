@@ -47,10 +47,10 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
 
 /**
- * Test {@link IborFutureCalculationFunction}.
+ * Test {@link IborFutureTradeCalculationFunction}.
  */
 @Test
-public class IborFutureCalculationFunctionTest {
+public class IborFutureTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MARKET_PRICE = 99.42;
@@ -71,7 +71,7 @@ public class IborFutureCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    IborFutureCalculationFunction function = new IborFutureCalculationFunction();
+    IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -82,7 +82,7 @@ public class IborFutureCalculationFunctionTest {
   }
 
   public void test_simpleMeasures() {
-    IborFutureCalculationFunction function = new IborFutureCalculationFunction();
+    IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     ResolvedIborFutureTrade resolved = TRADE.resolve(REF_DATA);

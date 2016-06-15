@@ -59,7 +59,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * <p>
  * The "natural" currency is the currency of the fee leg.
  */
-public class CdsCalculationFunction
+public class CdsTradeCalculationFunction
     implements CalculationFunction<CdsTrade> {
 
   /**
@@ -89,7 +89,7 @@ public class CdsCalculationFunction
   /**
    * Creates an instance.
    */
-  public CdsCalculationFunction() {
+  public CdsTradeCalculationFunction() {
   }
 
   //-------------------------------------------------------------------------

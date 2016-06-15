@@ -1,14 +1,14 @@
 /**
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.dsf;
+package com.opengamma.strata.measure.payment;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -20,20 +20,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.IborIndices;
-import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyValuesArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -42,90 +37,64 @@ import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
-import com.opengamma.strata.market.observable.IndexQuoteId;
-import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.dsf.DiscountingDsfTradePricer;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
-import com.opengamma.strata.product.dsf.Dsf;
-import com.opengamma.strata.product.dsf.DsfTrade;
-import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
-import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.SwapLeg;
-import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.payment.BulletPayment;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
 
 /**
- * Test {@link DsfCalculationFunction}.
+ * Test {@link BulletPaymentTradeCalculationFunction}.
  */
 @Test
-public class DsfCalculationFunctionTest {
+public class BulletPaymentTradeCalculationFunctionTest {
+
+  private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
+  private static final BulletPayment PRODUCT = BulletPayment.builder()
+      .payReceive(PayReceive.PAY)
+      .value(GBP_P1000)
+      .date(AdjustableDate.of(date(2015, 6, 30)))
+      .build();
+  public static final BulletPaymentTrade TRADE = BulletPaymentTrade.builder()
+      .info(TradeInfo.builder()
+          .tradeDate(date(2015, 6, 1))
+          .build())
+      .product(PRODUCT)
+      .build();
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
-  private static final SwapLeg FIXED_LEG =
-      FixedRateSwapLegConvention.of(Currency.GBP, DayCounts.ACT_360, Frequency.P6M, BDA_MF)
-          .toLeg(LocalDate.of(2013, 6, 30), LocalDate.of(2016, 6, 30), PayReceive.RECEIVE, 1, 0.001);
-  private static final SwapLeg IBOR_LEG =
-      IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M)
-          .toLeg(LocalDate.of(2013, 6, 30), LocalDate.of(2016, 6, 30), PayReceive.PAY, 1);
-  private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
-  private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);
-  private static final LocalDate DELIVERY = LocalDate.of(2013, 6, 19);
-  private static final double NOTIONAL = 100000;
-  private static final StandardId DSF_ID = StandardId.of("OG-Ticker", "DSF1");
-  private static final Dsf FUTURE = Dsf.builder()
-      .securityId(SecurityId.of(DSF_ID))
-      .deliveryDate(DELIVERY)
-      .lastTradeDate(LAST_TRADE)
-      .notional(NOTIONAL)
-      .underlyingSwap(SWAP)
-      .build();
-  private static final double TRADE_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final double REF_PRICE = 0.98 + 30.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final double MARKET_PRICE = REF_PRICE * 100;
-  private static final long QUANTITY = 1234L;
-  private static final DsfTrade TRADE = DsfTrade.builder()
-      .product(FUTURE)
-      .quantity(QUANTITY)
-      .price(TRADE_PRICE)
-      .build();
-  private static final ResolvedDsfTrade RTRADE = TRADE.resolve(REF_DATA);
-  private static final Currency CURRENCY = SWAP.getPayLeg().get().getCurrency();
-  private static final IborIndex INDEX = (IborIndex) SWAP.allIndices().iterator().next();
+  private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
-      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
+      ImmutableMap.of());
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
-  private static final LocalDate VAL_DATE = LAST_TRADE.minusDays(7);
-  private static final QuoteId QUOTE_KEY = QuoteId.of(DSF_ID, FieldName.SETTLEMENT_PRICE);
+  private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
   public void test_requirementsAndCurrency() {
-    DsfCalculationFunction function = new DsfCalculationFunction();
+    BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
-    assertThat(reqs.getValueRequirements()).isEqualTo(
-        ImmutableSet.of(QUOTE_KEY, DISCOUNT_CURVE_ID, FORWARD_CURVE_ID));
-    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexQuoteId.of(INDEX)));
+    assertThat(reqs.getValueRequirements()).isEqualTo(ImmutableSet.of(DISCOUNT_CURVE_ID));
+    assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of());
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
   public void test_simpleMeasures() {
-    DsfCalculationFunction function = new DsfCalculationFunction();
+    BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
-    CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
+    DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
+    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.PRESENT_VALUE_MULTI_CCY);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
@@ -136,11 +105,12 @@ public class DsfCalculationFunctionTest {
   }
 
   public void test_pv01() {
-    DsfCalculationFunction function = new DsfCalculationFunction();
+    BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingDsfTradePricer pricer = DiscountingDsfTradePricer.DEFAULT;
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
+    DiscountingPaymentPricer pricer = DiscountingPaymentPricer.DEFAULT;
+    Payment resolved = TRADE.getProduct().resolve(REF_DATA).getPayment();
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -158,17 +128,14 @@ public class DsfCalculationFunctionTest {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
-        ImmutableMap.of(
-            DISCOUNT_CURVE_ID, curve,
-            FORWARD_CURVE_ID, curve,
-            QUOTE_KEY, MARKET_PRICE),
+        ImmutableMap.of(DISCOUNT_CURVE_ID, curve),
         ImmutableMap.of());
     return md;
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(DsfMeasureCalculations.class);
+    coverPrivateConstructor(BulletPaymentMeasureCalculations.class);
   }
 
 }
