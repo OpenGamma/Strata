@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
@@ -90,6 +91,39 @@ public class SimpleRatesProvider
     this.valuationDate = valuationDate;
     this.discountFactors = discountFactors;
     this.iborRates = iborRates;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    if (discountFactors != null) {
+      return ImmutableSet.of(discountFactors.getCurrency());
+    }
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableSet<IborIndex> getIborIndices() {
+    if (iborRates != null) {
+      return ImmutableSet.of(iborRates.getIndex());
+    }
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableSet<OvernightIndex> getOvernightIndices() {
+    if (overnightRates != null) {
+      return ImmutableSet.of(overnightRates.getIndex());
+    }
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public ImmutableSet<PriceIndex> getPriceIndices() {
+    if (priceIndexValues != null) {
+      return ImmutableSet.of(priceIndexValues.getIndex());
+    }
+    return ImmutableSet.of();
   }
 
   //-------------------------------------------------------------------------

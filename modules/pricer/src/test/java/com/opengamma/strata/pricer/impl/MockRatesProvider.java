@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.index.FxIndex;
@@ -57,6 +58,27 @@ public class MockRatesProvider
    */
   public MockRatesProvider(LocalDate valuationDate) {
     this.valuationDate = valuationDate;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ImmutableSet<IborIndex> getIborIndices() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ImmutableSet<OvernightIndex> getOvernightIndices() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ImmutableSet<PriceIndex> getPriceIndices() {
+    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
