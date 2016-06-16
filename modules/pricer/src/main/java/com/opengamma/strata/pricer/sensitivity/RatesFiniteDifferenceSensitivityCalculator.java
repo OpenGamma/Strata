@@ -74,12 +74,7 @@ public class RatesFiniteDifferenceSensitivityCalculator {
       Function<ImmutableRatesProvider, CurrencyAmount> valueFn) {
 
     CurrencyAmount valueInit = valueFn.apply(provider);
-    CurrencyParameterSensitivities discounting = sensitivity(
-        provider,
-        provider.getDiscountCurves(),
-        (base, bumped) -> base.toBuilder().discountCurves(bumped).build(),
-        valueFn,
-        valueInit);
+    CurrencyParameterSensitivities discounting = sensitivityDiscountFactors(provider, valueFn, valueInit);
     CurrencyParameterSensitivities forward = sensitivity(
         provider,
         provider.getIndexCurves(),
@@ -93,6 +88,25 @@ public class RatesFiniteDifferenceSensitivityCalculator {
         valueFn,
         valueInit);
     return discounting.combinedWith(forward).combinedWith(priceIndex);
+  }
+
+  // computes the sensitivity with respect to the curves
+  private CurrencyParameterSensitivities sensitivityDiscountFactors(
+      ImmutableRatesProvider provider,
+      Function<ImmutableRatesProvider, CurrencyAmount> valueFn,
+      CurrencyAmount valueInit) {
+
+    CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
+    for (Entry<Currency, DiscountFactors> entry : provider.getDiscountFactors().entrySet()) {
+      DiscountFactors df = entry.getValue();
+      DoubleArray sensitivity = DoubleArray.of(df.getParameterCount(), i -> {
+        DiscountFactors bumped = df.withParameter(i, df.getParameter(i) + shift);
+        ImmutableRatesProvider providerDscBumped = provider.toBuilder().discountFactors(bumped).build();
+        return (valueFn.apply(providerDscBumped).getAmount() - valueInit.getAmount()) / shift;
+      });
+      result = result.combinedWith(df.createParameterSensitivity(valueInit.getCurrency(), sensitivity));
+    }
+    return result;
   }
 
   // computes the sensitivity with respect to the curves

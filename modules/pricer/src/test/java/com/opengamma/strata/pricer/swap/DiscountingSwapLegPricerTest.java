@@ -47,7 +47,6 @@ import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -68,7 +67,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
@@ -557,12 +555,11 @@ public class DiscountingSwapLegPricerTest {
     ResolvedSwapLeg swapLeg = createInflationSwapLeg(false, PAY).resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE_FLAT);
-    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .timeSeries(GB_RPI, ts)
         .priceIndexValues(map)
-        .discountCurves(dscCurve)
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     // test forecastValue and presentValue
     CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);
@@ -599,12 +596,11 @@ public class DiscountingSwapLegPricerTest {
     ResolvedSwapLeg swapLeg = createInflationSwapLeg(true, RECEIVE).resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, GBPRI_CURVE);
-    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(DATE_14_03_31, START_INDEX);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .timeSeries(GB_RPI, ts)
         .priceIndexValues(map)
-        .discountCurves(dscCurve)
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     // test forecastValue and presentValue
     CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);
@@ -694,9 +690,8 @@ public class DiscountingSwapLegPricerTest {
         .build()
         .resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
-    Map<Currency, Curve> dscCurve = RATES_GBP_INFLATION.getDiscountCurves();
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
-        .discountCurves(dscCurve)
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     // test forecastValue and presentValue
     CurrencyAmount fvComputed = pricer.forecastValue(swapLeg, prov);

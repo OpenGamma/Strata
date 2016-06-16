@@ -257,7 +257,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     double parRateComputed = pricerSwap.parRate(SWAP_INFLATION, prov);
     ResolvedSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
@@ -311,7 +311,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     double parRateComputed = pricerSwap.parRate(swap, prov);
     ResolvedSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
@@ -405,7 +405,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     LocalDate paymentDate = SWAP_INFLATION.getLegs().get(0).getPaymentPeriods().get(0).getPaymentDate();
     double fixedRate = INFLATION_FIXED_SWAP_LEG_PAY_GBP_FIXED_RATE;
@@ -460,7 +460,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     MultiCurrencyAmount fvComputed = pricerSwap.forecastValue(SWAP_INFLATION, prov);
     double fixedRate = INFLATION_FIXED_SWAP_LEG_PAY_GBP_FIXED_RATE;
@@ -576,7 +576,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     PointSensitivityBuilder pvSensiComputed = pricerSwap.presentValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder pvSensiInflationLeg =
@@ -627,7 +627,7 @@ public class DiscountingSwapProductPricerTest {
     ImmutableMap<PriceIndex, PriceIndexValues> map = ImmutableMap.of(GB_RPI, PRICE_CURVE);
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE_INFLATION)
         .priceIndexValues(map)
-        .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
+        .discountFactors(RATES_GBP_INFLATION.getDiscountFactors())
         .build();
     PointSensitivityBuilder fvSensiComputed = pricerSwap.forecastValueSensitivity(SWAP_INFLATION, prov);
     PointSensitivityBuilder fvSensiInflationLeg =

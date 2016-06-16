@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -79,11 +78,11 @@ public final class ImmutableRatesProvider
   @PropertyDefinition(validate = "notNull")
   private final FxRateProvider fxRateProvider;
   /**
-   * The discount curves, defaulted to an empty map.
-   * The curve data, predicting the future, associated with each currency.
+   * The discount factors, defaulted to an empty map.
+   * These are used to apply present value discounting to amounts in the associated currency.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<Currency, Curve> discountCurves;
+  private final ImmutableMap<Currency, DiscountFactors> discountFactors;
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
@@ -149,7 +148,7 @@ public final class ImmutableRatesProvider
   public ImmutableRatesProviderBuilder toBuilder() {
     return new ImmutableRatesProviderBuilder(valuationDate)
         .fxRateProvider(fxRateProvider)
-        .discountCurves(discountCurves)
+        .discountFactors(discountFactors)
         .indexCurves(indexCurves)
         .priceIndexValues(priceIndexValues)
         .timeSeries(timeSeries);
@@ -158,7 +157,7 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public ImmutableSet<Currency> getDiscountCurrencies() {
-    return discountCurves.keySet();
+    return discountFactors.keySet();
   }
 
   @Override
@@ -188,8 +187,14 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public <T> Optional<T> findData(MarketDataName<T> name) {
+    for (DiscountFactors df : discountFactors.values()) {
+      Optional<T> data = df.findData(name);
+      if (data.isPresent()) {
+        return data;
+      }
+    }
     if (name instanceof CurveName) {
-      return Stream.concat(discountCurves.values().stream(), indexCurves.values().stream())
+      return indexCurves.values().stream()
           .filter(c -> c.getName().equals(name))
           .map(v -> name.getMarketDataType().cast(v))
           .findFirst();
@@ -227,11 +232,11 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public DiscountFactors discountFactors(Currency currency) {
-    Curve curve = discountCurves.get(currency);
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find discount curve: " + currency);
+    DiscountFactors df = discountFactors.get(currency);
+    if (df == null) {
+      throw new IllegalArgumentException("Unable to find discount factors: " + currency);
     }
-    return DiscountFactors.of(currency, valuationDate, curve);
+    return df;
   }
 
   //-------------------------------------------------------------------------
@@ -290,12 +295,12 @@ public final class ImmutableRatesProvider
   public ImmutableRatesProvider combinedWith(ImmutableRatesProvider other, FxRateProvider fxProvider) {
     ImmutableRatesProviderBuilder merged = other.toBuilder();
     // discount
-    ImmutableMap<Currency, Curve> dscMap1 = discountCurves;
-    ImmutableMap<Currency, Curve> dscMap2 = other.discountCurves;
-    for (Entry<Currency, Curve> entry : dscMap1.entrySet()) {
+    ImmutableMap<Currency, DiscountFactors> dscMap1 = discountFactors;
+    ImmutableMap<Currency, DiscountFactors> dscMap2 = other.discountFactors;
+    for (Entry<Currency, DiscountFactors> entry : dscMap1.entrySet()) {
       ArgChecker.isTrue(!dscMap2.containsKey(entry.getKey()),
           "conflict on discount curve, currency '{}' appears twice in the providers", entry.getKey());
-      merged.discountCurve(entry.getKey(), entry.getValue());
+      merged.discountFactors(entry.getValue());
     }
     // ibor and overnight
     ImmutableMap<Index, Curve> indexMap1 = indexCurves;
@@ -343,7 +348,7 @@ public final class ImmutableRatesProvider
    * Creates an instance.
    * @param valuationDate  the value of the property, not null
    * @param fxRateProvider  the value of the property, not null
-   * @param discountCurves  the value of the property, not null
+   * @param discountFactors  the value of the property, not null
    * @param indexCurves  the value of the property, not null
    * @param priceIndexValues  the value of the property, not null
    * @param timeSeries  the value of the property, not null
@@ -351,19 +356,19 @@ public final class ImmutableRatesProvider
   ImmutableRatesProvider(
       LocalDate valuationDate,
       FxRateProvider fxRateProvider,
-      Map<Currency, Curve> discountCurves,
+      Map<Currency, DiscountFactors> discountFactors,
       Map<Index, Curve> indexCurves,
       Map<PriceIndex, PriceIndexValues> priceIndexValues,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
     JodaBeanUtils.notNull(valuationDate, "valuationDate");
     JodaBeanUtils.notNull(fxRateProvider, "fxRateProvider");
-    JodaBeanUtils.notNull(discountCurves, "discountCurves");
+    JodaBeanUtils.notNull(discountFactors, "discountFactors");
     JodaBeanUtils.notNull(indexCurves, "indexCurves");
     JodaBeanUtils.notNull(priceIndexValues, "priceIndexValues");
     JodaBeanUtils.notNull(timeSeries, "timeSeries");
     this.valuationDate = valuationDate;
     this.fxRateProvider = fxRateProvider;
-    this.discountCurves = ImmutableMap.copyOf(discountCurves);
+    this.discountFactors = ImmutableMap.copyOf(discountFactors);
     this.indexCurves = ImmutableMap.copyOf(indexCurves);
     this.priceIndexValues = ImmutableMap.copyOf(priceIndexValues);
     this.timeSeries = ImmutableMap.copyOf(timeSeries);
@@ -407,12 +412,12 @@ public final class ImmutableRatesProvider
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the discount curves, defaulted to an empty map.
-   * The curve data, predicting the future, associated with each currency.
+   * Gets the discount factors, defaulted to an empty map.
+   * These are used to apply present value discounting to amounts in the associated currency.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Currency, Curve> getDiscountCurves() {
-    return discountCurves;
+  public ImmutableMap<Currency, DiscountFactors> getDiscountFactors() {
+    return discountFactors;
   }
 
   //-----------------------------------------------------------------------
@@ -455,7 +460,7 @@ public final class ImmutableRatesProvider
       ImmutableRatesProvider other = (ImmutableRatesProvider) obj;
       return JodaBeanUtils.equal(valuationDate, other.valuationDate) &&
           JodaBeanUtils.equal(fxRateProvider, other.fxRateProvider) &&
-          JodaBeanUtils.equal(discountCurves, other.discountCurves) &&
+          JodaBeanUtils.equal(discountFactors, other.discountFactors) &&
           JodaBeanUtils.equal(indexCurves, other.indexCurves) &&
           JodaBeanUtils.equal(priceIndexValues, other.priceIndexValues) &&
           JodaBeanUtils.equal(timeSeries, other.timeSeries);
@@ -468,7 +473,7 @@ public final class ImmutableRatesProvider
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(valuationDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxRateProvider);
-    hash = hash * 31 + JodaBeanUtils.hashCode(discountCurves);
+    hash = hash * 31 + JodaBeanUtils.hashCode(discountFactors);
     hash = hash * 31 + JodaBeanUtils.hashCode(indexCurves);
     hash = hash * 31 + JodaBeanUtils.hashCode(priceIndexValues);
     hash = hash * 31 + JodaBeanUtils.hashCode(timeSeries);
@@ -481,7 +486,7 @@ public final class ImmutableRatesProvider
     buf.append("ImmutableRatesProvider{");
     buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
     buf.append("fxRateProvider").append('=').append(fxRateProvider).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
     buf.append("indexCurves").append('=').append(indexCurves).append(',').append(' ');
     buf.append("priceIndexValues").append('=').append(priceIndexValues).append(',').append(' ');
     buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
@@ -510,11 +515,11 @@ public final class ImmutableRatesProvider
     private final MetaProperty<FxRateProvider> fxRateProvider = DirectMetaProperty.ofImmutable(
         this, "fxRateProvider", ImmutableRatesProvider.class, FxRateProvider.class);
     /**
-     * The meta-property for the {@code discountCurves} property.
+     * The meta-property for the {@code discountFactors} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Currency, Curve>> discountCurves = DirectMetaProperty.ofImmutable(
-        this, "discountCurves", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<Currency, DiscountFactors>> discountFactors = DirectMetaProperty.ofImmutable(
+        this, "discountFactors", ImmutableRatesProvider.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code indexCurves} property.
      */
@@ -540,7 +545,7 @@ public final class ImmutableRatesProvider
         this, null,
         "valuationDate",
         "fxRateProvider",
-        "discountCurves",
+        "discountFactors",
         "indexCurves",
         "priceIndexValues",
         "timeSeries");
@@ -558,8 +563,8 @@ public final class ImmutableRatesProvider
           return valuationDate;
         case -1499624221:  // fxRateProvider
           return fxRateProvider;
-        case -624113147:  // discountCurves
-          return discountCurves;
+        case -91613053:  // discountFactors
+          return discountFactors;
         case 886361302:  // indexCurves
           return indexCurves;
         case 1422773131:  // priceIndexValues
@@ -603,11 +608,11 @@ public final class ImmutableRatesProvider
     }
 
     /**
-     * The meta-property for the {@code discountCurves} property.
+     * The meta-property for the {@code discountFactors} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Currency, Curve>> discountCurves() {
-      return discountCurves;
+    public MetaProperty<ImmutableMap<Currency, DiscountFactors>> discountFactors() {
+      return discountFactors;
     }
 
     /**
@@ -642,8 +647,8 @@ public final class ImmutableRatesProvider
           return ((ImmutableRatesProvider) bean).getValuationDate();
         case -1499624221:  // fxRateProvider
           return ((ImmutableRatesProvider) bean).getFxRateProvider();
-        case -624113147:  // discountCurves
-          return ((ImmutableRatesProvider) bean).getDiscountCurves();
+        case -91613053:  // discountFactors
+          return ((ImmutableRatesProvider) bean).getDiscountFactors();
         case 886361302:  // indexCurves
           return ((ImmutableRatesProvider) bean).getIndexCurves();
         case 1422773131:  // priceIndexValues
@@ -673,7 +678,7 @@ public final class ImmutableRatesProvider
 
     private LocalDate valuationDate;
     private FxRateProvider fxRateProvider;
-    private Map<Currency, Curve> discountCurves = ImmutableMap.of();
+    private Map<Currency, DiscountFactors> discountFactors = ImmutableMap.of();
     private Map<Index, Curve> indexCurves = ImmutableMap.of();
     private Map<PriceIndex, PriceIndexValues> priceIndexValues = ImmutableMap.of();
     private Map<Index, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of();
@@ -693,8 +698,8 @@ public final class ImmutableRatesProvider
           return valuationDate;
         case -1499624221:  // fxRateProvider
           return fxRateProvider;
-        case -624113147:  // discountCurves
-          return discountCurves;
+        case -91613053:  // discountFactors
+          return discountFactors;
         case 886361302:  // indexCurves
           return indexCurves;
         case 1422773131:  // priceIndexValues
@@ -716,8 +721,8 @@ public final class ImmutableRatesProvider
         case -1499624221:  // fxRateProvider
           this.fxRateProvider = (FxRateProvider) newValue;
           break;
-        case -624113147:  // discountCurves
-          this.discountCurves = (Map<Currency, Curve>) newValue;
+        case -91613053:  // discountFactors
+          this.discountFactors = (Map<Currency, DiscountFactors>) newValue;
           break;
         case 886361302:  // indexCurves
           this.indexCurves = (Map<Index, Curve>) newValue;
@@ -763,7 +768,7 @@ public final class ImmutableRatesProvider
       return new ImmutableRatesProvider(
           valuationDate,
           fxRateProvider,
-          discountCurves,
+          discountFactors,
           indexCurves,
           priceIndexValues,
           timeSeries);
@@ -776,7 +781,7 @@ public final class ImmutableRatesProvider
       buf.append("ImmutableRatesProvider.Builder{");
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');
-      buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+      buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
       buf.append("indexCurves").append('=').append(JodaBeanUtils.toString(indexCurves)).append(',').append(' ');
       buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(priceIndexValues)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));

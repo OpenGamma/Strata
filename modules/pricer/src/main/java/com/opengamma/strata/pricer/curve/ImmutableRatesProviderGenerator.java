@@ -130,7 +130,6 @@ public class ImmutableRatesProviderGenerator
     // collect curves for child provider based on existing provider
     Map<Currency, Curve> discountCurves = new HashMap<>();
     Map<Index, Curve> indexCurves = new HashMap<>();
-    discountCurves.putAll(knownProvider.getDiscountCurves());
     indexCurves.putAll(knownProvider.getIndexCurves());
 
     // generate curves from combined parameter array

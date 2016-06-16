@@ -15,6 +15,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
@@ -26,13 +27,16 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
+import com.opengamma.strata.market.curve.CurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupId;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInputs;
 import com.opengamma.strata.market.curve.CurveInputsId;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
 import com.opengamma.strata.pricer.curve.CurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -232,10 +236,16 @@ public class CurveGroupMarketDataFunction implements MarketDataFunction<CurveGro
         refData,
         ImmutableMap.of());
 
-    return CurveGroup.of(
-        groupDefn.getName(),
-        calibratedProvider.getDiscountCurves(),
-        calibratedProvider.getIndexCurves());
+    // extract the curves
+    Map<Currency, Curve> discountCurves = new HashMap<>();
+    for (CurveGroupEntry entry : groupDefn.getEntries()) {
+      for (Currency currency : entry.getDiscountCurrencies()) {
+        DiscountFactors df = calibratedProvider.discountFactors(currency);
+        df.findData(entry.getCurveName()).ifPresent(curve -> discountCurves.put(currency, curve));
+      }
+    }
+
+    return CurveGroup.of(groupDefn.getName(), discountCurves, calibratedProvider.getIndexCurves());
   }
 
   private static int scenarioCount(

@@ -6,8 +6,6 @@
 package com.opengamma.strata.pricer.fxopt;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,7 +17,6 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.impl.tree.ConstantContinuousSingleBarrierKnockoutFunction;
@@ -242,22 +239,19 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     ImmutableRatesProvider immRatesProvider = (ImmutableRatesProvider) ratesProvider;
-    ImmutableMap<Currency, Curve> baseCurves = immRatesProvider.getDiscountCurves();
+    ImmutableMap<Currency, DiscountFactors> baseCurves = immRatesProvider.getDiscountFactors();
     CurrencyParameterSensitivities result = CurrencyParameterSensitivities.empty();
 
-    for (Entry<Currency, Curve> entry : baseCurves.entrySet()) {
+    for (Entry<Currency, DiscountFactors> entry : baseCurves.entrySet()) {
       if (currencyPair.contains(entry.getKey())) {
-        Curve curve = entry.getValue();
-        int nParams = curve.getParameterCount();
-        DoubleArray sensitivity = DoubleArray.of(nParams, i -> {
-          Curve dscBumped = curve.withParameter(i, curve.getParameter(i) + shift);
-          Map<Currency, Curve> mapBumped = new HashMap<>(baseCurves);
-          mapBumped.put(entry.getKey(), dscBumped);
-          ImmutableRatesProvider providerDscBumped = immRatesProvider.toBuilder().discountCurves(mapBumped).build();
+        DiscountFactors df = entry.getValue();
+        DoubleArray sensitivity = DoubleArray.of(df.getParameterCount(), i -> {
+          DiscountFactors bumped = df.withParameter(i, df.getParameter(i) + shift);
+          ImmutableRatesProvider providerDscBumped = immRatesProvider.toBuilder().discountFactors(bumped).build();
           double pvBumped = presentValue(option, providerDscBumped, volatilityProvider).getAmount();
           return (pvBumped - pvBase.getAmount()) / shift;
         });
-        result = result.combinedWith(curve.createParameterSensitivity(pvBase.getCurrency(), sensitivity));
+        result = result.combinedWith(df.createParameterSensitivity(pvBase.getCurrency(), sensitivity));
       }
     }
     return result;

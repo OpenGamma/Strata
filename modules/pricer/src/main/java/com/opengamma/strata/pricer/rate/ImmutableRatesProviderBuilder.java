@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.PropertyDefinition;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRateProvider;
@@ -21,6 +23,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.pricer.DiscountFactors;
 
 /**
  * Builder for the immutable rates provider.
@@ -40,10 +43,11 @@ public final class ImmutableRatesProviderBuilder {
    */
   private FxRateProvider fxRateProvider = FxMatrix.empty();
   /**
-   * The discount curves, defaulted to an empty map.
-   * The curve data, predicting the future, associated with each currency.
+   * The discount factors, defaulted to an empty map.
+   * These are used to apply present value discounting to amounts in the associated currency.
    */
-  private final Map<Currency, Curve> discountCurves = new HashMap<>();
+  @PropertyDefinition(validate = "notNull")
+  private final Map<Currency, DiscountFactors> discountFactors = new HashMap<>();
   /**
    * The forward curves, defaulted to an empty map.
    * The curve data, predicting the future, associated with each index.
@@ -84,9 +88,50 @@ public final class ImmutableRatesProviderBuilder {
 
   //-------------------------------------------------------------------------
   /**
+   * Adds discount factors to the provider.
+   * <p>
+   * This adds the specified discount factors to the provider.
+   * The valuation date of the discount factors must match the valuation date of the builder.
+   * This operates using {@link Map#put(Object, Object)} semantics using the currency as the key.
+   * 
+   * @param discountFactors  the discount factors
+   * @return this, for chaining
+   * @throws IllegalArgumentException if the valuation date does not match
+   */
+  public ImmutableRatesProviderBuilder discountFactors(DiscountFactors... discountFactors) {
+    ArgChecker.notNull(discountFactors, "discountFactors");
+    for (DiscountFactors df : discountFactors) {
+      checkValuationDate(df.getValuationDate());
+      this.discountFactors.put(df.getCurrency(), df);
+    }
+    return this;
+  }
+
+  /**
+   * Adds discount factors to the provider.
+   * <p>
+   * This adds the specified discount factors to the provider.
+   * The valuation date of the discount factors must match the valuation date of the builder.
+   * This operates using {@link Map#putAll(Map)} semantics using the currency as the key.
+   * 
+   * @param discountFactors  the discount factors
+   * @return this, for chaining
+   * @throws IllegalArgumentException if the valuation date does not match
+   */
+  public ImmutableRatesProviderBuilder discountFactors(Map<Currency, DiscountFactors> discountFactors) {
+    ArgChecker.notNull(discountFactors, "discountFactors");
+    for (DiscountFactors df : discountFactors.values()) {
+      checkValuationDate(df.getValuationDate());
+      this.discountFactors.put(df.getCurrency(), df);
+    }
+    return this;
+  }
+
+  /**
    * Adds a discount curve to the provider.
    * <p>
    * This adds the specified discount curve to the provider.
+   * The valuation date and object type will be derived from the curve.
    * This operates using {@link Map#put(Object, Object)} semantics using the currency as the key.
    * 
    * @param currency  the currency of the curve
@@ -96,7 +141,7 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder discountCurve(Currency currency, Curve discountCurve) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(discountCurve, "discountCurve");
-    this.discountCurves.put(currency, discountCurve);
+    this.discountFactors.put(currency, DiscountFactors.of(currency, valuationDate, discountCurve));
     return this;
   }
 
@@ -384,7 +429,7 @@ public final class ImmutableRatesProviderBuilder {
     return new ImmutableRatesProvider(
         valuationDate,
         fxRateProvider,
-        discountCurves,
+        discountFactors,
         indexCurves,
         priceIndexValues,
         timeSeries);

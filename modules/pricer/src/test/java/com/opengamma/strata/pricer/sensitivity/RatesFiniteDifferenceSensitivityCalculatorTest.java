@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
@@ -91,9 +92,8 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   private CurrencyAmount fn(ImmutableRatesProvider provider) {
     double result = 0.0;
     // Currency
-    ImmutableMap<Currency, Curve> mapCurrency = provider.getDiscountCurves();
-    for (Entry<Currency, Curve> entry : mapCurrency.entrySet()) {
-      InterpolatedNodalCurve curveInt = checkInterpolated(entry.getValue());
+    for (DiscountFactors df : provider.getDiscountFactors().values()) {
+      NodalCurve curveInt = checkInterpolated(df);
       result += sumProduct(curveInt);
     }
     // Index
@@ -112,7 +112,7 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
   }
 
   // compute the sum of the product of times and rates
-  private double sumProduct(InterpolatedNodalCurve curveInt) {
+  private double sumProduct(NodalCurve curveInt) {
     double result = 0.0;
     DoubleArray x = curveInt.getXValues();
     DoubleArray y = curveInt.getYValues();
@@ -121,6 +121,13 @@ public class RatesFiniteDifferenceSensitivityCalculatorTest {
       result += x.get(i) * y.get(i);
     }
     return result;
+  }
+
+  // check that the curve is InterpolatedNodalCurve
+  private NodalCurve checkInterpolated(DiscountFactors df) {
+    ZeroRateDiscountFactors zrdf = (ZeroRateDiscountFactors) df;
+    ArgChecker.isTrue(zrdf.getCurve() instanceof NodalCurve, "Curve should be a NodalCurve");
+    return (NodalCurve) zrdf.getCurve();
   }
 
   // check that the curve is InterpolatedNodalCurve

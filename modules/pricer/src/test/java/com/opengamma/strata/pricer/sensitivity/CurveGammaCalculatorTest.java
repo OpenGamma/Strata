@@ -42,6 +42,7 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -110,7 +111,7 @@ public class CurveGammaCalculatorTest {
           }
           Curve curveBumped = USD_SINGLE_CURVE.withYValues(DoubleArray.copyOf(yBumped[pmi][pmP]));
           ImmutableRatesProvider providerBumped = provider.toBuilder()
-              .discountCurves(provider.getDiscountCurves().keySet().stream()
+              .discountCurves(provider.getDiscountFactors().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
               .indexCurves(provider.getIndexCurves().keySet().stream()
                   .collect(toImmutableMap(Function.identity(), k -> curveBumped)))
@@ -132,7 +133,8 @@ public class CurveGammaCalculatorTest {
   // Checks that different finite difference types and shifts give similar results.
   public void semiParallelGammaCoherency() {
     ImmutableRatesProvider provider = SINGLE;
-    Curve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values());
+    DiscountFactors df = Iterables.getOnlyElement(provider.getDiscountFactors().values());
+    Curve curve = df.findData(USD_SINGLE_CURVE.getName()).get();
     Currency curveCurrency = SINGLE_CURRENCY;
     double toleranceCoherency = 1.0E+5;
     CurveGammaCalculator calculatorForward5 = CurveGammaCalculator.ofForwardDifference(FD_SHIFT);
@@ -157,7 +159,7 @@ public class CurveGammaCalculatorTest {
   //-------------------------------------------------------------------------
   private static CurrencyParameterSensitivity buildSensitivities(Curve bumpedCurve, ImmutableRatesProvider ratesProvider) {
     RatesProvider bumpedRatesProvider = ratesProvider.toBuilder()
-        .discountCurves(ratesProvider.getDiscountCurves().keySet().stream()
+        .discountCurves(ratesProvider.getDiscountFactors().keySet().stream()
             .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
         .indexCurves(ratesProvider.getIndexCurves().keySet().stream()
             .collect(toImmutableMap(Function.identity(), k -> bumpedCurve)))
