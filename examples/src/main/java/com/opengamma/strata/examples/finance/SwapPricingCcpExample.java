@@ -35,9 +35,9 @@ import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
-import com.opengamma.strata.measure.AdvancedMeasures;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.measure.calc.TradeCounterpartyCalculationParameter;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
@@ -49,11 +49,11 @@ import com.opengamma.strata.report.trade.TradeReport;
 import com.opengamma.strata.report.trade.TradeReportTemplate;
 
 /**
- * Example to illustrate using the calculation API to price a swap.
+ * Example to illustrate using the engine to price a swap.
  * <p>
- * This makes use of the example market data environment.
+ * This makes use of the example engine and the example market data environment.
  */
-public class SwapPricingWithCalibrationExample {
+public class SwapPricingCcpExample {
 
   /**
    * The valuation date.
@@ -62,37 +62,55 @@ public class SwapPricingWithCalibrationExample {
   /**
    * The curve group name.
    */
-  private static final CurveGroupName CURVE_GROUP_NAME = CurveGroupName.of("USD-DSCON-LIBOR3M");
+  private static final CurveGroupName CURVE_GROUP_NAME_CCP1 = CurveGroupName.of("USD-DSCON-LIBOR3M");
+  private static final CurveGroupName CURVE_GROUP_NAME_CCP2 = CurveGroupName.of("USD-DSCON-LIBOR3M-CCP2");
   /**
    * The location of the data files.
    */
   private static final String PATH_CONFIG = "src/main/resources/";
   /**
-   * The location of the curve calibration groups file.
+   * The location of the curve calibration groups file for CCP1 and CCP2.
    */
-  private static final ResourceLocator GROUPS_RESOURCE =
+  private static final ResourceLocator GROUPS_RESOURCE_CCP1 =
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/groups.csv");
+  private static final ResourceLocator GROUPS_RESOURCE_CCP2 =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/groups-ccp2.csv");
   /**
-   * The location of the curve calibration settings file.
+   * The location of the curve calibration settings file for CCP1 and CCP2.
    */
-  private static final ResourceLocator SETTINGS_RESOURCE =
+  private static final ResourceLocator SETTINGS_RESOURCE_CCP1 =
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/settings.csv");
+  private static final ResourceLocator SETTINGS_RESOURCE_CCP2 =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/settings-ccp2.csv");
   /**
-   * The location of the curve calibration nodes file.
+   * The location of the curve calibration nodes file for CCP1 and CCP2.
    */
-  private static final ResourceLocator CALIBRATION_RESOURCE =
+  private static final ResourceLocator CALIBRATION_RESOURCE_CCP1 =
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/calibrations.csv");
+  private static final ResourceLocator CALIBRATION_RESOURCE_CCP2 =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/curves/calibrations-ccp2.csv");
   /**
-   * The location of the market quotes file.
+   * The location of the market quotes file for CCP1 and CCP2.
    */
-  private static final ResourceLocator QUOTES_RESOURCE =
+  private static final ResourceLocator QUOTES_RESOURCE_CCP1 =
       ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/quotes/quotes.csv");
+  private static final ResourceLocator QUOTES_RESOURCE_CCP2 =
+      ResourceLocator.of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-calibration/quotes/quotes-ccp2.csv");
   /**
    * The location of the historical fixing file.
    */
   private static final ResourceLocator FIXINGS_RESOURCE =
-      ResourceLocator.of(
-          ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-marketdata/historical-fixings/usd-libor-3m.csv");
+      ResourceLocator
+          .of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-marketdata/historical-fixings/usd-libor-3m.csv");
+
+  /**
+   * The first counterparty.
+   */
+  private static final StandardId CCP1_ID = StandardId.of("example", "CCP-1");
+  /**
+   * The second counterparty.
+   */
+  private static final StandardId CCP2_ID = StandardId.of("example", "CCP-2");
 
   /**
    * Runs the example, pricing the instruments, producing the output as an ASCII table.
@@ -114,42 +132,49 @@ public class SwapPricingWithCalibrationExample {
 
     // the columns, specifying the measures to be calculated
     List<Column> columns = ImmutableList.of(
-        Column.of(Measures.LEG_INITIAL_NOTIONAL),
         Column.of(Measures.PRESENT_VALUE),
-        Column.of(Measures.LEG_PRESENT_VALUE),
-        Column.of(Measures.PV01_CALIBRATED_SUM),
         Column.of(Measures.PAR_RATE),
-        Column.of(Measures.ACCRUED_INTEREST),
-        Column.of(Measures.PV01_CALIBRATED_BUCKETED),
-        Column.of(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED));
+        Column.of(Measures.PV01_MARKET_QUOTE_BUCKETED),
+        Column.of(Measures.PV01_CALIBRATED_BUCKETED));
 
     // load quotes
-    ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
+    ImmutableMap<QuoteId, Double> quotesCcp1 = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE_CCP1);
+    ImmutableMap<QuoteId, Double> quotesCcp2 = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE_CCP2);
 
     // load fixings
     ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> fixings = FixingSeriesCsvLoader.load(FIXINGS_RESOURCE);
 
     // create the market data used for calculations
     ScenarioMarketData marketSnapshot = ImmutableScenarioMarketData.builder(VAL_DATE)
-        .addValueMap(quotes)
+        .addValueMap(quotesCcp1)
+        .addValueMap(quotesCcp2)
         .addTimeSeriesMap(fixings)
         .build();
 
     // load the curve definition
-    List<CurveGroupDefinition> defns =
-        RatesCalibrationCsvLoader.load(GROUPS_RESOURCE, SETTINGS_RESOURCE, CALIBRATION_RESOURCE);
-    Map<CurveGroupName, CurveGroupDefinition> defnMap = defns.stream().collect(toMap(def -> def.getName(), def -> def));
-    CurveGroupDefinition curveGroupDefinition = defnMap.get(CURVE_GROUP_NAME);
+    List<CurveGroupDefinition> defnsCcp1 =
+        RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP1, SETTINGS_RESOURCE_CCP1, CALIBRATION_RESOURCE_CCP1);
+    List<CurveGroupDefinition> defnsCcp2 =
+        RatesCalibrationCsvLoader.load(GROUPS_RESOURCE_CCP2, SETTINGS_RESOURCE_CCP2, CALIBRATION_RESOURCE_CCP2);
+    Map<CurveGroupName, CurveGroupDefinition> defnMap = defnsCcp1.stream().collect(toMap(def -> def.getName(), def -> def));
+    defnMap.putAll(defnsCcp2.stream().collect(toMap(def -> def.getName(), def -> def)));
+    CurveGroupDefinition curveGroupDefinitionCcp1 = defnMap.get(CURVE_GROUP_NAME_CCP1);
+    CurveGroupDefinition curveGroupDefinitionCcp2 = defnMap.get(CURVE_GROUP_NAME_CCP2);
 
     // the configuration that defines how to create the curves when a curve group is requested
     MarketDataConfig marketDataConfig = MarketDataConfig.builder()
-        .add(CURVE_GROUP_NAME, curveGroupDefinition)
+        .add(CURVE_GROUP_NAME_CCP1, curveGroupDefinitionCcp1)
+        .add(CURVE_GROUP_NAME_CCP2, curveGroupDefinitionCcp2)
         .build();
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
-    RatesMarketDataLookup ratesLookup = RatesMarketDataLookup.of(curveGroupDefinition);
-    CalculationRules rules = CalculationRules.of(functions, ratesLookup);
+    RatesMarketDataLookup ratesLookupCcp1 = RatesMarketDataLookup.of(curveGroupDefinitionCcp1);
+    RatesMarketDataLookup ratesLookupCcp2 = RatesMarketDataLookup.of(curveGroupDefinitionCcp2);
+    // choose RatesMarketDataLookup instance based on counterparty
+    TradeCounterpartyCalculationParameter perCounterparty = TradeCounterpartyCalculationParameter.of(
+        ImmutableMap.of(CCP1_ID, ratesLookupCcp1, CCP2_ID, ratesLookupCcp2), ratesLookupCcp1);
+    CalculationRules rules = CalculationRules.of(functions, perCounterparty);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
@@ -162,7 +187,7 @@ public class SwapPricingWithCalibrationExample {
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results, refData);
-    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template");
+    TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template2");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);
   }
@@ -170,23 +195,23 @@ public class SwapPricingWithCalibrationExample {
   //-----------------------------------------------------------------------  
   // create swap trades
   private static List<Trade> createSwapTrades() {
-    return ImmutableList.of(createVanillaFixedVsLibor3mSwap());
+    return ImmutableList.of(createVanillaFixedVsLibor3mSwap(CCP1_ID), createVanillaFixedVsLibor3mSwap(CCP2_ID));
   }
 
   //-----------------------------------------------------------------------  
   // create a vanilla fixed vs libor 3m swap
-  private static Trade createVanillaFixedVsLibor3mSwap() {
+  private static Trade createVanillaFixedVsLibor3mSwap(StandardId ctptyId) {
     TradeInfo tradeInfo = TradeInfo.builder()
         .id(StandardId.of("example", "1"))
         .addAttribute(TradeAttributeType.DESCRIPTION, "Fixed vs Libor 3m")
-        .counterparty(StandardId.of("example", "A"))
+        .counterparty(ctptyId)
         .settlementDate(LocalDate.of(2014, 9, 12))
         .build();
     return FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M.toTrade(
         tradeInfo,
         LocalDate.of(2014, 9, 12), // the start date
         LocalDate.of(2021, 9, 12), // the end date
-        BuySell.BUY,               // indicates wheter this trade is a buy or sell
+        BuySell.BUY,               // indicates whether this trade is a buy or sell
         100_000_000,               // the notional amount  
         0.015);                    // the fixed interest rate
   }
