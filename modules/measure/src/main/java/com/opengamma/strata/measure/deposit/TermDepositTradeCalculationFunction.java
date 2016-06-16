@@ -39,8 +39,12 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
+ *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  * </ul>
  */
 public class TermDepositTradeCalculationFunction
@@ -51,11 +55,15 @@ public class TermDepositTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, TermDepositMeasureCalculations::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, TermDepositMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, TermDepositMeasureCalculations::bucketedPv01)
-          .put(Measures.PAR_RATE, TermDepositMeasureCalculations::parRate)
-          .put(Measures.PAR_SPREAD, TermDepositMeasureCalculations::parSpread)
+          .put(Measures.PRESENT_VALUE, TermDepositMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, TermDepositMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, TermDepositMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, TermDepositMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, TermDepositMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.PAR_RATE, TermDepositMeasureCalculations.DEFAULT::parRate)
+          .put(Measures.PAR_SPREAD, TermDepositMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.CURRENCY_EXPOSURE, TermDepositMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, TermDepositMeasureCalculations.DEFAULT::currentCash)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

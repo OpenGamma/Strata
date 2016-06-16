@@ -6,7 +6,6 @@
 package com.opengamma.strata.measure.index;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -56,13 +55,14 @@ public class IborFutureTradeCalculationFunctionTest {
   private static final double MARKET_PRICE = 99.42;
   public static final IborFutureTrade TRADE = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
       LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, REF_DATA);
+  public static final ResolvedIborFutureTrade RTRADE = TRADE.resolve(REF_DATA);
 
   private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -85,9 +85,8 @@ public class IborFutureTradeCalculationFunctionTest {
     IborFutureTradeCalculationFunction function = new IborFutureTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    ResolvedIborFutureTrade resolved = TRADE.resolve(REF_DATA);
-    CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(resolved, provider, MARKET_PRICE / 100);
-    double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(resolved, provider, MARKET_PRICE / 100);
+    CurrencyAmount expectedPv = DiscountingIborFutureTradePricer.DEFAULT.presentValue(RTRADE, provider, MARKET_PRICE / 100);
+    double expectedParSpread = DiscountingIborFutureTradePricer.DEFAULT.parSpread(RTRADE, provider, MARKET_PRICE / 100);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -103,7 +102,7 @@ public class IborFutureTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
@@ -113,11 +112,6 @@ public class IborFutureTradeCalculationFunctionTest {
             QUOTE_KEY, MARKET_PRICE),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(IborFutureMeasureCalculations.class);
   }
 
 }
