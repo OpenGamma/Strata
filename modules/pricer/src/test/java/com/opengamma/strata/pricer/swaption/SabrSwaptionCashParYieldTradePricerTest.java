@@ -36,7 +36,7 @@ import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 import com.opengamma.strata.product.swaption.Swaption;
 
 /**
- * Test {@link SabrSwaptionCashParYieldTradePricer}.
+ * Test {@link SabrSwaptionTradePricer} for cash par yield.
  */
 @Test
 public class SabrSwaptionCashParYieldTradePricerTest {
@@ -92,7 +92,7 @@ public class SabrSwaptionCashParYieldTradePricerTest {
 
   private static final double TOL = 1.0e-12;
   private static final VolatilitySwaptionTradePricer PRICER_COMMON = VolatilitySwaptionTradePricer.DEFAULT;
-  private static final SabrSwaptionCashParYieldTradePricer PRICER_TRADE = SabrSwaptionCashParYieldTradePricer.DEFAULT;
+  private static final SabrSwaptionTradePricer PRICER_TRADE = SabrSwaptionTradePricer.DEFAULT;
   private static final SabrSwaptionCashParYieldProductPricer PRICER_PRODUCT =
       SabrSwaptionCashParYieldProductPricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
@@ -154,34 +154,34 @@ public class SabrSwaptionCashParYieldTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void present_value_sensitivity_premium_forward() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivityStickyModel(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRatesStickyModel(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivityStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+        .presentValueSensitivityRatesStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivityBuilder pvcsPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, RATE_PROVIDER);
     CurrencyParameterSensitivities pvpsTrade =
-        RATE_PROVIDER.parameterSensitivity(pvcsTrade.build());
+        RATE_PROVIDER.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct =
         RATE_PROVIDER.parameterSensitivity(pvcsProduct.combinedWith(pvcsPremium).build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, NOTIONAL * NOTIONAL * TOL));
   }
 
   public void present_value_sensitivity_premium_valuedate() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivityStickyModel(SWAPTION_PRETOD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRatesStickyModel(SWAPTION_PRETOD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivityStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyParameterSensitivities pvpsTrade = RATE_PROVIDER.parameterSensitivity(pvcsTrade.build());
+        .presentValueSensitivityRatesStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyParameterSensitivities pvpsTrade = RATE_PROVIDER.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = RATE_PROVIDER.parameterSensitivity(pvcsProduct.build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, NOTIONAL * NOTIONAL * TOL));
   }
 
   public void present_value_sensitivity_premium_past() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivityStickyModel(SWAPTION_PREPAST_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRatesStickyModel(SWAPTION_PREPAST_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivityStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
-    CurrencyParameterSensitivities pvpsTrade = RATE_PROVIDER.parameterSensitivity(pvcsTrade.build());
+        .presentValueSensitivityRatesStickyModel(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
+    CurrencyParameterSensitivities pvpsTrade = RATE_PROVIDER.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = RATE_PROVIDER.parameterSensitivity(pvcsProduct.build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, NOTIONAL * NOTIONAL * TOL));
   }
@@ -189,9 +189,9 @@ public class SabrSwaptionCashParYieldTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_vol_sensitivity_premium_forward() {
     PointSensitivities vegaTrade = PRICER_TRADE
-        .presentValueSensitivitySabrParameter(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER).build();
+        .presentValueSensitivityModelParamsSabr(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOL_PROVIDER);
     PointSensitivities vegaProduct = PRICER_PRODUCT
-        .presentValueSensitivitySabrParameter(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER).build();
+        .presentValueSensitivityModelParamsSabr(SWAPTION_LONG_REC, RATE_PROVIDER, VOL_PROVIDER).build();
     assertEquals(vegaTrade, vegaProduct);
   }
 

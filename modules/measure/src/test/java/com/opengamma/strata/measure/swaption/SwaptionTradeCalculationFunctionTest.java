@@ -48,7 +48,7 @@ import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.NormalSwaptionExpiryTenorVolatilities;
-import com.opengamma.strata.pricer.swaption.NormalSwaptionPhysicalTradePricer;
+import com.opengamma.strata.pricer.swaption.NormalSwaptionTradePricer;
 import com.opengamma.strata.pricer.swaption.SwaptionNormalVolatilityDataSets;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 import com.opengamma.strata.product.common.BuySell;
@@ -119,7 +119,7 @@ public class SwaptionTradeCalculationFunctionTest {
     SwaptionTradeCalculationFunction function = new SwaptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    NormalSwaptionPhysicalTradePricer pricer = NormalSwaptionPhysicalTradePricer.DEFAULT;
+    NormalSwaptionTradePricer pricer = NormalSwaptionTradePricer.DEFAULT;
     ResolvedSwaptionTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
 

@@ -75,7 +75,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.presentValue(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.presentValue(swaption, ratesProvider, swaptionVolatilities);
@@ -98,7 +98,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.currencyExposure(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.currencyExposure(swaption, ratesProvider, swaptionVolatilities);
@@ -119,7 +119,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.impliedVolatility(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.impliedVolatility(swaption, ratesProvider, swaptionVolatilities);
@@ -136,7 +136,7 @@ public class VolatilitySwaptionProductPricer {
    * The derivative is computed in the formula underlying the volatility (Black or Normal).
    * It does not take into account the potential change of implied volatility induced by
    * the change of forward. The number computed by this method is closely related to the
-   * {@link VolatilitySwaptionProductPricer#presentValueSensitivityStickyStrike} method.
+   * {@link VolatilitySwaptionProductPricer#presentValueSensitivityRatesStickyStrike} method.
    * <p>
    * The result is expressed using the currency of the swaption.
    * 
@@ -150,7 +150,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.presentValueDelta(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.presentValueDelta(swaption, ratesProvider, swaptionVolatilities);
@@ -176,7 +176,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.presentValueGamma(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.presentValueGamma(swaption, ratesProvider, swaptionVolatilities);
@@ -202,7 +202,7 @@ public class VolatilitySwaptionProductPricer {
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
+    if (isCash(swaption)) {
       return cashParYieldPricer.presentValueTheta(swaption, ratesProvider, swaptionVolatilities);
     } else {
       return physicalPricer.presentValueTheta(swaption, ratesProvider, swaptionVolatilities);
@@ -222,15 +222,15 @@ public class VolatilitySwaptionProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
-      return cashParYieldPricer.presentValueSensitivityStickyStrike(swaption, ratesProvider, swaptionVolatilities);
+    if (isCash(swaption)) {
+      return cashParYieldPricer.presentValueSensitivityRatesStickyStrike(swaption, ratesProvider, swaptionVolatilities);
     } else {
-      return physicalPricer.presentValueSensitivityStickyStrike(swaption, ratesProvider, swaptionVolatilities);
+      return physicalPricer.presentValueSensitivityRatesStickyStrike(swaption, ratesProvider, swaptionVolatilities);
     }
   }
 
@@ -245,16 +245,22 @@ public class VolatilitySwaptionProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the implied volatility
    */
-  public SwaptionSensitivity presentValueSensitivityVolatility(
+  public SwaptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
 
-    if (swaption.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH)) {
-      return cashParYieldPricer.presentValueSensitivityVolatility(swaption, ratesProvider, swaptionVolatilities);
+    if (isCash(swaption)) {
+      return cashParYieldPricer.presentValueSensitivityModelParamsVolatility(swaption, ratesProvider, swaptionVolatilities);
     } else {
-      return physicalPricer.presentValueSensitivityVolatility(swaption, ratesProvider, swaptionVolatilities);
+      return physicalPricer.presentValueSensitivityModelParamsVolatility(swaption, ratesProvider, swaptionVolatilities);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // is this a cash swaption
+  private boolean isCash(ResolvedSwaption product) {
+    return product.getSwaptionSettlement().getSettlementType().equals(SettlementType.CASH);
   }
 
 }

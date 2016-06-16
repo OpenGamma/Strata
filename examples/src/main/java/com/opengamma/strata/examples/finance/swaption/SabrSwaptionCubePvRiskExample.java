@@ -166,11 +166,13 @@ public class SabrSwaptionCubePvRiskExample {
     CurrencyAmount pv = SWAPTION_PRICER.presentValue(resolvedSwaption, multicurve, sabr);
     System.out.println("  |-> PV: " + pv.toString());
 
-    PointSensitivities deltaPts = SWAPTION_PRICER.presentValueSensitivityStickyModel(resolvedSwaption, multicurve, sabr).build();
+    PointSensitivities deltaPts =
+        SWAPTION_PRICER.presentValueSensitivityRatesStickyModel(resolvedSwaption, multicurve, sabr).build();
     CurrencyParameterSensitivities deltaBucketed = multicurve.parameterSensitivity(deltaPts);
     System.out.println("  |-> Delta bucketed: " + deltaBucketed.toString());
 
-    PointSensitivities vegaPts = SWAPTION_PRICER.presentValueSensitivitySabrParameter(resolvedSwaption, multicurve, sabr).build();
+    PointSensitivities vegaPts =
+        SWAPTION_PRICER.presentValueSensitivityModelParamsSabr(resolvedSwaption, multicurve, sabr).build();
     System.out.println("  |-> Vega point: " + vegaPts.toString());
 
     CurrencyParameterSensitivities vegaBucketed = sabr.parameterSensitivity(vegaPts);

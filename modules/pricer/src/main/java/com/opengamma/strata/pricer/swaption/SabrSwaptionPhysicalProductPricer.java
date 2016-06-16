@@ -68,7 +68,7 @@ public class SabrSwaptionPhysicalProductPricer
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyModel(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyModel(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {
@@ -111,9 +111,9 @@ public class SabrSwaptionPhysicalProductPricer
    * @param swaption  the swaption product
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
-   * @return the sensitivity to the SABR model parameters 
+   * @return the point sensitivity to the SABR model parameters
    */
-  public PointSensitivityBuilder presentValueSensitivitySabrParameter(
+  public PointSensitivityBuilder presentValueSensitivityModelParamsSabr(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SabrSwaptionVolatilities swaptionVolatilities) {

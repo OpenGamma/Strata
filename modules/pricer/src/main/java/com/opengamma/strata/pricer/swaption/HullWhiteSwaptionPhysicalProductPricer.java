@@ -136,7 +136,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * @param hwProvider  the Hull-White model parameter provider
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivityBuilder presentValueSensitivityRates(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
@@ -183,7 +183,7 @@ public class HullWhiteSwaptionPhysicalProductPricer {
    * @param hwProvider  the Hull-White model parameter provider
    * @return the present value Hull-White model parameter sensitivity of the swaption product
    */
-  public DoubleArray presentValueSensitivityHullWhiteParameter(
+  public DoubleArray presentValueSensitivityModelParamsHullWhite(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {

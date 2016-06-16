@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
@@ -149,33 +150,33 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
 
   //-------------------------------------------------------------------------
   public void present_value_sensitivity_premium_forward() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivity(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRates(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivity(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
+        .presentValueSensitivityRates(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     PointSensitivityBuilder pvcsPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM_FWD_PAY, MULTI_USD);
-    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade.build());
+    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct =
         MULTI_USD.parameterSensitivity(pvcsProduct.combinedWith(pvcsPremium).build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
   }
 
   public void present_value_sensitivity_premium_valuedate() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivity(SWAPTION_PRETOD_LONG_REC, MULTI_USD, HW_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRates(SWAPTION_PRETOD_LONG_REC, MULTI_USD, HW_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivity(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
-    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade.build());
+        .presentValueSensitivityRates(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
+    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
   }
 
   public void present_value_sensitivity_premium_past() {
-    PointSensitivityBuilder pvcsTrade = PRICER_TRADE
-        .presentValueSensitivity(SWAPTION_PREPAST_LONG_REC, MULTI_USD, HW_PROVIDER);
+    PointSensitivities pvcsTrade = PRICER_TRADE
+        .presentValueSensitivityRates(SWAPTION_PREPAST_LONG_REC, MULTI_USD, HW_PROVIDER);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
-        .presentValueSensitivity(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
-    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade.build());
+        .presentValueSensitivityRates(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
+    CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
     assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
   }
@@ -183,9 +184,9 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
   //-------------------------------------------------------------------------
   public void present_value_hw_param_sensitivity_premium_forward() {
     DoubleArray hwTrade = PRICER_TRADE
-        .presentValueSensitivityHullWhiteParameter(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
+        .presentValueSensitivityModelParamsHullWhite(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
     DoubleArray hwProduct = PRICER_PRODUCT
-        .presentValueSensitivityHullWhiteParameter(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
+        .presentValueSensitivityModelParamsHullWhite(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     assertTrue(DoubleArrayMath.fuzzyEquals(hwTrade.toArray(), hwProduct.toArray(), TOL * NOTIONAL));
   }
 

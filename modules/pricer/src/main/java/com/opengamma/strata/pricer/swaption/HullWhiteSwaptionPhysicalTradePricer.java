@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.index.HullWhiteOneFactorPiecewiseConstantParametersProvider;
@@ -108,17 +109,17 @@ public class HullWhiteSwaptionPhysicalTradePricer {
    * @param hwProvider  the Hull-White model parameter provider
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivities presentValueSensitivityRates(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     ResolvedSwaption product = trade.getProduct();
     PointSensitivityBuilder pvcsProduct =
-        PRICER_PRODUCT.presentValueSensitivity(product, ratesProvider, hwProvider);
+        PRICER_PRODUCT.presentValueSensitivityRates(product, ratesProvider, hwProvider);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider);
-    return pvcsProduct.combinedWith(pvcsPremium);
+    return pvcsProduct.combinedWith(pvcsPremium).build();
   }
 
   //-------------------------------------------------------------------------
@@ -130,13 +131,13 @@ public class HullWhiteSwaptionPhysicalTradePricer {
    * @param hwProvider  the Hull-White model parameter provider
    * @return the present value Hull-White model parameter sensitivity of the swaption trade
    */
-  public DoubleArray presentValueSensitivityHullWhiteParameter(
+  public DoubleArray presentValueSensitivityModelParamsHullWhite(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       HullWhiteOneFactorPiecewiseConstantParametersProvider hwProvider) {
 
     ResolvedSwaption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSensitivityHullWhiteParameter(product, ratesProvider, hwProvider);
+    return PRICER_PRODUCT.presentValueSensitivityModelParamsHullWhite(product, ratesProvider, hwProvider);
   }
 
 }

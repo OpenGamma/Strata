@@ -271,7 +271,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
@@ -314,7 +314,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the volatility
    */
-  public SwaptionSensitivity presentValueSensitivityVolatility(
+  public SwaptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
