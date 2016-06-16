@@ -33,11 +33,17 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Perform calculations on a single {@code SwaptionTrade} for each of a set of scenarios.
  * <p>
- * This uses the standard discounting calculation method.
+ * This uses Black, Normal or SABR pricing, depending on the inputs.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PRESENT_VALUE_MULTI_CCY Present value with no currency conversion}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  * </ul>
  * <p>
  * The "natural" currency is determined from the first swap leg.
@@ -50,7 +56,13 @@ public class SwaptionTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, SwaptionMeasureCalculations::presentValue)
+          .put(Measures.PRESENT_VALUE, SwaptionMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, SwaptionMeasureCalculations.DEFAULT::pv01RatesCalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesCalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
+          .put(Measures.CURRENCY_EXPOSURE, SwaptionMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, SwaptionMeasureCalculations.DEFAULT::currentCash)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()
