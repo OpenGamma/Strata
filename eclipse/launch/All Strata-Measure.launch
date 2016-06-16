@@ -17,9 +17,8 @@
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.strata.measure"/>
 <listEntry value="com.opengamma.strata.measure.calc"/>
-<listEntry value="com.opengamma.strata.measure.calc.curve"/>
-<listEntry value="com.opengamma.strata.measure.calc.fx"/>
 <listEntry value="com.opengamma.strata.measure.credit"/>
+<listEntry value="com.opengamma.strata.measure.curve"/>
 <listEntry value="com.opengamma.strata.measure.deposit"/>
 <listEntry value="com.opengamma.strata.measure.dsf"/>
 <listEntry value="com.opengamma.strata.measure.fra"/>

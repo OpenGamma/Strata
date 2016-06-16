@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.param;
+package com.opengamma.strata.measure.calc;
 
 import java.io.Serializable;
 import java.util.Map;

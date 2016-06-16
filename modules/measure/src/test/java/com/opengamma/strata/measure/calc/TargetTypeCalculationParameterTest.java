@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.param;
+package com.opengamma.strata.measure.calc;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -20,7 +20,6 @@ import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.TestParameter;
 import com.opengamma.strata.calc.runner.TestParameter2;
-import com.opengamma.strata.measure.param.TargetTypeCalculationParameter;
 
 /**
  * Test {@link TargetTypeCalculationParameter}.
@@ -70,7 +69,7 @@ public class TargetTypeCalculationParameterTest {
   //-------------------------------------------------------------------------
   private static class TestTarget implements CalculationTarget {
   }
-  
+
   private static class TestTarget2 implements CalculationTarget {
   }
 

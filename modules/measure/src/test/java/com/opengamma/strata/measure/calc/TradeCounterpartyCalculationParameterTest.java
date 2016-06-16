@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.param;
+package com.opengamma.strata.measure.calc;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -42,14 +42,14 @@ public class TradeCounterpartyCalculationParameterTest {
   private static final StandardId ID1 = StandardId.of("test", "cpty1");
   private static final StandardId ID2 = StandardId.of("test", "cpty2");
   private static final StandardId ID3 = StandardId.of("test", "cpty3");
-  
-  private static final SecurityInfo SEC_INFO_1 = 
+
+  private static final SecurityInfo SEC_INFO_1 =
       SecurityInfo.of(SecurityId.of("test", "sec1"), 1.0, CurrencyAmount.of(Currency.EUR, 1.0));
   private static final GenericSecurity SEC_1 = GenericSecurity.of(SEC_INFO_1);
   private static final TradeInfo TRADE_INFO_1 = TradeInfo.builder().counterparty(ID1).build();
   private static final GenericSecurityTrade TRADE_1 = GenericSecurityTrade.of(TRADE_INFO_1, SEC_1, 1, 1.0);
-  
-  private static final SecurityInfo SEC_INFO_2 = 
+
+  private static final SecurityInfo SEC_INFO_2 =
       SecurityInfo.of(SecurityId.of("test", "sec2"), 2.0, CurrencyAmount.of(Currency.EUR, 2.0));
   private static final GenericSecurity SEC_2 = GenericSecurity.of(SEC_INFO_2);
   private static final TradeInfo TRADE_INFO_2 = TradeInfo.builder().counterparty(ID2).build();

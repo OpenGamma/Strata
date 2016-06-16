@@ -37,7 +37,7 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.measure.param.TradeCounterpartyCalculationParameter;
+import com.opengamma.strata.measure.calc.TradeCounterpartyCalculationParameter;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
@@ -52,8 +52,6 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
  * Example to illustrate using the engine to price a swap.
  * <p>
  * This makes use of the example engine and the example market data environment.
- * <p>
- * 
  */
 public class SwapPricingCcpExample {
 
@@ -104,8 +102,14 @@ public class SwapPricingCcpExample {
   private static final ResourceLocator FIXINGS_RESOURCE =
       ResourceLocator
           .of(ResourceLocator.FILE_URL_PREFIX + PATH_CONFIG + "example-marketdata/historical-fixings/usd-libor-3m.csv");
-  
+
+  /**
+   * The first counterparty.
+   */
   private static final StandardId CCP1_ID = StandardId.of("example", "CCP-1");
+  /**
+   * The second counterparty.
+   */
   private static final StandardId CCP2_ID = StandardId.of("example", "CCP-2");
 
   /**
@@ -167,9 +171,10 @@ public class SwapPricingCcpExample {
     CalculationFunctions functions = StandardComponents.calculationFunctions();
     RatesMarketDataLookup ratesLookupCcp1 = RatesMarketDataLookup.of(curveGroupDefinitionCcp1);
     RatesMarketDataLookup ratesLookupCcp2 = RatesMarketDataLookup.of(curveGroupDefinitionCcp2);
-    TradeCounterpartyCalculationParameter calculationParameter = TradeCounterpartyCalculationParameter.of(
+    // choose RatesMarketDataLookup instance based on counterparty
+    TradeCounterpartyCalculationParameter perCounterparty = TradeCounterpartyCalculationParameter.of(
         ImmutableMap.of(CCP1_ID, ratesLookupCcp1, CCP2_ID, ratesLookupCcp2), ratesLookupCcp1);
-    CalculationRules rules = CalculationRules.of(functions, calculationParameter);
+    CalculationRules rules = CalculationRules.of(functions, perCounterparty);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
