@@ -64,6 +64,12 @@ public class DiscountingFraTradePricerTest {
     when(mockDf.discountFactor(RFRA.getPaymentDate())).thenReturn(DISCOUNT_FACTOR);
   }
 
+  //-------------------------------------------------------------------------
+  public void test_getters() {
+    assertEquals(DiscountingFraTradePricer.DEFAULT.getProductPricer(), DiscountingFraProductPricer.DEFAULT);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_currencyExposure() {
     assertEquals(PRICER_TRADE.currencyExposure(RFRA_TRADE, RATES_PROVIDER),
         MultiCurrencyAmount.of(PRICER_TRADE.presentValue(RFRA_TRADE, RATES_PROVIDER)));

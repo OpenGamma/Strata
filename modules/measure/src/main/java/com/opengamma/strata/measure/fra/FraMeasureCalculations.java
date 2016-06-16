@@ -114,7 +114,7 @@ final class FraMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates PV01 for all scenarios
+  // calculates calibrated sum PV01 for all scenarios
   MultiCurrencyValuesArray pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
@@ -124,7 +124,7 @@ final class FraMeasureCalculations {
         i -> pv01CalibratedSum(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // PV01 for one scenario
+  // calibrated sum PV01 for one scenario
   MultiCurrencyAmount pv01CalibratedSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
@@ -134,7 +134,7 @@ final class FraMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
+  // calculates calibrated bucketed PV01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
@@ -144,7 +144,7 @@ final class FraMeasureCalculations {
         i -> pv01CalibratedBucketed(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
+  // calibrated bucketed PV01 for one scenario
   CurrencyParameterSensitivities pv01CalibratedBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
@@ -154,7 +154,7 @@ final class FraMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
+  // calculates market quote sum PV01 for all scenarios
   MultiCurrencyValuesArray pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
@@ -164,7 +164,7 @@ final class FraMeasureCalculations {
         i -> pv01MarketQuoteSum(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
+  // market quote sum PV01 for one scenario
   MultiCurrencyAmount pv01MarketQuoteSum(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {
@@ -175,7 +175,7 @@ final class FraMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates bucketed PV01 for all scenarios
+  // calculates market quote bucketed PV01 for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesScenarioMarketData marketData) {
@@ -185,7 +185,7 @@ final class FraMeasureCalculations {
         i -> pv01MarketQuoteBucketed(trade, marketData.scenario(i).ratesProvider()));
   }
 
-  // bucketed PV01 for one scenario
+  // market quote bucketed PV01 for one scenario
   CurrencyParameterSensitivities pv01MarketQuoteBucketed(
       ResolvedFraTrade trade,
       RatesProvider ratesProvider) {

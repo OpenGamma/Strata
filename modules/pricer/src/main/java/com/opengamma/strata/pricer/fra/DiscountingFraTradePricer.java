@@ -46,6 +46,16 @@ public class DiscountingFraTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the underlying product pricer.
+   * 
+   * @return the product pricer
+   */
+  public DiscountingFraProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of the FRA trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
@@ -57,6 +67,19 @@ public class DiscountingFraTradePricer {
    */
   public CurrencyAmount presentValue(ResolvedFraTrade trade, RatesProvider provider) {
     return productPricer.presentValue(trade.getProduct(), provider);
+  }
+
+  /**
+   * Explains the present value of the FRA product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(ResolvedFraTrade trade, RatesProvider provider) {
+    return productPricer.explainPresentValue(trade.getProduct(), provider);
   }
 
   /**
@@ -195,20 +218,6 @@ public class DiscountingFraTradePricer {
       return productPricer.presentValue(fra, provider);
     }
     return CurrencyAmount.zero(fra.getCurrency());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Explains the present value of the FRA product.
-   * <p>
-   * This returns explanatory information about the calculation.
-   * 
-   * @param trade  the trade
-   * @param provider  the rates provider
-   * @return the explanatory information
-   */
-  public ExplainMap explainPresentValue(ResolvedFraTrade trade, RatesProvider provider) {
-    return productPricer.explainPresentValue(trade.getProduct(), provider);
   }
 
 }

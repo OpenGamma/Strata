@@ -43,6 +43,8 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
  *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
@@ -63,6 +65,8 @@ public class FraTradeCalculationFunction
           .put(Measures.EXPLAIN_PRESENT_VALUE, FraMeasureCalculations.DEFAULT::explainPresentValue)
           .put(Measures.PV01_CALIBRATED_SUM, FraMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, FraMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, FraMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FraMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.PAR_RATE, FraMeasureCalculations.DEFAULT::parRate)
           .put(Measures.PAR_SPREAD, FraMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CASH_FLOWS, FraMeasureCalculations.DEFAULT::cashFlows)
