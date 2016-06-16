@@ -32,7 +32,7 @@ import com.opengamma.strata.product.credit.SingleNameReferenceInformation;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class CdsMeasureCalculations {
+final class CdsMeasureCalculations {
 
   /**
    * The pricer to use.

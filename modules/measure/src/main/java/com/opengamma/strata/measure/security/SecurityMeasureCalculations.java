@@ -17,7 +17,7 @@ import com.opengamma.strata.product.Security;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class SecurityMeasureCalculations {
+final class SecurityMeasureCalculations {
 
   // restricted constructor
   private SecurityMeasureCalculations() {

@@ -26,7 +26,7 @@ import com.opengamma.strata.product.dsf.ResolvedDsfTrade;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class DsfMeasureCalculations {
+final class DsfMeasureCalculations {
 
   /**
    * The pricer to use.

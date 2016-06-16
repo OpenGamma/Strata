@@ -25,7 +25,7 @@ import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-class TermDepositMeasureCalculations {
+final class TermDepositMeasureCalculations {
 
   /**
    * Default implementation.
