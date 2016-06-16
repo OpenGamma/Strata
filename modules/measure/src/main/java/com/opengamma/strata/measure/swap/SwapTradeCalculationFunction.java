@@ -41,6 +41,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  *   <li>{@linkplain Measures#EXPLAIN_PRESENT_VALUE Explain present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#PAR_RATE Par rate}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
@@ -62,19 +64,21 @@ public class SwapTradeCalculationFunction
    */
   private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
       ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, SwapMeasureCalculations::presentValue)
-          .put(Measures.EXPLAIN_PRESENT_VALUE, SwapMeasureCalculations::explainPresentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, SwapMeasureCalculations::pv01)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, SwapMeasureCalculations::bucketedPv01)
-          .put(Measures.PAR_RATE, SwapMeasureCalculations::parRate)
-          .put(Measures.PAR_SPREAD, SwapMeasureCalculations::parSpread)
-          .put(Measures.CASH_FLOWS, SwapMeasureCalculations::cashFlows)
-          .put(Measures.ACCRUED_INTEREST, SwapMeasureCalculations::accruedInterest)
-          .put(Measures.LEG_INITIAL_NOTIONAL, SwapMeasureCalculations::legInitialNotional)
-          .put(Measures.LEG_PRESENT_VALUE, SwapMeasureCalculations::legPresentValue)
-          .put(Measures.CURRENCY_EXPOSURE, SwapMeasureCalculations::currencyExposure)
-          .put(Measures.CURRENT_CASH, SwapMeasureCalculations::currentCash)
-          .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, SwapMeasureCalculations::bucketedGammaPv01)
+          .put(Measures.PRESENT_VALUE, SwapMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.EXPLAIN_PRESENT_VALUE, SwapMeasureCalculations.DEFAULT::explainPresentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, SwapMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, SwapMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, SwapMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwapMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.PAR_RATE, SwapMeasureCalculations.DEFAULT::parRate)
+          .put(Measures.PAR_SPREAD, SwapMeasureCalculations.DEFAULT::parSpread)
+          .put(Measures.CASH_FLOWS, SwapMeasureCalculations.DEFAULT::cashFlows)
+          .put(Measures.ACCRUED_INTEREST, SwapMeasureCalculations.DEFAULT::accruedInterest)
+          .put(Measures.LEG_INITIAL_NOTIONAL, SwapMeasureCalculations.DEFAULT::legInitialNotional)
+          .put(Measures.LEG_PRESENT_VALUE, SwapMeasureCalculations.DEFAULT::legPresentValue)
+          .put(Measures.CURRENCY_EXPOSURE, SwapMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.CURRENT_CASH, SwapMeasureCalculations.DEFAULT::currentCash)
+          .put(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED, SwapMeasureCalculations.DEFAULT::pv01SemiParallelGammaBucketed)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = ImmutableSet.<Measure>builder()

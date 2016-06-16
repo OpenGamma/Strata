@@ -10,6 +10,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.amount.CashFlows;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -45,6 +46,16 @@ public class DiscountingSwapTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the underlying product pricer.
+   * 
+   * @return the product pricer
+   */
+  public DiscountingSwapProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of the swap trade, converted to the specified currency.
    * <p>
    * The present value of the trade is the value on the valuation date.
@@ -73,6 +84,19 @@ public class DiscountingSwapTradePricer {
    */
   public MultiCurrencyAmount presentValue(ResolvedSwapTrade trade, RatesProvider provider) {
     return productPricer.presentValue(trade.getProduct(), provider);
+  }
+
+  /**
+   * Explains the present value of the swap trade.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the explanatory information
+   */
+  public ExplainMap explainPresentValue(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.explainPresentValue(trade.getProduct(), provider);
   }
 
   /**
@@ -120,6 +144,61 @@ public class DiscountingSwapTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the par rate of the swap trade.
+   * <p>
+   * The par rate is the rate for which the swap present value is 0.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par rate
+   */
+  public double parRate(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.parRate(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the par rate curve sensitivity of the swap trade.
+   * <p>
+   * The par rate curve sensitivity of the product is the sensitivity of the par rate to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par rate sensitivity
+   */
+  public PointSensitivities parRateSensitivity(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.parRateSensitivity(trade.getProduct(), provider).build();
+  }
+
+  /**
+   * Calculates the par spread of the swap trade.
+   * <p>
+   * This is spread to be added to the fixed rate to have a present value of 0.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par spread
+   */
+  public double parSpread(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.parSpread(trade.getProduct(), provider);
+  }
+
+  /**
+   * Calculates the par spread curve sensitivity of the swap trade.
+   * <p>
+   * The par spread curve sensitivity of the product is the sensitivity of the par spread to
+   * the underlying curves.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the par spread sensitivity
+   */
+  public PointSensitivities parSpreadSensitivity(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.parSpreadSensitivity(trade.getProduct(), provider).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the future cash flows of the swap trade.
    * <p>
    * Each expected cash flow is added to the result.
@@ -131,6 +210,21 @@ public class DiscountingSwapTradePricer {
    */
   public CashFlows cashFlows(ResolvedSwapTrade trade, RatesProvider provider) {
     return productPricer.cashFlows(trade.getProduct(), provider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the accrued interest since the last payment.
+   * <p>
+   * This determines the payment period applicable at the valuation date and calculates
+   * the accrued interest since the last payment.
+   * 
+   * @param trade  the trade
+   * @param provider  the rates provider
+   * @return the accrued interest
+   */
+  public MultiCurrencyAmount accruedInterest(ResolvedSwapTrade trade, RatesProvider provider) {
+    return productPricer.accruedInterest(trade.getProduct(), provider);
   }
 
   //-------------------------------------------------------------------------

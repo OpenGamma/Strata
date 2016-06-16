@@ -59,9 +59,9 @@ public class DiscountingSwapProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the pricer used to price the legs.
+   * Gets the underlying leg pricer.
    * 
-   * @return the pricer
+   * @return the leg pricer
    */
   public DiscountingSwapLegPricer getLegPricer() {
     return legPricer;

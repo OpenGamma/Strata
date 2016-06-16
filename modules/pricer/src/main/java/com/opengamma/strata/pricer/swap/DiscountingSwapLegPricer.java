@@ -65,6 +65,25 @@ public class DiscountingSwapLegPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the underlying leg pricer.
+   * 
+   * @return the leg pricer
+   */
+  public PaymentPeriodPricer<PaymentPeriod> getPeriodPricer() {
+    return paymentPeriodPricer;
+  }
+
+  /**
+   * Gets the underlying leg pricer.
+   * 
+   * @return the leg pricer
+   */
+  public PaymentEventPricer<PaymentEvent> getEventPricer() {
+    return paymentEventPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of the swap leg, converted to the specified currency.
    * <p>
    * The present value of the leg is the value on the valuation date.

@@ -6,7 +6,6 @@
 package com.opengamma.strata.measure.swap;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,9 +43,9 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
@@ -59,12 +58,13 @@ public class SwapTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
       .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
+  public static final ResolvedSwapTrade RTRADE = TRADE.resolve(REF_DATA);
 
   private static final Currency CURRENCY = TRADE.getProduct().getPayLeg().get().getCurrency();
   private static final IborIndex INDEX = (IborIndex) TRADE.getProduct().allIndices().iterator().next();
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
+  static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP);
@@ -86,15 +86,14 @@ public class SwapTradeCalculationFunctionTest {
     SwapTradeCalculationFunction function = new SwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
-    ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
-    MultiCurrencyAmount expectedPv = pricer.presentValue(resolved, provider);
-    ExplainMap expectedExplainPv = pricer.explainPresentValue(resolved, provider);
-    double expectedParRate = pricer.parRate(resolved, provider);
-    double expectedParSpread = pricer.parSpread(resolved, provider);
-    CashFlows expectedCashFlows = pricer.cashFlows(resolved, provider);
-    MultiCurrencyAmount expectedExposure = pricer.currencyExposure(resolved, provider);
-    MultiCurrencyAmount expectedCash = pricer.currentCash(resolved, provider);
+    DiscountingSwapTradePricer pricer = DiscountingSwapTradePricer.DEFAULT;
+    MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider);
+    ExplainMap expectedExplainPv = pricer.explainPresentValue(RTRADE, provider);
+    double expectedParRate = pricer.parRate(RTRADE, provider);
+    double expectedParSpread = pricer.parSpread(RTRADE, provider);
+    CashFlows expectedCashFlows = pricer.cashFlows(RTRADE, provider);
+    MultiCurrencyAmount expectedExposure = pricer.currencyExposure(RTRADE, provider);
+    MultiCurrencyAmount expectedCash = pricer.currentCash(RTRADE, provider);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
@@ -126,9 +125,8 @@ public class SwapTradeCalculationFunctionTest {
     SwapTradeCalculationFunction function = new SwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
-    ResolvedSwap resolved = TRADE.getProduct().resolve(REF_DATA);
-    PointSensitivities pvPointSens = pricer.presentValueSensitivity(resolved, provider).build();
+    DiscountingSwapTradePricer pricer = DiscountingSwapTradePricer.DEFAULT;
+    PointSensitivities pvPointSens = pricer.presentValueSensitivity(RTRADE, provider);
     CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01 = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedBucketedPv01 = pvParamSens.multipliedBy(1e-4);
@@ -144,18 +142,13 @@ public class SwapTradeCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
-  private ScenarioMarketData marketData() {
+  static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
     TestMarketDataMap md = new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(DISCOUNT_CURVE_ID, curve, FORWARD_CURVE_ID, curve),
         ImmutableMap.of());
     return md;
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(SwapMeasureCalculations.class);
   }
 
 }
