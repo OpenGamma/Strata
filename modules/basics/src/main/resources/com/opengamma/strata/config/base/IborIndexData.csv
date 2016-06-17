@@ -103,3 +103,9 @@ CAD-CDOR-2M,CAD,true,Act/365F,CATO,0,CATO,CATO,2M,LastBusinessDay,10:15,America/
 CAD-CDOR-3M,CAD,true,Act/365F,CATO,0,CATO,CATO,3M,LastBusinessDay,10:15,America/Toronto
 CAD-CDOR-6M,CAD,true,Act/365F,CATO,0,CATO,CATO,6M,LastBusinessDay,10:15,America/Toronto
 CAD-CDOR-12M,CAD,true,Act/365F,CATO,0,CATO,CATO,12M,LastBusinessDay,10:15,America/Toronto
+,,,,,,
+NOK-NIBOR-1W,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1W,None,12:00,Europe/Oslo
+NOK-NIBOR-1M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,1M,LastBusinessDay,12:00,Europe/Oslo
+NOK-NIBOR-2M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,2M,LastBusinessDay,12:00,Europe/Oslo
+NOK-NIBOR-3M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,3M,LastBusinessDay,12:00,Europe/Oslo
+NOK-NIBOR-6M,NOK,true,Act/360,NOOS,2,NOOS,NOOS,6M,LastBusinessDay,12:00,Europe/Oslo

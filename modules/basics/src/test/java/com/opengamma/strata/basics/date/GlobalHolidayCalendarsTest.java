@@ -662,6 +662,42 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar NOOS = GlobalHolidayCalendars.generateOslo();
+
+  @DataProvider(name = "noos")
+  Object[][] data_noos() {
+    // official data from Oslo Bors via web archive
+    return new Object[][] {
+        {2009, mds(2009, md(1, 1), md(4, 9), md(4, 10), md(4, 13),
+            md(5, 1), md(5, 21), md(6, 1), md(12, 24), md(12, 25), md(12, 31))},
+        {2011, mds(2011, md(4, 21), md(4, 22), md(4, 25),
+            md(5, 17), md(6, 2), md(6, 13), md(12, 26))},
+        {2012, mds(2012, md(4, 5), md(4, 6), md(4, 9),
+            md(5, 1), md(5, 17), md(5, 28), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2013, mds(2013, md(1, 1), md(3, 28), md(3, 29), md(4, 1),
+            md(5, 1), md(5, 9), md(5, 17), md(5, 20), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2014, mds(2014, md(1, 1), md(4, 17), md(4, 18), md(4, 21),
+            md(5, 1), md(5, 17), md(5, 29), md(6, 9), md(12, 24), md(12, 25), md(12, 26), md(12, 31))},
+        {2015, mds(2015, md(1, 1), md(4, 2), md(4, 3), md(4, 6),
+            md(5, 1), md(5, 14), md(5, 25), md(12, 24), md(12, 25), md(12, 31))},
+        {2016, mds(2016, md(1, 1), md(3, 24), md(3, 25), md(3, 28),
+            md(5, 5), md(5, 16), md(5, 17), md(12, 26))},
+        {2017, mds(2017, md(4, 13), md(4, 14), md(4, 17),
+            md(5, 1), md(5, 17), md(5, 25), md(6, 5), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "noos")
+  public void test_noos(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NOOS.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static List<LocalDate> mds(int year, MonthDay... monthDays) {
     List<LocalDate> holidays = new ArrayList<>();
     for (MonthDay md : monthDays) {
