@@ -15,6 +15,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -47,6 +48,14 @@ public final class ImmutableSwapIndex
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String name;
   /**
+   * Whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   */
+  @PropertyDefinition(overrideGet = true)
+  private final boolean active;
+  /**
    * The fixing time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -77,7 +86,13 @@ public final class ImmutableSwapIndex
       LocalTime fixingTime,
       ZoneId fixingZone,
       FixedIborSwapTemplate template) {
-    return new ImmutableSwapIndex(name, fixingTime, fixingZone, template);
+    return new ImmutableSwapIndex(name, true, fixingTime, fixingZone, template);
+  }
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.active = true;
   }
 
   //-------------------------------------------------------------------------
@@ -137,6 +152,7 @@ public final class ImmutableSwapIndex
 
   private ImmutableSwapIndex(
       String name,
+      boolean active,
       LocalTime fixingTime,
       ZoneId fixingZone,
       FixedIborSwapTemplate template) {
@@ -145,6 +161,7 @@ public final class ImmutableSwapIndex
     JodaBeanUtils.notNull(fixingZone, "fixingZone");
     JodaBeanUtils.notNull(template, "template");
     this.name = name;
+    this.active = active;
     this.fixingTime = fixingTime;
     this.fixingZone = fixingZone;
     this.template = template;
@@ -173,6 +190,19 @@ public final class ImmutableSwapIndex
   @Override
   public String getName() {
     return name;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   * @return the value of the property
+   */
+  @Override
+  public boolean isActive() {
+    return active;
   }
 
   //-----------------------------------------------------------------------
@@ -230,6 +260,11 @@ public final class ImmutableSwapIndex
     private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
         this, "name", ImmutableSwapIndex.class, String.class);
     /**
+     * The meta-property for the {@code active} property.
+     */
+    private final MetaProperty<Boolean> active = DirectMetaProperty.ofImmutable(
+        this, "active", ImmutableSwapIndex.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code fixingTime} property.
      */
     private final MetaProperty<LocalTime> fixingTime = DirectMetaProperty.ofImmutable(
@@ -250,6 +285,7 @@ public final class ImmutableSwapIndex
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "name",
+        "active",
         "fixingTime",
         "fixingZone",
         "template");
@@ -265,6 +301,8 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case -1422950650:  // active
+          return active;
         case 1255686170:  // fixingTime
           return fixingTime;
         case 1255870713:  // fixingZone
@@ -300,6 +338,14 @@ public final class ImmutableSwapIndex
     }
 
     /**
+     * The meta-property for the {@code active} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> active() {
+      return active;
+    }
+
+    /**
      * The meta-property for the {@code fixingTime} property.
      * @return the meta-property, not null
      */
@@ -329,6 +375,8 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((ImmutableSwapIndex) bean).getName();
+        case -1422950650:  // active
+          return ((ImmutableSwapIndex) bean).isActive();
         case 1255686170:  // fixingTime
           return ((ImmutableSwapIndex) bean).getFixingTime();
         case 1255870713:  // fixingZone
@@ -357,6 +405,7 @@ public final class ImmutableSwapIndex
   public static final class Builder extends DirectFieldsBeanBuilder<ImmutableSwapIndex> {
 
     private String name;
+    private boolean active;
     private LocalTime fixingTime;
     private ZoneId fixingZone;
     private FixedIborSwapTemplate template;
@@ -365,6 +414,7 @@ public final class ImmutableSwapIndex
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -373,6 +423,7 @@ public final class ImmutableSwapIndex
      */
     private Builder(ImmutableSwapIndex beanToCopy) {
       this.name = beanToCopy.getName();
+      this.active = beanToCopy.isActive();
       this.fixingTime = beanToCopy.getFixingTime();
       this.fixingZone = beanToCopy.getFixingZone();
       this.template = beanToCopy.getTemplate();
@@ -384,6 +435,8 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return name;
+        case -1422950650:  // active
+          return active;
         case 1255686170:  // fixingTime
           return fixingTime;
         case 1255870713:  // fixingZone
@@ -400,6 +453,9 @@ public final class ImmutableSwapIndex
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this.name = (String) newValue;
+          break;
+        case -1422950650:  // active
+          this.active = (Boolean) newValue;
           break;
         case 1255686170:  // fixingTime
           this.fixingTime = (LocalTime) newValue;
@@ -444,6 +500,7 @@ public final class ImmutableSwapIndex
     public ImmutableSwapIndex build() {
       return new ImmutableSwapIndex(
           name,
+          active,
           fixingTime,
           fixingZone,
           template);
@@ -458,6 +515,19 @@ public final class ImmutableSwapIndex
     public Builder name(String name) {
       JodaBeanUtils.notEmpty(name, "name");
       this.name = name;
+      return this;
+    }
+
+    /**
+     * Sets whether the index is active, defaulted to true.
+     * <p>
+     * Over time some indices become inactive and are no longer produced.
+     * If this occurs, this flag will be set to false.
+     * @param active  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder active(boolean active) {
+      this.active = active;
       return this;
     }
 
@@ -497,9 +567,10 @@ public final class ImmutableSwapIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ImmutableSwapIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("active").append('=').append(JodaBeanUtils.toString(active)).append(',').append(' ');
       buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(fixingTime)).append(',').append(' ');
       buf.append("fixingZone").append('=').append(JodaBeanUtils.toString(fixingZone)).append(',').append(' ');
       buf.append("template").append('=').append(JodaBeanUtils.toString(template));

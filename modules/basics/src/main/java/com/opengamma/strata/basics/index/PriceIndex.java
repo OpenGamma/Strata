@@ -74,6 +74,16 @@ public interface PriceIndex
   public abstract Currency getCurrency();
 
   /**
+   * Gets whether the index is active.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this method will return false.
+   * 
+   * @return true if the index is active, false if inactive
+   */
+  public abstract boolean isActive();
+
+  /**
    * Gets the frequency that the index is published.
    * <p>
    * Most price indices are published monthly, but some are published quarterly.

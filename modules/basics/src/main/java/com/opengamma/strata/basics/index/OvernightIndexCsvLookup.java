@@ -43,6 +43,7 @@ final class OvernightIndexCsvLookup
   // CSV column headers
   private static final String NAME_FIELD = "Name";
   private static final String CURRENCY_FIELD = "Currency";
+  private static final String ACTIVE_FIELD = "Active";
   private static final String DAY_COUNT_FIELD = "Day Count";
   private static final String FIXING_CALENDAR_FIELD = "Fixing Calendar";
   private static final String PUBLICATION_DAYS_FIELD = "Publication Offset Days";
@@ -86,6 +87,7 @@ final class OvernightIndexCsvLookup
   private static OvernightIndex parseOvernightIndex(CsvRow row) {
     String name = row.getField(NAME_FIELD);
     Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
+    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
     DayCount dayCount = DayCount.of(row.getField(DAY_COUNT_FIELD));
     HolidayCalendarId fixingCal = HolidayCalendarId.of(row.getField(FIXING_CALENDAR_FIELD));
     int publicationDays = Integer.parseInt(row.getField(PUBLICATION_DAYS_FIELD));
@@ -94,6 +96,7 @@ final class OvernightIndexCsvLookup
     return ImmutableOvernightIndex.builder()
         .name(name)
         .currency(currency)
+        .active(active)
         .dayCount(dayCount)
         .fixingCalendar(fixingCal)
         .publicationDateOffset(publicationDays)

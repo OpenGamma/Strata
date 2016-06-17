@@ -60,6 +60,16 @@ public interface SwapIndex
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether the index is active.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this method will return false.
+   * 
+   * @return true if the index is active, false if inactive
+   */
+  public abstract boolean isActive();
+
+  /**
    * Gets the fixing time of the index.
    * <p>
    * The fixing time is related to the fixing date and time-zone.

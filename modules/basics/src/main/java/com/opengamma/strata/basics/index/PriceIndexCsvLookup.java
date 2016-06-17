@@ -44,6 +44,7 @@ final class PriceIndexCsvLookup
   private static final String NAME_FIELD = "Name";
   private static final String CURRENCY_FIELD = "Currency";
   private static final String COUNTRY_FIELD = "Country";
+  private static final String ACTIVE_FIELD = "Active";
   private static final String PUBLICATION_FREQUENCY_FIELD = "Publication Frequency";
 
   /**
@@ -85,12 +86,14 @@ final class PriceIndexCsvLookup
     String name = row.getField(NAME_FIELD);
     Currency currency = Currency.parse(row.getField(CURRENCY_FIELD));
     Country region = Country.of(row.getField(COUNTRY_FIELD));
+    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
     Frequency frequency = Frequency.parse(row.getField(PUBLICATION_FREQUENCY_FIELD));
     // build result
     return ImmutablePriceIndex.builder()
         .name(name)
         .currency(currency)
         .region(region)
+        .active(active)
         .publicationFrequency(frequency)
         .build();
   }
