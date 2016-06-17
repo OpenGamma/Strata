@@ -45,7 +45,9 @@ import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
- * Utilities to calibrate SABR parameters to swaptions.
+ * Swaption SABR calibrator.
+ * <p>
+ * This calibrator takes raw data and produces calibrated SABR parameters.
  */
 public class SabrSwaptionCalibrator {
 

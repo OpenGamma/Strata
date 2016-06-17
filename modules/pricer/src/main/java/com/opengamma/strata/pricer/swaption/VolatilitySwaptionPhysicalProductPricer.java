@@ -152,7 +152,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * is the first derivative of the price with respect to forward. The derivative is computed in the formula
    * underlying the volatility (Black or Normal), it does not take into account the potential change of implied 
    * volatility induced by the change of forward. The number computed by this method is closely related
-   * to the {@link VolatilitySwaptionPhysicalProductPricer#presentValueSensitivityStickyStrike} method.
+   * to the {@link VolatilitySwaptionPhysicalProductPricer#presentValueSensitivityRatesStickyStrike} method.
    * <p>
    * Related methods: Some concrete classes to this interface also implement a {@code presentValueSensitivity} 
    * method which take into account the change of implied volatility.
@@ -274,7 +274,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the rate curves
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivityBuilder presentValueSensitivityRatesStickyStrike(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
@@ -313,7 +313,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
    * @param swaptionVolatilities  the volatilities
    * @return the point sensitivity to the volatility
    */
-  public SwaptionSensitivity presentValueSensitivityVolatility(
+  public SwaptionSensitivity presentValueSensitivityModelParamsVolatility(
       ResolvedSwaption swaption,
       RatesProvider ratesProvider,
       SwaptionVolatilities swaptionVolatilities) {
