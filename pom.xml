@@ -180,6 +180,9 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <author>false</author>
+    <notimestamp>true</notimestamp>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
