@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
@@ -87,19 +87,19 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder pvSensiTrade =
+    PointSensitivities pvSensiTrade =
         PRICER_TRADE.presentValueSensitivityStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivityBuilder pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivityBuilder pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER);
+    PointSensitivities pvSensiProduct =
+        PRICER_PRODUCT.presentValueSensitivityStickyStrike(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
+    PointSensitivities pvSensiPremium = PRICER_PAYMENT.presentValueSensitivity(PREMIUM, RATES_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct.combinedWith(pvSensiPremium));
   }
 
   public void test_presentValueSensitivityBlackVolatility() {
-    PointSensitivityBuilder pvSensiTrade =
+    PointSensitivities pvSensiTrade =
         PRICER_TRADE.presentValueSensitivityBlackVolatility(OPTION_TRADE, RATES_PROVIDER, VOL_PROVIDER);
-    PointSensitivityBuilder pvSensiProduct =
-        PRICER_PRODUCT.presentValueSensitivityVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER);
+    PointSensitivities pvSensiProduct =
+        PRICER_PRODUCT.presentValueSensitivityVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOL_PROVIDER).build();
     assertEquals(pvSensiTrade, pvSensiProduct);
   }
 

@@ -352,7 +352,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivityFromCleanPrice_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -364,7 +364,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPrice_early_exCoupon() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -376,7 +376,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPrice_early() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_EX_COUPON_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_EX_COUPON_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -388,7 +388,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPrice_late() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -400,7 +400,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -414,7 +414,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_early_exCoupon() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_EX_COUPON_EARLY,
-        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -429,7 +429,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_early() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_EARLY,
-        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -443,7 +443,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_late() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_LATE,
-        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -457,7 +457,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityFromCleanPrice_fixed() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -528,7 +528,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_standard() {
     PointSensitivities point =
-        PRICER.presentValueSensitivity(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
+        PRICER.presentValueSensitivity(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -539,7 +539,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivity_late() {
     PointSensitivities point =
-        PRICER.presentValueSensitivity(TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
+        PRICER.presentValueSensitivity(TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -551,8 +551,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityWithZSpread_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC,
-            PERIOD_PER_YEAR).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValueWithZSpread(
@@ -564,7 +563,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivityWithZSpread_late() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
-        TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER, p -> PRICER.presentValueWithZSpread(
@@ -576,7 +575,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
 
   public void test_presentValueSensitivity_fixed() {
     PointSensitivities point =
-        PRICER.presentValueSensitivity(TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
+        PRICER.presentValueSensitivity(TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
         .combinedWith(RATES_PROVIDER.parameterSensitivity(point));
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
@@ -590,7 +589,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     MultiCurrencyAmount computed = PRICER.currencyExposureFromCleanPrice(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValueFromCleanPrice(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE));
     assertEquals(computed.getAmounts().size(), 1);
@@ -601,8 +600,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     MultiCurrencyAmount computed = PRICER.currencyExposureFromCleanPriceWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC,
-        PERIOD_PER_YEAR).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValueFromCleanPriceWithZSpread(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER,
             REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
@@ -614,7 +612,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     MultiCurrencyAmount computed =
         PRICER.currencyExposure(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     PointSensitivities point = PRICER.presentValueSensitivity(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValue(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA));
     assertEquals(computed.getAmounts().size(), 1);
@@ -625,7 +623,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     MultiCurrencyAmount computed = PRICER.currencyExposureWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
-        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
+        TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(PRICER.presentValueWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertEquals(computed.getAmounts().size(), 1);

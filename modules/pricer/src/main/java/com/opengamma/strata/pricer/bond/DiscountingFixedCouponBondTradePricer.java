@@ -14,6 +14,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
@@ -242,14 +243,14 @@ public class DiscountingFixedCouponBondTradePricer {
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivities presentValueSensitivity(
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider) {
 
     LocalDate settlementDate = trade.getSettlementDate();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivity(
         trade.getProduct(), provider, settlementDate);
-    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
+    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct).build();
   }
 
   /**
@@ -270,7 +271,7 @@ public class DiscountingFixedCouponBondTradePricer {
    * @param periodsPerYear  the number of periods per year
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivityBuilder presentValueSensitivityWithZSpread(
+  public PointSensitivities presentValueSensitivityWithZSpread(
       ResolvedFixedCouponBondTrade trade,
       LegalEntityDiscountingProvider provider,
       double zSpread,
@@ -280,7 +281,7 @@ public class DiscountingFixedCouponBondTradePricer {
     LocalDate settlementDate = trade.getSettlementDate();
     PointSensitivityBuilder sensiProduct = productPricer.presentValueSensitivityWithZSpread(
         trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear, settlementDate);
-    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct);
+    return presentValueSensitivityFromProductPresentValueSensitivity(trade, provider, sensiProduct).build();
   }
 
   private PointSensitivityBuilder presentValueSensitivityFromProductPresentValueSensitivity(

@@ -29,6 +29,7 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -122,24 +123,24 @@ public class DiscountingCmsTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER);
-    PointSensitivityBuilder pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
+    PointSensitivities pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER);
+    PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
     PointSensitivityBuilder ptProd1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER);
     PointSensitivityBuilder ptProd2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER);
     PointSensitivityBuilder ptPrem = PREMIUM_PRICER.presentValueSensitivity(PREMIUM, RATES_PROVIDER);
-    assertEquals(pt1, ptProd1.combinedWith(ptPrem));
-    assertEquals(pt2, ptProd2);
+    assertEquals(pt1, ptProd1.combinedWith(ptPrem).build());
+    assertEquals(pt2, ptProd2.build());
   }
 
   public void test_currencyExposure() {
     MultiCurrencyAmount computed1 = TRADE_PRICER.currencyExposure(CMS_TRADE_PREMIUM, RATES_PROVIDER);
     MultiCurrencyAmount computed2 = TRADE_PRICER.currencyExposure(CMS_TRADE, RATES_PROVIDER);
     MultiCurrencyAmount pv1 = TRADE_PRICER.presentValue(CMS_TRADE_PREMIUM, RATES_PROVIDER);
-    PointSensitivityBuilder pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER);
-    MultiCurrencyAmount expected1 = RATES_PROVIDER.currencyExposure(pt1.build()).plus(pv1);
+    PointSensitivities pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER);
+    MultiCurrencyAmount expected1 = RATES_PROVIDER.currencyExposure(pt1).plus(pv1);
     MultiCurrencyAmount pv2 = TRADE_PRICER.presentValue(CMS_TRADE, RATES_PROVIDER);
-    PointSensitivityBuilder pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
-    MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2.build()).plus(pv2);
+    PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
+    MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2).plus(pv2);
     assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
     assertEquals(computed2.getAmount(EUR).getAmount(), expected2.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
   }
