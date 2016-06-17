@@ -50,8 +50,9 @@ public class IborIndexTest {
 
   public void test_gbpLibor3m() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
-    assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getName(), "GBP-LIBOR-3M");
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.isActive(), true);
     assertEquals(test.getTenor(), TENOR_3M);
     assertEquals(test.getFixingCalendar(), GBLO);
     assertEquals(test.getFixingDateOffset(),

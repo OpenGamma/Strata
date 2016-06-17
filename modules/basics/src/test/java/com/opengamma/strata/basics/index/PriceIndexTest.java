@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.index;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.location.Country.GB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -27,6 +29,16 @@ import com.opengamma.strata.basics.schedule.Frequency;
  */
 @Test
 public class PriceIndexTest {
+
+  public void test_gbpHicp() {
+    PriceIndex test = PriceIndex.of("GB-HICP");
+    assertEquals(test.getName(), "GB-HICP");
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getRegion(), GB);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getPublicationFrequency(), Frequency.P1M);
+    assertEquals(test.toString(), "GB-HICP");
+  }
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")

@@ -36,8 +36,9 @@ public class OvernightIndexTest {
 
   public void test_gbpSonia() {
     OvernightIndex test = OvernightIndex.of("GBP-SONIA");
-    assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getName(), "GBP-SONIA");
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.isActive(), true);
     assertEquals(test.getFixingCalendar(), GBLO);
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);

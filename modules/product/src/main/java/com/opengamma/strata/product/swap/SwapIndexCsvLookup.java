@@ -43,6 +43,7 @@ final class SwapIndexCsvLookup
   public static final SwapIndexCsvLookup INSTANCE = new SwapIndexCsvLookup();
 
   private static final String NAME_FIELD = "Name";
+  private static final String ACTIVE_FIELD = "Active";
   private static final String CONVENTION_FIELD = "Convention";
   private static final String TENOR_FIELD = "Tenor";
   private static final String FIXING_TIME_FIELD = "FixingTime";
@@ -89,12 +90,19 @@ final class SwapIndexCsvLookup
 
   private static SwapIndex parseSwapIndex(CsvRow row) {
     String name = row.getField(NAME_FIELD);
+    boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
     FixedIborSwapConvention convention = FixedIborSwapConvention.of(row.getField(CONVENTION_FIELD));
     Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
     LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
     ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
     // build result
-    return ImmutableSwapIndex.of(name, time, zoneId, FixedIborSwapTemplate.of(tenor, convention));
+    return ImmutableSwapIndex.builder()
+        .name(name)
+        .active(active)
+        .fixingTime(time)
+        .fixingZone(zoneId)
+        .template(FixedIborSwapTemplate.of(tenor, convention))
+        .build();
   }
 
 }

@@ -18,6 +18,7 @@ import java.util.function.Function;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -63,6 +64,14 @@ public final class ImmutableIborIndex
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
+  /**
+   * Whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   */
+  @PropertyDefinition(overrideGet = true)
+  private final boolean active;
   /**
    * The calendar that determines which dates are fixing dates.
    * <p>
@@ -115,6 +124,12 @@ public final class ImmutableIborIndex
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
+
+  //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.active = true;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -246,6 +261,7 @@ public final class ImmutableIborIndex
   private ImmutableIborIndex(
       String name,
       Currency currency,
+      boolean active,
       HolidayCalendarId fixingCalendar,
       LocalTime fixingTime,
       ZoneId fixingZone,
@@ -264,6 +280,7 @@ public final class ImmutableIborIndex
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this.name = name;
     this.currency = currency;
+    this.active = active;
     this.fixingCalendar = fixingCalendar;
     this.fixingTime = fixingTime;
     this.fixingZone = fixingZone;
@@ -306,6 +323,19 @@ public final class ImmutableIborIndex
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether the index is active, defaulted to true.
+   * <p>
+   * Over time some indices become inactive and are no longer produced.
+   * If this occurs, this flag will be set to false.
+   * @return the value of the property
+   */
+  @Override
+  public boolean isActive() {
+    return active;
   }
 
   //-----------------------------------------------------------------------
@@ -423,6 +453,11 @@ public final class ImmutableIborIndex
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", ImmutableIborIndex.class, Currency.class);
     /**
+     * The meta-property for the {@code active} property.
+     */
+    private final MetaProperty<Boolean> active = DirectMetaProperty.ofImmutable(
+        this, "active", ImmutableIborIndex.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code fixingCalendar} property.
      */
     private final MetaProperty<HolidayCalendarId> fixingCalendar = DirectMetaProperty.ofImmutable(
@@ -464,6 +499,7 @@ public final class ImmutableIborIndex
         this, null,
         "name",
         "currency",
+        "active",
         "fixingCalendar",
         "fixingTime",
         "fixingZone",
@@ -485,6 +521,8 @@ public final class ImmutableIborIndex
           return name;
         case 575402001:  // currency
           return currency;
+        case -1422950650:  // active
+          return active;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
         case 1255686170:  // fixingTime
@@ -533,6 +571,14 @@ public final class ImmutableIborIndex
      */
     public MetaProperty<Currency> currency() {
       return currency;
+    }
+
+    /**
+     * The meta-property for the {@code active} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> active() {
+      return active;
     }
 
     /**
@@ -599,6 +645,8 @@ public final class ImmutableIborIndex
           return ((ImmutableIborIndex) bean).getName();
         case 575402001:  // currency
           return ((ImmutableIborIndex) bean).getCurrency();
+        case -1422950650:  // active
+          return ((ImmutableIborIndex) bean).isActive();
         case 394230283:  // fixingCalendar
           return ((ImmutableIborIndex) bean).getFixingCalendar();
         case 1255686170:  // fixingTime
@@ -636,6 +684,7 @@ public final class ImmutableIborIndex
 
     private String name;
     private Currency currency;
+    private boolean active;
     private HolidayCalendarId fixingCalendar;
     private LocalTime fixingTime;
     private ZoneId fixingZone;
@@ -648,6 +697,7 @@ public final class ImmutableIborIndex
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -657,6 +707,7 @@ public final class ImmutableIborIndex
     private Builder(ImmutableIborIndex beanToCopy) {
       this.name = beanToCopy.getName();
       this.currency = beanToCopy.getCurrency();
+      this.active = beanToCopy.isActive();
       this.fixingCalendar = beanToCopy.getFixingCalendar();
       this.fixingTime = beanToCopy.getFixingTime();
       this.fixingZone = beanToCopy.getFixingZone();
@@ -674,6 +725,8 @@ public final class ImmutableIborIndex
           return name;
         case 575402001:  // currency
           return currency;
+        case -1422950650:  // active
+          return active;
         case 394230283:  // fixingCalendar
           return fixingCalendar;
         case 1255686170:  // fixingTime
@@ -701,6 +754,9 @@ public final class ImmutableIborIndex
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case -1422950650:  // active
+          this.active = (Boolean) newValue;
           break;
         case 394230283:  // fixingCalendar
           this.fixingCalendar = (HolidayCalendarId) newValue;
@@ -758,6 +814,7 @@ public final class ImmutableIborIndex
       return new ImmutableIborIndex(
           name,
           currency,
+          active,
           fixingCalendar,
           fixingTime,
           fixingZone,
@@ -787,6 +844,19 @@ public final class ImmutableIborIndex
     public Builder currency(Currency currency) {
       JodaBeanUtils.notNull(currency, "currency");
       this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets whether the index is active, defaulted to true.
+     * <p>
+     * Over time some indices become inactive and are no longer produced.
+     * If this occurs, this flag will be set to false.
+     * @param active  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder active(boolean active) {
+      this.active = active;
       return this;
     }
 
@@ -887,10 +957,11 @@ public final class ImmutableIborIndex
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("ImmutableIborIndex.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("active").append('=').append(JodaBeanUtils.toString(active)).append(',').append(' ');
       buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
       buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(fixingTime)).append(',').append(' ');
       buf.append("fixingZone").append('=').append(JodaBeanUtils.toString(fixingZone)).append(',').append(' ');

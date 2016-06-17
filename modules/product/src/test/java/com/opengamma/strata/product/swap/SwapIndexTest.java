@@ -55,6 +55,7 @@ public class SwapIndexTest {
     for (String name : nameAll) {
       SwapIndex index = mapAll.get(name);
       assertEquals(SwapIndex.of(name), index);
+      assertEquals(index.isActive(), true);
       FixedIborSwapTemplate temp = index.getTemplate();
       FixedIborSwapConvention conv = temp.getConvention();
       Tenor tenor = temp.getTenor();
