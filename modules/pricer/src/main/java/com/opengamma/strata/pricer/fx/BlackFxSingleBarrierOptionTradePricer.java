@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -74,7 +75,7 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value curve sensitivity of the trade
    */
-  public PointSensitivityBuilder presentValueSensitivityStickyStrike(
+  public PointSensitivities presentValueSensitivityStickyStrike(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
@@ -84,7 +85,7 @@ public class BlackFxSingleBarrierOptionTradePricer {
         PRICER_PRODUCT.presentValueSensitivityStickyStrike(product, ratesProvider, volatilityProvider);
     Payment premium = trade.getPremium();
     PointSensitivityBuilder pvcsPremium = PRICER_PREMIUM.presentValueSensitivity(premium, ratesProvider);
-    return pvcsProduct.combinedWith(pvcsPremium);
+    return pvcsProduct.combinedWith(pvcsPremium).build();
   }
 
   //-------------------------------------------------------------------------
@@ -98,13 +99,13 @@ public class BlackFxSingleBarrierOptionTradePricer {
    * @param volatilityProvider  the Black volatility provider
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivityBlackVolatility(
+  public PointSensitivities presentValueSensitivityBlackVolatility(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesProvider ratesProvider,
       BlackVolatilityFxProvider volatilityProvider) {
 
     ResolvedFxSingleBarrierOption product = trade.getProduct();
-    return PRICER_PRODUCT.presentValueSensitivityVolatility(product, ratesProvider, volatilityProvider);
+    return PRICER_PRODUCT.presentValueSensitivityVolatility(product, ratesProvider, volatilityProvider).build();
   }
 
   //-------------------------------------------------------------------------

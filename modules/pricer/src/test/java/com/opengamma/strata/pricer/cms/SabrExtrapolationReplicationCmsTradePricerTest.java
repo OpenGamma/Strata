@@ -139,20 +139,20 @@ public class SabrExtrapolationReplicationCmsTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivities pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
+    PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptProd1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptProd2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER, VOLATILITIES);
     PointSensitivityBuilder ptPrem = PREMIUM_PRICER.presentValueSensitivity(PREMIUM, RATES_PROVIDER);
-    assertEquals(pt1, ptProd1.combinedWith(ptPrem));
-    assertEquals(pt2, ptProd2);
+    assertEquals(pt1, ptProd1.combinedWith(ptPrem).build());
+    assertEquals(pt2, ptProd2.build());
   }
 
   public void test_presentValueSensitivitySabrParameter() {
     PointSensitivities pt1 =
-        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES).build();
+        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
     PointSensitivities pt2 =
-        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE, RATES_PROVIDER, VOLATILITIES).build();
+        TRADE_PRICER.presentValueSensitivitySabrParameter(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
     PointSensitivities ptProd1 =
         PRODUCT_PRICER.presentValueSensitivitySabrParameter(CMS_ONE_LEG, RATES_PROVIDER, VOLATILITIES).build();
     PointSensitivities ptProd2 =
@@ -174,11 +174,11 @@ public class SabrExtrapolationReplicationCmsTradePricerTest {
     MultiCurrencyAmount computed1 = TRADE_PRICER.currencyExposure(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount computed2 = TRADE_PRICER.currencyExposure(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
     MultiCurrencyAmount pv1 = TRADE_PRICER.presentValue(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
-    MultiCurrencyAmount expected1 = RATES_PROVIDER.currencyExposure(pt1.build()).plus(pv1);
+    PointSensitivities pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER, VOLATILITIES);
+    MultiCurrencyAmount expected1 = RATES_PROVIDER.currencyExposure(pt1).plus(pv1);
     MultiCurrencyAmount pv2 = TRADE_PRICER.presentValue(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
-    PointSensitivityBuilder pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
-    MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2.build()).plus(pv2);
+    PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER, VOLATILITIES);
+    MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2).plus(pv2);
     assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
     assertEquals(computed2.getAmount(EUR).getAmount(), expected2.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
   }

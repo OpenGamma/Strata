@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -80,17 +81,17 @@ public class DiscountingCmsTradePricer {
    * @param ratesProvider  the rates provider
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivities presentValueSensitivity(
       ResolvedCmsTrade trade,
       RatesProvider ratesProvider) {
 
     PointSensitivityBuilder pvSensiCms =
         productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider);
     if (!trade.getPremium().isPresent()) {
-      return pvSensiCms;
+      return pvSensiCms.build();
     }
     PointSensitivityBuilder pvSensiPremium = paymentPricer.presentValueSensitivity(trade.getPremium().get(), ratesProvider);
-    return pvSensiCms.combinedWith(pvSensiPremium);
+    return pvSensiCms.combinedWith(pvSensiPremium).build();
   }
 
   //-------------------------------------------------------------------------

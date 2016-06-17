@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
@@ -99,11 +99,11 @@ public class NormalIborCapFloorTradePricerTest {
   }
 
   public void test_presentValueSensitivity() {
-    PointSensitivityBuilder computedWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
-    PointSensitivityBuilder computedWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
-    PointSensitivityBuilder pvOneLeg = PRICER_PRODUCT.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS);
-    PointSensitivityBuilder pvTwoLegs = PRICER_PRODUCT.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS);
-    PointSensitivityBuilder pvPrem = PRICER_PREMIUM.presentValueSensitivity(PREMIUM, RATES);
+    PointSensitivities computedWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
+    PointSensitivities computedWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
+    PointSensitivities pvOneLeg = PRICER_PRODUCT.presentValueSensitivity(CAP_ONE_LEG, RATES, VOLS).build();
+    PointSensitivities pvTwoLegs = PRICER_PRODUCT.presentValueSensitivity(CAP_TWO_LEGS, RATES, VOLS).build();
+    PointSensitivities pvPrem = PRICER_PREMIUM.presentValueSensitivity(PREMIUM, RATES).build();
     assertEquals(computedWithPayLeg, pvTwoLegs);
     assertEquals(computedWithPremium, pvOneLeg.combinedWith(pvPrem));
   }
@@ -113,10 +113,10 @@ public class NormalIborCapFloorTradePricerTest {
     MultiCurrencyAmount computedWithPremium = PRICER.currencyExposure(TRADE_PREMIUM, RATES, VOLS);
     MultiCurrencyAmount pvWithPayLeg = PRICER.presentValue(TRADE_PAYLEG, RATES, VOLS);
     MultiCurrencyAmount pvWithPremium = PRICER.presentValue(TRADE_PREMIUM, RATES, VOLS);
-    PointSensitivityBuilder pointWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
-    PointSensitivityBuilder pointWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
-    MultiCurrencyAmount expectedWithPayLeg = RATES.currencyExposure(pointWithPayLeg.build()).plus(pvWithPayLeg);
-    MultiCurrencyAmount expectedWithPremium = RATES.currencyExposure(pointWithPremium.build()).plus(pvWithPremium);
+    PointSensitivities pointWithPayLeg = PRICER.presentValueSensitivity(TRADE_PAYLEG, RATES, VOLS);
+    PointSensitivities pointWithPremium = PRICER.presentValueSensitivity(TRADE_PREMIUM, RATES, VOLS);
+    MultiCurrencyAmount expectedWithPayLeg = RATES.currencyExposure(pointWithPayLeg).plus(pvWithPayLeg);
+    MultiCurrencyAmount expectedWithPremium = RATES.currencyExposure(pointWithPremium).plus(pvWithPremium);
     assertEquals(computedWithPayLeg.getAmount(EUR).getAmount(),
         expectedWithPayLeg.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
     assertEquals(computedWithPremium.getAmount(EUR).getAmount(),
