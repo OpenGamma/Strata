@@ -18,12 +18,10 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
@@ -235,16 +233,6 @@ public class ImmutableScenarioMarketDataBuilderTest {
 
     private TestId(String id) {
       this.id = id;
-    }
-
-    @Override
-    public StandardId getStandardId() {
-      throw new UnsupportedOperationException("getStandardId not implemented");
-    }
-
-    @Override
-    public FieldName getFieldName() {
-      throw new UnsupportedOperationException("getFieldName not implemented");
     }
 
     @Override

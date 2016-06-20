@@ -8,8 +8,6 @@ package com.opengamma.strata.data;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.opengamma.strata.basics.StandardId;
-
 /**
  * MarketDataId implementation used in tests.
  */
@@ -31,16 +29,6 @@ public class TestingObservableId
   @Override
   public Class<Double> getMarketDataType() {
     return Double.class;
-  }
-
-  @Override
-  public StandardId getStandardId() {
-    return StandardId.of("Test", id);
-  }
-
-  @Override
-  public FieldName getFieldName() {
-    return FieldName.MARKET_VALUE;
   }
 
   @Override

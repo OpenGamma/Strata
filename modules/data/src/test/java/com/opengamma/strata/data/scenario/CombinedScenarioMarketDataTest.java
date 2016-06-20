@@ -14,9 +14,7 @@ import java.util.Objects;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 
@@ -133,16 +131,6 @@ public class CombinedScenarioMarketDataTest {
 
     private TestId(String id) {
       this.id = id;
-    }
-
-    @Override
-    public StandardId getStandardId() {
-      throw new UnsupportedOperationException("getStandardId not implemented");
-    }
-
-    @Override
-    public FieldName getFieldName() {
-      throw new UnsupportedOperationException("getFieldName not implemented");
     }
 
     @Override
