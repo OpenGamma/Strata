@@ -166,9 +166,8 @@ public class CurveGroupDefinitionTest {
         .build();
 
     LocalDate valuationDate = date(2015, 6, 30);
-    MarketData marketData = ImmutableMarketData.builder(valuationDate)
-        .addValues(ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d))
-        .build();
+    MarketData marketData = ImmutableMarketData.of(
+        valuationDate, ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d));
     Trade trade1 = NODE1.trade(valuationDate, 1d, marketData, REF_DATA);
     Trade trade2 = NODE2.trade(valuationDate, 1d, marketData, REF_DATA);
     assertEquals(test.getTotalParameterCount(), 2);

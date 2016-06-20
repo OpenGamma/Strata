@@ -98,7 +98,7 @@ public class MarketDataTest {
     ImmutableMarketData test = ImmutableMarketData.builder(VAL_DATE.plusDays(1))
         .valuationDate(VAL_DATE)
         .addValue(ID1, "123")
-        .addValues(ImmutableMap.of(ID3, "201"))
+        .addValueMap(ImmutableMap.of(ID3, "201"))
         .addTimeSeries(ID4, TIME_SERIES)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);

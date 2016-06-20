@@ -78,13 +78,14 @@ public class ImmutableMarketDataBuilder {
    */
   public ImmutableMarketDataBuilder values(Map<? extends MarketDataId<?>, ?> values) {
     this.values.clear();
-    return addValues(values);
+    return addValueMap(values);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds a value to the builder.
    *
-   * @param id  the identifier of the market data value
+   * @param id  the identifier
    * @param value  the market data value
    * @param <T>  the type of the market data value
    * @return this builder
@@ -102,7 +103,7 @@ public class ImmutableMarketDataBuilder {
    * @param values  the values
    * @return this builder
    */
-  public ImmutableMarketDataBuilder addValues(Map<? extends MarketDataId<?>, ?> values) {
+  public ImmutableMarketDataBuilder addValueMap(Map<? extends MarketDataId<?>, ?> values) {
     ArgChecker.notNull(values, "values");
     values.entrySet().forEach(e -> {
       ImmutableMarketData.checkType(e.getKey(), e.getValue());
@@ -119,14 +120,17 @@ public class ImmutableMarketDataBuilder {
    */
   public ImmutableMarketDataBuilder timeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
     this.timeSeries.clear();
-    return addTimeSeries(timeSeries);
+    return addTimeSeriesMap(timeSeries);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Adds a time-series of market data values to the builder.
+   * Adds a time-series of observable market data values.
+   * <p>
+   * Any existing time-series with the same identifier will be replaced.
    *
-   * @param id  the identifier of the market data value
-   * @param timeSeries  a time-series of the market data value
+   * @param id  the identifier
+   * @param timeSeries  a time-series of observable market data values
    * @return this builder
    */
   public ImmutableMarketDataBuilder addTimeSeries(ObservableId id, LocalDateDoubleTimeSeries timeSeries) {
@@ -137,14 +141,18 @@ public class ImmutableMarketDataBuilder {
   }
 
   /**
-   * Adds multiple time-series of market data values to the builder.
+   * Adds multiple time-series of observable market data values to the builder.
+   * <p>
+   * Any existing time-series with the same identifier will be replaced.
    *
-   * @param timeSeriesMap  the time-series
+   * @param timeSeriesMap  the map of time-series
    * @return this builder
    */
-  public ImmutableMarketDataBuilder addTimeSeries(Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap) {
+  public ImmutableMarketDataBuilder addTimeSeriesMap(
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap) {
+
     ArgChecker.notNull(timeSeriesMap, "timeSeriesMap");
-    timeSeries.putAll(timeSeriesMap);
+    this.timeSeries.putAll(timeSeriesMap);
     return this;
   }
 

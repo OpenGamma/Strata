@@ -233,18 +233,18 @@ public final class ImmutableScenarioMarketDataBuilder {
   }
 
   /**
-   * Adds time-series of observable market data.
+   * Adds multiple time-series of observable market data values to the builder.
    * <p>
    * Any existing time-series with the same identifier will be replaced.
    *
-   * @param timeSeries  a time-series of observable market data values
+   * @param timeSeriesMap  the map of time-series
    * @return this builder
    */
   public ImmutableScenarioMarketDataBuilder addTimeSeriesMap(
-      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeries) {
+      Map<? extends ObservableId, LocalDateDoubleTimeSeries> timeSeriesMap) {
 
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.timeSeries.putAll(timeSeries);
+    ArgChecker.notNull(timeSeriesMap, "timeSeriesMap");
+    this.timeSeries.putAll(timeSeriesMap);
     return this;
   }
 

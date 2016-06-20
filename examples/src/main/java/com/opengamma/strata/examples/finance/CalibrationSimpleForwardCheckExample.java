@@ -179,9 +179,7 @@ public class CalibrationSimpleForwardCheckExample {
         .build();
 
     // create the market data used for building trades
-    MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
-        .addValues(quotes)
-        .build();
+    MarketData marketData = ImmutableMarketData.of(VAL_DATE, quotes);
 
     // load the curve definition
     List<CurveGroupDefinition> defns =

@@ -68,8 +68,7 @@ public class SyntheticCurveCalibratorTest {
   private static final String QUOTES_FILE = "quotes-20151120-eur.csv";
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));
-  private static final ImmutableMarketData MARKET_QUOTES_INPUT = 
-      ImmutableMarketData.builder(VALUATION_DATE).addValues(MQ_INPUT).build();
+  private static final ImmutableMarketData MARKET_QUOTES_INPUT = ImmutableMarketData.of(VALUATION_DATE, MQ_INPUT);
   private static final Map<Index, LocalDateDoubleTimeSeries> TS_EMPTY = new HashMap<>();
   private static final Map<Index, LocalDateDoubleTimeSeries> TS_LARGE = new HashMap<>();
   static { // Fixing unnaturally high to see the difference in the calibration
