@@ -7,8 +7,8 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.basics.date.LocalDateUtils.daysBetween;
 import static com.opengamma.strata.basics.date.LocalDateUtils.doy;
-
 import static java.lang.Math.toIntExact;
+
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -158,6 +158,27 @@ enum StandardDayCounts implements DayCount {
       long actualDays = daysBetween(firstDate, end);
       LocalDate nextLeap = DateAdjusters.nextOrSameLeapDay(firstDate);
       return years + (actualDays / (nextLeap.isBefore(end) ? 366d : 365d));
+    }
+
+    @Override
+    public int calculateDays(LocalDate firstDate, LocalDate secondDate) {
+      long actualDays = daysBetween(firstDate, secondDate);
+      return toIntExact(actualDays);
+    }
+  },
+
+  // actual days / actual days in year from start date
+  ACT_ACT_YEAR("Act/Act Year") {
+    @Override
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      LocalDate startDate = firstDate;
+      int yearsAdded = 0;
+      while (secondDate.compareTo(startDate.plusYears(1)) > 0) {
+        startDate = firstDate.plusYears(++yearsAdded);
+      }
+      double actualDays = daysBetween(startDate, secondDate);
+      double actualDaysInYear = daysBetween(startDate, startDate.plusYears(1));
+      return yearsAdded + (actualDays / actualDaysInYear);
     }
 
     @Override

@@ -133,6 +133,32 @@ public final class DayCounts {
    */
   public static final DayCount ACT_ACT_AFB = DayCount.of(StandardDayCounts.ACT_ACT_AFB.getName());
   /**
+   * The 'Act/Act Year' day count, which divides the actual number of days
+   * by the number of days in the year from the start date.
+   * <p>
+   * The result is calculated as follows in two parts - a number of whole years and the remaining part.
+   * <p>
+   * If the period is over one year, a number of years is added to the start date to reduce
+   * the remaining period to less than a year. If the start date is February 29th, then each
+   * time a year is added the last valid day in February is chosen.
+   * <p>
+   * The remaining period is then processed by a simple division.
+   * The numerator is the actual number of days in the remaining period.
+   * The denominator is the actual number of days in the year from the adjusted start date.
+   * The first day in the period is included, the last day is excluded.
+   * The result is the number of whole years plus the result of the division.
+   * <p>
+   * For example, the consider the period 2016-01-10 to 2016-01-20.
+   * The numerator is 10, as there are 10 days between the dates.
+   * The denominator is 366, as there are 366 days between 2016-01-10 and 2017-01-10.
+   * <p>
+   * This is a variation of the 'Act/Act ICMA' day count.
+   * If 'Act/Act ICMA is called with a frequency of yearly, the next coupon date equal to the
+   * start date plus one year and the end-of-month flag set to false, then the result will
+   * be the same for periods less than a year.
+   */
+  public static final DayCount ACT_ACT_YEAR = DayCount.of(StandardDayCounts.ACT_ACT_YEAR.getName());
+  /**
    * The 'Act/365 Actual' day count, which divides the actual number of days by 366
    * if a leap day is contained, or by 365 if not.
    * <p>

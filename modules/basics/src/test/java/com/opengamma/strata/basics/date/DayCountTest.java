@@ -14,6 +14,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365_ACTUAL;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_AFB;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_YEAR;
 import static com.opengamma.strata.basics.date.DayCounts.NL_365;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
@@ -153,6 +154,23 @@ public class DayCountTest {
         {ACT_ACT_AFB, 2012, 2, 28, 2012, 3, 28, 29d / 366d},
         {ACT_ACT_AFB, 2012, 2, 29, 2012, 3, 28, 28d / 366d},
         {ACT_ACT_AFB, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
+
+        //-------------------------------------------------------
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 2, 28, (62d / 366d)},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 2, 29, (63d / 366d)},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 3, 1, (64d / 366d)},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 2, 28, (62d / 366d) + 4},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 2, 29, (63d / 366d) + 4},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 3, 1, (64d / 366d) + 4},
+        {ACT_ACT_YEAR, 2012, 2, 28, 2012, 3, 28, 29d / 366d},
+        {ACT_ACT_YEAR, 2012, 2, 29, 2012, 3, 28, 28d / 365d},
+        {ACT_ACT_YEAR, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
+
+        {ACT_ACT_YEAR, 2011, 2, 28, 2011, 3, 2, (2d / 365d)},
+        {ACT_ACT_YEAR, 2011, 3, 1, 2011, 3, 2, (1d / 366d)},
+
+        {ACT_ACT_YEAR, 2012, 2, 28, 2016, 3, 2, (3d / 366d) + 4},
+        {ACT_ACT_YEAR, 2012, 2, 29, 2016, 3, 2, (2d / 365d) + 4},
 
         //-------------------------------------------------------
         {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 28, (62d / 365d)},
@@ -379,6 +397,14 @@ public class DayCountTest {
         {ACT_ACT_AFB, 2011, 12, 28, 2016, 2, 28, 1523},
         {ACT_ACT_AFB, 2011, 12, 28, 2016, 2, 29, 1524},
         {ACT_ACT_AFB, 2011, 12, 28, 2016, 3, 1, 1525},
+
+        //-------------------------------------------------------
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 2, 28, 62},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 2, 29, 63},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2012, 3, 1, 64},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 2, 28, 1523},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 2, 29, 1524},
+        {ACT_ACT_YEAR, 2011, 12, 28, 2016, 3, 1, 1525},
 
         //-------------------------------------------------------
         {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 28, 62},
@@ -969,6 +995,19 @@ public class DayCountTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_actActYearVsIcma() {
+    LocalDate start = LocalDate.of(2011, 1, 1);
+    for (int i = 0; i < 400; i++) {
+      for (int j = 0; j < 365; j++) {
+        LocalDate end = start.plusDays(j);
+        ScheduleInfo info = new Info(start, end, start.plusYears(1), false, P12M);
+        assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), ACT_ACT_YEAR.yearFraction(start, end), TOLERANCE_ZERO);
+      }
+      start = start.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
@@ -976,6 +1015,7 @@ public class DayCountTest {
         {ACT_ACT_ISDA, "Act/Act ISDA"},
         {ACT_ACT_ICMA, "Act/Act ICMA"},
         {ACT_ACT_AFB, "Act/Act AFB"},
+        {ACT_ACT_YEAR, "Act/Act Year"},
         {ACT_365_ACTUAL, "Act/365 Actual"},
         {ACT_365L, "Act/365L"},
         {ACT_360, "Act/360"},
