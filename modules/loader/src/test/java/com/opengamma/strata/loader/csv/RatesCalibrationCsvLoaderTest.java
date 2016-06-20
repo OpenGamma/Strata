@@ -100,7 +100,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertEquals(entry1.getIndices(), ImmutableSet.of(IborIndices.USD_LIBOR_3M));
     assertEquals(defn1.getName(), CurveName.of("USD-3ML"));
     assertEquals(defn1.getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(defn1.getParameterCount(), 25);
+    assertEquals(defn1.getParameterCount(), 27);
   }
 
   //-------------------------------------------------------------------------
