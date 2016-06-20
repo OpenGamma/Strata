@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
@@ -888,7 +887,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     private Result<Double> buildResult(ObservableId id) {
-      return Result.success(Double.parseDouble(id.getStandardId().getValue()));
+      return Result.success(Double.parseDouble(((TestObservableId) id).getStandardId().getValue()));
     }
   }
 
@@ -902,16 +901,6 @@ public class DefaultMarketDataFactoryTest {
 
     TestIdA(String id) {
       this.id = StandardId.of("test", id);
-    }
-
-    @Override
-    public StandardId getStandardId() {
-      return id;
-    }
-
-    @Override
-    public FieldName getFieldName() {
-      return FieldName.MARKET_VALUE;
     }
 
     @Override

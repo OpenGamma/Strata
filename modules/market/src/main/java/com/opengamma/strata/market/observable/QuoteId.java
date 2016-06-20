@@ -63,13 +63,13 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
    * The identifier of the data.
    * This is typically an identifier from an external data provider.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final StandardId standardId;
   /**
    * The field name in the market data record that contains the market data item.
    * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final FieldName fieldName;
   /**
    * The source of observable market data.
@@ -175,7 +175,6 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
    * This is typically an identifier from an external data provider.
    * @return the value of the property, not null
    */
-  @Override
   public StandardId getStandardId() {
     return standardId;
   }
@@ -186,7 +185,6 @@ public final class QuoteId implements ObservableId, ImmutableBean, Serializable 
    * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    * @return the value of the property, not null
    */
-  @Override
   public FieldName getFieldName() {
     return fieldName;
   }

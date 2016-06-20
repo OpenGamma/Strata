@@ -14,7 +14,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableSource;
 
@@ -33,7 +32,6 @@ public class IndexQuoteIdTest {
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
@@ -42,7 +40,6 @@ public class IndexQuoteIdTest {
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getFieldName(), FIELD);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
@@ -51,7 +48,6 @@ public class IndexQuoteIdTest {
     assertEquals(test.getIndex(), GBP_SONIA);
     assertEquals(test.getFieldName(), FIELD);
     assertEquals(test.getObservableSource(), OBS_SOURCE);
-    assertEquals(test.getStandardId(), StandardId.of("OG-Index", GBP_SONIA.getName()));
     assertEquals(test.getMarketDataType(), Double.class);
   }
 
