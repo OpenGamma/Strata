@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.rate;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -40,6 +41,28 @@ import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
 public interface RatesProvider
     extends BaseProvider {
 
+  /**
+   * Gets the set of Ibor indices that are available.
+   *
+   * @return the set of Ibor indices
+   */
+  public abstract Set<IborIndex> getIborIndices();
+
+  /**
+   * Gets the set of Overnight indices that are available.
+   *
+   * @return the set of Overnight indices
+   */
+  public abstract Set<OvernightIndex> getOvernightIndices();
+
+  /**
+   * Gets the set of Price indices that are available.
+   *
+   * @return the set of Price indices
+   */
+  public abstract Set<PriceIndex> getPriceIndices();
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the rates for an FX index.
    * <p>

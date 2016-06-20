@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.rate;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -29,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -150,6 +153,36 @@ public final class ImmutableRatesProvider
         .indexCurves(indexCurves)
         .priceIndexValues(priceIndexValues)
         .timeSeries(timeSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    return discountCurves.keySet();
+  }
+
+  @Override
+  public ImmutableSet<IborIndex> getIborIndices() {
+    return indexCurves.keySet().stream()
+        .filter(IborIndex.class::isInstance)
+        .map(IborIndex.class::cast)
+        .collect(toImmutableSet());
+  }
+
+  @Override
+  public ImmutableSet<OvernightIndex> getOvernightIndices() {
+    return indexCurves.keySet().stream()
+        .filter(OvernightIndex.class::isInstance)
+        .map(OvernightIndex.class::cast)
+        .collect(toImmutableSet());
+  }
+
+  @Override
+  public ImmutableSet<PriceIndex> getPriceIndices() {
+    return priceIndexValues.keySet().stream()
+        .filter(PriceIndex.class::isInstance)
+        .map(PriceIndex.class::cast)
+        .collect(toImmutableSet());
   }
 
   //-------------------------------------------------------------------------

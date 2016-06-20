@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.measure.rate;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +21,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -97,6 +100,35 @@ final class DefaultLookupRatesProvider
   @Override
   public LocalDate getValuationDate() {
     return marketData.getValuationDate();
+  }
+
+  @Override
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    return lookup.getDiscountCurrencies();
+  }
+
+  @Override
+  public ImmutableSet<IborIndex> getIborIndices() {
+    return lookup.getForwardIndices().stream()
+        .filter(IborIndex.class::isInstance)
+        .map(IborIndex.class::cast)
+        .collect(toImmutableSet());
+  }
+
+  @Override
+  public ImmutableSet<OvernightIndex> getOvernightIndices() {
+    return lookup.getForwardIndices().stream()
+        .filter(OvernightIndex.class::isInstance)
+        .map(OvernightIndex.class::cast)
+        .collect(toImmutableSet());
+  }
+
+  @Override
+  public ImmutableSet<PriceIndex> getPriceIndices() {
+    return lookup.getForwardIndices().stream()
+        .filter(PriceIndex.class::isInstance)
+        .map(PriceIndex.class::cast)
+        .collect(toImmutableSet());
   }
 
   //-------------------------------------------------------------------------

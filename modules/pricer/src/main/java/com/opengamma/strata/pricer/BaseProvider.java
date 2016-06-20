@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -31,6 +32,13 @@ public interface BaseProvider
    * @return the valuation date
    */
   public abstract LocalDate getValuationDate();
+
+  /**
+   * Gets the set of currencies that discount factors are provided for.
+   *
+   * @return the set of discount curve currencies
+   */
+  public abstract Set<Currency> getDiscountCurrencies();
 
   //-------------------------------------------------------------------------
   /**
