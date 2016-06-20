@@ -887,6 +887,9 @@ public class DefaultMarketDataFactoryTest {
     }
 
     private Result<Double> buildResult(ObservableId id) {
+      if (id instanceof TestIdA) {
+        return Result.success(Double.parseDouble(((TestIdA) id).id.getValue()));
+      }
       return Result.success(Double.parseDouble(((TestObservableId) id).getStandardId().getValue()));
     }
   }
