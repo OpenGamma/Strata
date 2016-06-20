@@ -81,6 +81,12 @@ public class ScenarioMarketDataTest {
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
+  public void test_of_repeated() {
+    ScenarioMarketData test = ScenarioMarketData.of(1, MarketData.of(VAL_DATE, ImmutableMap.of(ID1, VAL1)));
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.getValue(ID1)).isEqualTo(MarketDataBox.ofSingleValue(VAL1));
+  }
+
   public void test_empty() {
     ScenarioMarketData test = ScenarioMarketData.empty();
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.empty());
