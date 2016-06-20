@@ -192,8 +192,8 @@ public class CalibrationXCcyCheckExample {
 
     // create the market data used for building trades
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
-        .addValues(quotes)
-        .addValues(fxRates)
+        .addValueMap(quotes)
+        .addValueMap(fxRates)
         .build();
 
     // load the curve definition

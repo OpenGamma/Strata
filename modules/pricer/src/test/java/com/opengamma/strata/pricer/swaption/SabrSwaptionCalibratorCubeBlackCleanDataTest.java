@@ -82,8 +82,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
           ResourceLocator.of(BASE_DIR + NODES_FILE)).get(0);
   private static final Map<QuoteId, Double> MAP_MQ =
       QuotesCsvLoader.load(CALIBRATION_DATE, ImmutableList.of(ResourceLocator.of(BASE_DIR + QUOTES_FILE)));
-  private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.builder(CALIBRATION_DATE)
-      .addValues(MAP_MQ).build();
+  private static final ImmutableMarketData MARKET_QUOTES = ImmutableMarketData.of(CALIBRATION_DATE, MAP_MQ);
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
   private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
