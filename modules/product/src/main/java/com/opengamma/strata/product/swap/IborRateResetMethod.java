@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * When calculating interest, it may be necessary to average a number of different rates.
  * This method defines how to perform the averaging.
  */
-public enum IborRateAveragingMethod {
+public enum IborRateResetMethod {
 
   /**
    * The unweighted method.
@@ -46,7 +46,7 @@ public enum IborRateAveragingMethod {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static IborRateAveragingMethod of(String uniqueName) {
+  public static IborRateResetMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

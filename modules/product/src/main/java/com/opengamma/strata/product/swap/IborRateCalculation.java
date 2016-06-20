@@ -8,7 +8,7 @@ package com.opengamma.strata.product.swap;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
-import static com.opengamma.strata.product.swap.IborRateAveragingMethod.UNWEIGHTED;
+import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -358,7 +358,7 @@ public final class IborRateCalculation
       fixings.add(IborAveragedFixing.builder()
           .observation(iborObservationFn.apply(fixingDate))
           .fixedRate(firstRegular && i == 0 ? firstRegularRate : null)
-          .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
+          .weight(resetPeriods.getResetMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
     return IborAveragedRateComputation.of(fixings);

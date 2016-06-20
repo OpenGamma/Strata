@@ -74,7 +74,7 @@ public final class ResetSchedule
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
   /**
-   * The rate averaging method, defaulted to 'Unweighted'.
+   * The rate reset method, defaulted to 'Unweighted'.
    * <p>
    * This is used when more than one fixing contributes to the accrual period.
    * <p>
@@ -84,12 +84,12 @@ public final class ResetSchedule
    * Defined by the 2006 ISDA definitions article 6.2a.
    */
   @PropertyDefinition(validate = "notNull")
-  private final IborRateAveragingMethod averagingMethod;
+  private final IborRateResetMethod resetMethod;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.averagingMethod(IborRateAveragingMethod.UNWEIGHTED);
+    builder.resetMethod(IborRateResetMethod.UNWEIGHTED);
   }
 
   //-------------------------------------------------------------------------
@@ -146,13 +146,13 @@ public final class ResetSchedule
   private ResetSchedule(
       Frequency resetFrequency,
       BusinessDayAdjustment businessDayAdjustment,
-      IborRateAveragingMethod averagingMethod) {
+      IborRateResetMethod resetMethod) {
     JodaBeanUtils.notNull(resetFrequency, "resetFrequency");
     JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
-    JodaBeanUtils.notNull(averagingMethod, "averagingMethod");
+    JodaBeanUtils.notNull(resetMethod, "resetMethod");
     this.resetFrequency = resetFrequency;
     this.businessDayAdjustment = businessDayAdjustment;
-    this.averagingMethod = averagingMethod;
+    this.resetMethod = resetMethod;
   }
 
   @Override
@@ -200,7 +200,7 @@ public final class ResetSchedule
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rate averaging method, defaulted to 'Unweighted'.
+   * Gets the rate reset method, defaulted to 'Unweighted'.
    * <p>
    * This is used when more than one fixing contributes to the accrual period.
    * <p>
@@ -210,8 +210,8 @@ public final class ResetSchedule
    * Defined by the 2006 ISDA definitions article 6.2a.
    * @return the value of the property, not null
    */
-  public IborRateAveragingMethod getAveragingMethod() {
-    return averagingMethod;
+  public IborRateResetMethod getResetMethod() {
+    return resetMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -232,7 +232,7 @@ public final class ResetSchedule
       ResetSchedule other = (ResetSchedule) obj;
       return JodaBeanUtils.equal(resetFrequency, other.resetFrequency) &&
           JodaBeanUtils.equal(businessDayAdjustment, other.businessDayAdjustment) &&
-          JodaBeanUtils.equal(averagingMethod, other.averagingMethod);
+          JodaBeanUtils.equal(resetMethod, other.resetMethod);
     }
     return false;
   }
@@ -242,7 +242,7 @@ public final class ResetSchedule
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(resetFrequency);
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
-    hash = hash * 31 + JodaBeanUtils.hashCode(averagingMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(resetMethod);
     return hash;
   }
 
@@ -252,7 +252,7 @@ public final class ResetSchedule
     buf.append("ResetSchedule{");
     buf.append("resetFrequency").append('=').append(resetFrequency).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("averagingMethod").append('=').append(JodaBeanUtils.toString(averagingMethod));
+    buf.append("resetMethod").append('=').append(JodaBeanUtils.toString(resetMethod));
     buf.append('}');
     return buf.toString();
   }
@@ -278,10 +278,10 @@ public final class ResetSchedule
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", ResetSchedule.class, BusinessDayAdjustment.class);
     /**
-     * The meta-property for the {@code averagingMethod} property.
+     * The meta-property for the {@code resetMethod} property.
      */
-    private final MetaProperty<IborRateAveragingMethod> averagingMethod = DirectMetaProperty.ofImmutable(
-        this, "averagingMethod", ResetSchedule.class, IborRateAveragingMethod.class);
+    private final MetaProperty<IborRateResetMethod> resetMethod = DirectMetaProperty.ofImmutable(
+        this, "resetMethod", ResetSchedule.class, IborRateResetMethod.class);
     /**
      * The meta-properties.
      */
@@ -289,7 +289,7 @@ public final class ResetSchedule
         this, null,
         "resetFrequency",
         "businessDayAdjustment",
-        "averagingMethod");
+        "resetMethod");
 
     /**
      * Restricted constructor.
@@ -304,8 +304,8 @@ public final class ResetSchedule
           return resetFrequency;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case -1476458213:  // averagingMethod
-          return averagingMethod;
+        case -958176496:  // resetMethod
+          return resetMethod;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -343,11 +343,11 @@ public final class ResetSchedule
     }
 
     /**
-     * The meta-property for the {@code averagingMethod} property.
+     * The meta-property for the {@code resetMethod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborRateAveragingMethod> averagingMethod() {
-      return averagingMethod;
+    public MetaProperty<IborRateResetMethod> resetMethod() {
+      return resetMethod;
     }
 
     //-----------------------------------------------------------------------
@@ -358,8 +358,8 @@ public final class ResetSchedule
           return ((ResetSchedule) bean).getResetFrequency();
         case -1065319863:  // businessDayAdjustment
           return ((ResetSchedule) bean).getBusinessDayAdjustment();
-        case -1476458213:  // averagingMethod
-          return ((ResetSchedule) bean).getAveragingMethod();
+        case -958176496:  // resetMethod
+          return ((ResetSchedule) bean).getResetMethod();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -383,7 +383,7 @@ public final class ResetSchedule
 
     private Frequency resetFrequency;
     private BusinessDayAdjustment businessDayAdjustment;
-    private IborRateAveragingMethod averagingMethod;
+    private IborRateResetMethod resetMethod;
 
     /**
      * Restricted constructor.
@@ -399,7 +399,7 @@ public final class ResetSchedule
     private Builder(ResetSchedule beanToCopy) {
       this.resetFrequency = beanToCopy.getResetFrequency();
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
-      this.averagingMethod = beanToCopy.getAveragingMethod();
+      this.resetMethod = beanToCopy.getResetMethod();
     }
 
     //-----------------------------------------------------------------------
@@ -410,8 +410,8 @@ public final class ResetSchedule
           return resetFrequency;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
-        case -1476458213:  // averagingMethod
-          return averagingMethod;
+        case -958176496:  // resetMethod
+          return resetMethod;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -426,8 +426,8 @@ public final class ResetSchedule
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
-        case -1476458213:  // averagingMethod
-          this.averagingMethod = (IborRateAveragingMethod) newValue;
+        case -958176496:  // resetMethod
+          this.resetMethod = (IborRateResetMethod) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -464,7 +464,7 @@ public final class ResetSchedule
       return new ResetSchedule(
           resetFrequency,
           businessDayAdjustment,
-          averagingMethod);
+          resetMethod);
     }
 
     //-----------------------------------------------------------------------
@@ -501,7 +501,7 @@ public final class ResetSchedule
     }
 
     /**
-     * Sets the rate averaging method, defaulted to 'Unweighted'.
+     * Sets the rate reset method, defaulted to 'Unweighted'.
      * <p>
      * This is used when more than one fixing contributes to the accrual period.
      * <p>
@@ -509,12 +509,12 @@ public final class ResetSchedule
      * The number of days is based on the reset period, not the period between two fixing dates.
      * <p>
      * Defined by the 2006 ISDA definitions article 6.2a.
-     * @param averagingMethod  the new value, not null
+     * @param resetMethod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder averagingMethod(IborRateAveragingMethod averagingMethod) {
-      JodaBeanUtils.notNull(averagingMethod, "averagingMethod");
-      this.averagingMethod = averagingMethod;
+    public Builder resetMethod(IborRateResetMethod resetMethod) {
+      JodaBeanUtils.notNull(resetMethod, "resetMethod");
+      this.resetMethod = resetMethod;
       return this;
     }
 
@@ -525,7 +525,7 @@ public final class ResetSchedule
       buf.append("ResetSchedule.Builder{");
       buf.append("resetFrequency").append('=').append(JodaBeanUtils.toString(resetFrequency)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
-      buf.append("averagingMethod").append('=').append(JodaBeanUtils.toString(averagingMethod));
+      buf.append("resetMethod").append('=').append(JodaBeanUtils.toString(resetMethod));
       buf.append('}');
       return buf.toString();
     }
