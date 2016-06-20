@@ -5,11 +5,9 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.collect.function.ObjIntFunction;
@@ -231,22 +229,4 @@ public interface MarketDataBox<T> {
    */
   public Stream<T> stream();
 
-  //--------------------------------------------------------------------------------------------------
-
-  /**
-   * Returns a collector which can be used to collect values from a stream into a market data box.
-   *
-   * @param <T> the type of the items in the stream
-   * @return a collector which can be used to collect values from a stream into a market data box
-   */
-  public static <T> Collector<T, List<T>, MarketDataBox<T>> toMarketDataBox() {
-    return Collector.of(
-        ArrayList::new,
-        (list, value) -> list.add(value),
-        (list1, list2) -> {
-          list1.addAll(list2);
-          return list1;
-        },
-        list -> list.size() == 1 ? MarketDataBox.ofSingleValue(list.get(0)) : MarketDataBox.ofScenarioValues(list));
-  }
 }
