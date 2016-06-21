@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
@@ -22,6 +23,8 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 @Test
 public class CurveParallelShiftsTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   public void test_absolute() {
     CurveParallelShifts test = CurveParallelShifts.absolute(1d, 2d, 4d);
 
@@ -31,7 +34,7 @@ public class CurveParallelShiftsTest {
         DoubleArray.of(5, 6, 7),
         CurveInterpolators.LOG_LINEAR);
 
-    MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve));
+    MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve), REF_DATA);
 
     assertEquals(shiftedCurveBox.getValue(0), ParallelShiftedCurve.absolute(baseCurve, 1d));
     assertEquals(shiftedCurveBox.getValue(1), ParallelShiftedCurve.absolute(baseCurve, 2d));
@@ -47,7 +50,7 @@ public class CurveParallelShiftsTest {
         DoubleArray.of(5, 6, 7),
         CurveInterpolators.LOG_LINEAR);
 
-    MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve));
+    MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve), REF_DATA);
 
     assertEquals(shiftedCurveBox.getValue(0), ParallelShiftedCurve.relative(baseCurve, 0.1d));
     assertEquals(shiftedCurveBox.getValue(1), ParallelShiftedCurve.relative(baseCurve, 0.2d));

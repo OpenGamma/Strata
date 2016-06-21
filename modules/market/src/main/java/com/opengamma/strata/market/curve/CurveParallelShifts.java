@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
@@ -84,7 +85,7 @@ public final class CurveParallelShifts
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> curve) {
+  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> curve, ReferenceData refData) {
     return curve.mapWithIndex(getScenarioCount(), this::applyShift);
   }
 

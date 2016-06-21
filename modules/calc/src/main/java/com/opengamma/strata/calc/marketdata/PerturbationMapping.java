@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
@@ -70,10 +71,11 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    *
    * @param marketDataId  the ID of a piece of market data
    * @param marketData  the market data value
+   * @param refData  the reference data
    * @return true if the filter matches
    */
   @SuppressWarnings("unchecked")
-  public boolean matches(MarketDataId<?> marketDataId, MarketDataBox<?> marketData) {
+  public boolean matches(MarketDataId<?> marketDataId, MarketDataBox<?> marketData, ReferenceData refData) {
     // The raw type is necessary to keep the compiler happy, the call is definitely safe because the
     // type of the ID is checked against the ID type handled by the filter
     @SuppressWarnings("rawtypes")
@@ -81,7 +83,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
 
     return marketDataType.isAssignableFrom(marketData.getMarketDataType()) &&
         filter.getMarketDataIdType().isInstance(marketDataId) &&
-        rawFilter.matches(marketDataId, marketData);
+        rawFilter.matches(marketDataId, marketData, refData);
   }
 
   /**
@@ -90,10 +92,11 @@ public final class PerturbationMapping<T> implements ImmutableBean {
    * This method should only be called after calling {@code #matches} and receiving a result of {@code true}.
    *
    * @param marketData  the market data value
+   * @param refData  the reference data
    * @return a list of market data values derived from the input value by applying the perturbations
    */
   @SuppressWarnings("unchecked")
-  public MarketDataBox<T> applyPerturbation(MarketDataBox<T> marketData) {
+  public MarketDataBox<T> applyPerturbation(MarketDataBox<T> marketData, ReferenceData refData) {
     if (!marketDataType.isAssignableFrom(marketData.getMarketDataType())) {
       throw new IllegalArgumentException(
           Messages.format(
@@ -101,7 +104,7 @@ public final class PerturbationMapping<T> implements ImmutableBean {
               marketData,
               marketDataType.getName()));
     }
-    return perturbation.applyTo(marketData);
+    return perturbation.applyTo(marketData, refData);
   }
 
   /**

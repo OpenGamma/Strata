@@ -15,6 +15,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -29,6 +30,8 @@ import com.opengamma.strata.market.param.LabelDateParameterMetadata;
  */
 @Test
 public class CurvePointShiftsTest {
+
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final String TNR_1W = "1W";
   private static final String TNR_1M = "1M";
@@ -59,7 +62,7 @@ public class CurvePointShiftsTest {
         DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
-    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve));
+    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve), REF_DATA);
 
     Curve scenario1Curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),
@@ -125,7 +128,7 @@ public class CurvePointShiftsTest {
         DoubleArray.of(5, 6, 7),
         INTERPOLATOR);
 
-    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve));
+    MarketDataBox<Curve> shiftedCurveBox = shift.applyTo(MarketDataBox.ofSingleValue(curve), REF_DATA);
 
     Curve scenario1Curve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("curve"), DayCounts.ACT_365F, nodeMetadata),

@@ -11,19 +11,23 @@ import static org.testng.Assert.assertEquals;
 import org.joda.beans.ImmutableBean;
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.ReferenceData;
+
 /**
  * Test {@link ScenarioPerturbation}.
  */
 @Test
 public class ScenarioPerturbationTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
+
   public void test_none() {
     ScenarioPerturbation<Double> test = ScenarioPerturbation.none();
     assertEquals(test.getScenarioCount(), 1);
     MarketDataBox<Double> box1 = MarketDataBox.ofScenarioValues(1d, 2d, 3d);
-    assertEquals(test.applyTo(box1), box1);
+    assertEquals(test.applyTo(box1, REF_DATA), box1);
     MarketDataBox<Double> box2 = MarketDataBox.ofSingleValue(1d);
-    assertEquals(test.applyTo(box2), box2);
+    assertEquals(test.applyTo(box2, REF_DATA), box2);
   }
 
 //  public void test_generics() {

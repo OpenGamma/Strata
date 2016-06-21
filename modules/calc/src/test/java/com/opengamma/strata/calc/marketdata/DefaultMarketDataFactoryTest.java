@@ -1151,7 +1151,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean matches(I marketDataId, MarketDataBox<T> marketData) {
+    public boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
       return false;
     }
 
@@ -1173,7 +1173,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData) {
+    public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData, ReferenceData refData) {
       return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value + shiftAmount[scenarioIndex]);
     }
 
@@ -1195,7 +1195,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData) {
+    public MarketDataBox<Double> applyTo(MarketDataBox<Double> marketData, ReferenceData refData) {
       return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value * (1 + shiftAmounts[scenarioIndex]));
     }
 
@@ -1217,7 +1217,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public boolean matches(I marketDataId, MarketDataBox<T> marketData) {
+    public boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData) {
       return id.equals(marketDataId);
     }
 
@@ -1290,7 +1290,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public MarketDataBox<String> applyTo(MarketDataBox<String> marketData) {
+    public MarketDataBox<String> applyTo(MarketDataBox<String> marketData, ReferenceData refData) {
       return marketData.mapWithIndex(getScenarioCount(), (value, scenarioIndex) -> value + str[scenarioIndex]);
     }
 
@@ -1312,7 +1312,7 @@ public class DefaultMarketDataFactoryTest {
     }
 
     @Override
-    public MarketDataBox<TestMarketDataC> applyTo(MarketDataBox<TestMarketDataC> marketData) {
+    public MarketDataBox<TestMarketDataC> applyTo(MarketDataBox<TestMarketDataC> marketData, ReferenceData refData) {
       return marketData.mapWithIndex(getScenarioCount(), this::perturb);
     }
 

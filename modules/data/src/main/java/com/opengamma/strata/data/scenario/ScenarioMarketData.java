@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
@@ -87,7 +88,8 @@ public interface ScenarioMarketData {
    * The result will consist of a {@code ScenarioMarketData} that returns the specified
    * market data for each scenario.
    * <p>
-   * This can be used in association with the {@link #withPerturbation(MarketDataId, ScenarioPerturbation) withPerturbation}
+   * This can be used in association with the
+   * {@link #withPerturbation(MarketDataId, ScenarioPerturbation, ReferenceData) withPerturbation}
    * method to take a base set of market data and create a complete set of perturbations.
    * See {@code MarketDataFactory} for the ability to apply multiple perturbations, including
    * perturbations to calibration inputs, such as quotes.
@@ -309,18 +311,23 @@ public interface ScenarioMarketData {
    * @param <T>  the type of the market data value
    * @param id  the identifier to perturb
    * @param perturbation  the perturbation to apply
+   * @param refData  the reference data
    * @return a parameterized data instance based on this with the specified perturbation applied
    * @throws IllegalArgumentException if the scenario count does not match
    * @throws MarketDataNotFoundException if the identifier is not found
    * @throws RuntimeException if unable to perform the perturbation
    */
-  public default <T> ScenarioMarketData withPerturbation(MarketDataId<T> id, ScenarioPerturbation<T> perturbation) {
+  public default <T> ScenarioMarketData withPerturbation(
+      MarketDataId<T> id,
+      ScenarioPerturbation<T> perturbation,
+      ReferenceData refData) {
+
     if (perturbation.getScenarioCount() != 1 && perturbation.getScenarioCount() != getScenarioCount()) {
       throw new IllegalArgumentException(Messages.format(
           "Scenario count mismatch: perturbation has {} scenarios but this market data has {}",
           perturbation.getScenarioCount(), getScenarioCount()));
     }
-    return withValue(id, perturbation.applyTo(getValue(id)));
+    return withValue(id, perturbation.applyTo(getValue(id), refData));
   }
 
 }
