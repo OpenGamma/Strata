@@ -37,13 +37,45 @@ public class CurveGammaCalculator {
    */
   private final VectorFieldFirstOrderDifferentiator fd;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance of the finite difference calculator using forward differencing.
+   * 
+   * @param shift  the shift to be applied to the curves
+   * @return the calculator
+   */
+  public static CurveGammaCalculator ofForwardDifference(double shift) {
+    return new CurveGammaCalculator(FiniteDifferenceType.FORWARD, shift);
+  }
+
+  /**
+   * Obtains an instance of the finite difference calculator using central differencing.
+   * 
+   * @param shift  the shift to be applied to the curves
+   * @return the calculator
+   */
+  public static CurveGammaCalculator ofCentralDifference(double shift) {
+    return new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, shift);
+  }
+
+  /**
+   * Obtains an instance of the finite difference calculator using backward differencing.
+   * 
+   * @param shift  the shift to be applied to the curves
+   * @return the calculator
+   */
+  public static CurveGammaCalculator ofBackwardDifference(double shift) {
+    return new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, shift);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Create an instance of the finite difference calculator.
    * 
    * @param fdType  the finite difference type
    * @param shift  the shift to be applied to the curves
    */
-  public CurveGammaCalculator(FiniteDifferenceType fdType, double shift) {
+  private CurveGammaCalculator(FiniteDifferenceType fdType, double shift) {
     this.fd = new VectorFieldFirstOrderDifferentiator(fdType, shift);
   }
 
