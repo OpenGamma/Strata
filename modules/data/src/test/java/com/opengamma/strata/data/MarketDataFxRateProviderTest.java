@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data;
 
+import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
@@ -34,6 +35,8 @@ public class MarketDataFxRateProviderTest {
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final double EUR_USD = 1.10;
   private static final double GBP_USD = 1.50;
+  private static final double EUR_CHF = 1.05;
+  private static final double GBP_CHF = 1.41;
   private static final Currency BEF = Currency.of("BEF");
   private static final double EUR_BEF = 40.3399;
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
@@ -51,6 +54,17 @@ public class MarketDataFxRateProviderTest {
 
   public void missingCurrencies() {
     assertThrows(() -> provider().fxRate(EUR, GBP), MarketDataNotFoundException.class);
+  }
+
+  public void cross_specified() {
+    Map<FxRateId, FxRate> marketDataMap =
+        ImmutableMap.of(FxRateId.of(EUR, CHF), FxRate.of(EUR, CHF, EUR_CHF),
+            FxRateId.of(GBP, CHF), FxRate.of(GBP, CHF, GBP_CHF));
+    MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
+    FxRateProvider fx = MarketDataFxRateProvider.of(marketData, ObservableSource.NONE, CHF);
+    assertEquals(fx.fxRate(GBP, EUR), GBP_CHF / EUR_CHF, 1.0E-10);
+    assertEquals(fx.fxRate(EUR, GBP), EUR_CHF / GBP_CHF, 1.0E-10);
+    assertThrows(() -> fx.fxRate(EUR, USD), MarketDataNotFoundException.class);
   }
 
   public void cross_base() {
@@ -102,7 +116,7 @@ public class MarketDataFxRateProviderTest {
     Map<FxRateId, FxRate> marketDataMap =
         ImmutableMap.of(FxRateId.of(EUR, USD, OBS_SOURCE), FxRate.of(EUR, USD, EUR_USD));
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, marketDataMap);
-    return MarketDataFxRateProvider.of(marketData, OBS_SOURCE);
+    return MarketDataFxRateProvider.of(marketData, OBS_SOURCE, GBP);
   }
 
 }
