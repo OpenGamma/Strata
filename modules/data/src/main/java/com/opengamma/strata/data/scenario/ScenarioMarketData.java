@@ -82,6 +82,25 @@ public interface ScenarioMarketData {
   }
 
   /**
+   * Obtains an instance by wrapping a single set of market data.
+   * <p>
+   * The result will consist of a {@code ScenarioMarketData} that returns the specified
+   * market data for each scenario.
+   * <p>
+   * This can be used in association with the {@link #withPerturbation(MarketDataId, ScenarioPerturbation) withPerturbation}
+   * method to take a base set of market data and create a complete set of perturbations.
+   * See {@code MarketDataFactory} for the ability to apply multiple perturbations, including
+   * perturbations to calibration inputs, such as quotes.
+   * 
+   * @param scenarioCount  the number of scenarios, one or more
+   * @param marketData  the single set of market data
+   * @return a set of market data containing the values in the map
+   */
+  public static ScenarioMarketData of(int scenarioCount, MarketData marketData) {
+    return RepeatedScenarioMarketData.of(scenarioCount, marketData);
+  }
+
+  /**
    * Obtains a market data instance that contains no data and has no scenarios.
    *
    * @return an empty instance
