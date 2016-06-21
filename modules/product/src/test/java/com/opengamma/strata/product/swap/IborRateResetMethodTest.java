@@ -15,49 +15,49 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test.
+ * Test {@link IborRateResetMethod}.
  */
 @Test
-public class IborRateAveragingMethodTest {
+public class IborRateResetMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-        {IborRateAveragingMethod.WEIGHTED, "Weighted"},
-        {IborRateAveragingMethod.UNWEIGHTED, "Unweighted"},
+        {IborRateResetMethod.WEIGHTED, "Weighted"},
+        {IborRateResetMethod.UNWEIGHTED, "Unweighted"},
     };
   }
 
   @Test(dataProvider = "name")
-  public void test_toString(IborRateAveragingMethod convention, String name) {
+  public void test_toString(IborRateResetMethod convention, String name) {
     assertEquals(convention.toString(), name);
   }
 
   @Test(dataProvider = "name")
-  public void test_of_lookup(IborRateAveragingMethod convention, String name) {
-    assertEquals(IborRateAveragingMethod.of(name), convention);
+  public void test_of_lookup(IborRateResetMethod convention, String name) {
+    assertEquals(IborRateResetMethod.of(name), convention);
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> IborRateAveragingMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThrows(() -> IborRateResetMethod.of("Rubbish"), IllegalArgumentException.class);
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> IborRateAveragingMethod.of(null), IllegalArgumentException.class);
+    assertThrows(() -> IborRateResetMethod.of(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverEnum(IborRateAveragingMethod.class);
+    coverEnum(IborRateResetMethod.class);
   }
 
   public void test_serialization() {
-    assertSerialization(IborRateAveragingMethod.WEIGHTED);
+    assertSerialization(IborRateResetMethod.WEIGHTED);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(IborRateAveragingMethod.class, IborRateAveragingMethod.WEIGHTED);
+    assertJodaConvert(IborRateResetMethod.class, IborRateResetMethod.WEIGHTED);
   }
 
 }

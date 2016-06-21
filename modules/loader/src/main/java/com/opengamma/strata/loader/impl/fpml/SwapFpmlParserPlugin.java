@@ -38,8 +38,8 @@ import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
-import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateResetMethod;
 import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
@@ -450,7 +450,7 @@ final class SwapFpmlParserPlugin
         ResetSchedule.Builder resetScheduleBuilder = ResetSchedule.builder();
         resetScheduleBuilder.resetFrequency(resetFreq);
         floatingEl.findChild("averagingMethod").ifPresent(el -> {
-          resetScheduleBuilder.averagingMethod(parseAveragingMethod(el));
+          resetScheduleBuilder.resetMethod(parseAveragingMethod(el));
         });
         resetScheduleBuilder.businessDayAdjustment(
             document.parseBusinessDayAdjustments(resetDatesEl.getChild("resetDatesAdjustments")));
@@ -705,14 +705,14 @@ final class SwapFpmlParserPlugin
     }
   }
 
-  // Converts an FpML 'AveragingMethodEnum' to a {@code IborRateAveragingMethod}.
-  private IborRateAveragingMethod parseAveragingMethod(XmlElement baseEl) {
+  // Converts an FpML 'AveragingMethodEnum' to a {@code IborRateResetMethod}.
+  private IborRateResetMethod parseAveragingMethod(XmlElement baseEl) {
     if (baseEl.getContent().equals("Unweighted")) {
-      return IborRateAveragingMethod.UNWEIGHTED;
+      return IborRateResetMethod.UNWEIGHTED;
     } else if (baseEl.getContent().equals("Weighted")) {
-      return IborRateAveragingMethod.WEIGHTED;
+      return IborRateResetMethod.WEIGHTED;
     } else {
-      throw new FpmlParseException(Messages.format("Unknown 'averagingMethod': {}", baseEl.getContent()));
+      throw new FpmlParseException(Messages.format("Unknown 'resetMethod': {}", baseEl.getContent()));
     }
   }
 

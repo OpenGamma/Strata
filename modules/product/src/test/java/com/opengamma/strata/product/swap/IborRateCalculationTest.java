@@ -23,8 +23,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_END;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_START;
-import static com.opengamma.strata.product.swap.IborRateAveragingMethod.UNWEIGHTED;
-import static com.opengamma.strata.product.swap.IborRateAveragingMethod.WEIGHTED;
+import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
+import static com.opengamma.strata.product.swap.IborRateResetMethod.WEIGHTED;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
 import static org.testng.Assert.assertEquals;
@@ -427,7 +427,7 @@ public class IborRateCalculationTest {
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
-            .averagingMethod(WEIGHTED)
+            .resetMethod(WEIGHTED)
             .build())
         .build();
 
@@ -474,7 +474,7 @@ public class IborRateCalculationTest {
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
-            .averagingMethod(WEIGHTED)
+            .resetMethod(WEIGHTED)
             .build())
         .firstRegularRate(0.028d)
         .build();
@@ -522,7 +522,7 @@ public class IborRateCalculationTest {
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
-            .averagingMethod(UNWEIGHTED)
+            .resetMethod(UNWEIGHTED)
             .build())
         .build();
 
@@ -569,7 +569,7 @@ public class IborRateCalculationTest {
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P1M)
             .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
-            .averagingMethod(WEIGHTED)
+            .resetMethod(WEIGHTED)
             .build())
         .firstRegularRate(0.028d)
         .initialStub(IborRateStubCalculation.ofFixedRate(0.030d))
@@ -648,7 +648,7 @@ public class IborRateCalculationTest {
         .index(GBP_LIBOR_6M)
         .resetPeriods(ResetSchedule.builder()
             .resetFrequency(P3M)
-            .averagingMethod(IborRateAveragingMethod.UNWEIGHTED)
+            .resetMethod(IborRateResetMethod.UNWEIGHTED)
             .businessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
         .fixingDateOffset(MINUS_THREE_DAYS)

@@ -101,8 +101,8 @@ import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
-import com.opengamma.strata.product.swap.IborRateAveragingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateResetMethod;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
@@ -932,7 +932,7 @@ public class FpmlDocumentParserTest {
             .index(USD_LIBOR_6M)
             .resetPeriods(ResetSchedule.builder()
                 .resetFrequency(Frequency.P1M)
-                .averagingMethod(IborRateAveragingMethod.UNWEIGHTED)
+                .resetMethod(IborRateResetMethod.UNWEIGHTED)
                 .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
                 .build())
             .dayCount(ACT_360)

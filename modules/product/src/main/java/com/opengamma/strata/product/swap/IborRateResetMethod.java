@@ -12,15 +12,15 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A convention defining how to average floating rates.
+ * A convention defining how to process a floating rate reset schedule.
  * <p>
- * When calculating interest, it may be necessary to average a number of different rates.
- * This method defines how to perform the averaging.
+ * When calculating interest, there may be multiple reset dates for a given accrual period.
+ * This typically involves an average of a number of different rate fixings.
  */
-public enum IborRateAveragingMethod {
+public enum IborRateResetMethod {
 
   /**
-   * The unweighted method.
+   * The unweighted average method.
    * <p>
    * The result is a simple average of the applicable rates.
    * <p>
@@ -28,7 +28,7 @@ public enum IborRateAveragingMethod {
    */
   UNWEIGHTED,
   /**
-   * The weighted method.
+   * The weighted average method.
    * <p>
    * The result is a weighted average of the applicable rates based on the
    * number of days each rate is applicable.
@@ -46,7 +46,7 @@ public enum IborRateAveragingMethod {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static IborRateAveragingMethod of(String uniqueName) {
+  public static IborRateResetMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

@@ -15,8 +15,8 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static com.opengamma.strata.product.swap.IborRateAveragingMethod.UNWEIGHTED;
-import static com.opengamma.strata.product.swap.IborRateAveragingMethod.WEIGHTED;
+import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
+import static com.opengamma.strata.product.swap.IborRateResetMethod.WEIGHTED;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -50,7 +50,7 @@ public class ResetScheduleTest {
         .build();
     assertEquals(test.getResetFrequency(), P1M);
     assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.of(FOLLOWING, GBLO));
-    assertEquals(test.getAveragingMethod(), UNWEIGHTED);
+    assertEquals(test.getResetMethod(), UNWEIGHTED);
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class ResetScheduleTest {
     ResetSchedule test2 = ResetSchedule.builder()
         .resetFrequency(P3M)
         .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
-        .averagingMethod(WEIGHTED)
+        .resetMethod(WEIGHTED)
         .build();
     coverBeanEquals(test, test2);
   }
