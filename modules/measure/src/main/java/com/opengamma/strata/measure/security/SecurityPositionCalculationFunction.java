@@ -123,7 +123,7 @@ public class SecurityPositionCalculationFunction
 
     SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.INVALID_INPUT, "Unsupported measure: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for SecurityPosition: {}", measure);
     }
     return Result.of(() -> calculator.calculate(security, position.getQuantity(), scenarioMarketData));
   }

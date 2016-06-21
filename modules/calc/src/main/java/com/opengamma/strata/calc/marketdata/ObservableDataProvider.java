@@ -33,7 +33,10 @@ public interface ObservableDataProvider {
     return identifiers -> identifiers.stream()
         .collect(toImmutableMap(
             id -> id,
-            id -> Result.failure(FailureReason.MISSING_DATA, "No market data found for ID '{}'", id)));
+            id -> Result.failure(
+                FailureReason.MISSING_DATA,
+                "No observable market data provider configured, unable to provide data for '{}'",
+                id)));
   }
 
   //-------------------------------------------------------------------------

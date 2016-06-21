@@ -28,11 +28,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.ReportingCurrency;
+import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
@@ -41,6 +42,7 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
@@ -170,7 +172,9 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasFailureMessageMatching("Function '.*' threw an exception: This is a failure");
+    assertThat(result)
+        .isFailure(FailureReason.CALCULATION_FAILED)
+        .hasFailureMessageMatching("Error when invoking function 'ConvertibleFunction':.*: This is a failure");
   }
 
   /**
@@ -215,7 +219,9 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).hasFailureMessageMatching("Failed to convert value '.*' to currency 'USD'");
+    assertThat(result)
+        .isFailure(FailureReason.CURRENCY_CONVERSION)
+        .hasFailureMessageMatching("Failed to convert value '.*' to currency 'USD'");
   }
 
   /**
@@ -245,8 +251,63 @@ public class CalculationTaskTest {
 
     CalculationResults calculationResults = task.execute(marketData, REF_DATA);
     Result<?> result = calculationResults.getCells().get(0).getResult();
-    assertThat(result).isFailure(FailureReason.ERROR)
-        .hasFailureMessageMatching("Function 'SupplierFunction' threw an exception: foo");
+    assertThat(result)
+        .isFailure(FailureReason.CALCULATION_FAILED)
+        .hasFailureMessageMatching("Error when invoking function 'SupplierFunction': .*: foo");
+  }
+
+  /**
+   * Tests that executing a function that throws a market data exception wraps the exception in a failure result.
+   */
+  public void executeException_marketData() {
+    SupplierFunction<String> fn = SupplierFunction.of(() -> {
+      throw new MarketDataNotFoundException("foo");
+    });
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result = calculationResults.getCells().get(0).getResult();
+    assertThat(result)
+        .isFailure(FailureReason.MISSING_DATA)
+        .hasFailureMessageMatching("Missing market data when invoking function 'SupplierFunction': foo");
+  }
+
+  /**
+   * Tests that executing a function that throws a reference data exception wraps the exception in a failure result.
+   */
+  public void executeException_referenceData() {
+    SupplierFunction<String> fn = SupplierFunction.of(() -> {
+      throw new ReferenceDataNotFoundException("foo");
+    });
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result = calculationResults.getCells().get(0).getResult();
+    assertThat(result)
+        .isFailure(FailureReason.MISSING_DATA)
+        .hasFailureMessageMatching("Missing reference data when invoking function 'SupplierFunction': foo");
+  }
+
+  /**
+   * Tests that executing a function that throws an unsupported exception wraps the exception in a failure result.
+   */
+  public void executeException_unsupported() {
+    SupplierFunction<String> fn = SupplierFunction.of(() -> {
+      throw new UnsupportedOperationException("foo");
+    });
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, REPORTING_CURRENCY_USD);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    ScenarioMarketData marketData = ScenarioMarketData.empty();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result = calculationResults.getCells().get(0).getResult();
+    assertThat(result)
+        .isFailure(FailureReason.UNSUPPORTED)
+        .hasFailureMessageMatching("Unsupported operation when invoking function 'SupplierFunction': foo");
   }
 
   /**

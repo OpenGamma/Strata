@@ -157,7 +157,11 @@ public final class CalculationTaskCell implements ImmutableBean {
       return Result.success(value.convertedTo(resolvedReportingCurrency, fxProvider));
     } catch (RuntimeException ex) {
       return Result.failure(
-          FailureReason.ERROR, ex, "Failed to convert value '{}' to currency '{}'", value, resolvedReportingCurrency);
+          FailureReason.CURRENCY_CONVERSION,
+          ex,
+          "Failed to convert value '{}' to currency '{}'",
+          value,
+          resolvedReportingCurrency);
     }
   }
 
