@@ -81,7 +81,7 @@ public class StirFuturePricingExample {
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults =
-        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
+        ReportCalculationResults.of(valuationDate, trades, columns, results, functions, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("stir-future-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);

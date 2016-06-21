@@ -14,6 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 
@@ -36,7 +37,12 @@ public class PositionTokenEvaluator extends TokenEvaluator<Position> {
   }
 
   @Override
-  public EvaluationResult evaluate(Position position, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Position position,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     MetaBean metaBean = JodaBeanUtils.metaBean(position.getClass());
 
     // position

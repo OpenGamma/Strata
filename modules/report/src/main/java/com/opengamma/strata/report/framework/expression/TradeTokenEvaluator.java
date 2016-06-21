@@ -14,6 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 
@@ -36,7 +37,12 @@ public class TradeTokenEvaluator extends TokenEvaluator<Trade> {
   }
 
   @Override
-  public EvaluationResult evaluate(Trade trade, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Trade trade, 
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+    
     MetaBean metaBean = JodaBeanUtils.metaBean(trade.getClass());
 
     // trade

@@ -21,8 +21,10 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.market.amount.LegAmounts;
 import com.opengamma.strata.market.amount.SwapLegAmount;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -30,14 +32,16 @@ import com.opengamma.strata.product.swap.SwapLegType;
 @Test
 public class BeanTokenEvaluatorTest {
 
+  private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
+
   public void evaluate() {
     Bean bean = bean();
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
 
-    EvaluationResult notional1 = evaluator.evaluate(bean, "notional", ImmutableList.of());
+    EvaluationResult notional1 = evaluator.evaluate(bean, FUNCTIONS, "notional", ImmutableList.of());
     assertThat(notional1.getResult()).hasValue(1_000_000d);
 
-    EvaluationResult notional2 = evaluator.evaluate(bean, "Notional", ImmutableList.of());
+    EvaluationResult notional2 = evaluator.evaluate(bean, FUNCTIONS, "Notional", ImmutableList.of());
     assertThat(notional2.getResult()).hasValue(1_000_000d);
   }
 
@@ -82,11 +86,11 @@ public class BeanTokenEvaluatorTest {
     LegAmounts amounts = LegAmounts.of(amount);
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
 
-    EvaluationResult result1 = evaluator.evaluate(amounts, "amounts", ImmutableList.of("foo", "bar"));
+    EvaluationResult result1 = evaluator.evaluate(amounts, FUNCTIONS, "amounts", ImmutableList.of("foo", "bar"));
     assertThat(result1.getResult()).hasValue(ImmutableList.of(amount));
     assertThat(result1.getRemainingTokens()).isEqualTo(ImmutableList.of("foo", "bar"));
 
-    EvaluationResult result2 = evaluator.evaluate(amounts, "baz", ImmutableList.of("foo", "bar"));
+    EvaluationResult result2 = evaluator.evaluate(amounts, FUNCTIONS, "baz", ImmutableList.of("foo", "bar"));
     assertThat(result2.getResult()).hasValue(ImmutableList.of(amount));
     assertThat(result2.getRemainingTokens()).isEqualTo(ImmutableList.of("baz", "foo", "bar"));
   }

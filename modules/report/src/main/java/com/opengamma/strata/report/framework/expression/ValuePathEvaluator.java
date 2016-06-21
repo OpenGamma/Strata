@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.product.fra.Fra;
@@ -89,16 +90,22 @@ public class ValuePathEvaluator {
           results.getTargets().size(),
           Result.failure(FailureReason.INVALID_INPUT, "Column expressions must not be empty"));
     }
+    CalculationFunctions functions = results.getCalculationFunctions();
     int rowCount = results.getCalculationResults().getRowCount();
     return IntStream.range(0, rowCount)
-        .mapToObj(rowIndex -> evaluate(tokens, RootEvaluator.INSTANCE, new ResultsRow(results, rowIndex)))
+        .mapToObj(rowIndex -> evaluate(functions, tokens, RootEvaluator.INSTANCE, new ResultsRow(results, rowIndex)))
         .collect(toImmutableList());
   }
 
   // Tokens always has at least one token
-  private static <T> Result<?> evaluate(List<String> tokens, TokenEvaluator<T> evaluator, T target) {
+  private static <T> Result<?> evaluate(
+      CalculationFunctions functions,
+      List<String> tokens,
+      TokenEvaluator<T> evaluator,
+      T target) {
+
     List<String> remaining = tokens.subList(1, tokens.size());
-    EvaluationResult evaluationResult = evaluator.evaluate(target, tokens.get(0), remaining);
+    EvaluationResult evaluationResult = evaluator.evaluate(target, functions, tokens.get(0), remaining);
 
     if (evaluationResult.isComplete()) {
       return evaluationResult.getResult();
@@ -107,7 +114,7 @@ public class ValuePathEvaluator {
     Optional<TokenEvaluator<Object>> nextEvaluator = getEvaluator(value.getClass());
 
     return nextEvaluator.isPresent() ?
-        evaluate(evaluationResult.getRemainingTokens(), nextEvaluator.get(), value) :
+        evaluate(functions, evaluationResult.getRemainingTokens(), nextEvaluator.get(), value) :
         noEvaluatorResult(remaining, value);
   }
 

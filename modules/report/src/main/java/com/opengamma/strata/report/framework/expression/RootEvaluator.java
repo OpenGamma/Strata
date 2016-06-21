@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 
 /**
  * Evaluator that evaluates the first token in the expression.
@@ -41,11 +42,16 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
   }
 
   @Override
-  public EvaluationResult evaluate(ResultsRow resultsRow, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      ResultsRow resultsRow,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     ValueRootType rootType = ValueRootType.parseToken(firstToken);
     switch (rootType) {
       case MEASURES:
-        return evaluateMeasures(resultsRow, remainingTokens);
+        return evaluateMeasures(resultsRow, functions, remainingTokens);
       case PRODUCT:
         return EvaluationResult.of(resultsRow.getProduct(), remainingTokens);
       case SECURITY:
@@ -62,10 +68,14 @@ class RootEvaluator extends TokenEvaluator<ResultsRow> {
   }
 
   // find the result starting from a measure
-  private EvaluationResult evaluateMeasures(ResultsRow resultsRow, List<String> remainingTokens) {
+  private EvaluationResult evaluateMeasures(
+      ResultsRow resultsRow,
+      CalculationFunctions functions,
+      List<String> remainingTokens) {
+
     // if no measures, return list of valid measures
     if (remainingTokens.isEmpty() || Strings.nullToEmpty(remainingTokens.get(0)).trim().isEmpty()) {
-      List<String> measureNames = ResultsRow.measureNames(resultsRow.getTarget());
+      List<String> measureNames = ResultsRow.measureNames(resultsRow.getTarget(), functions);
       return EvaluationResult.failure("No measure specified. Use one of: {}", measureNames);
     }
     // evaluate the measure name

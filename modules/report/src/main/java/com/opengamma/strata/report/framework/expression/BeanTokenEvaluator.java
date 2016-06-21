@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.market.amount.LegAmount;
 import com.opengamma.strata.market.amount.LegAmounts;
 
@@ -62,7 +63,12 @@ public class BeanTokenEvaluator extends TokenEvaluator<Bean> {
   }
 
   @Override
-  public EvaluationResult evaluate(Bean bean, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Bean bean,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     Optional<String> propertyName = bean.propertyNames().stream()
         .filter(p -> p.equalsIgnoreCase(firstToken))
         .findFirst();
