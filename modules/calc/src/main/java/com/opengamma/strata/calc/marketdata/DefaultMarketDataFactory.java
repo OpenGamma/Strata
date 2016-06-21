@@ -20,6 +20,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
@@ -70,17 +71,31 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
 
   //-------------------------------------------------------------------------
   @Override
-  public BuiltScenarioMarketData buildMarketData(
+  public BuiltMarketData create(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
-      ScenarioMarketData suppliedData,
+      MarketData suppliedData,
       ReferenceData refData) {
 
-    return buildMarketData(requirements, marketDataConfig, suppliedData, refData, ScenarioDefinition.empty());
+    ScenarioMarketData md = ScenarioMarketData.of(1, suppliedData);
+    BuiltScenarioMarketData smd = createMultiScenario(requirements, marketDataConfig, md, refData, ScenarioDefinition.empty());
+    return new BuiltMarketData(smd);
   }
 
   @Override
-  public BuiltScenarioMarketData buildMarketData(
+  public BuiltScenarioMarketData createMultiScenario(
+      MarketDataRequirements requirements,
+      MarketDataConfig marketDataConfig,
+      MarketData suppliedData,
+      ReferenceData refData,
+      ScenarioDefinition scenarioDefinition) {
+
+    ScenarioMarketData md = ScenarioMarketData.of(1, suppliedData);
+    return createMultiScenario(requirements, marketDataConfig, md, refData, scenarioDefinition);
+  }
+
+  @Override
+  public BuiltScenarioMarketData createMultiScenario(
       MarketDataRequirements requirements,
       MarketDataConfig marketDataConfig,
       ScenarioMarketData suppliedData,

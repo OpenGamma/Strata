@@ -34,10 +34,9 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.FxRateId;
+import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.examples.marketdata.credit.markit.MarkitRedCode;
 import com.opengamma.strata.market.curve.CurveGroup;
 import com.opengamma.strata.market.curve.CurveGroupId;
@@ -215,7 +214,7 @@ public class ExampleMarketDataBuilderTest {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
 
-    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
+    ImmutableMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
@@ -236,15 +235,15 @@ public class ExampleMarketDataBuilderTest {
   public void test_ofResource_directory_with_spaces() {
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
 
-    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
+    ImmutableMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
     assertEquals(snapshot.getTimeSeries().size(), 1);
   }
 
   //-------------------------------------------------------------------------
   private void assertBuilder(ExampleMarketDataBuilder builder) {
-    ImmutableScenarioMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
+    ImmutableMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
 
-    assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate().getSingleValue());
+    assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate());
 
     for (ObservableId id : TIME_SERIES) {
       assertFalse(snapshot.getTimeSeries(id).isEmpty(), "Time-series not found: " + id);
@@ -256,9 +255,7 @@ public class ExampleMarketDataBuilderTest {
     for (MarketDataId<?> id : VALUES) {
       assertTrue(snapshot.containsValue(id), "Id not found: " + id);
     }
-    MarketDataBox<CurveGroup> curveGroupBox = snapshot.getValue(CurveGroupId.of(DEFAULT_CURVE_GROUP));
-    assertTrue(curveGroupBox.isSingleValue());
-    CurveGroup curveGroup = curveGroupBox.getSingleValue();
+    CurveGroup curveGroup = snapshot.getValue(CurveGroupId.of(DEFAULT_CURVE_GROUP));
     assertTrue(curveGroup.findDiscountCurve(Currency.USD).isPresent());
     assertTrue(curveGroup.findDiscountCurve(Currency.GBP).isPresent());
     assertTrue(curveGroup.findForwardCurve(IborIndices.USD_LIBOR_3M).isPresent());

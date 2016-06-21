@@ -40,6 +40,7 @@ import com.opengamma.strata.calc.marketdata.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
@@ -124,16 +125,16 @@ public class HistoricalScenarioExample {
     // build a market data snapshot for the valuation date
     // this is the base snapshot which will be perturbed by the scenarios
     LocalDate valuationDate = LocalDate.of(2015, 4, 23);
-    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    ScenarioMarketData enhancedMarketData = 
-        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData, historicalScenarios);
-    Results results = runner.calculateMultipleScenarios(rules, trades, columns, enhancedMarketData, refData);
+    ScenarioMarketData scenarioMarketData =
+        marketDataFactory().createMultiScenario(reqs, MarketDataConfig.empty(), marketData, refData, historicalScenarios);
+    Results results = runner.calculateMultiScenario(rules, trades, columns, scenarioMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario
     ScenarioArray<?> scenarioValuations = (ScenarioArray<?>) results.get(0, 0).getValue();

@@ -26,13 +26,13 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
-import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.calc.TestingMeasures;
 import com.opengamma.strata.calc.marketdata.TestId;
 import com.opengamma.strata.calc.marketdata.TestObservableId;
 import com.opengamma.strata.calc.runner.CalculationTaskTest.TestTarget;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
@@ -62,13 +62,13 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).build();
-    Results results1 = test.calculateSingleScenario(tasks, marketData, REF_DATA);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    Results results1 = test.calculate(tasks, marketData, REF_DATA);
     Result<?> result1 = results1.get(0, 0);
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    Results results2 = test.calculateMultipleScenarios(tasks, marketData, REF_DATA);
+    Results results2 = test.calculateMultiScenario(tasks, ScenarioMarketData.of(1, marketData), REF_DATA);
     Result<?> result2 = results2.get(0, 0);
     // Check the result contains the scenario result wrapping the string
     assertThat(result2).hasValue(scenarioResult);
@@ -88,8 +88,8 @@ public class DefaultCalculationTaskRunnerTest {
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
-    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).build();
-    assertThrowsIllegalArg(() -> test.calculateSingleScenario(tasks, marketData, REF_DATA));
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    assertThrowsIllegalArg(() -> test.calculate(tasks, marketData, REF_DATA));
   }
 
   /**
@@ -107,14 +107,14 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
     Listener listener = new Listener();
 
-    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(VAL_DATE).build();
-    test.calculateSingleScenarioAsync(tasks, marketData, REF_DATA, listener);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    test.calculateAsync(tasks, marketData, REF_DATA, listener);
     CalculationResult calculationResult1 = listener.result;
     Result<?> result1 = calculationResult1.getResult();
     // Check the result contains the string directly, not the result wrapping the string
     assertThat(result1).hasValue("foo");
 
-    test.calculateMultipleScenariosAsync(tasks, marketData, REF_DATA, listener);
+    test.calculateMultiScenarioAsync(tasks, ScenarioMarketData.of(1, marketData), REF_DATA, listener);
     CalculationResult calculationResult2 = listener.result;
     Result<?> result2 = calculationResult2.getResult();
     // Check the result contains the scenario result wrapping the string

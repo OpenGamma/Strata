@@ -16,7 +16,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
@@ -77,7 +77,7 @@ public class CdsPricingExample {
     // use the built-in example market data
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
-    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     // the complete set of rules for calculating measures
     CalculationFunctions functions = StandardComponents.calculationFunctions();
@@ -87,7 +87,7 @@ public class CdsPricingExample {
     ReferenceData refData = ReferenceData.standard();
 
     // calculate the results
-    Results results = runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, refData);
+    Results results = runner.calculate(rules, trades, columns, marketData, refData);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults =

@@ -53,7 +53,7 @@ public class CurveParallelShiftsUsageTest {
     MarketDataFactory marketDataFactory =
         MarketDataFactory.of(mock(ObservableDataProvider.class), mock(TimeSeriesProvider.class));
     MarketDataRequirements requirements = MarketDataRequirements.builder().addValues(curveId).build();
-    ScenarioMarketData scenarioData = marketDataFactory.buildMarketData(
+    ScenarioMarketData scenarioData = marketDataFactory.createMultiScenario(
         requirements,
         MarketDataConfig.empty(),
         marketData,

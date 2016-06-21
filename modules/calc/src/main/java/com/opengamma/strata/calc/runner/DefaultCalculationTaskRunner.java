@@ -25,6 +25,7 @@ import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
@@ -95,13 +96,14 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
 
   //-------------------------------------------------------------------------
   @Override
-  public Results calculateSingleScenario(
+  public Results calculate(
       CalculationTasks tasks,
-      ScenarioMarketData marketData,
+      MarketData marketData,
       ReferenceData refData) {
 
     // perform the calculations
-    Results results = calculateMultipleScenarios(tasks, marketData, refData);
+    ScenarioMarketData md = ScenarioMarketData.of(1, marketData);
+    Results results = calculateMultiScenario(tasks, md, refData);
 
     // unwrap the results
     // since there is only one scenario it is not desirable to return scenario result containers
@@ -142,30 +144,32 @@ class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   }
 
   @Override
-  public Results calculateMultipleScenarios(
+  public void calculateAsync(
+      CalculationTasks tasks,
+      MarketData marketData,
+      ReferenceData refData,
+      CalculationListener listener) {
+
+    // the listener is decorated to unwrap ScenarioArrays containing a single result
+    ScenarioMarketData md = ScenarioMarketData.of(1, marketData);
+    UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
+    calculateMultiScenarioAsync(tasks, md, refData, unwrappingListener);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Results calculateMultiScenario(
       CalculationTasks tasks,
       ScenarioMarketData marketData,
       ReferenceData refData) {
 
     AggregatingListener listener = new AggregatingListener(tasks.getColumns());
-    calculateMultipleScenariosAsync(tasks, marketData, refData, listener);
+    calculateMultiScenarioAsync(tasks, marketData, refData, listener);
     return listener.result();
   }
 
   @Override
-  public void calculateSingleScenarioAsync(
-      CalculationTasks tasks,
-      ScenarioMarketData marketData,
-      ReferenceData refData,
-      CalculationListener listener) {
-
-    // the listener is decorated to unwrap ScenarioArrays containing a single result
-    UnwrappingListener unwrappingListener = new UnwrappingListener(listener);
-    calculateMultipleScenariosAsync(tasks, marketData, refData, unwrappingListener);
-  }
-
-  @Override
-  public void calculateMultipleScenariosAsync(
+  public void calculateMultiScenarioAsync(
       CalculationTasks tasks,
       ScenarioMarketData marketData,
       ReferenceData refData,

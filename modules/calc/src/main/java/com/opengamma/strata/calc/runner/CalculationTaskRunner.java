@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Results;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -90,11 +91,31 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the tasks and market data
    */
-  public abstract Results calculateSingleScenario(
+  public abstract Results calculate(
       CalculationTasks tasks,
-      ScenarioMarketData marketData,
+      MarketData marketData,
       ReferenceData refData);
 
+  /**
+   * Performs calculations asynchronously for a single set of market data,
+   * invoking a listener as each calculation completes.
+   * <p>
+   * This method requires the listener to assemble the results, but it can be much more memory efficient when
+   * calculating aggregate results. If the individual results are discarded after they are incorporated into
+   * the aggregate they can be garbage collected.
+   * 
+   * @param tasks  the calculation tasks to invoke
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
+   * @param listener  listener that is invoked when individual results are calculated
+   */
+  public abstract void calculateAsync(
+      CalculationTasks tasks,
+      MarketData marketData,
+      ReferenceData refData,
+      CalculationListener listener);
+
+  //-------------------------------------------------------------------------
   /**
    * Performs calculations for multiple scenarios, each with a different set of market data.
    * <p>
@@ -107,30 +128,10 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the tasks and market data
    */
-  public abstract Results calculateMultipleScenarios(
+  public abstract Results calculateMultiScenario(
       CalculationTasks tasks,
       ScenarioMarketData marketData,
       ReferenceData refData);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Performs calculations asynchronously for a single scenario,
-   * invoking a listener as each calculation completes.
-   * <p>
-   * This method requires the listener to assemble the results, but it can be much more memory efficient when
-   * calculating aggregate results. If the individual results are discarded after they are incorporated into
-   * the aggregate they can be garbage collected.
-   * 
-   * @param tasks  the calculation tasks to invoke
-   * @param marketData  the market data to be used in the calculations
-   * @param refData  the reference data to be used in the calculations
-   * @param listener  listener that is invoked when individual results are calculated
-   */
-  public abstract void calculateSingleScenarioAsync(
-      CalculationTasks tasks,
-      ScenarioMarketData marketData,
-      ReferenceData refData,
-      CalculationListener listener);
 
   /**
    * Performs calculations asynchronously for a multiple scenarios, each with a different set of market data,
@@ -145,7 +146,7 @@ public interface CalculationTaskRunner extends AutoCloseable {
    * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
-  public abstract void calculateMultipleScenariosAsync(
+  public abstract void calculateMultiScenarioAsync(
       CalculationTasks tasks,
       ScenarioMarketData marketData,
       ReferenceData refData,
