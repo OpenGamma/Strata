@@ -13,7 +13,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -49,6 +51,9 @@ public class DiscountingSwapLegPricer {
    * Pricer for {@link PaymentEvent}.
    */
   private final PaymentEventPricer<PaymentEvent> paymentEventPricer;
+
+  /* Small parameter below which the cash annuity formula is modified. */
+  private static final double MIN_YIELD = 1.0E-4;
 
   /**
    * Creates an instance.
@@ -301,8 +306,147 @@ public class DiscountingSwapLegPricer {
     int nbFixedPaymentYear = (int) Math.round(1d /
         ratePaymentPeriod.getDayCount().yearFraction(ratePaymentPeriod.getStartDate(), ratePaymentPeriod.getEndDate()));
     double notional = Math.abs(ratePaymentPeriod.getNotional());
-    double annuityCash = notional * (1d - Math.pow(1d + yield / nbFixedPaymentYear, -nbFixedPeriod)) / yield;
+    double annuityCash = notional * annuityCash(nbFixedPaymentYear, nbFixedPeriod, yield);
     return annuityCash;
+  }
+
+  /**
+   * Computes the conventional cash annuity for a given yield. 
+   * 
+   * @param nbPaymentsPerYear  the number of payment per year
+   * @param nbPeriods  the total number of periods
+   * @param yield  the yield
+   * @return the cash annuity
+   */
+  public double annuityCash(int nbPaymentsPerYear, int nbPeriods, double yield) {
+    double tau = 1d / nbPaymentsPerYear;
+    if (Math.abs(yield) > MIN_YIELD) {
+      return (1d - Math.pow(1d + yield * tau, -nbPeriods)) / yield;
+    }
+    double annuity = 0.0d;
+    double periodFactor = 1.0d / (1.0d + yield * tau);
+    double multiPeriodFactor = periodFactor;
+    for (int i = 0; i < nbPeriods; i++) {
+      annuity += multiPeriodFactor;
+      multiPeriodFactor *= periodFactor;
+    }
+    annuity *= tau;
+    return annuity;
+  }
+
+  /**
+   * Computes the conventional cash annuity for a given yield and its first derivative with respect to the yield.
+   * 
+   * @param nbPaymentsPerYear  the number of payment per year
+   * @param nbPeriods  the total number of periods
+   * @param yield  the yield
+   * @return the cash annuity and its first derivative
+   */
+  public ValueDerivatives annuityCash1(int nbPaymentsPerYear, int nbPeriods, double yield) {
+    double tau = 1d / nbPaymentsPerYear;
+    if (Math.abs(yield) > MIN_YIELD) {
+      double yieldPerPeriod = yield * tau;
+      double dfEnd = Math.pow(1d + yieldPerPeriod, -nbPeriods);
+      double annuity = (1d - dfEnd) / yield;
+      double derivative = -annuity / yield;
+      derivative += tau * nbPeriods * dfEnd / ((1d + yieldPerPeriod) * yield);
+      return ValueDerivatives.of(annuity, DoubleArray.of(derivative));
+    }
+    double annuity = 0.0d;
+    double derivative = 0.0d;
+    double periodFactor = 1.0d / (1.0d + yield * tau);
+    double multiPeriodFactor = periodFactor;
+    for (int i = 0; i < nbPeriods; i++) {
+      annuity += multiPeriodFactor;
+      multiPeriodFactor *= periodFactor;
+      derivative += -(i + 1) * multiPeriodFactor;
+    }
+    annuity *= tau;
+    derivative *= tau * tau;
+    return ValueDerivatives.of(annuity, DoubleArray.of(derivative));
+  }
+
+  /**
+   * Computes the conventional cash annuity for a given yield and its first two derivatives with respect to the yield.
+   * 
+   * @param nbPaymentsPerYear  the number of payment per year
+   * @param nbPeriods  the total number of periods
+   * @param yield  the yield
+   * @return the cash annuity and its first two derivatives
+   */
+  public ValueDerivatives annuityCash2(int nbPaymentsPerYear, int nbPeriods, double yield) {
+    double tau = 1d / nbPaymentsPerYear;
+    if (Math.abs(yield) > MIN_YIELD) {
+      double yieldPerPeriod = yield * tau;
+      double dfEnd = Math.pow(1d + yieldPerPeriod, -nbPeriods);
+      double annuity = (1d - dfEnd) / yield;
+      double derivative1 = -annuity / yield;
+      derivative1 += tau * nbPeriods * dfEnd / ((1d + yieldPerPeriod) * yield);
+      double derivative2 = -2 * derivative1 / yield;
+      derivative2 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
+      return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2));
+    }
+    double annuity = 0.0d;
+    double derivative1 = 0.0d;
+    double derivative2 = 0.0d;
+    double periodFactor = 1.0d / (1.0d + yield * tau);
+    double multiPeriodFactor = periodFactor;
+    for (int i = 0; i < nbPeriods; i++) {
+      annuity += multiPeriodFactor;
+      multiPeriodFactor *= periodFactor;
+      derivative1 += -(i + 1) * multiPeriodFactor;
+      derivative2 += (i + 1) * (i + 2) * multiPeriodFactor * periodFactor;
+    }
+    annuity *= tau;
+    derivative1 *= tau * tau;
+    derivative2 *= tau * tau * tau;
+    return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2));
+  }
+
+  /**
+   * Computes the conventional cash annuity for a given yield and its first three derivatives with respect to the yield.
+   * 
+   * @param nbPaymentsPerYear  the number of payment per year
+   * @param nbPeriods  the total number of periods
+   * @param yield  the yield
+   * @return the cash annuity and its first three derivatives
+   */
+  public ValueDerivatives annuityCash3(int nbPaymentsPerYear, int nbPeriods, double yield) {
+    double tau = 1d / nbPaymentsPerYear;
+    if (Math.abs(yield) > MIN_YIELD) {
+      double yieldPerPeriod = yield * tau;
+      double dfEnd = Math.pow(1d + yieldPerPeriod, -nbPeriods);
+      double annuity = (1d - dfEnd) / yield;
+      double derivative1 = -annuity / yield;
+      derivative1 += tau * nbPeriods * dfEnd / ((1d + yieldPerPeriod) * yield);
+      double derivative2 = -2 * derivative1 / yield;
+      derivative2 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
+      double derivative3 = -6.0d * annuity / (yield * yield * yield);
+      derivative3 += 6.0d * tau * nbPeriods / (yield * yield * yield) * dfEnd / (1d + yieldPerPeriod);
+      derivative3 += 3.0d * tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd /
+          ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield * yield);
+      derivative3 += tau * tau * tau * nbPeriods * (nbPeriods + 1) * (nbPeriods + 2) * dfEnd /
+          ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
+      return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2, derivative3));
+    }
+    double annuity = 0.0d;
+    double derivative1 = 0.0d;
+    double derivative2 = 0.0d;
+    double derivative3 = 0.0d;
+    double periodFactor = 1.0d / (1.0d + yield * tau);
+    double multiPeriodFactor = periodFactor;
+    for (int i = 0; i < nbPeriods; i++) {
+      annuity += multiPeriodFactor;
+      multiPeriodFactor *= periodFactor;
+      derivative1 += -(i + 1) * multiPeriodFactor;
+      derivative2 += (i + 1) * (i + 2) * multiPeriodFactor * periodFactor;
+      derivative3 += -(i + 1) * (i + 2) * (i + 3) * multiPeriodFactor * periodFactor * periodFactor;
+    }
+    annuity *= tau;
+    derivative1 *= tau * tau;
+    derivative2 *= tau * tau * tau;
+    derivative3 *= tau * tau * tau * tau;
+    return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2, derivative3));
   }
 
   /**
@@ -315,7 +459,7 @@ public class DiscountingSwapLegPricer {
    * @param yield  the yield
    * @return the cash annuity
    */
-  public double annuityCashDerivative(ResolvedSwapLeg fixedLeg, double yield) {
+  public ValueDerivatives annuityCashDerivative(ResolvedSwapLeg fixedLeg, double yield) {
     int nbFixedPeriod = fixedLeg.getPaymentPeriods().size();
     PaymentPeriod paymentPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(paymentPeriod instanceof RatePaymentPeriod, "payment period should be RatePaymentPeriod");
@@ -323,11 +467,8 @@ public class DiscountingSwapLegPricer {
     int nbFixedPaymentYear = (int) Math.round(1d /
         ratePaymentPeriod.getDayCount().yearFraction(ratePaymentPeriod.getStartDate(), ratePaymentPeriod.getEndDate()));
     double notional = Math.abs(ratePaymentPeriod.getNotional());
-    double fwdOverPeriods = yield / nbFixedPaymentYear;
-    int nbFixedPeriodPlus = 1 + nbFixedPeriod;
-    double annuityCashDerivative = notional * Math.pow(yield, -2)
-        * ((1d + nbFixedPeriodPlus * fwdOverPeriods) * Math.pow(1d + fwdOverPeriods, -nbFixedPeriodPlus) - 1d);
-    return annuityCashDerivative;
+    ValueDerivatives annuityUnit = annuityCash1(nbFixedPaymentYear, nbFixedPeriod, yield);
+    return ValueDerivatives.of(annuityUnit.getValue() * notional, annuityUnit.getDerivatives().multipliedBy(notional));
   }
 
   //-------------------------------------------------------------------------

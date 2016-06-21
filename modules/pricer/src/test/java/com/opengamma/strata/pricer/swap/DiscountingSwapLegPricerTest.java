@@ -62,6 +62,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -496,7 +497,7 @@ public class DiscountingSwapLegPricerTest {
   public void test_annuityCashDerivative_onePeriod() {
     double yield = 0.01;
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    double computed = test.annuityCashDerivative(FIXED_SWAP_LEG_REC_USD, yield);
+    double computed = test.annuityCashDerivative(FIXED_SWAP_LEG_REC_USD, yield).getDerivative(0);
     double expected = 0.5 * (test.annuityCash(FIXED_SWAP_LEG_REC_USD, yield + FD_SHIFT)
         - test.annuityCash(FIXED_SWAP_LEG_REC_USD, yield - FD_SHIFT)) / FD_SHIFT;
     assertEquals(computed, expected, SwapDummyData.NOTIONAL * FD_SHIFT);
@@ -510,7 +511,7 @@ public class DiscountingSwapLegPricerTest {
         .build();
     double yield = 0.01;
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    double computed = test.annuityCashDerivative(leg, yield);
+    double computed = test.annuityCashDerivative(leg, yield).getDerivative(0);
     double expected = 0.5 / FD_SHIFT
         * (test.annuityCash(leg, yield + FD_SHIFT) - test.annuityCash(leg, yield - FD_SHIFT));
     assertEquals(computed, expected, SwapDummyData.NOTIONAL * FD_SHIFT);
@@ -809,5 +810,66 @@ public class DiscountingSwapLegPricerTest {
     MultiCurrencyAmount c = pricer.currentCash(resolved, providerEndDate);
     assertEquals(c.getAmount(USD).getAmount(), -(Math.pow(1 + rate, nbYears) - 1.0) * NOTIONAL, NOTIONAL * EPS);
   }
-  
+
+  private static final int NB_PERIODS = 10;
+  private static final int NB_PERIODS_PER_YEAR = 2;
+  private static final double[] RATES = {0.01, 0.10, -0.01, 0.0, 1.0E-6 };
+  private static final double TOLERANCE_ANNUITY = 1.0E-10;
+  private static final double TOLERANCE_ANNUITY_1 = 1.0E-6;
+  private static final double TOLERANCE_ANNUITY_2 = 1.0E-4;
+  private static final double TOLERANCE_ANNUITY_3 = 1.0E-2;
+
+  public void annuity_cash() {
+    for (int looprate = 0; looprate < RATES.length; looprate++) {
+      double annuityExpected = 0.0d;
+      for (int loopperiod = 0; loopperiod < NB_PERIODS; loopperiod++) {
+        annuityExpected += 1.0d / NB_PERIODS_PER_YEAR / Math.pow(1.0d + RATES[looprate] / NB_PERIODS_PER_YEAR, loopperiod + 1);
+      }
+      double annuityComputed = PRICER_LEG.annuityCash(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      assertEquals(annuityComputed, annuityExpected, TOLERANCE_ANNUITY, "Rate: " + looprate);
+    }
+  }
+
+  public void annuity_cash_1() {
+    double shift = 1.0E-7;
+    for (int looprate = 0; looprate < RATES.length; looprate++) {
+      double annuityExpected = PRICER_LEG.annuityCash(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityComputed = PRICER_LEG.annuityCash1(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      assertEquals(annuityComputed.getValue(), annuityExpected, TOLERANCE_ANNUITY);
+      double annuityP = PRICER_LEG.annuityCash(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] + shift);
+      double annuityM = PRICER_LEG.annuityCash(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] - shift);
+      double derivative1Expected = (annuityP - annuityM) / (2.0d * shift);
+      assertEquals(annuityComputed.getDerivative(0), derivative1Expected, TOLERANCE_ANNUITY_1, "Rate: " + looprate);
+    }
+  }
+
+  public void annuity_cash_2() {
+    double shift = 1.0E-7;
+    for (int looprate = 0; looprate < RATES.length; looprate++) {
+      ValueDerivatives annuityExpected = PRICER_LEG.annuityCash1(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityComputed = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityP = PRICER_LEG.annuityCash1(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] + shift);
+      ValueDerivatives annuityM = PRICER_LEG.annuityCash1(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] - shift);
+      double derivative2Expected = (annuityP.getDerivative(0) - annuityM.getDerivative(0)) / (2.0d * shift);
+      assertEquals(annuityComputed.getValue(), annuityExpected.getValue(), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(0), annuityExpected.getDerivative(0), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(1), derivative2Expected, TOLERANCE_ANNUITY_2);
+    }
+  }
+
+  public void annuity_cash_3() {
+    double shift = 1.0E-7;
+    for (int looprate = 0; looprate < RATES.length; looprate++) {
+      ValueDerivatives annuityExpected = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityComputed = PRICER_LEG.annuityCash3(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityP = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] + shift);
+      ValueDerivatives annuityM = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] - shift);
+      double derivative3Expected = (annuityP.getDerivative(1) - annuityM.getDerivative(1)) / (2.0d * shift);
+      assertEquals(annuityComputed.getValue(), annuityExpected.getValue(), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(0), annuityExpected.getDerivative(0), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(1), annuityExpected.getDerivative(1), TOLERANCE_ANNUITY_2);
+      assertEquals(annuityComputed.getDerivative(2), derivative3Expected, TOLERANCE_ANNUITY_3, "rate: " + looprate);
+    }
+  }
+
 }
