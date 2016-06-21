@@ -91,7 +91,7 @@ public class FxPricingExample {
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults =
-        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
+        ReportCalculationResults.of(valuationDate, trades, columns, results, functions, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("fx-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);

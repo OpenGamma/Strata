@@ -14,9 +14,9 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Measure;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.Product;
@@ -140,7 +140,7 @@ class ResultsRow {
    * @return the result of calculating the named measure for the trade in the row
    */
   Result<?> getResult(String measureName) {
-    List<String> validMeasureNames = measureNames(results.getTargets().get(rowIndex));
+    List<String> validMeasureNames = measureNames(results.getTargets().get(rowIndex), results.getCalculationFunctions());
     if (!validMeasureNames.contains(measureName)) {
       return Result.failure(
           FailureReason.INVALID_INPUT,
@@ -180,9 +180,8 @@ class ResultsRow {
   }
 
   // determine the available measures
-  static List<String> measureNames(CalculationTarget target) {
-    // TODO The calculation functions should be an argument, not hard-coded to be the standard rules
-    Set<Measure> validMeasures = StandardComponents.calculationFunctions().findFunction(target)
+  static List<String> measureNames(CalculationTarget target, CalculationFunctions calculationFunctions) {
+    Set<Measure> validMeasures = calculationFunctions.findFunction(target)
         .map(fn -> fn.supportedMeasures())
         .orElse(ImmutableSet.of());
     return validMeasures.stream()

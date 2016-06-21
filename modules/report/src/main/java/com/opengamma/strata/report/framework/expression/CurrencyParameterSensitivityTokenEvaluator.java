@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
 /**
@@ -37,6 +38,7 @@ public class CurrencyParameterSensitivityTokenEvaluator extends TokenEvaluator<C
   @Override
   public EvaluationResult evaluate(
       CurrencyParameterSensitivity sensitivity,
+      CalculationFunctions functions,
       String firstToken,
       List<String> remainingTokens) {
 

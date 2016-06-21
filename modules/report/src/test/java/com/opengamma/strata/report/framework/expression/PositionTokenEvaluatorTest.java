@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;
@@ -29,6 +31,8 @@ import com.opengamma.strata.product.SecurityInfo;
  */
 @Test
 public class PositionTokenEvaluatorTest {
+
+  private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
   private static final GenericSecurity SECURITY = GenericSecurity.of(
       SecurityInfo.of(SecurityId.of("OG-Test", "1"), 20, CurrencyAmount.of(USD, 10)));
@@ -51,18 +55,18 @@ public class PositionTokenEvaluatorTest {
     PositionTokenEvaluator evaluator = new PositionTokenEvaluator();
     Position pos = trade();
 
-    EvaluationResult quantity = evaluator.evaluate(pos, "quantity", ImmutableList.of());
+    EvaluationResult quantity = evaluator.evaluate(pos, FUNCTIONS, "quantity", ImmutableList.of());
     assertThat(quantity.getResult()).hasValue(6d);
 
-    EvaluationResult initialPrice = evaluator.evaluate(pos, "security", ImmutableList.of());
+    EvaluationResult initialPrice = evaluator.evaluate(pos, FUNCTIONS, "security", ImmutableList.of());
     assertThat(initialPrice.getResult()).hasValue(SECURITY);
 
     // Check that property name isn't case sensitive
-    EvaluationResult initialPrice2 = evaluator.evaluate(pos, "Security", ImmutableList.of());
+    EvaluationResult initialPrice2 = evaluator.evaluate(pos, FUNCTIONS, "Security", ImmutableList.of());
     assertThat(initialPrice2.getResult()).hasValue(SECURITY);
 
     // Unknown property
-    EvaluationResult foo = evaluator.evaluate(pos, "foo", ImmutableList.of());
+    EvaluationResult foo = evaluator.evaluate(pos, FUNCTIONS, "foo", ImmutableList.of());
     assertThat(foo.getResult()).isFailure();
   }
 

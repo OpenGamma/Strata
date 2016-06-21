@@ -14,6 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 
 import com.google.common.collect.Sets;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -40,7 +41,12 @@ public class SecurityTokenEvaluator extends TokenEvaluator<Security> {
   }
 
   @Override
-  public EvaluationResult evaluate(Security security, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Security security,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     MetaBean metaBean = JodaBeanUtils.metaBean(security.getClass());
 
     // security

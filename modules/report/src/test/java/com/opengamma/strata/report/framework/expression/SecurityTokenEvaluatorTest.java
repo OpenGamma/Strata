@@ -16,6 +16,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
@@ -26,6 +28,8 @@ import com.opengamma.strata.product.SecurityInfo;
  */
 @Test
 public class SecurityTokenEvaluatorTest {
+
+  private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
   private static final SecurityId ID = SecurityId.of("OG-Test", "1");
 
@@ -48,18 +52,18 @@ public class SecurityTokenEvaluatorTest {
     SecurityTokenEvaluator evaluator = new SecurityTokenEvaluator();
     Security sec = security();
 
-    EvaluationResult quantity = evaluator.evaluate(sec, "id", ImmutableList.of());
+    EvaluationResult quantity = evaluator.evaluate(sec, FUNCTIONS, "id", ImmutableList.of());
     assertThat(quantity.getResult()).hasValue(ID);
 
-    EvaluationResult initialPrice = evaluator.evaluate(sec, "currency", ImmutableList.of());
+    EvaluationResult initialPrice = evaluator.evaluate(sec, FUNCTIONS, "currency", ImmutableList.of());
     assertThat(initialPrice.getResult()).hasValue(USD);
 
     // Check that property name isn't case sensitive
-    EvaluationResult initialPrice2 = evaluator.evaluate(sec, "Currency", ImmutableList.of());
+    EvaluationResult initialPrice2 = evaluator.evaluate(sec, FUNCTIONS, "Currency", ImmutableList.of());
     assertThat(initialPrice2.getResult()).hasValue(USD);
 
     // Unknown property
-    EvaluationResult foo = evaluator.evaluate(sec, "foo", ImmutableList.of());
+    EvaluationResult foo = evaluator.evaluate(sec, FUNCTIONS, "foo", ImmutableList.of());
     assertThat(foo.getResult()).isFailure();
   }
 

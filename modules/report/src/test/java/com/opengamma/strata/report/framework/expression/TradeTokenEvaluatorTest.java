@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
@@ -29,6 +31,8 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @Test
 public class TradeTokenEvaluatorTest {
+
+  private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
   public void tokens() {
     TradeTokenEvaluator evaluator = new TradeTokenEvaluator();
@@ -52,25 +56,25 @@ public class TradeTokenEvaluatorTest {
     TradeTokenEvaluator evaluator = new TradeTokenEvaluator();
     Trade trade = trade();
 
-    EvaluationResult quantity = evaluator.evaluate(trade, "quantity", ImmutableList.of());
+    EvaluationResult quantity = evaluator.evaluate(trade, FUNCTIONS, "quantity", ImmutableList.of());
     assertThat(quantity.getResult()).hasValue(123d);
 
-    EvaluationResult initialPrice = evaluator.evaluate(trade, "price", ImmutableList.of());
+    EvaluationResult initialPrice = evaluator.evaluate(trade, FUNCTIONS, "price", ImmutableList.of());
     assertThat(initialPrice.getResult()).hasValue(456d);
 
     // Check that property name isn't case sensitive
-    EvaluationResult initialPrice2 = evaluator.evaluate(trade, "price", ImmutableList.of());
+    EvaluationResult initialPrice2 = evaluator.evaluate(trade, FUNCTIONS, "price", ImmutableList.of());
     assertThat(initialPrice2.getResult()).hasValue(456d);
 
-    EvaluationResult counterparty = evaluator.evaluate(trade, "counterparty", ImmutableList.of());
+    EvaluationResult counterparty = evaluator.evaluate(trade, FUNCTIONS, "counterparty", ImmutableList.of());
     assertThat(counterparty.getResult()).hasValue(StandardId.of("cpty", "a"));
 
     // Optional property with no value
-    EvaluationResult tradeTime = evaluator.evaluate(trade, "tradeTime", ImmutableList.of());
+    EvaluationResult tradeTime = evaluator.evaluate(trade, FUNCTIONS, "tradeTime", ImmutableList.of());
     assertThat(tradeTime.getResult()).isFailure();
 
     // Unknown property
-    EvaluationResult foo = evaluator.evaluate(trade, "foo", ImmutableList.of());
+    EvaluationResult foo = evaluator.evaluate(trade, FUNCTIONS, "foo", ImmutableList.of());
     assertThat(foo.getResult()).isFailure();
   }
 

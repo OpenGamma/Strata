@@ -84,7 +84,7 @@ public class FraPricingExample {
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults =
-        ReportCalculationResults.of(valuationDate, trades, columns, results, refData);
+        ReportCalculationResults.of(valuationDate, trades, columns, results, functions, refData);
 
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("fra-report-template");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);

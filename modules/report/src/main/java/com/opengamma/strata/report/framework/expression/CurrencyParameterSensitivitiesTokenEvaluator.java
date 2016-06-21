@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 
@@ -41,6 +42,7 @@ public class CurrencyParameterSensitivitiesTokenEvaluator
   @Override
   public EvaluationResult evaluate(
       CurrencyParameterSensitivities sensitivities,
+      CalculationFunctions functions,
       String firstToken,
       List<String> remainingTokens) {
 

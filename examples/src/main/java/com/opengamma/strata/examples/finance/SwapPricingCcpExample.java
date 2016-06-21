@@ -185,7 +185,8 @@ public class SwapPricingCcpExample {
     Results results = runner.calculate(rules, trades, columns, calibratedMarketData, refData);
 
     // use the report runner to transform the engine results into a trade report
-    ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results, refData);
+    ReportCalculationResults calculationResults =
+        ReportCalculationResults.of(VAL_DATE, trades, columns, results, functions, refData);
     TradeReportTemplate reportTemplate = ExampleData.loadTradeReportTemplate("swap-report-template2");
     TradeReport tradeReport = TradeReport.of(calculationResults, reportTemplate);
     tradeReport.writeAsciiTable(System.out);

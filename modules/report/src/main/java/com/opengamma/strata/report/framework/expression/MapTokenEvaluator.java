@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.MapStream;
 
 /**
@@ -31,7 +32,12 @@ public class MapTokenEvaluator extends TokenEvaluator<Map<?, ?>> {
   }
 
   @Override
-  public EvaluationResult evaluate(Map<?, ?> map, String firstToken, List<String> remainingTokens) {
+  public EvaluationResult evaluate(
+      Map<?, ?> map,
+      CalculationFunctions functions,
+      String firstToken,
+      List<String> remainingTokens) {
+
     return MapStream.of(map)
         .filterKeys(key -> firstToken.equalsIgnoreCase(key.toString()))
         .findFirst()
