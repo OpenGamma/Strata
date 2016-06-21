@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.option;
+package com.opengamma.strata.pricer.model;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -21,9 +21,8 @@ import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganVolatilityFunctionProvider;
-import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
+import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 
 /**
  * Test {@link SabrInterestRateParameters}.
@@ -45,86 +44,47 @@ public class SabrInterestRateParametersTest {
   private static final InterpolatedNodalSurface NU_SURFACE = InterpolatedNodalSurface.of(
       Surfaces.swaptionSabrExpiryTenor("SabrNu", ACT_ACT_ISDA, USD_FIXED_6M_LIBOR_3M, ValueType.SABR_NU),
       DoubleArray.of(0.0, 10, 0.0, 10), DoubleArray.of(0, 0, 10, 10), DoubleArray.of(0.5, 0.5, 0.5, 0.5), GRID);
-  private static final SabrHaganVolatilityFunctionProvider FUNCTION = SabrHaganVolatilityFunctionProvider.DEFAULT;
+  private static final SabrVolatilityFormula FORMULA = SabrVolatilityFormula.hagan();
   private static final SabrInterestRateParameters PARAMETERS =
-      SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FUNCTION);
+      SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FORMULA);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullAlpha() {
-    Surface surface = null;
-    SabrInterestRateParameters.of(surface, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FUNCTION);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullBeta() {
-    Surface surface = null;
-    SabrInterestRateParameters.of(ALPHA_SURFACE, surface, RHO_SURFACE, NU_SURFACE, FUNCTION);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullRho() {
-    Surface surface = null;
-    SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, surface, NU_SURFACE, FUNCTION);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNu() {
-    Surface surface = null;
-    SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, surface, FUNCTION);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullShift() {
-    Surface surface = null;
-    SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, surface, FUNCTION);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullFunction() {
-    SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE,
-        (VolatilityFunctionProvider<SabrFormulaData>) null);
-  }
-
-  @Test
   public void hashEqualGetter() {
     assertEquals(PARAMETERS.getAlphaSurface(), ALPHA_SURFACE);
     assertEquals(PARAMETERS.getBetaSurface(), BETA_SURFACE);
     assertEquals(PARAMETERS.getRhoSurface(), RHO_SURFACE);
     assertEquals(PARAMETERS.getNuSurface(), NU_SURFACE);
-    assertEquals(PARAMETERS.getSabrFunctionProvider(), FUNCTION);
+    assertEquals(PARAMETERS.getSabrVolatilityFormula(), FORMULA);
     assertEquals(PARAMETERS.getShiftSurface().getName(), SurfaceName.of("Zero shift"));
     double expiry = 2.0;
     double tenor = 3.0;
-    assertEquals(PARAMETERS.alpha(expiry, tenor), ALPHA_SURFACE.zValue(expiry, tenor));
-    assertEquals(PARAMETERS.beta(expiry, tenor), BETA_SURFACE.zValue(expiry, tenor));
-    assertEquals(PARAMETERS.rho(expiry, tenor), RHO_SURFACE.zValue(expiry, tenor));
-    assertEquals(PARAMETERS.nu(expiry, tenor), NU_SURFACE.zValue(expiry, tenor));
+    double alpha = ALPHA_SURFACE.zValue(expiry, tenor);
+    double beta = BETA_SURFACE.zValue(expiry, tenor);
+    double rho = RHO_SURFACE.zValue(expiry, tenor);
+    double nu = NU_SURFACE.zValue(expiry, tenor);
+    assertEquals(PARAMETERS.alpha(expiry, tenor), alpha);
+    assertEquals(PARAMETERS.beta(expiry, tenor), beta);
+    assertEquals(PARAMETERS.rho(expiry, tenor), rho);
+    assertEquals(PARAMETERS.nu(expiry, tenor), nu);
     double strike = 1.1;
     double forward = 1.05;
-    SabrFormulaData data = SabrFormulaData.of(
-        ALPHA_SURFACE.zValue(expiry, tenor),
-        BETA_SURFACE.zValue(expiry, tenor),
-        RHO_SURFACE.zValue(expiry, tenor),
-        NU_SURFACE.zValue(expiry, tenor));
     assertEquals(PARAMETERS.volatility(expiry, tenor, strike, forward),
-        FUNCTION.volatility(forward, strike, expiry, data));
+        FORMULA.volatility(forward, strike, expiry, alpha, beta, rho, nu));
     double[] adjCmp = PARAMETERS.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives().toArray();
-    double[] adjExp = FUNCTION.volatilityAdjoint(forward, strike, expiry, data).getDerivatives().toArray();
+    double[] adjExp = FORMULA.volatilityAdjoint(forward, strike, expiry, alpha, beta, rho, nu).getDerivatives().toArray();
     for (int i = 0; i < 6; ++i) {
       assertEquals(adjCmp[i], adjExp[i]);
     }
     SabrInterestRateParameters other =
-        SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FUNCTION);
+        SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, FORMULA);
     assertEquals(PARAMETERS, other);
     assertEquals(PARAMETERS.hashCode(), other.hashCode());
   }
 
-  @Test
   public void negativeRates() {
     double shift = 0.05;
     Surface surface = ConstantSurface.of("shfit", shift);
     SabrInterestRateParameters params =
-        SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, surface, FUNCTION);
+        SabrInterestRateParameters.of(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, surface, FORMULA);
     double expiry = 2.0;
     double tenor = 3.0;
     assertEquals(params.alpha(expiry, tenor), ALPHA_SURFACE.zValue(expiry, tenor));
@@ -133,15 +93,15 @@ public class SabrInterestRateParametersTest {
     assertEquals(params.nu(expiry, tenor), NU_SURFACE.zValue(expiry, tenor));
     double strike = -0.02;
     double forward = 0.015;
-    SabrFormulaData data = SabrFormulaData.of(
-        ALPHA_SURFACE.zValue(expiry, tenor),
-        BETA_SURFACE.zValue(expiry, tenor),
-        RHO_SURFACE.zValue(expiry, tenor),
-        NU_SURFACE.zValue(expiry, tenor));
+    double alpha = ALPHA_SURFACE.zValue(expiry, tenor);
+    double beta = BETA_SURFACE.zValue(expiry, tenor);
+    double rho = RHO_SURFACE.zValue(expiry, tenor);
+    double nu = NU_SURFACE.zValue(expiry, tenor);
     assertEquals(params.volatility(expiry, tenor, strike, forward),
-        FUNCTION.volatility(forward + shift, strike + shift, expiry, data));
+        FORMULA.volatility(forward + shift, strike + shift, expiry, alpha, beta, rho, nu));
     double[] adjCmp = params.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives().toArray();
-    double[] adjExp = FUNCTION.volatilityAdjoint(forward + shift, strike + shift, expiry, data).getDerivatives().toArray();
+    double[] adjExp = FORMULA.volatilityAdjoint(
+        forward + shift, strike + shift, expiry, alpha, beta, rho, nu).getDerivatives().toArray();
     for (int i = 0; i < 4; ++i) {
       assertEquals(adjCmp[i], adjExp[i]);
     }

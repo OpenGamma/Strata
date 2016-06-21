@@ -22,6 +22,7 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 
 /**
  * The Hagan SABR volatility function provider.
@@ -35,7 +36,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 @BeanDefinition(style = "light")
 public final class SabrHaganVolatilityFunctionProvider
-    extends VolatilityFunctionProvider<SabrFormulaData> implements ImmutableBean, Serializable {
+    extends VolatilityFunctionProvider<SabrFormulaData>
+    implements SabrVolatilityFormula, ImmutableBean, Serializable {
 
   /**
    * Default implementation. 
@@ -56,15 +58,28 @@ public final class SabrHaganVolatilityFunctionProvider
   //-------------------------------------------------------------------------
   @Override
   public double volatility(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
-    ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
-    ArgChecker.isTrue(strike >= 0.0, "strike must be greater than zero");
-    ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
     ArgChecker.notNull(data, "data");
-
     double alpha = data.getAlpha();
     double beta = data.getBeta();
     double rho = data.getRho();
     double nu = data.getNu();
+    return volatility(forward, strike, timeToExpiry, alpha, beta, rho, nu);
+  }
+
+  @Override
+  public double volatility(
+      double forward,
+      double strike,
+      double timeToExpiry,
+      double alpha,
+      double beta,
+      double rho,
+      double nu) {
+
+    ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
+    ArgChecker.isTrue(strike >= 0.0, "strike must be greater than zero");
+    ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
+
     if (alpha == 0.0) {
       return 0.0;
     }
@@ -137,10 +152,49 @@ public final class SabrHaganVolatilityFunctionProvider
    */
   @Override
   public ValueDerivatives volatilityAdjoint(double forward, double strike, double timeToExpiry, SabrFormulaData data) {
+    ArgChecker.notNull(data, "data");
+    double alpha = data.getAlpha();
+    double beta = data.getBeta();
+    double rho = data.getRho();
+    double nu = data.getNu();
+    return volatilityAdjoint(forward, strike, timeToExpiry, alpha, beta, rho, nu);
+  }
+
+  /**
+   * Computes the implied volatility in the SABR model and its derivatives.
+   * <p>
+   * The derivatives are stored in an array with:
+   * <ul>
+   * <li>[0] derivative with respect to the forward
+   * <li>[1] derivative with respect to the strike
+   * <li>[2] derivative with respect to the alpha
+   * <li>[3] derivative with respect to the beta
+   * <li>[4] derivative with respect to the rho
+   * <li>[5] derivative with respect to the nu
+   * </ul>
+   * 
+   * @param forward  the forward value of the underlying
+   * @param strike  the strike value of the option
+   * @param timeToExpiry  the time to expiry of the option
+   * @param alpha  the SABR alpha value
+   * @param beta  the SABR beta value
+   * @param rho  the SABR rho value
+   * @param nu  the SABR nu value
+   * @return the volatility and associated derivatives
+   */
+  @Override
+  public ValueDerivatives volatilityAdjoint(
+      double forward,
+      double strike,
+      double timeToExpiry,
+      double alpha,
+      double beta,
+      double rho,
+      double nu) {
+
     ArgChecker.isTrue(forward > 0.0, "forward must be greater than zero");
     ArgChecker.isTrue(strike >= 0.0, "strike must be greater than zero");
     ArgChecker.isTrue(timeToExpiry >= 0.0, "timeToExpiry must be greater than zero");
-    double alpha = data.getAlpha();
     double cutoff = forward * CUTOFF_MONEYNESS;
     double k = strike;
     if (k < cutoff) {
@@ -150,11 +204,7 @@ public final class SabrHaganVolatilityFunctionProvider
           new Object[] {k, cutoff, cutoff});
       k = cutoff;
     }
-
-    double beta = data.getBeta();
     double betaStar = 1 - beta;
-    double rho = data.getRho();
-    double nu = data.getNu();
     double rhoStar = 1.0 - rho;
 
     if (alpha == 0.0) {

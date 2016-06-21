@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.option;
+package com.opengamma.strata.pricer.model;
 
 import java.util.Set;
 
@@ -29,8 +29,6 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
-import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -88,12 +86,10 @@ public final class SabrInterestRateParameters
   @PropertyDefinition(validate = "notNull")
   private final Surface shiftSurface;
   /**
-   * The volatility function provider.
-   * <p>
-   * This returns functions containing the SABR volatility formula. 
+   * The SABR volatility formula.
    */
   @PropertyDefinition(validate = "notNull")
-  private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
+  private final SabrVolatilityFormula sabrVolatilityFormula;
   /** 
    * The swap convention that the surfaces are calibrated against.
    */
@@ -130,18 +126,19 @@ public final class SabrInterestRateParameters
    * @param betaSurface  the beta surface
    * @param rhoSurface  the rho surface
    * @param nuSurface  the nu surface
-   * @param sabrFunctionProvider  the SABR surface
+   * @param sabrFormula  the SABR formula
    * @return {@code SABRInterestRateParameters}
    */
+  @SuppressWarnings("javadoc")
   public static SabrInterestRateParameters of(
       Surface alphaSurface,
       Surface betaSurface,
       Surface rhoSurface,
       Surface nuSurface,
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
+      SabrVolatilityFormula sabrFormula) {
 
     return new SabrInterestRateParameters(
-        alphaSurface, betaSurface, rhoSurface, nuSurface, ZERO_SHIFT, sabrFunctionProvider);
+        alphaSurface, betaSurface, rhoSurface, nuSurface, ZERO_SHIFT, sabrFormula);
   }
 
   /**
@@ -170,7 +167,7 @@ public final class SabrInterestRateParameters
    * @param rhoSurface  the rho surface
    * @param nuSurface  the nu surface
    * @param shiftSurface  the shift surface
-   * @param sabrFunctionProvider  the SABR surface
+   * @param sabrFormula  the SABR formula
    * @return {@code SABRInterestRateParameters}
    */
   public static SabrInterestRateParameters of(
@@ -179,10 +176,10 @@ public final class SabrInterestRateParameters
       Surface rhoSurface,
       Surface nuSurface,
       Surface shiftSurface,
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
+      SabrVolatilityFormula sabrFormula) {
 
     return new SabrInterestRateParameters(
-        alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
+        alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrFormula);
   }
 
   @ImmutableConstructor
@@ -192,14 +189,14 @@ public final class SabrInterestRateParameters
       Surface rhoSurface,
       Surface nuSurface,
       Surface shiftSurface,
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider) {
+      SabrVolatilityFormula sabrFormula) {
 
     validate(alphaSurface, "alphaSurface", ValueType.SABR_ALPHA);
     validate(betaSurface, "betaSurface", ValueType.SABR_BETA);
     validate(rhoSurface, "rhoSurface", ValueType.SABR_RHO);
     validate(nuSurface, "nuSurface", ValueType.SABR_NU);
     ArgChecker.notNull(shiftSurface, "shiftSurface");
-    ArgChecker.notNull(sabrFunctionProvider, "sabrFunctionProvider");
+    ArgChecker.notNull(sabrFormula, "sabrFormula");
     FixedIborSwapConvention swapConvention = alphaSurface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
     DayCount dayCount = alphaSurface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
@@ -214,7 +211,7 @@ public final class SabrInterestRateParameters
     this.rhoSurface = rhoSurface;
     this.nuSurface = nuSurface;
     this.shiftSurface = shiftSurface;
-    this.sabrFunctionProvider = sabrFunctionProvider;
+    this.sabrVolatilityFormula = sabrFormula;
     this.convention = swapConvention;
     this.dayCount = dayCount;
     this.paramCombiner = ParameterizedDataCombiner.of(alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface);
@@ -285,7 +282,7 @@ public final class SabrInterestRateParameters
         paramCombiner.underlyingWithParameter(2, Surface.class, parameterIndex, newValue),
         paramCombiner.underlyingWithParameter(3, Surface.class, parameterIndex, newValue),
         paramCombiner.underlyingWithParameter(4, Surface.class, parameterIndex, newValue),
-        sabrFunctionProvider);
+        sabrVolatilityFormula);
   }
 
   @Override
@@ -296,7 +293,7 @@ public final class SabrInterestRateParameters
         paramCombiner.underlyingWithPerturbation(2, Surface.class, perturbation),
         paramCombiner.underlyingWithPerturbation(3, Surface.class, perturbation),
         paramCombiner.underlyingWithPerturbation(4, Surface.class, perturbation),
-        sabrFunctionProvider);
+        sabrVolatilityFormula);
   }
 
   //-------------------------------------------------------------------------
@@ -366,10 +363,12 @@ public final class SabrInterestRateParameters
    * @return the volatility
    */
   public double volatility(double expiry, double tenor, double strike, double forward) {
-    SabrFormulaData data = SabrFormulaData.of(
-        alpha(expiry, tenor), beta(expiry, tenor), rho(expiry, tenor), nu(expiry, tenor));
+    double alpha = alpha(expiry, tenor);
+    double beta = beta(expiry, tenor);
+    double rho = rho(expiry, tenor);
+    double nu = nu(expiry, tenor);
     double shift = shift(expiry, tenor);
-    return sabrFunctionProvider.volatility(forward + shift, strike + shift, expiry, data);
+    return sabrVolatilityFormula.volatility(forward + shift, strike + shift, expiry, alpha, beta, rho, nu);
   }
 
   /**
@@ -392,10 +391,12 @@ public final class SabrInterestRateParameters
    * @return the volatility and associated derivatives
    */
   public ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward) {
-    SabrFormulaData data = SabrFormulaData.of(
-        alpha(expiry, tenor), beta(expiry, tenor), rho(expiry, tenor), nu(expiry, tenor));
+    double alpha = alpha(expiry, tenor);
+    double beta = beta(expiry, tenor);
+    double rho = rho(expiry, tenor);
+    double nu = nu(expiry, tenor);
     double shift = shift(expiry, tenor);
-    return sabrFunctionProvider.volatilityAdjoint(forward + shift, strike + shift, expiry, data);
+    return sabrVolatilityFormula.volatilityAdjoint(forward + shift, strike + shift, expiry, alpha, beta, rho, nu);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -490,13 +491,11 @@ public final class SabrInterestRateParameters
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the volatility function provider.
-   * <p>
-   * This returns functions containing the SABR volatility formula.
+   * Gets the SABR volatility formula.
    * @return the value of the property, not null
    */
-  public VolatilityFunctionProvider<SabrFormulaData> getSabrFunctionProvider() {
-    return sabrFunctionProvider;
+  public SabrVolatilityFormula getSabrVolatilityFormula() {
+    return sabrVolatilityFormula;
   }
 
   //-----------------------------------------------------------------------
@@ -512,7 +511,7 @@ public final class SabrInterestRateParameters
           JodaBeanUtils.equal(rhoSurface, other.rhoSurface) &&
           JodaBeanUtils.equal(nuSurface, other.nuSurface) &&
           JodaBeanUtils.equal(shiftSurface, other.shiftSurface) &&
-          JodaBeanUtils.equal(sabrFunctionProvider, other.sabrFunctionProvider);
+          JodaBeanUtils.equal(sabrVolatilityFormula, other.sabrVolatilityFormula);
     }
     return false;
   }
@@ -525,7 +524,7 @@ public final class SabrInterestRateParameters
     hash = hash * 31 + JodaBeanUtils.hashCode(rhoSurface);
     hash = hash * 31 + JodaBeanUtils.hashCode(nuSurface);
     hash = hash * 31 + JodaBeanUtils.hashCode(shiftSurface);
-    hash = hash * 31 + JodaBeanUtils.hashCode(sabrFunctionProvider);
+    hash = hash * 31 + JodaBeanUtils.hashCode(sabrVolatilityFormula);
     return hash;
   }
 
@@ -538,7 +537,7 @@ public final class SabrInterestRateParameters
     buf.append("rhoSurface").append('=').append(rhoSurface).append(',').append(' ');
     buf.append("nuSurface").append('=').append(nuSurface).append(',').append(' ');
     buf.append("shiftSurface").append('=').append(shiftSurface).append(',').append(' ');
-    buf.append("sabrFunctionProvider").append('=').append(JodaBeanUtils.toString(sabrFunctionProvider));
+    buf.append("sabrVolatilityFormula").append('=').append(JodaBeanUtils.toString(sabrVolatilityFormula));
     buf.append('}');
     return buf.toString();
   }

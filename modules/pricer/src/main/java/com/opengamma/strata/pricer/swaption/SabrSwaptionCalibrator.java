@@ -33,11 +33,10 @@ import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.strata.pricer.curve.RawOptionData;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
-import com.opengamma.strata.pricer.impl.option.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
-import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganVolatilityFunctionProvider;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrModelFitter;
-import com.opengamma.strata.pricer.impl.volatility.smile.VolatilityFunctionProvider;
+import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
+import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
@@ -52,9 +51,9 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 public class SabrSwaptionCalibrator {
 
   /**
-   * The SABR implied volatility function.
+   * The SABR implied volatility formula.
    */
-  private final VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider;
+  private final SabrVolatilityFormula sabrVolatilityFormula;
   /**
    * The swap pricer.
    * Required for forward rate computation.
@@ -70,7 +69,7 @@ public class SabrSwaptionCalibrator {
    */
   public static final SabrSwaptionCalibrator DEFAULT =
       new SabrSwaptionCalibrator(
-          SabrHaganVolatilityFunctionProvider.DEFAULT, DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
+          SabrVolatilityFormula.hagan(), DiscountingSwapProductPricer.DEFAULT, ReferenceData.standard());
 
   //-------------------------------------------------------------------------
   /**
@@ -78,15 +77,15 @@ public class SabrSwaptionCalibrator {
    * <p>
    * The swap pricer is used to compute the forward rate required for calibration.
    * 
-   * @param sabrFunctionProvider  the SABR implied volatility formula provider
+   * @param sabrVolatilityFormula  the SABR implied volatility formula
    * @param swapPricer  the swap pricer
    * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
+      SabrVolatilityFormula sabrVolatilityFormula,
       DiscountingSwapProductPricer swapPricer) {
 
-    return new SabrSwaptionCalibrator(sabrFunctionProvider, swapPricer, ReferenceData.standard());
+    return new SabrSwaptionCalibrator(sabrVolatilityFormula, swapPricer, ReferenceData.standard());
   }
 
   /**
@@ -94,27 +93,27 @@ public class SabrSwaptionCalibrator {
    * <p>
    * The swap pricer is used to compute the forward rate required for calibration.
    * 
-   * @param sabrFunctionProvider  the SABR implied volatility formula provider
+   * @param sabrVolatilityFormula  the SABR implied volatility formula
    * @param swapPricer  the swap pricer
    * @param refData  the reference data
    * @return the calibrator
    */
   public static SabrSwaptionCalibrator of(
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
+      SabrVolatilityFormula sabrVolatilityFormula,
       DiscountingSwapProductPricer swapPricer,
       ReferenceData refData) {
 
-    return new SabrSwaptionCalibrator(sabrFunctionProvider, swapPricer, refData);
+    return new SabrSwaptionCalibrator(sabrVolatilityFormula, swapPricer, refData);
   }
 
   private SabrSwaptionCalibrator(
-      VolatilityFunctionProvider<SabrFormulaData> sabrFunctionProvider,
+      SabrVolatilityFormula sabrVolatilityFormula,
       DiscountingSwapProductPricer swapPricer,
       ReferenceData refData) {
 
-    this.sabrFunctionProvider = sabrFunctionProvider;
-    this.swapPricer = swapPricer;
-    this.refData = refData;
+    this.sabrVolatilityFormula = ArgChecker.notNull(sabrVolatilityFormula, "sabrVolatilityFormula");
+    this.swapPricer = ArgChecker.notNull(swapPricer, "swapPricer");
+    this.refData = ArgChecker.notNull(refData, "refData");
   }
 
   //-------------------------------------------------------------------------
@@ -282,7 +281,7 @@ public class SabrSwaptionCalibrator {
     InterpolatedNodalSurface nuSurface = InterpolatedNodalSurface
         .of(metadataNu, timeToExpiryArray, timeTenorArray, nuArray, interpolator);
     SabrInterestRateParameters params = SabrInterestRateParameters.of(
-        alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrFunctionProvider);
+        alphaSurface, betaSurface, rhoSurface, nuSurface, shiftSurface, sabrVolatilityFormula);
     return SabrParametersSwaptionVolatilities.builder()
         .name(name)
         .parameters(params)
@@ -413,8 +412,13 @@ public class SabrSwaptionCalibrator {
         forward, shiftOutput, timeToExpiry, strikes, blackVolatilitiesInput, shiftInput);
     DoubleArray blackVolatilitiesTransformed = volAndDerivatives.getFirst();
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
-    SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
-        blackVolatilitiesTransformed, errors, sabrFunctionProvider);
+    SabrModelFitter fitter = new SabrModelFitter(
+        forward + shiftOutput,
+        strikesShifted,
+        timeToExpiry,
+        blackVolatilitiesTransformed,
+        errors,
+        sabrVolatilityFormula);
     LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return Pair.of(result, volAndDerivatives.getSecond());
   }
@@ -503,8 +507,13 @@ public class SabrSwaptionCalibrator {
         forward, shiftOutput, timeToExpiry, strikes, prices);
     DoubleArray blackVolatilitiesTransformed = volAndDerivatives.getFirst();
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
-    SabrModelFitter fitter = new SabrModelFitter(forward + shiftOutput, strikesShifted, timeToExpiry,
-        blackVolatilitiesTransformed, errors, sabrFunctionProvider);
+    SabrModelFitter fitter = new SabrModelFitter(
+        forward + shiftOutput,
+        strikesShifted,
+        timeToExpiry,
+        blackVolatilitiesTransformed,
+        errors,
+        sabrVolatilityFormula);
     return Pair.of(fitter.solve(startParameters, fixedParameters), volAndDerivatives.getSecond());
   }
 
@@ -585,7 +594,12 @@ public class SabrSwaptionCalibrator {
     DoubleArray blackVolatilitiesTransformed = volAndDerivatives.getFirst();
     DoubleArray strikesShifted = strikesShifted(forward, shiftOutput, strikesLike, strikeType);
     SabrModelFitter fitter = new SabrModelFitter(
-        forward + shiftOutput, strikesShifted, timeToExpiry, blackVolatilitiesTransformed, errors, sabrFunctionProvider);
+        forward + shiftOutput,
+        strikesShifted,
+        timeToExpiry,
+        blackVolatilitiesTransformed,
+        errors,
+        sabrVolatilityFormula);
     LeastSquareResultsWithTransform result = fitter.solve(startParameters, fixedParameters);
     return Pair.of(result, volAndDerivatives.getSecond());
   }
