@@ -56,10 +56,6 @@ public class TradeReportRunner
 
   @Override
   public TradeReport runReport(ReportCalculationResults results, TradeReportTemplate reportTemplate) {
-    List<String> columnHeaders = reportTemplate.getColumns().stream()
-        .map(TradeReportColumn::getHeader)
-        .collect(toImmutableList());
-
     ImmutableTable.Builder<Integer, Integer, Result<?>> resultTable = ImmutableTable.builder();
 
     for (int reportColumnIdx = 0; reportColumnIdx < reportTemplate.getColumns().size(); reportColumnIdx++) {
@@ -84,7 +80,6 @@ public class TradeReportRunner
         .runInstant(Instant.now())
         .valuationDate(results.getValuationDate())
         .columns(reportTemplate.getColumns())
-        .columnHeaders(columnHeaders)
         .data(resultTable.build())
         .build();
   }
