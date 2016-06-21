@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.linearalgebra.InverseTridiagonalMatrixCalculator;
 import com.opengamma.strata.math.impl.linearalgebra.TridiagonalMatrix;
 

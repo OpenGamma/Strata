@@ -11,7 +11,7 @@ import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.special.Gamma;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * The incomplete gamma function is defined as:

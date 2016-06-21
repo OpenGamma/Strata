@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**

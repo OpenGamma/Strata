@@ -14,7 +14,7 @@ import org.apache.commons.math3.exception.TooManyEvaluationsException;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**

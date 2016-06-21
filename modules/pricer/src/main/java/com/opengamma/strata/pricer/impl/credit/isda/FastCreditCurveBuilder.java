@@ -13,7 +13,7 @@ import static com.opengamma.strata.pricer.impl.credit.isda.DoublesScheduleGenera
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;

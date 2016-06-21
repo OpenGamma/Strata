@@ -19,7 +19,7 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  *This prices a CDS using the ISDA methodology. The API of the public functions mimic as far a possible the ISDA high level ISDA c

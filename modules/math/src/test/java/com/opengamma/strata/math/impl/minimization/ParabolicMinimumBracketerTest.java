@@ -11,8 +11,8 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.FunctionUtils;
-import com.opengamma.strata.math.impl.MathException;
 
 /**
  * Test.

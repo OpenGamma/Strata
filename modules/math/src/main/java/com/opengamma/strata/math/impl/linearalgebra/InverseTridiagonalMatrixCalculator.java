@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * Direct inversion of a tridiagonal matrix using the method from

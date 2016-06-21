@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * The mode of a series of data is the value that occurs more frequently in the data set.

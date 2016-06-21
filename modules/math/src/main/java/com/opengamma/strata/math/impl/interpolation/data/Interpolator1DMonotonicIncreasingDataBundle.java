@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.interpolation.data;
 import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * 
