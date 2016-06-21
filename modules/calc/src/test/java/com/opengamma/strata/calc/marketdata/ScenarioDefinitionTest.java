@@ -15,9 +15,7 @@ import java.util.Objects;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.strata.calc.marketdata.MarketDataFilter;
-import com.opengamma.strata.calc.marketdata.PerturbationMapping;
-import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
@@ -126,7 +124,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public MarketDataBox<Object> applyTo(MarketDataBox<Object> marketData) {
+    public MarketDataBox<Object> applyTo(MarketDataBox<Object> marketData, ReferenceData refData) {
       return marketData;
     }
 
@@ -167,7 +165,7 @@ public class ScenarioDefinitionTest {
     }
 
     @Override
-    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<Object> marketData) {
+    public boolean matches(MarketDataId<Object> marketDataId, MarketDataBox<Object> marketData, ReferenceData refData) {
       return false;
     }
 

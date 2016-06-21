@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataFilter;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
@@ -62,7 +63,7 @@ public final class CurveNameFilter
   }
 
   @Override
-  public boolean matches(CurveId marketDataId, MarketDataBox<Curve> marketData) {
+  public boolean matches(CurveId marketDataId, MarketDataBox<Curve> marketData, ReferenceData refData) {
     Curve curve = marketData.getValue(0);
     return curve.getName().equals(curveName);
 

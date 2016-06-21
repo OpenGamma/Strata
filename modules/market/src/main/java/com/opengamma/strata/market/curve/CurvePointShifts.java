@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
@@ -111,7 +112,7 @@ public final class CurvePointShifts
   //-------------------------------------------------------------------------
 
   @Override
-  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> marketData) {
+  public MarketDataBox<Curve> applyTo(MarketDataBox<Curve> marketData, ReferenceData refData) {
     log.debug("Applying {} point shift to curve '{}'", shiftType, marketData.getValue(0).getName());
     return marketData.mapWithIndex(shifts.rowCount(), (curve, scenarioIndex) -> applyShifts(scenarioIndex, curve));
   }

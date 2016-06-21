@@ -14,6 +14,8 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.light.LightMetaBean;
 
+import com.opengamma.strata.basics.ReferenceData;
+
 /**
  * A scenario perturbation that returns its input unchanged and has a scenario count of one.
  * 
@@ -27,7 +29,7 @@ final class NoOpScenarioPerturbation<T> implements ScenarioPerturbation<T>, Immu
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataBox<T> applyTo(MarketDataBox<T> marketData) {
+  public MarketDataBox<T> applyTo(MarketDataBox<T> marketData, ReferenceData refData) {
     return marketData;
   }
 

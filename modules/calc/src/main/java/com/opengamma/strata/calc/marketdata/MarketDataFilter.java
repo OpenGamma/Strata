@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
@@ -39,8 +40,9 @@ public interface MarketDataFilter<T, I extends MarketDataId<T>> {
    *
    * @param marketDataId  the ID of a piece of market data
    * @param marketData  the market data value
+   * @param refData  the reference data
    * @return true if the filter matches
    */
-  public abstract boolean matches(I marketDataId, MarketDataBox<T> marketData);
+  public abstract boolean matches(I marketDataId, MarketDataBox<T> marketData, ReferenceData refData);
 
 }

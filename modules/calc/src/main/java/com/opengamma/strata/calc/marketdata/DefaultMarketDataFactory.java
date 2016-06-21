@@ -162,13 +162,14 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
       // Observable data is built in bulk so it can be efficiently requested from data provider in one operation
       if (!observableIds.isEmpty()) {
         Map<ObservableId, Result<Double>> observableResults = observableDataProvider.provideObservableData(observableIds);
-        MapStream.of(observableResults).forEach((id, res) -> addObservableResult(id, res, scenarioDefinition, dataBuilder));
+        MapStream.of(observableResults)
+            .forEach((id, res) -> addObservableResult(id, res, refData, scenarioDefinition, dataBuilder));
       }
 
       // Copy observable data from the supplied data to the builder, applying any matching perturbations
       leafRequirements.getObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> addValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
+          .forEach(id -> addValue(id, suppliedData.getValue(id), refData, scenarioDefinition, dataBuilder));
 
       // Non-observable data -----------------------------------------------------------------------
 
@@ -181,12 +182,13 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
       Map<MarketDataId<?>, Result<MarketDataBox<?>>> nonObservableResults =
           buildNonObservableData(nonObservableIds, marketDataConfig, marketData, refData);
 
-      MapStream.of(nonObservableResults).forEach((id, result) -> addResult(id, result, scenarioDefinition, dataBuilder));
+      MapStream.of(nonObservableResults)
+          .forEach((id, result) -> addResult(id, result, refData, scenarioDefinition, dataBuilder));
 
       // Copy supplied data to the scenario data after applying perturbations
       leafRequirements.getNonObservables().stream()
           .filter(suppliedData::containsValue)
-          .forEach(id -> addValue(id, suppliedData.getValue(id), scenarioDefinition, dataBuilder));
+          .forEach(id -> addValue(id, suppliedData.getValue(id), refData, scenarioDefinition, dataBuilder));
 
       // --------------------------------------------------------------------------------------------
 
@@ -259,13 +261,14 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
   private void addResult(
       MarketDataId<?> id,
       Result<MarketDataBox<?>> valueResult,
+      ReferenceData refData,
       ScenarioDefinition scenarioDefinition,
       BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResult(id, valueResult);
     } else {
-      addValue(id, valueResult.getValue(), scenarioDefinition, builder);
+      addValue(id, valueResult.getValue(), refData, scenarioDefinition, builder);
     }
   }
 
@@ -285,13 +288,14 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
   private void addObservableResult(
       ObservableId id,
       Result<Double> valueResult,
+      ReferenceData refData,
       ScenarioDefinition scenarioDefinition,
       BuiltScenarioMarketDataBuilder builder) {
 
     if (valueResult.isFailure()) {
       builder.addResult(id, Result.failure(valueResult));
     } else {
-      addValue(id, MarketDataBox.ofSingleValue(valueResult.getValue()), scenarioDefinition, builder);
+      addValue(id, MarketDataBox.ofSingleValue(valueResult.getValue()), refData, scenarioDefinition, builder);
     }
   }
 
@@ -310,11 +314,12 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
   private void addValue(
       MarketDataId<?> id,
       MarketDataBox<?> value,
+      ReferenceData refData,
       ScenarioDefinition scenarioDefinition,
       BuiltScenarioMarketDataBuilder builder) {
 
     Optional<PerturbationMapping<?>> optionalMapping = scenarioDefinition.getMappings().stream()
-        .filter(m -> m.matches(id, value))
+        .filter(m -> m.matches(id, value, refData))
         .findFirst();
 
     if (optionalMapping.isPresent()) {
@@ -323,7 +328,7 @@ final class DefaultMarketDataFactory implements MarketDataFactory {
       PerturbationMapping<Object> mapping = (PerturbationMapping<Object>) optionalMapping.get();
       MarketDataBox<Object> objectValue = ((MarketDataBox<Object>) value);
       // Result.of() catches any exceptions thrown by the mapping and wraps them in a failure
-      Result<MarketDataBox<?>> result = Result.of(() -> mapping.applyPerturbation(objectValue));
+      Result<MarketDataBox<?>> result = Result.of(() -> mapping.applyPerturbation(objectValue, refData));
       builder.addResult(id, result);
     } else {
       builder.addBox(id, value);

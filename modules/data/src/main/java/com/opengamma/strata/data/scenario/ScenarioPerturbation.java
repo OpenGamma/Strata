@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.data.scenario;
 
+import com.opengamma.strata.basics.ReferenceData;
+
 /**
  * A perturbation that can be applied to a market data box to create market data
  * for use in one or more scenarios.
@@ -41,10 +43,11 @@ public interface ScenarioPerturbation<T> {
    * Instead a perturbed copy must be returned.
    *
    * @param marketData  the market data to perturb
+   * @param refData  the reference data
    * @return new market data derived by applying the perturbation to the input data
    * @throws RuntimeException if unable to perform the perturbation
    */
-  public abstract MarketDataBox<T> applyTo(MarketDataBox<T> marketData);
+  public abstract MarketDataBox<T> applyTo(MarketDataBox<T> marketData, ReferenceData refData);
 
   /**
    * Returns the number of scenarios for which this perturbation generates data.

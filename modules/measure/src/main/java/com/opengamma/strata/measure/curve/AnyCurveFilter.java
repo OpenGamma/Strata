@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataFilter;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.curve.Curve;
@@ -46,7 +47,7 @@ public final class AnyCurveFilter
   }
 
   @Override
-  public boolean matches(CurveId marketDataId, MarketDataBox<Curve> marketData) {
+  public boolean matches(CurveId marketDataId, MarketDataBox<Curve> marketData, ReferenceData refData) {
     return true;
   }
 
