@@ -7,7 +7,7 @@ package com.opengamma.strata.math.impl.rootfinding;
 
 import java.util.function.Function;
 
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * 

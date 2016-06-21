@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * Computes the number of terms required to achieve a given accuracy in an orthogonal polynomial series.

@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.differentiation;
 import java.util.function.Function;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 
 /**
  * Differentiates a scalar function with respect to its argument using finite difference.

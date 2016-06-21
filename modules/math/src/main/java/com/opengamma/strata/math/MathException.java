@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.strata.math.impl;
+package com.opengamma.strata.math;
 
 /**
  * Exception thrown by math.

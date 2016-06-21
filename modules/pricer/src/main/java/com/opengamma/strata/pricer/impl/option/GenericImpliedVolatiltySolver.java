@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.math.impl.MathException;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 
