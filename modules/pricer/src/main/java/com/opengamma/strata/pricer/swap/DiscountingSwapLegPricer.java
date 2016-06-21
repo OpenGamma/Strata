@@ -51,7 +51,7 @@ public class DiscountingSwapLegPricer {
    * Pricer for {@link PaymentEvent}.
    */
   private final PaymentEventPricer<PaymentEvent> paymentEventPricer;
-  
+
   /* Small parameter below which the cash annuity formula is modified. */
   private static final double MIN_YIELD = 1.0E-4;
 
@@ -309,7 +309,7 @@ public class DiscountingSwapLegPricer {
     double annuityCash = notional * annuityCash(nbFixedPaymentYear, nbFixedPeriod, yield);
     return annuityCash;
   }
-  
+
   /**
    * Computes the conventional cash annuity for a given yield. 
    * 
@@ -333,7 +333,7 @@ public class DiscountingSwapLegPricer {
     annuity *= tau;
     return annuity;
   }
-  
+
   /**
    * Computes the conventional cash annuity for a given yield and its first derivative with respect to the yield.
    * 
@@ -365,7 +365,7 @@ public class DiscountingSwapLegPricer {
     derivative *= tau * tau;
     return ValueDerivatives.of(annuity, DoubleArray.of(derivative));
   }
-  
+
   /**
    * Computes the conventional cash annuity for a given yield and its first two derivatives with respect to the yield.
    * 
@@ -382,9 +382,8 @@ public class DiscountingSwapLegPricer {
       double annuity = (1d - dfEnd) / yield;
       double derivative1 = -annuity / yield;
       derivative1 += tau * nbPeriods * dfEnd / ((1d + yieldPerPeriod) * yield);
-      double derivative2 = - 2 * derivative1 / yield;
-      derivative2 -= tau * tau * nbPeriods * (nbPeriods+1) * dfEnd 
-          / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
+      double derivative2 = -2 * derivative1 / yield;
+      derivative2 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
       return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2));
     }
     double annuity = 0.0d;
@@ -403,7 +402,7 @@ public class DiscountingSwapLegPricer {
     derivative2 *= tau * tau * tau;
     return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2));
   }
-  
+
   /**
    * Computes the conventional cash annuity for a given yield and its first three derivatives with respect to the yield.
    * 
@@ -421,14 +420,13 @@ public class DiscountingSwapLegPricer {
       double derivative1 = -annuity / yield;
       derivative1 += tau * nbPeriods * dfEnd / ((1d + yieldPerPeriod) * yield);
       double derivative2 = -2 * derivative1 / yield;
-      derivative2 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd
-          / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
+      derivative2 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
       double derivative3 = -6.0d * annuity / (yield * yield * yield);
-      derivative3 += -2.0d * tau * nbPeriods / (yield * yield * yield) * dfEnd / (1d + yieldPerPeriod);
-      derivative3 -= tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd
-          / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield * yield);
-      derivative3 += tau * tau * tau * nbPeriods * (nbPeriods + 1)* (nbPeriods + 2) * dfEnd
-          / ((1d + yieldPerPeriod) * (1d + yieldPerPeriod)* (1d + yieldPerPeriod) * yield);
+      derivative3 += 6.0d * tau * nbPeriods / (yield * yield * yield) * dfEnd / (1d + yieldPerPeriod);
+      derivative3 += 3.0d * tau * tau * nbPeriods * (nbPeriods + 1) * dfEnd /
+          ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield * yield);
+      derivative3 += tau * tau * tau * nbPeriods * (nbPeriods + 1) * (nbPeriods + 2) * dfEnd /
+          ((1d + yieldPerPeriod) * (1d + yieldPerPeriod) * (1d + yieldPerPeriod) * yield);
       return ValueDerivatives.of(annuity, DoubleArray.of(derivative1, derivative2, derivative3));
     }
     double annuity = 0.0d;
@@ -442,7 +440,7 @@ public class DiscountingSwapLegPricer {
       multiPeriodFactor *= periodFactor;
       derivative1 += -(i + 1) * multiPeriodFactor;
       derivative2 += (i + 1) * (i + 2) * multiPeriodFactor * periodFactor;
-      derivative3 += (i + 1) * (i + 2)* (i + 3) * multiPeriodFactor * periodFactor* periodFactor;
+      derivative3 += -(i + 1) * (i + 2) * (i + 3) * multiPeriodFactor * periodFactor * periodFactor;
     }
     annuity *= tau;
     derivative1 *= tau * tau;

@@ -817,6 +817,7 @@ public class DiscountingSwapLegPricerTest {
   private static final double TOLERANCE_ANNUITY = 1.0E-10;
   private static final double TOLERANCE_ANNUITY_1 = 1.0E-6;
   private static final double TOLERANCE_ANNUITY_2 = 1.0E-4;
+  private static final double TOLERANCE_ANNUITY_3 = 1.0E-2;
 
   public void annuity_cash() {
     for (int looprate = 0; looprate < RATES.length; looprate++) {
@@ -853,6 +854,21 @@ public class DiscountingSwapLegPricerTest {
       assertEquals(annuityComputed.getValue(), annuityExpected.getValue(), TOLERANCE_ANNUITY_1);
       assertEquals(annuityComputed.getDerivative(0), annuityExpected.getDerivative(0), TOLERANCE_ANNUITY_1);
       assertEquals(annuityComputed.getDerivative(1), derivative2Expected, TOLERANCE_ANNUITY_2);
+    }
+  }
+
+  public void annuity_cash_3() {
+    double shift = 1.0E-7;
+    for (int looprate = 0; looprate < RATES.length; looprate++) {
+      ValueDerivatives annuityExpected = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityComputed = PRICER_LEG.annuityCash3(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate]);
+      ValueDerivatives annuityP = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] + shift);
+      ValueDerivatives annuityM = PRICER_LEG.annuityCash2(NB_PERIODS_PER_YEAR, NB_PERIODS, RATES[looprate] - shift);
+      double derivative3Expected = (annuityP.getDerivative(1) - annuityM.getDerivative(1)) / (2.0d * shift);
+      assertEquals(annuityComputed.getValue(), annuityExpected.getValue(), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(0), annuityExpected.getDerivative(0), TOLERANCE_ANNUITY_1);
+      assertEquals(annuityComputed.getDerivative(1), annuityExpected.getDerivative(1), TOLERANCE_ANNUITY_2);
+      assertEquals(annuityComputed.getDerivative(2), derivative3Expected, TOLERANCE_ANNUITY_3, "rate: " + looprate);
     }
   }
 
