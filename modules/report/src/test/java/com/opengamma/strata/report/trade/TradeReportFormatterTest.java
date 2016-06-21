@@ -64,7 +64,9 @@ public class TradeReportFormatterTest {
 
   private TradeReport report(ArrayTable<Integer, Integer, Result<?>> table) {
     return TradeReport.builder()
-        .columnHeaders("col0", "col1")
+        .columns(
+            TradeReportColumn.builder().header("col0").build(),
+            TradeReportColumn.builder().header("col1").build())
         .data(table)
         .valuationDate(LocalDate.now(ZoneOffset.UTC))
         .runInstant(Instant.now())
