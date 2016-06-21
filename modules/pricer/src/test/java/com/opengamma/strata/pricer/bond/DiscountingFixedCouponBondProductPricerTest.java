@@ -56,7 +56,7 @@ import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 
 /**
- * Test
+ * Test {@link DiscountingFixedCouponBondProductPricer}
  */
 @Test
 public class DiscountingFixedCouponBondProductPricerTest {
@@ -422,6 +422,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .exCouponPeriod(DaysAdjustment.NONE)
       .build()
       .resolve(REF_DATA);
+  private static final ResolvedFixedCouponBond PRODUCT_US_0 = PRODUCT_US.toBuilder().fixedRate(0.0d).build();
   private static final LocalDate VALUATION_US = date(2011, 8, 18);
   private static final LocalDate SETTLEMENT_US = PRODUCT_US.getSettlementDateOffset().adjust(VALUATION_US, REF_DATA);
   private static final LocalDate VALUATION_LAST_US = date(2016, 6, 3);
@@ -432,6 +433,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     assertEquals(dirtyPrice, 1.0417352500524246, TOL); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_US, SETTLEMENT_US, dirtyPrice);
+    assertEquals(yield, YIELD_US, TOL);
+  }
+
+  // Check price from yield when coupon is 0.
+  public void dirtyPriceFromYieldUS0() {
+    double dirtyPrice0 = PRICER.dirtyPriceFromYield(PRODUCT_US_0, SETTLEMENT_US, 0.0d);
+    assertEquals(dirtyPrice0, 1.0d, TOL);
+    double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US_0, SETTLEMENT_US, YIELD_US);
+    assertEquals(dirtyPrice, 0.8129655023939295, TOL); // Previous run
+    double yield = PRICER.yieldFromDirtyPrice(PRODUCT_US_0, SETTLEMENT_US, dirtyPrice);
     assertEquals(yield, YIELD_US, TOL);
   }
 

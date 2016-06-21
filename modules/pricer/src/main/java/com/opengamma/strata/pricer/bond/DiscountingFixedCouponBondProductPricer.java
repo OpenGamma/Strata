@@ -494,20 +494,30 @@ public class DiscountingFixedCouponBondProductPricer {
    * @return the accrued interest of the product 
    */
   public double accruedInterest(ResolvedFixedCouponBond bond, LocalDate settlementDate) {
+    double notional = bond.getNotional();
+    return accruedYearFraction(bond, settlementDate) * bond.getFixedRate() * notional;
+  }
+
+  /**
+   * Calculates the accrued year fraction of the fixed coupon bond with the specified settlement date.
+   * 
+   * @param bond  the product
+   * @param settlementDate  the settlement date
+   * @return the accrued year fraction of the product 
+   */
+  public double accruedYearFraction(ResolvedFixedCouponBond bond, LocalDate settlementDate) {
     if (bond.getUnadjustedStartDate().isAfter(settlementDate)) {
       return 0d;
     }
-    double notional = bond.getNotional();
     FixedCouponBondPaymentPeriod period = bond.findPeriod(settlementDate)
         .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
     LocalDate previousAccrualDate = period.getUnadjustedStartDate();
-    double fixedRate = bond.getFixedRate();
-    double accruedInterest = bond.yearFraction(previousAccrualDate, settlementDate) * fixedRate * notional;
+    double accruedYearFraction = bond.yearFraction(previousAccrualDate, settlementDate) ;
     double result = 0d;
     if (settlementDate.isAfter(period.getDetachmentDate())) {
-      result = accruedInterest - notional * fixedRate * period.getYearFraction();
+      result = accruedYearFraction - period.getYearFraction();
     } else {
-      result = accruedInterest;
+      result = accruedYearFraction;
     }
     return result;
   }
@@ -794,7 +804,7 @@ public class DiscountingFixedCouponBondProductPricer {
       return 0d;
     }
     int couponIndex = couponIndex(bond.getPeriodicPayments(), settlementDate);
-    double factorSpot = accruedInterest(bond, settlementDate) / bond.getFixedRate() / bond.getNotional();
+    double factorSpot = accruedYearFraction(bond, settlementDate);
     double factorPeriod = bond.getPeriodicPayments().get(couponIndex).getYearFraction();
     return (factorPeriod - factorSpot) / factorPeriod;
   }
