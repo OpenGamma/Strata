@@ -512,12 +512,12 @@ public class DiscountingFixedCouponBondProductPricer {
     FixedCouponBondPaymentPeriod period = bond.findPeriod(settlementDate)
         .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
     LocalDate previousAccrualDate = period.getUnadjustedStartDate();
-    double accruedInterest = bond.yearFraction(previousAccrualDate, settlementDate) ;
+    double accruedYearFraction = bond.yearFraction(previousAccrualDate, settlementDate) ;
     double result = 0d;
     if (settlementDate.isAfter(period.getDetachmentDate())) {
-      result = accruedInterest - period.getYearFraction();
+      result = accruedYearFraction - period.getYearFraction();
     } else {
-      result = accruedInterest;
+      result = accruedYearFraction;
     }
     return result;
   }
