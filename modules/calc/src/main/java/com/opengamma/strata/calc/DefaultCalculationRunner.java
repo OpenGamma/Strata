@@ -14,6 +14,7 @@ import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -70,7 +71,33 @@ class DefaultCalculationRunner implements CalculationRunner {
 
   //-------------------------------------------------------------------------
   @Override
-  public Results calculateSingleScenario(
+  public Results calculate(
+      CalculationRules calculationRules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      MarketData marketData,
+      ReferenceData refData) {
+
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
+    return taskRunner.calculate(tasks, marketData, refData);
+  }
+
+  @Override
+  public void calculateAsync(
+      CalculationRules calculationRules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      MarketData marketData,
+      ReferenceData refData,
+      CalculationListener listener) {
+
+    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
+    taskRunner.calculateAsync(tasks, marketData, refData, listener);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Results calculateMultiScenario(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
@@ -78,23 +105,11 @@ class DefaultCalculationRunner implements CalculationRunner {
       ReferenceData refData) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
-    return taskRunner.calculateSingleScenario(tasks, marketData, refData);
+    return taskRunner.calculateMultiScenario(tasks, marketData, refData);
   }
 
   @Override
-  public Results calculateMultipleScenarios(
-      CalculationRules calculationRules,
-      List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      ScenarioMarketData marketData,
-      ReferenceData refData) {
-
-    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
-    return taskRunner.calculateMultipleScenarios(tasks, marketData, refData);
-  }
-
-  @Override
-  public void calculateSingleScenarioAsync(
+  public void calculateMultiScenarioAsync(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
@@ -103,20 +118,7 @@ class DefaultCalculationRunner implements CalculationRunner {
       CalculationListener listener) {
 
     CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
-    taskRunner.calculateSingleScenarioAsync(tasks, marketData, refData, listener);
-  }
-
-  @Override
-  public void calculateMultipleScenariosAsync(
-      CalculationRules calculationRules,
-      List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      ScenarioMarketData marketData,
-      ReferenceData refData,
-      CalculationListener listener) {
-
-    CalculationTasks tasks = CalculationTasks.of(calculationRules, targets, columns);
-    taskRunner.calculateMultipleScenariosAsync(tasks, marketData, refData, listener);
+    taskRunner.calculateMultiScenarioAsync(tasks, marketData, refData, listener);
   }
 
   //-------------------------------------------------------------------------

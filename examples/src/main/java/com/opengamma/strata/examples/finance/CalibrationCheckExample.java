@@ -31,8 +31,6 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
@@ -172,12 +170,7 @@ public class CalibrationCheckExample {
     // load quotes
     ImmutableMap<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
 
-    // create the market data used for calculations
-    ScenarioMarketData marketSnapshot = ImmutableScenarioMarketData.builder(VAL_DATE)
-        .addValueMap(quotes)
-        .build();
-
-    // create the market data used for building trades
+    // create the market data
     MarketData marketData = ImmutableMarketData.of(VAL_DATE, quotes);
 
     // load the curve definition
@@ -211,9 +204,8 @@ public class CalibrationCheckExample {
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    ScenarioMarketData enhancedMarketData =
-        marketDataFactory().buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
-    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
+    MarketData calibratedMarketData = marketDataFactory().create(reqs, marketDataConfig, marketData, refData);
+    Results results = runner.calculate(rules, trades, columns, calibratedMarketData, refData);
     return Pair.of(trades, results);
   }
 

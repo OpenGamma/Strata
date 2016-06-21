@@ -32,7 +32,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
 import com.opengamma.strata.calc.runner.CalculationTasks;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
@@ -82,15 +82,14 @@ public class SwapReportRegressionTest {
         Currency.USD,
         marketDataBuilder.ratesLookup(valuationDate));
 
-    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.requirements(REF_DATA);
-    ScenarioMarketData enhancedMarketData =
-        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, REF_DATA);
+    MarketData calibratedMarketData = marketDataFactory().create(reqs, MarketDataConfig.empty(), marketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
+    Results results = runner.calculate(tasks, calibratedMarketData, REF_DATA);
 
     ReportCalculationResults calculationResults = ReportCalculationResults.of(valuationDate, trades, columns, results);
 

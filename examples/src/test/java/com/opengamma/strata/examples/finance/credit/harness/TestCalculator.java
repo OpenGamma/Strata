@@ -22,7 +22,7 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -72,7 +72,7 @@ public class TestCalculator implements Calculator {
     // the complete set of rules for calculating measures
     CalculationRules rules = CalculationRules.of(StandardComponents.calculationFunctions(), Currency.USD);
 
-    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     List<Column> columns = measures.stream().map(Column::of).collect(Collectors.toList());
 
@@ -80,7 +80,7 @@ public class TestCalculator implements Calculator {
     ImmutableList<Trade> trades = ImmutableList.of(tradeSource.apply());
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService());
-    return runner.calculateSingleScenario(rules, trades, columns, marketSnapshot, REF_DATA);
+    return runner.calculate(rules, trades, columns, marketData, REF_DATA);
   }
 
   public static Calculator of() {

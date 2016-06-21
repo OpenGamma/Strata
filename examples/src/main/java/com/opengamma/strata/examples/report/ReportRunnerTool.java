@@ -27,7 +27,7 @@ import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationTasks;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.StandardComponents;
@@ -174,7 +174,7 @@ public class ReportRunnerTool implements AutoCloseable {
     RatesMarketDataLookup ratesLookup = marketDataBuilder.ratesLookup(valuationDate);
     CalculationRules rules = CalculationRules.of(functions, ratesLookup);
 
-    ScenarioMarketData marketSnapshot = marketDataBuilder.buildSnapshot(valuationDate);
+    MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
 
     List<Trade> trades;
 
@@ -200,9 +200,8 @@ public class ReportRunnerTool implements AutoCloseable {
     // calculate the results
     CalculationTasks tasks = CalculationTasks.of(rules, trades, columns);
     MarketDataRequirements reqs = tasks.requirements(refData);
-    ScenarioMarketData enhancedMarketData =
-        marketDataFactory().buildMarketData(reqs, MarketDataConfig.empty(), marketSnapshot, refData);
-    Results results = runner.getTaskRunner().calculateSingleScenario(tasks, enhancedMarketData, refData);
+    MarketData calibratedMarketData = marketDataFactory().create(reqs, MarketDataConfig.empty(), marketData, refData);
+    Results results = runner.getTaskRunner().calculate(tasks, calibratedMarketData, refData);
 
     return ReportCalculationResults.of(valuationDate, trades, requirements.getTradeMeasureRequirements(), results, refData);
   }

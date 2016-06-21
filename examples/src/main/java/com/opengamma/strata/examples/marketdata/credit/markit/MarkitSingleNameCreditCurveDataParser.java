@@ -24,7 +24,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketDataBuilder;
+import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.pricer.credit.CdsRecoveryRate;
 import com.opengamma.strata.pricer.credit.IsdaCreditCurveInputs;
@@ -90,7 +90,7 @@ public class MarkitSingleNameCreditCurveDataParser {
    * @param staticDataSource  the source of static data to parse
    */
   public static void parse(
-      ImmutableScenarioMarketDataBuilder builder,
+      ImmutableMarketDataBuilder builder,
       CharSource curveSource,
       CharSource staticDataSource) {
 

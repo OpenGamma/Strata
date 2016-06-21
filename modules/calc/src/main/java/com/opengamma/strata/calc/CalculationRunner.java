@@ -12,6 +12,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.runner.CalculationListener;
 import com.opengamma.strata.calc.runner.CalculationTaskRunner;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -74,43 +75,21 @@ public interface CalculationRunner extends AutoCloseable {
    * 
    * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
-   * @param columns  the configuration for the columns that will be calculated, including the measure and
-   *   any column-specific overrides
+   * @param columns  the configuration for the columns that will be calculated,
+   *   including the measure and any column-specific overrides
    * @param marketData  the market data to be used in the calculations
    * @param refData  the reference data to be used in the calculations
    * @return the grid of calculation results, based on the targets and columns
    */
-  public abstract Results calculateSingleScenario(
+  public abstract Results calculate(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
-      ScenarioMarketData marketData,
+      MarketData marketData,
       ReferenceData refData);
 
   /**
-   * Performs calculations for multiple scenarios, each with a different set of market data.
-   * <p>
-   * This returns a grid of results based on the specified targets, columns, rules and market data.
-   * The grid will contain a row for each target and a column for each measure.
-   * 
-   * @param calculationRules  the rules defining how the calculation is performed
-   * @param targets  the targets for which values of the measures will be calculated
-   * @param columns  the configuration for the columns that will be calculated, including the measure and
-   *   any column-specific overrides
-   * @param marketData  the market data to be used in the calculations
-   * @param refData  the reference data to be used in the calculations
-   * @return the grid of calculation results, based on the targets and columns
-   */
-  public abstract Results calculateMultipleScenarios(
-      CalculationRules calculationRules,
-      List<? extends CalculationTarget> targets,
-      List<Column> columns,
-      ScenarioMarketData marketData,
-      ReferenceData refData);
-
-  //-------------------------------------------------------------------------
-  /**
-   * Performs calculations asynchronously for a single scenario,
+   * Performs calculations asynchronously for a single set of market data,
    * invoking a listener as each calculation completes.
    * <p>
    * This method requires the listener to assemble the results, but it can be much more memory efficient when
@@ -119,19 +98,41 @@ public interface CalculationRunner extends AutoCloseable {
    * 
    * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
-   * @param columns  the configuration for the columns that will be calculated, including the measure and
-   *   any column-specific overrides
+   * @param columns  the configuration for the columns that will be calculated,
+   *   including the measure and any column-specific overrides
    * @param marketData  the market data to be used in the calculations
    * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
-  public abstract void calculateSingleScenarioAsync(
+  public abstract void calculateAsync(
+      CalculationRules calculationRules,
+      List<? extends CalculationTarget> targets,
+      List<Column> columns,
+      MarketData marketData,
+      ReferenceData refData,
+      CalculationListener listener);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Performs calculations for multiple scenarios, each with a different set of market data.
+   * <p>
+   * This returns a grid of results based on the specified targets, columns, rules and market data.
+   * The grid will contain a row for each target and a column for each measure.
+   * 
+   * @param calculationRules  the rules defining how the calculation is performed
+   * @param targets  the targets for which values of the measures will be calculated
+   * @param columns  the configuration for the columns that will be calculated,
+   *   including the measure and any column-specific overrides
+   * @param marketData  the market data to be used in the calculations
+   * @param refData  the reference data to be used in the calculations
+   * @return the grid of calculation results, based on the targets and columns
+   */
+  public abstract Results calculateMultiScenario(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,
       ScenarioMarketData marketData,
-      ReferenceData refData,
-      CalculationListener listener);
+      ReferenceData refData);
 
   /**
    * Performs calculations asynchronously for a multiple scenarios, each with a different set of market data,
@@ -143,13 +144,13 @@ public interface CalculationRunner extends AutoCloseable {
    * 
    * @param calculationRules  the rules defining how the calculation is performed
    * @param targets  the targets for which values of the measures will be calculated
-   * @param columns  the configuration for the columns that will be calculated, including the measure and
-   *   any column-specific overrides
+   * @param columns  the configuration for the columns that will be calculated,
+   *   including the measure and any column-specific overrides
    * @param marketData  the market data to be used in the calculations
    * @param refData  the reference data to be used in the calculations
    * @param listener  listener that is invoked when individual results are calculated
    */
-  public abstract void calculateMultipleScenariosAsync(
+  public abstract void calculateMultiScenarioAsync(
       CalculationRules calculationRules,
       List<? extends CalculationTarget> targets,
       List<Column> columns,

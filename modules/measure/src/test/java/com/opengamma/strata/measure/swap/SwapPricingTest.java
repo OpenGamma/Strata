@@ -39,8 +39,8 @@ import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.measure.Measures;
@@ -114,7 +114,7 @@ public class SwapPricingTest {
     CurveId idUsdL1M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L1M.getName());
     CurveId idUsdL3M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L3M.getName());
     CurveId idUsdL6M = CurveId.of(groupName, StandardDataSets.GROUP1_USD_L6M.getName());
-    ScenarioMarketData suppliedData = ImmutableScenarioMarketData.builder(VAL_DATE)
+    MarketData suppliedData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(idUsdDsc, StandardDataSets.GROUP1_USD_DSC)
         .addValue(idUsdOn, StandardDataSets.GROUP1_USD_ON)
         .addValue(idUsdL1M, StandardDataSets.GROUP1_USD_L1M)
@@ -141,7 +141,7 @@ public class SwapPricingTest {
     // calculate results using the runner
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(rules, trades, columns, suppliedData, REF_DATA);
+    Results results = runner.calculate(rules, trades, columns, suppliedData, REF_DATA);
 
     Result<?> result = results.get(0, 0);
     assertThat(result).isSuccess();

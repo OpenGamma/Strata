@@ -25,9 +25,9 @@ import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.examples.data.ExampleData;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
@@ -144,8 +144,8 @@ public class SwapPricingCcpExample {
     // load fixings
     ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> fixings = FixingSeriesCsvLoader.load(FIXINGS_RESOURCE);
 
-    // create the market data used for calculations
-    ScenarioMarketData marketSnapshot = ImmutableScenarioMarketData.builder(VAL_DATE)
+    // create the market data
+    MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValueMap(quotesCcp1)
         .addValueMap(quotesCcp2)
         .addTimeSeriesMap(fixings)
@@ -181,9 +181,8 @@ public class SwapPricingCcpExample {
 
     // calibrate the curves and calculate the results
     MarketDataRequirements reqs = MarketDataRequirements.of(rules, trades, columns, refData);
-    ScenarioMarketData enhancedMarketData =
-        marketDataFactory().buildMarketData(reqs, marketDataConfig, marketSnapshot, refData);
-    Results results = runner.calculateSingleScenario(rules, trades, columns, enhancedMarketData, refData);
+    MarketData calibratedMarketData = marketDataFactory().create(reqs, marketDataConfig, marketData, refData);
+    Results results = runner.calculate(rules, trades, columns, calibratedMarketData, refData);
 
     // use the report runner to transform the engine results into a trade report
     ReportCalculationResults calculationResults = ReportCalculationResults.of(VAL_DATE, trades, columns, results, refData);

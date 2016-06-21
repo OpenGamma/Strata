@@ -42,8 +42,6 @@ import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
-import com.opengamma.strata.data.scenario.ImmutableScenarioMarketData;
-import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -149,17 +147,14 @@ public class CurveEndToEndTest {
     // Calculate the results and check the PVs for the node instruments are zero ----------------------
 
     List<Column> columns = ImmutableList.of(Column.of(Measures.PRESENT_VALUE));
-    ScenarioMarketData knownMarketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8))
-        .addValueMap(parRateData)
-        .build();
+    MarketData knownMarketData = MarketData.of(date(2011, 3, 8), parRateData);
 
     // using the direct executor means there is no need to close/shutdown the runner
     CalculationTasks tasks = CalculationTasks.of(calculationRules, trades, columns);
     MarketDataRequirements reqs = tasks.requirements(REF_DATA);
-    ScenarioMarketData enhancedMarketData =
-        marketDataFactory().buildMarketData(reqs, marketDataConfig, knownMarketData, REF_DATA);
+    MarketData enhancedMarketData = marketDataFactory().create(reqs, marketDataConfig, knownMarketData, REF_DATA);
     CalculationTaskRunner runner = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
-    Results results = runner.calculateSingleScenario(tasks, enhancedMarketData, REF_DATA);
+    Results results = runner.calculate(tasks, enhancedMarketData, REF_DATA);
 
     results.getCells().stream().forEach(this::checkPvIsZero);
   }

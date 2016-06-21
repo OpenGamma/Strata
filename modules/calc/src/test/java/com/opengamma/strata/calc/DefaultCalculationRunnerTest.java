@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.calc;
 
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
@@ -14,6 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
 /**
@@ -39,12 +41,13 @@ public class DefaultCalculationRunnerTest {
     Column column2 = Column.of(TestingMeasures.BUCKETED_PV01);
     ImmutableList<Column> columns = ImmutableList.of(column1, column2);
     CalculationRules rules = CalculationRules.of(CalculationFunctions.empty());
-    ScenarioMarketData marketData = ScenarioMarketData.empty();
+    MarketData md = MarketData.empty(date(2016, 6, 30));
+    ScenarioMarketData smd = ScenarioMarketData.empty();
 
     // use of try-with-resources checks class is AutoCloseable
     try (CalculationRunner test = CalculationRunner.of(MoreExecutors.newDirectExecutorService())) {
-      assertThat(test.calculateSingleScenario(rules, targets, columns, marketData, REF_DATA).get(0, 0).isFailure()).isTrue();
-      assertThat(test.calculateMultipleScenarios(rules, targets, columns, marketData, REF_DATA).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculate(rules, targets, columns, md, REF_DATA).get(0, 0).isFailure()).isTrue();
+      assertThat(test.calculateMultiScenario(rules, targets, columns, smd, REF_DATA).get(0, 0).isFailure()).isTrue();
     }
   }
 
