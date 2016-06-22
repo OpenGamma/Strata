@@ -130,6 +130,15 @@ final class GlobalHolidayCalendars {
    * Future and past dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar CATO = generateToronto();
+  /**
+   * The holiday calendar for Oslo, Norway, with code 'NOOS'.
+   * <p>
+   * This constant provides the calendar for Oslo holidays.
+   * <p>
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar NOOS = generateOslo();
 
   //-------------------------------------------------------------------------
   /**
@@ -633,6 +642,44 @@ final class GlobalHolidayCalendars {
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CATO"), holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate NOOS
+  // data sources
+  // http://www.oslobors.no/ob_eng/Oslo-Boers/About-Oslo-Boers/Opening-hours
+  // http://www.oslobors.no/Oslo-Boers/Om-Oslo-Boers/AApningstider
+  // web archive history of those pages
+  static ImmutableHolidayCalendar generateOslo() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      // new year
+      holidays.add(date(year, 1, 1));
+      // maundy thursday
+      holidays.add(easter(year).minusDays(3));
+      // good friday
+      holidays.add(easter(year).minusDays(2));
+      // easter monday
+      holidays.add(easter(year).plusDays(1));
+      // labour
+      holidays.add(date(year, 5, 1));
+      // constitution
+      holidays.add(date(year, 5, 17));
+      // ascension
+      holidays.add(easter(year).plusDays(39));
+      // whit monday
+      holidays.add(easter(year).plusDays(50));
+      // christmas eve
+      holidays.add(date(year, 12, 24));
+      // christmas
+      holidays.add(date(year, 12, 25));
+      // boxing
+      holidays.add(date(year, 12, 26));
+      // new years eve
+      holidays.add(date(year, 12, 31));
+    }
+    removeSatSun(holidays);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("NOOS"), holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
