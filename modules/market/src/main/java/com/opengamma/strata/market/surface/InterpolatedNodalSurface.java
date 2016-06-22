@@ -127,6 +127,7 @@ public final class InterpolatedNodalSurface
    * Creates an interpolated surface with metadata, where the values are not sorted.
    * <p>
    * The value arrays will be sorted, by x-values then y-values.
+   * Both the z-values and parameter metadata will be sorted along with the x and y values.
    * 
    * @param metadata  the surface metadata
    * @param xValues  the x-values
