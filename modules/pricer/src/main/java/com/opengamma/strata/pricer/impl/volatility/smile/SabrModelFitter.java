@@ -14,6 +14,7 @@ import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform;
 import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.strata.math.impl.minimization.SingleRangeLimitTransform;
 import com.opengamma.strata.math.impl.minimization.UncoupledParameterTransforms;
+import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 
 /**
  * SABR model fitter.
@@ -37,6 +38,37 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
     // nu > 0  and limit on Nu to avoid numerical instability in formula for large nu.
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
+   * <p>
+   * {@code strikes}, {@code impliedVols} and {@code error} should be the same length and ordered coherently.
+   * 
+   * @param forward  the forward value of the underlying
+   * @param strikes  the ordered values of strikes
+   * @param timeToExpiry  the time-to-expiry
+   * @param impliedVols  the market implied volatilities
+   * @param error  the 'measurement' error to apply to the market volatility of a particular option
+   * @param sabrVolatilityFormula  the volatility formula
+   */
+  @SuppressWarnings("unchecked")
+  public SabrModelFitter(
+      double forward,
+      DoubleArray strikes,
+      double timeToExpiry,
+      DoubleArray impliedVols,
+      DoubleArray error,
+      SabrVolatilityFormula sabrVolatilityFormula) {
+
+    super(
+        forward,
+        strikes,
+        timeToExpiry,
+        impliedVols,
+        error,
+        (VolatilityFunctionProvider<SabrFormulaData>) sabrVolatilityFormula);
+  }
+
   /**
    * Constructs SABR model fitter from forward, strikes, time to expiry, implied volatilities and error values. 
    * <p>
@@ -49,11 +81,18 @@ public final class SabrModelFitter extends SmileModelFitter<SabrFormulaData> {
    * @param error  the 'measurement' error to apply to the market volatility of a particular option
    * @param model  the volatility function provider
    */
-  public SabrModelFitter(double forward, DoubleArray strikes, double timeToExpiry, DoubleArray impliedVols,
-      DoubleArray error, VolatilityFunctionProvider<SabrFormulaData> model) {
+  public SabrModelFitter(
+      double forward,
+      DoubleArray strikes,
+      double timeToExpiry,
+      DoubleArray impliedVols,
+      DoubleArray error,
+      VolatilityFunctionProvider<SabrFormulaData> model) {
+
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public SabrFormulaData toSmileModelData(DoubleArray modelParameters) {
     return SabrFormulaData.of(modelParameters.toArray());

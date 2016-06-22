@@ -42,7 +42,6 @@ import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
-import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -89,8 +88,7 @@ public class CurveGammaCalculatorTest {
   // Calculators and pricers
   private static final DiscountingSwapProductPricer PRICER_SWAP = DiscountingSwapProductPricer.DEFAULT;
   private static final double FD_SHIFT = 1.0E-5;
-  private static final CurveGammaCalculator GAMMA_CAL =
-      new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, FD_SHIFT);
+  private static final CurveGammaCalculator GAMMA_CAL = CurveGammaCalculator.ofCentralDifference(FD_SHIFT);
   // Constants
   private static final double TOLERANCE_GAMMA = 1.0E+1;
 
@@ -137,9 +135,9 @@ public class CurveGammaCalculatorTest {
     Curve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values());
     Currency curveCurrency = SINGLE_CURRENCY;
     double toleranceCoherency = 1.0E+5;
-    CurveGammaCalculator calculatorForward5 = new CurveGammaCalculator(FiniteDifferenceType.FORWARD, FD_SHIFT);
-    CurveGammaCalculator calculatorBackward5 = new CurveGammaCalculator(FiniteDifferenceType.BACKWARD, FD_SHIFT);
-    CurveGammaCalculator calculatorCentral4 = new CurveGammaCalculator(FiniteDifferenceType.CENTRAL, 1.0E-4);
+    CurveGammaCalculator calculatorForward5 = CurveGammaCalculator.ofForwardDifference(FD_SHIFT);
+    CurveGammaCalculator calculatorBackward5 = CurveGammaCalculator.ofBackwardDifference(FD_SHIFT);
+    CurveGammaCalculator calculatorCentral4 = CurveGammaCalculator.ofCentralDifference(1.0E-4);
     DoubleArray gammaCentral5 = GAMMA_CAL.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
 
