@@ -12,7 +12,6 @@ import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAIL
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
 import static com.opengamma.strata.collect.result.FailureReason.PERMISSION_DENIED;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -101,7 +100,7 @@ public class ResultTest {
     });
     assertThat(test)
         .isFailure()
-        .hasFailureMessageMatching(".*Error.*combine.*ith.*");
+        .hasFailureMessageMatching("Ooops");
   }
 
   public void success_stream() {
@@ -117,7 +116,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertThat(test)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst calling map.*");
+        .hasFailureMessageMatching("Big bad error");
   }
 
   public void success_flatMap_throwing() {
@@ -128,7 +127,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertThat(test)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst calling flatMap.*");
+        .hasFailureMessageMatching("Big bad error");
   }
 
   //-------------------------------------------------------------------------
@@ -450,7 +449,7 @@ public class ResultTest {
 
     assertThat(combined)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst combining success results");
+        .hasFailureMessageMatching("Ooops");
   }
 
   //-------------------------------------------------------------------------
@@ -512,7 +511,7 @@ public class ResultTest {
 
     assertThat(combined)
         .isFailure(ERROR)
-        .hasFailureMessageMatching("Error whilst combining success results");
+        .hasFailureMessageMatching("Ooops");
   }
 
   //-------------------------------------------------------------------------
