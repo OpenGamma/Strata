@@ -300,7 +300,7 @@ final class DerivedFn extends AbstractDerivedCalculationFunction<TestTarget, Int
   @Override
   public Integer calculate(
       TestTarget target,
-      Map<Measure, ?> requiredMeasures,
+      Map<Measure, Object> requiredMeasures,
       CalculationParameters parameters,
       ScenarioMarketData marketData,
       ReferenceData refData) {

@@ -74,7 +74,7 @@ public interface DerivedCalculationFunction<T extends CalculationTarget, R> {
    */
   public abstract R calculate(
       T target,
-      Map<Measure, ?> requiredMeasures,
+      Map<Measure, Object> requiredMeasures,
       CalculationParameters parameters,
       ScenarioMarketData marketData,
       ReferenceData refData);

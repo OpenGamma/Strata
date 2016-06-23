@@ -17,6 +17,9 @@ import com.opengamma.strata.calc.Measure;
  * <p>
  * Empty requirements are returned from {@link #requirements}.
  * Subtypes only need to provide an implementation of the {@link #calculate} method.
+ *
+ * @param <T> the type of calculation target handled by the function
+ * @param <R> the type of the measure calculated by the function
  */
 public abstract class AbstractDerivedCalculationFunction<T extends CalculationTarget, R>
     implements DerivedCalculationFunction<T, R> {

@@ -35,11 +35,11 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implements CalculationFunction<T> {
 
   /**
-   * The derive calculation function which calculates one measure.
+   * The derived calculation function which calculates one measure.
    * <p>
    * The inputs to the measure can include measures calculated by the delegate calculation function.
    */
-  private final DerivedCalculationFunction<T, R> calculationFunction;
+  private final DerivedCalculationFunction<T, R> derivedFunction;
 
   /**
    * A calculation function whose results can be used by the derived calculation function.
@@ -63,26 +63,26 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
    * Creates a new function which invokes the delegate function, passes the result to the derived function
    * and returns the combined results.
    *
-   * @param calculationFunction  a function which calculates one measure using the measure values calculated by the other function
+   * @param derivedFunction  a function which calculates one measure using the measure values calculated by the other function
    * @param delegate  a function which calculates multiple measures
    */
   DerivedCalculationFunctionWrapper(
-      DerivedCalculationFunction<T, R> calculationFunction,
+      DerivedCalculationFunction<T, R> derivedFunction,
       CalculationFunction<T> delegate) {
 
-    this.calculationFunction = calculationFunction;
+    this.derivedFunction = derivedFunction;
     this.delegate = delegate;
 
     Set<Measure> delegateMeasures = delegate.supportedMeasures();
-    this.requiredMeasuresSupported = delegateMeasures.containsAll(calculationFunction.requiredMeasures());
+    this.requiredMeasuresSupported = delegateMeasures.containsAll(derivedFunction.requiredMeasures());
     this.supportedMeasures = requiredMeasuresSupported ?
-        ImmutableSet.<Measure>builder().addAll(delegateMeasures).add(calculationFunction.measure()).build() :
+        ImmutableSet.<Measure>builder().addAll(delegateMeasures).add(derivedFunction.measure()).build() :
         delegateMeasures;
   }
 
   @Override
   public Class<T> targetType() {
-    return calculationFunction.targetType();
+    return derivedFunction.targetType();
   }
 
   @Override
@@ -103,7 +103,7 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
       ReferenceData refData) {
 
     FunctionRequirements delegateRequirements = delegate.requirements(target, measures, parameters, refData);
-    FunctionRequirements functionRequirements = calculationFunction.requirements(target, parameters, refData);
+    FunctionRequirements functionRequirements = derivedFunction.requirements(target, parameters, refData);
     return delegateRequirements.combinedWith(functionRequirements);
   }
 
@@ -115,22 +115,15 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
       ScenarioMarketData marketData,
       ReferenceData refData) {
 
-    // Does the caller want the extra measure?
-    boolean measureRequested = measures.contains(calculationFunction.measure());
-
-    // We need to add the measures required to calculate the measure
-    // But we don't need to do that if the delegate can't provide them or if the user hasn't asked for the measure
-    Set<Measure> requiredMeasures = requiredMeasuresSupported && measureRequested ?
-        Sets.union(measures, calculationFunction.requiredMeasures()) :
-        measures;
-
+    // The caller didn't ask for the derived measure so just return the measures calculated by the delegate
+    if (!measures.contains(derivedFunction.measure())) {
+      return delegate.calculate(target, measures, parameters, marketData, refData);
+    }
+    // Add the measures required to calculate the derived measure to the measures requested by the caller
+    Set<Measure> requiredMeasures = Sets.union(measures, derivedFunction.requiredMeasures());
     Map<Measure, Result<?>> delegateResults = delegate.calculate(target, requiredMeasures, parameters, marketData, refData);
 
-    // The user didn't ask for the extra measure so just return the measures calculated by the delegate
-    if (!measureRequested) {
-      return delegateResults;
-    }
-    // Calculate the extra measure provided by calculationFunction
+    // Calculate the derived measure
     Result<?> result = calculateMeasure(target, delegateResults, parameters, marketData, refData);
 
     // The results containing only the requested measures and not including extra measures that were inserted above
@@ -138,11 +131,11 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
     // that don't support that measure.
     Map<Measure, Result<?>> requestedResults = MapStream.of(delegateResults)
         .filterKeys(measures::contains)
-        .filterKeys(measure -> !measure.equals(calculationFunction.measure()))
+        .filterKeys(measure -> !measure.equals(derivedFunction.measure()))
         .toMap();
 
     return ImmutableMap.<Measure, Result<?>>builder()
-        .put(calculationFunction.measure(), result)
+        .put(derivedFunction.measure(), result)
         .putAll(requestedResults)
         .build();
   }
@@ -160,23 +153,23 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
           FailureReason.NOT_APPLICABLE,
           "The delegate function cannot calculate the required measures. Required measures: {}, " +
               "supported measures: {}, delegate {}",
-          calculationFunction.requiredMeasures(),
+          derivedFunction.requiredMeasures(),
           delegate.supportedMeasures(),
           delegate);
     }
-    if (!delegateResults.keySet().containsAll(calculationFunction.requiredMeasures())) {
+    if (!delegateResults.keySet().containsAll(derivedFunction.requiredMeasures())) {
       // There's a bug in the delegate function - it claims to support the required measures but didn't return
       // a result for all of them.
       return Result.failure(
           FailureReason.CALCULATION_FAILED,
           "Delegate did not return the expected measures. Required {}, actual {}, delegate {}",
-          calculationFunction.requiredMeasures(),
+          derivedFunction.requiredMeasures(),
           delegateResults.keySet(),
           delegate);
     }
     // Check whether all the required measures were successfully calculated
     List<Result<?>> failures = MapStream.of(delegateResults)
-        .filterKeys(calculationFunction.requiredMeasures()::contains)
+        .filterKeys(derivedFunction.requiredMeasures()::contains)
         .map(entry -> entry.getValue())
         .filter(result -> result.isFailure())
         .collect(toList());
@@ -185,10 +178,10 @@ class DerivedCalculationFunctionWrapper<T extends CalculationTarget, R> implemen
       return Result.failure(failures);
     }
     // Unwrap the results before passing them to the function
-    Map<Measure, ?> resultValues = MapStream.of(delegateResults)
-        .filterKeys(calculationFunction.requiredMeasures()::contains)
-        .mapValues(result -> result.getValue())
+    Map<Measure, Object> resultValues = MapStream.of(delegateResults)
+        .filterKeys(derivedFunction.requiredMeasures()::contains)
+        .mapValues(result -> (Object) result.getValue()) // This compiler needs this cast. Which seems odd.
         .toMap();
-    return Result.of(() -> calculationFunction.calculate(target, resultValues, parameters, marketData, refData));
+    return Result.of(() -> derivedFunction.calculate(target, resultValues, parameters, marketData, refData));
   }
 }

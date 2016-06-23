@@ -106,7 +106,7 @@ final class DefaultCalculationFunctions
 
     Map<Class<?>, CalculationFunction<?>> allFunctions = new HashMap<>(functions);
     wrappedFunctions.forEach(fn -> allFunctions.put(fn.targetType(), fn));
-    return DefaultCalculationFunctions.of(allFunctions);
+    return CalculationFunctions.of(allFunctions);
   }
 
   @SuppressWarnings("unchecked")

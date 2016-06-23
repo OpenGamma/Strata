@@ -122,7 +122,7 @@ public interface CalculationFunctions {
    * derived calculation functions.
    * <p>
    * Each derived function calculates one measure for one type of target, possibly using other calculated measures
-   * as inputs
+   * as inputs.
    * <p>
    * If any of the derived functions depend on each other they must be passed to this method in the correct
    * order to ensure their dependencies can be satisfied. For example, if there is a derived function
