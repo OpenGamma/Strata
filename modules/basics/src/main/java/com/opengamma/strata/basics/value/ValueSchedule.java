@@ -130,9 +130,6 @@ public final class ValueSchedule
       ValueAdjustment[] expandedSteps = new ValueAdjustment[size];
       for (ValueStep step : steps) {
         int index = step.findIndex(periods);
-        if (index == 0) {
-          throw new IllegalArgumentException("ValueStep is not allowed at the start of the schedule");
-        }
         if (expandedSteps[index] != null && !expandedSteps[index].equals(step.getValue())) {
           throw new IllegalArgumentException("Two ValueStep instances resolve to the same schedule period");
         }

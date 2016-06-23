@@ -155,14 +155,14 @@ public class ValueScheduleTest {
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
-  public void test_resolveValues_indexBased_indexTooBig() {
-    ValueStep step = ValueStep.of(3, ValueAdjustment.ofReplace(300d));
+  public void test_resolveValues_dateBased_indexZeroValid() {
+    ValueStep step = ValueStep.of(date(2014, 1, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
-    assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
+    assertEquals(test.resolveValues(PERIODS), ImmutableList.of(300d, 300d, 300d));
   }
 
-  public void test_resolveValues_dateBased_indexZeroInvalid() {
-    ValueStep step = ValueStep.of(date(2014, 1, 1), ValueAdjustment.ofReplace(300d));
+  public void test_resolveValues_indexBased_indexTooBig() {
+    ValueStep step = ValueStep.of(3, ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
