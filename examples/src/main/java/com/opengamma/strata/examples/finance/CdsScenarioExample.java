@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -95,19 +95,9 @@ public class CdsScenarioExample {
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE));
 
-    // initialise the market data builder for the valuation date
-    LocalDate valuationDate = LocalDate.of(2014, 10, 16);
-    ImmutableMarketDataBuilder baseMarketDataBuilder = ImmutableMarketData.builder(valuationDate);
-
-    // add base yield curves
-    loadBaseYieldCurves(baseMarketDataBuilder);
-
-    // add base credit curves
-    loadBaseSingleNameCreditCurves(baseMarketDataBuilder);
-
-    // build a single market data snapshot for the valuation date
-    // this is the base snapshot which will be perturbed in the scenarios
-    ImmutableMarketData baseMarketData = baseMarketDataBuilder.build();
+    // build the set of market data for base scenario on the valuation date
+    // this is the snapshot which will be perturbed in the scenarios
+    ImmutableMarketData baseMarketData = buildBaseMarketData();
 
     // build scenarios containing credit curve shifts
     ScenarioDefinition scenarios = buildScenarios(baseMarketData);
@@ -143,6 +133,23 @@ public class CdsScenarioExample {
   }
 
   //-------------------------------------------------------------------------
+  // builds the set of market data representing the base scenario
+  private static ImmutableMarketData buildBaseMarketData() {
+
+    // initialise the market data builder for the valuation date
+    LocalDate valuationDate = LocalDate.of(2014, 10, 16);
+    ImmutableMarketDataBuilder baseMarketDataBuilder = ImmutableMarketData.builder(valuationDate);
+
+    // add yield curves
+    loadBaseYieldCurves(baseMarketDataBuilder);
+
+    // add credit curves
+    loadBaseSingleNameCreditCurves(baseMarketDataBuilder);
+
+    // build a single market data snapshot for the valuation date
+    return baseMarketDataBuilder.build();
+  }
+
   // loads the base yield curves from a fixed resource
   private static void loadBaseYieldCurves(ImmutableMarketDataBuilder builder) {
     ResourceLocator resource = ResourceLocator.ofClasspath(MARKET_DATA_RESOURCE_ROOT + "/credit/2014-10-16/cds.yieldCurves.csv");
