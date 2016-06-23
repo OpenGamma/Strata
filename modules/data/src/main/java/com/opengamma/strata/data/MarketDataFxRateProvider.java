@@ -19,6 +19,7 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Provides FX rates from market data.
@@ -33,6 +34,8 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
  * <li>Find the triangulation currency of BBB (TTB), try to return rate from AAA/TTB and TTB/BBB
  * <li>Find the triangulation currency of AAA (TTA) and BBB (TTB), try to return rate from AAA/TTA, TTA/TTB and TTB/BBB
  * </ol>
+ * The triangulation currency can also be specified, which is useful if all
+ * FX rates are supplied relative to a currency other than USD.
  */
 @BeanDefinition(style = "light")
 public final class MarketDataFxRateProvider
@@ -48,6 +51,14 @@ public final class MarketDataFxRateProvider
    */
   @PropertyDefinition(validate = "notNull")
   private final ObservableSource fxRatesSource;
+  /**
+   * The triangulation currency to use.
+   * <p>
+   * If specified, this currency is used to triangulate FX rates in preference to the standard approach.
+   * This would be useful if all FX rates are supplied relative to a currency other than USD.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Currency triangulationCurrency;
 
   //-------------------------------------------------------------------------
   /**
@@ -57,7 +68,7 @@ public final class MarketDataFxRateProvider
    * @return the provider
    */
   public static MarketDataFxRateProvider of(MarketData marketData) {
-    return new MarketDataFxRateProvider(marketData, ObservableSource.NONE);
+    return of(marketData, ObservableSource.NONE);
   }
 
   /**
@@ -71,7 +82,27 @@ public final class MarketDataFxRateProvider
    * @return the provider
    */
   public static MarketDataFxRateProvider of(MarketData marketData, ObservableSource fxRatesSource) {
-    return new MarketDataFxRateProvider(marketData, fxRatesSource);
+    return new MarketDataFxRateProvider(marketData, fxRatesSource, null);
+  }
+
+  /**
+   * Obtains an instance which takes FX rates from the market data,
+   * specifying the source of FX rates.
+   * <p>
+   * The source of FX rates is rarely needed, as most applications only need one set of FX rates.
+   *
+   * @param marketData  market data used for looking up FX rates
+   * @param fxRatesSource  the source of market data for FX rates
+   * @param triangulationCurrency  the triangulation currency to use
+   * @return the provider
+   */
+  public static MarketDataFxRateProvider of(
+      MarketData marketData,
+      ObservableSource fxRatesSource,
+      Currency triangulationCurrency) {
+
+    ArgChecker.notNull(triangulationCurrency, "triangulationCurrency");
+    return new MarketDataFxRateProvider(marketData, fxRatesSource, triangulationCurrency);
   }
 
   //-------------------------------------------------------------------------
@@ -84,6 +115,14 @@ public final class MarketDataFxRateProvider
     Optional<FxRate> rate = marketData.findValue(FxRateId.of(baseCurrency, counterCurrency, fxRatesSource));
     if (rate.isPresent()) {
       return rate.get().fxRate(baseCurrency, counterCurrency);
+    }
+    // try specified triangulation currency
+    if (triangulationCurrency != null) {
+      Optional<FxRate> rateBase1 = marketData.findValue(FxRateId.of(baseCurrency, triangulationCurrency, fxRatesSource));
+      Optional<FxRate> rateBase2 = marketData.findValue(FxRateId.of(triangulationCurrency, counterCurrency, fxRatesSource));
+      if (rateBase1.isPresent() && rateBase2.isPresent()) {
+        return rateBase1.get().crossRate(rateBase2.get()).fxRate(baseCurrency, counterCurrency);
+      }
     }
     // Try triangulation on base currency
     Currency triangularBaseCcy = baseCurrency.getTriangulationCurrency();
@@ -132,11 +171,13 @@ public final class MarketDataFxRateProvider
 
   private MarketDataFxRateProvider(
       MarketData marketData,
-      ObservableSource fxRatesSource) {
+      ObservableSource fxRatesSource,
+      Currency triangulationCurrency) {
     JodaBeanUtils.notNull(marketData, "marketData");
     JodaBeanUtils.notNull(fxRatesSource, "fxRatesSource");
     this.marketData = marketData;
     this.fxRatesSource = fxRatesSource;
+    this.triangulationCurrency = triangulationCurrency;
   }
 
   @Override
@@ -173,6 +214,18 @@ public final class MarketDataFxRateProvider
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the triangulation currency to use.
+   * <p>
+   * If specified, this currency is used to triangulate FX rates in preference to the standard approach.
+   * This would be useful if all FX rates are supplied relative to a currency other than USD.
+   * @return the optional value of the property, not null
+   */
+  public Optional<Currency> getTriangulationCurrency() {
+    return Optional.ofNullable(triangulationCurrency);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -181,7 +234,8 @@ public final class MarketDataFxRateProvider
     if (obj != null && obj.getClass() == this.getClass()) {
       MarketDataFxRateProvider other = (MarketDataFxRateProvider) obj;
       return JodaBeanUtils.equal(marketData, other.marketData) &&
-          JodaBeanUtils.equal(fxRatesSource, other.fxRatesSource);
+          JodaBeanUtils.equal(fxRatesSource, other.fxRatesSource) &&
+          JodaBeanUtils.equal(triangulationCurrency, other.triangulationCurrency);
     }
     return false;
   }
@@ -191,15 +245,17 @@ public final class MarketDataFxRateProvider
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(marketData);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxRatesSource);
+    hash = hash * 31 + JodaBeanUtils.hashCode(triangulationCurrency);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("MarketDataFxRateProvider{");
     buf.append("marketData").append('=').append(marketData).append(',').append(' ');
-    buf.append("fxRatesSource").append('=').append(JodaBeanUtils.toString(fxRatesSource));
+    buf.append("fxRatesSource").append('=').append(fxRatesSource).append(',').append(' ');
+    buf.append("triangulationCurrency").append('=').append(JodaBeanUtils.toString(triangulationCurrency));
     buf.append('}');
     return buf.toString();
   }
