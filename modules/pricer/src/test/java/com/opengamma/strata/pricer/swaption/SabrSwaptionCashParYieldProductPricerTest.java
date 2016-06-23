@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
@@ -236,16 +235,6 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_cash_settlement() {
     assertThrowsIllegalArg(() -> PRICER.presentValue(SWAPTION_PHYS, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
-  public void no_pv_gamma() {
-    assertThrowsWithCause(() -> PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
-  }
-
-  public void no_pv_theta() {
-    assertThrowsWithCause(() -> PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------
