@@ -110,7 +110,7 @@ final class DefaultCalculationFunctions
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends CalculationTarget, R> CalculationFunction<? super T> wrap(
+  private <T extends CalculationTarget, R> CalculationFunction<?> wrap(
       Class<?> targetType,
       List<DerivedCalculationFunction<?, ?>> derivedFunctions) {
 
