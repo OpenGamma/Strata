@@ -132,9 +132,12 @@ public class CdsScenarioExample {
     CurrencyValuesArray pvVector = (CurrencyValuesArray) results.get(0, 0).getValue();
     outputCurrencyValues("PVs", pvVector);
 
+    // transform the present values into P&Ls, sorted from greatest loss to greatest profit
     CurrencyValuesArray pnlVector = getSortedPnls(pvVector);
     outputCurrencyValues("Scenario PnLs", pnlVector);
 
+    // use a built-in utility to calculate VaR
+    // since the P&Ls are sorted starting with the greatest loss, the 95% greatest loss occurs at the 5% position
     double var95 = SampleInterpolationQuantileMethod.DEFAULT.quantileFromUnsorted(0.05, pnlVector.getValues());
     System.out.println(Messages.format("95% VaR: {}", var95));
   }
