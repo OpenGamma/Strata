@@ -35,6 +35,7 @@ import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
 import com.opengamma.strata.calc.Results;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
+import com.opengamma.strata.calc.marketdata.MarketDataFilter;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.PerturbationMapping;
 import com.opengamma.strata.calc.marketdata.ScenarioDefinition;
@@ -53,7 +54,6 @@ import com.opengamma.strata.market.curve.CurvePointShiftsBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
-import com.opengamma.strata.measure.curve.CurveNameFilter;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -165,17 +165,17 @@ public class HistoricalScenarioExample {
     // to be applied to the correct curves
     PerturbationMapping<Curve> discountCurveMappings = PerturbationMapping.of(
         Curve.class,
-        CurveNameFilter.of(CurveName.of("USD-Disc")),
+        MarketDataFilter.ofName(CurveName.of("USD-Disc")),
         buildShifts(usdDiscountCurves));
 
     PerturbationMapping<Curve> libor3mMappings = PerturbationMapping.of(
         Curve.class,
-        CurveNameFilter.of(CurveName.of("USD-3ML")),
+        MarketDataFilter.ofName(CurveName.of("USD-3ML")),
         buildShifts(libor3mCurves));
 
     PerturbationMapping<Curve> libor6mMappings = PerturbationMapping.of(
         Curve.class,
-        CurveNameFilter.of(CurveName.of("USD-6ML")),
+        MarketDataFilter.ofName(CurveName.of("USD-6ML")),
         buildShifts(libor6mCurves));
 
     // create a scenario definition from these mappings
