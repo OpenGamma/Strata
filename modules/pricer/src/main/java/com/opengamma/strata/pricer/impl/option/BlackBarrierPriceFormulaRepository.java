@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution;
 import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.strata.product.fx.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.fxopt.SimpleConstantContinuousBarrier;
 
 /**
  * The price function to compute the price of barrier option in the Black world.

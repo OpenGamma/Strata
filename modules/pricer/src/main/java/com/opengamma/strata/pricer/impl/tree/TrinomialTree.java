@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.impl.tree;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.pricer.fx.RecombiningTrinomialTreeData;
+import com.opengamma.strata.pricer.fxopt.RecombiningTrinomialTreeData;
 
 /**
  * Trinomial tree.
