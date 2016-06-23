@@ -7,6 +7,8 @@ package com.opengamma.strata.calc.marketdata;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.data.NamedMarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
@@ -25,6 +27,37 @@ import com.opengamma.strata.data.scenario.ScenarioPerturbation;
  */
 public interface MarketDataFilter<T, I extends MarketDataId<T>> {
 
+  /**
+   * Obtains a filter that matches any value with the specified identifier type.
+   *
+   * @param type  the type that is matched by this filter
+   * @return a filter matching the specified type
+   */
+  public static <T> MarketDataFilter<T, MarketDataId<T>> ofIdType(Class<? extends MarketDataId<T>> type) {
+    return new IdTypeFilter<T>(type);
+  }
+
+  /**
+   * Obtains a filter that matches the specified identifier.
+   *
+   * @param id  the identifier that is matched by this filter
+   * @return a filter matching the specified identifier
+   */
+  public static <T> MarketDataFilter<T, MarketDataId<T>> ofId(MarketDataId<T> id) {
+    return new IdFilter<T>(id);
+  }
+
+  /**
+   * Obtains a filter that matches the specified name.
+   *
+   * @param name  the name that is matched by this filter
+   * @return a filter matching the specified name
+   */
+  public static <T> MarketDataFilter<T, NamedMarketDataId<T>> ofName(MarketDataName<T> name) {
+    return new NameFilter<T>(name);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the type of market data ID handled by this filter.
    * <p>
