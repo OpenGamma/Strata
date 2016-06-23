@@ -144,11 +144,11 @@ public final class NormalSwaptionExpiryTenorVolatilities
     ArgChecker.notNull(surface, "surface");
     ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     surface.getMetadata().getXValueType().checkEquals(
-        ValueType.YEAR_FRACTION, "Incorrect x-value type for Black volatilities");
+        ValueType.YEAR_FRACTION, "Incorrect x-value type for Normal volatilities");
     surface.getMetadata().getYValueType().checkEquals(
-        ValueType.YEAR_FRACTION, "Incorrect y-value type for Black volatilities");
+        ValueType.YEAR_FRACTION, "Incorrect y-value type for Normal volatilities");
     surface.getMetadata().getZValueType().checkEquals(
-        ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Black volatilities");
+        ValueType.NORMAL_VOLATILITY, "Incorrect z-value type for Normal volatilities");
     FixedIborSwapConvention swapConvention = surface.getMetadata().findInfo(SurfaceInfoType.SWAP_CONVENTION)
         .orElseThrow(() -> new IllegalArgumentException("Incorrect surface metadata, missing swap convention"));
     DayCount dayCount = surface.getMetadata().findInfo(SurfaceInfoType.DAY_COUNT)
