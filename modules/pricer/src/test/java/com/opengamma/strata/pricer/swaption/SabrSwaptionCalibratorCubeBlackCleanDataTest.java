@@ -219,9 +219,9 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     List<DoubleArray> nuJacobian = calibrated.getDataSensitivityNu().get();
 
     int surfacePointIndex = 0;
-    for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
-      double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
-      for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
+    for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
+      for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
+        double tenor = TENORS.get(looptenor).get(ChronoUnit.YEARS);
         LocalDate expiry = EUR_FIXED_1Y_EURIBOR_6M.getFloatingLeg().getStartDateBusinessDayAdjustment()
             .adjust(CALIBRATION_DATE.plus(EXPIRIES.get(loopexpiry)), REF_DATA);
         ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));

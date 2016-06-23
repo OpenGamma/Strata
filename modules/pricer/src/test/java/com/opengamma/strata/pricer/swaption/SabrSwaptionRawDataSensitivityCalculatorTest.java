@@ -180,14 +180,14 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
       List<RawOptionData> dataRaw) {
     PointSensitivities points =
         LEG_PRICER.presentValueSensitivitySabrParameter(FLOOR_LEG, MULTICURVE, sabrCalibrated).build();
-    CurrencyParameterSensitivities sabrParametersSurfaceSensitivities = sabrCalibrated.parameterSensitivity(points);    
+    CurrencyParameterSensitivities sabrParametersSurfaceSensitivities = sabrCalibrated.parameterSensitivity(points);
     CurrencyParameterSensitivity parallelSensitivitiesSurface =
-        RDSC.parallelSensitivity(sabrParametersSurfaceSensitivities, sabrCalibrated);        
+        RDSC.parallelSensitivity(sabrParametersSurfaceSensitivities, sabrCalibrated);
     DoubleArray sensitivityArray = parallelSensitivitiesSurface.getSensitivity();
-    double fdShift = 1.0E-6;    
+    double fdShift = 1.0E-6;
     int surfacePointIndex = 0;
-    for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
-      for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
+    for (int loopexpiry = 0; loopexpiry < EXPIRIES.size(); loopexpiry++) {
+      for (int looptenor = 0; looptenor < TENORS.size(); looptenor++) {
         Pair<DoubleArray, DoubleArray> ds = dataRaw.get(looptenor).availableSmileAtExpiry(EXPIRIES.get(loopexpiry));
         if (!ds.getFirst().isEmpty()) {
           double[] pv = new double[2]; // pv with shift up and down
