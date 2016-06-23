@@ -333,28 +333,28 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup_no_fixing() throws IOException {
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, ALL_QUOTES_BD, REF_DATA, TS_EMPTY);
-    assertResult(result, VAL_DATE_BD);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES_BD, REF_DATA, TS_EMPTY);
+    assertResult(result);
   }
   
   public void calibration_present_value_oneGroup_fixing() {
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, ALL_QUOTES_BD, REF_DATA, TS_BD_LIBOR3M);
-    assertResult(result, VAL_DATE_BD);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES_BD, REF_DATA, TS_BD_LIBOR3M);
+    assertResult(result);
   }
 
   public void calibration_present_value_twoGroups() {
     ImmutableRatesProvider result =
         CALIBRATOR.calibrate(ImmutableList.of(GROUP_1, GROUP_2), KNOWN_DATA, ALL_QUOTES_BD, REF_DATA);
-    assertResult(result, VAL_DATE_BD);
+    assertResult(result);
   }
 
-  private void assertResult(RatesProvider result, LocalDate valDate) {
+  private void assertResult(RatesProvider result) {
     // Test PV Dsc
     CurveNode[] dscNodes = CURVES_NODES.get(0).get(0);
     List<ResolvedTrade> dscTrades = new ArrayList<>();
     for (int i = 0; i < dscNodes.length; i++) {
-      dscTrades.add(dscNodes[i].resolvedTrade(valDate, 1d, ALL_QUOTES_BD, REF_DATA));
+      dscTrades.add(dscNodes[i].resolvedTrade(1d, ALL_QUOTES_BD, REF_DATA));
     }
     // Depo
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
@@ -372,7 +372,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(valDate, 1d, ALL_QUOTES_BD, REF_DATA));
+      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(1d, ALL_QUOTES_BD, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing = FIXING_PRICER.presentValue(
@@ -395,14 +395,14 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
   public void calibration_market_quote_sensitivity_one_group_no_fixing() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, marketData, REF_DATA, TS_EMPTY);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, marketData, REF_DATA, TS_EMPTY);
     calibration_market_quote_sensitivity_check(f, CURVE_GROUP_CONFIG, shift, TS_EMPTY);
   }
 
   public void calibration_market_quote_sensitivity_one_group_fixing() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, marketData, REF_DATA, TS_BD_LIBOR3M);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, marketData, REF_DATA, TS_BD_LIBOR3M);
     calibration_market_quote_sensitivity_check(f, CURVE_GROUP_CONFIG, shift, TS_BD_LIBOR3M);
   }
 
@@ -415,7 +415,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
     double rate = 0.0400;
     SwapTrade trade = FixedIborSwapConventions.USD_FIXED_1Y_LIBOR_3M.createTrade(
         VAL_DATE_BD, Period.ofMonths(6), Tenor.TENOR_7Y, BuySell.BUY, notional, rate, REF_DATA);
-    RatesProvider result = CALIBRATOR.calibrate(config, VAL_DATE_BD, ALL_QUOTES_BD, REF_DATA, ts);
+    RatesProvider result = CALIBRATOR.calibrate(config, ALL_QUOTES_BD, REF_DATA, ts);
     ResolvedSwap product = trade.getProduct().resolve(REF_DATA);
     PointSensitivityBuilder pts = SWAP_PRICER.presentValueSensitivity(product, result);
     CurrencyParameterSensitivities ps = result.parameterSensitivity(pts.build());
@@ -454,7 +454,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         RatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE_BD, ALL_QUOTES_BD, REF_DATA, TS_EMPTY);
+            CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES_BD, REF_DATA, TS_EMPTY);
         count += result.getValuationDate().getDayOfMonth();
       }
       endTime = System.currentTimeMillis();

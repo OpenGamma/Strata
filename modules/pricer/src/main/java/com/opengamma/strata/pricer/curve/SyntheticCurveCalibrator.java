@@ -118,7 +118,6 @@ public final class SyntheticCurveCalibrator {
       RatesProvider inputProvider,
       ReferenceData refData) {
 
-    LocalDate valuationDate = inputProvider.getValuationDate();
     // Computes the synthetic market quotes
     MarketData marketQuotesSy = marketData(group, inputProvider, refData);
     // Retrieve the required time series if present in the original provider
@@ -134,7 +133,7 @@ public final class SyntheticCurveCalibrator {
       }
     }
     // Calibrate to the synthetic instrument with the synthetic quotes
-    return calibrator.calibrate(group, valuationDate, marketQuotesSy, refData, ts);
+    return calibrator.calibrate(group, marketQuotesSy, refData, ts);
   }
 
   /**
@@ -168,7 +167,7 @@ public final class SyntheticCurveCalibrator {
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(valuationDate, 1d, marketQuotes0, refData);
+        ResolvedTrade trade = node.resolvedTrade(1d, marketQuotes0, refData);
         double mq = measures.value(trade, inputProvider);
         MarketDataId<?> k = node.requirements().iterator().next();
         mapIdSy.put(k, mq);

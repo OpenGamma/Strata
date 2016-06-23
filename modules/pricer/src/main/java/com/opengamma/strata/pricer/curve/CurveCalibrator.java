@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.curve;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -182,11 +181,11 @@ public final class CurveCalibrator {
    * <p>
    * The calibration is defined using {@link CurveGroupDefinition}.
    * Observable market data, time-series and FX are also needed to complete the calibration.
+   * The valuation date is defined by the market data.
    * <p>
    * The Jacobian matrices are computed and stored in curve metadata.
    *
    * @param curveGroupDefn  the curve group definition
-   * @param valuationDate  the validation date
    * @param marketData  the market data required to build a trade for the instrument
    * @param refData  the reference data, used to resolve the trades
    * @param timeSeries  the time-series
@@ -194,12 +193,11 @@ public final class CurveCalibrator {
    */
   public ImmutableRatesProvider calibrate(
       CurveGroupDefinition curveGroupDefn,
-      LocalDate valuationDate,
       MarketData marketData,
       ReferenceData refData,
       Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
 
-    ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(valuationDate)
+    ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(marketData.getValuationDate())
         .fxRateProvider(MarketDataFxRateProvider.of(marketData))
         .timeSeries(timeSeries)
         .build();
@@ -226,14 +224,18 @@ public final class CurveCalibrator {
       MarketData marketData,
       ReferenceData refData) {
 
+    if (!knownData.getValuationDate().equals(marketData.getValuationDate())) {
+      throw new IllegalArgumentException(Messages.format(
+          "Valuation dates do not match: {} and {}", knownData.getValuationDate(), marketData.getValuationDate()));
+    }
     // perform calibration one group at a time, building up the result by mutating these variables
     ImmutableRatesProvider providerCombined = knownData;
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (CurveGroupDefinition groupDefn : allGroupsDefn) {
       // combine all data in the group into flat lists
-      ImmutableList<ResolvedTrade> trades = groupDefn.resolvedTrades(knownData.getValuationDate(), marketData, refData);
-      ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(knownData.getValuationDate(), marketData);
+      ImmutableList<ResolvedTrade> trades = groupDefn.resolvedTrades(marketData, refData);
+      ImmutableList<Double> initialGuesses = groupDefn.initialGuesses(marketData);
       ImmutableList<CurveParameterSize> orderGroup = toOrder(groupDefn);
       ImmutableList<CurveParameterSize> orderPrevAndGroup = ImmutableList.<CurveParameterSize>builder()
           .addAll(orderPrev)

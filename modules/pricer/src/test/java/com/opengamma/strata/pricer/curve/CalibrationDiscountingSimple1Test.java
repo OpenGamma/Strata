@@ -188,12 +188,12 @@ public class CalibrationDiscountingSimple1Test {
   //-------------------------------------------------------------------------
   public void calibration_present_value() {
     RatesProvider result2 =
-        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA, TS);
     // Test PV
     CurveNode[] fwd3Nodes = CURVES_NODES.get(0).get(0);
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < fwd3Nodes.length; i++) {
-      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      fwd3Trades.add(fwd3Nodes[i].resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing2 = FIXING_PRICER.presentValue(
@@ -225,7 +225,7 @@ public class CalibrationDiscountingSimple1Test {
       startTime = System.currentTimeMillis();
       for (int looprep = 0; looprep < nbTests; looprep++) {
         RatesProvider result =
-            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+            CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA, TS);
         count += result.getValuationDate().getDayOfMonth();
       }
       endTime = System.currentTimeMillis();

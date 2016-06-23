@@ -158,23 +158,18 @@ public final class IborFutureCurveNode
   }
 
   @Override
-  public IborFutureTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public IborFutureTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     double price = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(valuationDate, quantity, 1d, price, refData);
+    return template.createTrade(marketData.getValuationDate(), quantity, 1d, price, refData);
   }
 
   @Override
-  public ResolvedIborFutureTrade resolvedTrade(
-      LocalDate valuationDate,
-      double quantity,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
+  public ResolvedIborFutureTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(quantity, marketData, refData).resolve(refData);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
+  public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
       return 1d - marketData.getValue(rateId);
     }

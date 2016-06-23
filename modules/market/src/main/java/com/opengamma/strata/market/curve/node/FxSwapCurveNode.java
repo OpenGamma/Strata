@@ -173,26 +173,21 @@ public final class FxSwapCurveNode
   }
 
   @Override
-  public FxSwapTrade trade(LocalDate valuationDate, double quantity, MarketData marketData, ReferenceData refData) {
+  public FxSwapTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
     double fxPts = marketData.getValue(farForwardPointsId);
     BuySell buySell = quantity > 0 ? BuySell.BUY : BuySell.SELL;
-    return template.createTrade(valuationDate, buySell, Math.abs(quantity), rate, fxPts, refData);
+    return template.createTrade(marketData.getValuationDate(), buySell, Math.abs(quantity), rate, fxPts, refData);
   }
 
   @Override
-  public ResolvedFxSwapTrade resolvedTrade(
-      LocalDate valuationDate,
-      double quantity,
-      MarketData marketData,
-      ReferenceData refData) {
-
-    return trade(valuationDate, quantity, marketData, refData).resolve(refData);
+  public ResolvedFxSwapTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+    return trade(quantity, marketData, refData).resolve(refData);
   }
 
   @Override
-  public double initialGuess(LocalDate valuationDate, MarketData marketData, ValueType valueType) {
+  public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
       return 1d;
     }

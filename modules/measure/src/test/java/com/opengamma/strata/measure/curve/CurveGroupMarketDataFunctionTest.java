@@ -133,7 +133,7 @@ public class CurveGroupMarketDataFunctionTest {
     RatesProvider ratesProvider = lookup.ratesProvider(scenarioMarketData.scenario(0));
 
     // The PV should be zero for an instrument used to build the curve
-    nodes.stream().forEach(node -> checkFraPvIsZero(node, valuationDate, ratesProvider, marketData));
+    nodes.stream().forEach(node -> checkFraPvIsZero(node, ratesProvider, marketData));
   }
 
   public void roundTripFraAndFixedFloatSwap() {
@@ -176,11 +176,11 @@ public class CurveGroupMarketDataFunctionTest {
     RatesMarketDataLookup lookup = RatesMarketDataLookup.of(groupDefn);
     RatesProvider ratesProvider = lookup.ratesProvider(scenarioMarketData.scenario(0));
 
-    checkFraPvIsZero((FraCurveNode) nodes.get(0), valuationDate, ratesProvider, marketData);
-    checkFraPvIsZero((FraCurveNode) nodes.get(1), valuationDate, ratesProvider, marketData);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(2), valuationDate, ratesProvider, marketData);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(3), valuationDate, ratesProvider, marketData);
-    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(4), valuationDate, ratesProvider, marketData);
+    checkFraPvIsZero((FraCurveNode) nodes.get(0), ratesProvider, marketData);
+    checkFraPvIsZero((FraCurveNode) nodes.get(1), ratesProvider, marketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(2), ratesProvider, marketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(3), ratesProvider, marketData);
+    checkSwapPvIsZero((FixedIborSwapCurveNode) nodes.get(4), ratesProvider, marketData);
   }
 
   /**
@@ -357,11 +357,10 @@ public class CurveGroupMarketDataFunctionTest {
 
   private void checkFraPvIsZero(
       FraCurveNode node,
-      LocalDate valuationDate,
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    ResolvedFraTrade trade = node.resolvedTrade(valuationDate, 1d, marketDataMap, REF_DATA);
+    ResolvedFraTrade trade = node.resolvedTrade(1d, marketDataMap, REF_DATA);
     CurrencyAmount currencyAmount = DiscountingFraTradePricer.DEFAULT.presentValue(trade, ratesProvider);
     double pv = currencyAmount.getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));
@@ -369,11 +368,10 @@ public class CurveGroupMarketDataFunctionTest {
 
   private void checkSwapPvIsZero(
       FixedIborSwapCurveNode node,
-      LocalDate valuationDate,
       RatesProvider ratesProvider,
       MarketData marketDataMap) {
 
-    ResolvedSwapTrade trade = node.resolvedTrade(valuationDate, 1d, marketDataMap, REF_DATA);
+    ResolvedSwapTrade trade = node.resolvedTrade(1d, marketDataMap, REF_DATA);
     MultiCurrencyAmount amount = DiscountingSwapTradePricer.DEFAULT.presentValue(trade, ratesProvider);
     double pv = amount.getAmount(Currency.USD).getAmount();
     assertThat(pv).isCloseTo(0, offset(PV_TOLERANCE));

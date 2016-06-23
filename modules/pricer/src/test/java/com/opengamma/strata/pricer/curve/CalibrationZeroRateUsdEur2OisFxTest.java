@@ -221,7 +221,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
     assertPresentValue(result);
   }
   
@@ -229,7 +229,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // Test PV USD;
     List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (int i = 0; i < USD_DSC_NODES.length; i++) {
-      usdTrades.add(USD_DSC_NODES[i].resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      usdTrades.add(USD_DSC_NODES[i].resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < USD_DSC_NB_DEPO_NODES; i++) {
@@ -246,7 +246,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     // Test PV EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (int i = 0; i < EUR_DSC_NODES.length; i++) {
-      eurTrades.add(EUR_DSC_NODES[i].resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      eurTrades.add(EUR_DSC_NODES[i].resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
@@ -259,7 +259,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
-        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ov, REF_DATA, TS);
+        ov -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ov, REF_DATA, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -274,7 +274,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
         .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts, REF_DATA)
         .resolve(REF_DATA);
     RatesProvider result =
-        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurrencyParameterSensitivities ps = result.parameterSensitivity(pts);
     CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);

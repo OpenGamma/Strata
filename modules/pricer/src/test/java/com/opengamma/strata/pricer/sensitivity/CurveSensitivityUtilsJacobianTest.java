@@ -90,7 +90,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_1_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_1_FILE)).get(0);
   private static final RatesProvider MULTICURVE_EUR_SINGLE_CALIBRATED =
-      CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN_1, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
   public static final CalibrationMeasures MARKET_QUOTE = CalibrationMeasures.MARKET_QUOTE;
   
@@ -210,7 +210,7 @@ public class CurveSensitivityUtilsJacobianTest {
     }
     ImmutableMarketData marketQuotesObject = ImmutableMarketData.of(VALUATION_DATE, mqCmp);
     RatesProvider multicurveCmp =
-        CALIBRATOR.calibrate(GROUPS_IN_1, VALUATION_DATE, marketQuotesObject, REF_DATA, TS_EMPTY);
+        CALIBRATOR.calibrate(GROUPS_IN_1, marketQuotesObject, REF_DATA, TS_EMPTY);
 
     /* Comparison */
     DoubleMatrix jiComputed =
@@ -240,7 +240,7 @@ public class CurveSensitivityUtilsJacobianTest {
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_2_FILE),
           ResourceLocator.of(CONFIG_PATH + NODES_IN_2_FILE)).get(0);
   private static final RatesProvider MULTICURVE_EUR_2_CALIBRATED =
-      CALIBRATOR.calibrate(GROUPS_IN_2, VALUATION_DATE, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
+      CALIBRATOR.calibrate(GROUPS_IN_2, MARKET_QUOTES_INPUT, REF_DATA, TS_EMPTY);
   
 
   private static final Tenor[] TENORS_STD_2_OIS = new Tenor[] {
