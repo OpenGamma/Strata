@@ -204,7 +204,7 @@ public class CdsScenarioExample {
     // we could add perturbations to other pieces of market data by continuing to add to the perturbations list
     // each perturbation mapping must contain shifts for the same number of scenarios
 
-    // together the perturbations to the items of market data define a scenario
+    // together the perturbations to the items of market data define the complete set of scenarios
     return ScenarioDefinition.ofMappings(perturbations);
   }
 
