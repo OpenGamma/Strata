@@ -6,6 +6,10 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.ATM_LOGNORMAL_SIMPLE;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES_SIMPLE_2;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS_SIMPLE;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DATA_LOGNORMAL_ATM_SIMPLE;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -54,6 +58,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -117,8 +122,10 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  private static final SwaptionVolatilitiesName NAME_SABR = SwaptionVolatilitiesName.of("Calibrated-SABR");
 
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 1.0E-3; // Calibration Least Square; result not exact
+  private static final double TOLERANCE_PRICE_CALIBRATION_ROOT = 1.0E-6; // Calibration root finding
   private static final double TOLERANCE_PARAM_SENSITIVITY = 4.0E-2;
   private static final double TOLERANCE_EXPIRY = 1.0E-6;
 
@@ -134,7 +141,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        SwaptionVolatilitiesName.of("Calibrated-SABR"),
+        NAME_SABR,
         EUR_FIXED_1Y_EURIBOR_6M,
         CALIBRATION_TIME,
         ACT_365F,
@@ -172,6 +179,54 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
     }
   }
 
+  @Test(enabled = true)
+  public void log_normal_atm() {
+    double beta = 0.50;
+    Surface betaSurface = ConstantSurface.of("Beta", beta)
+        .withMetadata(DefaultSurfaceMetadata.builder()
+            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
+            .zValueType(ValueType.SABR_BETA).surfaceName("Beta").build());
+    double shift = 0.0000;
+    Surface shiftSurface = ConstantSurface.of("Shift", shift)
+        .withMetadata(DefaultSurfaceMetadata.builder()
+            .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
+    SabrParametersSwaptionVolatilities calibratedSmile = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
+        NAME_SABR,
+        EUR_FIXED_1Y_EURIBOR_6M,
+        CALIBRATION_TIME,
+        ACT_365F,
+        TENORS,
+        DATA_SPARSE,
+        MULTICURVE,
+        betaSurface,
+        shiftSurface,
+        INTERPOLATOR_2D);
+
+    SabrParametersSwaptionVolatilities calibratedAtm = SABR_CALIBRATION.calibrateAlphaWithAtm(NAME_SABR, 
+        calibratedSmile, MULTICURVE, ATM_LOGNORMAL_SIMPLE, TENORS_SIMPLE, EXPIRIES_SIMPLE_2, INTERPOLATOR_2D);
+    int nbExp = EXPIRIES_SIMPLE_2.size();
+    int nbTenor = TENORS_SIMPLE.size();
+    for (int loopexpiry = 0; loopexpiry < nbExp; loopexpiry++) {
+      for (int looptenor = 0; looptenor < nbTenor; looptenor++) {
+        double tenor = TENORS_SIMPLE.get(looptenor).get(ChronoUnit.YEARS);
+        LocalDate expiry = EUR_FIXED_1Y_EURIBOR_6M.getFloatingLeg().getStartDateBusinessDayAdjustment()
+            .adjust(CALIBRATION_DATE.plus(EXPIRIES_SIMPLE_2.get(loopexpiry)), REF_DATA);
+        LocalDate effectiveDate = EUR_FIXED_1Y_EURIBOR_6M.calculateSpotDateFromTradeDate(expiry, REF_DATA);
+        LocalDate endDate = effectiveDate.plus(TENORS_SIMPLE.get(looptenor));
+        SwapTrade swap = EUR_FIXED_1Y_EURIBOR_6M
+            .toTrade(CALIBRATION_DATE, effectiveDate, endDate, BuySell.BUY, 1.0, 0.0);
+        double parRate = SWAP_PRICER.parRate(swap.resolve(REF_DATA).getProduct(), MULTICURVE);
+        ZonedDateTime expiryDateTime = expiry.atTime(11, 0).atZone(ZoneId.of("Europe/Berlin"));
+        double time = calibratedAtm.relativeTime(expiryDateTime);
+        double volBlack = calibratedAtm.volatility(expiryDateTime, tenor, parRate, parRate);
+        double priceComputed = calibratedAtm.price(time, tenor, PutCall.CALL, parRate, parRate, volBlack);
+        double priceBlack = BlackFormulaRepository.price(parRate, parRate, time,
+            DATA_LOGNORMAL_ATM_SIMPLE[looptenor + loopexpiry * nbTenor], true);
+        assertEquals(priceComputed, priceBlack, TOLERANCE_PRICE_CALIBRATION_ROOT);
+      }
+    }
+  }
+
 
   /**
    * Check that the sensitivities of parameters with respect to data is stored in the metadata.
@@ -190,7 +245,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         .withMetadata(DefaultSurfaceMetadata.builder()
             .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION).surfaceName("Shift").build());
     SabrParametersSwaptionVolatilities calibrated = SABR_CALIBRATION.calibrateWithFixedBetaAndShift(
-        SwaptionVolatilitiesName.of("Calibrated-SABR"),
+        NAME_SABR,
         EUR_FIXED_1Y_EURIBOR_6M,
         CALIBRATION_TIME,
         ACT_365F,

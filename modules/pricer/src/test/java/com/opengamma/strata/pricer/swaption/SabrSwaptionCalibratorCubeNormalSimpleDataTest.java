@@ -13,7 +13,7 @@ import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES_SIM
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES_SIMPLE_2;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS_SIMPLE;
-import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.ATM_SIMPLE;
+import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.ATM_NORMAL_SIMPLE;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DATA_DATE;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DATA_TIME;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
@@ -108,7 +108,7 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
   private static final SwaptionVolatilitiesName NAME_SABR = SwaptionVolatilitiesName.of("Calibrated-SABR");
 
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 5.0E-4; // Calibration Least Square; result not exact
-  private static final double TOLERANCE_PRICE_CALIBRATION_ROOT = 1.0E-6; // Calibration Least Square; result not exact
+  private static final double TOLERANCE_PRICE_CALIBRATION_ROOT = 1.0E-6; // Calibration root finding
   private static final double TOLERANCE_PARAM_SENSITIVITY = 3.0E-2;
   private static final double TOLERANCE_PARAM_SENSITIVITY_NU = 9.0E-2;
   private static final double TOLERANCE_EXPIRY = 1.0E-6;
@@ -171,8 +171,8 @@ public class SabrSwaptionCalibratorCubeNormalSimpleDataTest {
         EUR_FIXED_1Y_EURIBOR_6M, CALIBRATION_TIME, DAY_COUNT, TENORS_SIMPLE, DATA_SIMPLE,
         MULTICURVE, betaSurface, shiftSurface, INTERPOLATOR_2D);
     SabrParametersSwaptionVolatilities calibratedAtm =
-        SABR_CALIBRATION.calibrateAlphaWithAtm(NAME_SABR, calibratedSmile, MULTICURVE, TENORS_SIMPLE, EXPIRIES_SIMPLE_2,
-            INTERPOLATOR_2D, ATM_SIMPLE);
+        SABR_CALIBRATION.calibrateAlphaWithAtm(NAME_SABR, calibratedSmile, MULTICURVE, ATM_NORMAL_SIMPLE, TENORS_SIMPLE,
+            EXPIRIES_SIMPLE_2, INTERPOLATOR_2D);
     int nbExp = EXPIRIES_SIMPLE_2.size();
     int nbTenor = TENORS_SIMPLE.size();
     for (int loopexpiry = 0; loopexpiry < nbExp; loopexpiry++) {
