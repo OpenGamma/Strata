@@ -50,7 +50,7 @@ public class EvaluationResult {
    */
   public static EvaluationResult failure(String message, Object... messageValues) {
     String msg = Messages.format(message, messageValues);
-    return new EvaluationResult(Result.failure(FailureReason.INVALID_INPUT, msg), ImmutableList.of());
+    return new EvaluationResult(Result.failure(FailureReason.INVALID, msg), ImmutableList.of());
   }
 
   /**

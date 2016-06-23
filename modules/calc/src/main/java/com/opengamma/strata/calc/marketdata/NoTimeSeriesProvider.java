@@ -23,7 +23,10 @@ class NoTimeSeriesProvider implements TimeSeriesProvider {
 
   @Override
   public Result<LocalDateDoubleTimeSeries> provideTimeSeries(ObservableId id) {
-    return Result.failure(FailureReason.MISSING_DATA, "No time-series provider configured", id);
+    return Result.failure(
+        FailureReason.MISSING_DATA,
+        "No time-series provider configured, unable to provide time-series for '{}'",
+        id);
   }
 
 }

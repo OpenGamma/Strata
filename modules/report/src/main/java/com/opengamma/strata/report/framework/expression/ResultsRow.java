@@ -68,7 +68,7 @@ class ResultsRow {
     if (target instanceof Position) {
       return Result.success((Position) target);
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a position");
+    return Result.failure(FailureReason.INVALID, "Calculaton target is not a position");
   }
 
   /**
@@ -81,7 +81,7 @@ class ResultsRow {
     if (target instanceof Trade) {
       return Result.success((Trade) target);
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
+    return Result.failure(FailureReason.INVALID, "Calculaton target is not a trade");
   }
 
   /**
@@ -102,9 +102,9 @@ class ResultsRow {
       return Result.success(((ProductTrade) target).getProduct());
     }
     if (target instanceof Trade) {
-      return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a product");
+      return Result.failure(FailureReason.INVALID, "Trade does not contain a product");
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
+    return Result.failure(FailureReason.INVALID, "Calculaton target is not a trade");
   }
 
   /**
@@ -127,9 +127,9 @@ class ResultsRow {
       return Result.success(secTrade.getSecurity());
     }
     if (target instanceof Trade) {
-      return Result.failure(FailureReason.INVALID_INPUT, "Trade does not contain a security");
+      return Result.failure(FailureReason.INVALID, "Trade does not contain a security");
     }
-    return Result.failure(FailureReason.INVALID_INPUT, "Calculaton target is not a trade");
+    return Result.failure(FailureReason.INVALID, "Calculaton target is not a trade");
   }
 
   //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ class ResultsRow {
     List<String> validMeasureNames = measureNames(results.getTargets().get(rowIndex), results.getCalculationFunctions());
     if (!validMeasureNames.contains(measureName)) {
       return Result.failure(
-          FailureReason.INVALID_INPUT,
+          FailureReason.INVALID,
           "Invalid measure name: {}. Valid measure names: {}",
           measureName,
           validMeasureNames);
@@ -153,7 +153,7 @@ class ResultsRow {
       int columnIndex = results.getColumns().indexOf(column);
       if (columnIndex == -1) {
         return Result.failure(
-            FailureReason.INVALID_INPUT,
+            FailureReason.INVALID,
             "Measure not found in results: '{}'. Valid measure names: {}",
             measureName,
             validMeasureNames);
@@ -161,7 +161,7 @@ class ResultsRow {
       Result<?> result = results.getCalculationResults().get(rowIndex, columnIndex);
       if (result.isFailure() && result.getFailure().getReason() == FailureReason.ERROR) {
         return Result.failure(
-            FailureReason.INVALID_INPUT,
+            FailureReason.INVALID,
             "Unable to calculate measure '{}'. Reason: {}",
             measureName,
             validMeasureNames,
@@ -171,7 +171,7 @@ class ResultsRow {
 
     } catch (IllegalArgumentException ex) {
       return Result.failure(
-          FailureReason.INVALID_INPUT,
+          FailureReason.INVALID,
           "Unable to calculate measure '{}'. Reason: {}. Valid measure names: {}",
           measureName,
           ex.getMessage(),

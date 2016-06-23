@@ -24,15 +24,18 @@ import org.joda.beans.impl.light.LightMetaBean;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirements;
 import com.opengamma.strata.calc.marketdata.MarketDataRequirementsBuilder;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.MarketDataId;
+import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioFxRateProvider;
@@ -215,14 +218,47 @@ public final class CalculationTask implements ImmutableBean {
   private Map<Measure, Result<?>> calculate(ScenarioMarketData marketData, ReferenceData refData) {
     try {
       return function.calculate(target, getMeasures(), parameters, marketData, refData);
-
     } catch (RuntimeException ex) {
-      // return a failure for each requested measure with details of the problem
-      Result<?> failure = Result.failure(
-          ex, "Function '{}' threw an exception: {}", function.getClass().getSimpleName(), ex.getMessage());
-      return getMeasures().stream()
-          .collect(toImmutableMap(m -> m, m -> failure));
+      return handleFailure(ex);
     }
+  }
+
+  // handle the failure, extracted to aid inlining
+  private Map<Measure, Result<?>> handleFailure(RuntimeException ex) {
+    Result<?> failure;
+    if (ex instanceof MarketDataNotFoundException) {
+      failure = Result.failure(
+          FailureReason.MISSING_DATA,
+          ex,
+          "Missing market data when invoking function '{}': {}",
+          function.getClass().getSimpleName(),
+          ex.getMessage());
+
+    } else if (ex instanceof ReferenceDataNotFoundException) {
+      failure = Result.failure(
+          FailureReason.MISSING_DATA,
+          ex,
+          "Missing reference data when invoking function '{}': {}",
+          function.getClass().getSimpleName(),
+          ex.getMessage());
+
+    } else if (ex instanceof UnsupportedOperationException) {
+      failure = Result.failure(
+          FailureReason.UNSUPPORTED,
+          ex,
+          "Unsupported operation when invoking function '{}': {}",
+          function.getClass().getSimpleName(),
+          ex.getMessage());
+
+    } else {
+      failure = Result.failure(
+          FailureReason.CALCULATION_FAILED,
+          ex,
+          "Error when invoking function '{}': {}",
+          function.getClass().getSimpleName(),
+          ex.toString());
+    }
+    return getMeasures().stream().collect(toImmutableMap(m -> m, m -> failure));
   }
 
   //-------------------------------------------------------------------------
