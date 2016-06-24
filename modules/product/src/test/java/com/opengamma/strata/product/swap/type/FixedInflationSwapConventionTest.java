@@ -6,7 +6,6 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
@@ -50,7 +49,6 @@ public class FixedInflationSwapConventionTest {
 
   private static final Period LAG_3M = Period.ofMonths(3);
   private static final double NOTIONAL_2M = 2_000_000d;
-  private static final BusinessDayAdjustment BDA_FOLLOW = BusinessDayAdjustment.of(FOLLOWING, GBLO);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
   private static final DaysAdjustment PLUS_ONE_DAY = DaysAdjustment.ofBusinessDays(1, GBLO);
 
@@ -58,9 +56,9 @@ public class FixedInflationSwapConventionTest {
   private static final FixedRateSwapLegConvention FIXED = fixedLegZcConvention(GBP, GBLO);
   private static final FixedRateSwapLegConvention FIXED2 =
       FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
-  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(GB_RPI, LAG_3M);
-  private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M);
+  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(GB_RPI, LAG_3M, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M, BDA_MOD_FOLLOW);
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -68,13 +66,11 @@ public class FixedInflationSwapConventionTest {
         NAME, 
         FIXED, 
         INFL, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
     assertEquals(test.getFixedLeg(), FIXED);
     assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), BDA_FOLLOW);
-    assertEquals(test.getPaymentDateOffset(), PLUS_ONE_DAY);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
   public void test_of_spotDateOffset() {
@@ -82,12 +78,11 @@ public class FixedInflationSwapConventionTest {
         NAME, 
         FIXED, 
         INFL, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     assertEquals(test.getName(), NAME);
     assertEquals(test.getFixedLeg(), FIXED);
     assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), BDA_FOLLOW);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
   public void test_builder() {
@@ -95,13 +90,12 @@ public class FixedInflationSwapConventionTest {
         .name(NAME)
         .fixedLeg(FIXED)
         .floatingLeg(INFL)
-        .spotDateOffset(BDA_FOLLOW)
-        .paymentDateOffset(PLUS_ONE_DAY)
+        .spotDateOffset(PLUS_ONE_DAY)
         .build();
     assertEquals(test.getName(), NAME);
     assertEquals(test.getFixedLeg(), FIXED);
     assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), BDA_FOLLOW);
+    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
   }
 
   //-------------------------------------------------------------------------
@@ -110,7 +104,6 @@ public class FixedInflationSwapConventionTest {
         NAME, 
         FIXED, 
         INFL, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
     LocalDate startDate = date(2015, 8, 5);
@@ -118,7 +111,7 @@ public class FixedInflationSwapConventionTest {
     SwapTrade test = base.toTrade(tradeDate, startDate, endDate, BUY, NOTIONAL_2M, 0.25d);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
-        INFL.toLeg(startDate, endDate, RECEIVE, BDA_FOLLOW, PLUS_ONE_DAY, NOTIONAL_2M));
+        INFL.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
     assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
     assertEquals(test.getProduct(), expected);
   }
@@ -168,21 +161,18 @@ public class FixedInflationSwapConventionTest {
         NAME, 
         FIXED, 
         INFL, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     coverImmutableBean(test);
     ImmutableFixedInflationSwapConvention test2 = ImmutableFixedInflationSwapConvention.of(
         NAME, 
         FIXED2, 
         INFL2, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     coverBeanEquals(test, test2);
     ImmutableFixedInflationSwapConvention test3 = ImmutableFixedInflationSwapConvention.of(
         NAME, 
         FIXED, 
         INFL3, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     coverBeanEquals(test, test3);
   }
@@ -192,7 +182,6 @@ public class FixedInflationSwapConventionTest {
         NAME, 
         FIXED, 
         INFL, 
-        BDA_FOLLOW, 
         PLUS_ONE_DAY);
     assertSerialization(test);
   }

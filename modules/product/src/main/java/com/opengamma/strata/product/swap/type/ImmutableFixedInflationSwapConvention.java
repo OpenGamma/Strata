@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
@@ -76,12 +75,7 @@ public final class ImmutableFixedInflationSwapConvention
    * A typical value is "plus 2 business days".
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final BusinessDayAdjustment spotDateOffset;
-  /**
-   * An adjustment that alters the payment date by adding a period of days.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final DaysAdjustment paymentDateOffset;
+  private final DaysAdjustment spotDateOffset;
 
   //-------------------------------------------------------------------------
 
@@ -94,17 +88,15 @@ public final class ImmutableFixedInflationSwapConvention
    * @param fixedLeg  the market convention for the fixed leg
    * @param floatingLeg  the market convention for the floating leg
    * @param spotDateOffset  the offset of the spot value date from the trade date
-   * @param paymentDateOffset an adjustment that alters the payment date by adding a period of days
    * @return the convention
    */
   public static ImmutableFixedInflationSwapConvention of(
       String name,
       FixedRateSwapLegConvention fixedLeg,
       InflationRateSwapLegConvention floatingLeg,
-      BusinessDayAdjustment spotDateOffset,
-      DaysAdjustment paymentDateOffset) {
+      DaysAdjustment spotDateOffset) {
 
-    return new ImmutableFixedInflationSwapConvention(name, fixedLeg, floatingLeg, spotDateOffset, paymentDateOffset);
+    return new ImmutableFixedInflationSwapConvention(name, fixedLeg, floatingLeg, spotDateOffset);
   }
 
   //-------------------------------------------------------------------------
@@ -139,8 +131,6 @@ public final class ImmutableFixedInflationSwapConvention
         startDate,
         endDate,
         PayReceive.ofPay(buySell.isSell()),
-        spotDateOffset,
-        paymentDateOffset,
         notional);
     return SwapTrade.builder()
         .info(tradeInfo)
@@ -185,18 +175,15 @@ public final class ImmutableFixedInflationSwapConvention
       String name,
       FixedRateSwapLegConvention fixedLeg,
       InflationRateSwapLegConvention floatingLeg,
-      BusinessDayAdjustment spotDateOffset,
-      DaysAdjustment paymentDateOffset) {
+      DaysAdjustment spotDateOffset) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(fixedLeg, "fixedLeg");
     JodaBeanUtils.notNull(floatingLeg, "floatingLeg");
     JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
-    JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
     this.name = name;
     this.fixedLeg = fixedLeg;
     this.floatingLeg = floatingLeg;
     this.spotDateOffset = spotDateOffset;
-    this.paymentDateOffset = paymentDateOffset;
     validate();
   }
 
@@ -254,18 +241,8 @@ public final class ImmutableFixedInflationSwapConvention
    * @return the value of the property, not null
    */
   @Override
-  public BusinessDayAdjustment getSpotDateOffset() {
+  public DaysAdjustment getSpotDateOffset() {
     return spotDateOffset;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an adjustment that alters the payment date by adding a period of days.
-   * @return the value of the property, not null
-   */
-  @Override
-  public DaysAdjustment getPaymentDateOffset() {
-    return paymentDateOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -287,8 +264,7 @@ public final class ImmutableFixedInflationSwapConvention
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(fixedLeg, other.fixedLeg) &&
           JodaBeanUtils.equal(floatingLeg, other.floatingLeg) &&
-          JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset) &&
-          JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset);
+          JodaBeanUtils.equal(spotDateOffset, other.spotDateOffset);
     }
     return false;
   }
@@ -300,7 +276,6 @@ public final class ImmutableFixedInflationSwapConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(floatingLeg);
     hash = hash * 31 + JodaBeanUtils.hashCode(spotDateOffset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     return hash;
   }
 
@@ -332,13 +307,8 @@ public final class ImmutableFixedInflationSwapConvention
     /**
      * The meta-property for the {@code spotDateOffset} property.
      */
-    private final MetaProperty<BusinessDayAdjustment> spotDateOffset = DirectMetaProperty.ofImmutable(
-        this, "spotDateOffset", ImmutableFixedInflationSwapConvention.class, BusinessDayAdjustment.class);
-    /**
-     * The meta-property for the {@code paymentDateOffset} property.
-     */
-    private final MetaProperty<DaysAdjustment> paymentDateOffset = DirectMetaProperty.ofImmutable(
-        this, "paymentDateOffset", ImmutableFixedInflationSwapConvention.class, DaysAdjustment.class);
+    private final MetaProperty<DaysAdjustment> spotDateOffset = DirectMetaProperty.ofImmutable(
+        this, "spotDateOffset", ImmutableFixedInflationSwapConvention.class, DaysAdjustment.class);
     /**
      * The meta-properties.
      */
@@ -347,8 +317,7 @@ public final class ImmutableFixedInflationSwapConvention
         "name",
         "fixedLeg",
         "floatingLeg",
-        "spotDateOffset",
-        "paymentDateOffset");
+        "spotDateOffset");
 
     /**
      * Restricted constructor.
@@ -367,8 +336,6 @@ public final class ImmutableFixedInflationSwapConvention
           return floatingLeg;
         case 746995843:  // spotDateOffset
           return spotDateOffset;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -417,16 +384,8 @@ public final class ImmutableFixedInflationSwapConvention
      * The meta-property for the {@code spotDateOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BusinessDayAdjustment> spotDateOffset() {
+    public MetaProperty<DaysAdjustment> spotDateOffset() {
       return spotDateOffset;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDateOffset} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DaysAdjustment> paymentDateOffset() {
-      return paymentDateOffset;
     }
 
     //-----------------------------------------------------------------------
@@ -441,8 +400,6 @@ public final class ImmutableFixedInflationSwapConvention
           return ((ImmutableFixedInflationSwapConvention) bean).getFloatingLeg();
         case 746995843:  // spotDateOffset
           return ((ImmutableFixedInflationSwapConvention) bean).getSpotDateOffset();
-        case -716438393:  // paymentDateOffset
-          return ((ImmutableFixedInflationSwapConvention) bean).getPaymentDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -467,8 +424,7 @@ public final class ImmutableFixedInflationSwapConvention
     private String name;
     private FixedRateSwapLegConvention fixedLeg;
     private InflationRateSwapLegConvention floatingLeg;
-    private BusinessDayAdjustment spotDateOffset;
-    private DaysAdjustment paymentDateOffset;
+    private DaysAdjustment spotDateOffset;
 
     /**
      * Restricted constructor.
@@ -485,7 +441,6 @@ public final class ImmutableFixedInflationSwapConvention
       this.fixedLeg = beanToCopy.getFixedLeg();
       this.floatingLeg = beanToCopy.getFloatingLeg();
       this.spotDateOffset = beanToCopy.getSpotDateOffset();
-      this.paymentDateOffset = beanToCopy.getPaymentDateOffset();
     }
 
     //-----------------------------------------------------------------------
@@ -500,8 +455,6 @@ public final class ImmutableFixedInflationSwapConvention
           return floatingLeg;
         case 746995843:  // spotDateOffset
           return spotDateOffset;
-        case -716438393:  // paymentDateOffset
-          return paymentDateOffset;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -520,10 +473,7 @@ public final class ImmutableFixedInflationSwapConvention
           this.floatingLeg = (InflationRateSwapLegConvention) newValue;
           break;
         case 746995843:  // spotDateOffset
-          this.spotDateOffset = (BusinessDayAdjustment) newValue;
-          break;
-        case -716438393:  // paymentDateOffset
-          this.paymentDateOffset = (DaysAdjustment) newValue;
+          this.spotDateOffset = (DaysAdjustment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -561,8 +511,7 @@ public final class ImmutableFixedInflationSwapConvention
           name,
           fixedLeg,
           floatingLeg,
-          spotDateOffset,
-          paymentDateOffset);
+          spotDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -607,33 +556,21 @@ public final class ImmutableFixedInflationSwapConvention
      * @param spotDateOffset  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder spotDateOffset(BusinessDayAdjustment spotDateOffset) {
+    public Builder spotDateOffset(DaysAdjustment spotDateOffset) {
       JodaBeanUtils.notNull(spotDateOffset, "spotDateOffset");
       this.spotDateOffset = spotDateOffset;
-      return this;
-    }
-
-    /**
-     * Sets an adjustment that alters the payment date by adding a period of days.
-     * @param paymentDateOffset  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentDateOffset(DaysAdjustment paymentDateOffset) {
-      JodaBeanUtils.notNull(paymentDateOffset, "paymentDateOffset");
-      this.paymentDateOffset = paymentDateOffset;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutableFixedInflationSwapConvention.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("fixedLeg").append('=').append(JodaBeanUtils.toString(fixedLeg)).append(',').append(' ');
       buf.append("floatingLeg").append('=').append(JodaBeanUtils.toString(floatingLeg)).append(',').append(' ');
-      buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');
-      buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset));
+      buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset));
       buf.append('}');
       return buf.toString();
     }

@@ -13,7 +13,6 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
@@ -84,14 +83,7 @@ public interface FixedInflationSwapConvention
    * 
    * @return the spot date offset, not null
    */
-  public abstract BusinessDayAdjustment getSpotDateOffset();
-
-  /**
-   * Gets the offset of the payment date.
-   * 
-   * @return the spot date offset, not null
-   */
-  public abstract DaysAdjustment getPaymentDateOffset();
+  public abstract DaysAdjustment getSpotDateOffset();
 
   //-------------------------------------------------------------------------
   /**
