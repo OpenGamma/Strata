@@ -129,11 +129,10 @@ public class TermDepositCurveNodeTest {
 
   public void test_trade() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    TermDepositTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
-    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(valuationDate, REF_DATA);
+    TermDepositTrade trade = node.trade(1d, marketData, REF_DATA);
+    LocalDate startDateExpected = PLUS_TWO_DAYS.adjust(VAL_DATE, REF_DATA);
     LocalDate endDateExpected = startDateExpected.plus(DEPOSIT_PERIOD);
     TermDeposit depositExpected = TermDeposit.builder()
         .buySell(BuySell.BUY)
@@ -146,7 +145,7 @@ public class TermDepositCurveNodeTest {
         .rate(rate + SPREAD)
         .build();
     TradeInfo tradeInfoExpected = TradeInfo.builder()
-        .tradeDate(valuationDate)
+        .tradeDate(VAL_DATE)
         .build();
     assertEquals(trade.getProduct(), depositExpected);
     assertEquals(trade.getInfo(), tradeInfoExpected);
@@ -156,17 +155,16 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR),
+    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR),
         Math.exp(-rate * 0.25), 1.0e-12);
   }
 

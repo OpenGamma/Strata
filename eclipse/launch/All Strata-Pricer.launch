@@ -18,10 +18,11 @@
 <listEntry value="com.opengamma.strata.pricer"/>
 <listEntry value="com.opengamma.strata.pricer.bond"/>
 <listEntry value="com.opengamma.strata.pricer.bond.e2e"/>
-<listEntry value="com.opengamma.strata.pricer.calibration"/>
 <listEntry value="com.opengamma.strata.pricer.capfloor"/>
 <listEntry value="com.opengamma.strata.pricer.cms"/>
+<listEntry value="com.opengamma.strata.pricer.common"/>
 <listEntry value="com.opengamma.strata.pricer.credit"/>
+<listEntry value="com.opengamma.strata.pricer.curve"/>
 <listEntry value="com.opengamma.strata.pricer.datasets"/>
 <listEntry value="com.opengamma.strata.pricer.deposit"/>
 <listEntry value="com.opengamma.strata.pricer.dsf"/>
@@ -41,6 +42,7 @@
 <listEntry value="com.opengamma.strata.pricer.impl.volatility.smile.function"/>
 <listEntry value="com.opengamma.strata.pricer.index"/>
 <listEntry value="com.opengamma.strata.pricer.index.e2e"/>
+<listEntry value="com.opengamma.strata.pricer.model"/>
 <listEntry value="com.opengamma.strata.pricer.rate"/>
 <listEntry value="com.opengamma.strata.pricer.sensitivity"/>
 <listEntry value="com.opengamma.strata.pricer.swap"/>

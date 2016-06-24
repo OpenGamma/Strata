@@ -135,7 +135,7 @@ public class SabrSwaptionCubePvRiskExample {
 
     start = System.currentTimeMillis();
     // Curve calibration 
-    RatesProvider multicurve = CALIBRATOR.calibrate(CONFIGS, CALIBRATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+    RatesProvider multicurve = CALIBRATOR.calibrate(CONFIGS, MARKET_QUOTES, REF_DATA, TS);
     end = System.currentTimeMillis();
     System.out.println("Curve calibration time: " + (end - start) + " ms.");
 

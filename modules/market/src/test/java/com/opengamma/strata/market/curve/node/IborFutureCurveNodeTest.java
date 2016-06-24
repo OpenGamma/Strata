@@ -101,33 +101,30 @@ public class IborFutureCurveNodeTest {
 
   public void test_trade() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate date = LocalDate.of(2015, 10, 20);
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
-    IborFutureTrade trade = node.trade(date, 1d, marketData, REF_DATA);
-    IborFutureTrade expected = TEMPLATE.createTrade(date, 1L, 1.0, price + SPREAD, REF_DATA);
+    IborFutureTrade trade = node.trade(1d, marketData, REF_DATA);
+    IborFutureTrade expected = TEMPLATE.createTrade(VAL_DATE, 1L, 1.0, price + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
   public void test_trade_noMarketData() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 10, 20);
-    MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    MarketData marketData = MarketData.empty(VAL_DATE);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate date = LocalDate.of(2015, 10, 20);
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
-    assertEquals(node.initialGuess(date, marketData, ValueType.ZERO_RATE), 1.0 - price, TOLERANCE_RATE);
-    assertEquals(node.initialGuess(date, marketData, ValueType.FORWARD_RATE), 1.0 - price, TOLERANCE_RATE);
+    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), 1.0 - price, TOLERANCE_RATE);
+    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), 1.0 - price, TOLERANCE_RATE);
     double approximateMaturity =
         TEMPLATE.getMinimumPeriod().plus(TEMPLATE.getConvention().getIndex().getTenor()).toTotalMonths() / 12.0d;
     double df = Math.exp(-approximateMaturity * (1.0 - price));
-    assertEquals(node.initialGuess(date, marketData, ValueType.DISCOUNT_FACTOR), df, TOLERANCE_RATE);
-    assertEquals(node.initialGuess(date, marketData, ValueType.UNKNOWN), 0.0d, TOLERANCE_RATE);
+    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR), df, TOLERANCE_RATE);
+    assertEquals(node.initialGuess(marketData, ValueType.UNKNOWN), 0.0d, TOLERANCE_RATE);
   }
 
   public void test_metadata_end() {
@@ -154,13 +151,12 @@ public class IborFutureCurveNodeTest {
   public void test_metadata_last_fixing() {
     IborFutureCurveNode node =
         IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, 0.0d).build();
-    IborFutureTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
+    IborFutureTrade trade = node.trade(1d, marketData, REF_DATA);
     LocalDate fixingDate = trade.getProduct().getFixingDate();
-    DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
+    DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertEquals(metadata.getDate(), fixingDate);
-    LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(valuationDate, REF_DATA);
+    LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(VAL_DATE, REF_DATA);
     assertEquals(((YearMonthDateParameterMetadata) metadata).getYearMonth(), YearMonth.from(referenceDate));
   }
 

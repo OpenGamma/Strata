@@ -131,8 +131,8 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
-    ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    FraTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
+    ImmutableMarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, rate).build();
+    FraTrade trade = node.trade(1d, marketData, REF_DATA);
     LocalDate startDateExpected = OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START);
     LocalDate endDateExpected = startDateExpected.plusMonths(3);
     Fra productExpected = Fra.builder()
@@ -157,20 +157,19 @@ public class FraCurveNodeTest {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(valuationDate, 1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
   }
 
   public void test_initialGuess() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.FORWARD_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
+    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
     double approximateMaturity = TEMPLATE.getPeriodToEnd().toTotalMonths() / 12.0d;
     double df = Math.exp(-approximateMaturity * rate);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.DISCOUNT_FACTOR), df);
-    assertEquals(node.initialGuess(valuationDate, marketData, ValueType.PRICE_INDEX), 0d);
+    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR), df);
+    assertEquals(node.initialGuess(marketData, ValueType.PRICE_INDEX), 0d);
   }
 
   public void test_metadata_end() {
@@ -193,8 +192,8 @@ public class FraCurveNodeTest {
   public void test_metadata_last_fixing() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
-    ImmutableMarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, 0.0d).build();
-    FraTrade trade = node.trade(valuationDate, 1d, marketData, REF_DATA);
+    ImmutableMarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, 0.0d).build();
+    FraTrade trade = node.trade(1d, marketData, REF_DATA);
     ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateComputation) (resolved.getFloatingRate())).getFixingDate();
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);

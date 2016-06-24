@@ -376,7 +376,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
 
   //-------------------------------------------------------------------------
   public void calibration_present_value_oneGroup() {
-    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
     assertPresentValue(result);
   }
 
@@ -390,7 +390,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV USD;
     List<ResolvedTrade> usdTrades = new ArrayList<>();
     for (CurveNode USD_DSC_NODE : USD_DSC_NODES) {
-      usdTrades.add(USD_DSC_NODE.resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      usdTrades.add(USD_DSC_NODE.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < 2; i++) {
@@ -407,7 +407,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV USD Fwd3
     List<ResolvedTrade> fwd3Trades = new ArrayList<>();
     for (int i = 0; i < USD_FWD3_NB_NODES; i++) {
-      fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      fwd3Trades.add(USD_FWD3_NODES[i].resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount pvFixing = FIXING_PRICER.presentValue(
@@ -428,7 +428,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test DSC EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
     for (CurveNode EUR_DSC_NODE : EUR_DSC_NODES) {
-      eurTrades.add(EUR_DSC_NODE.resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      eurTrades.add(EUR_DSC_NODE.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // FX
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
@@ -445,7 +445,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     // Test PV EUR Fwd3
     List<ResolvedTrade> eurFwd3Trades = new ArrayList<>();
     for (int i = 0; i < EUR_FWD3_NB_NODES; i++) {
-      eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(VAL_DATE, 1d, ALL_QUOTES, REF_DATA));
+      eurFwd3Trades.add(EUR_FWD3_NODES[i].resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Fixing 
     CurrencyAmount eurPvFixing = FIXING_PRICER.presentValue(
@@ -468,7 +468,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<ImmutableMarketData, RatesProvider> f =
-        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, marketData, REF_DATA, TS);
+        marketData -> CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, marketData, REF_DATA, TS);
     calibration_market_quote_sensitivity_check(f, shift);
   }
 
@@ -481,7 +481,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     ResolvedFxSwapTrade trade = EUR_USD
         .createTrade(VAL_DATE, Period.ofWeeks(6), Period.ofMonths(5), BuySell.BUY, notional, fx, fxPts, REF_DATA)
         .resolve(REF_DATA);
-    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, VAL_DATE, ALL_QUOTES, REF_DATA, TS);
+    RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA, TS);
     PointSensitivities pts = FX_PRICER.presentValueSensitivity(trade.getProduct(), result);
     CurrencyParameterSensitivities ps = result.parameterSensitivity(pts);
     CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, result);

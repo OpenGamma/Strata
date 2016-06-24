@@ -103,14 +103,14 @@ public class CalibrationNotionalEquivalentTest {
   @Test
   public void check_pv_with_measures() {
     ImmutableRatesProvider multicurve =
-        CALIBRATOR.calibrate(GROUP_DEFINITION, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(GROUP_DEFINITION, MARKET_QUOTES, REF_DATA, TS);
     // the trades used for calibration
     List<ResolvedTrade> trades = new ArrayList<>();
     ImmutableList<NodalCurveDefinition> curveGroups = GROUP_DEFINITION.getCurveDefinitions();
     for (NodalCurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        trades.add(node.resolvedTrade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
+        trades.add(node.resolvedTrade(1d, MARKET_QUOTES, REF_DATA));
       }
     }
     // Check PV = 0
@@ -123,7 +123,7 @@ public class CalibrationNotionalEquivalentTest {
   @Test
   public void check_pv_sensitivity() {
     ImmutableRatesProvider multicurve =
-        CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA, TS);
     // the trades used for calibration
     Map<CurveName, List<Trade>> trades = new HashMap<>();
     Map<CurveName, List<ResolvedTrade>> resolvedTrades = new HashMap<>();
@@ -134,8 +134,8 @@ public class CalibrationNotionalEquivalentTest {
       List<Trade> tradesCurve = new ArrayList<>();
       List<ResolvedTrade> resolvedTradesCurve = new ArrayList<>();
       for (CurveNode node : nodes) {
-        tradesCurve.add(node.trade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
-        resolvedTradesCurve.add(node.resolvedTrade(VALUATION_DATE, 1d, MARKET_QUOTES, REF_DATA));
+        tradesCurve.add(node.trade(1d, MARKET_QUOTES, REF_DATA));
+        resolvedTradesCurve.add(node.resolvedTrade(1d, MARKET_QUOTES, REF_DATA));
       }
       trades.put(entry.getName(), tradesCurve);
       resolvedTrades.put(entry.getName(), resolvedTradesCurve);
@@ -167,7 +167,7 @@ public class CalibrationNotionalEquivalentTest {
   @Test
   public void check_equivalent_notional() {
     ImmutableRatesProvider multicurve =
-        CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+        CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA, TS);
     // Create notional equivalent for a basis trade
     ResolvedSwapTrade trade = ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M
         .createTrade(VALUATION_DATE, Period.ofMonths(7), Tenor.TENOR_6Y, BuySell.SELL, 1_000_000, 0.03, REF_DATA)
@@ -187,7 +187,7 @@ public class CalibrationNotionalEquivalentTest {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       List<ResolvedTrade> resolvedTradesCurve = new ArrayList<>();
       for (int i = 0; i < nodes.size(); i++) {
-        resolvedTradesCurve.add(nodes.get(i).resolvedTrade(VALUATION_DATE, notionalCurve.get(i), MARKET_QUOTES, REF_DATA));
+        resolvedTradesCurve.add(nodes.get(i).resolvedTrade(notionalCurve.get(i), MARKET_QUOTES, REF_DATA));
       }
       equivalentTrades.put(entry.getName(), resolvedTradesCurve);
       builder.add(entry.toCurveParameterSize());
@@ -216,7 +216,7 @@ public class CalibrationNotionalEquivalentTest {
       start = System.currentTimeMillis();
       for (int i = 0; i < nbTests; i++) {
         ImmutableRatesProvider multicurve1 =
-            CALIBRATOR.calibrate(GROUP_DEFINITION_NO_INFO, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+            CALIBRATOR.calibrate(GROUP_DEFINITION_NO_INFO, MARKET_QUOTES, REF_DATA, TS);
       }
       end = System.currentTimeMillis();
       System.out.println("  |--> calibration only: " + (end - start) + " ms for " + nbTests + " runs.");
@@ -224,7 +224,7 @@ public class CalibrationNotionalEquivalentTest {
       start = System.currentTimeMillis();
       for (int i = 0; i < nbTests; i++) {
         ImmutableRatesProvider multicurve1 =
-            CALIBRATOR.calibrate(GROUP_DEFINITION, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+            CALIBRATOR.calibrate(GROUP_DEFINITION, MARKET_QUOTES, REF_DATA, TS);
       }
       end = System.currentTimeMillis();
       System.out.println("  |--> calibration and Jacobian: " + (end - start) + " ms for " + nbTests + " runs.");
@@ -232,7 +232,7 @@ public class CalibrationNotionalEquivalentTest {
       start = System.currentTimeMillis();
       for (int i = 0; i < nbTests; i++) {
         ImmutableRatesProvider multicurve1 =
-            CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, VALUATION_DATE, MARKET_QUOTES, REF_DATA, TS);
+            CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA, TS);
       }
       end = System.currentTimeMillis();
       System.out.println("  |--> calibration, Jacobian and PV sensi MQ: " + (end - start) + " ms for " + nbTests + " runs.");

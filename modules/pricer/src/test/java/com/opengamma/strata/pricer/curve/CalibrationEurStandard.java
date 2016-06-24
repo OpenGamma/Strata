@@ -54,7 +54,6 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 
 public class CalibrationEurStandard {
 
-  private static final LocalDate VAL_DATE = LocalDate.of(2015, 6, 30);
   private static final DayCount CURVE_DC = ACT_365F;
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
 
@@ -120,12 +119,12 @@ public class CalibrationEurStandard {
     String[] fwd6IdValues = fwdIdValue(6, fwd6FixingQuote, fwd6FraQuotes, fwd6IrsQuotes, fwd6FraTenors, fwd6IrsTenors);
     /* All quotes for the curve calibration */
     MarketData allQuotes =
-        allQuotes(dscOisQuotes, dscIdValues, fwd3MarketQuotes, fwd3IdValues, fwd6MarketQuotes, fwd6IdValues);
+        allQuotes(valuationDate, dscOisQuotes, dscIdValues, fwd3MarketQuotes, fwd3IdValues, fwd6MarketQuotes, fwd6IdValues);
     /* All nodes by groups. */
     CurveGroupDefinition config = config(dscOisTenors, dscIdValues, fwd3FraTenors, fwd3IrsTenors, fwd3IdValues,
         fwd6FraTenors, fwd6IrsTenors, fwd6IdValues);
     /* Results */
-    return CALIBRATOR.calibrate(config, valuationDate, allQuotes, REF_DATA, TS);
+    return CALIBRATOR.calibrate(config, allQuotes, REF_DATA, TS);
   }
 
   public static String[] dscIdValues(Period[] dscOisTenors) {
@@ -245,6 +244,7 @@ public class CalibrationEurStandard {
   }
 
   public static MarketData allQuotes(
+      LocalDate valuationDate,
       double[] dscOisQuotes,
       String[] dscIdValues,
       double[] fwd3MarketQuotes,
@@ -252,7 +252,7 @@ public class CalibrationEurStandard {
       double[] fwd6MarketQuotes,
       String[] fwd6IdValue) {
     /* All quotes for the curve calibration */
-    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(VAL_DATE);
+    ImmutableMarketDataBuilder builder = ImmutableMarketData.builder(valuationDate);
     for (int i = 0; i < dscOisQuotes.length; i++) {
       builder.addValue(QuoteId.of(StandardId.of(SCHEME, dscIdValues[i])), dscOisQuotes[i]);
     }
