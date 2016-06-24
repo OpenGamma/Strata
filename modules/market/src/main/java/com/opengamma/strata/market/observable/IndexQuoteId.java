@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableId;
@@ -45,7 +46,7 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
    * The field name in the market data record that contains the market data item.
    * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FieldName fieldName;
   /**
    * The source of observable market data.
@@ -94,6 +95,19 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the identifier of the data.
+   * <p>
+   * This returns an artificial identifier with a scheme of 'OG-Future' and
+   * a value of the index name.
+   * 
+   * @return the standard identifier
+   */
+  @Override
+  public StandardId getStandardId() {
+    return StandardId.of("OG-Index", index.getName());
+  }
+
   @Override
   public IndexQuoteId withObservableSource(ObservableSource obsSource) {
     return new IndexQuoteId(index, fieldName, obsSource);
@@ -160,6 +174,7 @@ public final class IndexQuoteId implements ObservableId, ImmutableBean, Serializ
    * The most common field name is {@linkplain FieldName#MARKET_VALUE market value}.
    * @return the value of the property, not null
    */
+  @Override
   public FieldName getFieldName() {
     return fieldName;
   }
