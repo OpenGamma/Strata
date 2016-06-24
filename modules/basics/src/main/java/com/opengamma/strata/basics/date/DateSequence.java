@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.LocalDateUtils.plusDays;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -134,6 +135,20 @@ public interface DateSequence
       return nth(nextOrSame(date), sequenceNumber - 1);
     }
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the date in the sequence that corresponds to the specified year-month.
+   * <p>
+   * Given an input month, this method returns the date from the sequence that is associated with the year-month.
+   * In most cases, the returned date will be in the same month as the input month,
+   * but this is not guaranteed.
+   * 
+   * @param yearMonth  the input year-month
+   * @return the next sequence date after the input date
+   * @throws IllegalArgumentException if there are no more sequence dates
+   */
+  public abstract LocalDate dateMatching(YearMonth yearMonth);
 
   //-------------------------------------------------------------------------
   /**

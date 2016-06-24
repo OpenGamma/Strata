@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableSource;
+import com.opengamma.strata.product.SecurityId;
 
 /**
  * Test {@link QuoteId}.
@@ -34,6 +35,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FieldName.MARKET_VALUE);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toSecurityId(), SecurityId.of(ID1));
   }
 
   public void test_of_2args() {
@@ -42,6 +44,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FIELD2);
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toSecurityId(), SecurityId.of(ID1));
   }
 
   public void test_of_3args() {
@@ -50,6 +53,7 @@ public class QuoteIdTest {
     assertEquals(test.getFieldName(), FIELD2);
     assertEquals(test.getObservableSource(), OBS_SOURCE2);
     assertEquals(test.getMarketDataType(), Double.class);
+    assertEquals(test.toSecurityId(), SecurityId.of(ID1));
   }
 
   //-------------------------------------------------------------------------

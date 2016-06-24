@@ -36,7 +36,6 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
-import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Provides the definition of how to calibrate an interpolated nodal curve.
@@ -115,7 +114,7 @@ public final class InterpolatedNodalCurveDefinition
   //-------------------------------------------------------------------------
   @Override
   public CurveMetadata metadata(LocalDate valuationDate, ReferenceData refData) {
-    List<ParameterMetadata> nodeMetadata = nodes.stream()
+    List<DatedParameterMetadata> nodeMetadata = nodes.stream()
         .map(node -> node.metadata(valuationDate, refData))
         .collect(toImmutableList());
     return DefaultCurveMetadata.builder()

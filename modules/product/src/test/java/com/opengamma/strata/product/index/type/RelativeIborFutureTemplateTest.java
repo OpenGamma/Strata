@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -20,13 +19,14 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
- * Tests {@link IborFutureTemplate}.
+ * Tests {@link RelativeIborFutureTemplate}.
  */
 @Test
-public class IborFutureTemplateTest {
+public class RelativeIborFutureTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborFutureConvention CONVENTION = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
@@ -34,19 +34,13 @@ public class IborFutureTemplateTest {
   private static final Period MIN_PERIOD = Period.ofMonths(2);
   private static final int NUMBER = 2;
 
+  //-------------------------------------------------------------------------
   public void test_of() {
-    IborFutureTemplate test = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
+    RelativeIborFutureTemplate test = RelativeIborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     assertEquals(test.getMinimumPeriod(), MIN_PERIOD);
     assertEquals(test.getSequenceNumber(), NUMBER);
     assertEquals(test.getConvention(), CONVENTION);
-  }
-
-  public void test_builder_insufficientInfo() {
-    assertThrowsIllegalArg(() -> IborFutureTemplate.builder().convention(CONVENTION).build());
-    assertThrowsIllegalArg(() -> IborFutureTemplate.builder().minimumPeriod(MIN_PERIOD).build());
-    assertThrowsIllegalArg(() -> IborFutureTemplate.builder().sequenceNumber(NUMBER).build());
-    assertThrowsIllegalArg(() -> IborFutureTemplate.builder().minimumPeriod(MIN_PERIOD).sequenceNumber(NUMBER).build());
-    assertThrowsIllegalArg(() -> IborFutureTemplate.builder().sequenceNumber(NUMBER).convention(CONVENTION).build());
+    assertEquals(test.getIndex(), CONVENTION.getIndex());
   }
 
   //-------------------------------------------------------------------------
@@ -56,8 +50,9 @@ public class IborFutureTemplateTest {
     double quantity = 3;
     double price = 0.99;
     double notional = 100.0;
-    IborFutureTrade trade = base.createTrade(date, quantity, notional, price, REF_DATA);
-    IborFutureTrade expected = CONVENTION.createTrade(date, MIN_PERIOD, NUMBER, quantity, notional, price, REF_DATA);
+    SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
+    IborFutureTrade trade = base.createTrade(date, secId, quantity, notional, price, REF_DATA);
+    IborFutureTrade expected = CONVENTION.createTrade(date, secId, MIN_PERIOD, NUMBER, quantity, notional, price, REF_DATA);
     assertEquals(trade, expected);
   }
 
@@ -68,20 +63,21 @@ public class IborFutureTemplateTest {
     assertEquals(base.calculateReferenceDateFromTradeDate(date, REF_DATA), expected);
   }
 
+  public void test_approximateMaturity() {
+    IborFutureTemplate base = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
+    assertEquals(base.approximateMaturity(LocalDate.of(2015, 10, 20)), 0.5d, 0.1d);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborFutureTemplate test = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
+    RelativeIborFutureTemplate test = RelativeIborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     coverImmutableBean(test);
-    IborFutureTemplate test2 = IborFutureTemplate.builder()
-        .minimumPeriod(Period.ofMonths(3))
-        .sequenceNumber(NUMBER)
-        .convention(CONVENTION2)
-        .build();
+    RelativeIborFutureTemplate test2 = RelativeIborFutureTemplate.of(Period.ofMonths(3), NUMBER + 1, CONVENTION2);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    IborFutureTemplate test = IborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
+    RelativeIborFutureTemplate test = RelativeIborFutureTemplate.of(MIN_PERIOD, NUMBER, CONVENTION);
     assertSerialization(test);
   }
 

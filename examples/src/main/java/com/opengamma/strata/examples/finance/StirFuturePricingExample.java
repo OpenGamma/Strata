@@ -23,6 +23,7 @@ import com.opengamma.strata.examples.marketdata.ExampleMarketData;
 import com.opengamma.strata.examples.marketdata.ExampleMarketDataBuilder;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.StandardComponents;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
@@ -91,8 +92,9 @@ public class StirFuturePricingExample {
   //-----------------------------------------------------------------------  
   // create a trade
   private static Trade createTrade1(ReferenceData refData) {
+    SecurityId secId = SecurityId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15");
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
+        LocalDate.of(2014, 9, 12), secId, Period.ofMonths(1), 2, 5, 1_000_000, 0.9998, refData);
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
@@ -108,8 +110,9 @@ public class StirFuturePricingExample {
 
   // create a trade
   private static Trade createTrade2(ReferenceData refData) {
+    SecurityId secId = SecurityId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15");
     IborFutureTrade trade = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM.createTrade(
-        LocalDate.of(2014, 9, 12), Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
+        LocalDate.of(2014, 9, 12), secId, Period.ofMonths(1), 3, 10, 1_000_000, 0.9996, refData);
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
