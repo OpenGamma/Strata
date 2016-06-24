@@ -64,6 +64,7 @@ public class ExtendedScenarioMarketDataTest {
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
     assertEquals(test.findValue(ID3), Optional.of(VAL3));
     assertEquals(test.findValue(ID4), Optional.empty());
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2, ID3));
     assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
     assertEquals(test.findIds(ID3.getMarketDataName()), ImmutableSet.of(ID3));
     assertEquals(test.getTimeSeries(ID4), TIME_SERIES);
@@ -80,6 +81,7 @@ public class ExtendedScenarioMarketDataTest {
     assertEquals(test.getValue(ID1), VAL3);
     assertEquals(test.getValue(ID2), VAL2);
     assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
     assertEquals(test.findValue(ID1), Optional.of(VAL3));
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
     assertEquals(test.findValue(ID3), Optional.empty());

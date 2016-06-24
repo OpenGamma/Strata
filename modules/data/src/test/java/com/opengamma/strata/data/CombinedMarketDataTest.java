@@ -61,6 +61,7 @@ public class CombinedMarketDataTest {
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
     assertEquals(test.findValue(ID3), Optional.of(VAL3));
     assertEquals(test.findValue(ID5), Optional.empty());
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2, ID3));
     assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
     assertEquals(test.findIds(ID3.getMarketDataName()), ImmutableSet.of(ID3));
     assertEquals(test.findIds(ID4.getMarketDataName()), ImmutableSet.of());

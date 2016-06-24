@@ -60,6 +60,7 @@ public class RepeatedScenarioMarketDataTest {
     assertEquals(test.findValue(ID1), Optional.of(MarketDataBox.ofSingleValue(VAL1)));
     assertEquals(test.findValue(ID2), Optional.of(MarketDataBox.ofSingleValue(VAL2)));
     assertEquals(test.findValue(ID3), Optional.empty());
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
     assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
     assertEquals(test.getTimeSeries(ID4), TIME_SERIES);
   }

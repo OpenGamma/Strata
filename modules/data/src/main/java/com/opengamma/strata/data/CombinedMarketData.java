@@ -76,6 +76,14 @@ final class CombinedMarketData
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return ImmutableSet.<MarketDataId<?>>builder()
+        .addAll(underlying1.getIds())
+        .addAll(underlying2.getIds())
+        .build();
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return ImmutableSet.<MarketDataId<T>>builder()

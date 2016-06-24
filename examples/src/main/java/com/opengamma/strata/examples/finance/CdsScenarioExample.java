@@ -38,6 +38,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.CurrencyValuesArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -85,7 +86,7 @@ public class CdsScenarioExample {
     }
   }
 
-  // calculates P&Ls by loading a set of base market data and defining shifts to apply to this for each scenario
+  // loads the trade and market data, and performs the calculations
   private static void calculate(CalculationRunner runner) {
     // the trade to price
     CdsTrade cds = createSingleNameCds();
@@ -95,9 +96,9 @@ public class CdsScenarioExample {
     List<Column> columns = ImmutableList.of(
         Column.of(Measures.PRESENT_VALUE));
 
-    // build the set of market data for base scenario on the valuation date
+    // build the set of market data for the base scenario on the valuation date
     // this is the snapshot which will be perturbed in the scenarios
-    ImmutableMarketData baseMarketData = buildBaseMarketData();
+    MarketData baseMarketData = buildBaseMarketData();
 
     // build scenarios containing credit curve shifts
     ScenarioDefinition scenarios = buildScenarios(baseMarketData);
@@ -134,7 +135,7 @@ public class CdsScenarioExample {
 
   //-------------------------------------------------------------------------
   // builds the set of market data representing the base scenario
-  private static ImmutableMarketData buildBaseMarketData() {
+  private static MarketData buildBaseMarketData() {
 
     // initialise the market data builder for the valuation date
     LocalDate valuationDate = LocalDate.of(2014, 10, 16);
@@ -194,12 +195,12 @@ public class CdsScenarioExample {
 
   //-----------------------------------------------------------------------
   // build the scenarios to use to perturb the base market data
-  private static ScenarioDefinition buildScenarios(ImmutableMarketData baseMarketData) {
+  private static ScenarioDefinition buildScenarios(MarketData baseMarketData) {
 
     // build perturbations for each single name credit curve in the base market data set
     // here we are only interested in one credit curve, but this shows how we might deal with a larger set
     // each perturbation mapping represents the shifts to apply to one item of market data (here, a curve) in all scenarios
-    List<PerturbationMapping<?>> perturbations = baseMarketData.getValues().keySet().stream()
+    List<PerturbationMapping<?>> perturbations = baseMarketData.getIds().stream()
         .filter(id -> id instanceof IsdaSingleNameCreditCurveInputsId)
         .map(IsdaSingleNameCreditCurveInputsId.class::cast)
         .map(id -> PerturbationMapping.of(
