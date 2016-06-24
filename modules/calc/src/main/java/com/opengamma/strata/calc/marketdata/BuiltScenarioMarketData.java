@@ -152,6 +152,11 @@ public final class BuiltScenarioMarketData
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return underlying.getIds();
+  }
+
+  @Override
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return underlying.findIds(name);
   }

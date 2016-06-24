@@ -121,6 +121,13 @@ public interface MarketData {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the market data identifiers.
+   *
+   * @return the set of market data identifiers
+   */
+  public abstract Set<MarketDataId<?>> getIds();
+
+  /**
    * Finds the market data identifiers associated with the specified name.
    * <p>
    * This returns the unique identifiers that refer to the specified name.

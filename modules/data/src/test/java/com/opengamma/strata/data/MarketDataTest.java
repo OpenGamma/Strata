@@ -62,6 +62,8 @@ public class MarketDataTest {
     assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
     assertEquals(test.findValue(ID3), Optional.empty());
 
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
+
     assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
     assertEquals(test.findIds(new TestingName("Foo")), ImmutableSet.of());
 
@@ -82,6 +84,8 @@ public class MarketDataTest {
     assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
     assertEquals(test.findValue(ID2), Optional.empty());
 
+    assertEquals(test.getIds(), ImmutableSet.of(ID1));
+
     assertEquals(test.getTimeSeries(ID4), LocalDateDoubleTimeSeries.empty());
     assertEquals(test.getTimeSeries(ID5), TIME_SERIES);
   }
@@ -90,6 +94,7 @@ public class MarketDataTest {
     MarketData test = MarketData.empty(VAL_DATE);
 
     assertEquals(test.containsValue(ID1), false);
+    assertEquals(test.getIds(), ImmutableSet.of());
     assertEquals(test.getTimeSeries(ID4), LocalDateDoubleTimeSeries.empty());
   }
 
@@ -103,6 +108,7 @@ public class MarketDataTest {
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
     assertEquals(test.getValues().get(ID1), "123");
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID3));
     assertEquals(test.getTimeSeries().get(ID4), TIME_SERIES);
   }
 
@@ -138,6 +144,11 @@ public class MarketDataTest {
       }
 
       @Override
+      public Set<MarketDataId<?>> getIds() {
+        return ImmutableSet.of();
+      }
+
+      @Override
       public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
         return ImmutableSet.of();
       }
@@ -161,6 +172,7 @@ public class MarketDataTest {
     MarketData test = test1.combinedWith(test2);
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
   }
 
   public void test_combinedWith_noClashSame() {
@@ -172,6 +184,7 @@ public class MarketDataTest {
     MarketData test = test1.combinedWith(test2);
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
+    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
   }
 
   public void test_combinedWith_clash() {
@@ -181,6 +194,7 @@ public class MarketDataTest {
     MarketData test2 = MarketData.of(VAL_DATE, dataMap2);
     MarketData combined = test1.combinedWith(test2);
     assertEquals(combined.getValue(ID1), VAL1);
+    assertEquals(combined.getIds(), ImmutableSet.of(ID1));
   }
 
   public void test_combinedWith_dateMismatch() {

@@ -91,6 +91,11 @@ final class SingleScenarioMarketData
   }
 
   @Override
+  public Set<MarketDataId<?>> getIds() {
+    return marketData.getIds();
+  }
+
+  @Override
   public <T> Set<MarketDataId<T>> findIds(MarketDataName<T> name) {
     return marketData.findIds(name);
   }
