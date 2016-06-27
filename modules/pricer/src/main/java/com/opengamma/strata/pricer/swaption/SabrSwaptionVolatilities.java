@@ -13,6 +13,8 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  * Volatility for swaptions in SABR model. 
  * <p>
  * The volatility is represented in terms of SABR model parameters.
+ * <p>
+ * The prices are calculated using the SABR implied volatility with respect to the Black formula.
  */
 public interface SabrSwaptionVolatilities
     extends SwaptionVolatilities {

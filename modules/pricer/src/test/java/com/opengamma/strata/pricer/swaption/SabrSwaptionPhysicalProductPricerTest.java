@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -151,16 +150,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
     assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, VOL_PROVIDER));
-  }
-
-  public void no_pv_gamma() {
-    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
-  }
-
-  public void no_pv_theta() {
-    assertThrowsWithCause(() -> SWAPTION_PRICER.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOL_PROVIDER),
-        UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------

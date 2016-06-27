@@ -273,12 +273,14 @@ public final class SabrParametersSwaptionVolatilities
 
   @Override
   public double priceGamma(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    throw new UnsupportedOperationException("SABR model does not support this method");
+    double shift = parameters.shift(expiry, tenor);
+    return BlackFormulaRepository.gamma(forward + shift, strike + shift, expiry, volatility);
   }
 
   @Override
   public double priceTheta(double expiry, double tenor, PutCall putCall, double strike, double forward, double volatility) {
-    throw new UnsupportedOperationException("SABR model does not support this method");
+    double shift = parameters.shift(expiry, tenor);
+    return BlackFormulaRepository.driftlessTheta(forward + shift, strike + shift, expiry, volatility);
   }
 
   @Override
