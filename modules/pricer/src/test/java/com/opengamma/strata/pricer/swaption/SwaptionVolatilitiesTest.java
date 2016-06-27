@@ -131,7 +131,7 @@ public class SwaptionVolatilitiesTest {
 
     @Override
     public ValueType getVolatilityType() {
-      return null;
+      return ValueType.BLACK_VOLATILITY;
     }
 
   }

@@ -41,6 +41,11 @@ public interface SwaptionVolatilities
    */
   public abstract FixedIborSwapConvention getConvention();
   
+  /**
+   * Gets the type of volatility returned by the {@link SwaptionVolatilities#volatility} method.
+   * 
+   * @return the type
+   */
   public abstract ValueType getVolatilityType();
 
   /**
