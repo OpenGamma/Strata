@@ -58,19 +58,17 @@ public class FixedInflationSwapTemplateTest {
       FixedRateSwapLegConvention.of(GBP, ACT_360, P6M, BDA_FOLLOW);
   private static final FixedRateSwapLegConvention FIXED2 =
       FixedRateSwapLegConvention.of(USD, ACT_365F, P3M, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M);
-  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(US_CPI_U, LAG_3M);
+  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(US_CPI_U, LAG_3M, BDA_MOD_FOLLOW);
   private static final FixedInflationSwapConvention CONV = ImmutableFixedInflationSwapConvention.of(
       NAME,
       FIXED,
       INFL,
-      BDA_FOLLOW,
       PLUS_ONE_DAY);
   private static final FixedInflationSwapConvention CONV2 = ImmutableFixedInflationSwapConvention.of(
       NAME2,
       FIXED2,
       INFL2,
-      BDA_FOLLOW,
       PLUS_ONE_DAY);
 
   //-------------------------------------------------------------------------
@@ -96,13 +94,15 @@ public class FixedInflationSwapTemplateTest {
   public void test_createTrade() {
     FixedInflationSwapTemplate base = FixedInflationSwapTemplate.of(TENOR_10Y, CONV);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
-    LocalDate startDate = date(2015, 5, 5);
-    LocalDate endDate = date(2025, 5, 5);
-    SwapTrade test = base.createTrade(tradeDate, TENOR_10Y, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
+    LocalDate startDate = date(2015, 5, 6); // T+1
+    LocalDate endDate = date(2025, 5, 6);
+    SwapTrade test = base.createTrade(tradeDate, BUY, NOTIONAL_2M, 0.25d, REF_DATA);
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
-        INFL.toLeg(startDate, endDate, RECEIVE, BDA_FOLLOW, PLUS_ONE_DAY, NOTIONAL_2M));
+        INFL.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
     assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
+    assertEquals(test.getProduct().getLegs().get(0), expected.getLegs().get(0));
+    assertEquals(test.getProduct().getLegs().get(1), expected.getLegs().get(1));
     assertEquals(test.getProduct(), expected);
   }
 

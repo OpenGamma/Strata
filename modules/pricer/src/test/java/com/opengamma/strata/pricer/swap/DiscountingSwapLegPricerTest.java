@@ -106,6 +106,7 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
+import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapConventions;
@@ -805,10 +806,10 @@ public class DiscountingSwapLegPricerTest {
     LocalDate endDate = VAL_DATE_INFLATION.plusYears(nbYears);
     SwapTrade swap = US_CPI.toTrade(VAL_DATE_INFLATION, VAL_DATE_INFLATION, endDate, BuySell.BUY, NOTIONAL, rate);
     ResolvedSwap resolved = swap.getProduct().resolve(REF_DATA);
-    DiscountingSwapProductPricer pricer = DiscountingSwapProductPricer.DEFAULT;
+    DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     RatesProvider providerEndDate = new MockRatesProvider(endDate);
-    MultiCurrencyAmount c = pricer.currentCash(resolved, providerEndDate);
-    assertEquals(c.getAmount(USD).getAmount(), -(Math.pow(1 + rate, nbYears) - 1.0) * NOTIONAL, NOTIONAL * EPS);
+    CurrencyAmount c = pricer.currentCash(resolved.getLegs(SwapLegType.FIXED).get(0), providerEndDate);
+    assertEquals(c.getAmount(), -(Math.pow(1 + rate, nbYears) - 1.0) * NOTIONAL, NOTIONAL * EPS);
   }
 
   private static final int NB_PERIODS = 10;
