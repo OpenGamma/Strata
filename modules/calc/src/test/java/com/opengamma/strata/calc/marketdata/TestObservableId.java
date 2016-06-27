@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.data.ObservableSource;
 
@@ -49,8 +50,14 @@ public class TestObservableId
     this.id = id;
   }
 
+  @Override
   public StandardId getStandardId() {
     return id;
+  }
+
+  @Override
+  public FieldName getFieldName() {
+    return FieldName.MARKET_VALUE;
   }
 
   @Override
