@@ -107,9 +107,6 @@ public final class InterpolatedNodalCurve
   //-------------------------------------------------------------------------
   /**
    * Creates an interpolated curve with metadata.
-   * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
    * 
    * @param metadata  the curve metadata
    * @param xValues  the x-values
@@ -128,6 +125,35 @@ public final class InterpolatedNodalCurve
         .xValues(xValues)
         .yValues(yValues)
         .interpolator(interpolator)
+        .build();
+  }
+
+  /**
+   * Creates an interpolated curve with metadata.
+   *
+   * @param metadata  the curve metadata
+   * @param xValues  the x-values
+   * @param yValues  the y-values
+   * @param interpolator  the interpolator
+   * @param extrapolatorLeft  the extrapolator for extrapolating off the left-hand end of the curve
+   * @param extrapolatorRight  the extrapolator for extrapolating off the right-hand end of the curve
+   * @return the curve
+   */
+  public static InterpolatedNodalCurve of(
+      CurveMetadata metadata,
+      DoubleArray xValues,
+      DoubleArray yValues,
+      CurveInterpolator interpolator,
+      CurveExtrapolator extrapolatorLeft,
+      CurveExtrapolator extrapolatorRight) {
+
+    return InterpolatedNodalCurve.builder()
+        .metadata(metadata)
+        .xValues(xValues)
+        .yValues(yValues)
+        .interpolator(interpolator)
+        .extrapolatorLeft(extrapolatorLeft)
+        .extrapolatorRight(extrapolatorRight)
         .build();
   }
 
