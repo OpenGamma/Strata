@@ -135,14 +135,14 @@ public class FixedInflationSwapCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(valuationDate).addValue(QUOTE_ID, rate)
         .addTimeSeries(IndexQuoteId.of(PriceIndices.EU_EXT_CPI), ts).build();
     assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
-    double priceIndexGuess = lastPriceIndex * Math.pow(1.0d +  rate, TENOR_10Y.get(ChronoUnit.YEARS));
+    double priceIndexGuess = lastPriceIndex * Math.pow(1.0d + rate, TENOR_10Y.get(ChronoUnit.YEARS));
     assertEquals(node.initialGuess(marketData, ValueType.PRICE_INDEX), priceIndexGuess, TOLERANCE_GUESS);
   }
 
   public void test_initialGuess_wrongType() {
     FixedInflationSwapCurveNode node = FixedInflationSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).build();
-    assertThrowsIllegalArg(() -> node.initialGuess(marketData, ValueType.BLACK_VOLATILITY));    
+    assertThrowsIllegalArg(() -> node.initialGuess(marketData, ValueType.BLACK_VOLATILITY));
   }
 
   public void test_metadata_end() {

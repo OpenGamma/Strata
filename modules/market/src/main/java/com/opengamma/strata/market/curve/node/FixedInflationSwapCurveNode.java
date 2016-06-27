@@ -7,12 +7,24 @@ package com.opengamma.strata.market.curve.node;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutablePreBuild;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
@@ -27,7 +39,6 @@ import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
-import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
@@ -37,34 +48,21 @@ import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
  * A curve node whose instrument is a Fixed-Inflation swap.
  * <p>
  * The trade produced by the node will be a fixed receiver (SELL) for a positive quantity
- * and a fixed payer (BUY) for a negative quantity. 
+ * and a fixed payer (BUY) for a negative quantity.
  */
 @BeanDefinition
 public final class FixedInflationSwapCurveNode
-implements CurveNode, ImmutableBean, Serializable {
+    implements CurveNode, ImmutableBean, Serializable {
 
   /**
    * The template for the swap associated with this node.
@@ -127,8 +125,8 @@ implements CurveNode, ImmutableBean, Serializable {
   }
 
   /**
-   * Returns a curve node for a Fixed-Inflation swap using the specified instrument template, rate key, spread
-   * and label.
+   * Returns a curve node for a Fixed-Inflation swap using the specified instrument template,
+   * rate key, spread and label.
    *
    * @param template  the template defining the node instrument
    * @param rateId  the identifier of the market data providing the rate for the node instrument
@@ -158,7 +156,6 @@ implements CurveNode, ImmutableBean, Serializable {
   }
 
   //-------------------------------------------------------------------------
-
   @Override
   public Set<ObservableId> requirements() {
     return ImmutableSet.of(rateId);
@@ -219,7 +216,7 @@ implements CurveNode, ImmutableBean, Serializable {
   }
 
   @Override
-  public ResolvedTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
+  public ResolvedSwapTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData).resolve(refData);
   }
 
@@ -231,7 +228,7 @@ implements CurveNode, ImmutableBean, Serializable {
       double latestIndex = ts.getLatestValue();
       double rate = marketData.getValue(rateId);
       double year = template.getTenor().getPeriod().getYears();
-      return latestIndex * Math.pow(1.0+rate, year);
+      return latestIndex * Math.pow(1.0 + rate, year);
     }
     if (ValueType.ZERO_RATE.equals(valueType)) {
       return marketData.getValue(rateId);
