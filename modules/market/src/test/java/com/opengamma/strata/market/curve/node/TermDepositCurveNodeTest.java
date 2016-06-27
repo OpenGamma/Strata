@@ -58,7 +58,7 @@ public class TermDepositCurveNodeTest {
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final BusinessDayAdjustment BDA_MOD_FOLLOW = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, EUTA);
-  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT;
+  private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT_T2;
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
   private static final TermDepositTemplate TEMPLATE = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
   private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "Deposit1"));
