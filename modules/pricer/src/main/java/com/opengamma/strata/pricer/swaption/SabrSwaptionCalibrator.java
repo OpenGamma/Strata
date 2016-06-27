@@ -581,6 +581,7 @@ public class SabrSwaptionCalibrator {
    * @param periodToExpiry  the period to expiry
    * @param forward  the forward price/rate
    * @param blackVolatility  the option (call/payer) Black implied volatility
+   * @param shiftInput  the shift used to computed the input implied shifted Black volatilities
    * @param startParameters  the starting parameters for the calibration. The alpha parameter is used as a starting
    * point for the root-finding, the other parameters are fixed.
    * @param shiftOutput  the shift to calibrate the shifted SABR
