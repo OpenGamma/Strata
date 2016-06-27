@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -89,6 +90,17 @@ public final class ResourceLocator {
     // convert Windows separators to unix
     filename = (File.separatorChar == '\\' ? filename.replace('\\', '/') : filename);
     return new ResourceLocator(FILE_URL_PREFIX + filename, Files.asByteSource(file));
+  }
+
+  /**
+   * Creates a resource from a {@code Path}.
+   *
+   * @param path  path to the file to wrap
+   * @return the resource
+   */
+  public static ResourceLocator ofPath(Path path) {
+    ArgChecker.notNull(path, "path");
+    return ofFile(path.toFile());
   }
 
   /**

@@ -11,6 +11,8 @@ import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.testng.annotations.Test;
 
@@ -60,6 +62,16 @@ public class ResourceLocatorTest {
   public void test_ofFile() throws Exception {
     File file = new File("src/test/resources/com/opengamma/strata/config/base/TestFile.txt");
     ResourceLocator test = ResourceLocator.ofFile(file);
+    assertEquals(test.getLocator(), "file:src/test/resources/com/opengamma/strata/config/base/TestFile.txt");
+    assertEquals(test.getByteSource().read()[0], 'H');
+    assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
+    assertEquals(test.toString(), "file:src/test/resources/com/opengamma/strata/config/base/TestFile.txt");
+  }
+
+  public void test_ofPath() throws Exception {
+    Path path = Paths.get("src/test/resources/com/opengamma/strata/config/base/TestFile.txt");
+    ResourceLocator test = ResourceLocator.ofPath(path);
     assertEquals(test.getLocator(), "file:src/test/resources/com/opengamma/strata/config/base/TestFile.txt");
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
