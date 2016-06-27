@@ -1,5 +1,8 @@
 Curve Name,Label,Symbology,Ticker,Field Name,Type,Convention,Time,Spread
 ,,,,,,,,
+USD-Disc,ON,OG-Ticker,USD-DEP-ON,MarketValue,DEP,USD-ShortDeposit-T0,1D,
+USD-Disc,TN,OG-Ticker,USD-DEP-TN,MarketValue,DEP,USD-ShortDeposit-T1,1D,
+USD-Disc,1W,OG-Ticker,USD-DEP-1W,MarketValue,DEP,USD-ShortDeposit-T2,1W,
 USD-Disc,1M,OG-Ticker,USD-OIS-1M,MarketValue,OIS,USD-FIXED-TERM-FED-FUND-OIS,1M,
 USD-Disc,2M,OG-Ticker,USD-OIS-2M,MarketValue,OIS,USD-FIXED-TERM-FED-FUND-OIS,2M,
 USD-Disc,3M,OG-Ticker,USD-OIS-3M,MarketValue,OIS,USD-FIXED-TERM-FED-FUND-OIS,3M,

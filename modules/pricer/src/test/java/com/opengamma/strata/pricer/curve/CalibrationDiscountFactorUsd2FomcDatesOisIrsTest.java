@@ -174,8 +174,8 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
   static {
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
-      TermDepositConvention convention =
-          ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
+      TermDepositConvention convention = ImmutableTermDepositConvention.of(
+          "USD-Dep", USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
       LocalDate nodeDate = FOMC_NODES.get(i);
       if (nodeDate != null) {
         DSC_NODES[i] = TermDepositCurveNode.builder()

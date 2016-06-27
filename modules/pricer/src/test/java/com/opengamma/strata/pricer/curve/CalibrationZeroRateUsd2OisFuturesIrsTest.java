@@ -153,7 +153,8 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for(int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
       TermDepositConvention convention = 
-          ImmutableTermDepositConvention.of(USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
+          ImmutableTermDepositConvention.of(
+              "USD-Dep", USD, bda, ACT_360, DaysAdjustment.ofBusinessDays(DSC_DEPO_OFFSET[i], USNY));
       DSC_NODES[i] = TermDepositCurveNode.of(TermDepositTemplate.of(Period.ofDays(1), convention), 
           QuoteId.of(StandardId.of(SCHEME, DSC_ID_VALUE[i])));
     }

@@ -1,7 +1,7 @@
 Curve Name,Label,Symbology,Ticker,Field Name,Type,Convention,Time,Spread
 ,,,,,,,,
-USD-Disc,ON,OG-Ticker,USD-OIS-ON,,DEP,USD-Deposit-T,1D,
-USD-Disc,1W,OG-Ticker,USD-OIS-1W,,DEP,USD-Deposit-T,1D,
+USD-Disc,ON,OG-Ticker,USD-OIS-ON,,DEP,USD-ShortDeposit-T0,1D,
+USD-Disc,1W,OG-Ticker,USD-OIS-1W,,DEP,USD-ShortDeposit-T1,1D,
 USD-Disc,1M,OG-Ticker,USD-OIS-1M,,OIS,USD-FIXED-TERM-FED-FUND-OIS,7D,0d
 USD-Disc,2M,OG-Ticker,USD-OIS-2M,MarketValue,OIS,USD-FIXED-TERM-FED-FUND-OIS,2M,
 USD-Disc,3M,OG-Ticker,USD-OIS-3M,MarketValue,OIS,USD-FIXED-TERM-FED-FUND-OIS,3M,
@@ -39,8 +39,8 @@ USD-3ML,35Y,OG-Ticker,EURUSD-IRS3M-35Y,MarketValue,XCS,EUR-EURIBOR-3M-USD-LIBOR-
 USD-3ML,36Y,OG-Ticker,EURUSD-IRS3M-36Y,MarketValue,XCcyIborIborSwap,EUR-EURIBOR-3M-USD-LIBOR-3M,36Y,
 USD-3ML,37Y,OG-Ticker,EURUSD-FXS3M-37Y,MarketValue,FXS,EUR/USD,37Y,
 USD-3ML,38Y,OG-Ticker,EURUSD-FXS3M-38Y,MarketValue,FxSwap,EUR/USD,38Y,
-USD-3ML,39Y,OG-Ticker,Deposit,MarketValue,DEP,USD-Deposit,39Y,
-USD-3ML,40Y,OG-Ticker,Deposit,MarketValue,TermDeposit,USD-Deposit,40Y,
+USD-3ML,39Y,OG-Ticker,Deposit,MarketValue,DEP,USD-Deposit-T2,39Y,
+USD-3ML,40Y,OG-Ticker,Deposit,MarketValue,TermDeposit,USD-Deposit-T2,40Y,
 USD-3ML,41Y,OG-Ticker,USD-IRS3M-1Y,MarketValue,BS3,EUR-FIXED-1Y-EURIBOR-3M-EURIBOR-6M,41Y,
 USD-3ML,42Y,OG-Ticker,USD-IRS3M-1Y,MarketValue,ThreeLegBasisSwap,EUR-FIXED-1Y-EURIBOR-3M-EURIBOR-6M,42Y,
 USD-3ML,FUT1,OG-Ticker,USD-IBORFUT-1Q,MarketValue,IFU,USD-LIBOR-3M-Quarterly-IMM,7D+1,
