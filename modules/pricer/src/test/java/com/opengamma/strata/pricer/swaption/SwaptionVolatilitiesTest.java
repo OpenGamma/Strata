@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -121,6 +122,16 @@ public class SwaptionVolatilitiesTest {
     @Override
     public double tenor(LocalDate startDate, LocalDate endDate) {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LocalDate getValuationDate() {
+      return getValuationDateTime().toLocalDate();
+    }
+
+    @Override
+    public ValueType getVolatilityType() {
+      return ValueType.BLACK_VOLATILITY;
     }
 
   }

@@ -5,13 +5,30 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
+import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
+import com.opengamma.strata.market.surface.SurfaceInfoType;
+import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
+import com.opengamma.strata.math.impl.interpolation.Interpolator1D;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 
@@ -22,6 +39,9 @@ public class SwaptionCubeData {
 
   /** Normal volatility for EUR - Data from 29-February-2016*/
   public static final LocalDate DATA_DATE = LocalDate.of(2016, 2, 29);
+  public static final ZonedDateTime DATA_TIME = DATA_DATE.atTime(10, 0).atZone(ZoneId.of("Europe/Berlin"));
+  public static final DayCount DAY_COUNT = ACT_365F;
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   public static final FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_6M = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
   public static final DoubleArray MONEYNESS =
       DoubleArray.of(-0.0200, -0.0100, -0.0050, -0.0025, 0.0000, 0.0025, 0.0050, 0.0100, 0.0200);
@@ -103,4 +123,46 @@ public class SwaptionCubeData {
           {0.00446, 0.003534, 0.002833, 0.002542, 0.002439, 0.002627, 0.002993, 0.003854, 0.005565}}
   };
 
+  public static final List<Period> EXPIRIES_SIMPLE_2 = new ArrayList<>();
+  static {
+    EXPIRIES_SIMPLE_2.add(Period.ofMonths(1));
+    EXPIRIES_SIMPLE_2.add(Period.ofMonths(3));
+    EXPIRIES_SIMPLE_2.add(Period.ofMonths(6));
+    EXPIRIES_SIMPLE_2.add(Period.ofYears(1));
+  }
+  public static final double[] DATA_NORMAL_ATM_SIMPLE =
+      {0.00265, 0.00270, 0.00260, 0.00265, 0.00255, 0.00260, 0.00250, 0.00255};
+  public static final double[] DATA_LOGNORMAL_ATM_SIMPLE =
+    {0.265, 0.270, 0.260, 0.265, 0.255, 0.260, 0.250, 0.255};
+  public static final double[] EXPIRIES_SIMPLE_2_TIME = new double[DATA_NORMAL_ATM_SIMPLE.length];
+  static {
+    for (int i = 0; i < EXPIRIES_SIMPLE_2.size(); i++) {
+      BusinessDayAdjustment bda = EUR_FIXED_1Y_EURIBOR_6M.getFloatingLeg().getStartDateBusinessDayAdjustment();
+      EXPIRIES_SIMPLE_2_TIME[2 * i] =
+          DAY_COUNT.relativeYearFraction(DATA_DATE, bda.adjust(DATA_DATE.plus(EXPIRIES_SIMPLE_2.get(i)), REF_DATA));
+      EXPIRIES_SIMPLE_2_TIME[2 * i + 1] = EXPIRIES_SIMPLE_2_TIME[2 * i];
+    }
+  }
+  public static final double[] TENOR_TIME = {1, 2, 1, 2, 1, 2, 1, 2};
+  private static final SurfaceMetadata METADATA_NORMAL = DefaultSurfaceMetadata.builder().surfaceName("ATM")
+      .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
+      .zValueType(ValueType.NORMAL_VOLATILITY).addInfo(SurfaceInfoType.SWAP_CONVENTION, EUR_FIXED_1Y_EURIBOR_6M)
+      .dayCount(DAY_COUNT).build();
+  private static final SurfaceMetadata METADATA_LOGNORMAL = DefaultSurfaceMetadata.builder().surfaceName("ATM")
+      .xValueType(ValueType.YEAR_FRACTION).yValueType(ValueType.YEAR_FRACTION)
+      .zValueType(ValueType.BLACK_VOLATILITY).addInfo(SurfaceInfoType.SWAP_CONVENTION, EUR_FIXED_1Y_EURIBOR_6M)
+      .dayCount(DAY_COUNT).build();
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
+      CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
+  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  public static final InterpolatedNodalSurface ATM_NORMAL_SIMPLE_SURFACE = 
+      InterpolatedNodalSurface.of(METADATA_NORMAL, DoubleArray.ofUnsafe(EXPIRIES_SIMPLE_2_TIME), 
+          DoubleArray.ofUnsafe(TENOR_TIME), DoubleArray.ofUnsafe(DATA_NORMAL_ATM_SIMPLE), INTERPOLATOR_2D);
+  public static final InterpolatedNodalSurface ATM_LOGNORMAL_SIMPLE_SURFACE = 
+      InterpolatedNodalSurface.of(METADATA_LOGNORMAL, DoubleArray.ofUnsafe(EXPIRIES_SIMPLE_2_TIME), 
+          DoubleArray.ofUnsafe(TENOR_TIME), DoubleArray.ofUnsafe(DATA_LOGNORMAL_ATM_SIMPLE), INTERPOLATOR_2D);
+  public static final SwaptionVolatilities ATM_NORMAL_SIMPLE = 
+      NormalSwaptionExpiryTenorVolatilities.of(ATM_NORMAL_SIMPLE_SURFACE, DATA_TIME);
+  public static final SwaptionVolatilities ATM_LOGNORMAL_SIMPLE = 
+      BlackSwaptionExpiryTenorVolatilities.of(ATM_LOGNORMAL_SIMPLE_SURFACE, DATA_TIME);
 }

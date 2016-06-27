@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
@@ -15,6 +16,11 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  */
 public interface SabrSwaptionVolatilities
     extends SwaptionVolatilities {
+  
+  @Override
+  public default ValueType getVolatilityType() {
+    return ValueType.BLACK_VOLATILITY; // SABR implemented with Black implied volatility
+  }
 
   @Override
   public abstract SabrSwaptionVolatilities withParameter(int parameterIndex, double newValue);
