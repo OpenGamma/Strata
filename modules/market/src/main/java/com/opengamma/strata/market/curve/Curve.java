@@ -70,7 +70,7 @@ public interface Curve extends ParameterizedData {
 
   @Override
   public default ParameterMetadata getParameterMetadata(int parameterIndex) {
-    return getMetadata().getParameterMetadata().map(pm -> pm.get(parameterIndex)).orElse(ParameterMetadata.empty());
+    return getMetadata().getParameterMetadata(parameterIndex);
   }
 
   @Override
