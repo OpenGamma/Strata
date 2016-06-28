@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -75,7 +76,8 @@ public class IborFutureConventionTest {
     IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
     double quantity = 3;
     double price = 0.99;
-    IborFutureTrade trade = convention.createTrade(date, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
+    SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
+    IborFutureTrade trade = convention.createTrade(date, secId, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
     assertEquals(trade.getProduct().getFixingDate(), LocalDate.of(2016, 6, 13));
     assertEquals(trade.getProduct().getIndex(), USD_LIBOR_3M);
     assertEquals(trade.getProduct().getNotional(), NOTIONAL_1M);

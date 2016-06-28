@@ -27,13 +27,16 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveNodeDate;
+import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
@@ -57,7 +60,7 @@ public final class IborFutureCurveNode
    * The identifier of the market data value which provides the price.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ObservableId rateId;
+  private final QuoteId rateId;
   /**
    * The additional spread added to the price.
    */
@@ -82,10 +85,10 @@ public final class IborFutureCurveNode
    * Obtains a curve node for an Ibor Future using the specified template and rate key.
    *
    * @param template  the template used for building the instrument for the node
-   * @param rateId  the identifier of the market rate used when building the instrument for the node
+   * @param rateId  the identifier of the market rate for the security
    * @return a node whose instrument is built from the template using a market rate
    */
-  public static IborFutureCurveNode of(IborFutureTemplate template, ObservableId rateId) {
+  public static IborFutureCurveNode of(IborFutureTemplate template, QuoteId rateId) {
     return of(template, rateId, 0d);
   }
 
@@ -93,13 +96,13 @@ public final class IborFutureCurveNode
    * Obtains a curve node for an Ibor Future using the specified template, rate key and spread.
    *
    * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market rate for the security
    * @param additionalSpread  the additional spread amount added to the rate
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFutureCurveNode of(
       IborFutureTemplate template,
-      ObservableId rateId,
+      QuoteId rateId,
       double additionalSpread) {
 
     return of(template, rateId, additionalSpread, "");
@@ -109,14 +112,14 @@ public final class IborFutureCurveNode
    * Obtains a curve node for an Ibor Future using the specified template, rate key, spread and label.
    *
    * @param template  the template defining the node instrument
-   * @param rateId  the identifier of the market data providing the rate for the node instrument
+   * @param rateId  the identifier of the market rate for the security
    * @param additionalSpread  the additional spread amount added to the rate
    * @param label  the label to use for the node, if empty an appropriate default label will be generated
    * @return a node whose instrument is built from the template using a market rate
    */
   public static IborFutureCurveNode of(
       IborFutureTemplate template,
-      ObservableId rateId,
+      QuoteId rateId,
       double additionalSpread,
       String label) {
 
@@ -148,19 +151,22 @@ public final class IborFutureCurveNode
 
   // calculate the end date
   private LocalDate calculateEnd(LocalDate referenceDate, ReferenceData refData) {
-    return template.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, refData);
+    return template.getIndex().calculateMaturityFromEffective(referenceDate, refData);
   }
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    IborFutureTrade trade = template.createTrade(valuationDate, 1, 1, 0, refData);
+    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, 0, refData);
     return trade.getProduct().getFixingDate();
   }
 
   @Override
   public IborFutureTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
-    double price = marketData.getValue(rateId) + additionalSpread;
-    return template.createTrade(marketData.getValuationDate(), quantity, 1d, price, refData);
+    LocalDate valuationDate = marketData.getValuationDate();
+    double price = marketPrice(marketData) + additionalSpread;
+    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
+    return template.createTrade(valuationDate, secId, quantity, 1d, price, refData);
   }
 
   @Override
@@ -171,14 +177,23 @@ public final class IborFutureCurveNode
   @Override
   public double initialGuess(MarketData marketData, ValueType valueType) {
     if (ValueType.ZERO_RATE.equals(valueType) || ValueType.FORWARD_RATE.equals(valueType)) {
-      return 1d - marketData.getValue(rateId);
+      return 1d - marketPrice(marketData);
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.getMinimumPeriod()
-          .plus(template.getConvention().getIndex().getTenor()).toTotalMonths() / 12d;
-      return Math.exp(-approximateMaturity * (1d - marketData.getValue(rateId)));
+      double approximateMaturity = template.approximateMaturity(marketData.getValuationDate());
+      return Math.exp(-approximateMaturity * (1d - marketPrice(marketData)));
     }
     return 0d;
+  }
+
+  // check if market value is correct
+  private double marketPrice(MarketData marketData) {
+    double rate = marketData.getValue(rateId);
+    if (rate > 2d) {
+      throw new IllegalArgumentException(Messages.format(
+          "Market value for Ibor future must be in decimal form, where 0.99 is 1%, but was {}", rate));
+    }
+    return rate;
   }
 
   //-------------------------------------------------------------------------
@@ -221,7 +236,7 @@ public final class IborFutureCurveNode
 
   private IborFutureCurveNode(
       IborFutureTemplate template,
-      ObservableId rateId,
+      QuoteId rateId,
       double additionalSpread,
       String label,
       CurveNodeDate date) {
@@ -264,7 +279,7 @@ public final class IborFutureCurveNode
    * Gets the identifier of the market data value which provides the price.
    * @return the value of the property, not null
    */
-  public ObservableId getRateId() {
+  public QuoteId getRateId() {
     return rateId;
   }
 
@@ -366,8 +381,8 @@ public final class IborFutureCurveNode
     /**
      * The meta-property for the {@code rateId} property.
      */
-    private final MetaProperty<ObservableId> rateId = DirectMetaProperty.ofImmutable(
-        this, "rateId", IborFutureCurveNode.class, ObservableId.class);
+    private final MetaProperty<QuoteId> rateId = DirectMetaProperty.ofImmutable(
+        this, "rateId", IborFutureCurveNode.class, QuoteId.class);
     /**
      * The meta-property for the {@code additionalSpread} property.
      */
@@ -445,7 +460,7 @@ public final class IborFutureCurveNode
      * The meta-property for the {@code rateId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ObservableId> rateId() {
+    public MetaProperty<QuoteId> rateId() {
       return rateId;
     }
 
@@ -509,7 +524,7 @@ public final class IborFutureCurveNode
   public static final class Builder extends DirectFieldsBeanBuilder<IborFutureCurveNode> {
 
     private IborFutureTemplate template;
-    private ObservableId rateId;
+    private QuoteId rateId;
     private double additionalSpread;
     private String label;
     private CurveNodeDate date;
@@ -559,7 +574,7 @@ public final class IborFutureCurveNode
           this.template = (IborFutureTemplate) newValue;
           break;
         case -938107365:  // rateId
-          this.rateId = (ObservableId) newValue;
+          this.rateId = (QuoteId) newValue;
           break;
         case 291232890:  // additionalSpread
           this.additionalSpread = (Double) newValue;
@@ -627,7 +642,7 @@ public final class IborFutureCurveNode
      * @param rateId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rateId(ObservableId rateId) {
+    public Builder rateId(QuoteId rateId) {
       JodaBeanUtils.notNull(rateId, "rateId");
       this.rateId = rateId;
       return this;

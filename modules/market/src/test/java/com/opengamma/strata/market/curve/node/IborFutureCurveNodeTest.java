@@ -34,6 +34,7 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureConvention;
 import com.opengamma.strata.product.index.type.IborFutureConventions;
@@ -51,12 +52,14 @@ public class IborFutureCurveNodeTest {
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
   private static final int NUMBER = 2;
   private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION);
-  private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG-Ticker", "OG-EDH6"));
+  private static final StandardId STANDARD_ID = StandardId.of("OG-Ticker", "OG-EDH6");
+  private static final QuoteId QUOTE_ID = QuoteId.of(STANDARD_ID);
   private static final double SPREAD = 0.0001;
   private static final String LABEL = "Label";
 
   private static final double TOLERANCE_RATE = 1.0E-8;
 
+  //-------------------------------------------------------------------------
   public void test_builder() {
     IborFutureCurveNode test = IborFutureCurveNode.builder()
         .label(LABEL)
@@ -104,7 +107,8 @@ public class IborFutureCurveNodeTest {
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
     IborFutureTrade trade = node.trade(1d, marketData, REF_DATA);
-    IborFutureTrade expected = TEMPLATE.createTrade(VAL_DATE, 1L, 1.0, price + SPREAD, REF_DATA);
+    IborFutureTrade expected = TEMPLATE.createTrade(
+        VAL_DATE, SecurityId.of(STANDARD_ID), 1L, 1.0, price + SPREAD, REF_DATA);
     assertEquals(trade, expected);
   }
 
@@ -120,8 +124,7 @@ public class IborFutureCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
     assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), 1.0 - price, TOLERANCE_RATE);
     assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), 1.0 - price, TOLERANCE_RATE);
-    double approximateMaturity =
-        TEMPLATE.getMinimumPeriod().plus(TEMPLATE.getConvention().getIndex().getTenor()).toTotalMonths() / 12.0d;
+    double approximateMaturity = TEMPLATE.approximateMaturity(VAL_DATE);
     double df = Math.exp(-approximateMaturity * (1.0 - price));
     assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR), df, TOLERANCE_RATE);
     assertEquals(node.initialGuess(marketData, ValueType.UNKNOWN), 0.0d, TOLERANCE_RATE);
@@ -131,7 +134,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(date, REF_DATA);
-    LocalDate maturityDate = TEMPLATE.getConvention().getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
+    LocalDate maturityDate = TEMPLATE.getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
     ParameterMetadata metadata = node.metadata(date, REF_DATA);
     assertEquals(metadata.getLabel(), LABEL);
     assertTrue(metadata instanceof YearMonthDateParameterMetadata);
@@ -165,7 +168,8 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode test = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
     IborFutureCurveNode test2 = IborFutureCurveNode.of(
-        IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION), QuoteId.of(StandardId.of("OG-Ticker", "Unknown")));
+        IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION),
+        QuoteId.of(StandardId.of("OG-Ticker", "Unknown")));
     coverBeanEquals(test, test2);
   }
 
