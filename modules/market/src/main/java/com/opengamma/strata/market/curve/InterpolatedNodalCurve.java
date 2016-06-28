@@ -275,6 +275,7 @@ public final class InterpolatedNodalCurve
    * @param y  the new y-value
    * @return the updated curve
    */
+  @Override
   public InterpolatedNodalCurve withNode(int index, double x, double y) {
     DoubleArray xExtended = xValues.subArray(0, index).concat(x).concat(xValues.subArray(index));
     DoubleArray yExtended = yValues.subArray(0, index).concat(y).concat(yValues.subArray(index));
