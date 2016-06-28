@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.surface;
 
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
@@ -34,6 +35,25 @@ public interface NodalSurface
    */
   @Override
   public abstract NodalSurface withMetadata(SurfaceMetadata metadata);
+
+  /**
+   * Gets the metadata of the parameter at the specified index.
+   * <p>
+   * If there is no specific parameter metadata, {@link SimpleSurfaceParameterMetadata} will be created.
+   * 
+   * @param parameterIndex  the zero-based index of the parameter to get
+   * @return the metadata of the parameter
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  @Override
+  public default ParameterMetadata getParameterMetadata(int parameterIndex) {
+    return getMetadata().getParameterMetadata().map(pm -> pm.get(parameterIndex))
+        .orElse(SimpleSurfaceParameterMetadata.of(
+            getMetadata().getXValueType(),
+            getXValues().get(parameterIndex),
+            getMetadata().getYValueType(),
+            getYValues().get(parameterIndex)));
+  }
 
   /**
    * Gets the known x-values of the surface.
