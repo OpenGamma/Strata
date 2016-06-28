@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -29,6 +30,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
@@ -73,6 +75,16 @@ public class SabrSwaptionVolatilitiesTest {
     assertEquals(test1.getValuationDateTime(), DATE.atTime(TIME).atZone(ZONE));
     SabrParametersSwaptionVolatilities test2 = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
     assertEquals(test1, test2);
+  }
+
+  public void test_findData() {
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, PARAM, DATE_TIME);
+    assertEquals(test.findData(PARAM.getAlphaSurface().getName()), Optional.of(PARAM.getAlphaSurface()));
+    assertEquals(test.findData(PARAM.getBetaSurface().getName()), Optional.of(PARAM.getBetaSurface()));
+    assertEquals(test.findData(PARAM.getRhoSurface().getName()), Optional.of(PARAM.getRhoSurface()));
+    assertEquals(test.findData(PARAM.getNuSurface().getName()), Optional.of(PARAM.getNuSurface()));
+    assertEquals(test.findData(PARAM.getShiftSurface().getName()), Optional.of(PARAM.getShiftSurface()));
+    assertEquals(test.findData(SurfaceName.of("Rubbish")), Optional.empty());
   }
 
   public void test_tenor() {

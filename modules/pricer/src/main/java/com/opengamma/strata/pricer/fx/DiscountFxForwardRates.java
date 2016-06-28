@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -32,6 +33,7 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -140,6 +142,13 @@ public final class DiscountFxForwardRates
   @Override
   public LocalDate getValuationDate() {
     return valuationDate;
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    return baseCurrencyDiscountFactors.findData(name)
+        .map(Optional::of)
+        .orElse(counterCurrencyDiscountFactors.findData(name));
   }
 
   @Override

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -34,6 +35,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -96,6 +98,11 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
 
   public void test_swapConvention() {
     assertEquals(PROVIDER.getConvention(), CONVENTION);
+  }
+
+  public void test_findData() {
+    assertEquals(PROVIDER.findData(SURFACE.getName()), Optional.of(SURFACE));
+    assertEquals(PROVIDER.findData(SurfaceName.of("Rubbish")), Optional.empty());
   }
 
   public void test_tenor() {

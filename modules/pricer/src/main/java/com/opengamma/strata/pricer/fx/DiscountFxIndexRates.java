@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
 
@@ -34,15 +35,16 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
- * Provides access to discount factors for a currency.
+ * Provides access to rates for an FX index.
  * <p>
- * This provides discount factors for a single currency pair.
+ * This provides rates for a single currency pair FX index.
  * <p>
  * This implementation is based on an underlying {@link FxForwardRates} instance.
  */
@@ -112,6 +114,11 @@ public final class DiscountFxIndexRates
   @Override
   public LocalDate getValuationDate() {
     return fxForwardRates.getValuationDate();
+  }
+
+  @Override
+  public <T> Optional<T> findData(MarketDataName<T> name) {
+    return fxForwardRates.findData(name);
   }
 
   @Override
