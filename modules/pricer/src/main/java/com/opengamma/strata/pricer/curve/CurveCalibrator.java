@@ -218,11 +218,13 @@ public final class CurveCalibrator {
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider resulting from the calibration
    */
-  public ImmutableRatesProvider calibrate(
+  ImmutableRatesProvider calibrate(
       List<CurveGroupDefinition> allGroupsDefn,
       ImmutableRatesProvider knownData,
       MarketData marketData,
       ReferenceData refData) {
+    // this method effectively takes one CurveGroupDefinition
+    // the list is a split of the definition, not multiple independent definitions
 
     if (!knownData.getValuationDate().equals(marketData.getValuationDate())) {
       throw new IllegalArgumentException(Messages.format(
