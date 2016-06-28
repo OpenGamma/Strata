@@ -8,11 +8,14 @@ package com.opengamma.strata.market.surface;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import org.joda.beans.Bean;
@@ -29,8 +32,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
+import com.opengamma.strata.collect.tuple.ObjDoublePair;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -98,12 +103,12 @@ public final class InterpolatedNodalSurface
   /**
    * Creates an interpolated surface with metadata.
    * <p>
-   * The extrapolators will be flat.
-   * For more control, use the builder.
+   * The value arrays must be sorted, by x-values then y-values.
+   * An exception is thrown if they are not sorted.
    * 
    * @param metadata  the surface metadata
-   * @param xValues  the x-values
-   * @param yValues  the y-values
+   * @param xValues  the x-values, must be sorted from low to high
+   * @param yValues  the y-values, must be sorted from low to high within x
    * @param zValues  the z-values
    * @param interpolator  the interpolator
    * @return the surface
@@ -115,13 +120,29 @@ public final class InterpolatedNodalSurface
       DoubleArray zValues,
       GridInterpolator2D interpolator) {
 
-    return InterpolatedNodalSurface.builder()
-        .metadata(metadata)
-        .xValues(xValues)
-        .yValues(yValues)
-        .zValues(zValues)
-        .interpolator(interpolator)
-        .build();
+    return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator);
+  }
+
+  /**
+   * Creates an interpolated surface with metadata, where the values are not sorted.
+   * <p>
+   * The value arrays will be sorted, by x-values then y-values.
+   * 
+   * @param metadata  the surface metadata
+   * @param xValues  the x-values
+   * @param yValues  the y-values
+   * @param zValues  the z-values
+   * @param interpolator  the interpolator
+   * @return the surface
+   */
+  public static InterpolatedNodalSurface ofUnsorted(
+      SurfaceMetadata metadata,
+      DoubleArray xValues,
+      DoubleArray yValues,
+      DoubleArray zValues,
+      GridInterpolator2D interpolator) {
+
+    return new InterpolatedNodalSurface(metadata, xValues, yValues, zValues, interpolator, true);
   }
 
   //-------------------------------------------------------------------------
@@ -133,10 +154,88 @@ public final class InterpolatedNodalSurface
       DoubleArray yValues,
       DoubleArray zValues,
       GridInterpolator2D interpolator) {
-    JodaBeanUtils.notNull(metadata, "metadata");
-    JodaBeanUtils.notNull(xValues, "times");
-    JodaBeanUtils.notNull(yValues, "values");
-    JodaBeanUtils.notNull(interpolator, "interpolator");
+
+    validateInputs(metadata, xValues, yValues, zValues, interpolator);
+    for (int i = 1; i < xValues.size(); i++) {
+      if (xValues.get(i) < xValues.get(i - 1)) {
+        throw new IllegalArgumentException("Array of x-values must be sorted");
+      }
+      if (xValues.get(i) == xValues.get(i - 1) && yValues.get(i) <= yValues.get(i - 1)) {
+        throw new IllegalArgumentException("Array of y-values must be sorted and unique within x-values");
+      }
+    }
+    this.metadata = metadata;
+    this.xValues = xValues;
+    this.yValues = yValues;
+    this.zValues = zValues;
+    Map<DoublesPair, Double> pairs = new HashMap<>();
+    for (int i = 0; i < xValues.size(); i++) {
+      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
+    }
+    this.interpolator = interpolator;
+    underlyingDataBundle = interpolator.getDataBundle(pairs);
+    this.parameterMetadata = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> metadata.getParameterMetadata(i))
+        .collect(toImmutableList());
+  }
+
+  // constructor that sorts (artificial boolean flag
+  private InterpolatedNodalSurface(
+      SurfaceMetadata metadata,
+      DoubleArray xValues,
+      DoubleArray yValues,
+      DoubleArray zValues,
+      GridInterpolator2D interpolator,
+      boolean sort) {
+
+    validateInputs(metadata, xValues, yValues, zValues, interpolator);
+    // sort inputs
+    Map<DoublesPair, ObjDoublePair<ParameterMetadata>> sorted = new TreeMap<>();
+    for (int i = 0; i < xValues.size(); i++) {
+      ParameterMetadata pm = metadata.getParameterMetadata(i);
+      sorted.put(DoublesPair.of(xValues.get(i), yValues.get(i)), ObjDoublePair.of(pm, zValues.get(i)));
+    }
+    double[] sortedX = new double[sorted.size()];
+    double[] sortedY = new double[sorted.size()];
+    double[] sortedZ = new double[sorted.size()];
+    ParameterMetadata[] sortedPm = new ParameterMetadata[sorted.size()];
+    int pos = 0;
+    for (Entry<DoublesPair, ObjDoublePair<ParameterMetadata>> entry : sorted.entrySet()) {
+      sortedX[pos] = entry.getKey().getFirst();
+      sortedY[pos] = entry.getKey().getSecond();
+      sortedZ[pos] = entry.getValue().getSecond();
+      sortedPm[pos] = entry.getValue().getFirst();
+      pos++;
+    }
+    // assign
+    SurfaceMetadata sortedMetadata = metadata.withParameterMetadata(Arrays.asList(sortedPm));
+    this.metadata = sortedMetadata;
+    this.xValues = DoubleArray.ofUnsafe(sortedX);
+    this.yValues = DoubleArray.ofUnsafe(sortedY);
+    this.zValues = DoubleArray.ofUnsafe(sortedZ);
+    Map<DoublesPair, Double> pairs = new HashMap<>();
+    for (int i = 0; i < xValues.size(); i++) {
+      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
+    }
+    this.interpolator = interpolator;
+    underlyingDataBundle = interpolator.getDataBundle(pairs);
+    this.parameterMetadata = IntStream.range(0, getParameterCount())
+        .mapToObj(i -> sortedMetadata.getParameterMetadata(i))
+        .collect(toImmutableList());
+  }
+
+  // basic validation
+  private void validateInputs(
+      SurfaceMetadata metadata,
+      DoubleArray xValues,
+      DoubleArray yValues,
+      DoubleArray zValues,
+      GridInterpolator2D interpolator) {
+
+    ArgChecker.notNull(metadata, "metadata");
+    ArgChecker.notNull(xValues, "times");
+    ArgChecker.notNull(yValues, "values");
+    ArgChecker.notNull(interpolator, "interpolator");
     if (xValues.size() < 2) {
       throw new IllegalArgumentException("Length of x-values must be at least 2");
     }
@@ -151,19 +250,6 @@ public final class InterpolatedNodalSurface
         throw new IllegalArgumentException("Length of x-values and parameter metadata must match when metadata present");
       }
     });
-    this.metadata = metadata;
-    this.xValues = xValues;
-    this.yValues = yValues;
-    this.zValues = zValues;
-    Map<DoublesPair, Double> pairs = new HashMap<>();
-    for (int i = 0; i < xValues.size(); i++) {
-      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
-    }
-    this.interpolator = interpolator;
-    underlyingDataBundle = interpolator.getDataBundle(pairs);
-    this.parameterMetadata = IntStream.range(0, getParameterCount())
-        .mapToObj(i -> getParameterMetadata(i))
-        .collect(toImmutableList());
   }
 
   // ensure standard constructor is invoked

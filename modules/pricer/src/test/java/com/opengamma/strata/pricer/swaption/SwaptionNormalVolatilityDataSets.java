@@ -48,14 +48,15 @@ public class SwaptionNormalVolatilityDataSets {
 
   //     =====     Standard figures for testing     =====
   private static final DoubleArray TIMES =
-      DoubleArray.of(0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
-          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0);
+      DoubleArray.of(0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10);
   private static final DoubleArray TENORS =
-      DoubleArray.of(1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
-          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0);
+      DoubleArray.of(1, 2, 5, 10, 30, 1, 2, 5, 10, 30, 1, 2, 5, 10, 30, 1, 2, 5, 10, 30);
   private static final DoubleArray NORMAL_VOL =
-      DoubleArray.of(0.010, 0.011, 0.012, 0.013, 0.011, 0.012, 0.013, 0.014,
-          0.012, 0.013, 0.014, 0.015, 0.013, 0.014, 0.015, 0.016, 0.014, 0.015, 0.016, 0.017);
+      DoubleArray.of(
+          0.010, 0.011, 0.012, 0.013, 0.014,
+          0.011, 0.012, 0.013, 0.014, 0.015,
+          0.012, 0.013, 0.014, 0.015, 0.016,
+          0.013, 0.014, 0.015, 0.016, 0.017);
 
   private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final FixedRateSwapLegConvention USD_FIXED_1Y_30U360 =
@@ -92,8 +93,8 @@ public class SwaptionNormalVolatilityDataSets {
 
   //     =====     Flat volatilities for testing     =====
 
-  private static final DoubleArray TIMES_FLAT = DoubleArray.of(0.0, 100.0, 0.0, 100.0);
-  private static final DoubleArray TENOR_FLAT = DoubleArray.of(0.0, 0.0, 30.0, 30.0);
+  private static final DoubleArray TIMES_FLAT = DoubleArray.of(0, 0, 100, 100);
+  private static final DoubleArray TENOR_FLAT = DoubleArray.of(0, 30, 0, 30);
   private static final DoubleArray NORMAL_VOL_FLAT = DoubleArray.of(0.01, 0.01, 0.01, 0.01);
   private static final InterpolatedNodalSurface SURFACE_FLAT =
       InterpolatedNodalSurface.of(METADATA, TIMES_FLAT, TENOR_FLAT, NORMAL_VOL_FLAT, INTERPOLATOR_2D);

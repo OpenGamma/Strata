@@ -47,11 +47,13 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIMES =
-      DoubleArray.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
+      DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.50, 0.50, 0.50, 0.50, 1.00, 1.00, 1.00, 1.00);
   private static final DoubleArray MONEYNESS_PRICES =
-      DoubleArray.of(-0.02, -0.02, -0.02, -0.01, -0.01, -0.01, 0.00, 0.00, 0.00, 0.01, 0.01, 0.01);
-  private static final DoubleArray NORMAL_VOL =
-      DoubleArray.of(0.01, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
+      DoubleArray.of(-0.02, -0.01, 0.00, 0.01, -0.02, -0.01, 0.00, 0.01, -0.02, -0.01, 0.00, 0.01);
+  private static final DoubleArray NORMAL_VOL =      DoubleArray.of(
+      0.01, 0.011, 0.012, 0.010,
+      0.011, 0.012, 0.013, 0.012,
+      0.012, 0.013, 0.014, 0.014);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
       DefaultSurfaceMetadata.of("Test"), TIMES, MONEYNESS_PRICES, NORMAL_VOL, INTERPOLATOR_2D);
 

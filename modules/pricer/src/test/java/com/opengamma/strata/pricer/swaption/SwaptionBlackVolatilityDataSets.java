@@ -46,14 +46,15 @@ public class SwaptionBlackVolatilityDataSets {
 
   //     =====     Standard figures for testing     =====
   private static final DoubleArray TIMES =
-      DoubleArray.of(0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0,
-          0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0, 0.50, 1.00, 5.00, 10.0);
+      DoubleArray.of(0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10);
   private static final DoubleArray TENOR =
-      DoubleArray.of(1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0,
-          5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 30.0, 30.0, 30.0, 30.0);
+      DoubleArray.of(1, 2, 5, 10, 30, 1, 2, 5, 10, 30, 1, 2, 5, 10, 30, 1, 2, 5, 10, 30);
   private static final DoubleArray BLACK_VOL =
-      DoubleArray.of(0.45, 0.425, 0.4, 0.375, 0.425, 0.4, 0.375, 0.35, 0.4, 0.375, 0.35, 0.325, 0.375, 0.35, 0.325, 0.3,
-          0.35, 0.325, 0.3, 0.275);
+      DoubleArray.of(
+          0.45, 0.425, 0.4, 0.375, 0.35,
+          0.425, 0.4, 0.375, 0.35, 0.325,
+          0.4, 0.375, 0.35, 0.325, 0.3,
+          0.375, 0.35, 0.325, 0.3, 0.275);
 
   private static final BusinessDayAdjustment MOD_FOL_US = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, USNY);
   private static final FixedRateSwapLegConvention USD_FIXED_1Y_30U360 =

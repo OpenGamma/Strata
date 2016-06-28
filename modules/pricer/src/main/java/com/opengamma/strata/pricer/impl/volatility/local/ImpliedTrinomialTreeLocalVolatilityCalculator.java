@@ -124,7 +124,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
         .zValueType(ValueType.LOCAL_VOLATILITY)
         .surfaceName(SurfaceName.of("localVol_" + impliedVolatilitySurface.getName()))
         .build();
-    return InterpolatedNodalSurface.of(
+    return InterpolatedNodalSurface.ofUnsorted(
         metadata,
         DoubleArray.ofUnsafe(localVolData.get(0)),
         DoubleArray.ofUnsafe(localVolData.get(1)),
@@ -212,7 +212,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
         .zValueType(ValueType.LOCAL_VOLATILITY)
         .surfaceName(SurfaceName.of("localVol_" + callPriceSurface.getName()))
         .build();
-    return InterpolatedNodalSurface.of(
+    return InterpolatedNodalSurface.ofUnsorted(
         metadata,
         DoubleArray.ofUnsafe(timeRes),
         DoubleArray.ofUnsafe(spotRes),
