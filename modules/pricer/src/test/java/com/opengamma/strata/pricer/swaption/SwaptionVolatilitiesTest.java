@@ -10,9 +10,11 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -52,6 +54,11 @@ public class SwaptionVolatilitiesTest {
     @Override
     public ZonedDateTime getValuationDateTime() {
       return DATE_TIME;
+    }
+
+    @Override
+    public <T> Optional<T> findData(MarketDataName<T> name) {
+      return Optional.empty();
     }
 
     @Override

@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -29,6 +30,7 @@ import com.opengamma.strata.market.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
+import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.math.impl.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
@@ -90,6 +92,11 @@ public class BlackSwaptionExpiryTenorVolatilitiesTest {
 
   public void test_swapConvention() {
     assertEquals(PROVIDER.getConvention(), CONVENTION);
+  }
+
+  public void test_findData() {
+    assertEquals(PROVIDER.findData(SURFACE.getName()), Optional.of(SURFACE));
+    assertEquals(PROVIDER.findData(SurfaceName.of("Rubbish")), Optional.empty());
   }
 
   public void test_tenor() {

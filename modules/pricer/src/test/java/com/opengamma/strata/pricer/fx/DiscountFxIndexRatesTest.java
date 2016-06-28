@@ -18,6 +18,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -28,6 +29,7 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.CurveMetadata;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.interpolator.CurveInterpolator;
@@ -90,6 +92,9 @@ public class DiscountFxIndexRatesTest {
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getFxForwardRates(), FWD_RATES);
+    assertEquals(test.findData(CURVE1.getName()), Optional.of(CURVE1));
+    assertEquals(test.findData(CURVE2.getName()), Optional.of(CURVE2));
+    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     assertEquals(test.getParameterCount(), FWD_RATES.getParameterCount());
     assertEquals(test.getParameter(0), FWD_RATES.getParameter(0));
     assertEquals(test.getParameterMetadata(0), FWD_RATES.getParameterMetadata(0));

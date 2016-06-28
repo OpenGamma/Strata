@@ -12,12 +12,10 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveInfoType;
-import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -71,18 +69,6 @@ public interface DiscountFactors
    * @return the currency
    */
   public abstract Currency getCurrency();
-
-  /**
-   * Finds the market data structure underlying this instance with the specified name.
-   * <p>
-   * This is most commonly used to find a {@link Curve} using a {@link CurveName}.
-   * If the market data cannot be found, empty is returned.
-   * 
-   * @param <T>  the type of the market data value
-   * @param name  the name to find
-   * @return the market data value, empty if not found
-   */
-  public abstract <T> Optional<T> findData(MarketDataName<T> name);
 
   //-------------------------------------------------------------------------
   @Override
