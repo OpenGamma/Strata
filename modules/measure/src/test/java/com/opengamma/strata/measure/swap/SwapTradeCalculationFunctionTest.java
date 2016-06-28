@@ -97,7 +97,6 @@ public class SwapTradeCalculationFunctionTest {
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
-        Measures.PRESENT_VALUE_MULTI_CCY,
         Measures.EXPLAIN_PRESENT_VALUE,
         Measures.PAR_RATE,
         Measures.PAR_SPREAD,
@@ -105,8 +104,6 @@ public class SwapTradeCalculationFunctionTest {
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
-        .containsEntry(
-            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.EXPLAIN_PRESENT_VALUE, Result.success(ScenarioArray.of(ImmutableList.of(expectedExplainPv))))
         .containsEntry(

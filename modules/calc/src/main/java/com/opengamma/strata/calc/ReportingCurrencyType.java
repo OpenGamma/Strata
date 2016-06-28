@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * The available types of reporting currency.
  * <p>
- * There are two options - 'Natural' and 'Specific'.
+ * There are three options - 'Specific', 'Natural' and 'None'.
  */
 public enum ReportingCurrencyType {
 
@@ -28,7 +28,12 @@ public enum ReportingCurrencyType {
    * The "natural" reporting currency.
    * See {@link ReportingCurrency#NATURAL}.
    */
-  NATURAL;
+  NATURAL,
+  /**
+   * No currency conversion is to be performed.
+   * See {@link ReportingCurrency#NONE}.
+   */
+  NONE;
 
   //-------------------------------------------------------------------------
   /**

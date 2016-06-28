@@ -24,13 +24,6 @@ public final class Measures {
    */
   public static final Measure PRESENT_VALUE = Measure.of(StandardMeasures.PRESENT_VALUE.getName());
   /**
-   * Measure representing the present value of the calculation target.
-   * <p>
-   * Calculated values are not converted to the reporting currency and may contain values in multiple currencies
-   * if the target contains multiple currencies.
-   */
-  public static final Measure PRESENT_VALUE_MULTI_CCY = Measure.of(StandardMeasures.PRESENT_VALUE_MULTI_CURRENCY.getName());
-  /**
    * Measure representing a break-down of the present value calculation on the target.
    * <p>
    * No currency conversion is performed on the monetary amounts.

@@ -18,7 +18,6 @@ public class MeasuresTest {
 
   public void test_standard() {
     assertEquals(Measures.PRESENT_VALUE.isCurrencyConvertible(), true);
-    assertEquals(Measures.PRESENT_VALUE_MULTI_CCY.isCurrencyConvertible(), false);
     assertEquals(Measures.EXPLAIN_PRESENT_VALUE.isCurrencyConvertible(), false);
     assertEquals(Measures.PV01_CALIBRATED_SUM.isCurrencyConvertible(), true);
     assertEquals(Measures.PV01_CALIBRATED_BUCKETED.isCurrencyConvertible(), true);

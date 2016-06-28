@@ -163,7 +163,7 @@ public final class CalculationTask implements ImmutableBean {
 
     // add requirements for the FX rates needed to convert the output values into the reporting currency
     for (CalculationTaskCell cell : cells) {
-      if (cell.getMeasure().isCurrencyConvertible()) {
+      if (cell.getMeasure().isCurrencyConvertible() && !cell.getReportingCurrency().isNone()) {
         Currency reportingCurrency = cell.reportingCurrency(this, refData);
         List<MarketDataId<FxRate>> fxRateIds = functionRequirements.getOutputCurrencies().stream()
             .filter(outputCurrency -> !outputCurrency.equals(reportingCurrency))
