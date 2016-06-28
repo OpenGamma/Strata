@@ -36,6 +36,7 @@ import com.opengamma.strata.market.curve.CurveNodeDate;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
@@ -155,7 +156,8 @@ public final class IborFutureCurveNode
 
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    IborFutureTrade trade = template.createTrade(valuationDate, rateId.toSecurityId(), 1, 1, 0, refData);
+    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, 0, refData);
     return trade.getProduct().getFixingDate();
   }
 
@@ -163,7 +165,8 @@ public final class IborFutureCurveNode
   public IborFutureTrade trade(double quantity, MarketData marketData, ReferenceData refData) {
     LocalDate valuationDate = marketData.getValuationDate();
     double price = marketPrice(marketData) + additionalSpread;
-    return template.createTrade(valuationDate, rateId.toSecurityId(), quantity, 1d, price, refData);
+    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
+    return template.createTrade(valuationDate, secId, quantity, 1d, price, refData);
   }
 
   @Override

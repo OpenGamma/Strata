@@ -50,7 +50,7 @@ public interface IborFutureTemplate
    * @param convention  the future convention
    * @return the template
    */
-  public static AbsoluteIborFutureTemplate of(YearMonth yearMonth, IborFutureConvention convention) {
+  public static IborFutureTemplate of(YearMonth yearMonth, IborFutureConvention convention) {
     return AbsoluteIborFutureTemplate.of(yearMonth, convention);
   }
 
