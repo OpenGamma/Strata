@@ -161,7 +161,7 @@ public class SwapTest {
 
   public void test_resolve_unadjustedAccrualAdjustedPayment() {
     Swap test = Swap.builder()
-        .legs(RateCalculationSwapLeg.builder()
+        .legs(FixedRateSwapLeg.builder()
             .payReceive(RECEIVE)
             .accrualSchedule(PeriodicSchedule.builder()
                 .startDate(date(2016, 1, 3))

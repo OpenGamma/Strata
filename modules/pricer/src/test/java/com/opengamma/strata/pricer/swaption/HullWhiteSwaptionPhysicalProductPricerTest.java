@@ -55,11 +55,12 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.pricer.swap.PaymentEventPricer;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
@@ -118,28 +119,28 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .index(EUR_EURIBOR_6M)
       .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, CALENDAR, BDA_MF))
       .build();
-  private static final SwapLeg FIXED_LEG_REC = RateCalculationSwapLeg.builder()
+  private static final SwapLeg FIXED_LEG_REC = FixedRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PERIOD_FIXED)
       .paymentSchedule(PAYMENT_FIXED)
       .notionalSchedule(NotionalSchedule.of(EUR, NOTIONAL))
       .calculation(RATE_FIXED)
       .build();
-  private static final SwapLeg FIXED_LEG_PAY = RateCalculationSwapLeg.builder()
+  private static final SwapLeg FIXED_LEG_PAY = FixedRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PERIOD_FIXED)
       .paymentSchedule(PAYMENT_FIXED)
       .notionalSchedule(NotionalSchedule.of(EUR, NOTIONAL))
       .calculation(RATE_FIXED)
       .build();
-  private static final SwapLeg IBOR_LEG_REC = RateCalculationSwapLeg.builder()
+  private static final SwapLeg IBOR_LEG_REC = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PERIOD_IBOR)
       .paymentSchedule(PAYMENT_IBOR)
       .notionalSchedule(NotionalSchedule.of(EUR, NOTIONAL))
       .calculation(RATE_IBOR)
       .build();
-  private static final SwapLeg IBOR_LEG_PAY = RateCalculationSwapLeg.builder()
+  private static final SwapLeg IBOR_LEG_PAY = IborRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PERIOD_IBOR)
       .paymentSchedule(PAYMENT_IBOR)

@@ -26,10 +26,10 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * Test {@link InflationRateSwapLegConvention}.
@@ -88,13 +88,13 @@ public class InflationRateSwapLegConventionTest {
     InflationRateSwapLegConvention base = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, BDA_MOD_FOLLOW);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test = base.toLeg(
+    InflationRateSwapLeg test = base.toLeg(
         startDate,
         endDate,
         PAY, 
         NOTIONAL_2M);
 
-    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+    InflationRateSwapLeg expected = InflationRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(Frequency.TERM)

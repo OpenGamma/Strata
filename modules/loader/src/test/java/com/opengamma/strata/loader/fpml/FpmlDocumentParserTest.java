@@ -101,19 +101,22 @@ import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.IborRateResetMethod;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.OvernightRateSwapLeg;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
-import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSettlement;
@@ -255,7 +258,7 @@ public class FpmlDocumentParserTest {
     //Test the parsing of the underlying swap
     Swap swap = swaption.getUnderlying();
     NotionalSchedule notional = NotionalSchedule.of(EUR, 50000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1994, 12, 14))
@@ -276,7 +279,7 @@ public class FpmlDocumentParserTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1994, 12, 14))
@@ -429,7 +432,7 @@ public class FpmlDocumentParserTest {
     assertEquals(swapTrade.getInfo().getTradeDate(), Optional.of(date(1994, 12, 12)));
     Swap swap = swapTrade.getProduct();
     NotionalSchedule notional = NotionalSchedule.of(EUR, 50000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1994, 12, 14))
@@ -450,7 +453,7 @@ public class FpmlDocumentParserTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1994, 12, 14))
@@ -497,7 +500,7 @@ public class FpmlDocumentParserTest {
                 ValueStep.of(date(1998, 12, 14), ValueAdjustment.ofReplace(10000000d)))
             .build())
         .build();
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1995, 1, 16))
@@ -520,7 +523,7 @@ public class FpmlDocumentParserTest {
             .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1995, 1, 16))
@@ -558,7 +561,7 @@ public class FpmlDocumentParserTest {
                 ValueStep.of(date(1998, 12, 14), ValueAdjustment.ofReplace(10000000d)))
             .build())
         .build();
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1995, 1, 16))
@@ -581,7 +584,7 @@ public class FpmlDocumentParserTest {
             .initialStub(IborRateStubCalculation.ofIborInterpolatedRate(EUR_LIBOR_3M, EUR_LIBOR_6M))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(1995, 1, 16))
@@ -641,7 +644,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(USD, 100000000d);
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg recLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 27))
@@ -663,7 +666,7 @@ public class FpmlDocumentParserTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build();
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 27))
@@ -690,7 +693,7 @@ public class FpmlDocumentParserTest {
   public void compoundSwap_cashFlows() {
     // cashflows from ird-ex02-stub-amort-swap.xml with Sat/Sun holidays only
     NotionalSchedule notional = NotionalSchedule.of(USD, 100000000d);
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg recLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 27))
@@ -712,7 +715,7 @@ public class FpmlDocumentParserTest {
             .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
             .build())
         .build();
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 27))
@@ -770,7 +773,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(EUR, 75000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 5))
@@ -797,7 +800,7 @@ public class FpmlDocumentParserTest {
             .finalStub(IborRateStubCalculation.ofIborRate(EUR_EURIBOR_3M))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2000, 4, 5))
@@ -837,7 +840,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(EUR, 100000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    OvernightRateSwapLeg payLeg = OvernightRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2001, 1, 29))
@@ -857,7 +860,7 @@ public class FpmlDocumentParserTest {
             .index(EUR_EONIA)
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg recLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2001, 1, 29))
@@ -894,7 +897,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(USD, 100000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2005, 8, 2))
@@ -913,7 +916,7 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.0003))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg recLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2005, 8, 2))
@@ -956,7 +959,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(GBP, 100000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2005, 2, 22))
@@ -975,7 +978,7 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.03))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg recLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2005, 2, 22))
@@ -1015,7 +1018,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(USD, 100000000d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2009, 8, 30))
@@ -1038,7 +1041,7 @@ public class FpmlDocumentParserTest {
             .spread(ValueSchedule.of(0.0325))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg recLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2009, 8, 30))
@@ -1076,7 +1079,7 @@ public class FpmlDocumentParserTest {
     Swap swap = swapTrade.getProduct();
 
     NotionalSchedule notional = NotionalSchedule.of(EUR, 1d);
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2003, 11, 20))
@@ -1096,7 +1099,7 @@ public class FpmlDocumentParserTest {
             .rate(ValueSchedule.of(0.01))
             .build())
         .build();
-    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+    InflationRateSwapLeg recLeg = InflationRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2003, 11, 20))

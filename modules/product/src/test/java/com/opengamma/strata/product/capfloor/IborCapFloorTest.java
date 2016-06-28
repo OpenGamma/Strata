@@ -28,10 +28,10 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
 
 /**
@@ -64,7 +64,7 @@ public class IborCapFloorTest {
       .paymentSchedule(SCHEDULE)
       .payReceive(RECEIVE)
       .build();
-  private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY_LEG = FixedRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE)
       .calculation(

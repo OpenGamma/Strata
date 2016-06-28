@@ -37,9 +37,9 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * Test {@link IborRateSwapLegConvention}.
@@ -139,8 +139,8 @@ public class IborRateSwapLegConventionTest {
         .build();
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M);
-    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M);
+    IborRateSwapLeg expected = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(P3M)
@@ -164,8 +164,8 @@ public class IborRateSwapLegConventionTest {
         .build();
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
-    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
+    IborRateSwapLeg expected = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(P3M)

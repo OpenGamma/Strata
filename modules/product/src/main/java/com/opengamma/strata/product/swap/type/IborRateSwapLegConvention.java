@@ -41,9 +41,9 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * A market convention for the floating leg of rate swap trades based on an Ibor index.
@@ -451,7 +451,7 @@ public final class IborRateSwapLegConvention
    * @param notional  the notional
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public IborRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
@@ -475,14 +475,14 @@ public final class IborRateSwapLegConvention
    * @param spread  the spread to apply
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public IborRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
       double notional,
       double spread) {
 
-    return RateCalculationSwapLeg
+    return IborRateSwapLeg
         .builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()

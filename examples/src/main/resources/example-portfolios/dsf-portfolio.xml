@@ -18,7 +18,7 @@
     <lastTradeDate>2015-03-16</lastTradeDate>
     <underlyingSwap>
      <legs>
-      <item type="com.opengamma.strata.product.swap.RateCalculationSwapLeg">
+      <item type="com.opengamma.strata.product.swap.FixedRateSwapLeg">
        <payReceive>Receive</payReceive>
        <accrualSchedule>
         <startDate>2015-03-20</startDate>
@@ -61,7 +61,7 @@
         </rate>
        </calculation>
       </item>
-      <item type="RateCalculationSwapLeg">
+      <item type="com.opengamma.strata.product.swap.IborRateSwapLeg">
        <payReceive>Pay</payReceive>
        <accrualSchedule>
         <startDate>2015-03-20</startDate>
@@ -134,7 +134,7 @@
     <lastTradeDate>2015-06-15</lastTradeDate>
     <underlyingSwap>
      <legs>
-      <item type="RateCalculationSwapLeg">
+      <item type="FixedRateSwapLeg">
        <payReceive>Receive</payReceive>
        <accrualSchedule>
         <startDate>2015-06-19</startDate>
@@ -177,7 +177,7 @@
         </rate>
        </calculation>
       </item>
-      <item type="RateCalculationSwapLeg">
+      <item type="IborRateSwapLeg">
        <payReceive>Pay</payReceive>
        <accrualSchedule>
         <startDate>2015-06-19</startDate>

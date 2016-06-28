@@ -27,10 +27,10 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
 /**
@@ -115,7 +115,7 @@ public class IborCapFloorDataSet {
     Frequency frequency = Frequency.of(index.getTenor().getPeriod());
     PeriodicSchedule accSchedule =
         PeriodicSchedule.of(startDate, endDate, frequency, BUSINESS_ADJ, StubConvention.NONE, RollConventions.NONE);
-    return RateCalculationSwapLeg.builder()
+    return FixedRateSwapLeg.builder()
         .payReceive(payRec)
         .accrualSchedule(accSchedule)
         .calculation(

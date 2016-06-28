@@ -35,13 +35,12 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.dsf.Dsf;
-import com.opengamma.strata.product.dsf.ResolvedDsf;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -95,7 +94,7 @@ public class ResolvedDsfTest {
   }
 
   public void test_builder_notUnitNotional() {
-    SwapLeg fixedLeg10 = RateCalculationSwapLeg.builder()
+    SwapLeg fixedLeg10 = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -114,7 +113,7 @@ public class ResolvedDsfTest {
             .rate(ValueSchedule.of(0.015))
             .build())
         .build();
-    SwapLeg iborLeg500 = RateCalculationSwapLeg.builder()
+    SwapLeg iborLeg500 = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))

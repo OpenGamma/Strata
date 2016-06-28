@@ -33,7 +33,7 @@ import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ParameterizedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
@@ -90,8 +90,8 @@ public final class DsfSecurity
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {
         ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "Underlying swap must receive the fixed leg");
       }
-      if (swapLeg instanceof RateCalculationSwapLeg) {
-        RateCalculationSwapLeg leg = (RateCalculationSwapLeg) swapLeg;
+      if (swapLeg instanceof ParameterizedSwapLeg) {
+        ParameterizedSwapLeg<?> leg = (ParameterizedSwapLeg<?>) swapLeg;
         ArgChecker.isTrue(Math.abs(leg.getNotionalSchedule().getAmount().getInitialValue()) == 1d,
             "Underlying swap must have a notional of 1");
       }

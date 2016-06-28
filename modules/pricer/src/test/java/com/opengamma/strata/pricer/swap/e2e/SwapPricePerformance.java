@@ -36,10 +36,11 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -83,7 +84,7 @@ public class SwapPricePerformance {
   private static final SwapLeg PAY1 = fixedLeg(
       LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), P6M, PAY, NOTIONAL, 0.0125, null);
 
-  private static final SwapLeg RECEIVE1 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE1 = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 9, 12))
@@ -119,7 +120,7 @@ public class SwapPricePerformance {
   private static final SwapLeg PAY2 = fixedLeg(
       LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
 
-  private static final SwapLeg RECEIVE2 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE2 = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 9, 12))
@@ -154,7 +155,7 @@ public class SwapPricePerformance {
   private static final SwapLeg PAY3 = fixedLeg(
       LocalDate.of(2013, 9, 12), LocalDate.of(2020, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
 
-  private static final SwapLeg RECEIVE3 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE3 = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2013, 9, 12))
@@ -186,7 +187,7 @@ public class SwapPricePerformance {
   }
 
   //-------------------------------------------------------------------------
-  private static final SwapLeg PAY4 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY4 = IborRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -205,7 +206,7 @@ public class SwapPricePerformance {
           .build())
       .build();
 
-  private static final SwapLeg RECEIVE4 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE4 = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -238,7 +239,7 @@ public class SwapPricePerformance {
   }
 
   //-------------------------------------------------------------------------
-  private static final SwapLeg RECEIVE5 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg RECEIVE5 = IborRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -258,7 +259,7 @@ public class SwapPricePerformance {
           .build())
       .build();
 
-  private static final SwapLeg PAY5 = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY5 = IborRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(LocalDate.of(2014, 8, 29))
@@ -300,7 +301,7 @@ public class SwapPricePerformance {
       double fixedRate,
       StubConvention stubConvention) {
 
-    return RateCalculationSwapLeg.builder()
+    return FixedRateSwapLeg.builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(start)

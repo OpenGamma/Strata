@@ -1,13 +1,11 @@
 /**
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.strata.product.swap;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,37 +23,29 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.DateAdjuster;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
-import com.opengamma.strata.basics.schedule.Schedule;
-import com.opengamma.strata.basics.schedule.SchedulePeriod;
-import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.common.PayReceive;
 
 /**
- * A fixed swap leg defined in terms of known amounts.
+ * An Ibor rate swap leg defined using a parameterized schedule and calculation.
  * <p>
- * Most fixed swap legs are calculated based on a fixed rate of interest.
- * By contrast, this leg defines a known payment amount for each period.
+ * This defines a single swap leg paying a floating rate based on an Ibor index.
  * <p>
- * Each payment occurs relative to a <i>payment period</i>.
- * The payment periods are calculated relative to the <i>accrual periods</i>.
- * While the model allows the frequency of the accrual and payment periods to differ,
- * this will have no effect, as the amounts to be paid at each payment date are known.
- * This design is intended to match FpML.
+ * Interest is calculated based on <i>accrual periods</i> which follow a regular schedule
+ * with optional initial and final stubs. Coupon payments are based on <i>payment periods</i>
+ * which are typically the same as the accrual periods.
+ * If the payment period is longer than the accrual period then compounding may apply.
+ * The schedule of periods is defined using {@link PeriodicSchedule}, {@link PaymentSchedule},
+ * {@link NotionalSchedule} and {@link ResetSchedule}.
+ * <p>
+ * If the schedule needs to be manually specified, or there are other unusual calculation
+ * rules then the {@link RatePeriodSwapLeg} class should be used instead.
  */
 @BeanDefinition
-public final class KnownAmountSwapLeg
-    implements SwapLeg, ImmutableBean, Serializable {
+public final class IborRateSwapLeg
+    implements ParameterizedSwapLeg<IborRateCalculation>, ImmutableBean, Serializable {
 
   /**
    * Whether the leg is pay or receive.
@@ -68,53 +58,43 @@ public final class KnownAmountSwapLeg
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PayReceive payReceive;
   /**
-   * The accrual period schedule.
+   * The accrual schedule.
    * <p>
    * This is used to define the accrual periods.
    * These are used directly or indirectly to determine other dates in the swap.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PeriodicSchedule accrualSchedule;
   /**
-   * The payment period schedule.
+   * The payment schedule.
    * <p>
    * This is used to define the payment periods, including any compounding.
    * The payment period dates are based on the accrual schedule.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PaymentSchedule paymentSchedule;
   /**
-   * The known amount schedule.
+   * The notional schedule.
    * <p>
-   * This defines the schedule of known amounts, relative to the payment schedule.
-   * The schedule is defined as an initial amount, with optional changes during the tenor of the swap.
-   * The amount is only permitted to change at payment period boundaries.
-   * <p>
-   * Note that the date of the payment is implied by the payment schedule.
-   * Any dates in the known amount schedule refer to the payment schedule, not the payment date.
-   * <p>
-   * For example, consider a two year swap where each payment period is 3 months long.
-   * This schedule could define two entries, one that defines the payment amounts as GBP 1000 for
-   * the first year and one that defines the amount as GBP 500 for the second year.
-   * In this case there will be eight payments in total, four payments of GBP 1000 in the first
-   * year and four payments of GBP 500 in the second year.
-   * Each payment will occur on the date specified using the offset in {@link PaymentSchedule}.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ValueSchedule amount;
-  /**
-   * The currency of the swap leg.
-   * <p>
-   * This is the currency of the known payments.
+   * The notional amount schedule, which can vary during the lifetime of the swap.
+   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+   * However, in certain cases, initial, final or intermediate amounts are exchanged.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final Currency currency;
+  private final NotionalSchedule notionalSchedule;
+  /**
+   * The Ibor rate accrual calculation.
+   * <p>
+   * This defines the detail of the Ibor rate calculation, including the index and spread.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final IborRateCalculation calculation;
 
   //-------------------------------------------------------------------------
   @Override
   @DerivedProperty
   public SwapLegType getType() {
-    return SwapLegType.FIXED;
+    return calculation.getType();
   }
 
   @Override
@@ -130,64 +110,23 @@ public final class KnownAmountSwapLeg
   }
 
   @Override
-  public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    // no indices
-  }
-
-  /**
-   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
-   * <p>
-   * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
-   * a complete schedule of dates defined using {@link KnownAmountPaymentPeriod}.
-   * 
-   * @param refData  the reference data to use when resolving
-   * @return the equivalent resolved swap leg
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
-   */
-  @Override
-  public ResolvedSwapLeg resolve(ReferenceData refData) {
-    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
-    Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
-    List<PaymentPeriod> payPeriods = createPaymentPeriods(resolvedPayments, refData);
-    return ResolvedSwapLeg.builder()
-        .type(getType())
-        .payReceive(payReceive)
-        .paymentPeriods(payPeriods)
-        .build();
-  }
-
-  // create the payment period
-  private List<PaymentPeriod> createPaymentPeriods(Schedule resolvedPayments, ReferenceData refData) {
-    // resolve amount schedule against payment schedule
-    List<Double> amounts = amount.resolveValues(resolvedPayments.getPeriods());
-    // resolve against reference data once
-    DateAdjuster paymentDateAdjuster = paymentSchedule.getPaymentDateOffset().resolve(refData);
-    // build up payment periods using schedule
-    ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
-    for (int index = 0; index < resolvedPayments.size(); index++) {
-      SchedulePeriod paymentPeriod = resolvedPayments.getPeriod(index);
-      LocalDate baseDate = paymentSchedule.getPaymentRelativeTo().selectBaseDate(paymentPeriod);
-      LocalDate paymentDate = paymentDateAdjuster.adjust(baseDate);
-      double amount = payReceive.normalize(amounts.get(index));
-      Payment payment = Payment.of(CurrencyAmount.of(currency, amount), paymentDate);
-      paymentPeriods.add(KnownAmountPaymentPeriod.of(payment, paymentPeriod));
-    }
-    return paymentPeriods.build();
+  @DerivedProperty
+  public Currency getCurrency() {
+    return notionalSchedule.getCurrency();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code KnownAmountSwapLeg}.
+   * The meta-bean for {@code IborRateSwapLeg}.
    * @return the meta-bean, not null
    */
-  public static KnownAmountSwapLeg.Meta meta() {
-    return KnownAmountSwapLeg.Meta.INSTANCE;
+  public static IborRateSwapLeg.Meta meta() {
+    return IborRateSwapLeg.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(KnownAmountSwapLeg.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IborRateSwapLeg.Meta.INSTANCE);
   }
 
   /**
@@ -199,31 +138,31 @@ public final class KnownAmountSwapLeg
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static KnownAmountSwapLeg.Builder builder() {
-    return new KnownAmountSwapLeg.Builder();
+  public static IborRateSwapLeg.Builder builder() {
+    return new IborRateSwapLeg.Builder();
   }
 
-  private KnownAmountSwapLeg(
+  private IborRateSwapLeg(
       PayReceive payReceive,
       PeriodicSchedule accrualSchedule,
       PaymentSchedule paymentSchedule,
-      ValueSchedule amount,
-      Currency currency) {
+      NotionalSchedule notionalSchedule,
+      IborRateCalculation calculation) {
     JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
     JodaBeanUtils.notNull(paymentSchedule, "paymentSchedule");
-    JodaBeanUtils.notNull(amount, "amount");
-    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(notionalSchedule, "notionalSchedule");
+    JodaBeanUtils.notNull(calculation, "calculation");
     this.payReceive = payReceive;
     this.accrualSchedule = accrualSchedule;
     this.paymentSchedule = paymentSchedule;
-    this.amount = amount;
-    this.currency = currency;
+    this.notionalSchedule = notionalSchedule;
+    this.calculation = calculation;
   }
 
   @Override
-  public KnownAmountSwapLeg.Meta metaBean() {
-    return KnownAmountSwapLeg.Meta.INSTANCE;
+  public IborRateSwapLeg.Meta metaBean() {
+    return IborRateSwapLeg.Meta.INSTANCE;
   }
 
   @Override
@@ -253,61 +192,54 @@ public final class KnownAmountSwapLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrual period schedule.
+   * Gets the accrual schedule.
    * <p>
    * This is used to define the accrual periods.
    * These are used directly or indirectly to determine other dates in the swap.
    * @return the value of the property, not null
    */
+  @Override
   public PeriodicSchedule getAccrualSchedule() {
     return accrualSchedule;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment period schedule.
+   * Gets the payment schedule.
    * <p>
    * This is used to define the payment periods, including any compounding.
    * The payment period dates are based on the accrual schedule.
    * @return the value of the property, not null
    */
+  @Override
   public PaymentSchedule getPaymentSchedule() {
     return paymentSchedule;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the known amount schedule.
+   * Gets the notional schedule.
    * <p>
-   * This defines the schedule of known amounts, relative to the payment schedule.
-   * The schedule is defined as an initial amount, with optional changes during the tenor of the swap.
-   * The amount is only permitted to change at payment period boundaries.
-   * <p>
-   * Note that the date of the payment is implied by the payment schedule.
-   * Any dates in the known amount schedule refer to the payment schedule, not the payment date.
-   * <p>
-   * For example, consider a two year swap where each payment period is 3 months long.
-   * This schedule could define two entries, one that defines the payment amounts as GBP 1000 for
-   * the first year and one that defines the amount as GBP 500 for the second year.
-   * In this case there will be eight payments in total, four payments of GBP 1000 in the first
-   * year and four payments of GBP 500 in the second year.
-   * Each payment will occur on the date specified using the offset in {@link PaymentSchedule}.
+   * The notional amount schedule, which can vary during the lifetime of the swap.
+   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+   * However, in certain cases, initial, final or intermediate amounts are exchanged.
    * @return the value of the property, not null
    */
-  public ValueSchedule getAmount() {
-    return amount;
+  @Override
+  public NotionalSchedule getNotionalSchedule() {
+    return notionalSchedule;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency of the swap leg.
+   * Gets the Ibor rate accrual calculation.
    * <p>
-   * This is the currency of the known payments.
+   * This defines the detail of the Ibor rate calculation, including the index and spread.
    * @return the value of the property, not null
    */
   @Override
-  public Currency getCurrency() {
-    return currency;
+  public IborRateCalculation getCalculation() {
+    return calculation;
   }
 
   //-----------------------------------------------------------------------
@@ -325,12 +257,12 @@ public final class KnownAmountSwapLeg
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      KnownAmountSwapLeg other = (KnownAmountSwapLeg) obj;
+      IborRateSwapLeg other = (IborRateSwapLeg) obj;
       return JodaBeanUtils.equal(payReceive, other.payReceive) &&
           JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
           JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
-          JodaBeanUtils.equal(amount, other.amount) &&
-          JodaBeanUtils.equal(currency, other.currency);
+          JodaBeanUtils.equal(notionalSchedule, other.notionalSchedule) &&
+          JodaBeanUtils.equal(calculation, other.calculation);
     }
     return false;
   }
@@ -341,30 +273,31 @@ public final class KnownAmountSwapLeg
     hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
-    hash = hash * 31 + JodaBeanUtils.hashCode(amount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(currency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(notionalSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(calculation);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
-    buf.append("KnownAmountSwapLeg{");
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("IborRateSwapLeg{");
     buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("amount").append('=').append(amount).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("notionalSchedule").append('=').append(notionalSchedule).append(',').append(' ');
+    buf.append("calculation").append('=').append(calculation).append(',').append(' ');
     buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
+    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code KnownAmountSwapLeg}.
+   * The meta-bean for {@code IborRateSwapLeg}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -376,42 +309,47 @@ public final class KnownAmountSwapLeg
      * The meta-property for the {@code payReceive} property.
      */
     private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
-        this, "payReceive", KnownAmountSwapLeg.class, PayReceive.class);
+        this, "payReceive", IborRateSwapLeg.class, PayReceive.class);
     /**
      * The meta-property for the {@code accrualSchedule} property.
      */
     private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
-        this, "accrualSchedule", KnownAmountSwapLeg.class, PeriodicSchedule.class);
+        this, "accrualSchedule", IborRateSwapLeg.class, PeriodicSchedule.class);
     /**
      * The meta-property for the {@code paymentSchedule} property.
      */
     private final MetaProperty<PaymentSchedule> paymentSchedule = DirectMetaProperty.ofImmutable(
-        this, "paymentSchedule", KnownAmountSwapLeg.class, PaymentSchedule.class);
+        this, "paymentSchedule", IborRateSwapLeg.class, PaymentSchedule.class);
     /**
-     * The meta-property for the {@code amount} property.
+     * The meta-property for the {@code notionalSchedule} property.
      */
-    private final MetaProperty<ValueSchedule> amount = DirectMetaProperty.ofImmutable(
-        this, "amount", KnownAmountSwapLeg.class, ValueSchedule.class);
+    private final MetaProperty<NotionalSchedule> notionalSchedule = DirectMetaProperty.ofImmutable(
+        this, "notionalSchedule", IborRateSwapLeg.class, NotionalSchedule.class);
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code calculation} property.
      */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", KnownAmountSwapLeg.class, Currency.class);
+    private final MetaProperty<IborRateCalculation> calculation = DirectMetaProperty.ofImmutable(
+        this, "calculation", IborRateSwapLeg.class, IborRateCalculation.class);
     /**
      * The meta-property for the {@code type} property.
      */
     private final MetaProperty<SwapLegType> type = DirectMetaProperty.ofDerived(
-        this, "type", KnownAmountSwapLeg.class, SwapLegType.class);
+        this, "type", IborRateSwapLeg.class, SwapLegType.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
     private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofDerived(
-        this, "startDate", KnownAmountSwapLeg.class, AdjustableDate.class);
+        this, "startDate", IborRateSwapLeg.class, AdjustableDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
     private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofDerived(
-        this, "endDate", KnownAmountSwapLeg.class, AdjustableDate.class);
+        this, "endDate", IborRateSwapLeg.class, AdjustableDate.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
+        this, "currency", IborRateSwapLeg.class, Currency.class);
     /**
      * The meta-properties.
      */
@@ -420,11 +358,12 @@ public final class KnownAmountSwapLeg
         "payReceive",
         "accrualSchedule",
         "paymentSchedule",
-        "amount",
-        "currency",
+        "notionalSchedule",
+        "calculation",
         "type",
         "startDate",
-        "endDate");
+        "endDate",
+        "currency");
 
     /**
      * Restricted constructor.
@@ -441,28 +380,30 @@ public final class KnownAmountSwapLeg
           return accrualSchedule;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
-        case -1413853096:  // amount
-          return amount;
-        case 575402001:  // currency
-          return currency;
+        case 1447860727:  // notionalSchedule
+          return notionalSchedule;
+        case -934682935:  // calculation
+          return calculation;
         case 3575610:  // type
           return type;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
+        case 575402001:  // currency
+          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public KnownAmountSwapLeg.Builder builder() {
-      return new KnownAmountSwapLeg.Builder();
+    public IborRateSwapLeg.Builder builder() {
+      return new IborRateSwapLeg.Builder();
     }
 
     @Override
-    public Class<? extends KnownAmountSwapLeg> beanType() {
-      return KnownAmountSwapLeg.class;
+    public Class<? extends IborRateSwapLeg> beanType() {
+      return IborRateSwapLeg.class;
     }
 
     @Override
@@ -496,19 +437,19 @@ public final class KnownAmountSwapLeg
     }
 
     /**
-     * The meta-property for the {@code amount} property.
+     * The meta-property for the {@code notionalSchedule} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ValueSchedule> amount() {
-      return amount;
+    public MetaProperty<NotionalSchedule> notionalSchedule() {
+      return notionalSchedule;
     }
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code calculation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return currency;
+    public MetaProperty<IborRateCalculation> calculation() {
+      return calculation;
     }
 
     /**
@@ -535,26 +476,36 @@ public final class KnownAmountSwapLeg
       return endDate;
     }
 
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -885469925:  // payReceive
-          return ((KnownAmountSwapLeg) bean).getPayReceive();
+          return ((IborRateSwapLeg) bean).getPayReceive();
         case 304659814:  // accrualSchedule
-          return ((KnownAmountSwapLeg) bean).getAccrualSchedule();
+          return ((IborRateSwapLeg) bean).getAccrualSchedule();
         case -1499086147:  // paymentSchedule
-          return ((KnownAmountSwapLeg) bean).getPaymentSchedule();
-        case -1413853096:  // amount
-          return ((KnownAmountSwapLeg) bean).getAmount();
-        case 575402001:  // currency
-          return ((KnownAmountSwapLeg) bean).getCurrency();
+          return ((IborRateSwapLeg) bean).getPaymentSchedule();
+        case 1447860727:  // notionalSchedule
+          return ((IborRateSwapLeg) bean).getNotionalSchedule();
+        case -934682935:  // calculation
+          return ((IborRateSwapLeg) bean).getCalculation();
         case 3575610:  // type
-          return ((KnownAmountSwapLeg) bean).getType();
+          return ((IborRateSwapLeg) bean).getType();
         case -2129778896:  // startDate
-          return ((KnownAmountSwapLeg) bean).getStartDate();
+          return ((IborRateSwapLeg) bean).getStartDate();
         case -1607727319:  // endDate
-          return ((KnownAmountSwapLeg) bean).getEndDate();
+          return ((IborRateSwapLeg) bean).getEndDate();
+        case 575402001:  // currency
+          return ((IborRateSwapLeg) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -572,15 +523,15 @@ public final class KnownAmountSwapLeg
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code KnownAmountSwapLeg}.
+   * The bean-builder for {@code IborRateSwapLeg}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<KnownAmountSwapLeg> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IborRateSwapLeg> {
 
     private PayReceive payReceive;
     private PeriodicSchedule accrualSchedule;
     private PaymentSchedule paymentSchedule;
-    private ValueSchedule amount;
-    private Currency currency;
+    private NotionalSchedule notionalSchedule;
+    private IborRateCalculation calculation;
 
     /**
      * Restricted constructor.
@@ -592,12 +543,12 @@ public final class KnownAmountSwapLeg
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(KnownAmountSwapLeg beanToCopy) {
+    private Builder(IborRateSwapLeg beanToCopy) {
       this.payReceive = beanToCopy.getPayReceive();
       this.accrualSchedule = beanToCopy.getAccrualSchedule();
       this.paymentSchedule = beanToCopy.getPaymentSchedule();
-      this.amount = beanToCopy.getAmount();
-      this.currency = beanToCopy.getCurrency();
+      this.notionalSchedule = beanToCopy.getNotionalSchedule();
+      this.calculation = beanToCopy.getCalculation();
     }
 
     //-----------------------------------------------------------------------
@@ -610,10 +561,10 @@ public final class KnownAmountSwapLeg
           return accrualSchedule;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
-        case -1413853096:  // amount
-          return amount;
-        case 575402001:  // currency
-          return currency;
+        case 1447860727:  // notionalSchedule
+          return notionalSchedule;
+        case -934682935:  // calculation
+          return calculation;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -631,11 +582,11 @@ public final class KnownAmountSwapLeg
         case -1499086147:  // paymentSchedule
           this.paymentSchedule = (PaymentSchedule) newValue;
           break;
-        case -1413853096:  // amount
-          this.amount = (ValueSchedule) newValue;
+        case 1447860727:  // notionalSchedule
+          this.notionalSchedule = (NotionalSchedule) newValue;
           break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
+        case -934682935:  // calculation
+          this.calculation = (IborRateCalculation) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -668,13 +619,13 @@ public final class KnownAmountSwapLeg
     }
 
     @Override
-    public KnownAmountSwapLeg build() {
-      return new KnownAmountSwapLeg(
+    public IborRateSwapLeg build() {
+      return new IborRateSwapLeg(
           payReceive,
           accrualSchedule,
           paymentSchedule,
-          amount,
-          currency);
+          notionalSchedule,
+          calculation);
     }
 
     //-----------------------------------------------------------------------
@@ -695,7 +646,7 @@ public final class KnownAmountSwapLeg
     }
 
     /**
-     * Sets the accrual period schedule.
+     * Sets the accrual schedule.
      * <p>
      * This is used to define the accrual periods.
      * These are used directly or indirectly to determine other dates in the swap.
@@ -709,7 +660,7 @@ public final class KnownAmountSwapLeg
     }
 
     /**
-     * Sets the payment period schedule.
+     * Sets the payment schedule.
      * <p>
      * This is used to define the payment periods, including any compounding.
      * The payment period dates are based on the accrual schedule.
@@ -723,40 +674,30 @@ public final class KnownAmountSwapLeg
     }
 
     /**
-     * Sets the known amount schedule.
+     * Sets the notional schedule.
      * <p>
-     * This defines the schedule of known amounts, relative to the payment schedule.
-     * The schedule is defined as an initial amount, with optional changes during the tenor of the swap.
-     * The amount is only permitted to change at payment period boundaries.
-     * <p>
-     * Note that the date of the payment is implied by the payment schedule.
-     * Any dates in the known amount schedule refer to the payment schedule, not the payment date.
-     * <p>
-     * For example, consider a two year swap where each payment period is 3 months long.
-     * This schedule could define two entries, one that defines the payment amounts as GBP 1000 for
-     * the first year and one that defines the amount as GBP 500 for the second year.
-     * In this case there will be eight payments in total, four payments of GBP 1000 in the first
-     * year and four payments of GBP 500 in the second year.
-     * Each payment will occur on the date specified using the offset in {@link PaymentSchedule}.
-     * @param amount  the new value, not null
+     * The notional amount schedule, which can vary during the lifetime of the swap.
+     * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+     * However, in certain cases, initial, final or intermediate amounts are exchanged.
+     * @param notionalSchedule  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder amount(ValueSchedule amount) {
-      JodaBeanUtils.notNull(amount, "amount");
-      this.amount = amount;
+    public Builder notionalSchedule(NotionalSchedule notionalSchedule) {
+      JodaBeanUtils.notNull(notionalSchedule, "notionalSchedule");
+      this.notionalSchedule = notionalSchedule;
       return this;
     }
 
     /**
-     * Sets the currency of the swap leg.
+     * Sets the Ibor rate accrual calculation.
      * <p>
-     * This is the currency of the known payments.
-     * @param currency  the new value, not null
+     * This defines the detail of the Ibor rate calculation, including the index and spread.
+     * @param calculation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
+    public Builder calculation(IborRateCalculation calculation) {
+      JodaBeanUtils.notNull(calculation, "calculation");
+      this.calculation = calculation;
       return this;
     }
 
@@ -764,12 +705,12 @@ public final class KnownAmountSwapLeg
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
-      buf.append("KnownAmountSwapLeg.Builder{");
+      buf.append("IborRateSwapLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
-      buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
+      buf.append("notionalSchedule").append('=').append(JodaBeanUtils.toString(notionalSchedule)).append(',').append(' ');
+      buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation));
       buf.append('}');
       return buf.toString();
     }

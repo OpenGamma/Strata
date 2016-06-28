@@ -90,11 +90,11 @@ import com.opengamma.strata.pricer.rate.SimplePriceIndexValues;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
@@ -260,7 +260,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
         .build();
     double parRateComputed = pricerSwap.parRate(SWAP_INFLATION, prov);
-    ResolvedSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -286,7 +286,7 @@ public class DiscountingSwapProductPricerTest {
   }
 
   public void test_parRate_inflation_periodic() {
-    ResolvedSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))
@@ -314,7 +314,7 @@ public class DiscountingSwapProductPricerTest {
         .discountCurves(RATES_GBP_INFLATION.getDiscountCurves())
         .build();
     double parRateComputed = pricerSwap.parRate(swap, prov);
-    ResolvedSwapLeg fixedLegWithParRate = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg fixedLegWithParRate = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(date(2014, 6, 9))

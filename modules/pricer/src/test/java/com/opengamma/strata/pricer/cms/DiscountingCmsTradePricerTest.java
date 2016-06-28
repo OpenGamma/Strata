@@ -40,9 +40,9 @@ import com.opengamma.strata.product.cms.ResolvedCms;
 import com.opengamma.strata.product.cms.ResolvedCmsLeg;
 import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
@@ -74,7 +74,7 @@ public class DiscountingCmsTradePricerTest {
       .paymentSchedule(SCHEDULE_EUR)
       .build()
       .resolve(REF_DATA);
-  private static final ResolvedSwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
+  private static final ResolvedSwapLeg PAY_LEG = FixedRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE_EUR)
       .calculation(FixedRateCalculation.of(0.01, ACT_360))

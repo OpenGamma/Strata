@@ -47,11 +47,11 @@ import com.opengamma.strata.product.swap.NegativeRateMethod;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.ParameterizedSwapLeg;
 import com.opengamma.strata.product.swap.PaymentRelativeTo;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 import com.opengamma.strata.product.swap.RateCalculation;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResetSchedule;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -166,13 +166,8 @@ final class SwapFpmlParserPlugin
         NotionalSchedule notionalSchedule = parseSwapNotionalSchedule(legEl, calcEl, document);
         RateCalculation calculation = parseSwapCalculation(legEl, calcEl, accrualSchedule, document);
         // build
-        legsBuilder.add(RateCalculationSwapLeg.builder()
-            .payReceive(payReceive)
-            .accrualSchedule(accrualSchedule)
-            .paymentSchedule(paymentSchedule)
-            .notionalSchedule(notionalSchedule)
-            .calculation(calculation)
-            .build());
+        legsBuilder.add(ParameterizedSwapLeg.of(
+            payReceive, accrualSchedule, paymentSchedule, notionalSchedule, calculation));
       }
     }
     return Swap.of(legsBuilder.build());

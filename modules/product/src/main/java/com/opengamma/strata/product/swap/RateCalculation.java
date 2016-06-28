@@ -16,7 +16,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 /**
  * The accrual calculation part of an interest rate swap leg.
  * <p>
- * An interest rate swap leg is defined by {@link RateCalculationSwapLeg}.
+ * An interest rate swap leg is defined by {@link ParameterizedSwapLeg}.
  * The rate to be paid is defined by the implementations of this interface.
  * <p>
  * Implementations must be immutable and thread-safe beans.

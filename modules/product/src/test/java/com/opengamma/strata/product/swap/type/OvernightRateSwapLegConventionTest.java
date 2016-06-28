@@ -40,8 +40,8 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.OvernightRateSwapLeg;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * Test {@link OvernightRateSwapLegConvention}.
@@ -154,8 +154,8 @@ public class OvernightRateSwapLegConventionTest {
     OvernightRateSwapLegConvention base = OvernightRateSwapLegConvention.of(GBP_SONIA, TERM, 2);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M);
-    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+    OvernightRateSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M);
+    OvernightRateSwapLeg expected = OvernightRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(TERM)
@@ -181,8 +181,8 @@ public class OvernightRateSwapLegConventionTest {
         .build();
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
-    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+    OvernightRateSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
+    OvernightRateSwapLeg expected = OvernightRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(TERM)

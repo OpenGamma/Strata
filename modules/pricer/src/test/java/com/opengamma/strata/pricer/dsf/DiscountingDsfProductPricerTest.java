@@ -45,10 +45,11 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.dsf.ResolvedDsf;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -88,7 +89,7 @@ public class DiscountingDsfProductPricerTest {
   private static final LocalDate START = LocalDate.of(2012, 12, 19);
   private static final LocalDate END = START.plusYears(10);
   private static final double RATE = 0.0175;
-  private static final SwapLeg FIXED_LEG = RateCalculationSwapLeg.builder()
+  private static final SwapLeg FIXED_LEG = FixedRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(START)
@@ -107,7 +108,7 @@ public class DiscountingDsfProductPricerTest {
           .rate(ValueSchedule.of(RATE))
           .build())
       .build();
-  private static final SwapLeg IBOR_LEG = RateCalculationSwapLeg.builder()
+  private static final SwapLeg IBOR_LEG = IborRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(START)

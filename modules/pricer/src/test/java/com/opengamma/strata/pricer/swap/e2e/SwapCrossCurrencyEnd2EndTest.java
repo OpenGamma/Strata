@@ -35,9 +35,9 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.swap.FxResetCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -65,7 +65,7 @@ public class SwapCrossCurrencyEnd2EndTest {
   //-----------------------------------------------------------------------
   // XCcy swap with exchange of notional
   public void test_XCcyEur3MSpreadVsUSD3M() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -90,7 +90,7 @@ public class SwapCrossCurrencyEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -131,7 +131,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))
@@ -156,7 +156,7 @@ public class SwapCrossCurrencyEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 24))

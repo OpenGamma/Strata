@@ -59,9 +59,9 @@ import com.opengamma.strata.product.TradeAttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -226,7 +226,7 @@ public class HistoricalScenarioExample {
   private static Trade createTrade() {
     NotionalSchedule notional = NotionalSchedule.of(Currency.USD, 1_000_000);
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2015, 9, 11))
@@ -242,7 +242,7 @@ public class HistoricalScenarioExample {
         .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2015, 9, 11))

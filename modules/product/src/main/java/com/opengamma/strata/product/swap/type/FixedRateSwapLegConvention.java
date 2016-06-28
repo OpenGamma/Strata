@@ -36,9 +36,9 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * A market convention for the fixed leg of rate swap trades.
@@ -310,14 +310,14 @@ public final class FixedRateSwapLegConvention
    * @param fixedRate  the fixed rate, typically derived from the market
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public FixedRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
       double notional,
       double fixedRate) {
 
-    return RateCalculationSwapLeg
+    return FixedRateSwapLeg
         .builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()

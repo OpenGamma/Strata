@@ -94,14 +94,16 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentEvent;
 import com.opengamma.strata.product.swap.PaymentPeriod;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -220,9 +222,9 @@ public class DiscountingSwapLegPricerTest {
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
     double shift = 1.0E-6;
-    RateCalculationSwapLeg leg0 = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+    IborRateSwapLeg leg0 = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
         .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread);
-    RateCalculationSwapLeg legP = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+    IborRateSwapLeg legP = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
         .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread + shift);
     double parSpread = PRICER_LEG.pvbp(leg0.resolve(REF_DATA), RATES_USD);
     double pv0 = PRICER_LEG.presentValue(leg0.resolve(REF_DATA), RATES_USD).getAmount();
@@ -441,7 +443,7 @@ public class DiscountingSwapLegPricerTest {
     LocalDate effectiveDate = USD_LIBOR_3M_LIBOR_6M.calculateSpotDateFromTradeDate(tradeDate, REF_DATA);
     LocalDate endDate = effectiveDate.plus(TENOR_10Y);
     double spread = 0.0015;
-    RateCalculationSwapLeg leg = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
+    IborRateSwapLeg leg = IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M.getSpreadLeg()
         .toLeg(effectiveDate, endDate, RECEIVE, NOTIONAL, spread);
     PointSensitivities pvbppts = PRICER_LEG.pvbpSensitivity(leg.resolve(REF_DATA), RATES_USD).build();
     CurrencyParameterSensitivities psAd = RATES_USD.parameterSensitivity(pvbppts);
@@ -655,7 +657,7 @@ public class DiscountingSwapLegPricerTest {
         .lag(Period.ofMonths(3))
         .build();
     NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, NOTIONAL);
-    SwapLeg swapLeg = RateCalculationSwapLeg.builder()
+    SwapLeg swapLeg = InflationRateSwapLeg.builder()
         .payReceive(pay)
         .accrualSchedule(accrualSchedule)
         .paymentSchedule(paymentSchedule)
@@ -685,7 +687,7 @@ public class DiscountingSwapLegPricerTest {
         .dayCount(ONE_ONE) // year fraction is always 1.
         .build();
     NotionalSchedule notionalSchedule = NotionalSchedule.of(GBP, 1000d);
-    ResolvedSwapLeg swapLeg = RateCalculationSwapLeg.builder()
+    ResolvedSwapLeg swapLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(accrualSchedule)
         .paymentSchedule(paymentSchedule)

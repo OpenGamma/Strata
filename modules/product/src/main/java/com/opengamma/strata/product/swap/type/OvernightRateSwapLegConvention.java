@@ -45,8 +45,8 @@ import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.OvernightRateSwapLeg;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * A market convention for the floating leg of rate swap trades based on an Overnight index.
@@ -493,7 +493,7 @@ public final class OvernightRateSwapLegConvention
    * @param notional  the notional
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public OvernightRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
@@ -517,14 +517,14 @@ public final class OvernightRateSwapLegConvention
    * @param spread  the spread to apply
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public OvernightRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
       double notional,
       double spread) {
 
-    return RateCalculationSwapLeg
+    return OvernightRateSwapLeg
         .builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()

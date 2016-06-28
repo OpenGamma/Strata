@@ -64,8 +64,7 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
  * Note however that it is intended that the dates on {@code RatePaymentPeriod} and
  * {@code RateAccrualPeriod} are already adjusted to be valid business days.
  * <p>
- * In general, it is recommended to use the parameterized {@link RateCalculationSwapLeg}
- * instead of this class.
+ * In general, it is recommended to use implementations of {@link ParameterizedSwapLeg} instead of this class.
  */
 @BeanDefinition
 public final class RatePeriodSwapLeg

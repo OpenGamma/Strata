@@ -30,12 +30,13 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentRelativeTo;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -88,11 +89,11 @@ public class SwapTradeModelDemo {
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
     // - in this simple case the notional is 1 million GBP and does not change
     NotionalSchedule notionalSchedule = NotionalSchedule.of(Currency.GBP, 1_000_000);
-    // a RateCalculationSwapLeg can represent a fixed or floating swap leg
+    // a FixedRateSwapLeg represents a fixed swap leg
     // - a FixedRateCalculation is used to represent a fixed rate
     // - the "Act/Act ISDA" day count is used
     // - the rate starts at 0.8% and reduces to 0.7%
-    RateCalculationSwapLeg swapLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg swapLeg = FixedRateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(accrualSchedule)
         .paymentSchedule(paymentSchedule)
@@ -143,12 +144,12 @@ public class SwapTradeModelDemo {
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
     // - in this simple case the notional is 1 million GBP and does not change
     NotionalSchedule notionalSchedule = NotionalSchedule.of(Currency.GBP, 1_000_000);
-    // a RateCalculationSwapLeg can represent a fixed or floating swap leg
+    // an IborRateSwapLeg represents a floating Ibor swap leg
     // - an IborRateCalculation is used to represent a floating Ibor rate
     // - the "Act/Act ISDA" day count is used
     // - the index is GBP LIBOR 6M
     // - fixing is 2 days before the start of the period using the "GBLO" holiday calendar
-    RateCalculationSwapLeg swapLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg swapLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(accrualSchedule)
         .paymentSchedule(paymentSchedule)
@@ -175,7 +176,7 @@ public class SwapTradeModelDemo {
   //-----------------------------------------------------------------------
   public void vanillaFixedVsLibor3mSwap() {
     // we are paying a fixed rate every 3 months at 1.5% with a 100 million notional
-    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -195,7 +196,7 @@ public class SwapTradeModelDemo {
         .calculation(FixedRateCalculation.of(0.015, DayCounts.THIRTY_U_360))
         .build();
     // we are receiving USD LIBOR 3M every 3 months with a 100 million notional
-    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))

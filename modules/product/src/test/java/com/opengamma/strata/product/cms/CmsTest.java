@@ -31,9 +31,9 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -56,7 +56,7 @@ public class CmsTest {
       PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.NONE, RollConventions.NONE);
   private static final ValueSchedule STRIKE = ValueSchedule.of(0.0125);
   private static final CmsLeg CMS_LEG = CmsLegTest.sutCap();
-  private static final SwapLeg PAY_LEG = RateCalculationSwapLeg.builder()
+  private static final SwapLeg PAY_LEG = FixedRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(SCHEDULE_EUR)
       .calculation(

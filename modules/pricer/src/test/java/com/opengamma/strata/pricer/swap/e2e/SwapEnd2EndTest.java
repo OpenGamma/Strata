@@ -50,15 +50,17 @@ import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.IborRateStubCalculation;
+import com.opengamma.strata.product.swap.IborRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
+import com.opengamma.strata.product.swap.OvernightRateSwapLeg;
 import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
-import com.opengamma.strata.product.swap.IborRateStubCalculation;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -112,7 +114,7 @@ public class SwapEnd2EndTest {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), P6M, PAY, NOTIONAL, 0.0125, null);
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -174,7 +176,7 @@ public class SwapEnd2EndTest {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2013, 9, 12), LocalDate.of(2020, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2013, 9, 12))
@@ -206,7 +208,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_BasisLibor3mVsLibor6mSwapWithSpread() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
@@ -225,7 +227,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
@@ -258,7 +260,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_BasisCompoundedLibor1mVsLibor3mSwap() {
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
@@ -278,7 +280,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
@@ -313,7 +315,7 @@ public class SwapEnd2EndTest {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -349,7 +351,7 @@ public class SwapEnd2EndTest {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -385,7 +387,7 @@ public class SwapEnd2EndTest {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -422,7 +424,7 @@ public class SwapEnd2EndTest {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -456,7 +458,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_ZeroCouponFixedVsLibor3mSwap() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -476,7 +478,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = IborRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -516,7 +518,7 @@ public class SwapEnd2EndTest {
       steps.add(ValueStep.of(i, stepReduction));
     }
     ValueSchedule notionalSchedule = ValueSchedule.of(100_000_000, steps);
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = FixedRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -535,7 +537,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -568,7 +570,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_CompoundingOisFixed2mVsFedFund12mSwap() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 5))
@@ -587,7 +589,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = OvernightRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 5))
@@ -620,7 +622,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_CompoundingOisFixed2mVsFedFund12mSwapWithFixing() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = FixedRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 17))
@@ -639,7 +641,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = OvernightRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 17))
@@ -672,7 +674,7 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   public void test_OnAASpreadVsLibor3MSwap() {
-    SwapLeg payLeg = RateCalculationSwapLeg.builder()
+    SwapLeg payLeg = IborRateSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -691,7 +693,7 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+    SwapLeg receiveLeg = OvernightRateSwapLeg.builder()
         .payReceive(RECEIVE)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -735,7 +737,7 @@ public class SwapEnd2EndTest {
       double fixedRate,
       StubConvention stubConvention) {
 
-    return RateCalculationSwapLeg.builder()
+    return FixedRateSwapLeg.builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(start)
@@ -766,7 +768,7 @@ public class SwapEnd2EndTest {
       StubConvention stubConvention) {
 
     Frequency freq = Frequency.of(index.getTenor().getPeriod());
-    return RateCalculationSwapLeg.builder()
+    return IborRateSwapLeg.builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()
             .startDate(start)

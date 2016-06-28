@@ -33,10 +33,10 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 
 /**
  * A market convention for the floating leg of rate swap trades based on a price index.
@@ -164,13 +164,13 @@ public final class InflationRateSwapLegConvention
    * @param notional  the business day adjustment to apply to accrual schedule dates
    * @return the leg
    */
-  public RateCalculationSwapLeg toLeg(
+  public InflationRateSwapLeg toLeg(
       LocalDate startDate,
       LocalDate endDate,
       PayReceive payReceive,
       double notional) {
 
-    return RateCalculationSwapLeg
+    return InflationRateSwapLeg
         .builder()
         .payReceive(payReceive)
         .accrualSchedule(PeriodicSchedule.builder()

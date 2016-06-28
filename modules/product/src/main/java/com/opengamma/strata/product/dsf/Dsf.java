@@ -28,13 +28,13 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ParameterizedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
-import com.opengamma.strata.product.SecuritizedProduct;
 
 /**
  * A deliverable swap futures contract.
@@ -96,8 +96,8 @@ public final class Dsf
       if (swapLeg.getType().equals(SwapLegType.FIXED)) {
         ArgChecker.isTrue(swapLeg.getPayReceive().isReceive(), "Underlying swap must receive the fixed leg");
       }
-      if (swapLeg instanceof RateCalculationSwapLeg) {
-        RateCalculationSwapLeg leg = (RateCalculationSwapLeg) swapLeg;
+      if (swapLeg instanceof ParameterizedSwapLeg) {
+        ParameterizedSwapLeg<?> leg = (ParameterizedSwapLeg<?>) swapLeg;
         ArgChecker.isTrue(Math.abs(leg.getNotionalSchedule().getAmount().getInitialValue()) == 1d,
             "Underlying swap must have a notional of 1");
       }

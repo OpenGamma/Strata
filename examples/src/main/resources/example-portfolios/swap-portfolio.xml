@@ -12,7 +12,7 @@
    </info>
    <product>
     <legs>
-     <item type="com.opengamma.strata.product.swap.RateCalculationSwapLeg">
+     <item type="com.opengamma.strata.product.swap.FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -54,7 +54,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="com.opengamma.strata.product.swap.IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -117,7 +117,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-08-27</startDate>
@@ -166,7 +166,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-08-27</startDate>
@@ -233,7 +233,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -282,7 +282,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="com.opengamma.strata.product.swap.OvernightRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -342,7 +342,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2013-09-12</startDate>
@@ -384,7 +384,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2013-09-12</startDate>
@@ -447,7 +447,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-01-17</startDate>
@@ -489,7 +489,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="OvernightRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-01-17</startDate>
@@ -546,7 +546,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -595,7 +595,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -652,7 +652,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -702,7 +702,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -759,7 +759,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -813,7 +813,7 @@
        </initialStub>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -870,7 +870,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -924,7 +924,7 @@
        </initialStub>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -981,7 +981,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -1023,7 +1023,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -1086,7 +1086,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-02-05</startDate>
@@ -1128,7 +1128,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="OvernightRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-02-05</startDate>
@@ -1185,7 +1185,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -1234,7 +1234,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="OvernightRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-09-12</startDate>
@@ -1290,7 +1290,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-08-27</startDate>
@@ -1339,7 +1339,7 @@
        <negativeRateMethod>AllowNegative</negativeRateMethod>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-08-27</startDate>
@@ -1402,7 +1402,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1455,7 +1455,7 @@
        </spread>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1518,7 +1518,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1560,7 +1560,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1623,7 +1623,7 @@
    </info>
    <product>
     <legs>
-     <item type="RateCalculationSwapLeg">
+     <item type="FixedRateSwapLeg">
       <payReceive>Pay</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>
@@ -1665,7 +1665,7 @@
        </rate>
       </calculation>
      </item>
-     <item type="RateCalculationSwapLeg">
+     <item type="IborRateSwapLeg">
       <payReceive>Receive</payReceive>
       <accrualSchedule>
        <startDate>2014-01-24</startDate>

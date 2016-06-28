@@ -37,15 +37,16 @@ import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FixedRateSwapLeg;
 import com.opengamma.strata.product.swap.FxReset;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
+import com.opengamma.strata.product.swap.InflationRateSwapLeg;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.NotionalExchange;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateAccrualPeriod;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.RatePaymentPeriod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -347,7 +348,7 @@ public final class SwapDummyData {
   /**
    * ResolvedSwapLeg (fixed).
    */
-  public static final ResolvedSwapLeg FIXED_RATECALC_SWAP_LEG = RateCalculationSwapLeg.builder()
+  public static final ResolvedSwapLeg FIXED_RATECALC_SWAP_LEG = FixedRateSwapLeg.builder()
       .payReceive(PayReceive.RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(date(2014, 4, 2))
@@ -366,7 +367,7 @@ public final class SwapDummyData {
   /**
    * ResolvedSwapLeg (inflation)
    */
-  public static final ResolvedSwapLeg INFLATION_MONTHLY_SWAP_LEG_REC_GBP = RateCalculationSwapLeg.builder()
+  public static final ResolvedSwapLeg INFLATION_MONTHLY_SWAP_LEG_REC_GBP = InflationRateSwapLeg.builder()
       .payReceive(PAY)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(date(2014, 6, 9))
@@ -393,7 +394,7 @@ public final class SwapDummyData {
   /**
    * ResolvedSwapLeg (fixed - to be used as a counterpart of INFLATION_MONTHLY_SWAP_LEG_REC_GBP)
    */
-  public static final ResolvedSwapLeg INFLATION_FIXED_SWAP_LEG_PAY_GBP = RateCalculationSwapLeg.builder()
+  public static final ResolvedSwapLeg INFLATION_FIXED_SWAP_LEG_PAY_GBP = FixedRateSwapLeg.builder()
       .payReceive(RECEIVE)
       .accrualSchedule(PeriodicSchedule.builder()
           .startDate(date(2014, 6, 9))
