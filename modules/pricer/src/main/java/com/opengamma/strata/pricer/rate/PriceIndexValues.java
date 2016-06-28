@@ -18,7 +18,7 @@ import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -51,7 +51,7 @@ public interface PriceIndexValues
   public static PriceIndexValues of(
       PriceIndex index,
       LocalDate valuationDate,
-      InterpolatedNodalCurve forwardCurve,
+      NodalCurve forwardCurve,
       LocalDateDoubleTimeSeries fixings) {
 
     return SimplePriceIndexValues.of(index, valuationDate, forwardCurve, fixings);

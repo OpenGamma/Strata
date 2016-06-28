@@ -73,4 +73,17 @@ public interface NodalCurve
     return (NodalCurve) Curve.super.withPerturbation(perturbation);
   }
 
+  /**
+   * Returns a new curve with an additional node with no parameter metadata.
+   * <p>
+   * The result will contain the additional node.
+   * The result will have no parameter metadata, even if this curve does.
+   * 
+   * @param index  the index to insert at
+   * @param x  the new x-value
+   * @param y  the new y-value
+   * @return the updated curve
+   */
+  public abstract NodalCurve withNode(int index, double x, double y);
+
 }

@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.NodalCurve;
 
 /**
  * Builder for the immutable rates provider.
@@ -215,7 +215,11 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    this.indexCurves.put(index, forwardCurve);
+    if (index instanceof IborIndex || index instanceof OvernightIndex) {
+      this.indexCurves.put(index, forwardCurve);
+    } else {
+      throw new IllegalArgumentException("Unsupported index: " + index);
+    }
     return this;
   }
 
@@ -233,13 +237,15 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    if (index instanceof PriceIndex) {
-      ArgChecker.isTrue(forwardCurve instanceof InterpolatedNodalCurve, "Price index curve must be an InterpolatedNodalCurve");
-      InterpolatedNodalCurve curve = (InterpolatedNodalCurve) forwardCurve;
-      priceIndexValues(PriceIndexValues.of((PriceIndex) index, valuationDate, curve, timeSeries));
-    } else {
+    if (index instanceof IborIndex || index instanceof OvernightIndex) {
       this.indexCurves.put(index, forwardCurve);
       this.timeSeries.put(index, timeSeries);
+    } else if (index instanceof PriceIndex) {
+      ArgChecker.isTrue(forwardCurve instanceof NodalCurve, "Price index curve must be a NodalCurve");
+      NodalCurve curve = (NodalCurve) forwardCurve;
+      priceIndexValues(PriceIndexValues.of((PriceIndex) index, valuationDate, curve, timeSeries));
+    } else {
+      throw new IllegalArgumentException("Unsupported index: " + index);
     }
     return this;
   }
