@@ -593,8 +593,14 @@ public class DiscountingSwapLegPricer {
   }
 
   //-------------------------------------------------------------------------
-  // explains the present value of the leg
-  void explainPresentValueInternal(ResolvedSwapLeg leg, RatesProvider provider, ExplainMapBuilder builder) {
+  /**
+   * Explain present value builder used to build large explain map from the individual legs.
+   * 
+   * @param leg  the swap log 
+   * @param provider  the rates provider
+   * @param builder  the explain map builder which will be populated but the leg 
+   */
+  public void explainPresentValueInternal(ResolvedSwapLeg leg, RatesProvider provider, ExplainMapBuilder builder) {
     builder.put(ExplainKey.ENTRY_TYPE, "Leg");
     builder.put(ExplainKey.PAY_RECEIVE, leg.getPayReceive());
     builder.put(ExplainKey.LEG_TYPE, leg.getType().toString());
