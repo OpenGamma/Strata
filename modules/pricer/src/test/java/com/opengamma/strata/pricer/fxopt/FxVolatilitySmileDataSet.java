@@ -4,8 +4,8 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
-import static com.opengamma.strata.market.interpolator.CurveExtrapolators.FLAT;
-import static com.opengamma.strata.market.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 
 import java.time.ZonedDateTime;
 

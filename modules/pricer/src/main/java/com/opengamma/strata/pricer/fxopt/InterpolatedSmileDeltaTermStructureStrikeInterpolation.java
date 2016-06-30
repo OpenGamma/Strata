@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
-import static com.opengamma.strata.market.interpolator.CurveExtrapolators.FLAT;
-import static com.opengamma.strata.market.interpolator.CurveInterpolators.LINEAR;
-import static com.opengamma.strata.market.interpolator.CurveInterpolators.TIME_SQUARE;
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,9 +34,9 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.market.interpolator.BoundCurveInterpolator;
-import com.opengamma.strata.market.interpolator.CurveExtrapolator;
-import com.opengamma.strata.market.interpolator.CurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 
 /**
  * An interpolated term structure of smiles as used in Forex market.

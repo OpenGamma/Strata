@@ -18,9 +18,9 @@
 <listEntry value="com.opengamma.strata.market"/>
 <listEntry value="com.opengamma.strata.market.amount"/>
 <listEntry value="com.opengamma.strata.market.curve"/>
+<listEntry value="com.opengamma.strata.market.curve.interpolator"/>
 <listEntry value="com.opengamma.strata.market.curve.node"/>
 <listEntry value="com.opengamma.strata.market.explain"/>
-<listEntry value="com.opengamma.strata.market.interpolator"/>
 <listEntry value="com.opengamma.strata.market.model"/>
 <listEntry value="com.opengamma.strata.market.observable"/>
 <listEntry value="com.opengamma.strata.market.option"/>
