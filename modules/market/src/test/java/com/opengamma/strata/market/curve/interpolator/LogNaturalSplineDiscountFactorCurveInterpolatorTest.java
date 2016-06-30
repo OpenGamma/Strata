@@ -19,13 +19,13 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * Test {@link LogNaturalCubicDiscountFactorCurveInterpolator}.
+ * Test {@link LogNaturalSplineDiscountFactorCurveInterpolator}.
  */
 @Test
-public class LogNaturalCubicDiscountFactorCurveInterpolatorTest {
+public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
 
   private static final Random RANDOM = new Random(0L);
-  private static final CurveInterpolator LNDFC_INTERPOLATOR = LogNaturalCubicDiscountFactorCurveInterpolator.INSTANCE;
+  private static final CurveInterpolator LNDFC_INTERPOLATOR = LogNaturalSplineDiscountFactorCurveInterpolator.INSTANCE;
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.2, 0.4, 1.0, 1.8, 2.8, 5.0);
@@ -36,8 +36,8 @@ public class LogNaturalCubicDiscountFactorCurveInterpolatorTest {
   private static final double TOL = 1.e-12;
 
   public void test_basics() {
-    assertEquals(LNDFC_INTERPOLATOR.getName(), LogNaturalCubicDiscountFactorCurveInterpolator.NAME);
-    assertEquals(LNDFC_INTERPOLATOR.toString(), LogNaturalCubicDiscountFactorCurveInterpolator.NAME);
+    assertEquals(LNDFC_INTERPOLATOR.getName(), LogNaturalSplineDiscountFactorCurveInterpolator.NAME);
+    assertEquals(LNDFC_INTERPOLATOR.toString(), LogNaturalSplineDiscountFactorCurveInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------

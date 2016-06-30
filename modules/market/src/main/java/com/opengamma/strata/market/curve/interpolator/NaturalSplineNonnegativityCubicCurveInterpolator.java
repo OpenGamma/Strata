@@ -11,25 +11,26 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
+import com.opengamma.strata.math.impl.interpolation.NonnegativityPreservingCubicSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
 /**
- * Natural spline interpolator.
+ * Natural spline interpolator with non-negativity filter.
  */
-final class NaturalSplineCurveInterpolator
+final class NaturalSplineNonnegativityCubicCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
    * The interpolator name.
    */
-  public static final String NAME = "NaturalSpline";
+  public static final String NAME = "NaturalSplineNonnegativityCubic";
   /**
    * The interpolator instance.
    */
-  public static final CurveInterpolator INSTANCE = new NaturalSplineCurveInterpolator();
+  public static final CurveInterpolator INSTANCE = new NaturalSplineNonnegativityCubicCurveInterpolator();
 
   /**
    * The serialization version id.
@@ -43,7 +44,7 @@ final class NaturalSplineCurveInterpolator
   /**
    * Restricted constructor.
    */
-  private NaturalSplineCurveInterpolator() {
+  private NaturalSplineNonnegativityCubicCurveInterpolator() {
   }
 
   // resolve instance
@@ -85,7 +86,8 @@ final class NaturalSplineCurveInterpolator
       super(xValues, yValues);
       this.xValues = xValues.toArrayUnsafe();
       this.yValues = yValues.toArrayUnsafe();
-      PiecewisePolynomialInterpolator underlying = new NaturalSplineInterpolator();
+      PiecewisePolynomialInterpolator underlying =
+          new NonnegativityPreservingCubicSplineInterpolator(new NaturalSplineInterpolator());
       this.poly = underlying.interpolateWithSensitivity(xValues.toArray(), yValues.toArray());
       this.knots = poly.getKnots();
       this.coefMatrix = poly.getCoefMatrix();

@@ -19,13 +19,13 @@ import com.opengamma.strata.math.impl.interpolation.Interpolator1DFactory;
 import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * Test {@link LogNaturalCubicMonotonicityPreservingCurveInterpolator}.
+ * Test {@link LogNaturalSplineMonotoneCubicInterpolator}.
  */
 @Test
-public class LogNaturalCubicMonotonicityPreservingCurveInterpolatorTest {
+public class LogNaturalSplineMonotoneCubicTest {
 
   private static final Random RANDOM = new Random(0L);
-  private static final CurveInterpolator LNCMP_INTERPOLATOR = LogNaturalCubicMonotonicityPreservingCurveInterpolator.INSTANCE;
+  private static final CurveInterpolator LNCMP_INTERPOLATOR = LogNaturalSplineMonotoneCubicInterpolator.INSTANCE;
   private static final CurveExtrapolator FLAT_EXTRAPOLATOR = CurveExtrapolators.FLAT;
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.0, 0.4, 1.0, 1.8, 2.8, 5.0);
@@ -36,8 +36,8 @@ public class LogNaturalCubicMonotonicityPreservingCurveInterpolatorTest {
   private static final double TOL = 1.e-12;
 
   public void test_basics() {
-    assertEquals(LNCMP_INTERPOLATOR.getName(), LogNaturalCubicMonotonicityPreservingCurveInterpolator.NAME);
-    assertEquals(LNCMP_INTERPOLATOR.toString(), LogNaturalCubicMonotonicityPreservingCurveInterpolator.NAME);
+    assertEquals(LNCMP_INTERPOLATOR.getName(), LogNaturalSplineMonotoneCubicInterpolator.NAME);
+    assertEquals(LNCMP_INTERPOLATOR.toString(), LogNaturalSplineMonotoneCubicInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------

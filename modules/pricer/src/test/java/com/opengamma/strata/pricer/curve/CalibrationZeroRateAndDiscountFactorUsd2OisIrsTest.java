@@ -491,7 +491,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   }
 
   public void calibration_present_value_discountCurve_clamped() {
-    CurveInterpolator interp = CurveInterpolators.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR;
+    CurveInterpolator interp = CurveInterpolators.LOG_NATURAL_SPLINE_DISCOUNT_FACTOR;
     CurveExtrapolator extrapRight = CurveExtrapolators.LOG_LINEAR;
     CurveExtrapolator extrapLeft = CurveExtrapolators.INTERPOLATOR;
     InterpolatedNodalCurveDefinition dsc =

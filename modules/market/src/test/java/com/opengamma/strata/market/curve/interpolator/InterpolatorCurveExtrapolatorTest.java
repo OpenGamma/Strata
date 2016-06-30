@@ -112,7 +112,7 @@ public class InterpolatorCurveExtrapolatorTest {
 
   public void test_sameAsPrevious() {
     BoundCurveInterpolator bci =
-        CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(X_DATA, Y_DATA, INT_EXTRAPOLATOR, INT_EXTRAPOLATOR);
+        CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(X_DATA, Y_DATA, INT_EXTRAPOLATOR, INT_EXTRAPOLATOR);
     Extrapolator1D oldExtrap = Interpolator1DFactory.INTERPOLATOR_EXTRAPOLATOR_INSTANCE;
     Interpolator1D oldInterp = new LogNaturalCubicMonotonicityPreservingInterpolator1D();
     Interpolator1DDataBundle data = oldInterp.getDataBundle(X_DATA.toArray(), Y_DATA.toArray());

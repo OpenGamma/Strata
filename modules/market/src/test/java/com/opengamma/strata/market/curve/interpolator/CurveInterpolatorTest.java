@@ -12,6 +12,14 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LOG_LINEAR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LOG_NATURAL_SPLINE_DISCOUNT_FACTOR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_CUBIC_SPLINE;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE_NONNEGATIVITY_CUBIC;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_NATURAL_SPLINE;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.SQUARE_LINEAR;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -35,7 +43,15 @@ public class CurveInterpolatorTest {
     return new Object[][] {
         {LINEAR, "Linear"},
         {LOG_LINEAR, "LogLinear"},
+        {SQUARE_LINEAR, "SquareLinear"},
         {DOUBLE_QUADRATIC, "DoubleQuadratic"},
+        {TIME_SQUARE, "TimeSquare"},
+        {LOG_NATURAL_SPLINE_MONOTONE_CUBIC, "LogNaturalSplineMonotoneCubic"},
+        {LOG_NATURAL_SPLINE_DISCOUNT_FACTOR, "LogNaturalSplineDiscountFactor"},
+        {NATURAL_CUBIC_SPLINE, "NaturalCubicSpline"},
+        {NATURAL_SPLINE, "NaturalSpline"},
+        {NATURAL_SPLINE_NONNEGATIVITY_CUBIC, "NaturalSplineNonnegativityCubic"},
+        {PRODUCT_NATURAL_SPLINE, "ProductNaturalSpline"},
     };
   }
 

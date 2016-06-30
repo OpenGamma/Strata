@@ -22,20 +22,27 @@ final class StandardCurveInterpolators {
   public static final CurveInterpolator SQUARE_LINEAR = SquareLinearCurveInterpolator.INSTANCE;
   // Double quadratic interpolator.
   public static final CurveInterpolator DOUBLE_QUADRATIC = DoubleQuadraticCurveInterpolator.INSTANCE;
-  //Log natural cubic interpolation with monotonicity filter.
-  public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
-      LogNaturalCubicMonotonicityPreservingCurveInterpolator.INSTANCE;
   // Time square interpolator.
   public static final CurveInterpolator TIME_SQUARE = TimeSquareCurveInterpolator.INSTANCE;
+
+  //Log natural spline interpolation with monotonicity filter.
+  public static final CurveInterpolator LOG_NATURAL_SPLINE_MONOTONE_CUBIC =
+      LogNaturalSplineMonotoneCubicInterpolator.INSTANCE;
+  // Log natural spline interpolation for discount factors
+  public static final CurveInterpolator LOG_NATURAL_SPLINE_DISCOUNT_FACTOR =
+      LogNaturalSplineDiscountFactorCurveInterpolator.INSTANCE;
   // Natural cubic spline interpolator.
-  public static final CurveInterpolator NATURAL_CUBIC_SPLINE = NaturalCubicSplineCurveInterpolator.INSTANCE;
+  public static final CurveInterpolator NATURAL_CUBIC_SPLINE =
+      NaturalCubicSplineCurveInterpolator.INSTANCE;
   // Natural spline interpolator.
-  public static final CurveInterpolator NATURAL_SPLINE = NaturalSplineCurveInterpolator.INSTANCE;
+  public static final CurveInterpolator NATURAL_SPLINE =
+      NaturalSplineCurveInterpolator.INSTANCE;
+  // Natural spline interpolator with non-negativity filter.
+  public static final CurveInterpolator NATURAL_SPLINE_NONNEGATIVITY_CUBIC =
+      NaturalSplineNonnegativityCubicCurveInterpolator.INSTANCE;
   // Product natural cubic spline interpolator.
-  public static final CurveInterpolator PRODUCT_NATURAL_CUBIC_SPLINE = ProductNaturalCubicSplineCurveInterpolator.INSTANCE;
-  // Log natural cubic spline interpolation for discount factors
-  public static final CurveInterpolator LOG_NATURAL_CUBIC_DISCOUNT_FACTOR =
-      LogNaturalCubicDiscountFactorCurveInterpolator.INSTANCE;
+  public static final CurveInterpolator PRODUCT_NATURAL_SPLINE =
+      ProductNaturalSplineCurveInterpolator.INSTANCE;
 
   //-------------------------------------------------------------------------
   /**

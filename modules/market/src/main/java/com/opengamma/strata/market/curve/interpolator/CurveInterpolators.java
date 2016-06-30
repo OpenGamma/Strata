@@ -54,14 +54,6 @@ public final class CurveInterpolators {
   public static final CurveInterpolator DOUBLE_QUADRATIC =
       CurveInterpolator.of(StandardCurveInterpolators.DOUBLE_QUADRATIC.getName());
   /**
-   * Log natural cubic interpolation with monotonicity filter.
-   * <p>
-   * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a Natural cubic
-   * spline with Monotonicity cubic filter. 
-   */
-  public static final CurveInterpolator LOG_NATURAL_CUBIC_MONOTONE =
-      CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.getName());
-  /**
    * Time square interpolator.
    * <p>
    * The interpolation is linear on {@code x y^2}. The interpolator is used for interpolation on
@@ -69,6 +61,23 @@ public final class CurveInterpolators {
    */
   public static final CurveInterpolator TIME_SQUARE =
       CurveInterpolator.of(StandardCurveInterpolators.TIME_SQUARE.getName());
+
+  /**
+   * Log natural spline interpolation with monotonicity filter.
+   * <p>
+   * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a Natural cubic
+   * spline with Monotonicity cubic filter. 
+   */
+  public static final CurveInterpolator LOG_NATURAL_SPLINE_MONOTONE_CUBIC =
+      CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.getName());
+  /**
+   * Log natural spline interpolator for discount factors.
+   * <p>
+   * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a natural cubic spline going through
+   * the point (0,1).  
+   */
+  public static final CurveInterpolator LOG_NATURAL_SPLINE_DISCOUNT_FACTOR =
+      CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_SPLINE_DISCOUNT_FACTOR.getName());
   /**
    * Natural cubic spline interpolator.
    */
@@ -80,7 +89,12 @@ public final class CurveInterpolators {
   public static final CurveInterpolator NATURAL_SPLINE =
       CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE.getName());
   /**
-   * Product natural cubic spline interpolator.
+   * Natural spline interpolator with non-negativity filter.
+   */
+  public static final CurveInterpolator NATURAL_SPLINE_NONNEGATIVITY_CUBIC =
+      CurveInterpolator.of(StandardCurveInterpolators.NATURAL_SPLINE_NONNEGATIVITY_CUBIC.getName());
+  /**
+   * Product natural spline interpolator.
    * <p>
    * Given a data set {@code (x[i], y[i])}, interpolate {@code (x[i], x[i] * y[i])} by natural cubic spline. 
    * <p>
@@ -88,16 +102,8 @@ public final class CurveInterpolators {
    * the condition that all of the x data to be the same sign, such that the origin is not within data range.
    * The x key value must not be close to zero.
    */
-  public static final CurveInterpolator PRODUCT_NATURAL_CUBIC_SPLINE =
-      CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_CUBIC_SPLINE.getName());
-  /**
-   * Log natural cubic spline interpolator for discount factors.
-   * <p>
-   * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a natural cubic spline going through
-   * the point (0,1).  
-   */
-  public static final CurveInterpolator LOG_NATURAL_CUBIC_DISCOUNT_FACTOR =
-      CurveInterpolator.of(StandardCurveInterpolators.LOG_NATURAL_CUBIC_DISCOUNT_FACTOR.getName());
+  public static final CurveInterpolator PRODUCT_NATURAL_SPLINE =
+      CurveInterpolator.of(StandardCurveInterpolators.PRODUCT_NATURAL_SPLINE.getName());
 
   //-------------------------------------------------------------------------
   /**

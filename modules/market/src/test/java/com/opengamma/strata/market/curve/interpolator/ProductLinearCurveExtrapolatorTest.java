@@ -114,7 +114,7 @@ public class ProductLinearCurveExtrapolatorTest {
     DoubleArray yValues = DoubleArray.of(0.02, 0.05, 0.015, 0.01);
     DoubleArray rightKeys = DoubleArray.of(10.0, 12.0, 25.0, 35.0);
     DoubleArray leftKeys = DoubleArray.of(0.5, 0.25, 0.12, 0.005);
-    BoundCurveInterpolator bind = CurveInterpolators.PRODUCT_NATURAL_CUBIC_SPLINE
+    BoundCurveInterpolator bind = CurveInterpolators.PRODUCT_NATURAL_SPLINE
         .bind(xValues, yValues, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
     Function<Double, Double> fwdFunc = new Function<Double, Double>() {
       @Override

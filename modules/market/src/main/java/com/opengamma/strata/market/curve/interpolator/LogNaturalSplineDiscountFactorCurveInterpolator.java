@@ -29,16 +29,16 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * in {@link Interpolator1DLogPiecewisePoynomialDataBundle} contains information on f(x) (NOT F(x)), 
  * computation done by {@link PiecewisePolynomialWithSensitivityFunction1D} MUST be exponentiated.
  */
-final class LogNaturalCubicDiscountFactorCurveInterpolator implements CurveInterpolator, Serializable {
+final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInterpolator, Serializable {
 
   /**
    * The interpolator name.
    */
-  public static final String NAME = "LogNaturalCubicDiscountFactor";
+  public static final String NAME = "LogNaturalSplineDiscountFactor";
   /**
    * The interpolator instance.
    */
-  public static final CurveInterpolator INSTANCE = new LogNaturalCubicDiscountFactorCurveInterpolator();
+  public static final CurveInterpolator INSTANCE = new LogNaturalSplineDiscountFactorCurveInterpolator();
 
   /**
    * The serialization version id.
@@ -52,7 +52,7 @@ final class LogNaturalCubicDiscountFactorCurveInterpolator implements CurveInter
   /**
    * Restricted constructor.
    */
-  private LogNaturalCubicDiscountFactorCurveInterpolator() {
+  private LogNaturalSplineDiscountFactorCurveInterpolator() {
   }
 
   // resolve instance
@@ -125,7 +125,7 @@ final class LogNaturalCubicDiscountFactorCurveInterpolator implements CurveInter
         int dimensions,
         int nKnots) {
 
-      // check for 1 less interval that knots 
+      // check for 1 less interval than knots 
       int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
       int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
 

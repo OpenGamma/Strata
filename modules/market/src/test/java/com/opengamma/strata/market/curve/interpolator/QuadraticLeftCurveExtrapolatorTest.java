@@ -62,7 +62,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
 
     int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
-      BoundCurveInterpolator bci = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+      BoundCurveInterpolator bci = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
@@ -77,9 +77,9 @@ public class QuadraticLeftCurveExtrapolatorTest {
       for (int j = 0; j < nData; ++j) {
         yValues1Up[j] = yValues[k].get(j) * (1. + EPS);
         yValues1Dw[j] = yValues[k].get(j) * (1. - EPS);
-        BoundCurveInterpolator bciUp = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+        BoundCurveInterpolator bciUp = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
             xValues, DoubleArray.ofUnsafe(yValues1Up), extrap, CurveExtrapolators.LOG_LINEAR);
-        BoundCurveInterpolator bciDw = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+        BoundCurveInterpolator bciDw = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
             xValues, DoubleArray.ofUnsafe(yValues1Dw), extrap, CurveExtrapolators.LOG_LINEAR);
         for (int i = 0; i < nKeys; ++i) {
           double res1 = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
@@ -116,7 +116,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
 
     int yDim = yValues.length;
     for (int k = 0; k < yDim; ++k) {
-      BoundCurveInterpolator bci = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+      BoundCurveInterpolator bci = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
@@ -131,9 +131,9 @@ public class QuadraticLeftCurveExtrapolatorTest {
       for (int j = 0; j < nData; ++j) {
         yValues1Up[j] = yValues[k].get(j) * (1. + EPS);
         yValues1Dw[j] = yValues[k].get(j) * (1. - EPS);
-        BoundCurveInterpolator bciUp = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+        BoundCurveInterpolator bciUp = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
             xValues, DoubleArray.ofUnsafe(yValues1Up), extrap, CurveExtrapolators.LOG_LINEAR);
-        BoundCurveInterpolator bciDw = CurveInterpolators.LOG_NATURAL_CUBIC_MONOTONE.bind(
+        BoundCurveInterpolator bciDw = CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
             xValues, DoubleArray.ofUnsafe(yValues1Dw), extrap, CurveExtrapolators.LOG_LINEAR);
         for (int i = 0; i < nKeys; ++i) {
           double res1 =
