@@ -53,11 +53,11 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIME =
-      DoubleArray.of(0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0);
+      DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1);
   private static final DoubleArray TENOR =
-      DoubleArray.of(3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 7.0, 7.0, 7.0, 10.0, 10.0, 10.0);
+      DoubleArray.of(3, 5, 7, 10, 3, 5, 7, 10, 3, 5, 7, 10);
   private static final DoubleArray VOL =
-      DoubleArray.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
+      DoubleArray.of(0.14, 0.14, 0.13, 0.12, 0.12, 0.13, 0.12, 0.11, 0.1, 0.12, 0.11, 0.1);
 
   private static final FixedIborSwapConvention CONVENTION = FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
   private static final SurfaceMetadata METADATA;
@@ -136,7 +136,7 @@ public class NormalSwaptionExpiryTenorVolatilitiesTest {
     int nData = TIME.size();
     for (int i = 0; i < NB_TEST; i++) {
       SwaptionSensitivity point = SwaptionSensitivity.of(
-          CONVENTION, TEST_OPTION_EXPIRY[i], TENOR.get(i), TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
+          CONVENTION, TEST_OPTION_EXPIRY[i], TEST_TENOR[i], TEST_STRIKE, TEST_FORWARD, GBP, TEST_SENSITIVITY[i]);
       CurrencyParameterSensitivities sensActual = PROVIDER.parameterSensitivity(point);
       CurrencyParameterSensitivity sensi = sensActual.getSensitivity(SURFACE.getName(), GBP);
       DoubleArray computed = sensi.getSensitivity();

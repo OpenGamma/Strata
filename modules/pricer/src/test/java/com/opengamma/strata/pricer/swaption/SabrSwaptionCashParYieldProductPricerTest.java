@@ -25,6 +25,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
@@ -42,6 +45,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -728,14 +732,20 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     SurfaceMetadata[] metadata = new SurfaceMetadata[] {SwaptionSabrRateVolatilityDataSet.META_ALPHA,
         SwaptionSabrRateVolatilityDataSet.META_BETA_EUR, SwaptionSabrRateVolatilityDataSet.META_RHO,
         SwaptionSabrRateVolatilityDataSet.META_NU};
+    // x-y-value order does not match sorted order in surface, thus sort it
     CurrencyParameterSensitivities sensiExpected = CurrencyParameterSensitivities.empty();
     for (int i = 0; i < exps.length; ++i) {
       int size = exps[i].length;
-      List<ParameterMetadata> paramMetadata = new ArrayList<ParameterMetadata>(size);
-      List<Double> sensi = new ArrayList<Double>(size);
+      Map<DoublesPair, Double> sensiMap = new TreeMap<>();
       for (int j = 0; j < size; ++j) {
-        paramMetadata.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(exps[i][j][0], exps[i][j][1]));
-        sensi.add(exps[i][j][2]);
+        sensiMap.put(DoublesPair.of(exps[i][j][0], exps[i][j][1]), exps[i][j][2]);
+      }
+      List<ParameterMetadata> paramMetadata = new ArrayList<>(size);
+      List<Double> sensi = new ArrayList<>();
+      for (Entry<DoublesPair, Double> entry : sensiMap.entrySet()) {
+        paramMetadata.add(SwaptionSurfaceExpiryTenorParameterMetadata.of(
+            entry.getKey().getFirst(), entry.getKey().getSecond()));
+        sensi.add(entry.getValue());
       }
       SurfaceMetadata surfaceMetadata = metadata[i].withParameterMetadata(paramMetadata);
       sensiExpected = sensiExpected.combinedWith(

@@ -52,11 +52,11 @@ public class BlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIME =
-      DoubleArray.of(0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0, 0.25, 0.5, 1.0);
+      DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0);
   private static final DoubleArray STRIKE =
-      DoubleArray.of(0.005, 0.005, 0.005, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.035, 0.035, 0.035);
+      DoubleArray.of(0.005, 0.01, 0.02, 0.035, 0.005, 0.01, 0.02, 0.035, 0.005, 0.01, 0.02, 0.035);
   private static final DoubleArray VOL =
-      DoubleArray.of(0.14, 0.12, 0.1, 0.14, 0.13, 0.12, 0.13, 0.12, 0.11, 0.12, 0.11, 0.1);
+      DoubleArray.of(0.14, 0.14, 0.13, 0.12, 0.12, 0.13, 0.12, 0.11, 0.1, 0.12, 0.11, 0.1);
   private static final SurfaceMetadata METADATA;
   static {
     List<GenericVolatilitySurfaceYearFractionParameterMetadata> list =

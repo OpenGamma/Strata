@@ -104,9 +104,9 @@ public class IborCapletFloorletDataSet {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final DoubleArray EXPIRIES = DoubleArray.of(0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0);
-  private static final DoubleArray STRIKES = DoubleArray.of(0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03);
-  private static final DoubleArray BLACK_VOLS = DoubleArray.of(0.35, 0.34, 0.25, 0.30, 0.25, 0.20, 0.28, 0.23, 0.18);
+  private static final DoubleArray EXPIRIES = DoubleArray.of(0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0);
+  private static final DoubleArray STRIKES = DoubleArray.of(0.01, 0.02, 0.03, 0.01, 0.02, 0.03, 0.01, 0.02, 0.03);
+  private static final DoubleArray BLACK_VOLS = DoubleArray.of(0.35, 0.30, 0.28, 0.34, 0.25, 0.23, 0.25, 0.20, 0.18);
   private static final SurfaceMetadata BLACK_METADATA = DefaultSurfaceMetadata.builder()
       .xValueType(ValueType.YEAR_FRACTION)
       .yValueType(ValueType.STRIKE)

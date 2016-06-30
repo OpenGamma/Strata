@@ -38,6 +38,7 @@
 <listEntry value="com.opengamma.strata.pricer.impl.rate.swap"/>
 <listEntry value="com.opengamma.strata.pricer.impl.swap"/>
 <listEntry value="com.opengamma.strata.pricer.impl.tree"/>
+<listEntry value="com.opengamma.strata.pricer.impl.volatility.local"/>
 <listEntry value="com.opengamma.strata.pricer.impl.volatility.smile.fitting"/>
 <listEntry value="com.opengamma.strata.pricer.impl.volatility.smile.function"/>
 <listEntry value="com.opengamma.strata.pricer.index"/>

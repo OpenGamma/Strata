@@ -109,9 +109,9 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolator.of(
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final DoubleArray EXPIRY = DoubleArray.of(0.5, 1.0, 5.0, 0.5, 1.0, 5.0);
-  private static final DoubleArray TENOR = DoubleArray.of(2, 2, 2, 10, 10, 10);
-  private static final DoubleArray VOL = DoubleArray.of(0.35, 0.34, 0.25, 0.30, 0.25, 0.20);
+  private static final DoubleArray EXPIRY = DoubleArray.of(0.5, 0.5, 1.0, 1.0, 5.0, 5.0);
+  private static final DoubleArray TENOR = DoubleArray.of(2, 10, 2, 10, 2, 10);
+  private static final DoubleArray VOL = DoubleArray.of(0.35, 0.30, 0.34, 0.25, 0.25, 0.20);
   private static final FixedIborSwapConvention SWAP_CONVENTION = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
   private static final SurfaceMetadata METADATA =
       Surfaces.swaptionBlackExpiryTenor("Black Vol", ACT_ACT_ISDA, SWAP_CONVENTION);

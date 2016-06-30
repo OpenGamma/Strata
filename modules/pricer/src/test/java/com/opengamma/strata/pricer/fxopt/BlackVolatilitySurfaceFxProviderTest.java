@@ -44,9 +44,9 @@ public class BlackVolatilitySurfaceFxProviderTest {
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
 
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-  private static final DoubleArray TIMES = DoubleArray.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
-  private static final DoubleArray STRIKES = DoubleArray.of(0.7, 0.7, 0.7, 0.8, 0.8, 0.8, 0.9, 0.9, 0.9);
-  private static final DoubleArray VOLS = DoubleArray.of(0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
+  private static final DoubleArray TIMES = DoubleArray.of(0.25, 0.25, 0.25, 0.50, 0.50, 0.50, 1.00, 1.00, 1.00);
+  private static final DoubleArray STRIKES = DoubleArray.of(0.7, 0.8, 0.9, 0.7, 0.8, 0.9, 0.7, 0.8, 0.9);
+  private static final DoubleArray VOLS = DoubleArray.of(0.011, 0.012, 0.010, 0.012, 0.013, 0.011, 0.013, 0.014, 0.014);
   private static final InterpolatedNodalSurface SURFACE =
       InterpolatedNodalSurface.of(DefaultSurfaceMetadata.of("Test"), TIMES, STRIKES, VOLS, INTERPOLATOR_2D);
   private static final LocalDate VAL_DATE = date(2015, 2, 17);

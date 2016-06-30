@@ -40,8 +40,13 @@ public class InterpolatedNodalSurfaceTest {
       .dayCount(ACT_365F)
       .parameterMetadata(ParameterMetadata.listOfEmpty(SIZE))
       .build();
+  private static final SurfaceMetadata METADATA_ENTRIES2 = DefaultSurfaceMetadata.builder()
+      .surfaceName(SURFACE_NAME)
+      .dayCount(ACT_365F)
+      .parameterMetadata(ParameterMetadata.listOfEmpty(SIZE + 2))
+      .build();
   private static final DoubleArray XVALUES = DoubleArray.of(0d, 0d, 0d, 2d, 2d, 2d, 4d, 4d, 4d);
-  private static final DoubleArray XVALUES2 = DoubleArray.of(0d, 2d, 3d, 0d, 2d, 3d, 0d, 2d, 3d);
+  private static final DoubleArray XVALUES2 = DoubleArray.of(1d, 1d, 1d, 2d, 2d, 2d, 3d, 3d, 3d);
   private static final DoubleArray YVALUES = DoubleArray.of(0d, 3d, 4d, 0d, 3d, 4d, 0d, 3d, 4d);
   private static final DoubleArray YVALUES2 = DoubleArray.of(3d, 4d, 5d, 3d, 4d, 5d, 3d, 4d, 5d);
   private static final DoubleArray ZVALUES = DoubleArray.of(5d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
@@ -93,6 +98,12 @@ public class InterpolatedNodalSurfaceTest {
     // parameter metadata size != node size
     assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
         METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
+    // x not in order
+    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
+        METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(1d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+    // y not in order
+    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
+        METADATA, DoubleArray.of(1d, 1d), DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
@@ -131,6 +142,23 @@ public class InterpolatedNodalSurfaceTest {
       DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
       assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withMetadata() {
+    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
+    InterpolatedNodalSurface test = base.withMetadata(METADATA_ENTRIES);
+    assertThat(test.getName()).isEqualTo(SURFACE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
+    assertThat(test.getXValues()).isEqualTo(XVALUES);
+    assertThat(test.getYValues()).isEqualTo(YVALUES);
+    assertThat(test.getZValues()).isEqualTo(ZVALUES);
+  }
+
+  public void test_withMetadata_badSize() {
+    InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
+    assertThrowsIllegalArg(() -> base.withMetadata(METADATA_ENTRIES2));
   }
 
   //-------------------------------------------------------------------------

@@ -42,17 +42,19 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
       CurveInterpolators.LINEAR.getName(), CurveExtrapolators.FLAT.getName(), CurveExtrapolators.FLAT.getName());
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   private static final DoubleArray TIMES =
-      DoubleArray.of(0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00, 0.25, 0.50, 1.00);
+      DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 1, 1, 1, 1);
   private static final DoubleArray MONEYNESS_PRICES =
-      DoubleArray.of(-0.02, -0.02, -0.02, -0.01, -0.01, -0.01, 0.00, 0.00, 0.00, 0.01, 0.01, 0.01);
+      DoubleArray.of(-0.02, -0.01, 0, 0.01, -0.02, -0.01, 0, 0.01, -0.02, -0.01, 0, 0.01);
+  private static final DoubleArray NORMAL_VOL_PRICES =
+      DoubleArray.of(0.01, 0.011, 0.012, 0.010, 0.011, 0.012, 0.013, 0.012, 0.012, 0.013, 0.014, 0.014);
   private static final DoubleArray MONEYNESS_RATES =
-      DoubleArray.of(0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.00, 0.00, 0.00, -0.01, -0.01, -0.01);
-  private static final DoubleArray NORMAL_VOL =
-      DoubleArray.of(0.01, 0.011, 0.012, 0.011, 0.012, 0.013, 0.012, 0.013, 0.014, 0.010, 0.012, 0.014);
+      DoubleArray.of(-0.01, 0, 0.01, 0.02, -0.01, 0, 0.01, 0.02, -0.01, 0, 0.01, 0.02);
+  private static final DoubleArray NORMAL_VOL_RATES =
+      DoubleArray.of(0.010, 0.012, 0.011, 0.01, 0.012, 0.013, 0.012, 0.011, 0.014, 0.014, 0.013, 0.012);
   private static final InterpolatedNodalSurface PARAMETERS_PRICE = InterpolatedNodalSurface.of(
-      DefaultSurfaceMetadata.of("Price"), TIMES, MONEYNESS_PRICES, NORMAL_VOL, INTERPOLATOR_2D);
+      DefaultSurfaceMetadata.of("Price"), TIMES, MONEYNESS_PRICES, NORMAL_VOL_PRICES, INTERPOLATOR_2D);
   private static final InterpolatedNodalSurface PARAMETERS_RATE = InterpolatedNodalSurface.of(
-      DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, NORMAL_VOL, INTERPOLATOR_2D);
+      DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, NORMAL_VOL_RATES, INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE = date(2015, 2, 17);
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
@@ -119,8 +121,8 @@ public class NormalVolatilityExpSimpleMoneynessIborFutureProviderTest {
     UnitParameterSensitivity ps = VOL_SIMPLE_MONEY_RATE.nodeSensitivity(point);
     double shift = 1.0E-6;
     double v0 = VOL_SIMPLE_MONEY_RATE.volatility(expiry, fixing, strikePrice, futurePrice);
-    for (int i = 0; i < NORMAL_VOL.size(); i++) {
-      DoubleArray v = NORMAL_VOL.with(i, NORMAL_VOL.get(i) + shift);
+    for (int i = 0; i < NORMAL_VOL_RATES.size(); i++) {
+      DoubleArray v = NORMAL_VOL_RATES.with(i, NORMAL_VOL_RATES.get(i) + shift);
       InterpolatedNodalSurface param = InterpolatedNodalSurface.of(
           DefaultSurfaceMetadata.of("Rate"), TIMES, MONEYNESS_RATES, v, INTERPOLATOR_2D);
       NormalVolatilityExpSimpleMoneynessIborFutureProvider vol = NormalVolatilityExpSimpleMoneynessIborFutureProvider
