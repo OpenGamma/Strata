@@ -52,6 +52,13 @@ public final class ReportingCurrency
    * from {@link CalculationFunction#naturalCurrency(CalculationTarget, ReferenceData)}.
    */
   public static final ReportingCurrency NATURAL = new ReportingCurrency(ReportingCurrencyType.NATURAL, null);
+  /**
+   * An instance requesting no currency conversion.
+   * <p>
+   * Calculation results are normally converted to a single currency.
+   * If this reporting currency is used, then no currency conversion will be performed.
+   */
+  public static final ReportingCurrency NONE = new ReportingCurrency(ReportingCurrencyType.NONE, null);
 
   /**
    * The type of reporting currency.
@@ -82,6 +89,18 @@ public final class ReportingCurrency
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the type is 'Specific'.
+   * <p>
+   * When converting calculation results, conversion will occur to the specific currency
+   * returned by {@link #getCurrency()}.
+   * 
+   * @return true if the type is 'Specific'
+   */
+  public boolean isSpecific() {
+    return (type == ReportingCurrencyType.SPECIFIC);
+  }
+
+  /**
    * Checks if the type is 'Natural'.
    * <p>
    * When converting calculation results, conversion will occur to the "natural" currency of the target.
@@ -95,15 +114,15 @@ public final class ReportingCurrency
   }
 
   /**
-   * Checks if the type is 'Specific'.
+   * Checks if the type is 'None'.
    * <p>
-   * When converting calculation results, conversion will occur to the specific currency
-   * returned by {@link #getCurrency()}.
+   * Calculation results are normally converted to a single currency.
+   * If this returns true than no currency conversion will be performed.
    * 
-   * @return true if the type is 'Specific'
+   * @return true if the type is 'None'
    */
-  public boolean isSpecific() {
-    return (type == ReportingCurrencyType.SPECIFIC);
+  public boolean isNone() {
+    return (type == ReportingCurrencyType.NONE);
   }
 
   /**

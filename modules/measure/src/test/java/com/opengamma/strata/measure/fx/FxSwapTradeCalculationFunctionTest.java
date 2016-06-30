@@ -100,7 +100,6 @@ public class FxSwapTradeCalculationFunctionTest {
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
-        Measures.PRESENT_VALUE_MULTI_CCY,
         Measures.PAR_SPREAD,
         Measures.CURRENCY_EXPOSURE,
         Measures.CURRENT_CASH,
@@ -108,8 +107,6 @@ public class FxSwapTradeCalculationFunctionTest {
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
-        .containsEntry(
-            Measures.PRESENT_VALUE_MULTI_CCY, Result.success(MultiCurrencyValuesArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.PAR_SPREAD, Result.success(ValuesArray.of(ImmutableList.of(expectedParSpread))))
         .containsEntry(

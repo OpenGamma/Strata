@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.ReportingCurrency;
@@ -175,6 +176,20 @@ public class CalculationTaskTest {
     assertThat(result)
         .isFailure(FailureReason.CALCULATION_FAILED)
         .hasFailureMessageMatching("Error when invoking function 'ConvertibleFunction':.*: This is a failure");
+  }
+
+  /**
+   * Test the result is returned unchanged if using ReportingCurrency.NONE.
+   */
+  public void convertResultCurrencyNoConversionRequested() {
+    SupplierFunction<CurrencyAmount> fn = new SupplierFunction<CurrencyAmount>(() -> CurrencyAmount.of(EUR, 1d));
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, ReportingCurrency.NONE);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    ScenarioMarketData marketData = ImmutableScenarioMarketData.builder(date(2011, 3, 8)).build();
+
+    CalculationResults calculationResults = task.execute(marketData, REF_DATA);
+    Result<?> result = calculationResults.getCells().get(0).getResult();
+    assertThat(result).hasValue(ScenarioArray.of(CurrencyAmount.of(EUR, 1d)));
   }
 
   /**
@@ -352,6 +367,18 @@ public class CalculationTaskTest {
     assertThat(requirements.getNonObservables()).containsOnly(
         FxRateId.of(GBP, USD, OBS_SOURCE),
         FxRateId.of(EUR, USD, OBS_SOURCE));
+  }
+
+  /**
+   * Tests that no requirements are added when not performing currency conversion.
+   */
+  public void fxConversionRequirements_noConversion() {
+    OutputCurrenciesFunction fn = new OutputCurrenciesFunction();
+    CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, ReportingCurrency.NONE);
+    CalculationTask task = CalculationTask.of(TARGET, fn, cell);
+    MarketDataRequirements requirements = task.requirements(REF_DATA);
+
+    assertThat(requirements.getNonObservables()).isEmpty();
   }
 
   public void testToString() {

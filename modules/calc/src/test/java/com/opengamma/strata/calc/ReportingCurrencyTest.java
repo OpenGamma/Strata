@@ -24,17 +24,29 @@ public class ReportingCurrencyTest {
   public void test_NATURAL() {
     ReportingCurrency test = ReportingCurrency.NATURAL;
     assertEquals(test.getType(), ReportingCurrencyType.NATURAL);
-    assertEquals(test.isNatural(), true);
     assertEquals(test.isSpecific(), false);
+    assertEquals(test.isNatural(), true);
+    assertEquals(test.isNone(), false);
     assertEquals(test.toString(), "Natural");
+    assertThrows(() -> test.getCurrency(), IllegalStateException.class);
+  }
+
+  public void test_NONE() {
+    ReportingCurrency test = ReportingCurrency.NONE;
+    assertEquals(test.getType(), ReportingCurrencyType.NONE);
+    assertEquals(test.isSpecific(), false);
+    assertEquals(test.isNatural(), false);
+    assertEquals(test.isNone(), true);
+    assertEquals(test.toString(), "None");
     assertThrows(() -> test.getCurrency(), IllegalStateException.class);
   }
 
   public void test_of_specific() {
     ReportingCurrency test = ReportingCurrency.of(USD);
     assertEquals(test.getType(), ReportingCurrencyType.SPECIFIC);
-    assertEquals(test.isNatural(), false);
     assertEquals(test.isSpecific(), true);
+    assertEquals(test.isNatural(), false);
+    assertEquals(test.isNone(), false);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.toString(), "Specific:USD");
   }
@@ -42,6 +54,7 @@ public class ReportingCurrencyTest {
   public void test_type() {
     assertEquals(ReportingCurrencyType.of("Specific").toString(), "Specific");
     assertEquals(ReportingCurrencyType.of("Natural").toString(), "Natural");
+    assertEquals(ReportingCurrencyType.of("None").toString(), "None");
   }
 
   //-------------------------------------------------------------------------
