@@ -25,17 +25,17 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  * <p>
  * See {@link NaturalSplineInterpolator} for the detail on the underlying interpolator. 
  */
-final class ProductNaturalCubicSplineCurveInterpolator
+final class ProductNaturalSplineCurveInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
   * The interpolator name.
   */
-  public static final String NAME = "ProductNaturalCubicSpline";
+  public static final String NAME = "ProductNaturalSpline";
   /**
   * The interpolator instance.
   */
-  public static final CurveInterpolator INSTANCE = new ProductNaturalCubicSplineCurveInterpolator();
+  public static final CurveInterpolator INSTANCE = new ProductNaturalSplineCurveInterpolator();
 
   /**
   * The serialization version id.
@@ -53,7 +53,7 @@ final class ProductNaturalCubicSplineCurveInterpolator
   /**
   * Restricted constructor.
   */
-  private ProductNaturalCubicSplineCurveInterpolator() {
+  private ProductNaturalSplineCurveInterpolator() {
   }
 
   // resolve instance

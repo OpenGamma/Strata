@@ -21,12 +21,12 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDiffe
 import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferentiator;
 
 /**
- * Test {@link ProductNaturalCubicSplineCurveInterpolator}.
+ * Test {@link ProductNaturalSplineCurveInterpolator}.
  */
 @Test
-public class ProductNaturalCubicSplineCurveInterpolatorTest {
+public class ProductNaturalSplineCurveInterpolatorTest {
 
-  private static final CurveInterpolator INTERP = ProductNaturalCubicSplineCurveInterpolator.INSTANCE;
+  private static final CurveInterpolator INTERP = ProductNaturalSplineCurveInterpolator.INSTANCE;
   private static final CurveInterpolator BASE_INTERP = NaturalSplineCurveInterpolator.INSTANCE;
   private static final double TOL = 1.0e-12;
   private static final double EPS = 1.0e-6;
@@ -136,8 +136,8 @@ public class ProductNaturalCubicSplineCurveInterpolatorTest {
   }
 
   public void getterTest() {
-    assertEquals(INTERP.getName(), ProductNaturalCubicSplineCurveInterpolator.NAME);
-    assertEquals(INTERP.toString(), ProductNaturalCubicSplineCurveInterpolator.NAME);
+    assertEquals(INTERP.getName(), ProductNaturalSplineCurveInterpolator.NAME);
+    assertEquals(INTERP.toString(), ProductNaturalSplineCurveInterpolator.NAME);
   }
 
   public void test_serialization() {

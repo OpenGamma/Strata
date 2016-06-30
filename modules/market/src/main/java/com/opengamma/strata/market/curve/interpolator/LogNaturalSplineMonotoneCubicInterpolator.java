@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalSplineHelper;
 import com.opengamma.strata.math.impl.interpolation.MonotonicityPreservingCubicSplineInterpolator;
+import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
@@ -22,17 +23,17 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  * Finds an interpolant {@code F(x) = exp( f(x) )} where {@code f(x)} is a Natural cubic
  * spline with Monotonicity cubic filter. 
  */
-final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
+final class LogNaturalSplineMonotoneCubicInterpolator
     implements CurveInterpolator, Serializable {
 
   /**
    * The interpolator name.
    */
-  public static final String NAME = "LogNaturalCubicMonotonicityPreserving";
+  public static final String NAME = "LogNaturalSplineMonotoneCubic";
   /**
    * The interpolator instance.
    */
-  public static final CurveInterpolator INSTANCE = new LogNaturalCubicMonotonicityPreservingCurveInterpolator();
+  public static final CurveInterpolator INSTANCE = new LogNaturalSplineMonotoneCubicInterpolator();
 
   /**
    * The serialization version id.
@@ -46,7 +47,7 @@ final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
   /**
    * Restricted constructor.
    */
-  private LogNaturalCubicMonotonicityPreservingCurveInterpolator() {
+  private LogNaturalSplineMonotoneCubicInterpolator() {
   }
 
   // resolve instance
@@ -90,8 +91,9 @@ final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
       this.xValues = xValues.toArrayUnsafe();
       this.yValues = yValues.toArrayUnsafe();
       this.logYValues = getYLogValues(this.yValues);
-      this.poly = new MonotonicityPreservingCubicSplineInterpolator(new LogNaturalSplineHelper())
-          .interpolateWithSensitivity(xValues.toArray(), logYValues);
+      PiecewisePolynomialInterpolator underlying =
+          new MonotonicityPreservingCubicSplineInterpolator(new LogNaturalSplineHelper());
+      this.poly = underlying.interpolateWithSensitivity(xValues.toArray(), logYValues);
       this.knots = poly.getKnots();
       this.coefMatrix = poly.getCoefMatrix();
       this.nKnots = knots.size();
@@ -118,7 +120,7 @@ final class LogNaturalCubicMonotonicityPreservingCurveInterpolator
         int dimensions,
         int nKnots) {
 
-      // check for 1 less interval that knots 
+      // check for 1 less interval than knots 
       int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
       int indicator = lowerBound == nKnots - 1 ? lowerBound - 1 : lowerBound;
 
