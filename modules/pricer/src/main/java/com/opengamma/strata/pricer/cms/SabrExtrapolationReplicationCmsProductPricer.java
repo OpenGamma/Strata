@@ -203,9 +203,7 @@ public class SabrExtrapolationReplicationCmsProductPricer {
     List<ExplainMap> legsExplain = new ArrayList<>();
     legsExplain.add(cmsLegPricer.explainPresentValue(cms.getCmsLeg(), ratesProvider, swaptionVolatilities));
     if (cms.getPayLeg().isPresent()) {
-      ExplainMapBuilder builderOtherLeg = ExplainMap.builder();
-      payLegPricer.explainPresentValueInternal(cms.getPayLeg().get(), ratesProvider, builderOtherLeg);
-      legsExplain.add(builderOtherLeg.build());
+      legsExplain.add(payLegPricer.explainPresentValue(cms.getPayLeg().get(), ratesProvider));
     }
     builder.put(ExplainKey.LEGS, legsExplain);
     return builder.build();

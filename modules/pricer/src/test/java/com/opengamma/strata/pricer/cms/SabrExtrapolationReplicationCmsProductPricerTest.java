@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMap;
-import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -191,9 +190,7 @@ public class SabrExtrapolationReplicationCmsProductPricerTest {
     assertEquals(explain2.get(ExplainKey.ENTRY_TYPE).get(), "CmsSwap");
     assertEquals(explain2.get(ExplainKey.LEGS).get().size(), 2);
     ExplainMap explainCms = CMS_LEG_PRICER.explainPresentValue(CMS_LEG, RATES_PROVIDER, VOLATILITIES);
-    ExplainMapBuilder builder = ExplainMap.builder();
-    SWAP_LEG_PRICER.explainPresentValueInternal(CMS_TWO_LEGS.getPayLeg().get(), RATES_PROVIDER, builder);
-    ExplainMap explainOther = builder.build();
+    ExplainMap explainOther = SWAP_LEG_PRICER.explainPresentValue(CMS_TWO_LEGS.getPayLeg().get(), RATES_PROVIDER);
     assertEquals(explain2.get(ExplainKey.LEGS).get().get(0), explainCms);
     assertEquals(explain2.get(ExplainKey.LEGS).get().get(1), explainOther);
   }
