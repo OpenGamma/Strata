@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -31,7 +31,7 @@ public class CmsTradeTest {
   private static final LocalDate TRADE_DATE = LocalDate.of(2015, 9, 21);
   private static final LocalDate SETTLE_DATE = LocalDate.of(2015, 9, 23);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(TRADE_DATE).settlementDate(SETTLE_DATE).build();
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), SETTLE_DATE);
+  private static final AdjustablePayment PREMIUM = AdjustablePayment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), SETTLE_DATE);
 
   private static final Cms PRODUCT_CAP = Cms.of(CmsTest.sutCap().getCmsLeg());
   private static final Cms PRODUCT_CAP2 = CmsTest.sutCap();
@@ -59,7 +59,7 @@ public class CmsTradeTest {
     ResolvedCmsTrade expected = ResolvedCmsTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT_CAP.resolve(REF_DATA))
-        .premium(PREMIUM)
+        .premium(PREMIUM.resolve(REF_DATA))
         .build();
     assertEquals(sut().resolve(REF_DATA), expected);
   }

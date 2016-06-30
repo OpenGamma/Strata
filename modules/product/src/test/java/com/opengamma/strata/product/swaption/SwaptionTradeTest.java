@@ -16,9 +16,9 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -30,7 +30,8 @@ public class SwaptionTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Swaption SWAPTION = SwaptionTest.sut();
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 3, 14));
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
+  private static final AdjustablePayment PREMIUM =
+      AdjustablePayment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -50,7 +51,7 @@ public class SwaptionTradeTest {
   //-------------------------------------------------------------------------
   public void test_resolve() {
     SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
-    assertEquals(test.resolve(REF_DATA).getPremium(), PREMIUM);
+    assertEquals(test.resolve(REF_DATA).getPremium(), PREMIUM.resolve(REF_DATA));
     assertEquals(test.resolve(REF_DATA).getProduct(), SWAPTION.resolve(REF_DATA));
     assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
   }
@@ -76,7 +77,7 @@ public class SwaptionTradeTest {
 
   static SwaptionTrade sut2() {
     return SwaptionTrade.builder()
-        .premium(Payment.of(CurrencyAmount.of(Currency.USD, -3050000d), LocalDate.of(2014, 3, 17)))
+        .premium(AdjustablePayment.of(CurrencyAmount.of(Currency.USD, -3050000d), LocalDate.of(2014, 3, 17)))
         .product(SwaptionTest.sut2())
         .build();
   }

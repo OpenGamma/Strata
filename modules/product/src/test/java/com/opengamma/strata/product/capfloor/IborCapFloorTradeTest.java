@@ -20,8 +20,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -63,7 +63,8 @@ public class IborCapFloorTradeTest {
       .payReceive(RECEIVE)
       .build();
   private static final IborCapFloor PRODUCT = IborCapFloor.of(CAPFLOOR_LEG);
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL_VALUE), LocalDate.of(2011, 3, 18));
+  private static final AdjustablePayment PREMIUM =
+      AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL_VALUE), LocalDate.of(2011, 3, 18));
   private static final TradeInfo TRADE_INFO = TradeInfo.builder()
       .tradeDate(LocalDate.of(2011, 3, 15))
       .build();
@@ -98,7 +99,7 @@ public class IborCapFloorTradeTest {
     ResolvedIborCapFloorTrade expected = ResolvedIborCapFloorTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
-        .premium(PREMIUM)
+        .premium(PREMIUM.resolve(REF_DATA))
         .build();
     assertEquals(test.resolve(REF_DATA), expected);
   }

@@ -15,8 +15,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.product.TradeInfo;
 
 /**
@@ -30,7 +30,8 @@ public class FxVanillaOptionTradeTest {
   private static final FxVanillaOption PRODUCT = FxVanillaOptionTest.sut();
   private static final FxVanillaOption PRODUCT2 = FxVanillaOptionTest.sut2();
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 11, 12));
-  private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
+  private static final AdjustablePayment PREMIUM =
+      AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------
   public void test_builder() {
@@ -46,7 +47,7 @@ public class FxVanillaOptionTradeTest {
     ResolvedFxVanillaOptionTrade expected = ResolvedFxVanillaOptionTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
-        .premium(PREMIUM)
+        .premium(PREMIUM.resolve(REF_DATA))
         .build();
     assertEquals(test.resolve(REF_DATA), expected);
   }
@@ -71,7 +72,7 @@ public class FxVanillaOptionTradeTest {
   }
 
   static FxVanillaOptionTrade sut2() {
-    Payment premium = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13));
+    AdjustablePayment premium = AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.01), date(2014, 11, 13));
     return FxVanillaOptionTrade.builder()
         .product(PRODUCT2)
         .premium(premium)

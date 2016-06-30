@@ -10,8 +10,8 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
@@ -85,7 +85,7 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     XmlElement expirationTimeEl = europeanExerciseEl.getChild("expirationTime");
 
     // Parse the premium, expiry date, expiry time and expiry zone, longShort and swaption settlement.
-    Payment premium = parsePremium(swaptionEl, document, tradeInfoBuilder);
+    AdjustablePayment premium = parsePremium(swaptionEl, document, tradeInfoBuilder);
     AdjustableDate expiryDate = parseExpiryDate(europeanExerciseEl, document);
     LocalTime expiryTime = parseExpiryTime(expirationTimeEl, document);
     ZoneId expiryZone = parseExpiryZone(expirationTimeEl, document);
@@ -131,7 +131,7 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     return optionalZoneId.get();
   }
 
-  private Payment parsePremium(XmlElement swaptionEl, FpmlDocument document, TradeInfoBuilder tradeInfoBuilder) {
+  private AdjustablePayment parsePremium(XmlElement swaptionEl, FpmlDocument document, TradeInfoBuilder tradeInfoBuilder) {
     XmlElement premiumEl = swaptionEl.getChild("premium");
     PayReceive payReceive = document.parsePayerReceiver(premiumEl, tradeInfoBuilder);
     XmlElement paymentAmountEl = premiumEl.getChild("paymentAmount");
@@ -139,7 +139,7 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     ccyAmount = payReceive.isPay() ? ccyAmount.negated() : ccyAmount;
     AdjustableDate paymentDate = premiumEl.findChild("paymentDate")
         .map(el -> document.parseAdjustableDate(el)).get();
-    return Payment.of(ccyAmount, paymentDate.getUnadjusted());
+    return AdjustablePayment.of(ccyAmount, paymentDate);
   }
 
   private LongShort parseLongShort(XmlElement swaptionEl, FpmlDocument document, TradeInfoBuilder tradeInfoBuilder) {
