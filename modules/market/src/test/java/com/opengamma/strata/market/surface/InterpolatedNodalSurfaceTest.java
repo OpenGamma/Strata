@@ -6,24 +6,22 @@
 package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
+import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
-
-import java.util.Map;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.math.impl.interpolation.GridInterpolator2D;
-import com.opengamma.strata.math.impl.interpolation.LinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.LogLinearInterpolator1D;
-import com.opengamma.strata.math.impl.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.strata.market.surface.interpolator.BoundSurfaceInterpolator;
+import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 
 /**
  * Test {@link InterpolatedNodalSurface}.
@@ -51,19 +49,7 @@ public class InterpolatedNodalSurfaceTest {
   private static final DoubleArray YVALUES2 = DoubleArray.of(3d, 4d, 5d, 3d, 4d, 5d, 3d, 4d, 5d);
   private static final DoubleArray ZVALUES = DoubleArray.of(5d, 7d, 8d, 6d, 7d, 8d, 8d, 7d, 8d);
   private static final DoubleArray ZVALUES_BUMPED = DoubleArray.of(3d, 5d, 6d, 4d, 5d, 6d, 6d, 5d, 6d);
-  private static final Map<DoublesPair, Double> DATA = ImmutableMap.<DoublesPair, Double>builder()
-      .put(DoublesPair.of(0d, 0d), 5d)
-      .put(DoublesPair.of(0d, 3d), 7d)
-      .put(DoublesPair.of(0d, 4d), 8d)
-      .put(DoublesPair.of(2d, 0d), 6d)
-      .put(DoublesPair.of(2d, 3d), 7d)
-      .put(DoublesPair.of(2d, 4d), 8d)
-      .put(DoublesPair.of(4d, 0d), 6d)
-      .put(DoublesPair.of(4d, 3d), 5d)
-      .put(DoublesPair.of(4d, 4d), 6d)
-      .build();
-  private static final GridInterpolator2D INTERPOLATOR =
-      new GridInterpolator2D(new LinearInterpolator1D(), new LinearInterpolator1D());
+  private static final GridSurfaceInterpolator INTERPOLATOR = GridSurfaceInterpolator.of(LINEAR, LINEAR);
 
   //-------------------------------------------------------------------------
   public void test_of_SurfaceMetadata() {
@@ -115,33 +101,11 @@ public class InterpolatedNodalSurfaceTest {
     assertThat(test.zValue(0d, 1.5d)).isEqualTo(6d);
     assertThat(test.zValue(1d, 3d)).isEqualTo(7d);
 
-    Map<Double, Interpolator1DDataBundle> bundle = INTERPOLATOR.getDataBundle(DATA);
-    assertThat(test.zValue(1.5d, 3.7d)).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
+    BoundSurfaceInterpolator bound = INTERPOLATOR.bind(XVALUES, YVALUES, ZVALUES);
+    assertThat(test.zValue(1.5d, 3.7d)).isEqualTo(bound.interpolate(1.5d, 3.7d));
     DoubleArray sensiValues = test.zValueParameterSensitivity(1.5d, 1.5d).getSensitivity();
-    Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
-    for (int i = 0; i < XVALUES.size(); ++i) {
-      DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
-      assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
-    }
-  }
-
-  public void test_lookup_byPair() {
-    InterpolatedNodalSurface test = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    assertThat(test.zValue(DoublesPair.of(XVALUES.get(0), YVALUES.get(0)))).isEqualTo(ZVALUES.get(0));
-    assertThat(test.zValue(DoublesPair.of(XVALUES.get(1), YVALUES.get(1)))).isEqualTo(ZVALUES.get(1));
-    assertThat(test.zValue(DoublesPair.of(XVALUES.get(2), YVALUES.get(2)))).isEqualTo(ZVALUES.get(2));
-    assertThat(test.zValue(DoublesPair.of(0d, 1.5d))).isEqualTo(6d);
-    assertThat(test.zValue(DoublesPair.of(1d, 3d))).isEqualTo(7d);
-
-    Map<Double, Interpolator1DDataBundle> bundle = INTERPOLATOR.getDataBundle(DATA);
-    assertThat(test.zValue(DoublesPair.of(1.5d, 3.7d))).isEqualTo(INTERPOLATOR.interpolate(bundle, DoublesPair.of(1.5d, 3.7d)));
-
-    DoubleArray sensiValues = test.zValueParameterSensitivity(DoublesPair.of(1.5d, 1.5d)).getSensitivity();
-    Map<DoublesPair, Double> sensiValuesMap = INTERPOLATOR.getNodeSensitivitiesForValue(bundle, DoublesPair.of(1.5d, 1.5d));
-    for (int i = 0; i < XVALUES.size(); ++i) {
-      DoublesPair pair = DoublesPair.of(XVALUES.get(i), YVALUES.get(i));
-      assertEquals(sensiValues.get(i), sensiValuesMap.get(pair));
-    }
+    DoubleArray sensiValuesInterp = bound.parameterSensitivity(1.5d, 1.5d);
+    assertTrue(sensiValues.equalWithTolerance(sensiValuesInterp, 1e-8));
   }
 
   //-------------------------------------------------------------------------
@@ -188,9 +152,14 @@ public class InterpolatedNodalSurfaceTest {
         .xValues(XVALUES2)
         .yValues(YVALUES2)
         .zValues(ZVALUES_BUMPED)
-        .interpolator(new GridInterpolator2D(new LogLinearInterpolator1D(), new LogLinearInterpolator1D()))
+        .interpolator(GridSurfaceInterpolator.of(DOUBLE_QUADRATIC, FLAT, FLAT, LINEAR, FLAT, FLAT))
         .build();
     coverBeanEquals(test, test2);
+  }
+
+  public void test_serialization() {
+    InterpolatedNodalSurface test = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
+    assertSerialization(test);
   }
 
 }
