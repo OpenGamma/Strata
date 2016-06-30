@@ -5,9 +5,15 @@
  */
 package com.opengamma.strata.pricer.cms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
+import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
@@ -176,6 +182,31 @@ public class SabrExtrapolationReplicationCmsProductPricer {
     }
     CurrencyAmount ccPayLeg = payLegPricer.currentCash(cms.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCmsLeg);
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Explains the present value of the swap product.
+   * <p>
+   * This returns explanatory information about the calculation.
+   * 
+   * @param cms  the CMS product
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the swaption volatilities
+   */
+  public ExplainMap explainPresentValue(
+      ResolvedCms cms,
+      RatesProvider ratesProvider,
+      SabrParametersSwaptionVolatilities swaptionVolatilities) {
+    ExplainMapBuilder builder = ExplainMap.builder();
+    builder.put(ExplainKey.ENTRY_TYPE, "CmsSwap");
+    List<ExplainMap> legsExplain = new ArrayList<>();
+    legsExplain.add(cmsLegPricer.explainPresentValue(cms.getCmsLeg(), ratesProvider, swaptionVolatilities));
+    if (cms.getPayLeg().isPresent()) {
+      legsExplain.add(payLegPricer.explainPresentValue(cms.getPayLeg().get(), ratesProvider));
+    }
+    builder.put(ExplainKey.LEGS, legsExplain);
+    return builder.build();
   }
 
 }

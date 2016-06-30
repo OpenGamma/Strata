@@ -19,6 +19,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.explain.ExplainKey;
+import com.opengamma.strata.market.explain.ExplainMap;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -593,7 +594,13 @@ public class DiscountingSwapLegPricer {
   }
 
   //-------------------------------------------------------------------------
-  // explains the present value of the leg
+  /**
+   * Explain present value builder used to build large explain map from the individual legs.
+   * 
+   * @param leg  the swap log 
+   * @param provider  the rates provider
+   * @param builder  the explain map builder which will be populated but the leg 
+   */
   void explainPresentValueInternal(ResolvedSwapLeg leg, RatesProvider provider, ExplainMapBuilder builder) {
     builder.put(ExplainKey.ENTRY_TYPE, "Leg");
     builder.put(ExplainKey.PAY_RECEIVE, leg.getPayReceive());
@@ -608,6 +615,19 @@ public class DiscountingSwapLegPricer {
     }
     builder.put(ExplainKey.FORECAST_VALUE, forecastValue(leg, provider));
     builder.put(ExplainKey.PRESENT_VALUE, presentValue(leg, provider));
+  }
+  
+  /**
+   * Explain present value for a swap leg.
+   * 
+   * @param leg  the swap log 
+   * @param provider  the rates provider
+   * @return the explain PV map
+   */
+  public ExplainMap explainPresentValue(ResolvedSwapLeg leg, RatesProvider provider) {
+    ExplainMapBuilder builder = ExplainMap.builder();
+    explainPresentValueInternal(leg, provider, builder);
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
